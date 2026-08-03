@@ -1043,6 +1043,115 @@ loadTasks().catch(error => {
   showLoadError(error);
   scheduleTaskPoll(10000);
 });
+
+const guideSteps = [
+  {selector: '.hero', title: '欢迎使用 GameNarrator', text: '这套引导会带你走完“配置 → 上传 → 检查 → 剪辑 → 导出”的主要流程。AI 是可选增强，不配置模型也能使用手动剪辑。'},
+  {selector: '.ai-settings-panel', title: '第 1 步：按需配置 AI', text: '使用云端时填写 API Key 并测试连接；也可以选择本地模型。暂时不需要 AI，可以直接跳到创建任务。'},
+  {selector: '.create-panel', title: '第 2 步：创建剪辑任务', text: '填写任务名称和要求，选择视频。自动剪辑、画面理解、AI 文案、AI 语音和自动素材都可以分别关闭。'},
+  {selector: '.task-panel', title: '第 3 步：观察处理进度', text: '任务会在这里显示每个阶段的准确进度。点击任务可进入详情；等待检查时，再进入线性分镜工作台。'},
+  {selector: '.segment-search-panel', title: '第 4 步：查找本地镜头', text: '分析完成后，可用中文描述或上传截图，在自己的视频中寻找相似镜头并生成片段。'},
+  {selector: '.media-importer', title: '第 5 步：导入已授权平台素材', text: '粘贴链接前先确认你拥有下载和再创作权。需要账号内容时按页面提示连接浏览器，不登录也不影响开放素材。'},
+  {selector: '.asset-library', title: '第 6 步：管理统一素材库', text: '可以上传本地素材或搜索开放来源。平台候选素材会明确标注权利状态，不会自动当作开放许可。'},
+  {selector: '#diagnostics-open', title: '遇到问题时', text: '点击“诊断日志”查看具体错误并导出脱敏诊断包。现在可以开始创建第一个剪辑任务了。'}
+];
+let guideIndex = 0;
+let guideTarget = null;
+let guideRoot = null;
+
+function guideStorage(action, value) {
+  try {
+    if (action === 'get') return localStorage.getItem('game-narrator-guide-v2');
+    localStorage.setItem('game-narrator-guide-v2', value);
+  } catch (_) { return null; }
+}
+
+function ensureGuideRoot() {
+  if (guideRoot) return guideRoot;
+  guideRoot = document.createElement('div');
+  guideRoot.className = 'guided-tour';
+  guideRoot.hidden = true;
+  guideRoot.innerHTML = `<div class="guided-tour-shade" aria-hidden="true"></div>
+    <aside class="guided-tour-card" role="dialog" aria-modal="false" aria-labelledby="guided-tour-title" aria-describedby="guided-tour-text">
+      <header><span data-guide-count></span><button type="button" data-guide-close aria-label="关闭使用引导">×</button></header>
+      <h2 id="guided-tour-title"></h2><p id="guided-tour-text"></p>
+      <div class="guided-tour-dots" aria-hidden="true"></div>
+      <footer><button type="button" data-guide-previous>上一步</button><button type="button" data-guide-skip>稍后再看</button><button type="button" data-guide-next>下一步</button></footer>
+    </aside>`;
+  document.body.appendChild(guideRoot);
+  guideRoot.querySelector('[data-guide-close]').addEventListener('click', () => closeGuide(false));
+  guideRoot.querySelector('[data-guide-skip]').addEventListener('click', () => closeGuide(false));
+  guideRoot.querySelector('[data-guide-previous]').addEventListener('click', () => showGuideStep(guideIndex - 1));
+  guideRoot.querySelector('[data-guide-next]').addEventListener('click', () => {
+    if (guideIndex === guideSteps.length - 1) closeGuide(true);
+    else showGuideStep(guideIndex + 1);
+  });
+  return guideRoot;
+}
+
+function positionGuideCard() {
+  if (!guideRoot || guideRoot.hidden || !guideTarget) return;
+  const card = guideRoot.querySelector('.guided-tour-card');
+  const rect = guideTarget.getBoundingClientRect();
+  const margin = 18;
+  const cardWidth = Math.min(380, window.innerWidth - 24);
+  card.style.width = `${cardWidth}px`;
+  const cardHeight = card.offsetHeight;
+  let left = rect.right + margin;
+  let top = rect.top;
+  if (left + cardWidth > window.innerWidth - 12) left = rect.left - cardWidth - margin;
+  if (left < 12) {
+    left = Math.min(Math.max(12, rect.left), window.innerWidth - cardWidth - 12);
+    top = rect.bottom + margin;
+    if (top + cardHeight > window.innerHeight - 12) top = rect.top - cardHeight - margin;
+  }
+  card.style.left = `${Math.max(12, Math.min(left, window.innerWidth - cardWidth - 12))}px`;
+  card.style.top = `${Math.max(12, Math.min(top, window.innerHeight - cardHeight - 12))}px`;
+}
+
+function showGuideStep(index) {
+  const root = ensureGuideRoot();
+  guideIndex = Math.max(0, Math.min(index, guideSteps.length - 1));
+  const step = guideSteps[guideIndex];
+  guideTarget?.classList.remove('guided-tour-target');
+  guideTarget = document.querySelector(step.selector);
+  if (!guideTarget) {
+    if (guideIndex < guideSteps.length - 1) return showGuideStep(guideIndex + 1);
+    return closeGuide(true);
+  }
+  root.hidden = false;
+  root.querySelector('[data-guide-count]').textContent = `${guideIndex + 1} / ${guideSteps.length}`;
+  root.querySelector('#guided-tour-title').textContent = step.title;
+  root.querySelector('#guided-tour-text').textContent = step.text;
+  root.querySelector('[data-guide-previous]').disabled = guideIndex === 0;
+  root.querySelector('[data-guide-next]').textContent = guideIndex === guideSteps.length - 1 ? '完成引导' : '下一步';
+  root.querySelector('.guided-tour-dots').innerHTML = guideSteps.map((_, position) => `<i class="${position === guideIndex ? 'active' : ''}"></i>`).join('');
+  guideTarget.classList.add('guided-tour-target');
+  guideTarget.scrollIntoView({behavior: 'smooth', block: 'center'});
+  requestAnimationFrame(() => {
+    positionGuideCard();
+    root.querySelector('[data-guide-next]').focus({preventScroll: true});
+  });
+}
+
+function openGuide() {
+  showGuideStep(0);
+}
+
+function closeGuide(completed) {
+  guideTarget?.classList.remove('guided-tour-target');
+  guideTarget = null;
+  if (guideRoot) guideRoot.hidden = true;
+  guideStorage('set', completed ? 'completed' : 'dismissed');
+  document.querySelector('#guide-open')?.focus({preventScroll: true});
+}
+
+document.querySelector('#guide-open')?.addEventListener('click', openGuide);
+window.addEventListener('resize', positionGuideCard);
+window.addEventListener('scroll', positionGuideCard, {passive: true});
+document.addEventListener('keydown', event => {
+  if (event.key === 'Escape' && guideRoot && !guideRoot.hidden) closeGuide(false);
+});
+if (!guideStorage('get')) setTimeout(openGuide, 700);
 document.addEventListener('visibilitychange', () => {
   if (!document.hidden) scheduleTaskPoll(0);
 });
