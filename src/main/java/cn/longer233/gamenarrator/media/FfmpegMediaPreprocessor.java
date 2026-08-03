@@ -95,14 +95,14 @@ public class FfmpegMediaPreprocessor {
         log.info("SCENE_DETECTION_BEGIN source={} threshold={} output={}",
                 sourceVideo, sceneThreshold, sceneDirectory);
         clearSceneImages(sceneDirectory);
-        String outputPattern = sceneDirectory.resolve("scene-%04d.png").toString();
+        String outputPattern = sceneDirectory.resolve("scene-%04d.jpg").toString();
         String output = run(List.of(
                 ffmpegCommand, "-nostdin", "-y", "-hide_banner", "-threads", "0",
                 "-i", sourceVideo.toString(),
                 "-an", "-sn", "-dn",
                 "-vf", "fps=" + sceneAnalysisFps + ",scale=480:-2:flags=fast_bilinear,select=gt(scene\\," + sceneThreshold + "),showinfo",
                 "-fps_mode", "vfr", "-frames:v", String.valueOf(maximumSceneFrames),
-                "-c:v", "png", "-compression_level", "1", "-threads:v", "1",
+                "-c:v", "mjpeg", "-q:v", "5", "-threads:v", "1",
                 outputPattern
         ), sceneTimeout, "场景检测");
 
@@ -111,14 +111,14 @@ public class FfmpegMediaPreprocessor {
                 .toList();
         try (var paths = Files.list(sceneDirectory)) {
             List<Path> images = paths
-                    .filter(path -> path.getFileName().toString().endsWith(".png"))
+                    .filter(path -> path.getFileName().toString().endsWith(".jpg"))
                     .sorted(Comparator.comparing(Path::toString))
                     .toList();
             if (images.isEmpty()) {
-                Path first = sceneDirectory.resolve("scene-0001.png");
+                Path first = sceneDirectory.resolve("scene-0001.jpg");
                 run(List.of(ffmpegCommand, "-nostdin", "-y", "-hide_banner", "-loglevel", "warning",
                         "-ss", "0", "-i", sourceVideo.toString(), "-an", "-frames:v", "1",
-                        "-vf", "scale=480:-2:flags=fast_bilinear", "-c:v", "png", "-threads:v", "1",
+                        "-vf", "scale=480:-2:flags=fast_bilinear", "-c:v", "mjpeg", "-q:v", "5", "-threads:v", "1",
                         "-update", "1",
                         first.toString()), Duration.ofMinutes(2), "首帧提取");
                 images = List.of(first);

@@ -1,6 +1,6 @@
 # GameNarrator — DeepSeek 项目上下文包
 
-> 自动生成时间：2026-08-03 17:14:46 +08:00
+> 自动生成时间：2026-08-03 17:30:48 +08:00
 > 文件数量：234。本文件由 scripts/export-deepseek-context.ps1 生成，请勿手工维护生成区。
 
 ## 给 DeepSeek 的强制工作规则
@@ -80,7 +80,7 @@
 - `src/main/java/cn/longer233/gamenarrator/diagnostics/SystemDiagnosticsService.java`（5350 bytes）
 - `src/main/java/cn/longer233/gamenarrator/editor/EditorCommandRequest.java`（294 bytes）
 - `src/main/java/cn/longer233/gamenarrator/editor/EditorTimelineController.java`（931 bytes）
-- `src/main/java/cn/longer233/gamenarrator/editor/EditorTimelineService.java`（15398 bytes）
+- `src/main/java/cn/longer233/gamenarrator/editor/EditorTimelineService.java`（15876 bytes）
 - `src/main/java/cn/longer233/gamenarrator/effect/EffectController.java`（579 bytes）
 - `src/main/java/cn/longer233/gamenarrator/effect/EffectPlan.java`（196 bytes）
 - `src/main/java/cn/longer233/gamenarrator/effect/EffectPreset.java`（438 bytes）
@@ -116,7 +116,7 @@
 - `src/main/java/cn/longer233/gamenarrator/importer/RemoteThumbnailService.java`（6298 bytes）
 - `src/main/java/cn/longer233/gamenarrator/importer/ResolvedMedia.java`（934 bytes）
 - `src/main/java/cn/longer233/gamenarrator/importer/YtDlpMediaImporter.java`（28922 bytes）
-- `src/main/java/cn/longer233/gamenarrator/media/FfmpegMediaPreprocessor.java`（8550 bytes）
+- `src/main/java/cn/longer233/gamenarrator/media/FfmpegMediaPreprocessor.java`（8553 bytes）
 - `src/main/java/cn/longer233/gamenarrator/media/FfmpegMediaProbe.java`（3405 bytes）
 - `src/main/java/cn/longer233/gamenarrator/media/MediaMetadata.java`（233 bytes）
 - `src/main/java/cn/longer233/gamenarrator/media/MediaPreparationResult.java`（211 bytes）
@@ -195,7 +195,7 @@
 - `src/main/java/cn/longer233/gamenarrator/voice/VoiceOption.java`（137 bytes）
 - `src/main/java/cn/longer233/gamenarrator/voice/VoiceRegenerationRequest.java`（419 bytes）
 - `src/main/java/cn/longer233/gamenarrator/voice/VoiceSegment.java`（296 bytes）
-- `src/main/resources/application.yml`（12351 bytes）
+- `src/main/resources/application.yml`（12532 bytes）
 - `src/main/resources/application-release.yml`（1055 bytes）
 - `src/main/resources/db/migration/V1__database_v2_foundation.sql`（17535 bytes）
 - `src/main/resources/db/migration/V10__allow_storyboard_review_task_status.sql`（528 bytes）
@@ -6539,21 +6539,30 @@ public class EditorTimelineService {
         Path audio = Path.of(task.getExtractedAudioPath()).toAbsolutePath().normalize();
         if (!Files.isRegularFile(audio)) return Map.of("points", List.of(), "available", false);
         try (var input = AudioSystem.getAudioInputStream(audio.toFile())) {
-            byte[] bytes = input.readAllBytes();
             int frameSize = Math.max(1, input.getFormat().getFrameSize());
-            int frames = bytes.length / frameSize;
-            int bucket = Math.max(1, frames / target);
-            List<Double> peaks = new ArrayList<>();
-            for (int start = 0; start < frames; start += bucket) {
-                int end = Math.min(frames, start + bucket); double peak = 0;
-                for (int frame = start; frame < end; frame++) {
-                    int offset = frame * frameSize;
-                    if (offset + 1 >= bytes.length) break;
-                    int sample = (short) ((bytes[offset] & 0xff) | (bytes[offset + 1] << 8));
+            long expectedFrames = input.getFrameLength();
+            if (expectedFrames <= 0) expectedFrames = Math.max(1, Files.size(audio) / frameSize);
+            long bucket = Math.max(1, (expectedFrames + target - 1) / target);
+            byte[] buffer = new byte[Math.max(frameSize, (64 * 1024 / frameSize) * frameSize)];
+            List<Double> peaks = new ArrayList<>(target);
+            long frames = 0, bucketFrames = 0;
+            double peak = 0;
+            int read;
+            while ((read = input.read(buffer)) >= 0) {
+                for (int offset = 0; offset + frameSize <= read; offset += frameSize) {
+                    int sample = frameSize >= 2
+                            ? (short) ((buffer[offset] & 0xff) | (buffer[offset + 1] << 8))
+                            : (buffer[offset] - 128) << 8;
                     peak = Math.max(peak, Math.abs(sample) / 32768.0);
+                    frames++;
+                    if (++bucketFrames >= bucket) {
+                        peaks.add(Math.round(peak * 1000.0) / 1000.0);
+                        peak = 0;
+                        bucketFrames = 0;
+                    }
                 }
-                peaks.add(Math.round(peak * 1000.0) / 1000.0);
             }
+            if (bucketFrames > 0) peaks.add(Math.round(peak * 1000.0) / 1000.0);
             return Map.of("points", peaks, "available", true,
                     "durationSeconds", frames / input.getFormat().getFrameRate());
         } catch (Exception exception) {
@@ -9328,14 +9337,14 @@ public class FfmpegMediaPreprocessor {
         log.info("SCENE_DETECTION_BEGIN source={} threshold={} output={}",
                 sourceVideo, sceneThreshold, sceneDirectory);
         clearSceneImages(sceneDirectory);
-        String outputPattern = sceneDirectory.resolve("scene-%04d.png").toString();
+        String outputPattern = sceneDirectory.resolve("scene-%04d.jpg").toString();
         String output = run(List.of(
                 ffmpegCommand, "-nostdin", "-y", "-hide_banner", "-threads", "0",
                 "-i", sourceVideo.toString(),
                 "-an", "-sn", "-dn",
                 "-vf", "fps=" + sceneAnalysisFps + ",scale=480:-2:flags=fast_bilinear,select=gt(scene\\," + sceneThreshold + "),showinfo",
                 "-fps_mode", "vfr", "-frames:v", String.valueOf(maximumSceneFrames),
-                "-c:v", "png", "-compression_level", "1", "-threads:v", "1",
+                "-c:v", "mjpeg", "-q:v", "5", "-threads:v", "1",
                 outputPattern
         ), sceneTimeout, "场景检测");
 
@@ -9344,14 +9353,14 @@ public class FfmpegMediaPreprocessor {
                 .toList();
         try (var paths = Files.list(sceneDirectory)) {
             List<Path> images = paths
-                    .filter(path -> path.getFileName().toString().endsWith(".png"))
+                    .filter(path -> path.getFileName().toString().endsWith(".jpg"))
                     .sorted(Comparator.comparing(Path::toString))
                     .toList();
             if (images.isEmpty()) {
-                Path first = sceneDirectory.resolve("scene-0001.png");
+                Path first = sceneDirectory.resolve("scene-0001.jpg");
                 run(List.of(ffmpegCommand, "-nostdin", "-y", "-hide_banner", "-loglevel", "warning",
                         "-ss", "0", "-i", sourceVideo.toString(), "-an", "-frames:v", "1",
-                        "-vf", "scale=480:-2:flags=fast_bilinear", "-c:v", "png", "-threads:v", "1",
+                        "-vf", "scale=480:-2:flags=fast_bilinear", "-c:v", "mjpeg", "-q:v", "5", "-threads:v", "1",
                         "-update", "1",
                         first.toString()), Duration.ofMinutes(2), "首帧提取");
                 images = List.of(first);
@@ -15621,8 +15630,9 @@ game-narrator:
     cloud-image-policy: ${CLOUD_IMAGE_POLICY:CLOUD_ALLOWED}
   storage-root: ./storage
   media-preview:
-    thumbnail-max-bytes: ${THUMBNAIL_MAX_BYTES:5242880}
-    thumbnail-cache-entries: ${THUMBNAIL_CACHE_ENTRIES:128}
+    # Keep the in-heap preview cache bounded (default worst case is about 48 MiB).
+    thumbnail-max-bytes: ${THUMBNAIL_MAX_BYTES:1572864}
+    thumbnail-cache-entries: ${THUMBNAIL_CACHE_ENTRIES:32}
     thumbnail-cache-minutes: ${THUMBNAIL_CACHE_MINUTES:10}
   asset-library:
     provider-priority: [BILIBILI, PEXELS, PIXABAY, DOUYIN, USER_REFERENCE, OPENVERSE, WIKIMEDIA, YOUTUBE, TIKTOK]
@@ -15753,7 +15763,8 @@ game-narrator:
       api-key: ${PIXABAY_API_KEY:}
   async:
     core-pool-size: ${ASYNC_CORE_POOL_SIZE:2}
-    max-pool-size: ${ASYNC_MAX_POOL_SIZE:4}
+    # Video/vision jobs are memory-heavy; two concurrent jobs avoid multiplying frame/model peaks.
+    max-pool-size: ${ASYNC_MAX_POOL_SIZE:2}
     queue-capacity: ${ASYNC_QUEUE_CAPACITY:10}
   pipeline:
     waiting-retry-delay-ms: ${PIPELINE_WAITING_RETRY_DELAY_MS:30000}

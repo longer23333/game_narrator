@@ -71,21 +71,30 @@ public class EditorTimelineService {
         Path audio = Path.of(task.getExtractedAudioPath()).toAbsolutePath().normalize();
         if (!Files.isRegularFile(audio)) return Map.of("points", List.of(), "available", false);
         try (var input = AudioSystem.getAudioInputStream(audio.toFile())) {
-            byte[] bytes = input.readAllBytes();
             int frameSize = Math.max(1, input.getFormat().getFrameSize());
-            int frames = bytes.length / frameSize;
-            int bucket = Math.max(1, frames / target);
-            List<Double> peaks = new ArrayList<>();
-            for (int start = 0; start < frames; start += bucket) {
-                int end = Math.min(frames, start + bucket); double peak = 0;
-                for (int frame = start; frame < end; frame++) {
-                    int offset = frame * frameSize;
-                    if (offset + 1 >= bytes.length) break;
-                    int sample = (short) ((bytes[offset] & 0xff) | (bytes[offset + 1] << 8));
+            long expectedFrames = input.getFrameLength();
+            if (expectedFrames <= 0) expectedFrames = Math.max(1, Files.size(audio) / frameSize);
+            long bucket = Math.max(1, (expectedFrames + target - 1) / target);
+            byte[] buffer = new byte[Math.max(frameSize, (64 * 1024 / frameSize) * frameSize)];
+            List<Double> peaks = new ArrayList<>(target);
+            long frames = 0, bucketFrames = 0;
+            double peak = 0;
+            int read;
+            while ((read = input.read(buffer)) >= 0) {
+                for (int offset = 0; offset + frameSize <= read; offset += frameSize) {
+                    int sample = frameSize >= 2
+                            ? (short) ((buffer[offset] & 0xff) | (buffer[offset + 1] << 8))
+                            : (buffer[offset] - 128) << 8;
                     peak = Math.max(peak, Math.abs(sample) / 32768.0);
+                    frames++;
+                    if (++bucketFrames >= bucket) {
+                        peaks.add(Math.round(peak * 1000.0) / 1000.0);
+                        peak = 0;
+                        bucketFrames = 0;
+                    }
                 }
-                peaks.add(Math.round(peak * 1000.0) / 1000.0);
             }
+            if (bucketFrames > 0) peaks.add(Math.round(peak * 1000.0) / 1000.0);
             return Map.of("points", peaks, "available", true,
                     "durationSeconds", frames / input.getFormat().getFrameRate());
         } catch (Exception exception) {
