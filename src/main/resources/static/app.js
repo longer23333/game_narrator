@@ -636,7 +636,7 @@ function renderTaskDetails(task) {
     <section class="detail-block task-operations"><button type="button" data-rename-task="${task.id}" data-task-name="${escapeHtml(task.name)}">重命名任务</button><small>只修改显示名称，不影响正在处理的阶段和已有文件。</small></section>
     <section class="detail-block task-operations task-delete-operation"><button type="button" data-delete-task="${task.id}" data-task-name="${escapeHtml(task.name)}">删除任务及数据</button><small>同时删除任务记录、源视频、输出视频及 data 中的全部处理文件；不可撤销。</small></section>
     ${task.status === 'PROCESSING' ? `<section class="detail-block task-operations"><button type="button" data-cancel-task="${task.id}">取消当前任务</button><small>立即终止当前外部进程，保留已完成阶段，清理未完成的临时文件。</small></section>` : ''}
-    ${task.status === 'FAILED' ? `<section class="detail-block task-operations"><button type="button" data-retry-task="${task.id}">重试失败阶段</button><small>已完成阶段会保留，从失败位置继续处理。</small></section>` : ''}
+    ${['FAILED','CANCELLED'].includes(task.status) ? `<section class="detail-block task-operations"><button type="button" data-retry-task="${task.id}">${task.status === 'CANCELLED' ? '从取消处继续' : '重试失败阶段'}</button><small>已完成阶段会保留，从中断位置继续处理。</small></section>` : ''}
     ${task.generatedScriptPath ? `<section class="detail-block task-operations storyboard-launch"><button type="button" data-open-storyboard="${task.id}">进入线性分镜工作台 →</button><small>${task.storyboardReviewEnabled && !task.storyboardApproved ? '需要在独立分镜时间线中检查并确认后才能继续生成。' : '按镜头顺序编辑画面、起止时间、文案、字幕、素材和特效。'}</small></section>` : ''}
     ${task.generatedScriptPath ? `<section class="detail-block task-operations"><button type="button" data-open-script="${task.id}">编辑分段文案</button><small>支持保存、AI 单段重写和单段重新配音。</small></section>` : ''}
     <section class="detail-summary">

@@ -1,6 +1,6 @@
 # GameNarrator — DeepSeek 项目上下文包
 
-> 自动生成时间：2026-08-03 17:08:35 +08:00
+> 自动生成时间：2026-08-03 17:14:46 +08:00
 > 文件数量：234。本文件由 scripts/export-deepseek-context.ps1 生成，请勿手工维护生成区。
 
 ## 给 DeepSeek 的强制工作规则
@@ -70,9 +70,9 @@
 - `src/main/java/cn/longer233/gamenarrator/audio/SoundCue.java`（192 bytes）
 - `src/main/java/cn/longer233/gamenarrator/common/ApiExceptionHandler.java`（6515 bytes）
 - `src/main/java/cn/longer233/gamenarrator/common/AtomicArtifactWriter.java`（2074 bytes）
-- `src/main/java/cn/longer233/gamenarrator/common/ExternalProcessRunner.java`（4589 bytes）
+- `src/main/java/cn/longer233/gamenarrator/common/ExternalProcessRunner.java`（4782 bytes）
 - `src/main/java/cn/longer233/gamenarrator/common/RequestTraceFilter.java`（1908 bytes）
-- `src/main/java/cn/longer233/gamenarrator/common/TaskProcessRegistry.java`（2400 bytes）
+- `src/main/java/cn/longer233/gamenarrator/common/TaskProcessRegistry.java`（2646 bytes）
 - `src/main/java/cn/longer233/gamenarrator/config/AsyncConfig.java`（1465 bytes）
 - `src/main/java/cn/longer233/gamenarrator/diagnostics/DiagnosticLogService.java`（4016 bytes）
 - `src/main/java/cn/longer233/gamenarrator/diagnostics/DiagnosticsController.java`（2339 bytes）
@@ -125,11 +125,11 @@
 - `src/main/java/cn/longer233/gamenarrator/pipeline/FailedVisionTaskRepair.java`（2063 bytes）
 - `src/main/java/cn/longer233/gamenarrator/pipeline/PendingTaskRecovery.java`（1338 bytes）
 - `src/main/java/cn/longer233/gamenarrator/pipeline/PipelineRunTracker.java`（5283 bytes）
-- `src/main/java/cn/longer233/gamenarrator/pipeline/ProjectArtifactRegistry.java`（4108 bytes）
+- `src/main/java/cn/longer233/gamenarrator/pipeline/ProjectArtifactRegistry.java`（5346 bytes）
 - `src/main/java/cn/longer233/gamenarrator/pipeline/TaskWorkflowStateService.java`（13663 bytes）
 - `src/main/java/cn/longer233/gamenarrator/pipeline/VideoTaskEngine.java`（18553 bytes）
 - `src/main/java/cn/longer233/gamenarrator/pipeline/WaitingTaskRetryScheduler.java`（2399 bytes）
-- `src/main/java/cn/longer233/gamenarrator/render/FfmpegVideoRenderer.java`（27428 bytes）
+- `src/main/java/cn/longer233/gamenarrator/render/FfmpegVideoRenderer.java`（27379 bytes）
 - `src/main/java/cn/longer233/gamenarrator/render/RenderAssetResolver.java`（2211 bytes）
 - `src/main/java/cn/longer233/gamenarrator/render/RenderResult.java`（133 bytes）
 - `src/main/java/cn/longer233/gamenarrator/script/AutoAssetAssignmentView.java`（246 bytes）
@@ -162,11 +162,11 @@
 - `src/main/java/cn/longer233/gamenarrator/task/domain/CommentaryStyle.java`（128 bytes）
 - `src/main/java/cn/longer233/gamenarrator/task/domain/EditingScope.java`（108 bytes）
 - `src/main/java/cn/longer233/gamenarrator/task/domain/GameEvent.java`（692 bytes）
-- `src/main/java/cn/longer233/gamenarrator/task/domain/ProcessingStage.java`（2920 bytes）
+- `src/main/java/cn/longer233/gamenarrator/task/domain/ProcessingStage.java`（3196 bytes）
 - `src/main/java/cn/longer233/gamenarrator/task/domain/ProcessingStageType.java`（277 bytes）
 - `src/main/java/cn/longer233/gamenarrator/task/domain/StageStatus.java`（116 bytes）
 - `src/main/java/cn/longer233/gamenarrator/task/domain/TaskStatus.java`（150 bytes）
-- `src/main/java/cn/longer233/gamenarrator/task/domain/VideoTask.java`（21702 bytes）
+- `src/main/java/cn/longer233/gamenarrator/task/domain/VideoTask.java`（22231 bytes）
 - `src/main/java/cn/longer233/gamenarrator/task/repository/VideoTaskRepository.java`（505 bytes）
 - `src/main/java/cn/longer233/gamenarrator/task/web/VideoTaskController.java`（6292 bytes）
 - `src/main/java/cn/longer233/gamenarrator/timeline/TimelinePlanner.java`（4735 bytes）
@@ -217,7 +217,7 @@
 - `src/main/resources/db/migration/V8__video_segment_semantic_index.sql`（634 bytes）
 - `src/main/resources/db/migration/V9__video_segment_image_hash.sql`（152 bytes）
 - `src/main/resources/static/app.css`（42182 bytes）
-- `src/main/resources/static/app.js`（71801 bytes）
+- `src/main/resources/static/app.js`（71879 bytes）
 - `src/main/resources/static/asset-library.js`（39551 bytes）
 - `src/main/resources/static/diagnostics.js`（1673 bytes）
 - `src/main/resources/static/export.js`（9227 bytes）
@@ -249,7 +249,7 @@
 - `src/test/java/cn/longer233/gamenarrator/script/ScriptWorkspaceServiceTest.java`（3458 bytes）
 - `src/test/java/cn/longer233/gamenarrator/subtitle/AssSubtitleBuilderTest.java`（771 bytes）
 - `src/test/java/cn/longer233/gamenarrator/task/DatabaseMigrationTest.java`（4131 bytes）
-- `src/test/java/cn/longer233/gamenarrator/task/domain/VideoTaskTest.java`（4026 bytes）
+- `src/test/java/cn/longer233/gamenarrator/task/domain/VideoTaskTest.java`（4664 bytes）
 - `src/test/java/cn/longer233/gamenarrator/task/web/VideoTaskControllerTest.java`（12121 bytes）
 - `src/test/java/cn/longer233/gamenarrator/timeline/TimelinePlannerTest.java`（2442 bytes）
 - `src/test/java/cn/longer233/gamenarrator/timeline/TimelineValidatorTest.java`（1515 bytes）
@@ -5912,12 +5912,12 @@ public final class ExternalProcessRunner {
     }
 
     public static void terminateTree(Process process) {
-        process.toHandle().descendants().forEach(child -> {
-            child.destroy();
-            if (child.isAlive()) child.destroyForcibly();
-        });
+        List<ProcessHandle> descendants = process.toHandle().descendants().toList();
         process.destroy();
+        descendants.forEach(ProcessHandle::destroy);
+        descendants.stream().filter(ProcessHandle::isAlive).forEach(ProcessHandle::destroyForcibly);
         if (process.isAlive()) process.destroyForcibly();
+        process.toHandle().descendants().filter(ProcessHandle::isAlive).forEach(ProcessHandle::destroyForcibly);
     }
 
     private static CompletableFuture<String> drain(Process process, Consumer<String> outputLine) {
@@ -6028,6 +6028,11 @@ public final class TaskProcessRegistry {
     private static final ThreadLocal<UUID> CURRENT_TASK = new ThreadLocal<>();
     private static final Set<UUID> CANCELLED = ConcurrentHashMap.newKeySet();
     private static final ConcurrentHashMap<UUID, Set<Process>> PROCESSES = new ConcurrentHashMap<>();
+
+    static {
+        Runtime.getRuntime().addShutdownHook(Thread.ofPlatform().name("task-process-cleanup").unstarted(() ->
+                PROCESSES.values().forEach(processes -> processes.forEach(ExternalProcessRunner::terminateTree))));
+    }
 
     private TaskProcessRegistry() { }
 
@@ -9803,6 +9808,7 @@ import java.time.OffsetDateTime;
 import java.time.ZoneOffset;
 import java.util.HexFormat;
 import java.util.UUID;
+import java.io.InputStream;
 
 /** Records pipeline files in the V2 artifact model and advances the project manifest revision. */
 @Component
@@ -9822,13 +9828,15 @@ public class ProjectArtifactRegistry {
             Path path = Path.of(value).toAbsolutePath().normalize();
             if (!Files.isRegularFile(path)) return;
             String storageKey = path.toString();
-            if (Boolean.TRUE.equals(jdbc.queryForObject("SELECT COUNT(*)>0 FROM artifact WHERE storage_key=? AND deleted_at IS NULL",
-                    Boolean.class, storageKey))) return;
+            String contentHash = fileSha256(path);
+            var existing = jdbc.query("SELECT id,sha256 FROM artifact WHERE storage_key=? AND deleted_at IS NULL",
+                    (rs, row) -> new ExistingArtifact(rs.getObject("id", UUID.class), rs.getString("sha256")), storageKey);
+            if (!existing.isEmpty() && contentHash.equals(existing.getFirst().sha256())) return;
             UUID parent = jdbc.queryForObject("SELECT current_revision_id FROM video_project WHERE id=?", UUID.class, projectId);
             UUID run = jdbc.queryForObject("SELECT latest_run_id FROM video_project WHERE id=?", UUID.class, projectId);
             ObjectNode manifest = (ObjectNode) mapper.readTree(jdbc.queryForObject(
                     "SELECT manifest_json FROM project_revision WHERE id=?", String.class, parent));
-            UUID artifactId = UUID.randomUUID();
+            UUID artifactId = existing.isEmpty() ? UUID.randomUUID() : existing.getFirst().id();
             int revisionNo = jdbc.queryForObject("SELECT COALESCE(MAX(revision_no),0)+1 FROM project_revision WHERE project_id=?",
                     Integer.class, projectId);
             UUID revision = UUID.randomUUID();
@@ -9845,12 +9853,19 @@ public class ProjectArtifactRegistry {
                     VALUES(?,?,?,?,?,'PIPELINE_OUTPUT',?,'{}',?,?,?,?)
                     """, revision, projectId, revisionNo, parent, LOCAL_USER, "记录阶段产物：" + type,
                     json, 3, sha256(json.getBytes()), now);
-            jdbc.update("""
-                    INSERT INTO artifact(id,owner_id,project_id,revision_id,generation_run_id,artifact_type,storage_key,
-                    mime_type,size_bytes,sha256,schema_version,temporary,expires_at,created_at,deleted_at)
-                    VALUES(?,?,?,?,?,?,?,?,?,?,?,?,NULL,?,NULL)
-                    """, artifactId, LOCAL_USER, projectId, revision, run, type, storageKey, mimeType,
-                    Files.size(path), sha256(Files.readAllBytes(path)), 1, temporary, now);
+            if (existing.isEmpty()) {
+                jdbc.update("""
+                        INSERT INTO artifact(id,owner_id,project_id,revision_id,generation_run_id,artifact_type,storage_key,
+                        mime_type,size_bytes,sha256,schema_version,temporary,expires_at,created_at,deleted_at)
+                        VALUES(?,?,?,?,?,?,?,?,?,?,?,?,NULL,?,NULL)
+                        """, artifactId, LOCAL_USER, projectId, revision, run, type, storageKey, mimeType,
+                        Files.size(path), contentHash, 1, temporary, now);
+            } else {
+                jdbc.update("""
+                        UPDATE artifact SET revision_id=?,generation_run_id=?,artifact_type=?,mime_type=?,size_bytes=?,
+                        sha256=?,schema_version=1,temporary=?,created_at=? WHERE id=?
+                        """, revision, run, type, mimeType, Files.size(path), contentHash, temporary, now, artifactId);
+            }
             jdbc.update("UPDATE video_project SET current_revision_id=?,updated_at=?,version=version+1 WHERE id=?",
                     revision, now, projectId);
         } catch (Exception exception) {
@@ -9861,6 +9876,20 @@ public class ProjectArtifactRegistry {
     private String sha256(byte[] value) throws Exception {
         return HexFormat.of().formatHex(MessageDigest.getInstance("SHA-256").digest(value));
     }
+
+    private String fileSha256(Path path) throws Exception {
+        MessageDigest digest = MessageDigest.getInstance("SHA-256");
+        byte[] buffer = new byte[1024 * 1024];
+        try (InputStream input = Files.newInputStream(path)) {
+            int read;
+            while ((read = input.read(buffer)) >= 0) {
+                if (read > 0) digest.update(buffer, 0, read);
+            }
+        }
+        return HexFormat.of().formatHex(digest.digest());
+    }
+
+    private record ExistingArtifact(UUID id, String sha256) { }
 }
 ``
 
@@ -10738,7 +10767,6 @@ public class FfmpegVideoRenderer {
             long size = Files.size(output);
             log.info("RENDERING_SUCCESS encoder={} duration={} sizeBytes={} output={}",
                     encoder, root.path("outputDurationSeconds").asDouble(), size, output);
-            cleanupWorkDirectory(workDirectory);
             return new RenderResult(output.toString(), subtitle.toString(), size);
         } catch (IllegalStateException exception) {
             throw exception;
@@ -13167,6 +13195,14 @@ public class ProcessingStage {
         this.errorMessage = null;
     }
 
+    public void prepareResume() {
+        if (this.status != StageStatus.PENDING || this.errorMessage == null) {
+            throw new IllegalStateException("Only a deferred stage can be resumed");
+        }
+        this.progress = 0;
+        this.errorMessage = null;
+    }
+
     public void reset() {
         this.status = StageStatus.PENDING;
         this.progress = 0;
@@ -13523,8 +13559,18 @@ public class VideoTask {
     }
 
     public void prepareRetry() {
+        if (status == TaskStatus.CANCELLED) {
+            ProcessingStage cancelledStage = stages.stream()
+                    .filter(item -> item.getStatus() == StageStatus.PENDING && item.getErrorMessage() != null)
+                    .findFirst()
+                    .orElseThrow(() -> new IllegalStateException("Cancelled task has no resumable stage"));
+            cancelledStage.prepareResume();
+            this.status = TaskStatus.READY;
+            this.failureReason = null;
+            return;
+        }
         if (status != TaskStatus.FAILED) {
-            throw new IllegalStateException("Only a failed task can be retried");
+            throw new IllegalStateException("Only a failed or cancelled task can be retried");
         }
         ProcessingStage failedStage = stages.stream()
                 .filter(item -> item.getStatus() == StageStatus.FAILED)
@@ -17229,7 +17275,7 @@ function renderTaskDetails(task) {
     <section class="detail-block task-operations"><button type="button" data-rename-task="${task.id}" data-task-name="${escapeHtml(task.name)}">重命名任务</button><small>只修改显示名称，不影响正在处理的阶段和已有文件。</small></section>
     <section class="detail-block task-operations task-delete-operation"><button type="button" data-delete-task="${task.id}" data-task-name="${escapeHtml(task.name)}">删除任务及数据</button><small>同时删除任务记录、源视频、输出视频及 data 中的全部处理文件；不可撤销。</small></section>
     ${task.status === 'PROCESSING' ? `<section class="detail-block task-operations"><button type="button" data-cancel-task="${task.id}">取消当前任务</button><small>立即终止当前外部进程，保留已完成阶段，清理未完成的临时文件。</small></section>` : ''}
-    ${task.status === 'FAILED' ? `<section class="detail-block task-operations"><button type="button" data-retry-task="${task.id}">重试失败阶段</button><small>已完成阶段会保留，从失败位置继续处理。</small></section>` : ''}
+    ${['FAILED','CANCELLED'].includes(task.status) ? `<section class="detail-block task-operations"><button type="button" data-retry-task="${task.id}">${task.status === 'CANCELLED' ? '从取消处继续' : '重试失败阶段'}</button><small>已完成阶段会保留，从中断位置继续处理。</small></section>` : ''}
     ${task.generatedScriptPath ? `<section class="detail-block task-operations storyboard-launch"><button type="button" data-open-storyboard="${task.id}">进入线性分镜工作台 →</button><small>${task.storyboardReviewEnabled && !task.storyboardApproved ? '需要在独立分镜时间线中检查并确认后才能继续生成。' : '按镜头顺序编辑画面、起止时间、文案、字幕、素材和特效。'}</small></section>` : ''}
     ${task.generatedScriptPath ? `<section class="detail-block task-operations"><button type="button" data-open-script="${task.id}">编辑分段文案</button><small>支持保存、AI 单段重写和单段重新配音。</small></section>` : ''}
     <section class="detail-summary">
@@ -20729,7 +20775,22 @@ class VideoTaskTest {
 
         org.assertj.core.api.Assertions.assertThatThrownBy(task::prepareRetry)
                 .isInstanceOf(IllegalStateException.class)
-                .hasMessage("Only a failed task can be retried");
+                .hasMessage("Only a failed or cancelled task can be retried");
+    }
+
+    @Test
+    void cancelledTaskCanResumeFromItsInterruptedStage() {
+        VideoTask task = new VideoTask("Cancel", "ACTION", CommentaryStyle.ANIME_THEATER,
+                90, "brief", "storage/demo.mp4");
+        task.startSceneDetection();
+
+        task.cancel("用户取消了任务");
+
+        assertThat(task.getStatus()).isEqualTo(TaskStatus.CANCELLED);
+        assertThat(task.getStages().get(1).getStatus()).isEqualTo(StageStatus.PENDING);
+        task.prepareRetry();
+        assertThat(task.getStatus()).isEqualTo(TaskStatus.READY);
+        assertThat(task.getStages().get(1).getErrorMessage()).isNull();
     }
 
     @Test

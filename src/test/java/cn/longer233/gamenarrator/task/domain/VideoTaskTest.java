@@ -61,7 +61,22 @@ class VideoTaskTest {
 
         org.assertj.core.api.Assertions.assertThatThrownBy(task::prepareRetry)
                 .isInstanceOf(IllegalStateException.class)
-                .hasMessage("Only a failed task can be retried");
+                .hasMessage("Only a failed or cancelled task can be retried");
+    }
+
+    @Test
+    void cancelledTaskCanResumeFromItsInterruptedStage() {
+        VideoTask task = new VideoTask("Cancel", "ACTION", CommentaryStyle.ANIME_THEATER,
+                90, "brief", "storage/demo.mp4");
+        task.startSceneDetection();
+
+        task.cancel("用户取消了任务");
+
+        assertThat(task.getStatus()).isEqualTo(TaskStatus.CANCELLED);
+        assertThat(task.getStages().get(1).getStatus()).isEqualTo(StageStatus.PENDING);
+        task.prepareRetry();
+        assertThat(task.getStatus()).isEqualTo(TaskStatus.READY);
+        assertThat(task.getStages().get(1).getErrorMessage()).isNull();
     }
 
     @Test

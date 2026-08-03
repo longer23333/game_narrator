@@ -89,6 +89,14 @@ public class ProcessingStage {
         this.errorMessage = null;
     }
 
+    public void prepareResume() {
+        if (this.status != StageStatus.PENDING || this.errorMessage == null) {
+            throw new IllegalStateException("Only a deferred stage can be resumed");
+        }
+        this.progress = 0;
+        this.errorMessage = null;
+    }
+
     public void reset() {
         this.status = StageStatus.PENDING;
         this.progress = 0;

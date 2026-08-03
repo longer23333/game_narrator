@@ -156,7 +156,6 @@ public class FfmpegVideoRenderer {
             long size = Files.size(output);
             log.info("RENDERING_SUCCESS encoder={} duration={} sizeBytes={} output={}",
                     encoder, root.path("outputDurationSeconds").asDouble(), size, output);
-            cleanupWorkDirectory(workDirectory);
             return new RenderResult(output.toString(), subtitle.toString(), size);
         } catch (IllegalStateException exception) {
             throw exception;

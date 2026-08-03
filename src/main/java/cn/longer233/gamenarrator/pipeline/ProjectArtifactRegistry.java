@@ -12,6 +12,7 @@ import java.time.OffsetDateTime;
 import java.time.ZoneOffset;
 import java.util.HexFormat;
 import java.util.UUID;
+import java.io.InputStream;
 
 /** Records pipeline files in the V2 artifact model and advances the project manifest revision. */
 @Component
@@ -31,13 +32,15 @@ public class ProjectArtifactRegistry {
             Path path = Path.of(value).toAbsolutePath().normalize();
             if (!Files.isRegularFile(path)) return;
             String storageKey = path.toString();
-            if (Boolean.TRUE.equals(jdbc.queryForObject("SELECT COUNT(*)>0 FROM artifact WHERE storage_key=? AND deleted_at IS NULL",
-                    Boolean.class, storageKey))) return;
+            String contentHash = fileSha256(path);
+            var existing = jdbc.query("SELECT id,sha256 FROM artifact WHERE storage_key=? AND deleted_at IS NULL",
+                    (rs, row) -> new ExistingArtifact(rs.getObject("id", UUID.class), rs.getString("sha256")), storageKey);
+            if (!existing.isEmpty() && contentHash.equals(existing.getFirst().sha256())) return;
             UUID parent = jdbc.queryForObject("SELECT current_revision_id FROM video_project WHERE id=?", UUID.class, projectId);
             UUID run = jdbc.queryForObject("SELECT latest_run_id FROM video_project WHERE id=?", UUID.class, projectId);
             ObjectNode manifest = (ObjectNode) mapper.readTree(jdbc.queryForObject(
                     "SELECT manifest_json FROM project_revision WHERE id=?", String.class, parent));
-            UUID artifactId = UUID.randomUUID();
+            UUID artifactId = existing.isEmpty() ? UUID.randomUUID() : existing.getFirst().id();
             int revisionNo = jdbc.queryForObject("SELECT COALESCE(MAX(revision_no),0)+1 FROM project_revision WHERE project_id=?",
                     Integer.class, projectId);
             UUID revision = UUID.randomUUID();
@@ -54,12 +57,19 @@ public class ProjectArtifactRegistry {
                     VALUES(?,?,?,?,?,'PIPELINE_OUTPUT',?,'{}',?,?,?,?)
                     """, revision, projectId, revisionNo, parent, LOCAL_USER, "记录阶段产物：" + type,
                     json, 3, sha256(json.getBytes()), now);
-            jdbc.update("""
-                    INSERT INTO artifact(id,owner_id,project_id,revision_id,generation_run_id,artifact_type,storage_key,
-                    mime_type,size_bytes,sha256,schema_version,temporary,expires_at,created_at,deleted_at)
-                    VALUES(?,?,?,?,?,?,?,?,?,?,?,?,NULL,?,NULL)
-                    """, artifactId, LOCAL_USER, projectId, revision, run, type, storageKey, mimeType,
-                    Files.size(path), sha256(Files.readAllBytes(path)), 1, temporary, now);
+            if (existing.isEmpty()) {
+                jdbc.update("""
+                        INSERT INTO artifact(id,owner_id,project_id,revision_id,generation_run_id,artifact_type,storage_key,
+                        mime_type,size_bytes,sha256,schema_version,temporary,expires_at,created_at,deleted_at)
+                        VALUES(?,?,?,?,?,?,?,?,?,?,?,?,NULL,?,NULL)
+                        """, artifactId, LOCAL_USER, projectId, revision, run, type, storageKey, mimeType,
+                        Files.size(path), contentHash, 1, temporary, now);
+            } else {
+                jdbc.update("""
+                        UPDATE artifact SET revision_id=?,generation_run_id=?,artifact_type=?,mime_type=?,size_bytes=?,
+                        sha256=?,schema_version=1,temporary=?,created_at=? WHERE id=?
+                        """, revision, run, type, mimeType, Files.size(path), contentHash, temporary, now, artifactId);
+            }
             jdbc.update("UPDATE video_project SET current_revision_id=?,updated_at=?,version=version+1 WHERE id=?",
                     revision, now, projectId);
         } catch (Exception exception) {
@@ -70,4 +80,18 @@ public class ProjectArtifactRegistry {
     private String sha256(byte[] value) throws Exception {
         return HexFormat.of().formatHex(MessageDigest.getInstance("SHA-256").digest(value));
     }
+
+    private String fileSha256(Path path) throws Exception {
+        MessageDigest digest = MessageDigest.getInstance("SHA-256");
+        byte[] buffer = new byte[1024 * 1024];
+        try (InputStream input = Files.newInputStream(path)) {
+            int read;
+            while ((read = input.read(buffer)) >= 0) {
+                if (read > 0) digest.update(buffer, 0, read);
+            }
+        }
+        return HexFormat.of().formatHex(digest.digest());
+    }
+
+    private record ExistingArtifact(UUID id, String sha256) { }
 }

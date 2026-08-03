@@ -11,6 +11,11 @@ public final class TaskProcessRegistry {
     private static final Set<UUID> CANCELLED = ConcurrentHashMap.newKeySet();
     private static final ConcurrentHashMap<UUID, Set<Process>> PROCESSES = new ConcurrentHashMap<>();
 
+    static {
+        Runtime.getRuntime().addShutdownHook(Thread.ofPlatform().name("task-process-cleanup").unstarted(() ->
+                PROCESSES.values().forEach(processes -> processes.forEach(ExternalProcessRunner::terminateTree))));
+    }
+
     private TaskProcessRegistry() { }
 
     public static Scope open(UUID taskId) {

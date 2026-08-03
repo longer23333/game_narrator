@@ -61,12 +61,12 @@ public final class ExternalProcessRunner {
     }
 
     public static void terminateTree(Process process) {
-        process.toHandle().descendants().forEach(child -> {
-            child.destroy();
-            if (child.isAlive()) child.destroyForcibly();
-        });
+        List<ProcessHandle> descendants = process.toHandle().descendants().toList();
         process.destroy();
+        descendants.forEach(ProcessHandle::destroy);
+        descendants.stream().filter(ProcessHandle::isAlive).forEach(ProcessHandle::destroyForcibly);
         if (process.isAlive()) process.destroyForcibly();
+        process.toHandle().descendants().filter(ProcessHandle::isAlive).forEach(ProcessHandle::destroyForcibly);
     }
 
     private static CompletableFuture<String> drain(Process process, Consumer<String> outputLine) {
