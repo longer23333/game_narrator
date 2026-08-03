@@ -1,6 +1,6 @@
 # GameNarrator — DeepSeek 项目上下文包
 
-> 自动生成时间：2026-08-03 17:30:48 +08:00
+> 自动生成时间：2026-08-03 19:36:35 +08:00
 > 文件数量：234。本文件由 scripts/export-deepseek-context.ps1 生成，请勿手工维护生成区。
 
 ## 给 DeepSeek 的强制工作规则
@@ -216,8 +216,8 @@
 - `src/main/resources/db/migration/V7__storyboard_review.sql`（207 bytes）
 - `src/main/resources/db/migration/V8__video_segment_semantic_index.sql`（634 bytes）
 - `src/main/resources/db/migration/V9__video_segment_image_hash.sql`（152 bytes）
-- `src/main/resources/static/app.css`（42182 bytes）
-- `src/main/resources/static/app.js`（71879 bytes）
+- `src/main/resources/static/app.css`（44011 bytes）
+- `src/main/resources/static/app.js`（71236 bytes）
 - `src/main/resources/static/asset-library.js`（39551 bytes）
 - `src/main/resources/static/diagnostics.js`（1673 bytes）
 - `src/main/resources/static/export.js`（9227 bytes）
@@ -16643,6 +16643,19 @@ CREATE INDEX idx_segment_embedding_image_hash ON video_segment_embedding(image_h
 .storyboard-launch{border:1px solid rgba(69,215,234,.55);background:linear-gradient(110deg,rgba(22,184,206,.14),rgba(111,100,232,.1))}.storyboard-launch button{font-size:14px}.storyboard-launch small{display:block;margin-top:9px;color:#a9bdd8}.storyboard-workspace-dialog{width:100vw;height:100vh;max-width:none;max-height:none;margin:0;padding:0;border:0;background:#070b17;color:#edf4ff}.storyboard-workspace-dialog::backdrop{background:#02040a}.storyboard-workspace-shell{height:100vh;display:grid;grid-template-rows:auto minmax(0,1fr)}.storyboard-workspace-shell>.dialog-header{padding:16px 28px;border-bottom:1px solid #293047;background:#0b1122}.storyboard-workspace{overflow:auto;padding:24px max(24px,calc((100vw - 1180px)/2)) 80px}.storyboard-workspace .storyboard-editor{max-width:1180px;margin:auto}.storyboard-linear{display:grid;grid-template-columns:1fr;gap:0;counter-reset:shot}.storyboard-linear .storyboard-card{position:relative;display:grid;grid-template-columns:minmax(260px,34%) minmax(0,1fr);column-gap:24px;margin-left:38px;padding:22px 22px 28px;border-radius:0;border-width:0 0 0 3px;border-color:#283a58;background:linear-gradient(90deg,rgba(16,29,51,.92),rgba(8,14,28,.84))}.storyboard-linear .storyboard-card::before{content:counter(shot);counter-increment:shot;position:absolute;left:-24px;top:20px;display:grid;place-items:center;width:44px;height:44px;border-radius:50%;background:#16b8ce;color:#041018;font-weight:900;box-shadow:0 0 0 7px #070b17}.storyboard-linear .storyboard-card>img{grid-row:1/8;grid-column:1;width:100%;position:sticky;top:16px}.storyboard-linear .storyboard-card>header,.storyboard-linear .storyboard-card>.storyboard-order,.storyboard-linear .storyboard-card>.storyboard-description,.storyboard-linear .storyboard-card>.storyboard-time,.storyboard-linear .storyboard-card>label,.storyboard-linear .storyboard-card>.storyboard-assets,.storyboard-linear .storyboard-card>.storyboard-actions{grid-column:2}.storyboard-linear .storyboard-card+ .storyboard-card{padding-top:34px}.storyboard-linear .storyboard-card+ .storyboard-card::before{top:32px}@media(max-width:760px){.storyboard-workspace{padding:14px 10px 60px}.storyboard-linear .storyboard-card{display:block;margin-left:24px;padding:18px}.storyboard-linear .storyboard-card>img{position:static}.storyboard-linear .storyboard-card::before{left:-18px;width:34px;height:34px}.storyboard-workspace-shell>.dialog-header{padding:12px 16px}}
 .storyboard-pipeline-progress{position:sticky;top:0;z-index:5;margin:0 0 18px;padding:16px;border:1px solid #304563;border-radius:14px;background:rgba(7,13,27,.96);box-shadow:0 12px 34px rgba(0,0,0,.32);backdrop-filter:blur(12px)}.storyboard-pipeline-progress header{display:flex;align-items:end;justify-content:space-between;gap:16px}.storyboard-pipeline-progress header small,.storyboard-pipeline-progress header strong{display:block}.storyboard-pipeline-progress header small{color:#7891af;font-size:10px}.storyboard-pipeline-progress header strong{margin-top:4px;color:#eaf7ff}.storyboard-pipeline-progress header>b{font-size:22px;color:#54ddec}.storyboard-overall-progress{height:9px;margin:12px 0;overflow:hidden;border-radius:99px;background:#17243a}.storyboard-overall-progress i{display:block;height:100%;border-radius:inherit;background:linear-gradient(90deg,#16b8ce,#7a68ee,#ff5fac);transition:width .35s}.storyboard-stage-strip{display:grid;grid-template-columns:repeat(9,minmax(90px,1fr));gap:6px;overflow-x:auto}.storyboard-stage-strip span{display:grid;grid-template-columns:auto 1fr auto;align-items:center;gap:5px;padding:7px;border:1px solid #25344c;border-radius:8px;color:#71819e;font-size:9px;white-space:nowrap}.storyboard-stage-strip span>i{width:7px;height:7px;border-radius:50%;background:#40506b}.storyboard-stage-strip span>b{font-size:9px}.storyboard-stage-strip .completed{color:#7be8ae;border-color:rgba(56,224,157,.3)}.storyboard-stage-strip .completed>i{background:#38e09d}.storyboard-stage-strip .running{color:#7eeeff;border-color:#32cde3;background:rgba(50,205,227,.08)}.storyboard-stage-strip .running>i{background:#45d7ea;box-shadow:0 0 10px #45d7ea}.storyboard-pipeline-progress>p{margin:10px 0 0;color:#9fb0ca;font-size:11px}.storyboard-continue-bar{position:sticky;bottom:0;z-index:6;display:flex;align-items:center;justify-content:space-between;gap:20px;margin:24px -8px 0;padding:16px 18px;border:1px solid rgba(69,215,234,.48);border-radius:14px;background:rgba(9,18,35,.97);box-shadow:0 -12px 36px rgba(0,0,0,.42)}.storyboard-continue-bar strong,.storyboard-continue-bar small{display:block}.storyboard-continue-bar small{margin-top:4px;color:#91a4c1}.storyboard-continue-bar button{min-width:270px;background:linear-gradient(90deg,#16b8ce,#765fe9,#e750a2)}@media(max-width:760px){.storyboard-continue-bar{display:block}.storyboard-continue-bar button{width:100%;min-width:0;margin-top:12px}}
 .guide-open{border-color:rgba(69,215,234,.55);background:rgba(31,109,128,.25);color:#baf7ff}.guided-tour[hidden]{display:none}.guided-tour{position:fixed;z-index:3000;inset:0;pointer-events:none}.guided-tour-shade{position:absolute;inset:0;background:rgba(1,5,14,.68);backdrop-filter:blur(1px)}.guided-tour-target{position:relative;z-index:3001!important;border-radius:16px;box-shadow:0 0 0 4px #45d7ea,0 0 0 9999px rgba(1,5,14,.68),0 0 38px rgba(69,215,234,.55)!important}.guided-tour-card{position:fixed;z-index:3002;padding:18px;border:1px solid rgba(89,226,239,.65);border-radius:16px;background:linear-gradient(145deg,#111d35,#0a1020);box-shadow:0 18px 70px rgba(0,0,0,.65);pointer-events:auto}.guided-tour-card header{display:flex;align-items:center;justify-content:space-between}.guided-tour-card header span{color:#45d7ea;font-size:11px;font-weight:900;letter-spacing:.12em}.guided-tour-card header button{width:30px;height:30px;padding:0;border-radius:50%;background:#1b2944;color:#b9c7dc;font-size:20px}.guided-tour-card h2{margin:14px 0 8px;font-size:20px}.guided-tour-card p{margin:0;color:#a9b8cf;font-size:13px;line-height:1.75}.guided-tour-card footer{display:grid;grid-template-columns:auto 1fr auto;gap:8px;margin-top:17px}.guided-tour-card footer button{padding:9px 12px;font-size:11px}.guided-tour-card [data-guide-skip]{background:transparent;color:#8999b3}.guided-tour-card [data-guide-next]{background:linear-gradient(90deg,#16b8ce,#715ee8)}.guided-tour-card button:disabled{opacity:.35}.guided-tour-dots{display:flex;gap:5px;margin-top:14px}.guided-tour-dots i{width:6px;height:6px;border-radius:50%;background:#35445f}.guided-tour-dots i.active{width:20px;border-radius:99px;background:#45d7ea}@media(max-width:650px){.topbar-actions{gap:6px}.topbar-actions .system-state{display:none}.diagnostics-open{padding:7px 9px}.guided-tour-card{right:12px!important;bottom:12px!important;left:12px!important;top:auto!important;width:auto!important}.guided-tour-target{box-shadow:0 0 0 3px #45d7ea,0 0 0 9999px rgba(1,5,14,.7)!important}}
+
+/* Bright neo-pop guided tour: keep the target visible and the instruction card unmistakable. */
+.guide-open{color:var(--ink);background:var(--blue);border:3px solid var(--ink);box-shadow:4px 4px 0 var(--ink)}
+.guided-tour-shade{background:rgba(17,17,17,.30);backdrop-filter:none}
+.guided-tour-target{border-radius:0;filter:brightness(1.08) saturate(1.08);box-shadow:0 0 0 6px var(--yellow),0 0 0 10px var(--ink),0 0 0 9999px rgba(17,17,17,.30),14px 14px 0 var(--pink)!important}
+.guided-tour-card{padding:22px;color:var(--ink);background:var(--yellow);border:4px solid var(--ink);border-radius:0;box-shadow:10px 10px 0 var(--pink),16px 16px 0 var(--ink);transform:rotate(-.35deg)}
+.guided-tour-card header span{display:inline-block;padding:4px 8px;color:var(--ink);background:#fff;border:2px solid var(--ink);font-size:12px}
+.guided-tour-card header button{width:34px;height:34px;color:var(--ink);background:var(--pink);border:3px solid var(--ink);border-radius:0;box-shadow:3px 3px 0 var(--ink)}
+.guided-tour-card h2{color:var(--ink);font-size:23px;line-height:1.2}.guided-tour-card p{color:#191919;font-size:14px;font-weight:750;line-height:1.75}
+.guided-tour-card footer button{color:var(--ink);background:#fff;border:3px solid var(--ink);box-shadow:3px 3px 0 var(--ink)}
+.guided-tour-card [data-guide-skip]{color:#333;background:#fff}.guided-tour-card [data-guide-next]{color:var(--ink);background:var(--blue)}
+.guided-tour-dots i{width:9px;height:9px;border:2px solid var(--ink);border-radius:0;background:#fff}.guided-tour-dots i.active{width:30px;border-radius:0;background:var(--pink)}
+@media(max-width:650px){.guided-tour-card{box-shadow:7px 7px 0 var(--pink),11px 11px 0 var(--ink);transform:none}.guided-tour-target{box-shadow:0 0 0 4px var(--yellow),0 0 0 7px var(--ink),0 0 0 9999px rgba(17,17,17,.28)!important}}
 ``
 
 ### FILE: src/main/resources/static/app.js
@@ -17762,14 +17775,10 @@ loadTasks().catch(error => {
 });
 
 const guideSteps = [
-  {selector: '.hero', title: '欢迎使用 GameNarrator', text: '这套引导会带你走完“配置 → 上传 → 检查 → 剪辑 → 导出”的主要流程。AI 是可选增强，不配置模型也能使用手动剪辑。'},
-  {selector: '.ai-settings-panel', title: '第 1 步：按需配置 AI', text: '使用云端时填写 API Key 并测试连接；也可以选择本地模型。暂时不需要 AI，可以直接跳到创建任务。'},
-  {selector: '.create-panel', title: '第 2 步：创建剪辑任务', text: '填写任务名称和要求，选择视频。自动剪辑、画面理解、AI 文案、AI 语音和自动素材都可以分别关闭。'},
-  {selector: '.task-panel', title: '第 3 步：观察处理进度', text: '任务会在这里显示每个阶段的准确进度。点击任务可进入详情；等待检查时，再进入线性分镜工作台。'},
-  {selector: '.segment-search-panel', title: '第 4 步：查找本地镜头', text: '分析完成后，可用中文描述或上传截图，在自己的视频中寻找相似镜头并生成片段。'},
-  {selector: '.media-importer', title: '第 5 步：导入已授权平台素材', text: '粘贴链接前先确认你拥有下载和再创作权。需要账号内容时按页面提示连接浏览器，不登录也不影响开放素材。'},
-  {selector: '.asset-library', title: '第 6 步：管理统一素材库', text: '可以上传本地素材或搜索开放来源。平台候选素材会明确标注权利状态，不会自动当作开放许可。'},
-  {selector: '#diagnostics-open', title: '遇到问题时', text: '点击“诊断日志”查看具体错误并导出脱敏诊断包。现在可以开始创建第一个剪辑任务了。'}
+  {selector: '.hero', title: '目标：从录像得到可下载成片', text: '核心闭环只有 4 步：上传录像 → 等待完整分析 → 检查并修改分镜 → 下载 MP4。AI、素材搜索和平台导入都是可选增强，不会阻止普通剪辑。'},
+  {selector: '.create-panel', title: '第 1 步：上传并开始', text: '选择本地视频，填写名称后创建任务即可。想先快速跑通流程，可以关闭 AI 文案、AI 语音和自动素材；以后随时再开启。'},
+  {selector: '#active-task', title: '第 2 步：看当前任务做到哪里', text: '创建后这里会持续显示当前阶段、百分比和下一步。视频会先完整扫描，再进行高光、文案等后续处理；运行中也可以取消。'},
+  {selector: '.task-panel', title: '第 3、4 步：检查分镜并导出', text: '任务提示“等待检查”时，点击任务进入线性分镜工作台，修改后点“保存全部修改并执行下一步”。完成后仍在任务详情中预览并点击“导出 MP4”，这就跑通了一个完整结果。'}
 ];
 let guideIndex = 0;
 let guideTarget = null;
@@ -17777,8 +17786,8 @@ let guideRoot = null;
 
 function guideStorage(action, value) {
   try {
-    if (action === 'get') return localStorage.getItem('game-narrator-guide-v2');
-    localStorage.setItem('game-narrator-guide-v2', value);
+    if (action === 'get') return localStorage.getItem('game-narrator-guide-v3');
+    localStorage.setItem('game-narrator-guide-v3', value);
   } catch (_) { return null; }
 }
 

@@ -1112,14 +1112,10 @@ loadTasks().catch(error => {
 });
 
 const guideSteps = [
-  {selector: '.hero', title: '欢迎使用 GameNarrator', text: '这套引导会带你走完“配置 → 上传 → 检查 → 剪辑 → 导出”的主要流程。AI 是可选增强，不配置模型也能使用手动剪辑。'},
-  {selector: '.ai-settings-panel', title: '第 1 步：按需配置 AI', text: '使用云端时填写 API Key 并测试连接；也可以选择本地模型。暂时不需要 AI，可以直接跳到创建任务。'},
-  {selector: '.create-panel', title: '第 2 步：创建剪辑任务', text: '填写任务名称和要求，选择视频。自动剪辑、画面理解、AI 文案、AI 语音和自动素材都可以分别关闭。'},
-  {selector: '.task-panel', title: '第 3 步：观察处理进度', text: '任务会在这里显示每个阶段的准确进度。点击任务可进入详情；等待检查时，再进入线性分镜工作台。'},
-  {selector: '.segment-search-panel', title: '第 4 步：查找本地镜头', text: '分析完成后，可用中文描述或上传截图，在自己的视频中寻找相似镜头并生成片段。'},
-  {selector: '.media-importer', title: '第 5 步：导入已授权平台素材', text: '粘贴链接前先确认你拥有下载和再创作权。需要账号内容时按页面提示连接浏览器，不登录也不影响开放素材。'},
-  {selector: '.asset-library', title: '第 6 步：管理统一素材库', text: '可以上传本地素材或搜索开放来源。平台候选素材会明确标注权利状态，不会自动当作开放许可。'},
-  {selector: '#diagnostics-open', title: '遇到问题时', text: '点击“诊断日志”查看具体错误并导出脱敏诊断包。现在可以开始创建第一个剪辑任务了。'}
+  {selector: '.hero', title: '目标：从录像得到可下载成片', text: '核心闭环只有 4 步：上传录像 → 等待完整分析 → 检查并修改分镜 → 下载 MP4。AI、素材搜索和平台导入都是可选增强，不会阻止普通剪辑。'},
+  {selector: '.create-panel', title: '第 1 步：上传并开始', text: '选择本地视频，填写名称后创建任务即可。想先快速跑通流程，可以关闭 AI 文案、AI 语音和自动素材；以后随时再开启。'},
+  {selector: '#active-task', title: '第 2 步：看当前任务做到哪里', text: '创建后这里会持续显示当前阶段、百分比和下一步。视频会先完整扫描，再进行高光、文案等后续处理；运行中也可以取消。'},
+  {selector: '.task-panel', title: '第 3、4 步：检查分镜并导出', text: '任务提示“等待检查”时，点击任务进入线性分镜工作台，修改后点“保存全部修改并执行下一步”。完成后仍在任务详情中预览并点击“导出 MP4”，这就跑通了一个完整结果。'}
 ];
 let guideIndex = 0;
 let guideTarget = null;
@@ -1127,8 +1123,8 @@ let guideRoot = null;
 
 function guideStorage(action, value) {
   try {
-    if (action === 'get') return localStorage.getItem('game-narrator-guide-v2');
-    localStorage.setItem('game-narrator-guide-v2', value);
+    if (action === 'get') return localStorage.getItem('game-narrator-guide-v3');
+    localStorage.setItem('game-narrator-guide-v3', value);
   } catch (_) { return null; }
 }
 
