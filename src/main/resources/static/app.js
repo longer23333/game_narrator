@@ -1130,17 +1130,23 @@ function guideStorage(action, value) {
 
 function ensureGuideRoot() {
   if (guideRoot) return guideRoot;
-  guideRoot = document.createElement('div');
+  guideRoot = document.createElement('dialog');
   guideRoot.className = 'guided-tour';
+  guideRoot.setAttribute('aria-labelledby', 'guided-tour-title');
+  guideRoot.setAttribute('aria-describedby', 'guided-tour-text');
   guideRoot.hidden = true;
   guideRoot.innerHTML = `<div class="guided-tour-shade" aria-hidden="true"></div>
-    <aside class="guided-tour-card" role="dialog" aria-modal="false" aria-labelledby="guided-tour-title" aria-describedby="guided-tour-text">
+    <aside class="guided-tour-card">
       <header><span data-guide-count></span><button type="button" data-guide-close aria-label="关闭使用引导">×</button></header>
       <h2 id="guided-tour-title"></h2><p id="guided-tour-text"></p>
       <div class="guided-tour-dots" aria-hidden="true"></div>
       <footer><button type="button" data-guide-previous>上一步</button><button type="button" data-guide-skip>稍后再看</button><button type="button" data-guide-next>下一步</button></footer>
     </aside>`;
   document.body.appendChild(guideRoot);
+  guideRoot.addEventListener('cancel', event => {
+    event.preventDefault();
+    closeGuide(false);
+  });
   guideRoot.querySelector('[data-guide-close]').addEventListener('click', () => closeGuide(false));
   guideRoot.querySelector('[data-guide-skip]').addEventListener('click', () => closeGuide(false));
   guideRoot.querySelector('[data-guide-previous]').addEventListener('click', () => showGuideStep(guideIndex - 1));
@@ -1182,6 +1188,7 @@ function showGuideStep(index) {
     return closeGuide(true);
   }
   root.hidden = false;
+  if (!root.open) root.showModal();
   root.querySelector('[data-guide-count]').textContent = `${guideIndex + 1} / ${guideSteps.length}`;
   root.querySelector('#guided-tour-title').textContent = step.title;
   root.querySelector('#guided-tour-text').textContent = step.text;
@@ -1203,7 +1210,10 @@ function openGuide() {
 function closeGuide(completed) {
   guideTarget?.classList.remove('guided-tour-target');
   guideTarget = null;
-  if (guideRoot) guideRoot.hidden = true;
+  if (guideRoot) {
+    if (guideRoot.open) guideRoot.close();
+    guideRoot.hidden = true;
+  }
   guideStorage('set', completed ? 'completed' : 'dismissed');
   document.querySelector('#guide-open')?.focus({preventScroll: true});
 }
