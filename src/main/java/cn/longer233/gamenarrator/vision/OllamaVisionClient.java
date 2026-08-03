@@ -34,9 +34,10 @@ public class OllamaVisionClient {
     private final int maxFrames;
     private final AdaptiveAiChatClient adaptiveChat;
     private final AiSettingsService aiSettings;
+    private final FrameOcrService frameOcrService;
 
     public OllamaVisionClient(ObjectMapper objectMapper, AdaptiveAiChatClient adaptiveChat,
-            AiSettingsService aiSettings,
+            AiSettingsService aiSettings, FrameOcrService frameOcrService,
             @Value("${game-narrator.ollama.base-url:http://localhost:11434}") String baseUrl,
             @Value("${game-narrator.ollama.vision-model:qwen2.5vl:3b}") String model,
             @Value("${game-narrator.ollama.script-model:qwen2.5vl:3b}") String contentModel,
@@ -44,6 +45,7 @@ public class OllamaVisionClient {
         this.objectMapper = objectMapper;
         this.adaptiveChat = adaptiveChat;
         this.aiSettings = aiSettings;
+        this.frameOcrService = frameOcrService;
         this.baseUri = URI.create(baseUrl);
         this.model = model;
         this.contentModel = contentModel;
@@ -65,10 +67,10 @@ public class OllamaVisionClient {
             for (int index = 0; index < selectedFrames.size(); index++) {
                 SceneFrame frame = selectedFrames.get(index);
                 try {
-                    analyses.add(analyzeFrame(frame, transcriptText));
+                    analyses.add(frameOcrService.enrich(analyzeFrame(frame, transcriptText)));
                 } catch (AiContentRejectedException exception) {
                     log.warn("VIDEO_FRAME_CONTENT_REJECTED frame={} action=rule_fallback", frame.index());
-                    analyses.add(fallbackFrame(frame, transcriptText));
+                    analyses.add(frameOcrService.enrich(fallbackFrame(frame, transcriptText)));
                 }
                 progress.accept(10 + (int) Math.round((index + 1) * 80.0 / selectedFrames.size()));
             }
@@ -103,7 +105,8 @@ public class OllamaVisionClient {
         try {
             List<SceneFrame> frames = objectMapper.readerForListOf(SceneFrame.class).readValue(manifestPath.toFile());
             if (frames.isEmpty()) throw new IllegalStateException("场景清单为空");
-            List<FrameUnderstanding> analyses = frames.stream().map(frame -> fallbackFrame(frame, transcriptText)).toList();
+            List<FrameUnderstanding> analyses = frames.stream()
+                    .map(frame -> frameOcrService.enrich(fallbackFrame(frame, transcriptText))).toList();
             VideoContentAnalysis content = fallbackContentAnalysis(transcriptText, analyses);
             String summary = formatSummary(content);
             Path output = manifestPath.getParent().resolve("visual-analysis.json");

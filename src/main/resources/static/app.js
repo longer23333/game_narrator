@@ -175,7 +175,7 @@ function createTaskCard(task) {
 }
 
 function reconcileTaskCards(tasks) {
-  const active = tasks.find(task => !['COMPLETED', 'FAILED'].includes(task.status));
+  const active = tasks.find(task => !['COMPLETED', 'FAILED', 'CANCELLED'].includes(task.status));
   renderActiveTask(active);
   const recentTasks = tasks.filter(task => task.id !== active?.id).slice(0, 6);
   if (!recentTasks.length) {
@@ -209,7 +209,7 @@ function renderActiveTask(task) {
     <b>${escapeHtml(currentStageText(task))}</b>
     <span class="active-progress"><i style="width:${Math.max(0, Math.min(100, progress))}%"></i></span>
     ${running?.type === 'VOICE_GENERATION' ? `<em>${escapeHtml(voiceProgressText(task, running))}</em>` : ''}
-  </button>`;
+  </button>${task.status === 'PROCESSING' ? `<button type="button" class="task-cancel" data-cancel-task="${task.id}">取消当前任务</button>` : ''}`;
 }
 
 function voiceProgressText(task, stage) {
@@ -406,9 +406,26 @@ taskList.addEventListener('click', event => {
 });
 
 activeTaskPanel.addEventListener('click', event => {
+  const cancel = event.target.closest('[data-cancel-task]');
+  if (cancel) { cancelTask(cancel); return; }
   const card = event.target.closest('[data-open-active-task]');
   if (card) openTaskDetails(card.dataset.openActiveTask);
 });
+
+async function cancelTask(button) {
+  if (!window.confirm('确定取消当前任务吗？正在运行的转写、配音或渲染进程会被终止。')) return;
+  button.disabled = true;
+  button.textContent = '正在终止进程…';
+  try {
+    await requestJson(`/api/tasks/${button.dataset.cancelTask}/cancel`, {method:'POST'});
+    await loadTasks();
+    if (activeTaskId === button.dataset.cancelTask) await refreshTaskDetails(activeTaskId);
+  } catch (error) {
+    button.disabled = false;
+    button.textContent = '取消当前任务';
+    window.alert(`取消失败：${error.message}`);
+  }
+}
 
 async function renameTask(taskId, currentName) {
   const name = window.prompt('请输入新的任务名称', currentName);
@@ -618,6 +635,7 @@ function renderTaskDetails(task) {
   detailContent.innerHTML = `
     <section class="detail-block task-operations"><button type="button" data-rename-task="${task.id}" data-task-name="${escapeHtml(task.name)}">重命名任务</button><small>只修改显示名称，不影响正在处理的阶段和已有文件。</small></section>
     <section class="detail-block task-operations task-delete-operation"><button type="button" data-delete-task="${task.id}" data-task-name="${escapeHtml(task.name)}">删除任务及数据</button><small>同时删除任务记录、源视频、输出视频及 data 中的全部处理文件；不可撤销。</small></section>
+    ${task.status === 'PROCESSING' ? `<section class="detail-block task-operations"><button type="button" data-cancel-task="${task.id}">取消当前任务</button><small>立即终止当前外部进程，保留已完成阶段，清理未完成的临时文件。</small></section>` : ''}
     ${task.status === 'FAILED' ? `<section class="detail-block task-operations"><button type="button" data-retry-task="${task.id}">重试失败阶段</button><small>已完成阶段会保留，从失败位置继续处理。</small></section>` : ''}
     ${task.generatedScriptPath ? `<section class="detail-block task-operations storyboard-launch"><button type="button" data-open-storyboard="${task.id}">进入线性分镜工作台 →</button><small>${task.storyboardReviewEnabled && !task.storyboardApproved ? '需要在独立分镜时间线中检查并确认后才能继续生成。' : '按镜头顺序编辑画面、起止时间、文案、字幕、素材和特效。'}</small></section>` : ''}
     ${task.generatedScriptPath ? `<section class="detail-block task-operations"><button type="button" data-open-script="${task.id}">编辑分段文案</button><small>支持保存、AI 单段重写和单段重新配音。</small></section>` : ''}
@@ -694,6 +712,8 @@ function effectPresetDetails(preset){
 }
 
 detailContent.addEventListener('click', async event => {
+  const cancelButton = event.target.closest('[data-cancel-task]');
+  if (cancelButton) { await cancelTask(cancelButton); return; }
   const renameButton = event.target.closest('[data-rename-task]');
   if (renameButton) {
     await renameTask(renameButton.dataset.renameTask, renameButton.dataset.taskName);
@@ -729,6 +749,11 @@ async function loadScriptEditor(taskId) {
     <section class="detail-block script-editor">
       <h3>分段文案编辑</h3>
       <p class="effect-note">修改文案会使配音、时间线和成片进入待重建状态。单段配音完成后可重新启动任务生成时间线和成片。</p>
+      <aside class="script-quality ${script.qualityReview?.passed ? 'passed' : 'needs-work'}">
+        <strong>文案质量 ${script.qualityReview?.score ?? 0} / 100</strong>
+        <span>${escapeHtml(script.qualityReview?.summary || '尚未生成质量评审')}</span>
+        ${script.qualityReview?.issues?.length ? `<ul>${script.qualityReview.issues.map(issue => `<li>${escapeHtml(issue)}</li>`).join('')}</ul>` : ''}
+      </aside>
       <div class="script-segment-list">${script.segments.map(segment => `
         <article class="script-segment-card" data-script-segment="${segment.clipIndex}">
           <header><strong>片段 ${segment.clipIndex}</strong><small>${segment.startSeconds.toFixed(1)}s – ${segment.endSeconds.toFixed(1)}s</small></header>
@@ -771,6 +796,7 @@ async function loadStoryboardEditor(taskId) {
           <header><strong>分镜 ${segment.clipIndex}</strong><span>${escapeHtml(segment.eventType || '其他')} · AI ${segment.finalScore} 分</span></header>
           <div class="storyboard-order"><button type="button" data-storyboard-action="move" data-direction="UP" data-task-id="${taskId}" data-clip-index="${segment.clipIndex}" ${segment.clipIndex === 1 ? 'disabled' : ''}>上移</button><button type="button" data-storyboard-action="move" data-direction="DOWN" data-task-id="${taskId}" data-clip-index="${segment.clipIndex}" ${segment.clipIndex === storyboard.segments.length ? 'disabled' : ''}>下移</button></div>
           <p class="storyboard-description">${escapeHtml(segment.description || '')}</p>
+          <div class="storyboard-controls"><label><input name="locked" type="checkbox" ${segment.locked ? 'checked' : ''}>锁定：AI 重写时保持此镜</label><label><input name="excluded" type="checkbox" ${segment.excluded ? 'checked' : ''}>排除：最终时间线跳过此镜</label></div>
           <div class="storyboard-time"><label>开始秒数<input name="startSeconds" type="number" min="0" step="0.1" value="${segment.startSeconds.toFixed(2)}"></label><label>结束秒数<input name="endSeconds" type="number" min="0.01" step="0.1" value="${segment.endSeconds.toFixed(2)}"></label></div>
           <label>解说文案<textarea name="narration" maxlength="500">${escapeHtml(segment.narration)}</textarea></label>
           <label>字幕<input name="subtitle" maxlength="500" value="${escapeHtml(segment.subtitle)}"></label>
@@ -904,7 +930,9 @@ async function handleStoryboardAction(button) {
         endSeconds:Number(card.querySelector('[name="endSeconds"]').value),
         narration:card.querySelector('[name="narration"]').value,
         subtitle:card.querySelector('[name="subtitle"]').value,
-        effectCue:card.querySelector('[name="effectCue"]').value
+        effectCue:card.querySelector('[name="effectCue"]').value,
+        locked:card.querySelector('[name="locked"]').checked,
+        excluded:card.querySelector('[name="excluded"]').checked
       })
     });
     button.textContent = '已保存';
@@ -927,7 +955,9 @@ async function saveAllStoryboardSegments(taskId, progressButton = null) {
         endSeconds:Number(card.querySelector('[name="endSeconds"]').value),
         narration:card.querySelector('[name="narration"]').value,
         subtitle:card.querySelector('[name="subtitle"]').value,
-        effectCue:card.querySelector('[name="effectCue"]').value
+        effectCue:card.querySelector('[name="effectCue"]').value,
+        locked:card.querySelector('[name="locked"]').checked,
+        excluded:card.querySelector('[name="excluded"]').checked
       })
     });
     if (progressButton) progressButton.textContent = `正在保存 ${index + 1} / ${cards.length}…`;
@@ -992,6 +1022,7 @@ function formatDate(value) {
 
 function currentStageText(task) {
   if (task.status === 'WAITING_REVIEW') return '等待检查 AI 分镜和文案，确认后继续生成';
+  if (task.status === 'CANCELLED') return '任务已取消，已完成的阶段和工程数据仍保留';
   if (task.status === 'FAILED') return `处理失败：${task.failureReason || '请查看后端日志'}`;
   const running = task.stages.find(stage => stage.status === 'RUNNING');
   if (running?.type === 'VOICE_GENERATION') return `正在配音：${running.progress}%`;

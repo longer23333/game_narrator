@@ -88,6 +88,12 @@ public class VideoTaskController {
         service.start(id);
     }
 
+    @PostMapping("/{id}/cancel")
+    @ResponseStatus(HttpStatus.ACCEPTED)
+    public VideoTaskView cancel(@PathVariable UUID id) {
+        return service.cancel(id);
+    }
+
     @PostMapping("/{id}/retry")
     @ResponseStatus(HttpStatus.ACCEPTED)
     public VideoTaskView retry(@PathVariable UUID id) {
@@ -116,6 +122,7 @@ public class VideoTaskController {
             @RequestParam("targetDurationSeconds") int targetDurationSeconds,
             @RequestParam(value = "editingScope", defaultValue = "FULL_VIDEO") EditingScope editingScope,
             @RequestParam("taskBrief") String taskBrief,
+            @RequestParam(value = "terminologyGlossary", defaultValue = "") String terminologyGlossary,
             @RequestParam(value = "storyboardReviewEnabled", defaultValue = "false") boolean storyboardReviewEnabled,
             @RequestParam(value = "automaticGenerationEnabled", defaultValue = "true") boolean automaticGenerationEnabled,
             @RequestParam(value = "cloudVisionEnabled", defaultValue = "true") boolean cloudVisionEnabled,
@@ -131,6 +138,7 @@ public class VideoTaskController {
                 targetDurationSeconds,
                 editingScope,
                 taskBrief,
+                terminologyGlossary,
                 storyboardReviewEnabled,
                 automaticGenerationEnabled,
                 cloudVisionEnabled,

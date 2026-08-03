@@ -6,6 +6,7 @@ public record ScriptDocumentView(
         String title,
         String synopsis,
         String fullNarration,
+        ScriptQualityReview qualityReview,
         List<ScriptSegment> segments
 ) {
 }

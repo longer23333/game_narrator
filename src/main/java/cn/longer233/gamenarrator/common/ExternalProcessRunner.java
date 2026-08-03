@@ -33,20 +33,30 @@ public final class ExternalProcessRunner {
                              Consumer<String> outputLine)
             throws IOException, InterruptedException {
         Process process = new ProcessBuilder(command).redirectErrorStream(true).start();
+        TaskProcessRegistry.register(process);
         CompletableFuture<String> output = drain(process, outputLine);
         try {
             if (standardInput == null) process.getOutputStream().close();
             else try (var input = process.getOutputStream()) {
                 input.write(standardInput.getBytes(StandardCharsets.UTF_8));
             }
-            if (!process.waitFor(timeout.toMillis(), TimeUnit.MILLISECONDS)) {
-                terminateTree(process);
-                throw new ProcessTimeoutException(timeout);
+            long deadline = System.nanoTime() + timeout.toNanos();
+            while (!process.waitFor(Math.min(500, Math.max(1,
+                    TimeUnit.NANOSECONDS.toMillis(deadline - System.nanoTime()))), TimeUnit.MILLISECONDS)) {
+                if (TaskProcessRegistry.currentTaskCancelled()) {
+                    terminateTree(process);
+                    throw new java.util.concurrent.CancellationException("任务已取消");
+                }
+                if (System.nanoTime() >= deadline) {
+                    terminateTree(process);
+                    throw new ProcessTimeoutException(timeout);
+                }
             }
             return new Result(process.exitValue(), join(output));
         } finally {
             if (process.isAlive()) terminateTree(process);
             if (!output.isDone()) output.cancel(true);
+            TaskProcessRegistry.unregister(process);
         }
     }
 

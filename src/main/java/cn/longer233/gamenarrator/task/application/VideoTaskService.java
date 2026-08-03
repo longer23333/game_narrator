@@ -67,6 +67,7 @@ public class VideoTaskService {
         );
         VideoTask savedTask = repository.saveAndFlush(task);
         savedTask.configureEditingScope(command.editingScope());
+        savedTask.configureTerminologyGlossary(command.terminologyGlossary());
         savedTask.configureAiOptions(command.automaticGenerationEnabled(), command.cloudVisionEnabled(), command.aiScriptEnabled(),
                 command.aiVoiceEnabled(), command.autoAssetsEnabled());
         repository.saveAndFlush(savedTask);
@@ -112,6 +113,17 @@ public class VideoTaskService {
         }
         log.info("TASK_MANUAL_START taskId={}", id);
         engine.start(id);
+    }
+
+    @Transactional
+    public VideoTaskView cancel(UUID id) {
+        VideoTask task = repository.findById(id).orElseThrow(() -> new TaskNotFoundException(id));
+        if (task.getStatus() != cn.longer233.gamenarrator.task.domain.TaskStatus.PROCESSING) {
+            throw new IllegalStateException("只有正在处理的任务可以取消");
+        }
+        engine.requestCancellation(id);
+        log.info("TASK_CANCEL_REQUESTED taskId={}", id);
+        return VideoTaskView.from(task);
     }
 
     @Transactional
@@ -201,7 +213,7 @@ public class VideoTaskService {
     private void deleteOwnedArtifact(String value) {
         try {
             Path path = Path.of(value).toAbsolutePath().normalize();
-            if (!path.startsWith(storageRoot) || path.equals(storageRoot)) {
+            if (!safeOwnedPath(path, storageRoot)) {
                 log.warn("TASK_ARTIFACT_DELETE_SKIPPED reason=outside_storage_root");
                 return;
             }
@@ -214,17 +226,33 @@ public class VideoTaskService {
     private void deleteOwnedTree(Path candidate) {
         Path path = candidate.toAbsolutePath().normalize();
         Path taskRoot = storageRoot.resolve("tasks").normalize();
-        if (!path.startsWith(taskRoot) || path.equals(taskRoot)) {
+        if (!safeOwnedPath(path, taskRoot)) {
             log.warn("TASK_DIRECTORY_DELETE_SKIPPED reason=outside_task_root");
             return;
         }
         if (!Files.exists(path)) return;
         try (var entries = Files.walk(path)) {
             for (Path entry : entries.sorted(java.util.Comparator.reverseOrder()).toList()) {
+                if (Files.isSymbolicLink(entry)) {
+                    Files.deleteIfExists(entry);
+                    continue;
+                }
                 Files.deleteIfExists(entry);
             }
         } catch (Exception exception) {
             log.warn("TASK_DIRECTORY_DELETE_SKIPPED reason={}", exception.getClass().getSimpleName());
         }
+    }
+
+    private boolean safeOwnedPath(Path candidate, Path allowedRoot) {
+        Path path = candidate.toAbsolutePath().normalize();
+        Path root = allowedRoot.toAbsolutePath().normalize();
+        if (!path.startsWith(root) || path.equals(root)) return false;
+        Path current = root;
+        for (Path segment : root.relativize(path)) {
+            current = current.resolve(segment);
+            if (Files.isSymbolicLink(current)) return false;
+        }
+        return true;
     }
 }

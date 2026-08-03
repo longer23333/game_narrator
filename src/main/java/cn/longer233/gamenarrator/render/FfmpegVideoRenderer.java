@@ -65,13 +65,13 @@ public class FfmpegVideoRenderer {
 
     public RenderResult render(Path sourceVideo, Path timelinePath, boolean hasSourceAudio,
                                EffectPreset preset, EffectSettingsRequest settings) {
+        Path workDirectory = timelinePath.getParent().resolve("render-work");
         try {
             var root = objectMapper.readTree(timelinePath.toFile());
             List<TimelineSegment> segments = objectMapper.readerForListOf(TimelineSegment.class)
                     .readValue(root.path("segments"));
             if (segments.isEmpty()) throw new IllegalStateException("剪辑时间线为空");
             Path taskDirectory = timelinePath.getParent();
-            Path workDirectory = taskDirectory.resolve("render-work");
             Files.createDirectories(workDirectory);
             List<RenderAssetResolver.RenderAsset> storyboardAssets = renderAssetResolver.resolve(timelinePath);
             log.info("RENDERING_BEGIN segments={} source={} preferredEncoder={}",
@@ -162,6 +162,8 @@ public class FfmpegVideoRenderer {
             throw exception;
         } catch (Exception exception) {
             throw new IllegalStateException("视频渲染失败：" + exception.getMessage(), exception);
+        } finally {
+            cleanupWorkDirectory(workDirectory);
         }
     }
 

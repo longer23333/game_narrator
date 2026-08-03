@@ -9,6 +9,8 @@ public record UpdateStoryboardSegmentRequest(
         @DecimalMin("0.01") double endSeconds,
         @NotBlank @Size(max = 500) String narration,
         @Size(max = 500) String subtitle,
-        @Size(max = 200) String effectCue
+        @Size(max = 200) String effectCue,
+        boolean locked,
+        boolean excluded
 ) {
 }

@@ -53,6 +53,10 @@ logging:
     file: "%d{yyyy-MM-dd HH:mm:ss.SSS} %-5level [%thread] [trace=%X{traceId:-system}] %logger{48} - %msg%n"
 
 game-narrator:
+  ocr:
+    enabled: ${OCR_ENABLED:false}
+    executable: ${TESSERACT_EXECUTABLE:tesseract}
+    languages: ${TESSERACT_LANGUAGES:chi_sim+eng}
   ai:
     # DashScope 对原始游戏截图审核较严；默认本地优先，未安装本地视觉模型时使用规则降级，不上传图片。
     cloud-image-policy: ${CLOUD_IMAGE_POLICY:CLOUD_ALLOWED}

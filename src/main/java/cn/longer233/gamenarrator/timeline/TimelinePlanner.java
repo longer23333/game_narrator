@@ -42,15 +42,17 @@ public class TimelinePlanner {
             List<TimelineSegment> timeline = new ArrayList<>();
             double cursor = 0;
             int overflowCount = 0;
+            int sequence = 1;
             for (int index = 0; index < clips.size(); index++) {
                 HighlightClip clip = clips.get(index);
+                if (clip.excluded()) continue;
                 ScriptSegment script = scripts.get(index);
                 VoiceSegment voice = voices.get(index);
                 double clipDuration = clip.endSeconds() - clip.startSeconds();
                 double voiceDuration = wavDuration(Path.of(voice.audioPath()));
                 boolean overflow = voiceDuration > clipDuration - 0.3;
                 if (overflow) overflowCount++;
-                timeline.add(new TimelineSegment(index + 1, cursor, cursor + clipDuration,
+                timeline.add(new TimelineSegment(sequence++, cursor, cursor + clipDuration,
                         clip.startSeconds(), clip.endSeconds(), script.narration(), script.subtitle(),
                         script.effectCue(), voice.audioPath(), voiceDuration, overflow));
                 cursor += clipDuration;

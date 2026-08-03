@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>GameNarrator</title>
   <link rel="stylesheet" href="/media-importer.css?v=20260729-10">
-  <link rel="stylesheet" href="/app.css?v=20260803-12">
+  <link rel="stylesheet" href="/app.css?v=20260803-13">
 </head>
 <body>
   <div class="aurora"></div>
@@ -82,6 +82,7 @@
             <label>目标时长（秒）<input name="targetDurationSeconds" type="number" min="15" max="3600" value="90"><small>仅“精彩片段”模式用于控制成片长度。</small></label>
           </div>
           <label>创作要求<textarea name="taskBrief" maxlength="500" required placeholder="描述希望重点保留的玩法、节奏和表达方式"></textarea></label>
+          <details class="glossary-editor"><summary>游戏术语纠错词表（可选）</summary><label>每行填写“错误词=正确词”<textarea name="terminologyGlossary" maxlength="4000" placeholder="躲避=闪避&#10;大龙=纳什男爵"></textarea></label></details>
           <label class="effect-toggle storyboard-review-option"><input name="storyboardReviewEnabled" type="checkbox" value="true" checked> AI 生成文案和分镜后暂停，等待我检查和修改</label>
           <label class="effect-toggle"><input name="automaticGenerationEnabled" type="checkbox" value="true" checked> 启动自动剪辑流程</label>
           <label class="effect-toggle"><input name="cloudVisionEnabled" type="checkbox" value="true" checked> 云端理解完整视频场景</label>
@@ -275,7 +276,7 @@
       <main id="storyboard-workspace" class="storyboard-workspace"><p class="empty">正在读取分镜…</p></main>
     </div>
   </dialog>
-  <script src="/app.js?v=20260803-9"></script>
+  <script src="/app.js?v=20260803-10"></script>
   <script src="/export.js?v=20260728-4"></script>
   <script src="/asset-library.js?v=20260803-3"></script>
   <script src="/media-importer.js?v=20260803-4"></script>

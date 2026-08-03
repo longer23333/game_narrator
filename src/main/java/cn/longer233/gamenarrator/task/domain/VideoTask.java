@@ -33,6 +33,9 @@ public class VideoTask {
     @Column(nullable = false, length = 500)
     private String taskBrief;
 
+    @Column(length = 4000)
+    private String terminologyGlossary;
+
     @Column(nullable = false, length = 500)
     private String sourceVideoPath;
 
@@ -183,6 +186,10 @@ public class VideoTask {
         this.editingScope = editingScope == null ? EditingScope.FULL_VIDEO : editingScope;
     }
 
+    public void configureTerminologyGlossary(String glossary) {
+        this.terminologyGlossary = glossary == null || glossary.isBlank() ? null : glossary.strip();
+    }
+
     public UUID getId() { return id; }
     public String getName() { return name; }
     public String getGameCategory() { return gameCategory; }
@@ -190,6 +197,7 @@ public class VideoTask {
     public int getTargetDurationSeconds() { return targetDurationSeconds; }
     public EditingScope getEditingScope() { return editingScope; }
     public String getTaskBrief() { return taskBrief; }
+    public String getTerminologyGlossary() { return terminologyGlossary; }
     public String getSourceVideoPath() { return sourceVideoPath; }
     public TaskStatus getStatus() { return status; }
     public Instant getCreatedAt() { return createdAt; }
@@ -518,6 +526,13 @@ public class VideoTask {
         this.status = TaskStatus.FAILED;
         this.failureReason = safeFailure(reason);
         stage(ProcessingStageType.RENDERING).fail(this.failureReason);
+    }
+
+    public void cancel(String reason) {
+        this.status = TaskStatus.CANCELLED;
+        this.failureReason = null;
+        stages.stream().filter(stage -> stage.getStatus() == StageStatus.RUNNING)
+                .forEach(stage -> stage.defer(reason == null ? "用户取消了任务" : reason));
     }
 
     private void invalidateAfterScript() {

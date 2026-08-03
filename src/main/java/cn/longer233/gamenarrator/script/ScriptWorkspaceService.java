@@ -62,6 +62,10 @@ public class ScriptWorkspaceService {
         ScriptDocumentView document = readDocument(task);
         List<ScriptSegment> segments = document.segments();
         int position = positionOf(segments, clipIndex);
+        List<HighlightClip> clips = readHighlightClips(task);
+        if (position < clips.size() && clips.get(position).locked()) {
+            throw new IllegalStateException("该分镜已锁定，请先取消锁定再使用 AI 重写");
+        }
         ScriptSegment replacement = scriptGenerator.regenerateSegment(
                 segments.get(position),
                 request == null ? null : request.instruction(),
@@ -104,7 +108,7 @@ public class ScriptWorkspaceService {
             ScriptSegment text = script.segments().get(index);
             segments.add(new StoryboardSegmentView(text.clipIndex(), clip.startSeconds(), clip.endSeconds(),
                     text.narration(), text.subtitle(), text.effectCue(), clip.eventType(),
-                    clip.description(), clip.finalScore()));
+                    clip.description(), clip.finalScore(), clip.locked(), clip.excluded()));
         }
         return new StoryboardView(script.title(), script.synopsis(), task.isStoryboardReviewEnabled(),
                 task.isStoryboardApproved(), List.copyOf(segments));
@@ -133,7 +137,8 @@ public class ScriptWorkspaceService {
         HighlightClip currentClip = clips.get(position);
         clips.set(position, new HighlightClip(currentClip.sourceFrameIndex(), request.startSeconds(), request.endSeconds(),
                 Math.max(request.startSeconds(), Math.min(request.endSeconds(), currentClip.anchorSeconds())),
-                currentClip.eventType(), currentClip.description(), currentClip.sourceScore(), currentClip.finalScore()));
+                currentClip.eventType(), currentClip.description(), currentClip.sourceScore(), currentClip.finalScore(),
+                request.locked(), request.excluded()));
         Map<String, Object> updated = objectMapper.convertValue(root, new com.fasterxml.jackson.core.type.TypeReference<LinkedHashMap<String, Object>>() {});
         updated.put("clips", clips);
         updated.put("selectedDurationSeconds", clips.stream().mapToDouble(HighlightClip::durationSeconds).sum());
@@ -204,7 +209,7 @@ public class ScriptWorkspaceService {
         segments.set(position, replacement);
         String fullNarration = String.join("\n", segments.stream().map(ScriptSegment::narration).toList());
         ScriptDocumentView revised = new ScriptDocumentView(
-                current.title(), current.synopsis(), fullNarration, List.copyOf(segments));
+                current.title(), current.synopsis(), fullNarration, current.qualityReview(), List.copyOf(segments));
         Path scriptPath = requireScriptPath(task);
         Map<String, Object> output = new LinkedHashMap<>();
         JsonNode existing = readJson(scriptPath);
@@ -212,6 +217,7 @@ public class ScriptWorkspaceService {
         output.put("title", revised.title());
         output.put("synopsis", revised.synopsis());
         output.put("fullNarration", revised.fullNarration());
+        output.put("qualityReview", revised.qualityReview());
         output.put("segments", revised.segments());
         writeAtomically(scriptPath, output);
         task.applyScriptRevision(revised.title(), revised.synopsis(), revised.fullNarration(),
@@ -230,10 +236,19 @@ public class ScriptWorkspaceService {
                     document.path("title").asText(),
                     document.path("synopsis").asText(),
                     document.path("fullNarration").asText(),
+                    readQualityReview(document.path("qualityReview")),
                     List.copyOf(segments));
         } catch (Exception exception) {
             throw new IllegalStateException("Cannot read script segments: " + exception.getMessage(), exception);
         }
+    }
+
+    private ScriptQualityReview readQualityReview(JsonNode node) {
+        if (node == null || !node.isObject()) return ScriptQualityReview.unavailable();
+        List<String> issues = new ArrayList<>();
+        node.path("issues").forEach(issue -> { if (!issue.asText().isBlank()) issues.add(issue.asText()); });
+        return new ScriptQualityReview(node.path("score").asInt(0), node.path("passed").asBoolean(false),
+                List.copyOf(issues), node.path("summary").asText(""));
     }
 
     private List<VoiceSegment> readVoiceSegments(JsonNode document) {

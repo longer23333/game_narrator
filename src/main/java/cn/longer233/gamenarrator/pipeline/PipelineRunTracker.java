@@ -48,6 +48,11 @@ public class PipelineRunTracker {
                 limited(reason), activeRun(taskId));
     }
 
+    public void cancelled(UUID taskId, String stageType, String reason) {
+        updateStage(taskId, stageType, "CANCELLED", 0, null, reason);
+        finishRun(taskId, "CANCELLED", reason);
+    }
+
     private UUID activeRun(UUID taskId) {
         var runs = jdbc.query("""
                 SELECT id FROM generation_run WHERE project_id=? AND status IN ('RUNNING','WAITING')
@@ -78,7 +83,7 @@ public class PipelineRunTracker {
                 elapsed_ms=DATEDIFF('MILLISECOND',started_at,?),error_message=?
                 WHERE id=(SELECT id FROM stage_run WHERE generation_run_id=? AND stage_type=?
                 ORDER BY attempt_no DESC LIMIT 1)
-                """, status, progress, summary, now(), now(), limited(error), runId, stageType);
+                """, status, progress, summary, now(), now(), error, runId, stageType);
         if (changed == 0) {
             running(taskId, stageType);
             updateStage(taskId, stageType, status, progress, summary, error);
@@ -90,9 +95,9 @@ public class PipelineRunTracker {
         jdbc.update("""
                 UPDATE generation_run SET status=?,finished_at=?,elapsed_ms=DATEDIFF('MILLISECOND',started_at,?),
                 failure_message=? WHERE id=?
-                """, status, now(), now(), limited(error), runId);
+                """, status, now(), now(), error, runId);
         jdbc.update("UPDATE video_project SET status=?,updated_at=? WHERE id=?",
-                "COMPLETED".equals(status) ? "READY" : "FAILED", now(), taskId);
+                "COMPLETED".equals(status) ? "READY" : status, now(), taskId);
     }
 
     private String json(Object value) {

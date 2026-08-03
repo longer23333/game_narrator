@@ -22,10 +22,16 @@ public class TaskWorkflowStateService {
 
     private final VideoTaskRepository repository;
     private final PipelineRunTracker runTracker;
+    private final cn.longer233.gamenarrator.transcription.TerminologyCorrector terminologyCorrector;
+    private final ProjectArtifactRegistry artifactRegistry;
 
-    public TaskWorkflowStateService(VideoTaskRepository repository, PipelineRunTracker runTracker) {
+    public TaskWorkflowStateService(VideoTaskRepository repository, PipelineRunTracker runTracker,
+                                    cn.longer233.gamenarrator.transcription.TerminologyCorrector terminologyCorrector,
+                                    ProjectArtifactRegistry artifactRegistry) {
         this.repository = repository;
         this.runTracker = runTracker;
+        this.terminologyCorrector = terminologyCorrector;
+        this.artifactRegistry = artifactRegistry;
     }
 
     @Transactional
@@ -78,6 +84,12 @@ public class TaskWorkflowStateService {
     }
 
     @Transactional
+    public void markCancelled(UUID taskId, String stageType, String reason) {
+        requireTask(taskId).cancel(reason);
+        runTracker.cancelled(taskId, stageType, reason);
+    }
+
+    @Transactional
     public void markIngestionRunning(UUID taskId) {
         requireTask(taskId).startIngestion();
         runTracker.running(taskId, "VIDEO_INGESTION");
@@ -116,6 +128,8 @@ public class TaskWorkflowStateService {
                 result.scenes().size()
         );
         runTracker.completed(taskId, "SCENE_DETECTION", java.util.Map.of("sceneCount", result.scenes().size()));
+        artifactRegistry.record(taskId, "SCENE_MANIFEST", result.sceneManifestPath(), "application/json", false);
+        artifactRegistry.record(taskId, "EXTRACTED_AUDIO", result.extractedAudioPath(), "audio/wav", false);
     }
 
     @Transactional
@@ -132,9 +146,13 @@ public class TaskWorkflowStateService {
 
     @Transactional
     public void markTranscriptionCompleted(UUID taskId, TranscriptionResult result) {
-        requireTask(taskId).completeTranscription(
-                result.text(), result.textPath(), result.subtitlePath(), result.detailJsonPath());
-        runTracker.completed(taskId, "TRANSCRIPTION", java.util.Map.of("characterCount", result.text().length()));
+        VideoTask task = requireTask(taskId);
+        TranscriptionResult corrected = terminologyCorrector.correct(result, task.getTerminologyGlossary());
+        task.completeTranscription(corrected.text(), corrected.textPath(), corrected.subtitlePath(), corrected.detailJsonPath());
+        runTracker.completed(taskId, "TRANSCRIPTION", java.util.Map.of("characterCount", corrected.text().length()));
+        artifactRegistry.record(taskId, "TRANSCRIPT_TEXT", corrected.textPath(), "text/plain", false);
+        artifactRegistry.record(taskId, "TRANSCRIPT_SUBTITLE", corrected.subtitlePath(), "application/x-subrip", false);
+        artifactRegistry.record(taskId, "TRANSCRIPT_DETAIL", corrected.detailJsonPath(), "application/json", false);
     }
 
     @Transactional
@@ -154,6 +172,7 @@ public class TaskWorkflowStateService {
         requireTask(taskId).completeVideoUnderstanding(
                 result.summary(), result.analysisPath(), result.frames().size());
         runTracker.completed(taskId, "VIDEO_UNDERSTANDING", java.util.Map.of("frameCount", result.frames().size()));
+        artifactRegistry.record(taskId, "VISION_ANALYSIS", result.analysisPath(), "application/json", false);
     }
 
     @Transactional
@@ -178,6 +197,7 @@ public class TaskWorkflowStateService {
     public void markHighlightSelectionCompleted(UUID taskId, HighlightSelectionResult result) {
         requireTask(taskId).completeHighlightSelection(result.summary(), result.manifestPath(), result.clips().size());
         runTracker.completed(taskId, "HIGHLIGHT_SELECTION", java.util.Map.of("clipCount", result.clips().size()));
+        artifactRegistry.record(taskId, "HIGHLIGHT_MANIFEST", result.manifestPath(), "application/json", false);
     }
 
     @Transactional
@@ -197,6 +217,7 @@ public class TaskWorkflowStateService {
         requireTask(taskId).completeScriptGeneration(result.title(), result.synopsis(),
                 result.fullNarration(), result.scriptPath(), result.segments().size());
         runTracker.completed(taskId, "SCRIPT_GENERATION", java.util.Map.of("segmentCount", result.segments().size()));
+        artifactRegistry.record(taskId, "SCRIPT_MANIFEST", result.scriptPath(), "application/json", false);
     }
 
     @Transactional
@@ -220,6 +241,7 @@ public class TaskWorkflowStateService {
     public void markVoiceGenerationCompleted(UUID taskId, VoiceGenerationResult result) {
         requireTask(taskId).completeVoiceGeneration(result.manifestPath(), result.segments().size());
         runTracker.completed(taskId, "VOICE_GENERATION", java.util.Map.of("segmentCount", result.segments().size()));
+        artifactRegistry.record(taskId, "VOICE_MANIFEST", result.manifestPath(), "application/json", false);
     }
 
     @Transactional
@@ -246,6 +268,7 @@ public class TaskWorkflowStateService {
                 result.timelinePath(), result.outputDurationSeconds(), result.overflowCount());
         runTracker.completed(taskId, "TIMELINE_PLANNING", java.util.Map.of(
                 "outputDurationSeconds", result.outputDurationSeconds(), "overflowCount", result.overflowCount()));
+        artifactRegistry.record(taskId, "TIMELINE_MANIFEST", result.timelinePath(), "application/json", false);
     }
 
     @Transactional
@@ -264,6 +287,8 @@ public class TaskWorkflowStateService {
     public void markRenderingCompleted(UUID taskId, RenderResult result) {
         requireTask(taskId).completeRendering(result.videoPath(), result.subtitlePath(), result.fileSizeBytes());
         runTracker.completed(taskId, "RENDERING", java.util.Map.of("fileSizeBytes", result.fileSizeBytes()));
+        artifactRegistry.record(taskId, "RENDERED_VIDEO", result.videoPath(), "video/mp4", false);
+        artifactRegistry.record(taskId, "GENERATED_SUBTITLE", result.subtitlePath(), "application/x-subrip", false);
     }
 
     @Transactional

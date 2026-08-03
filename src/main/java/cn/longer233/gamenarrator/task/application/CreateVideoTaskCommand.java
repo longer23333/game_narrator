@@ -11,6 +11,7 @@ public record CreateVideoTaskCommand(
         @Min(15) @Max(3600) int targetDurationSeconds,
         @NotNull EditingScope editingScope,
         @NotBlank @Size(max = 500) String taskBrief,
+        @Size(max = 4000) String terminologyGlossary,
         boolean storyboardReviewEnabled,
         boolean automaticGenerationEnabled,
         boolean cloudVisionEnabled,

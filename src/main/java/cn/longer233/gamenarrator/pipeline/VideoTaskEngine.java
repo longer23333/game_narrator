@@ -34,6 +34,8 @@ import java.nio.file.Path;
 import java.util.UUID;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.CancellationException;
+import cn.longer233.gamenarrator.common.TaskProcessRegistry;
 
 @Service
 public class VideoTaskEngine {
@@ -58,6 +60,11 @@ public class VideoTaskEngine {
 
     public void requestDeletion(UUID taskId) {
         deletionRequested.add(taskId);
+        TaskProcessRegistry.cancel(taskId);
+    }
+
+    public void requestCancellation(UUID taskId) {
+        TaskProcessRegistry.cancel(taskId);
     }
 
     public VideoTaskEngine(
@@ -101,7 +108,8 @@ public class VideoTaskEngine {
         MDC.put("traceId", "task-" + taskId.toString().substring(0, 8));
         log.info("ENGINE_START taskId={}", taskId);
         String activeStage = "VIDEO_INGESTION";
-        try {
+        try (TaskProcessRegistry.Scope ignored = TaskProcessRegistry.open(taskId)) {
+            checkCancellation(taskId);
             EngineTaskContext context = stateService.context(taskId);
             Path sourcePath = Path.of(context.sourceVideoPath());
             if (!context.ingestionCompleted()) {
@@ -116,6 +124,7 @@ public class VideoTaskEngine {
             }
 
             activeStage = "SCENE_DETECTION";
+            checkCancellation(taskId);
             if (!context.sceneDetectionCompleted()) {
                 stateService.markSceneDetectionRunning(taskId);
                 MediaPreparationResult result = mediaPreprocessor.prepare(
@@ -136,6 +145,7 @@ public class VideoTaskEngine {
             }
 
             activeStage = "TRANSCRIPTION";
+            checkCancellation(taskId);
             if (!context.transcriptionCompleted()) {
                 stateService.markTranscriptionRunning(taskId);
                 TranscriptionResult result;
@@ -155,6 +165,7 @@ public class VideoTaskEngine {
             }
 
             activeStage = "VIDEO_UNDERSTANDING";
+            checkCancellation(taskId);
             if (!context.videoUnderstandingCompleted()) {
                 if (context.cloudVisionEnabled() && !visionClient.available()) {
                     String reason = "当前视觉服务不可用：请检查云端 API Key/服务状态，或安装并启动本地视觉模型";
@@ -180,6 +191,7 @@ public class VideoTaskEngine {
                         taskId);
             }
             activeStage = "HIGHLIGHT_SELECTION";
+            checkCancellation(taskId);
             if (!context.highlightSelectionCompleted()) {
                 stateService.markHighlightSelectionRunning(taskId);
                 HighlightSelectionResult result = highlightSelector.select(
@@ -194,6 +206,7 @@ public class VideoTaskEngine {
                         taskId);
             }
             activeStage = "SCRIPT_GENERATION";
+            checkCancellation(taskId);
             if (!context.scriptGenerationCompleted()) {
                 stateService.markScriptGenerationRunning(taskId);
                 GeneratedScript result = context.aiScriptEnabled()
@@ -220,6 +233,7 @@ public class VideoTaskEngine {
                 return;
             }
             activeStage = "VOICE_GENERATION";
+            checkCancellation(taskId);
             if (!context.voiceGenerationCompleted()) {
                 if (context.aiVoiceEnabled() && !voiceGenerator.available()) {
                     String reason = "等待本地 Piper 配音引擎；请执行 .\\scripts\\setup-piper.ps1";
@@ -241,6 +255,7 @@ public class VideoTaskEngine {
                 log.info("ENGINE_STAGE_SKIPPED taskId={} stage=VOICE_GENERATION reason=already_completed", taskId);
             }
             activeStage = "TIMELINE_PLANNING";
+            checkCancellation(taskId);
             if (!context.timelinePlanningCompleted()) {
                 stateService.markTimelinePlanningRunning(taskId);
                 TimelinePlanningResult result = timelinePlanner.plan(
@@ -254,6 +269,7 @@ public class VideoTaskEngine {
                 log.info("ENGINE_STAGE_SKIPPED taskId={} stage=TIMELINE_PLANNING reason=already_completed", taskId);
             }
             activeStage = "RENDERING";
+            checkCancellation(taskId);
             if (!context.renderingCompleted()) {
                 stateService.markRenderingRunning(taskId);
                 var preset = effectPresetCatalog.require(context.commentaryStyle());
@@ -267,6 +283,13 @@ public class VideoTaskEngine {
                 log.info("ENGINE_STAGE_SKIPPED taskId={} stage=RENDERING reason=already_completed", taskId);
             }
             log.info("ENGINE_COMPLETED taskId={}", taskId);
+        } catch (CancellationException exception) {
+            if (deletionRequested.contains(taskId)) {
+                log.info("ENGINE_STOPPED_DELETED taskId={} stage={}", taskId, activeStage);
+                return;
+            }
+            stateService.markCancelled(taskId, activeStage, "用户取消了任务");
+            log.info("ENGINE_CANCELLED taskId={} stage={}", taskId, activeStage);
         } catch (Exception exception) {
             if (deletionRequested.contains(taskId)) {
                 log.info("ENGINE_STOPPED_DELETED taskId={} stage={}", taskId, activeStage);
@@ -299,6 +322,10 @@ public class VideoTaskEngine {
             deletionRequested.remove(taskId);
             MDC.remove("traceId");
         }
+    }
+
+    private void checkCancellation(UUID taskId) {
+        TaskProcessRegistry.throwIfCancelled(taskId);
     }
 
     private String rootMessage(Throwable throwable) {

@@ -1,7 +1,7 @@
 # GameNarrator — DeepSeek 项目上下文包
 
-> 自动生成时间：2026-08-03 16:50:11 +08:00
-> 文件数量：226。本文件由 scripts/export-deepseek-context.ps1 生成，请勿手工维护生成区。
+> 自动生成时间：2026-08-03 17:08:35 +08:00
+> 文件数量：234。本文件由 scripts/export-deepseek-context.ps1 生成，请勿手工维护生成区。
 
 ## 给 DeepSeek 的强制工作规则
 
@@ -70,8 +70,9 @@
 - `src/main/java/cn/longer233/gamenarrator/audio/SoundCue.java`（192 bytes）
 - `src/main/java/cn/longer233/gamenarrator/common/ApiExceptionHandler.java`（6515 bytes）
 - `src/main/java/cn/longer233/gamenarrator/common/AtomicArtifactWriter.java`（2074 bytes）
-- `src/main/java/cn/longer233/gamenarrator/common/ExternalProcessRunner.java`（4030 bytes）
+- `src/main/java/cn/longer233/gamenarrator/common/ExternalProcessRunner.java`（4589 bytes）
 - `src/main/java/cn/longer233/gamenarrator/common/RequestTraceFilter.java`（1908 bytes）
+- `src/main/java/cn/longer233/gamenarrator/common/TaskProcessRegistry.java`（2400 bytes）
 - `src/main/java/cn/longer233/gamenarrator/config/AsyncConfig.java`（1465 bytes）
 - `src/main/java/cn/longer233/gamenarrator/diagnostics/DiagnosticLogService.java`（4016 bytes）
 - `src/main/java/cn/longer233/gamenarrator/diagnostics/DiagnosticsController.java`（2339 bytes）
@@ -97,7 +98,7 @@
 - `src/main/java/cn/longer233/gamenarrator/export/ExportWorker.java`（11765 bytes）
 - `src/main/java/cn/longer233/gamenarrator/export/FfmpegProgressParser.java`（1554 bytes）
 - `src/main/java/cn/longer233/gamenarrator/GameNarratorApplication.java`（501 bytes）
-- `src/main/java/cn/longer233/gamenarrator/highlight/HighlightClip.java`（315 bytes）
+- `src/main/java/cn/longer233/gamenarrator/highlight/HighlightClip.java`（722 bytes）
 - `src/main/java/cn/longer233/gamenarrator/highlight/HighlightSelectionResult.java`（177 bytes）
 - `src/main/java/cn/longer233/gamenarrator/highlight/RuleBasedHighlightSelector.java`（8548 bytes）
 - `src/main/java/cn/longer233/gamenarrator/importer/ContentOriginAssessment.java`（148 bytes）
@@ -123,11 +124,12 @@
 - `src/main/java/cn/longer233/gamenarrator/pipeline/EngineTaskContext.java`（1224 bytes）
 - `src/main/java/cn/longer233/gamenarrator/pipeline/FailedVisionTaskRepair.java`（2063 bytes）
 - `src/main/java/cn/longer233/gamenarrator/pipeline/PendingTaskRecovery.java`（1338 bytes）
-- `src/main/java/cn/longer233/gamenarrator/pipeline/PipelineRunTracker.java`（5104 bytes）
-- `src/main/java/cn/longer233/gamenarrator/pipeline/TaskWorkflowStateService.java`（11522 bytes）
-- `src/main/java/cn/longer233/gamenarrator/pipeline/VideoTaskEngine.java`（17358 bytes）
+- `src/main/java/cn/longer233/gamenarrator/pipeline/PipelineRunTracker.java`（5283 bytes）
+- `src/main/java/cn/longer233/gamenarrator/pipeline/ProjectArtifactRegistry.java`（4108 bytes）
+- `src/main/java/cn/longer233/gamenarrator/pipeline/TaskWorkflowStateService.java`（13663 bytes）
+- `src/main/java/cn/longer233/gamenarrator/pipeline/VideoTaskEngine.java`（18553 bytes）
 - `src/main/java/cn/longer233/gamenarrator/pipeline/WaitingTaskRetryScheduler.java`（2399 bytes）
-- `src/main/java/cn/longer233/gamenarrator/render/FfmpegVideoRenderer.java`（27352 bytes）
+- `src/main/java/cn/longer233/gamenarrator/render/FfmpegVideoRenderer.java`（27428 bytes）
 - `src/main/java/cn/longer233/gamenarrator/render/RenderAssetResolver.java`（2211 bytes）
 - `src/main/java/cn/longer233/gamenarrator/render/RenderResult.java`（133 bytes）
 - `src/main/java/cn/longer233/gamenarrator/script/AutoAssetAssignmentView.java`（246 bytes）
@@ -136,46 +138,49 @@
 - `src/main/java/cn/longer233/gamenarrator/script/OllamaScriptGenerator.java`（19230 bytes）
 - `src/main/java/cn/longer233/gamenarrator/script/PlaceStoryboardAssetRequest.java`（307 bytes）
 - `src/main/java/cn/longer233/gamenarrator/script/RegenerateScriptSegmentRequest.java`（174 bytes）
-- `src/main/java/cn/longer233/gamenarrator/script/ScriptDocumentView.java`（221 bytes）
+- `src/main/java/cn/longer233/gamenarrator/script/ScriptDocumentView.java`（264 bytes）
+- `src/main/java/cn/longer233/gamenarrator/script/ScriptQualityReview.java`（318 bytes）
 - `src/main/java/cn/longer233/gamenarrator/script/ScriptSegment.java`（233 bytes）
 - `src/main/java/cn/longer233/gamenarrator/script/ScriptWorkspaceController.java`（5099 bytes）
-- `src/main/java/cn/longer233/gamenarrator/script/ScriptWorkspaceService.java`（16522 bytes）
+- `src/main/java/cn/longer233/gamenarrator/script/ScriptWorkspaceService.java`（17514 bytes）
 - `src/main/java/cn/longer233/gamenarrator/script/StoryboardAssetPlacementService.java`（13313 bytes）
 - `src/main/java/cn/longer233/gamenarrator/script/StoryboardAssetPlacementView.java`（330 bytes）
-- `src/main/java/cn/longer233/gamenarrator/script/StoryboardSegmentView.java`（271 bytes）
+- `src/main/java/cn/longer233/gamenarrator/script/StoryboardSegmentView.java`（305 bytes）
 - `src/main/java/cn/longer233/gamenarrator/script/StoryboardView.java`（236 bytes）
 - `src/main/java/cn/longer233/gamenarrator/script/UpdateScriptSegmentRequest.java`（321 bytes）
 - `src/main/java/cn/longer233/gamenarrator/script/UpdateStoryboardAssetRequest.java`（380 bytes）
-- `src/main/java/cn/longer233/gamenarrator/script/UpdateStoryboardSegmentRequest.java`（470 bytes）
+- `src/main/java/cn/longer233/gamenarrator/script/UpdateStoryboardSegmentRequest.java`（520 bytes）
 - `src/main/java/cn/longer233/gamenarrator/storage/VideoStorage.java`（2220 bytes）
 - `src/main/java/cn/longer233/gamenarrator/subtitle/AssSubtitleBuilder.java`（3839 bytes）
-- `src/main/java/cn/longer233/gamenarrator/task/application/CreateVideoTaskCommand.java`（785 bytes）
+- `src/main/java/cn/longer233/gamenarrator/task/application/CreateVideoTaskCommand.java`（839 bytes）
 - `src/main/java/cn/longer233/gamenarrator/task/application/ProjectHistoryService.java`（3967 bytes）
 - `src/main/java/cn/longer233/gamenarrator/task/application/RenameTaskRequest.java`（222 bytes）
 - `src/main/java/cn/longer233/gamenarrator/task/application/StageView.java`（767 bytes）
 - `src/main/java/cn/longer233/gamenarrator/task/application/TaskNotFoundException.java`（239 bytes）
-- `src/main/java/cn/longer233/gamenarrator/task/application/VideoTaskService.java`（10089 bytes）
-- `src/main/java/cn/longer233/gamenarrator/task/application/VideoTaskView.java`（4204 bytes）
+- `src/main/java/cn/longer233/gamenarrator/task/application/VideoTaskService.java`（11262 bytes）
+- `src/main/java/cn/longer233/gamenarrator/task/application/VideoTaskView.java`（4287 bytes）
 - `src/main/java/cn/longer233/gamenarrator/task/domain/CommentaryStyle.java`（128 bytes）
 - `src/main/java/cn/longer233/gamenarrator/task/domain/EditingScope.java`（108 bytes）
 - `src/main/java/cn/longer233/gamenarrator/task/domain/GameEvent.java`（692 bytes）
 - `src/main/java/cn/longer233/gamenarrator/task/domain/ProcessingStage.java`（2920 bytes）
 - `src/main/java/cn/longer233/gamenarrator/task/domain/ProcessingStageType.java`（277 bytes）
 - `src/main/java/cn/longer233/gamenarrator/task/domain/StageStatus.java`（116 bytes）
-- `src/main/java/cn/longer233/gamenarrator/task/domain/TaskStatus.java`（139 bytes）
-- `src/main/java/cn/longer233/gamenarrator/task/domain/VideoTask.java`（21080 bytes）
+- `src/main/java/cn/longer233/gamenarrator/task/domain/TaskStatus.java`（150 bytes）
+- `src/main/java/cn/longer233/gamenarrator/task/domain/VideoTask.java`（21702 bytes）
 - `src/main/java/cn/longer233/gamenarrator/task/repository/VideoTaskRepository.java`（505 bytes）
-- `src/main/java/cn/longer233/gamenarrator/task/web/VideoTaskController.java`（5978 bytes）
-- `src/main/java/cn/longer233/gamenarrator/timeline/TimelinePlanner.java`（4657 bytes）
+- `src/main/java/cn/longer233/gamenarrator/task/web/VideoTaskController.java`（6292 bytes）
+- `src/main/java/cn/longer233/gamenarrator/timeline/TimelinePlanner.java`（4735 bytes）
 - `src/main/java/cn/longer233/gamenarrator/timeline/TimelinePlanningResult.java`（246 bytes）
 - `src/main/java/cn/longer233/gamenarrator/timeline/TimelineSegment.java`（410 bytes）
 - `src/main/java/cn/longer233/gamenarrator/timeline/TimelineValidator.java`（2600 bytes）
+- `src/main/java/cn/longer233/gamenarrator/transcription/TerminologyCorrector.java`（2256 bytes）
 - `src/main/java/cn/longer233/gamenarrator/transcription/TranscriptionResult.java`（196 bytes）
 - `src/main/java/cn/longer233/gamenarrator/transcription/WhisperCppTranscriber.java`（4962 bytes）
+- `src/main/java/cn/longer233/gamenarrator/vision/FrameOcrService.java`（2246 bytes）
 - `src/main/java/cn/longer233/gamenarrator/vision/FrameUnderstanding.java`（267 bytes）
 - `src/main/java/cn/longer233/gamenarrator/vision/HighlightHint.java`（131 bytes）
 - `src/main/java/cn/longer233/gamenarrator/vision/ImagePerceptualHash.java`（1256 bytes）
-- `src/main/java/cn/longer233/gamenarrator/vision/OllamaVisionClient.java`（13962 bytes）
+- `src/main/java/cn/longer233/gamenarrator/vision/OllamaVisionClient.java`（14187 bytes）
 - `src/main/java/cn/longer233/gamenarrator/vision/VideoContentAnalysis.java`（293 bytes）
 - `src/main/java/cn/longer233/gamenarrator/vision/VideoSegmentClipService.java`（3911 bytes）
 - `src/main/java/cn/longer233/gamenarrator/vision/VideoSegmentSearchController.java`（3162 bytes）
@@ -190,7 +195,7 @@
 - `src/main/java/cn/longer233/gamenarrator/voice/VoiceOption.java`（137 bytes）
 - `src/main/java/cn/longer233/gamenarrator/voice/VoiceRegenerationRequest.java`（419 bytes）
 - `src/main/java/cn/longer233/gamenarrator/voice/VoiceSegment.java`（296 bytes）
-- `src/main/resources/application.yml`（12210 bytes）
+- `src/main/resources/application.yml`（12351 bytes）
 - `src/main/resources/application-release.yml`（1055 bytes）
 - `src/main/resources/db/migration/V1__database_v2_foundation.sql`（17535 bytes）
 - `src/main/resources/db/migration/V10__allow_storyboard_review_task_status.sql`（528 bytes）
@@ -200,6 +205,9 @@
 - `src/main/resources/db/migration/V14__optional_ai_pipeline.sql`（396 bytes）
 - `src/main/resources/db/migration/V15__automatic_pipeline_mode.sql`（109 bytes）
 - `src/main/resources/db/migration/V16__editing_scope.sql`（92 bytes）
+- `src/main/resources/db/migration/V17__task_cancellation.sql`（246 bytes）
+- `src/main/resources/db/migration/V18__full_pipeline_failures.sql`（117 bytes）
+- `src/main/resources/db/migration/V19__task_glossary.sql`（71 bytes）
 - `src/main/resources/db/migration/V2__backfill_legacy_project_history.sql`（2646 bytes）
 - `src/main/resources/db/migration/V3__external_asset_catalog.sql`（2371 bytes）
 - `src/main/resources/db/migration/V4__asset_library_organization.sql`（270 bytes）
@@ -208,13 +216,13 @@
 - `src/main/resources/db/migration/V7__storyboard_review.sql`（207 bytes）
 - `src/main/resources/db/migration/V8__video_segment_semantic_index.sql`（634 bytes）
 - `src/main/resources/db/migration/V9__video_segment_image_hash.sql`（152 bytes）
-- `src/main/resources/static/app.css`（41878 bytes）
-- `src/main/resources/static/app.js`（69423 bytes）
+- `src/main/resources/static/app.css`（42182 bytes）
+- `src/main/resources/static/app.js`（71801 bytes）
 - `src/main/resources/static/asset-library.js`（39551 bytes）
 - `src/main/resources/static/diagnostics.js`（1673 bytes）
 - `src/main/resources/static/export.js`（9227 bytes）
 - `src/main/resources/static/extension-install.html`（3410 bytes）
-- `src/main/resources/static/index.html`（22875 bytes）
+- `src/main/resources/static/index.html`（23154 bytes）
 - `src/main/resources/static/media-importer.css`（4256 bytes）
 - `src/main/resources/static/media-importer.js`（22107 bytes）
 - `src/test/java/cn/longer233/gamenarrator/ai/AdaptiveAiChatClientTest.java`（1119 bytes）
@@ -5876,20 +5884,30 @@ public final class ExternalProcessRunner {
                              Consumer<String> outputLine)
             throws IOException, InterruptedException {
         Process process = new ProcessBuilder(command).redirectErrorStream(true).start();
+        TaskProcessRegistry.register(process);
         CompletableFuture<String> output = drain(process, outputLine);
         try {
             if (standardInput == null) process.getOutputStream().close();
             else try (var input = process.getOutputStream()) {
                 input.write(standardInput.getBytes(StandardCharsets.UTF_8));
             }
-            if (!process.waitFor(timeout.toMillis(), TimeUnit.MILLISECONDS)) {
-                terminateTree(process);
-                throw new ProcessTimeoutException(timeout);
+            long deadline = System.nanoTime() + timeout.toNanos();
+            while (!process.waitFor(Math.min(500, Math.max(1,
+                    TimeUnit.NANOSECONDS.toMillis(deadline - System.nanoTime()))), TimeUnit.MILLISECONDS)) {
+                if (TaskProcessRegistry.currentTaskCancelled()) {
+                    terminateTree(process);
+                    throw new java.util.concurrent.CancellationException("任务已取消");
+                }
+                if (System.nanoTime() >= deadline) {
+                    terminateTree(process);
+                    throw new ProcessTimeoutException(timeout);
+                }
             }
             return new Result(process.exitValue(), join(output));
         } finally {
             if (process.isAlive()) terminateTree(process);
             if (!output.isDone()) output.cancel(true);
+            TaskProcessRegistry.unregister(process);
         }
     }
 
@@ -5990,6 +6008,76 @@ public class RequestTraceFilter extends OncePerRequestFilter {
                     response.getStatus(),
                     elapsedMs);
             MDC.remove(TRACE_ID);
+        }
+    }
+}
+``
+
+### FILE: src/main/java/cn/longer233/gamenarrator/common/TaskProcessRegistry.java
+
+``java
+package cn.longer233.gamenarrator.common;
+
+import java.util.Set;
+import java.util.UUID;
+import java.util.concurrent.CancellationException;
+import java.util.concurrent.ConcurrentHashMap;
+
+/** Associates external processes with the task currently executing on an engine thread. */
+public final class TaskProcessRegistry {
+    private static final ThreadLocal<UUID> CURRENT_TASK = new ThreadLocal<>();
+    private static final Set<UUID> CANCELLED = ConcurrentHashMap.newKeySet();
+    private static final ConcurrentHashMap<UUID, Set<Process>> PROCESSES = new ConcurrentHashMap<>();
+
+    private TaskProcessRegistry() { }
+
+    public static Scope open(UUID taskId) {
+        CURRENT_TASK.set(taskId);
+        return new Scope(taskId);
+    }
+
+    public static void register(Process process) {
+        UUID taskId = CURRENT_TASK.get();
+        if (taskId == null) return;
+        if (CANCELLED.contains(taskId)) {
+            ExternalProcessRunner.terminateTree(process);
+            throw new CancellationException("任务已取消");
+        }
+        PROCESSES.computeIfAbsent(taskId, ignored -> ConcurrentHashMap.newKeySet()).add(process);
+        if (CANCELLED.contains(taskId)) {
+            ExternalProcessRunner.terminateTree(process);
+            throw new CancellationException("任务已取消");
+        }
+    }
+
+    public static void unregister(Process process) {
+        UUID taskId = CURRENT_TASK.get();
+        if (taskId == null) return;
+        Set<Process> processes = PROCESSES.get(taskId);
+        if (processes != null) processes.remove(process);
+    }
+
+    public static void cancel(UUID taskId) {
+        CANCELLED.add(taskId);
+        PROCESSES.getOrDefault(taskId, Set.of()).forEach(ExternalProcessRunner::terminateTree);
+    }
+
+    public static void throwIfCancelled(UUID taskId) {
+        if (CANCELLED.contains(taskId)) throw new CancellationException("用户取消了任务");
+    }
+
+    public static boolean currentTaskCancelled() {
+        UUID taskId = CURRENT_TASK.get();
+        return taskId != null && CANCELLED.contains(taskId);
+    }
+
+    public static final class Scope implements AutoCloseable {
+        private final UUID taskId;
+        private Scope(UUID taskId) { this.taskId = taskId; }
+        @Override public void close() {
+            PROCESSES.remove(taskId);
+            CANCELLED.remove(taskId);
+            CURRENT_TASK.remove();
         }
     }
 }
@@ -7564,7 +7652,13 @@ public class GameNarratorApplication {
 package cn.longer233.gamenarrator.highlight;
 
 public record HighlightClip(int sourceFrameIndex, double startSeconds, double endSeconds,
-        double anchorSeconds, String eventType, String description, int sourceScore, int finalScore) {
+        double anchorSeconds, String eventType, String description, int sourceScore, int finalScore,
+        boolean locked, boolean excluded) {
+    public HighlightClip(int sourceFrameIndex, double startSeconds, double endSeconds,
+                         double anchorSeconds, String eventType, String description, int sourceScore, int finalScore) {
+        this(sourceFrameIndex, startSeconds, endSeconds, anchorSeconds, eventType, description,
+                sourceScore, finalScore, false, false);
+    }
     public double durationSeconds() { return endSeconds - startSeconds; }
 }
 ``
@@ -9626,6 +9720,11 @@ public class PipelineRunTracker {
                 limited(reason), activeRun(taskId));
     }
 
+    public void cancelled(UUID taskId, String stageType, String reason) {
+        updateStage(taskId, stageType, "CANCELLED", 0, null, reason);
+        finishRun(taskId, "CANCELLED", reason);
+    }
+
     private UUID activeRun(UUID taskId) {
         var runs = jdbc.query("""
                 SELECT id FROM generation_run WHERE project_id=? AND status IN ('RUNNING','WAITING')
@@ -9656,7 +9755,7 @@ public class PipelineRunTracker {
                 elapsed_ms=DATEDIFF('MILLISECOND',started_at,?),error_message=?
                 WHERE id=(SELECT id FROM stage_run WHERE generation_run_id=? AND stage_type=?
                 ORDER BY attempt_no DESC LIMIT 1)
-                """, status, progress, summary, now(), now(), limited(error), runId, stageType);
+                """, status, progress, summary, now(), now(), error, runId, stageType);
         if (changed == 0) {
             running(taskId, stageType);
             updateStage(taskId, stageType, status, progress, summary, error);
@@ -9668,9 +9767,9 @@ public class PipelineRunTracker {
         jdbc.update("""
                 UPDATE generation_run SET status=?,finished_at=?,elapsed_ms=DATEDIFF('MILLISECOND',started_at,?),
                 failure_message=? WHERE id=?
-                """, status, now(), now(), limited(error), runId);
+                """, status, now(), now(), error, runId);
         jdbc.update("UPDATE video_project SET status=?,updated_at=? WHERE id=?",
-                "COMPLETED".equals(status) ? "READY" : "FAILED", now(), taskId);
+                "COMPLETED".equals(status) ? "READY" : status, now(), taskId);
     }
 
     private String json(Object value) {
@@ -9684,6 +9783,84 @@ public class PipelineRunTracker {
     }
 
     private OffsetDateTime now() { return OffsetDateTime.now(ZoneOffset.UTC); }
+}
+``
+
+### FILE: src/main/java/cn/longer233/gamenarrator/pipeline/ProjectArtifactRegistry.java
+
+``java
+package cn.longer233.gamenarrator.pipeline;
+
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.node.ObjectNode;
+import org.springframework.jdbc.core.JdbcTemplate;
+import org.springframework.stereotype.Component;
+
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.security.MessageDigest;
+import java.time.OffsetDateTime;
+import java.time.ZoneOffset;
+import java.util.HexFormat;
+import java.util.UUID;
+
+/** Records pipeline files in the V2 artifact model and advances the project manifest revision. */
+@Component
+public class ProjectArtifactRegistry {
+    private static final UUID LOCAL_USER = UUID.fromString("00000000-0000-0000-0000-000000000001");
+    private final JdbcTemplate jdbc;
+    private final ObjectMapper mapper;
+
+    public ProjectArtifactRegistry(JdbcTemplate jdbc, ObjectMapper mapper) {
+        this.jdbc = jdbc;
+        this.mapper = mapper;
+    }
+
+    public void record(UUID projectId, String type, String value, String mimeType, boolean temporary) {
+        if (value == null || value.isBlank()) return;
+        try {
+            Path path = Path.of(value).toAbsolutePath().normalize();
+            if (!Files.isRegularFile(path)) return;
+            String storageKey = path.toString();
+            if (Boolean.TRUE.equals(jdbc.queryForObject("SELECT COUNT(*)>0 FROM artifact WHERE storage_key=? AND deleted_at IS NULL",
+                    Boolean.class, storageKey))) return;
+            UUID parent = jdbc.queryForObject("SELECT current_revision_id FROM video_project WHERE id=?", UUID.class, projectId);
+            UUID run = jdbc.queryForObject("SELECT latest_run_id FROM video_project WHERE id=?", UUID.class, projectId);
+            ObjectNode manifest = (ObjectNode) mapper.readTree(jdbc.queryForObject(
+                    "SELECT manifest_json FROM project_revision WHERE id=?", String.class, parent));
+            UUID artifactId = UUID.randomUUID();
+            int revisionNo = jdbc.queryForObject("SELECT COALESCE(MAX(revision_no),0)+1 FROM project_revision WHERE project_id=?",
+                    Integer.class, projectId);
+            UUID revision = UUID.randomUUID();
+            ObjectNode artifacts = manifest.with("artifacts");
+            ObjectNode entry = artifacts.putObject(type);
+            entry.put("artifactId", artifactId.toString());
+            entry.put("storageKey", storageKey);
+            entry.put("mimeType", mimeType);
+            String json = mapper.writeValueAsString(manifest);
+            OffsetDateTime now = OffsetDateTime.now(ZoneOffset.UTC);
+            jdbc.update("""
+                    INSERT INTO project_revision(id,project_id,revision_no,parent_revision_id,created_by,change_type,
+                    change_summary,parameter_snapshot_json,manifest_json,manifest_schema_version,manifest_sha256,created_at)
+                    VALUES(?,?,?,?,?,'PIPELINE_OUTPUT',?,'{}',?,?,?,?)
+                    """, revision, projectId, revisionNo, parent, LOCAL_USER, "记录阶段产物：" + type,
+                    json, 3, sha256(json.getBytes()), now);
+            jdbc.update("""
+                    INSERT INTO artifact(id,owner_id,project_id,revision_id,generation_run_id,artifact_type,storage_key,
+                    mime_type,size_bytes,sha256,schema_version,temporary,expires_at,created_at,deleted_at)
+                    VALUES(?,?,?,?,?,?,?,?,?,?,?,?,NULL,?,NULL)
+                    """, artifactId, LOCAL_USER, projectId, revision, run, type, storageKey, mimeType,
+                    Files.size(path), sha256(Files.readAllBytes(path)), 1, temporary, now);
+            jdbc.update("UPDATE video_project SET current_revision_id=?,updated_at=?,version=version+1 WHERE id=?",
+                    revision, now, projectId);
+        } catch (Exception exception) {
+            throw new IllegalStateException("阶段产物登记失败：" + type + "：" + exception.getMessage(), exception);
+        }
+    }
+
+    private String sha256(byte[] value) throws Exception {
+        return HexFormat.of().formatHex(MessageDigest.getInstance("SHA-256").digest(value));
+    }
 }
 ``
 
@@ -9714,10 +9891,16 @@ public class TaskWorkflowStateService {
 
     private final VideoTaskRepository repository;
     private final PipelineRunTracker runTracker;
+    private final cn.longer233.gamenarrator.transcription.TerminologyCorrector terminologyCorrector;
+    private final ProjectArtifactRegistry artifactRegistry;
 
-    public TaskWorkflowStateService(VideoTaskRepository repository, PipelineRunTracker runTracker) {
+    public TaskWorkflowStateService(VideoTaskRepository repository, PipelineRunTracker runTracker,
+                                    cn.longer233.gamenarrator.transcription.TerminologyCorrector terminologyCorrector,
+                                    ProjectArtifactRegistry artifactRegistry) {
         this.repository = repository;
         this.runTracker = runTracker;
+        this.terminologyCorrector = terminologyCorrector;
+        this.artifactRegistry = artifactRegistry;
     }
 
     @Transactional
@@ -9770,6 +9953,12 @@ public class TaskWorkflowStateService {
     }
 
     @Transactional
+    public void markCancelled(UUID taskId, String stageType, String reason) {
+        requireTask(taskId).cancel(reason);
+        runTracker.cancelled(taskId, stageType, reason);
+    }
+
+    @Transactional
     public void markIngestionRunning(UUID taskId) {
         requireTask(taskId).startIngestion();
         runTracker.running(taskId, "VIDEO_INGESTION");
@@ -9808,6 +9997,8 @@ public class TaskWorkflowStateService {
                 result.scenes().size()
         );
         runTracker.completed(taskId, "SCENE_DETECTION", java.util.Map.of("sceneCount", result.scenes().size()));
+        artifactRegistry.record(taskId, "SCENE_MANIFEST", result.sceneManifestPath(), "application/json", false);
+        artifactRegistry.record(taskId, "EXTRACTED_AUDIO", result.extractedAudioPath(), "audio/wav", false);
     }
 
     @Transactional
@@ -9824,9 +10015,13 @@ public class TaskWorkflowStateService {
 
     @Transactional
     public void markTranscriptionCompleted(UUID taskId, TranscriptionResult result) {
-        requireTask(taskId).completeTranscription(
-                result.text(), result.textPath(), result.subtitlePath(), result.detailJsonPath());
-        runTracker.completed(taskId, "TRANSCRIPTION", java.util.Map.of("characterCount", result.text().length()));
+        VideoTask task = requireTask(taskId);
+        TranscriptionResult corrected = terminologyCorrector.correct(result, task.getTerminologyGlossary());
+        task.completeTranscription(corrected.text(), corrected.textPath(), corrected.subtitlePath(), corrected.detailJsonPath());
+        runTracker.completed(taskId, "TRANSCRIPTION", java.util.Map.of("characterCount", corrected.text().length()));
+        artifactRegistry.record(taskId, "TRANSCRIPT_TEXT", corrected.textPath(), "text/plain", false);
+        artifactRegistry.record(taskId, "TRANSCRIPT_SUBTITLE", corrected.subtitlePath(), "application/x-subrip", false);
+        artifactRegistry.record(taskId, "TRANSCRIPT_DETAIL", corrected.detailJsonPath(), "application/json", false);
     }
 
     @Transactional
@@ -9846,6 +10041,7 @@ public class TaskWorkflowStateService {
         requireTask(taskId).completeVideoUnderstanding(
                 result.summary(), result.analysisPath(), result.frames().size());
         runTracker.completed(taskId, "VIDEO_UNDERSTANDING", java.util.Map.of("frameCount", result.frames().size()));
+        artifactRegistry.record(taskId, "VISION_ANALYSIS", result.analysisPath(), "application/json", false);
     }
 
     @Transactional
@@ -9870,6 +10066,7 @@ public class TaskWorkflowStateService {
     public void markHighlightSelectionCompleted(UUID taskId, HighlightSelectionResult result) {
         requireTask(taskId).completeHighlightSelection(result.summary(), result.manifestPath(), result.clips().size());
         runTracker.completed(taskId, "HIGHLIGHT_SELECTION", java.util.Map.of("clipCount", result.clips().size()));
+        artifactRegistry.record(taskId, "HIGHLIGHT_MANIFEST", result.manifestPath(), "application/json", false);
     }
 
     @Transactional
@@ -9889,6 +10086,7 @@ public class TaskWorkflowStateService {
         requireTask(taskId).completeScriptGeneration(result.title(), result.synopsis(),
                 result.fullNarration(), result.scriptPath(), result.segments().size());
         runTracker.completed(taskId, "SCRIPT_GENERATION", java.util.Map.of("segmentCount", result.segments().size()));
+        artifactRegistry.record(taskId, "SCRIPT_MANIFEST", result.scriptPath(), "application/json", false);
     }
 
     @Transactional
@@ -9912,6 +10110,7 @@ public class TaskWorkflowStateService {
     public void markVoiceGenerationCompleted(UUID taskId, VoiceGenerationResult result) {
         requireTask(taskId).completeVoiceGeneration(result.manifestPath(), result.segments().size());
         runTracker.completed(taskId, "VOICE_GENERATION", java.util.Map.of("segmentCount", result.segments().size()));
+        artifactRegistry.record(taskId, "VOICE_MANIFEST", result.manifestPath(), "application/json", false);
     }
 
     @Transactional
@@ -9938,6 +10137,7 @@ public class TaskWorkflowStateService {
                 result.timelinePath(), result.outputDurationSeconds(), result.overflowCount());
         runTracker.completed(taskId, "TIMELINE_PLANNING", java.util.Map.of(
                 "outputDurationSeconds", result.outputDurationSeconds(), "overflowCount", result.overflowCount()));
+        artifactRegistry.record(taskId, "TIMELINE_MANIFEST", result.timelinePath(), "application/json", false);
     }
 
     @Transactional
@@ -9956,6 +10156,8 @@ public class TaskWorkflowStateService {
     public void markRenderingCompleted(UUID taskId, RenderResult result) {
         requireTask(taskId).completeRendering(result.videoPath(), result.subtitlePath(), result.fileSizeBytes());
         runTracker.completed(taskId, "RENDERING", java.util.Map.of("fileSizeBytes", result.fileSizeBytes()));
+        artifactRegistry.record(taskId, "RENDERED_VIDEO", result.videoPath(), "video/mp4", false);
+        artifactRegistry.record(taskId, "GENERATED_SUBTITLE", result.subtitlePath(), "application/x-subrip", false);
     }
 
     @Transactional
@@ -10010,6 +10212,8 @@ import java.nio.file.Path;
 import java.util.UUID;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.CancellationException;
+import cn.longer233.gamenarrator.common.TaskProcessRegistry;
 
 @Service
 public class VideoTaskEngine {
@@ -10034,6 +10238,11 @@ public class VideoTaskEngine {
 
     public void requestDeletion(UUID taskId) {
         deletionRequested.add(taskId);
+        TaskProcessRegistry.cancel(taskId);
+    }
+
+    public void requestCancellation(UUID taskId) {
+        TaskProcessRegistry.cancel(taskId);
     }
 
     public VideoTaskEngine(
@@ -10077,7 +10286,8 @@ public class VideoTaskEngine {
         MDC.put("traceId", "task-" + taskId.toString().substring(0, 8));
         log.info("ENGINE_START taskId={}", taskId);
         String activeStage = "VIDEO_INGESTION";
-        try {
+        try (TaskProcessRegistry.Scope ignored = TaskProcessRegistry.open(taskId)) {
+            checkCancellation(taskId);
             EngineTaskContext context = stateService.context(taskId);
             Path sourcePath = Path.of(context.sourceVideoPath());
             if (!context.ingestionCompleted()) {
@@ -10092,6 +10302,7 @@ public class VideoTaskEngine {
             }
 
             activeStage = "SCENE_DETECTION";
+            checkCancellation(taskId);
             if (!context.sceneDetectionCompleted()) {
                 stateService.markSceneDetectionRunning(taskId);
                 MediaPreparationResult result = mediaPreprocessor.prepare(
@@ -10112,6 +10323,7 @@ public class VideoTaskEngine {
             }
 
             activeStage = "TRANSCRIPTION";
+            checkCancellation(taskId);
             if (!context.transcriptionCompleted()) {
                 stateService.markTranscriptionRunning(taskId);
                 TranscriptionResult result;
@@ -10131,6 +10343,7 @@ public class VideoTaskEngine {
             }
 
             activeStage = "VIDEO_UNDERSTANDING";
+            checkCancellation(taskId);
             if (!context.videoUnderstandingCompleted()) {
                 if (context.cloudVisionEnabled() && !visionClient.available()) {
                     String reason = "当前视觉服务不可用：请检查云端 API Key/服务状态，或安装并启动本地视觉模型";
@@ -10156,6 +10369,7 @@ public class VideoTaskEngine {
                         taskId);
             }
             activeStage = "HIGHLIGHT_SELECTION";
+            checkCancellation(taskId);
             if (!context.highlightSelectionCompleted()) {
                 stateService.markHighlightSelectionRunning(taskId);
                 HighlightSelectionResult result = highlightSelector.select(
@@ -10170,6 +10384,7 @@ public class VideoTaskEngine {
                         taskId);
             }
             activeStage = "SCRIPT_GENERATION";
+            checkCancellation(taskId);
             if (!context.scriptGenerationCompleted()) {
                 stateService.markScriptGenerationRunning(taskId);
                 GeneratedScript result = context.aiScriptEnabled()
@@ -10196,6 +10411,7 @@ public class VideoTaskEngine {
                 return;
             }
             activeStage = "VOICE_GENERATION";
+            checkCancellation(taskId);
             if (!context.voiceGenerationCompleted()) {
                 if (context.aiVoiceEnabled() && !voiceGenerator.available()) {
                     String reason = "等待本地 Piper 配音引擎；请执行 .\\scripts\\setup-piper.ps1";
@@ -10217,6 +10433,7 @@ public class VideoTaskEngine {
                 log.info("ENGINE_STAGE_SKIPPED taskId={} stage=VOICE_GENERATION reason=already_completed", taskId);
             }
             activeStage = "TIMELINE_PLANNING";
+            checkCancellation(taskId);
             if (!context.timelinePlanningCompleted()) {
                 stateService.markTimelinePlanningRunning(taskId);
                 TimelinePlanningResult result = timelinePlanner.plan(
@@ -10230,6 +10447,7 @@ public class VideoTaskEngine {
                 log.info("ENGINE_STAGE_SKIPPED taskId={} stage=TIMELINE_PLANNING reason=already_completed", taskId);
             }
             activeStage = "RENDERING";
+            checkCancellation(taskId);
             if (!context.renderingCompleted()) {
                 stateService.markRenderingRunning(taskId);
                 var preset = effectPresetCatalog.require(context.commentaryStyle());
@@ -10243,6 +10461,13 @@ public class VideoTaskEngine {
                 log.info("ENGINE_STAGE_SKIPPED taskId={} stage=RENDERING reason=already_completed", taskId);
             }
             log.info("ENGINE_COMPLETED taskId={}", taskId);
+        } catch (CancellationException exception) {
+            if (deletionRequested.contains(taskId)) {
+                log.info("ENGINE_STOPPED_DELETED taskId={} stage={}", taskId, activeStage);
+                return;
+            }
+            stateService.markCancelled(taskId, activeStage, "用户取消了任务");
+            log.info("ENGINE_CANCELLED taskId={} stage={}", taskId, activeStage);
         } catch (Exception exception) {
             if (deletionRequested.contains(taskId)) {
                 log.info("ENGINE_STOPPED_DELETED taskId={} stage={}", taskId, activeStage);
@@ -10275,6 +10500,10 @@ public class VideoTaskEngine {
             deletionRequested.remove(taskId);
             MDC.remove("traceId");
         }
+    }
+
+    private void checkCancellation(UUID taskId) {
+        TaskProcessRegistry.throwIfCancelled(taskId);
     }
 
     private String rootMessage(Throwable throwable) {
@@ -10418,13 +10647,13 @@ public class FfmpegVideoRenderer {
 
     public RenderResult render(Path sourceVideo, Path timelinePath, boolean hasSourceAudio,
                                EffectPreset preset, EffectSettingsRequest settings) {
+        Path workDirectory = timelinePath.getParent().resolve("render-work");
         try {
             var root = objectMapper.readTree(timelinePath.toFile());
             List<TimelineSegment> segments = objectMapper.readerForListOf(TimelineSegment.class)
                     .readValue(root.path("segments"));
             if (segments.isEmpty()) throw new IllegalStateException("剪辑时间线为空");
             Path taskDirectory = timelinePath.getParent();
-            Path workDirectory = taskDirectory.resolve("render-work");
             Files.createDirectories(workDirectory);
             List<RenderAssetResolver.RenderAsset> storyboardAssets = renderAssetResolver.resolve(timelinePath);
             log.info("RENDERING_BEGIN segments={} source={} preferredEncoder={}",
@@ -10515,6 +10744,8 @@ public class FfmpegVideoRenderer {
             throw exception;
         } catch (Exception exception) {
             throw new IllegalStateException("视频渲染失败：" + exception.getMessage(), exception);
+        } finally {
+            cleanupWorkDirectory(workDirectory);
         }
     }
 
@@ -11255,8 +11486,23 @@ public record ScriptDocumentView(
         String title,
         String synopsis,
         String fullNarration,
+        ScriptQualityReview qualityReview,
         List<ScriptSegment> segments
 ) {
+}
+``
+
+### FILE: src/main/java/cn/longer233/gamenarrator/script/ScriptQualityReview.java
+
+``java
+package cn.longer233.gamenarrator.script;
+
+import java.util.List;
+
+public record ScriptQualityReview(int score, boolean passed, List<String> issues, String summary) {
+    public static ScriptQualityReview unavailable() {
+        return new ScriptQualityReview(0, false, List.of(), "尚未生成质量评审");
+    }
 }
 ``
 
@@ -11460,6 +11706,10 @@ public class ScriptWorkspaceService {
         ScriptDocumentView document = readDocument(task);
         List<ScriptSegment> segments = document.segments();
         int position = positionOf(segments, clipIndex);
+        List<HighlightClip> clips = readHighlightClips(task);
+        if (position < clips.size() && clips.get(position).locked()) {
+            throw new IllegalStateException("该分镜已锁定，请先取消锁定再使用 AI 重写");
+        }
         ScriptSegment replacement = scriptGenerator.regenerateSegment(
                 segments.get(position),
                 request == null ? null : request.instruction(),
@@ -11502,7 +11752,7 @@ public class ScriptWorkspaceService {
             ScriptSegment text = script.segments().get(index);
             segments.add(new StoryboardSegmentView(text.clipIndex(), clip.startSeconds(), clip.endSeconds(),
                     text.narration(), text.subtitle(), text.effectCue(), clip.eventType(),
-                    clip.description(), clip.finalScore()));
+                    clip.description(), clip.finalScore(), clip.locked(), clip.excluded()));
         }
         return new StoryboardView(script.title(), script.synopsis(), task.isStoryboardReviewEnabled(),
                 task.isStoryboardApproved(), List.copyOf(segments));
@@ -11531,7 +11781,8 @@ public class ScriptWorkspaceService {
         HighlightClip currentClip = clips.get(position);
         clips.set(position, new HighlightClip(currentClip.sourceFrameIndex(), request.startSeconds(), request.endSeconds(),
                 Math.max(request.startSeconds(), Math.min(request.endSeconds(), currentClip.anchorSeconds())),
-                currentClip.eventType(), currentClip.description(), currentClip.sourceScore(), currentClip.finalScore()));
+                currentClip.eventType(), currentClip.description(), currentClip.sourceScore(), currentClip.finalScore(),
+                request.locked(), request.excluded()));
         Map<String, Object> updated = objectMapper.convertValue(root, new com.fasterxml.jackson.core.type.TypeReference<LinkedHashMap<String, Object>>() {});
         updated.put("clips", clips);
         updated.put("selectedDurationSeconds", clips.stream().mapToDouble(HighlightClip::durationSeconds).sum());
@@ -11602,7 +11853,7 @@ public class ScriptWorkspaceService {
         segments.set(position, replacement);
         String fullNarration = String.join("\n", segments.stream().map(ScriptSegment::narration).toList());
         ScriptDocumentView revised = new ScriptDocumentView(
-                current.title(), current.synopsis(), fullNarration, List.copyOf(segments));
+                current.title(), current.synopsis(), fullNarration, current.qualityReview(), List.copyOf(segments));
         Path scriptPath = requireScriptPath(task);
         Map<String, Object> output = new LinkedHashMap<>();
         JsonNode existing = readJson(scriptPath);
@@ -11610,6 +11861,7 @@ public class ScriptWorkspaceService {
         output.put("title", revised.title());
         output.put("synopsis", revised.synopsis());
         output.put("fullNarration", revised.fullNarration());
+        output.put("qualityReview", revised.qualityReview());
         output.put("segments", revised.segments());
         writeAtomically(scriptPath, output);
         task.applyScriptRevision(revised.title(), revised.synopsis(), revised.fullNarration(),
@@ -11628,10 +11880,19 @@ public class ScriptWorkspaceService {
                     document.path("title").asText(),
                     document.path("synopsis").asText(),
                     document.path("fullNarration").asText(),
+                    readQualityReview(document.path("qualityReview")),
                     List.copyOf(segments));
         } catch (Exception exception) {
             throw new IllegalStateException("Cannot read script segments: " + exception.getMessage(), exception);
         }
+    }
+
+    private ScriptQualityReview readQualityReview(JsonNode node) {
+        if (node == null || !node.isObject()) return ScriptQualityReview.unavailable();
+        List<String> issues = new ArrayList<>();
+        node.path("issues").forEach(issue -> { if (!issue.asText().isBlank()) issues.add(issue.asText()); });
+        return new ScriptQualityReview(node.path("score").asInt(0), node.path("passed").asBoolean(false),
+                List.copyOf(issues), node.path("summary").asText(""));
     }
 
     private List<VoiceSegment> readVoiceSegments(JsonNode document) {
@@ -11969,7 +12230,7 @@ package cn.longer233.gamenarrator.script;
 public record StoryboardSegmentView(
         int clipIndex, double startSeconds, double endSeconds,
         String narration, String subtitle, String effectCue,
-        String eventType, String description, int finalScore
+        String eventType, String description, int finalScore, boolean locked, boolean excluded
 ) {
 }
 ``
@@ -12033,7 +12294,9 @@ public record UpdateStoryboardSegmentRequest(
         @DecimalMin("0.01") double endSeconds,
         @NotBlank @Size(max = 500) String narration,
         @Size(max = 500) String subtitle,
-        @Size(max = 200) String effectCue
+        @Size(max = 200) String effectCue,
+        boolean locked,
+        boolean excluded
 ) {
 }
 ``
@@ -12202,6 +12465,7 @@ public record CreateVideoTaskCommand(
         @Min(15) @Max(3600) int targetDurationSeconds,
         @NotNull EditingScope editingScope,
         @NotBlank @Size(max = 500) String taskBrief,
+        @Size(max = 4000) String terminologyGlossary,
         boolean storyboardReviewEnabled,
         boolean automaticGenerationEnabled,
         boolean cloudVisionEnabled,
@@ -12433,6 +12697,7 @@ public class VideoTaskService {
         );
         VideoTask savedTask = repository.saveAndFlush(task);
         savedTask.configureEditingScope(command.editingScope());
+        savedTask.configureTerminologyGlossary(command.terminologyGlossary());
         savedTask.configureAiOptions(command.automaticGenerationEnabled(), command.cloudVisionEnabled(), command.aiScriptEnabled(),
                 command.aiVoiceEnabled(), command.autoAssetsEnabled());
         repository.saveAndFlush(savedTask);
@@ -12478,6 +12743,17 @@ public class VideoTaskService {
         }
         log.info("TASK_MANUAL_START taskId={}", id);
         engine.start(id);
+    }
+
+    @Transactional
+    public VideoTaskView cancel(UUID id) {
+        VideoTask task = repository.findById(id).orElseThrow(() -> new TaskNotFoundException(id));
+        if (task.getStatus() != cn.longer233.gamenarrator.task.domain.TaskStatus.PROCESSING) {
+            throw new IllegalStateException("只有正在处理的任务可以取消");
+        }
+        engine.requestCancellation(id);
+        log.info("TASK_CANCEL_REQUESTED taskId={}", id);
+        return VideoTaskView.from(task);
     }
 
     @Transactional
@@ -12567,7 +12843,7 @@ public class VideoTaskService {
     private void deleteOwnedArtifact(String value) {
         try {
             Path path = Path.of(value).toAbsolutePath().normalize();
-            if (!path.startsWith(storageRoot) || path.equals(storageRoot)) {
+            if (!safeOwnedPath(path, storageRoot)) {
                 log.warn("TASK_ARTIFACT_DELETE_SKIPPED reason=outside_storage_root");
                 return;
             }
@@ -12580,18 +12856,34 @@ public class VideoTaskService {
     private void deleteOwnedTree(Path candidate) {
         Path path = candidate.toAbsolutePath().normalize();
         Path taskRoot = storageRoot.resolve("tasks").normalize();
-        if (!path.startsWith(taskRoot) || path.equals(taskRoot)) {
+        if (!safeOwnedPath(path, taskRoot)) {
             log.warn("TASK_DIRECTORY_DELETE_SKIPPED reason=outside_task_root");
             return;
         }
         if (!Files.exists(path)) return;
         try (var entries = Files.walk(path)) {
             for (Path entry : entries.sorted(java.util.Comparator.reverseOrder()).toList()) {
+                if (Files.isSymbolicLink(entry)) {
+                    Files.deleteIfExists(entry);
+                    continue;
+                }
                 Files.deleteIfExists(entry);
             }
         } catch (Exception exception) {
             log.warn("TASK_DIRECTORY_DELETE_SKIPPED reason={}", exception.getClass().getSimpleName());
         }
+    }
+
+    private boolean safeOwnedPath(Path candidate, Path allowedRoot) {
+        Path path = candidate.toAbsolutePath().normalize();
+        Path root = allowedRoot.toAbsolutePath().normalize();
+        if (!path.startsWith(root) || path.equals(root)) return false;
+        Path current = root;
+        for (Path segment : root.relativize(path)) {
+            current = current.resolve(segment);
+            if (Files.isSymbolicLink(current)) return false;
+        }
+        return true;
     }
 }
 ``
@@ -12614,6 +12906,7 @@ public record VideoTaskView(
         int targetDurationSeconds,
         EditingScope editingScope,
         String taskBrief,
+        String terminologyGlossary,
         TaskStatus status,
         Double durationSeconds,
         Integer videoWidth,
@@ -12667,6 +12960,7 @@ public record VideoTaskView(
                 task.getTargetDurationSeconds(),
                 task.getEditingScope(),
                 task.getTaskBrief(),
+                task.getTerminologyGlossary(),
                 task.getStatus(),
                 task.getDurationSeconds(),
                 task.getVideoWidth(),
@@ -12915,7 +13209,7 @@ public enum StageStatus {
 package cn.longer233.gamenarrator.task.domain;
 
 public enum TaskStatus {
-    DRAFT, READY, PROCESSING, WAITING_REVIEW, COMPLETED, FAILED
+    DRAFT, READY, PROCESSING, WAITING_REVIEW, COMPLETED, FAILED, CANCELLED
 }
 ``
 
@@ -12956,6 +13250,9 @@ public class VideoTask {
 
     @Column(nullable = false, length = 500)
     private String taskBrief;
+
+    @Column(length = 4000)
+    private String terminologyGlossary;
 
     @Column(nullable = false, length = 500)
     private String sourceVideoPath;
@@ -13107,6 +13404,10 @@ public class VideoTask {
         this.editingScope = editingScope == null ? EditingScope.FULL_VIDEO : editingScope;
     }
 
+    public void configureTerminologyGlossary(String glossary) {
+        this.terminologyGlossary = glossary == null || glossary.isBlank() ? null : glossary.strip();
+    }
+
     public UUID getId() { return id; }
     public String getName() { return name; }
     public String getGameCategory() { return gameCategory; }
@@ -13114,6 +13415,7 @@ public class VideoTask {
     public int getTargetDurationSeconds() { return targetDurationSeconds; }
     public EditingScope getEditingScope() { return editingScope; }
     public String getTaskBrief() { return taskBrief; }
+    public String getTerminologyGlossary() { return terminologyGlossary; }
     public String getSourceVideoPath() { return sourceVideoPath; }
     public TaskStatus getStatus() { return status; }
     public Instant getCreatedAt() { return createdAt; }
@@ -13444,6 +13746,13 @@ public class VideoTask {
         stage(ProcessingStageType.RENDERING).fail(this.failureReason);
     }
 
+    public void cancel(String reason) {
+        this.status = TaskStatus.CANCELLED;
+        this.failureReason = null;
+        stages.stream().filter(stage -> stage.getStatus() == StageStatus.RUNNING)
+                .forEach(stage -> stage.defer(reason == null ? "用户取消了任务" : reason));
+    }
+
     private void invalidateAfterScript() {
         this.voiceManifestPath = null;
         this.generatedVoiceSegmentCount = null;
@@ -13587,6 +13896,12 @@ public class VideoTaskController {
         service.start(id);
     }
 
+    @PostMapping("/{id}/cancel")
+    @ResponseStatus(HttpStatus.ACCEPTED)
+    public VideoTaskView cancel(@PathVariable UUID id) {
+        return service.cancel(id);
+    }
+
     @PostMapping("/{id}/retry")
     @ResponseStatus(HttpStatus.ACCEPTED)
     public VideoTaskView retry(@PathVariable UUID id) {
@@ -13615,6 +13930,7 @@ public class VideoTaskController {
             @RequestParam("targetDurationSeconds") int targetDurationSeconds,
             @RequestParam(value = "editingScope", defaultValue = "FULL_VIDEO") EditingScope editingScope,
             @RequestParam("taskBrief") String taskBrief,
+            @RequestParam(value = "terminologyGlossary", defaultValue = "") String terminologyGlossary,
             @RequestParam(value = "storyboardReviewEnabled", defaultValue = "false") boolean storyboardReviewEnabled,
             @RequestParam(value = "automaticGenerationEnabled", defaultValue = "true") boolean automaticGenerationEnabled,
             @RequestParam(value = "cloudVisionEnabled", defaultValue = "true") boolean cloudVisionEnabled,
@@ -13630,6 +13946,7 @@ public class VideoTaskController {
                 targetDurationSeconds,
                 editingScope,
                 taskBrief,
+                terminologyGlossary,
                 storyboardReviewEnabled,
                 automaticGenerationEnabled,
                 cloudVisionEnabled,
@@ -13689,15 +14006,17 @@ public class TimelinePlanner {
             List<TimelineSegment> timeline = new ArrayList<>();
             double cursor = 0;
             int overflowCount = 0;
+            int sequence = 1;
             for (int index = 0; index < clips.size(); index++) {
                 HighlightClip clip = clips.get(index);
+                if (clip.excluded()) continue;
                 ScriptSegment script = scripts.get(index);
                 VoiceSegment voice = voices.get(index);
                 double clipDuration = clip.endSeconds() - clip.startSeconds();
                 double voiceDuration = wavDuration(Path.of(voice.audioPath()));
                 boolean overflow = voiceDuration > clipDuration - 0.3;
                 if (overflow) overflowCount++;
-                timeline.add(new TimelineSegment(index + 1, cursor, cursor + clipDuration,
+                timeline.add(new TimelineSegment(sequence++, cursor, cursor + clipDuration,
                         clip.startSeconds(), clip.endSeconds(), script.narration(), script.subtitle(),
                         script.effectCue(), voice.audioPath(), voiceDuration, overflow));
                 cursor += clipDuration;
@@ -13829,6 +14148,65 @@ public class TimelineValidator {
         if (!Double.isFinite(start) || !Double.isFinite(end) || start < 0 || end <= start) {
             throw new IllegalStateException(prefix + label + "时间范围无效");
         }
+    }
+}
+``
+
+### FILE: src/main/java/cn/longer233/gamenarrator/transcription/TerminologyCorrector.java
+
+``java
+package cn.longer233.gamenarrator.transcription;
+
+import cn.longer233.gamenarrator.common.AtomicArtifactWriter;
+import org.springframework.stereotype.Component;
+
+import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.util.LinkedHashMap;
+import java.util.Map;
+
+@Component
+public class TerminologyCorrector {
+    public TranscriptionResult correct(TranscriptionResult result, String glossary) {
+        Map<String, String> replacements = parse(glossary);
+        if (replacements.isEmpty()) return result;
+        String correctedText = replace(result.text(), replacements);
+        rewrite(result.textPath(), replacements);
+        rewrite(result.subtitlePath(), replacements);
+        rewrite(result.detailJsonPath(), replacements);
+        return new TranscriptionResult(correctedText, result.textPath(), result.subtitlePath(), result.detailJsonPath());
+    }
+
+    private Map<String, String> parse(String glossary) {
+        Map<String, String> values = new LinkedHashMap<>();
+        if (glossary == null) return values;
+        glossary.lines().forEach(line -> {
+            String[] pair = line.split("[=＝→]", 2);
+            if (pair.length == 2 && !pair[0].isBlank() && !pair[1].isBlank()) {
+                values.put(pair[0].strip(), pair[1].strip());
+            }
+        });
+        return values;
+    }
+
+    private void rewrite(String value, Map<String, String> replacements) {
+        if (value == null || value.isBlank()) return;
+        try {
+            Path path = Path.of(value);
+            if (Files.isRegularFile(path)) AtomicArtifactWriter.writeText(path,
+                    replace(Files.readString(path, StandardCharsets.UTF_8), replacements), StandardCharsets.UTF_8);
+        } catch (Exception exception) {
+            throw new IllegalStateException("术语纠错文件写入失败：" + exception.getMessage(), exception);
+        }
+    }
+
+    private String replace(String value, Map<String, String> replacements) {
+        String corrected = value == null ? "" : value;
+        for (Map.Entry<String, String> entry : replacements.entrySet()) {
+            corrected = corrected.replace(entry.getKey(), entry.getValue());
+        }
+        return corrected;
     }
 }
 ``
@@ -13969,6 +14347,61 @@ public class WhisperCppTranscriber {
 }
 ``
 
+### FILE: src/main/java/cn/longer233/gamenarrator/vision/FrameOcrService.java
+
+``java
+package cn.longer233.gamenarrator.vision;
+
+import cn.longer233.gamenarrator.common.ExternalProcessRunner;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.stereotype.Component;
+
+import java.nio.file.Path;
+import java.time.Duration;
+import java.util.List;
+
+@Component
+public class FrameOcrService {
+    private static final Logger log = LoggerFactory.getLogger(FrameOcrService.class);
+    private final boolean enabled;
+    private final String executable;
+    private final String languages;
+
+    public FrameOcrService(@Value("${game-narrator.ocr.enabled:false}") boolean enabled,
+                           @Value("${game-narrator.ocr.executable:tesseract}") String executable,
+                           @Value("${game-narrator.ocr.languages:chi_sim+eng}") String languages) {
+        this.enabled = enabled;
+        this.executable = executable;
+        this.languages = languages;
+    }
+
+    public FrameUnderstanding enrich(FrameUnderstanding frame) {
+        if (!enabled) return frame;
+        try {
+            var result = ExternalProcessRunner.run(List.of(executable, Path.of(frame.imagePath()).toString(),
+                    "stdout", "-l", languages, "--psm", "6"), Duration.ofSeconds(20));
+            String text = result.output().replaceAll("\\s+", " ").strip();
+            if (result.exitCode() != 0 || text.isBlank()) return frame;
+            if (text.length() > 500) text = text.substring(0, 500);
+            return new FrameUnderstanding(frame.index(), frame.timestampSeconds(), frame.imagePath(),
+                    frame.description() + "；界面文字：" + text, frame.eventType(),
+                    Math.min(100, frame.excitementScore() + keywordBonus(text)), frame.rawJson());
+        } catch (Exception exception) {
+            log.debug("FRAME_OCR_SKIPPED frame={} reason={}", frame.index(), exception.getMessage());
+            return frame;
+        }
+    }
+
+    private int keywordBonus(String text) {
+        String value = text.toLowerCase();
+        return List.of("胜利", "失败", "击杀", "得分", "boss", "victory", "defeat", "kill")
+                .stream().anyMatch(value::contains) ? 8 : 0;
+    }
+}
+``
+
 ### FILE: src/main/java/cn/longer233/gamenarrator/vision/FrameUnderstanding.java
 
 ``java
@@ -14075,9 +14508,10 @@ public class OllamaVisionClient {
     private final int maxFrames;
     private final AdaptiveAiChatClient adaptiveChat;
     private final AiSettingsService aiSettings;
+    private final FrameOcrService frameOcrService;
 
     public OllamaVisionClient(ObjectMapper objectMapper, AdaptiveAiChatClient adaptiveChat,
-            AiSettingsService aiSettings,
+            AiSettingsService aiSettings, FrameOcrService frameOcrService,
             @Value("${game-narrator.ollama.base-url:http://localhost:11434}") String baseUrl,
             @Value("${game-narrator.ollama.vision-model:qwen2.5vl:3b}") String model,
             @Value("${game-narrator.ollama.script-model:qwen2.5vl:3b}") String contentModel,
@@ -14085,6 +14519,7 @@ public class OllamaVisionClient {
         this.objectMapper = objectMapper;
         this.adaptiveChat = adaptiveChat;
         this.aiSettings = aiSettings;
+        this.frameOcrService = frameOcrService;
         this.baseUri = URI.create(baseUrl);
         this.model = model;
         this.contentModel = contentModel;
@@ -14106,10 +14541,10 @@ public class OllamaVisionClient {
             for (int index = 0; index < selectedFrames.size(); index++) {
                 SceneFrame frame = selectedFrames.get(index);
                 try {
-                    analyses.add(analyzeFrame(frame, transcriptText));
+                    analyses.add(frameOcrService.enrich(analyzeFrame(frame, transcriptText)));
                 } catch (AiContentRejectedException exception) {
                     log.warn("VIDEO_FRAME_CONTENT_REJECTED frame={} action=rule_fallback", frame.index());
-                    analyses.add(fallbackFrame(frame, transcriptText));
+                    analyses.add(frameOcrService.enrich(fallbackFrame(frame, transcriptText)));
                 }
                 progress.accept(10 + (int) Math.round((index + 1) * 80.0 / selectedFrames.size()));
             }
@@ -14144,7 +14579,8 @@ public class OllamaVisionClient {
         try {
             List<SceneFrame> frames = objectMapper.readerForListOf(SceneFrame.class).readValue(manifestPath.toFile());
             if (frames.isEmpty()) throw new IllegalStateException("场景清单为空");
-            List<FrameUnderstanding> analyses = frames.stream().map(frame -> fallbackFrame(frame, transcriptText)).toList();
+            List<FrameUnderstanding> analyses = frames.stream()
+                    .map(frame -> frameOcrService.enrich(fallbackFrame(frame, transcriptText))).toList();
             VideoContentAnalysis content = fallbackContentAnalysis(transcriptText, analyses);
             String summary = formatSummary(content);
             Path output = manifestPath.getParent().resolve("visual-analysis.json");
@@ -15130,6 +15566,10 @@ logging:
     file: "%d{yyyy-MM-dd HH:mm:ss.SSS} %-5level [%thread] [trace=%X{traceId:-system}] %logger{48} - %msg%n"
 
 game-narrator:
+  ocr:
+    enabled: ${OCR_ENABLED:false}
+    executable: ${TESSERACT_EXECUTABLE:tesseract}
+    languages: ${TESSERACT_LANGUAGES:chi_sim+eng}
   ai:
     # DashScope 对原始游戏截图审核较严；默认本地优先，未安装本地视觉模型时使用规则降级，不上传图片。
     cloud-image-policy: ${CLOUD_IMAGE_POLICY:CLOUD_ALLOWED}
@@ -15843,6 +16283,28 @@ ALTER TABLE video_tasks ADD COLUMN IF NOT EXISTS automatic_generation_enabled BO
 ALTER TABLE video_tasks ADD COLUMN editing_scope VARCHAR(24) NOT NULL DEFAULT 'FULL_VIDEO';
 ``
 
+### FILE: src/main/resources/db/migration/V17__task_cancellation.sql
+
+``sql
+ALTER TABLE video_tasks DROP CONSTRAINT IF EXISTS ck_video_tasks_status;
+ALTER TABLE video_tasks ADD CONSTRAINT ck_video_tasks_status CHECK (
+    status IN ('DRAFT', 'READY', 'PROCESSING', 'WAITING_REVIEW', 'COMPLETED', 'FAILED', 'CANCELLED')
+);
+``
+
+### FILE: src/main/resources/db/migration/V18__full_pipeline_failures.sql
+
+``sql
+ALTER TABLE generation_run ALTER COLUMN failure_message CLOB;
+ALTER TABLE stage_run ALTER COLUMN error_message CLOB;
+``
+
+### FILE: src/main/resources/db/migration/V19__task_glossary.sql
+
+``sql
+ALTER TABLE video_tasks ADD COLUMN terminology_glossary VARCHAR(4000);
+``
+
 ### FILE: src/main/resources/db/migration/V2__backfill_legacy_project_history.sql
 
 ``sql
@@ -16093,6 +16555,8 @@ CREATE INDEX idx_segment_embedding_image_hash ON video_segment_embedding(image_h
 .asset-video-thumbnail{position:relative;display:block;width:100%;height:180px;padding:0;overflow:hidden;border:0;border-radius:0;background:#050811;color:#fff}.asset-video-thumbnail img{width:100%;height:100%;object-fit:cover}.asset-video-thumbnail>span{display:grid;height:100%;place-items:center;color:#71809d}.asset-video-thumbnail b{position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);padding:9px 13px;border-radius:99px;background:rgba(5,10,20,.82);font-size:11px}.asset-online-preview{position:fixed;z-index:1000;inset:0;display:grid;place-items:center;padding:24px;background:rgba(2,5,13,.86)}.asset-online-preview>div{position:relative;width:min(900px,96vw);padding:16px;border:1px solid #35405e;border-radius:16px;background:#080e1c}.asset-online-preview video{display:block;width:100%;max-height:75vh;background:#000}.asset-online-preview button{position:absolute;z-index:1;right:24px;top:24px;width:36px;height:36px;padding:0;border-radius:50%;background:rgba(5,10,20,.86);font-size:24px}.asset-online-preview small{display:block;margin-top:10px;color:#91a1bd}
 .task-card-rename{padding:5px 9px;border:1px solid rgba(69,215,234,.35);border-radius:7px;background:rgba(31,88,112,.32);color:#73e4ee;font-size:10px}.voice-controls{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:10px}.voice-controls label{margin:0}.voice-controls output{color:#45d7ea;font-size:11px}@media(max-width:650px){.voice-controls{grid-template-columns:1fr}}
 .active-task{margin-top:22px;padding-top:18px;border-top:1px solid #293047}.active-task>small{display:block;margin-bottom:9px;color:#45d7ea;font-weight:800;letter-spacing:.14em}.active-task .empty{padding:14px}.active-task-card{display:grid;width:100%;gap:10px;text-align:left;background:#0a1020;border:1px solid #31405f}.active-task-card>span:first-child{display:flex;justify-content:space-between;gap:12px}.active-task-card i,.active-task-card em{font-style:normal;color:#8fa1c2;font-size:11px}.active-task-card b{font-size:12px}.active-progress{height:8px;overflow:hidden;border-radius:99px;background:#212b43}.active-progress i{display:block;height:100%;background:linear-gradient(90deg,#38e09d,#45d7ea);transition:width .3s ease}
+.task-cancel{margin-top:10px;width:100%;background:#ff6b6b!important}
+.script-quality{display:grid;gap:7px;padding:14px;border:3px solid var(--ink,#111);background:#fff}.script-quality.passed{background:#c9f8c5}.script-quality.needs-work{background:#fff1a6}.script-quality ul{margin:0;padding-left:20px}
 
 /* Memphis / neo-pop brutalist workspace */
 [hidden]{display:none!important}:root{--ink:#111;--paper:#fff8e8;--pink:#ff4fa3;--yellow:#ffe548;--blue:#36c9ff;--violet:#8b5cf6;--green:#71e66c}body{color:var(--ink);background-color:var(--paper);background-image:radial-gradient(var(--ink) 1.5px,transparent 1.5px);background-size:22px 22px}.aurora{opacity:1;background:linear-gradient(135deg,rgba(255,79,163,.14) 25%,transparent 25%) 0 0/54px 54px,linear-gradient(315deg,rgba(54,201,255,.14) 25%,transparent 25%) 0 0/54px 54px}.topbar{height:auto;min-height:86px;gap:20px;flex-wrap:wrap;padding:14px max(3vw,22px);color:var(--ink);background:var(--yellow);border:3px solid var(--ink);border-width:0 0 4px;box-shadow:0 7px 0 var(--pink);z-index:20}.brand{padding:9px 13px;color:var(--ink);background:#fff;border:3px solid var(--ink);box-shadow:5px 5px 0 var(--ink);transform:rotate(-1deg)}.brand span{color:var(--pink)}.primary-nav{display:flex;align-items:center;gap:8px;flex:1;justify-content:center;overflow:auto;padding:4px}.primary-nav a{white-space:nowrap;padding:9px 13px;color:var(--ink);background:#fff;text-decoration:none;font-size:13px;font-weight:900;border:3px solid var(--ink);box-shadow:3px 3px 0 var(--ink);transition:transform .12s,box-shadow .12s}.primary-nav a:nth-child(2n){background:var(--blue)}.primary-nav a:nth-child(3n){background:var(--pink)}.primary-nav a.active,.primary-nav a:hover{transform:translate(3px,3px) rotate(-1deg);box-shadow:0 0 0 var(--ink)}.topbar-actions{display:flex;gap:8px;align-items:center}.system-state{color:var(--ink);font-weight:800}.system-state i{background:var(--green);box-shadow:none;border:2px solid var(--ink)}main{max-width:1440px;padding:58px max(4vw,24px) 90px}.hero{max-width:none;position:relative;padding:clamp(28px,5vw,70px);background:var(--blue);border:4px solid var(--ink);box-shadow:12px 12px 0 var(--ink);overflow:hidden}.hero:before,.hero:after{content:"";position:absolute;border:4px solid var(--ink);pointer-events:none}.hero:before{width:100px;height:100px;border-radius:50%;right:7%;top:18%;background:var(--pink)}.hero:after{width:72px;height:72px;right:20%;bottom:-25px;background:var(--yellow);transform:rotate(24deg)}.hero h1{position:relative;z-index:1;max-width:900px;color:var(--ink);font-weight:1000;letter-spacing:-.045em;text-transform:uppercase}.hero h1 span{color:#fff;background:none;text-shadow:4px 4px 0 var(--ink)}.lead{position:relative;z-index:1;color:var(--ink);font-weight:700}.metrics div{color:var(--ink);background:#fff;border:3px solid var(--ink);border-radius:0;box-shadow:5px 5px 0 var(--ink)}.metrics div:nth-child(2){background:var(--yellow)}.metrics div:nth-child(3){background:var(--pink)}.metrics span{color:var(--ink)}.workspace{margin-top:38px}.create-panel,.task-panel,.ai-settings-panel,.segment-search-panel,.media-importer,.asset-library,.roadmap{position:relative;color:var(--ink);background:#fff;border:4px solid var(--ink);border-radius:0;box-shadow:10px 10px 0 var(--ink)}.create-panel{background:#fff}.task-panel{background:#ffd8ea}.ai-settings-panel,.segment-search-panel,.media-importer,.asset-library,.roadmap{margin-top:0;padding:clamp(22px,4vw,50px)}.ai-settings-panel{background:#dcd3ff}.segment-search-panel{background:#c9f3ff}.media-importer{background:#fff1a6}.asset-library{background:#fff}.roadmap{margin-top:38px;background:#cdf8c9}.section-title small,.eyebrow{color:var(--ink);font-weight:1000}.section-title h2{font-size:clamp(25px,3vw,42px);font-weight:1000;text-transform:uppercase}.step{color:var(--ink);background:var(--yellow);border:3px solid var(--ink);padding:2px 9px;box-shadow:4px 4px 0 var(--ink);transform:rotate(3deg)}label{color:var(--ink);font-weight:800}input,select,textarea{color:var(--ink);background:#fff;border:3px solid var(--ink);border-radius:0;box-shadow:3px 3px 0 var(--ink)}input:focus,select:focus,textarea:focus{border-color:var(--ink);box-shadow:5px 5px 0 var(--pink)}button,.diagnostics-open{color:var(--ink);background:var(--pink);border:3px solid var(--ink);border-radius:0;box-shadow:4px 4px 0 var(--ink);transition:transform .12s,box-shadow .12s}button:hover{transform:translate(3px,3px);box-shadow:1px 1px 0 var(--ink)}button:disabled{filter:grayscale(.6);transform:none}.icon-button{color:var(--ink);background:var(--yellow)}.dropzone,.effect-toggle,.auto-auth-state,.asset-library-note,.asset-library-guide,.domestic-source-directory,.local-asset-dropzone{color:var(--ink);background:#fff;border:3px solid var(--ink);border-radius:0}.task-list{max-height:720px}.task-card{color:var(--ink);background:#fff;border:3px solid var(--ink);border-radius:0;box-shadow:4px 4px 0 var(--ink)}.task-card:hover,.task-card:focus-visible{border-color:var(--ink);box-shadow:7px 7px 0 var(--blue);transform:translate(-2px,-2px)}.task-card p,.stage-caption,.media-meta,.empty{color:#333}.tags i{color:var(--ink);background:var(--yellow);border:2px solid var(--ink)}.active-task{border-top:4px solid var(--ink)}.active-task>small{color:var(--ink)}.active-task-card{color:var(--ink);background:var(--green);border:3px solid var(--ink)}.active-task-card i,.active-task-card em{color:var(--ink)}.active-progress{background:#fff;border:2px solid var(--ink)}.active-progress i{background:var(--violet)}.asset-list article,.segment-search-results article,.roadmap-list article{border:3px solid var(--ink)!important;border-radius:0!important;box-shadow:5px 5px 0 var(--ink);background:#fff!important;color:var(--ink)!important}.dialog-shell,.storyboard-workspace-shell{color:var(--ink);background:var(--paper);border:4px solid var(--ink);border-radius:0;box-shadow:12px 12px 0 var(--pink)}.dialog-header{background:var(--yellow);border-bottom:4px solid var(--ink)}.detail-block{background:#fff!important;color:var(--ink)!important;border:3px solid var(--ink)!important;border-radius:0!important;box-shadow:5px 5px 0 var(--ink)}pre{color:var(--ink)!important;background:#fff!important;border:3px solid var(--ink)!important}.storyboard-workspace-dialog{background:rgba(17,17,17,.75)}
@@ -16304,7 +16768,7 @@ function createTaskCard(task) {
 }
 
 function reconcileTaskCards(tasks) {
-  const active = tasks.find(task => !['COMPLETED', 'FAILED'].includes(task.status));
+  const active = tasks.find(task => !['COMPLETED', 'FAILED', 'CANCELLED'].includes(task.status));
   renderActiveTask(active);
   const recentTasks = tasks.filter(task => task.id !== active?.id).slice(0, 6);
   if (!recentTasks.length) {
@@ -16338,7 +16802,7 @@ function renderActiveTask(task) {
     <b>${escapeHtml(currentStageText(task))}</b>
     <span class="active-progress"><i style="width:${Math.max(0, Math.min(100, progress))}%"></i></span>
     ${running?.type === 'VOICE_GENERATION' ? `<em>${escapeHtml(voiceProgressText(task, running))}</em>` : ''}
-  </button>`;
+  </button>${task.status === 'PROCESSING' ? `<button type="button" class="task-cancel" data-cancel-task="${task.id}">取消当前任务</button>` : ''}`;
 }
 
 function voiceProgressText(task, stage) {
@@ -16535,9 +16999,26 @@ taskList.addEventListener('click', event => {
 });
 
 activeTaskPanel.addEventListener('click', event => {
+  const cancel = event.target.closest('[data-cancel-task]');
+  if (cancel) { cancelTask(cancel); return; }
   const card = event.target.closest('[data-open-active-task]');
   if (card) openTaskDetails(card.dataset.openActiveTask);
 });
+
+async function cancelTask(button) {
+  if (!window.confirm('确定取消当前任务吗？正在运行的转写、配音或渲染进程会被终止。')) return;
+  button.disabled = true;
+  button.textContent = '正在终止进程…';
+  try {
+    await requestJson(`/api/tasks/${button.dataset.cancelTask}/cancel`, {method:'POST'});
+    await loadTasks();
+    if (activeTaskId === button.dataset.cancelTask) await refreshTaskDetails(activeTaskId);
+  } catch (error) {
+    button.disabled = false;
+    button.textContent = '取消当前任务';
+    window.alert(`取消失败：${error.message}`);
+  }
+}
 
 async function renameTask(taskId, currentName) {
   const name = window.prompt('请输入新的任务名称', currentName);
@@ -16747,6 +17228,7 @@ function renderTaskDetails(task) {
   detailContent.innerHTML = `
     <section class="detail-block task-operations"><button type="button" data-rename-task="${task.id}" data-task-name="${escapeHtml(task.name)}">重命名任务</button><small>只修改显示名称，不影响正在处理的阶段和已有文件。</small></section>
     <section class="detail-block task-operations task-delete-operation"><button type="button" data-delete-task="${task.id}" data-task-name="${escapeHtml(task.name)}">删除任务及数据</button><small>同时删除任务记录、源视频、输出视频及 data 中的全部处理文件；不可撤销。</small></section>
+    ${task.status === 'PROCESSING' ? `<section class="detail-block task-operations"><button type="button" data-cancel-task="${task.id}">取消当前任务</button><small>立即终止当前外部进程，保留已完成阶段，清理未完成的临时文件。</small></section>` : ''}
     ${task.status === 'FAILED' ? `<section class="detail-block task-operations"><button type="button" data-retry-task="${task.id}">重试失败阶段</button><small>已完成阶段会保留，从失败位置继续处理。</small></section>` : ''}
     ${task.generatedScriptPath ? `<section class="detail-block task-operations storyboard-launch"><button type="button" data-open-storyboard="${task.id}">进入线性分镜工作台 →</button><small>${task.storyboardReviewEnabled && !task.storyboardApproved ? '需要在独立分镜时间线中检查并确认后才能继续生成。' : '按镜头顺序编辑画面、起止时间、文案、字幕、素材和特效。'}</small></section>` : ''}
     ${task.generatedScriptPath ? `<section class="detail-block task-operations"><button type="button" data-open-script="${task.id}">编辑分段文案</button><small>支持保存、AI 单段重写和单段重新配音。</small></section>` : ''}
@@ -16823,6 +17305,8 @@ function effectPresetDetails(preset){
 }
 
 detailContent.addEventListener('click', async event => {
+  const cancelButton = event.target.closest('[data-cancel-task]');
+  if (cancelButton) { await cancelTask(cancelButton); return; }
   const renameButton = event.target.closest('[data-rename-task]');
   if (renameButton) {
     await renameTask(renameButton.dataset.renameTask, renameButton.dataset.taskName);
@@ -16858,6 +17342,11 @@ async function loadScriptEditor(taskId) {
     <section class="detail-block script-editor">
       <h3>分段文案编辑</h3>
       <p class="effect-note">修改文案会使配音、时间线和成片进入待重建状态。单段配音完成后可重新启动任务生成时间线和成片。</p>
+      <aside class="script-quality ${script.qualityReview?.passed ? 'passed' : 'needs-work'}">
+        <strong>文案质量 ${script.qualityReview?.score ?? 0} / 100</strong>
+        <span>${escapeHtml(script.qualityReview?.summary || '尚未生成质量评审')}</span>
+        ${script.qualityReview?.issues?.length ? `<ul>${script.qualityReview.issues.map(issue => `<li>${escapeHtml(issue)}</li>`).join('')}</ul>` : ''}
+      </aside>
       <div class="script-segment-list">${script.segments.map(segment => `
         <article class="script-segment-card" data-script-segment="${segment.clipIndex}">
           <header><strong>片段 ${segment.clipIndex}</strong><small>${segment.startSeconds.toFixed(1)}s – ${segment.endSeconds.toFixed(1)}s</small></header>
@@ -16900,6 +17389,7 @@ async function loadStoryboardEditor(taskId) {
           <header><strong>分镜 ${segment.clipIndex}</strong><span>${escapeHtml(segment.eventType || '其他')} · AI ${segment.finalScore} 分</span></header>
           <div class="storyboard-order"><button type="button" data-storyboard-action="move" data-direction="UP" data-task-id="${taskId}" data-clip-index="${segment.clipIndex}" ${segment.clipIndex === 1 ? 'disabled' : ''}>上移</button><button type="button" data-storyboard-action="move" data-direction="DOWN" data-task-id="${taskId}" data-clip-index="${segment.clipIndex}" ${segment.clipIndex === storyboard.segments.length ? 'disabled' : ''}>下移</button></div>
           <p class="storyboard-description">${escapeHtml(segment.description || '')}</p>
+          <div class="storyboard-controls"><label><input name="locked" type="checkbox" ${segment.locked ? 'checked' : ''}>锁定：AI 重写时保持此镜</label><label><input name="excluded" type="checkbox" ${segment.excluded ? 'checked' : ''}>排除：最终时间线跳过此镜</label></div>
           <div class="storyboard-time"><label>开始秒数<input name="startSeconds" type="number" min="0" step="0.1" value="${segment.startSeconds.toFixed(2)}"></label><label>结束秒数<input name="endSeconds" type="number" min="0.01" step="0.1" value="${segment.endSeconds.toFixed(2)}"></label></div>
           <label>解说文案<textarea name="narration" maxlength="500">${escapeHtml(segment.narration)}</textarea></label>
           <label>字幕<input name="subtitle" maxlength="500" value="${escapeHtml(segment.subtitle)}"></label>
@@ -17033,7 +17523,9 @@ async function handleStoryboardAction(button) {
         endSeconds:Number(card.querySelector('[name="endSeconds"]').value),
         narration:card.querySelector('[name="narration"]').value,
         subtitle:card.querySelector('[name="subtitle"]').value,
-        effectCue:card.querySelector('[name="effectCue"]').value
+        effectCue:card.querySelector('[name="effectCue"]').value,
+        locked:card.querySelector('[name="locked"]').checked,
+        excluded:card.querySelector('[name="excluded"]').checked
       })
     });
     button.textContent = '已保存';
@@ -17056,7 +17548,9 @@ async function saveAllStoryboardSegments(taskId, progressButton = null) {
         endSeconds:Number(card.querySelector('[name="endSeconds"]').value),
         narration:card.querySelector('[name="narration"]').value,
         subtitle:card.querySelector('[name="subtitle"]').value,
-        effectCue:card.querySelector('[name="effectCue"]').value
+        effectCue:card.querySelector('[name="effectCue"]').value,
+        locked:card.querySelector('[name="locked"]').checked,
+        excluded:card.querySelector('[name="excluded"]').checked
       })
     });
     if (progressButton) progressButton.textContent = `正在保存 ${index + 1} / ${cards.length}…`;
@@ -17121,6 +17615,7 @@ function formatDate(value) {
 
 function currentStageText(task) {
   if (task.status === 'WAITING_REVIEW') return '等待检查 AI 分镜和文案，确认后继续生成';
+  if (task.status === 'CANCELLED') return '任务已取消，已完成的阶段和工程数据仍保留';
   if (task.status === 'FAILED') return `处理失败：${task.failureReason || '请查看后端日志'}`;
   const running = task.stages.find(stage => stage.status === 'RUNNING');
   if (running?.type === 'VOICE_GENERATION') return `正在配音：${running.progress}%`;
@@ -18293,7 +18788,7 @@ document.querySelector('#copy-address').onclick=async()=>{await navigator.clipbo
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>GameNarrator</title>
   <link rel="stylesheet" href="/media-importer.css?v=20260729-10">
-  <link rel="stylesheet" href="/app.css?v=20260803-12">
+  <link rel="stylesheet" href="/app.css?v=20260803-13">
 </head>
 <body>
   <div class="aurora"></div>
@@ -18370,6 +18865,7 @@ document.querySelector('#copy-address').onclick=async()=>{await navigator.clipbo
             <label>目标时长（秒）<input name="targetDurationSeconds" type="number" min="15" max="3600" value="90"><small>仅“精彩片段”模式用于控制成片长度。</small></label>
           </div>
           <label>创作要求<textarea name="taskBrief" maxlength="500" required placeholder="描述希望重点保留的玩法、节奏和表达方式"></textarea></label>
+          <details class="glossary-editor"><summary>游戏术语纠错词表（可选）</summary><label>每行填写“错误词=正确词”<textarea name="terminologyGlossary" maxlength="4000" placeholder="躲避=闪避&#10;大龙=纳什男爵"></textarea></label></details>
           <label class="effect-toggle storyboard-review-option"><input name="storyboardReviewEnabled" type="checkbox" value="true" checked> AI 生成文案和分镜后暂停，等待我检查和修改</label>
           <label class="effect-toggle"><input name="automaticGenerationEnabled" type="checkbox" value="true" checked> 启动自动剪辑流程</label>
           <label class="effect-toggle"><input name="cloudVisionEnabled" type="checkbox" value="true" checked> 云端理解完整视频场景</label>
@@ -18563,7 +19059,7 @@ document.querySelector('#copy-address').onclick=async()=>{await navigator.clipbo
       <main id="storyboard-workspace" class="storyboard-workspace"><p class="empty">正在读取分镜…</p></main>
     </div>
   </dialog>
-  <script src="/app.js?v=20260803-9"></script>
+  <script src="/app.js?v=20260803-10"></script>
   <script src="/export.js?v=20260728-4"></script>
   <script src="/asset-library.js?v=20260803-3"></script>
   <script src="/media-importer.js?v=20260803-4"></script>
