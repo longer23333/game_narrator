@@ -1,6 +1,6 @@
 # GameNarrator — DeepSeek 项目上下文包
 
-> 自动生成时间：2026-08-03 19:36:35 +08:00
+> 自动生成时间：2026-08-03 19:51:20 +08:00
 > 文件数量：234。本文件由 scripts/export-deepseek-context.ps1 生成，请勿手工维护生成区。
 
 ## 给 DeepSeek 的强制工作规则
@@ -216,7 +216,7 @@
 - `src/main/resources/db/migration/V7__storyboard_review.sql`（207 bytes）
 - `src/main/resources/db/migration/V8__video_segment_semantic_index.sql`（634 bytes）
 - `src/main/resources/db/migration/V9__video_segment_image_hash.sql`（152 bytes）
-- `src/main/resources/static/app.css`（44011 bytes）
+- `src/main/resources/static/app.css`（44125 bytes）
 - `src/main/resources/static/app.js`（71236 bytes）
 - `src/main/resources/static/asset-library.js`（39551 bytes）
 - `src/main/resources/static/diagnostics.js`（1673 bytes）
@@ -16645,10 +16645,12 @@ CREATE INDEX idx_segment_embedding_image_hash ON video_segment_embedding(image_h
 .guide-open{border-color:rgba(69,215,234,.55);background:rgba(31,109,128,.25);color:#baf7ff}.guided-tour[hidden]{display:none}.guided-tour{position:fixed;z-index:3000;inset:0;pointer-events:none}.guided-tour-shade{position:absolute;inset:0;background:rgba(1,5,14,.68);backdrop-filter:blur(1px)}.guided-tour-target{position:relative;z-index:3001!important;border-radius:16px;box-shadow:0 0 0 4px #45d7ea,0 0 0 9999px rgba(1,5,14,.68),0 0 38px rgba(69,215,234,.55)!important}.guided-tour-card{position:fixed;z-index:3002;padding:18px;border:1px solid rgba(89,226,239,.65);border-radius:16px;background:linear-gradient(145deg,#111d35,#0a1020);box-shadow:0 18px 70px rgba(0,0,0,.65);pointer-events:auto}.guided-tour-card header{display:flex;align-items:center;justify-content:space-between}.guided-tour-card header span{color:#45d7ea;font-size:11px;font-weight:900;letter-spacing:.12em}.guided-tour-card header button{width:30px;height:30px;padding:0;border-radius:50%;background:#1b2944;color:#b9c7dc;font-size:20px}.guided-tour-card h2{margin:14px 0 8px;font-size:20px}.guided-tour-card p{margin:0;color:#a9b8cf;font-size:13px;line-height:1.75}.guided-tour-card footer{display:grid;grid-template-columns:auto 1fr auto;gap:8px;margin-top:17px}.guided-tour-card footer button{padding:9px 12px;font-size:11px}.guided-tour-card [data-guide-skip]{background:transparent;color:#8999b3}.guided-tour-card [data-guide-next]{background:linear-gradient(90deg,#16b8ce,#715ee8)}.guided-tour-card button:disabled{opacity:.35}.guided-tour-dots{display:flex;gap:5px;margin-top:14px}.guided-tour-dots i{width:6px;height:6px;border-radius:50%;background:#35445f}.guided-tour-dots i.active{width:20px;border-radius:99px;background:#45d7ea}@media(max-width:650px){.topbar-actions{gap:6px}.topbar-actions .system-state{display:none}.diagnostics-open{padding:7px 9px}.guided-tour-card{right:12px!important;bottom:12px!important;left:12px!important;top:auto!important;width:auto!important}.guided-tour-target{box-shadow:0 0 0 3px #45d7ea,0 0 0 9999px rgba(1,5,14,.7)!important}}
 
 /* Bright neo-pop guided tour: keep the target visible and the instruction card unmistakable. */
+.guided-tour{z-index:auto}
+.guided-tour-shade{position:fixed;z-index:10000}
 .guide-open{color:var(--ink);background:var(--blue);border:3px solid var(--ink);box-shadow:4px 4px 0 var(--ink)}
 .guided-tour-shade{background:rgba(17,17,17,.30);backdrop-filter:none}
-.guided-tour-target{border-radius:0;filter:brightness(1.08) saturate(1.08);box-shadow:0 0 0 6px var(--yellow),0 0 0 10px var(--ink),0 0 0 9999px rgba(17,17,17,.30),14px 14px 0 var(--pink)!important}
-.guided-tour-card{padding:22px;color:var(--ink);background:var(--yellow);border:4px solid var(--ink);border-radius:0;box-shadow:10px 10px 0 var(--pink),16px 16px 0 var(--ink);transform:rotate(-.35deg)}
+.guided-tour-target{z-index:10001!important;border-radius:0;filter:brightness(1.08) saturate(1.08);box-shadow:0 0 0 6px var(--yellow),0 0 0 10px var(--ink),0 0 0 9999px rgba(17,17,17,.30),14px 14px 0 var(--pink)!important}
+.guided-tour-card{z-index:10002;padding:22px;color:var(--ink);background:var(--yellow);border:4px solid var(--ink);border-radius:0;box-shadow:10px 10px 0 var(--pink),16px 16px 0 var(--ink);transform:rotate(-.35deg)}
 .guided-tour-card header span{display:inline-block;padding:4px 8px;color:var(--ink);background:#fff;border:2px solid var(--ink);font-size:12px}
 .guided-tour-card header button{width:34px;height:34px;color:var(--ink);background:var(--pink);border:3px solid var(--ink);border-radius:0;box-shadow:3px 3px 0 var(--ink)}
 .guided-tour-card h2{color:var(--ink);font-size:23px;line-height:1.2}.guided-tour-card p{color:#191919;font-size:14px;font-weight:750;line-height:1.75}
