@@ -1,0 +1,36 @@
+package cn.longer233.gamenarrator.pipeline;
+
+public record EngineTaskContext(
+        String sourceVideoPath,
+        boolean ingestionCompleted,
+        boolean sceneDetectionCompleted,
+        boolean transcriptionCompleted,
+        boolean videoUnderstandingCompleted,
+        boolean highlightSelectionCompleted,
+        boolean scriptGenerationCompleted,
+        boolean voiceGenerationCompleted,
+        boolean timelinePlanningCompleted,
+        boolean renderingCompleted,
+        boolean hasAudio,
+        String extractedAudioPath,
+        String sceneManifestPath,
+        String transcriptText,
+        String visualAnalysisPath,
+        String highlightManifestPath,
+        String generatedScriptPath,
+        String voiceManifestPath,
+        String timelinePath,
+        Double durationSeconds,
+        int targetDurationSeconds,
+        String gameCategory,
+        String commentaryStyle,
+        String taskBrief,
+        boolean storyboardReviewEnabled,
+        boolean storyboardApproved,
+        boolean cloudVisionEnabled,
+        boolean aiScriptEnabled,
+        boolean aiVoiceEnabled,
+        boolean autoAssetsEnabled,
+        boolean automaticGenerationEnabled
+) {
+}

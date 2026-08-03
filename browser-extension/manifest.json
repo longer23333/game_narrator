@@ -1,0 +1,19 @@
+{
+  "manifest_version": 3,
+  "name": "GameNarrator 浏览器助手",
+  "version": "1.5.0",
+  "description": "连接 GameNarrator、临时传递平台登录状态，并批量同步 Bilibili 搜索结果。",
+  "permissions": ["cookies", "storage", "scripting", "activeTab", "tabs"],
+  "host_permissions": [
+    "https://*.bilibili.com/*",
+    "https://b23.tv/*",
+    "https://*.youtube.com/*",
+    "https://youtu.be/*",
+    "https://*.google.com/*",
+    "https://*.douyin.com/*",
+    "https://*.tiktok.com/*"
+  ],
+  "optional_host_permissions": ["http://*/*", "https://*/*"],
+  "background": {"service_worker": "service-worker.js"},
+  "action": {"default_popup": "popup.html", "default_title": "GameNarrator 浏览器助手"}
+}

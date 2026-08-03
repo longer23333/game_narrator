@@ -1,0 +1,20 @@
+<!doctype html>
+<html lang="zh-CN"><head><meta charset="utf-8"><style>
+body{width:420px;max-height:560px;margin:0;padding:16px;font:14px/1.5 system-ui,"Microsoft YaHei";color:#182033}
+h1{font-size:17px;margin:0 0 8px}p{color:#5d687d;margin:6px 0 12px}.hidden{display:none!important}
+button{padding:9px 12px;border:0;border-radius:8px;background:#5368df;color:#fff;font-weight:700;cursor:pointer}
+button:disabled{opacity:.55}#connect,#sync{width:100%}#status{margin-top:10px;font-size:12px}.ok{color:#148455}.error{color:#c33}
+.toolbar{display:flex;gap:8px;align-items:center;margin:10px 0}.toolbar label{display:flex;gap:5px;align-items:center}
+#results{max-height:320px;overflow:auto;border:1px solid #dde2ed;border-radius:9px}
+.result{display:grid;grid-template-columns:22px 72px 1fr;gap:8px;padding:8px;border-bottom:1px solid #edf0f6;align-items:center}
+.result:last-child{border-bottom:0}.result img{width:72px;height:45px;object-fit:cover;border-radius:5px;background:#eef1f7}
+.result b{display:block;font-size:12px;line-height:1.35;max-height:34px;overflow:hidden}.result small{color:#687389}
+</style></head><body>
+<section id="connect-panel"><h1>连接 GameNarrator</h1><p>在 GameNarrator 页面连接一次；扩展只向你授权的本地站点同步素材信息。</p><button id="connect">连接当前网站</button></section>
+<section id="sync-panel" class="hidden"><h1>Bilibili 搜索结果批量同步</h1><p id="summary">正在读取当前页面可见的视频……</p>
+  <div class="toolbar"><label><input id="select-all" type="checkbox" checked>全选</label><label>素材类型<select id="asset-type"><option value="VIDEO">视频</option><option value="MEME">画面/表情</option><option value="SFX">音效候选</option><option value="BGM">配乐候选</option></select></label></div>
+  <div id="results"></div>
+  <label><input id="rights" type="checkbox">我确认只同步本人作品、已获授权或平台许可使用的候选素材</label>
+  <button id="sync" disabled>同步选中结果到素材库</button>
+</section>
+<div id="status"></div><script src="popup.js"></script></body></html>

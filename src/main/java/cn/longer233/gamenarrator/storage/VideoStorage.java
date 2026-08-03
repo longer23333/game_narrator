@@ -1,0 +1,54 @@
+package cn.longer233.gamenarrator.storage;
+
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.stereotype.Component;
+import org.springframework.web.multipart.MultipartFile;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import java.io.IOException;
+import java.nio.file.*;
+import java.util.Set;
+import java.util.UUID;
+
+@Component
+public class VideoStorage {
+
+    private static final Logger log = LoggerFactory.getLogger(VideoStorage.class);
+    private static final Set<String> ALLOWED_EXTENSIONS =
+            Set.of("mp4", "mov", "mkv", "webm");
+
+    private final Path root;
+
+    public VideoStorage(@Value("${game-narrator.storage-root}") String root) {
+        this.root = Path.of(root).toAbsolutePath().normalize();
+    }
+
+    public String save(MultipartFile video) throws IOException {
+        String originalName = video.getOriginalFilename() == null
+                ? "video.mp4" : video.getOriginalFilename();
+        String extension = extensionOf(originalName);
+        log.info("VIDEO_VALIDATE originalName={} size={} contentType={} extension={}",
+                originalName, video.getSize(), video.getContentType(), extension);
+        if (!ALLOWED_EXTENSIONS.contains(extension)) {
+            log.warn("VIDEO_REJECTED reason=unsupported_extension extension={}", extension);
+            throw new IllegalArgumentException("仅支持 mp4、mov、mkv、webm 视频");
+        }
+        if (video.isEmpty()) {
+            log.warn("VIDEO_REJECTED reason=empty_file originalName={}", originalName);
+            throw new IllegalArgumentException("上传的视频文件为空");
+        }
+        Files.createDirectories(root);
+        Path target = root.resolve(UUID.randomUUID() + "." + extension).normalize();
+        if (!target.startsWith(root)) {
+            throw new IllegalArgumentException("非法文件路径");
+        }
+        video.transferTo(target);
+        log.info("VIDEO_STORED path={} size={}", target, Files.size(target));
+        return target.toString();
+    }
+
+    private String extensionOf(String filename) {
+        int dot = filename.lastIndexOf('.');
+        return dot < 0 ? "" : filename.substring(dot + 1).toLowerCase();
+    }
+}

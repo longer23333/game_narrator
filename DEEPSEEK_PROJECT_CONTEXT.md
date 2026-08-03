@@ -1,0 +1,20392 @@
+# GameNarrator — DeepSeek 项目上下文包
+
+> 自动生成时间：2026-08-03 15:29:20 +08:00
+> 文件数量：223。本文件由 scripts/export-deepseek-context.ps1 生成，请勿手工维护生成区。
+
+## 给 DeepSeek 的强制工作规则
+
+你正在维护一个真实可运行的 Java 21 / Spring Boot 3.2 项目。请先阅读本文件中的项目约束、目录清单和相关源码，再回答或修改。用户的新要求优先于旧文档，但不得擅自扩大范围。
+
+1. 不要虚构不存在的类、接口、API、配置、依赖或测试结果；结论必须能由下方源码验证。
+2. 修改应复用现有分层和命名，保持后端、前端、配置、数据库迁移、诊断和测试一致。
+3. 平台、浏览器、模型、路径、模板和供应商能力必须配置化，不写死单个平台或本机环境。
+4. 不得绕过网站认证、DRM、付费墙或浏览器凭据保护；媒体导入仅处理用户有权使用的内容。
+5. 不输出整文件替换，除非用户明确要求；优先给出可应用的 unified diff，并列出受影响文件。
+6. 不覆盖无关改动，不删除数据，不使用破坏性 Git 命令。数据库变更必须新增 Flyway 迁移，不能修改已执行迁移。
+7. 外部进程必须处理并发输出、超时、中断、退出码、残留进程和安全路径；错误信息不得泄露 Cookie、Token 或完整命令中的秘密。
+8. 前端轮询不得覆盖用户正在编辑的表单、重置视频播放位置或反复重建已打开的详情视图。
+9. 任务重试应保留已完成阶段；取消应终止实际工作；缓存清理应限制在授权存储目录并可解释清理范围。
+10. 修改完成后至少运行 `.\mvnw.cmd test`，报告真实的测试数量与失败原因；不能声称未执行的验证已通过。
+11. 若参考 GitHub/Gitee 项目，只借鉴架构和可靠性做法，检查许可证与版本差异，不直接复制不兼容代码。
+12. 回答使用简洁中文，先说结果，再说改动文件、验证结果、剩余风险和启动/迁移要求。
+
+## 当前文件清单
+
+- `pom.xml`（2236 bytes）
+- `README.md`（4877 bytes）
+- `.gitignore`（277 bytes）
+- `docs/ARCHITECTURE.md`（2049 bytes）
+- `docs/ASSET_LIBRARY_DESIGN.md`（1697 bytes）
+- `docs/DATABASE_DESIGN.md`（27795 bytes）
+- `docs/FRONTEND_DEVELOPMENT.md`（1853 bytes）
+- `docs/MANUAL_EDITOR_PARITY.md`（2553 bytes）
+- `docs/PERFORMANCE_PORTABILITY_AUDIT.md`（3962 bytes）
+- `docs/REQUIREMENTS.md`（21389 bytes）
+- `scripts/build-windows-release.ps1`（9044 bytes）
+- `scripts/export-deepseek-context.ps1`（5568 bytes）
+- `scripts/generate-app-icon.ps1`（1832 bytes）
+- `scripts/setup-media-importer.ps1`（1038 bytes）
+- `scripts/setup-piper.ps1`（1322 bytes）
+- `scripts/setup-vision-model.ps1`（931 bytes）
+- `scripts/setup-whisper.ps1`（1323 bytes）
+- `scripts/test-windows-clean-install.ps1`（3045 bytes）
+- `src/main/java/cn/longer233/gamenarrator/ai/AdaptiveAiChatClient.java`（12927 bytes）
+- `src/main/java/cn/longer233/gamenarrator/ai/AiContentRejectedException.java`（187 bytes）
+- `src/main/java/cn/longer233/gamenarrator/ai/AiSettingsController.java`（1967 bytes）
+- `src/main/java/cn/longer233/gamenarrator/ai/AiSettingsService.java`（4496 bytes）
+- `src/main/java/cn/longer233/gamenarrator/ai/AiUsageService.java`（3835 bytes）
+- `src/main/java/cn/longer233/gamenarrator/asset/AiAssetTagger.java`（8162 bytes）
+- `src/main/java/cn/longer233/gamenarrator/asset/AssetCatalogController.java`（10684 bytes）
+- `src/main/java/cn/longer233/gamenarrator/asset/AssetCatalogService.java`（58938 bytes）
+- `src/main/java/cn/longer233/gamenarrator/asset/AssetDerivativeRequest.java`（294 bytes）
+- `src/main/java/cn/longer233/gamenarrator/asset/AssetLibraryProperties.java`（5166 bytes）
+- `src/main/java/cn/longer233/gamenarrator/asset/AssetReferenceRequest.java`（827 bytes）
+- `src/main/java/cn/longer233/gamenarrator/asset/AssetSearchExpansion.java`（175 bytes）
+- `src/main/java/cn/longer233/gamenarrator/asset/AssetSearchRequest.java`（653 bytes）
+- `src/main/java/cn/longer233/gamenarrator/asset/AssetStateUpdateRequest.java`（120 bytes）
+- `src/main/java/cn/longer233/gamenarrator/asset/AssetTagUpdateRequest.java`（145 bytes）
+- `src/main/java/cn/longer233/gamenarrator/asset/AssetView.java`（742 bytes）
+- `src/main/java/cn/longer233/gamenarrator/asset/BgeAssetSemanticSearch.java`（9343 bytes）
+- `src/main/java/cn/longer233/gamenarrator/asset/BilibiliAssetClient.java`（10525 bytes）
+- `src/main/java/cn/longer233/gamenarrator/asset/ChineseAssetQueryExpander.java`（8243 bytes）
+- `src/main/java/cn/longer233/gamenarrator/asset/ImportedMediaAsset.java`（271 bytes）
+- `src/main/java/cn/longer233/gamenarrator/asset/OpenverseAssetClient.java`（2615 bytes）
+- `src/main/java/cn/longer233/gamenarrator/asset/PexelsAssetClient.java`（4926 bytes）
+- `src/main/java/cn/longer233/gamenarrator/asset/PixabayAssetClient.java`（4501 bytes）
+- `src/main/java/cn/longer233/gamenarrator/asset/SafeRemoteHttpConnector.java`（2332 bytes）
+- `src/main/java/cn/longer233/gamenarrator/asset/WikimediaAssetClient.java`（5241 bytes）
+- `src/main/java/cn/longer233/gamenarrator/audio/ProceduralSoundEffectLibrary.java`（4912 bytes）
+- `src/main/java/cn/longer233/gamenarrator/audio/SoundCue.java`（192 bytes）
+- `src/main/java/cn/longer233/gamenarrator/common/ApiExceptionHandler.java`（6515 bytes）
+- `src/main/java/cn/longer233/gamenarrator/common/AtomicArtifactWriter.java`（2074 bytes）
+- `src/main/java/cn/longer233/gamenarrator/common/ExternalProcessRunner.java`（4030 bytes）
+- `src/main/java/cn/longer233/gamenarrator/common/RequestTraceFilter.java`（1908 bytes）
+- `src/main/java/cn/longer233/gamenarrator/config/AsyncConfig.java`（1465 bytes）
+- `src/main/java/cn/longer233/gamenarrator/diagnostics/DiagnosticLogService.java`（4016 bytes）
+- `src/main/java/cn/longer233/gamenarrator/diagnostics/DiagnosticsController.java`（2339 bytes）
+- `src/main/java/cn/longer233/gamenarrator/diagnostics/StartupDiagnostics.java`（563 bytes）
+- `src/main/java/cn/longer233/gamenarrator/diagnostics/SystemDiagnosticsService.java`（5350 bytes）
+- `src/main/java/cn/longer233/gamenarrator/editor/EditorCommandRequest.java`（294 bytes）
+- `src/main/java/cn/longer233/gamenarrator/editor/EditorTimelineController.java`（931 bytes）
+- `src/main/java/cn/longer233/gamenarrator/editor/EditorTimelineService.java`（15398 bytes）
+- `src/main/java/cn/longer233/gamenarrator/effect/EffectController.java`（579 bytes）
+- `src/main/java/cn/longer233/gamenarrator/effect/EffectPlan.java`（196 bytes）
+- `src/main/java/cn/longer233/gamenarrator/effect/EffectPreset.java`（438 bytes）
+- `src/main/java/cn/longer233/gamenarrator/effect/EffectPresetCatalog.java`（5270 bytes）
+- `src/main/java/cn/longer233/gamenarrator/effect/EffectRerenderWorker.java`（2292 bytes）
+- `src/main/java/cn/longer233/gamenarrator/effect/EffectSettingsRequest.java`（536 bytes）
+- `src/main/java/cn/longer233/gamenarrator/effect/SemanticEffectPlanner.java`（5208 bytes）
+- `src/main/java/cn/longer233/gamenarrator/effect/TransitionType.java`（139 bytes）
+- `src/main/java/cn/longer233/gamenarrator/effect/VisualEffectType.java`（386 bytes）
+- `src/main/java/cn/longer233/gamenarrator/export/CreateExportRequest.java`（439 bytes）
+- `src/main/java/cn/longer233/gamenarrator/export/ExportController.java`（1876 bytes）
+- `src/main/java/cn/longer233/gamenarrator/export/ExportJobView.java`（510 bytes）
+- `src/main/java/cn/longer233/gamenarrator/export/ExportPresetView.java`（544 bytes）
+- `src/main/java/cn/longer233/gamenarrator/export/ExportService.java`（7505 bytes）
+- `src/main/java/cn/longer233/gamenarrator/export/ExportWorker.java`（11765 bytes）
+- `src/main/java/cn/longer233/gamenarrator/export/FfmpegProgressParser.java`（1554 bytes）
+- `src/main/java/cn/longer233/gamenarrator/GameNarratorApplication.java`（501 bytes）
+- `src/main/java/cn/longer233/gamenarrator/highlight/HighlightClip.java`（315 bytes）
+- `src/main/java/cn/longer233/gamenarrator/highlight/HighlightSelectionResult.java`（177 bytes）
+- `src/main/java/cn/longer233/gamenarrator/highlight/RuleBasedHighlightSelector.java`（5733 bytes）
+- `src/main/java/cn/longer233/gamenarrator/importer/ContentOriginAssessment.java`（148 bytes）
+- `src/main/java/cn/longer233/gamenarrator/importer/MediaDownloadJobService.java`（3029 bytes）
+- `src/main/java/cn/longer233/gamenarrator/importer/MediaDownloadJobView.java`（219 bytes）
+- `src/main/java/cn/longer233/gamenarrator/importer/MediaDownloadProgress.java`（206 bytes）
+- `src/main/java/cn/longer233/gamenarrator/importer/MediaDownloadRequest.java`（1017 bytes）
+- `src/main/java/cn/longer233/gamenarrator/importer/MediaDownloadResult.java`（340 bytes）
+- `src/main/java/cn/longer233/gamenarrator/importer/MediaImportController.java`（16942 bytes）
+- `src/main/java/cn/longer233/gamenarrator/importer/MediaImportProperties.java`（3295 bytes）
+- `src/main/java/cn/longer233/gamenarrator/importer/MediaPreviewResult.java`（134 bytes）
+- `src/main/java/cn/longer233/gamenarrator/importer/MediaResolveRequest.java`（510 bytes）
+- `src/main/java/cn/longer233/gamenarrator/importer/MediaVariant.java`（309 bytes）
+- `src/main/java/cn/longer233/gamenarrator/importer/PlatformContentClassifier.java`（4630 bytes）
+- `src/main/java/cn/longer233/gamenarrator/importer/RemoteThumbnailService.java`（6298 bytes）
+- `src/main/java/cn/longer233/gamenarrator/importer/ResolvedMedia.java`（934 bytes）
+- `src/main/java/cn/longer233/gamenarrator/importer/YtDlpMediaImporter.java`（28922 bytes）
+- `src/main/java/cn/longer233/gamenarrator/media/FfmpegMediaPreprocessor.java`（8550 bytes）
+- `src/main/java/cn/longer233/gamenarrator/media/FfmpegMediaProbe.java`（3405 bytes）
+- `src/main/java/cn/longer233/gamenarrator/media/MediaMetadata.java`（233 bytes）
+- `src/main/java/cn/longer233/gamenarrator/media/MediaPreparationResult.java`（211 bytes）
+- `src/main/java/cn/longer233/gamenarrator/media/SceneFrame.java`（125 bytes）
+- `src/main/java/cn/longer233/gamenarrator/pipeline/EngineTaskContext.java`（1195 bytes）
+- `src/main/java/cn/longer233/gamenarrator/pipeline/FailedVisionTaskRepair.java`（2063 bytes）
+- `src/main/java/cn/longer233/gamenarrator/pipeline/PendingTaskRecovery.java`（1338 bytes）
+- `src/main/java/cn/longer233/gamenarrator/pipeline/PipelineRunTracker.java`（5104 bytes）
+- `src/main/java/cn/longer233/gamenarrator/pipeline/TaskWorkflowStateService.java`（11475 bytes）
+- `src/main/java/cn/longer233/gamenarrator/pipeline/VideoTaskEngine.java`（17334 bytes）
+- `src/main/java/cn/longer233/gamenarrator/pipeline/WaitingTaskRetryScheduler.java`（2399 bytes）
+- `src/main/java/cn/longer233/gamenarrator/render/FfmpegVideoRenderer.java`（27352 bytes）
+- `src/main/java/cn/longer233/gamenarrator/render/RenderAssetResolver.java`（2211 bytes）
+- `src/main/java/cn/longer233/gamenarrator/render/RenderResult.java`（133 bytes）
+- `src/main/java/cn/longer233/gamenarrator/script/AutoAssetAssignmentView.java`（246 bytes）
+- `src/main/java/cn/longer233/gamenarrator/script/GeneratedScript.java`（245 bytes）
+- `src/main/java/cn/longer233/gamenarrator/script/MoveStoryboardSegmentRequest.java`（195 bytes）
+- `src/main/java/cn/longer233/gamenarrator/script/OllamaScriptGenerator.java`（19230 bytes）
+- `src/main/java/cn/longer233/gamenarrator/script/PlaceStoryboardAssetRequest.java`（307 bytes）
+- `src/main/java/cn/longer233/gamenarrator/script/RegenerateScriptSegmentRequest.java`（174 bytes）
+- `src/main/java/cn/longer233/gamenarrator/script/ScriptDocumentView.java`（221 bytes）
+- `src/main/java/cn/longer233/gamenarrator/script/ScriptSegment.java`（233 bytes）
+- `src/main/java/cn/longer233/gamenarrator/script/ScriptWorkspaceController.java`（5099 bytes）
+- `src/main/java/cn/longer233/gamenarrator/script/ScriptWorkspaceService.java`（16522 bytes）
+- `src/main/java/cn/longer233/gamenarrator/script/StoryboardAssetPlacementService.java`（13313 bytes）
+- `src/main/java/cn/longer233/gamenarrator/script/StoryboardAssetPlacementView.java`（330 bytes）
+- `src/main/java/cn/longer233/gamenarrator/script/StoryboardSegmentView.java`（271 bytes）
+- `src/main/java/cn/longer233/gamenarrator/script/StoryboardView.java`（236 bytes）
+- `src/main/java/cn/longer233/gamenarrator/script/UpdateScriptSegmentRequest.java`（321 bytes）
+- `src/main/java/cn/longer233/gamenarrator/script/UpdateStoryboardAssetRequest.java`（380 bytes）
+- `src/main/java/cn/longer233/gamenarrator/script/UpdateStoryboardSegmentRequest.java`（470 bytes）
+- `src/main/java/cn/longer233/gamenarrator/storage/VideoStorage.java`（2220 bytes）
+- `src/main/java/cn/longer233/gamenarrator/subtitle/AssSubtitleBuilder.java`（3839 bytes）
+- `src/main/java/cn/longer233/gamenarrator/task/application/CreateVideoTaskCommand.java`（682 bytes）
+- `src/main/java/cn/longer233/gamenarrator/task/application/ProjectHistoryService.java`（3967 bytes）
+- `src/main/java/cn/longer233/gamenarrator/task/application/RenameTaskRequest.java`（222 bytes）
+- `src/main/java/cn/longer233/gamenarrator/task/application/StageView.java`（767 bytes）
+- `src/main/java/cn/longer233/gamenarrator/task/application/TaskNotFoundException.java`（239 bytes）
+- `src/main/java/cn/longer233/gamenarrator/task/application/VideoTaskService.java`（10024 bytes）
+- `src/main/java/cn/longer233/gamenarrator/task/application/VideoTaskView.java`（4129 bytes）
+- `src/main/java/cn/longer233/gamenarrator/task/domain/CommentaryStyle.java`（128 bytes）
+- `src/main/java/cn/longer233/gamenarrator/task/domain/GameEvent.java`（692 bytes）
+- `src/main/java/cn/longer233/gamenarrator/task/domain/ProcessingStage.java`（2920 bytes）
+- `src/main/java/cn/longer233/gamenarrator/task/domain/ProcessingStageType.java`（277 bytes）
+- `src/main/java/cn/longer233/gamenarrator/task/domain/StageStatus.java`（116 bytes）
+- `src/main/java/cn/longer233/gamenarrator/task/domain/TaskStatus.java`（139 bytes）
+- `src/main/java/cn/longer233/gamenarrator/task/domain/VideoTask.java`（20706 bytes）
+- `src/main/java/cn/longer233/gamenarrator/task/repository/VideoTaskRepository.java`（505 bytes）
+- `src/main/java/cn/longer233/gamenarrator/task/web/VideoTaskController.java`（5783 bytes）
+- `src/main/java/cn/longer233/gamenarrator/timeline/TimelinePlanner.java`（4657 bytes）
+- `src/main/java/cn/longer233/gamenarrator/timeline/TimelinePlanningResult.java`（246 bytes）
+- `src/main/java/cn/longer233/gamenarrator/timeline/TimelineSegment.java`（410 bytes）
+- `src/main/java/cn/longer233/gamenarrator/timeline/TimelineValidator.java`（2600 bytes）
+- `src/main/java/cn/longer233/gamenarrator/transcription/TranscriptionResult.java`（196 bytes）
+- `src/main/java/cn/longer233/gamenarrator/transcription/WhisperCppTranscriber.java`（4962 bytes）
+- `src/main/java/cn/longer233/gamenarrator/vision/FrameUnderstanding.java`（267 bytes）
+- `src/main/java/cn/longer233/gamenarrator/vision/HighlightHint.java`（131 bytes）
+- `src/main/java/cn/longer233/gamenarrator/vision/ImagePerceptualHash.java`（1256 bytes）
+- `src/main/java/cn/longer233/gamenarrator/vision/OllamaVisionClient.java`（13962 bytes）
+- `src/main/java/cn/longer233/gamenarrator/vision/VideoContentAnalysis.java`（293 bytes）
+- `src/main/java/cn/longer233/gamenarrator/vision/VideoSegmentClipService.java`（3911 bytes）
+- `src/main/java/cn/longer233/gamenarrator/vision/VideoSegmentSearchController.java`（3162 bytes）
+- `src/main/java/cn/longer233/gamenarrator/vision/VideoSegmentSearchResult.java`（256 bytes）
+- `src/main/java/cn/longer233/gamenarrator/vision/VideoSegmentSemanticIndex.java`（14208 bytes）
+- `src/main/java/cn/longer233/gamenarrator/vision/VideoUnderstandingResult.java`（206 bytes）
+- `src/main/java/cn/longer233/gamenarrator/voice/PiperProperties.java`（1758 bytes）
+- `src/main/java/cn/longer233/gamenarrator/voice/PiperVoiceGenerator.java`（9894 bytes）
+- `src/main/java/cn/longer233/gamenarrator/voice/SilentVoiceGenerator.java`（1970 bytes）
+- `src/main/java/cn/longer233/gamenarrator/voice/VoiceGenerationResult.java`（156 bytes）
+- `src/main/java/cn/longer233/gamenarrator/voice/VoiceGenerator.java`（595 bytes）
+- `src/main/java/cn/longer233/gamenarrator/voice/VoiceOption.java`（137 bytes）
+- `src/main/java/cn/longer233/gamenarrator/voice/VoiceRegenerationRequest.java`（419 bytes）
+- `src/main/java/cn/longer233/gamenarrator/voice/VoiceSegment.java`（296 bytes）
+- `src/main/resources/application.yml`（12210 bytes）
+- `src/main/resources/application-release.yml`（1055 bytes）
+- `src/main/resources/db/migration/V1__database_v2_foundation.sql`（17535 bytes）
+- `src/main/resources/db/migration/V10__allow_storyboard_review_task_status.sql`（528 bytes）
+- `src/main/resources/db/migration/V11__repair_bilibili_scraped_titles_and_tags.sql`（691 bytes）
+- `src/main/resources/db/migration/V12__storyboard_asset_placement.sql`（812 bytes）
+- `src/main/resources/db/migration/V13__remove_placeholder_asset_labels.sql`（575 bytes）
+- `src/main/resources/db/migration/V14__optional_ai_pipeline.sql`（396 bytes）
+- `src/main/resources/db/migration/V15__automatic_pipeline_mode.sql`（109 bytes）
+- `src/main/resources/db/migration/V2__backfill_legacy_project_history.sql`（2646 bytes）
+- `src/main/resources/db/migration/V3__external_asset_catalog.sql`（2371 bytes）
+- `src/main/resources/db/migration/V4__asset_library_organization.sql`（270 bytes）
+- `src/main/resources/db/migration/V5__asset_semantic_embeddings.sql`（430 bytes）
+- `src/main/resources/db/migration/V6__asset_chinese_localization.sql`（152 bytes）
+- `src/main/resources/db/migration/V7__storyboard_review.sql`（207 bytes）
+- `src/main/resources/db/migration/V8__video_segment_semantic_index.sql`（634 bytes）
+- `src/main/resources/db/migration/V9__video_segment_image_hash.sql`（152 bytes）
+- `src/main/resources/static/app.css`（32439 bytes）
+- `src/main/resources/static/app.js`（60914 bytes）
+- `src/main/resources/static/asset-library.js`（39119 bytes）
+- `src/main/resources/static/diagnostics.js`（1673 bytes）
+- `src/main/resources/static/export.js`（9227 bytes）
+- `src/main/resources/static/extension-install.html`（3410 bytes）
+- `src/main/resources/static/index.html`（21729 bytes）
+- `src/main/resources/static/media-importer.css`（4256 bytes）
+- `src/main/resources/static/media-importer.js`（22107 bytes）
+- `src/test/java/cn/longer233/gamenarrator/ai/AdaptiveAiChatClientTest.java`（1119 bytes）
+- `src/test/java/cn/longer233/gamenarrator/ai/AiUsageServiceTest.java`（1164 bytes）
+- `src/test/java/cn/longer233/gamenarrator/asset/AiAssetTaggerTest.java`（2432 bytes）
+- `src/test/java/cn/longer233/gamenarrator/asset/AssetCatalogServiceTest.java`（808 bytes）
+- `src/test/java/cn/longer233/gamenarrator/asset/BgeAssetSemanticSearchRankingTest.java`（581 bytes）
+- `src/test/java/cn/longer233/gamenarrator/asset/BilibiliAssetClientTest.java`（6590 bytes）
+- `src/test/java/cn/longer233/gamenarrator/asset/ChineseAssetQueryExpanderTest.java`（1742 bytes）
+- `src/test/java/cn/longer233/gamenarrator/asset/SafeRemoteHttpConnectorTest.java`（834 bytes）
+- `src/test/java/cn/longer233/gamenarrator/audio/ProceduralSoundEffectLibraryTest.java`（1211 bytes）
+- `src/test/java/cn/longer233/gamenarrator/common/AtomicArtifactWriterTest.java`（1040 bytes）
+- `src/test/java/cn/longer233/gamenarrator/config/AsyncConfigTest.java`（991 bytes）
+- `src/test/java/cn/longer233/gamenarrator/diagnostics/DiagnosticLogServiceTest.java`（906 bytes）
+- `src/test/java/cn/longer233/gamenarrator/effect/SemanticEffectPlannerTest.java`（1359 bytes）
+- `src/test/java/cn/longer233/gamenarrator/export/FfmpegProgressParserTest.java`（993 bytes）
+- `src/test/java/cn/longer233/gamenarrator/highlight/RuleBasedHighlightSelectorTest.java`（3524 bytes）
+- `src/test/java/cn/longer233/gamenarrator/importer/MediaImportControllerSessionTest.java`（3112 bytes）
+- `src/test/java/cn/longer233/gamenarrator/importer/RemoteThumbnailServiceTest.java`（476 bytes）
+- `src/test/java/cn/longer233/gamenarrator/importer/YtDlpMediaImporterTest.java`（1876 bytes）
+- `src/test/java/cn/longer233/gamenarrator/media/FfmpegMediaProbeTest.java`（1064 bytes）
+- `src/test/java/cn/longer233/gamenarrator/render/FfmpegVideoRendererEffectTest.java`（2999 bytes）
+- `src/test/java/cn/longer233/gamenarrator/script/OllamaScriptGeneratorTest.java`（2300 bytes）
+- `src/test/java/cn/longer233/gamenarrator/script/ScriptWorkspaceServiceTest.java`（3458 bytes）
+- `src/test/java/cn/longer233/gamenarrator/subtitle/AssSubtitleBuilderTest.java`（771 bytes）
+- `src/test/java/cn/longer233/gamenarrator/task/DatabaseMigrationTest.java`（4131 bytes）
+- `src/test/java/cn/longer233/gamenarrator/task/domain/VideoTaskTest.java`（4026 bytes）
+- `src/test/java/cn/longer233/gamenarrator/task/web/VideoTaskControllerTest.java`（12065 bytes）
+- `src/test/java/cn/longer233/gamenarrator/timeline/TimelinePlannerTest.java`（2442 bytes）
+- `src/test/java/cn/longer233/gamenarrator/timeline/TimelineValidatorTest.java`（1515 bytes）
+- `src/test/java/cn/longer233/gamenarrator/vision/ImagePerceptualHashTest.java`（1287 bytes）
+- `src/test/java/cn/longer233/gamenarrator/vision/VideoSegmentClipServiceTest.java`（2242 bytes）
+- `src/test/java/cn/longer233/gamenarrator/vision/VideoSegmentSemanticIndexRankingTest.java`（1270 bytes）
+
+## 当前项目原文
+
+### FILE: pom.xml
+
+``xml
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+    <parent>
+        <groupId>org.springframework.boot</groupId>
+        <artifactId>spring-boot-starter-parent</artifactId>
+        <version>3.2.0</version>
+        <relativePath/>
+    </parent>
+
+    <groupId>cn.longer233.graduation</groupId>
+    <artifactId>game-narrator</artifactId>
+    <version>0.1.0</version>
+    <name>GameNarrator</name>
+    <description>多模态游戏视频智能解说与自动剪辑系统</description>
+
+    <properties>
+        <java.version>21</java.version>
+        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+        <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
+    </properties>
+
+    <dependencies>
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-web</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-data-jpa</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-validation</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>com.h2database</groupId>
+            <artifactId>h2</artifactId>
+            <scope>runtime</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.flywaydb</groupId>
+            <artifactId>flyway-core</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-test</artifactId>
+            <scope>test</scope>
+        </dependency>
+    </dependencies>
+
+    <build>
+        <plugins>
+            <plugin>
+                <groupId>org.springframework.boot</groupId>
+                <artifactId>spring-boot-maven-plugin</artifactId>
+            </plugin>
+        </plugins>
+    </build>
+</project>
+``
+
+### FILE: README.md
+
+``text
+# GameNarrator
+
+多模态游戏视频智能解说与自动剪辑系统。项目使用 Java 21 与 Spring Boot 3.2 从零实现，
+不复制其他业务项目的源码、页面、数据库迁移或静态素材。
+
+完整产品范围、功能优先级和验收标准见 [产品需求文档](docs/REQUIREMENTS.md)。
+多用户、Token 统计、轻量工程和按需导出方案见 [数据库设计](docs/DATABASE_DESIGN.md)。
+
+## 已实现
+
+- 游戏视频上传与本地安全存储
+- 视频任务、九阶段处理流程和游戏事件领域模型
+- H2 持久化与 REST API
+- 动漫游戏风格的原创任务工作台
+- 核心领域单元测试
+
+## 版本演进规划
+
+### 1.0：自动视频剪辑与特效生成
+
+完成可正常使用的自动视频剪辑流程，支持素材分析、片段筛选、文案生成、
+AI 配音、时间线编排和成片导出，并逐步覆盖市面上常见的视频特效、字幕、
+转场、贴图、音效和画面包装能力。
+
+### 2.0：可编辑的 AI 剧情与分镜工作台
+
+支持用户手动修改 AI 生成的剧情、解说文案和剪辑决策，提供完整的分镜与
+时间线展示页面。用户可以调整镜头顺序、片段起止时间、字幕、配音、特效和
+剧情节奏，再由系统重新渲染成片。
+
+### 3.0：AI 动画剧场与 Meme 创作
+
+引入本地 AI 绘图和视觉生成能力，根据脚本创作动画剧场所需的角色、场景、
+表情和过场画面；结合网络流行文化特征，生成与当前传播语境相符的 Meme、
+梗图和视频包装素材。
+
+### 4.0：多创作者风格与一键生成
+
+建立可扩展的创作风格模板系统，支持多个 UP 主类型的节奏、文案、配音、
+字幕、特效和镜头组织方式。在避免直接复制具体作品的前提下，提取可描述的
+风格特征，并提供从原始素材到成片的一键生成能力。
+
+### 5.0：AI 创意助手与智能素材规划
+
+增加 AI 创意助手。用户输入游戏、动漫、生活片段或大致创作要求后，系统可
+生成多套脚本方案供选择，并为选定方案给出所需画面、镜头类型、台词、音效、
+特效和素材清单。对于游戏或动画类主题，系统还能在获得合法素材来源和使用
+授权的前提下，自动检索、匹配和整理所需素材。
+
+九阶段流程：
+
+1. 素材入库
+2. 镜头切分
+3. 语音转写
+4. 画面理解
+5. 高光筛选
+6. 解说文案
+7. AI 配音
+8. 时间线规划
+9. 视频合成
+
+## 本地模型建议
+
+针对 RTX 4060 Laptop 8GB 与 16GB 内存，后续适配器优先选择：
+
+- ASR：faster-whisper small / medium（独立 Python 推理服务）
+- VLM：Qwen2.5-VL 3B 量化版
+- LLM：Qwen2.5 7B Q4
+- TTS：GPT-SoVITS 或 Bert-VITS2
+- 视频处理：FFmpeg
+
+Java 服务通过 HTTP 调用这些本地推理服务，避免在 JVM 内直接加载显存模型。
+
+## 运行
+
+项目包含 Maven Wrapper，不需要全局安装 Maven：
+
+```powershell
+.\mvnw.cmd test
+.\mvnw.cmd spring-boot:run
+```
+
+首次启用本地语音转写时，在 PowerShell 中执行：
+
+```powershell
+.\scripts\setup-whisper.ps1
+```
+
+脚本会安装 whisper.cpp 和多语言 `base` 模型到 Git 忽略的 `tools/`、`models/`
+目录。启动后访问 `/api/debug/health`，确认 `whisperAvailable` 为 `true`。
+
+首次启用画面理解时执行：
+
+```powershell
+.\scripts\setup-vision-model.ps1
+```
+
+脚本会安装 Ollama 并下载 `qwen2.5vl:3b` 本地视觉模型。启动后确认健康检查中的
+`visionModelAvailable` 为 `true`。
+
+浏览器访问 `http://localhost:8081`。如果需要临时使用其他端口：
+
+```powershell
+$env:SERVER_PORT=8090
+.\mvnw.cmd spring-boot:run
+```
+
+数据默认写入 `data/`，上传视频写入 `storage/`，两者均不提交到 Git。
+
+## 调试错误
+
+控制台与 `logs/game-narrator.log` 会输出每个请求的 `traceId`、耗时、上传文件元数据、
+任务 ID 和完整异常堆栈。前端错误信息也会显示相同的追踪号。
+
+需要临时增加日志时：
+
+```powershell
+$env:GAME_NARRATOR_LOG_LEVEL="TRACE"
+$env:HIBERNATE_SQL_LOG_LEVEL="DEBUG"
+.\mvnw.cmd spring-boot:run
+```
+
+定位某次错误：
+
+```powershell
+Select-String -Path .\logs\game-narrator.log -Pattern "trace=前端显示的追踪号"
+```
+
+运行后访问 `http://localhost:8081/api/debug/health`，可以检查 Java 版本、可用内存、
+存储目录写权限和 FFmpeg 是否可调用。
+
+如果 FFmpeg 没有加入 PATH，也可以显式指定：
+
+```powershell
+$env:FFMPEG_COMMAND="C:\path\to\ffmpeg.exe"
+.\mvnw.cmd spring-boot:run
+```
+
+## 论文创新点建议
+
+- 融合音频强度、视觉事件置信度和语义重要性的高光评分方法
+- 针对游戏类别自适应的解说文案规划
+- 解说语速、句子边界与高光片段时长的对齐算法
+- 本地开源模型在消费级显卡上的速度、显存与质量对比实验
+``
+
+### FILE: .gitignore
+
+``text
+target/
+.idea/
+.reference/
+frontend/node_modules/
+frontend/.vite/
+frontend/dist/
+launcher/bin/
+launcher/obj/
+dist/
+release/cache/
+release/staging/
+release/desktop-publish-check/
+skill-build/
+*.iml
+data/
+storage/*
+!storage/.gitkeep
+.env
+*.log
+logs/
+tools/
+models/
+tools/yt-dlp/
+``
+
+### FILE: docs/ARCHITECTURE.md
+
+``text
+# 系统架构
+
+## 分层
+
+- `task.domain`：视频任务、处理阶段、游戏事件等领域对象。
+- `task.application`：任务用例、输入命令和输出视图。
+- `task.repository`：JPA 持久化接口。
+- `task.web`：REST API。
+- `storage`：上传视频存储边界。
+- `common`：统一异常响应。
+
+## 产品入口
+
+- Windows 安装版以 WinForms + WebView2 提供桌面应用窗口。启动器负责后端、可选本地模型、应用窗口和托盘的统一生命周期，不再自动打开默认浏览器。
+- 桌面窗口只允许导航到当前随机本机端口；外部链接交给系统浏览器，避免把远程页面加载到拥有本机 API 访问能力的应用容器中。
+- Web 页面保留为移动端/远程部署入口。页面中的相对 `/api` 始终指向提供页面的后端，不能收藏安装版的 `127.0.0.1` 地址作为跨设备云端入口。
+
+## 模型服务边界
+
+Spring Boot 负责业务状态、任务编排、实验记录和文件管理。ASR、VLM、LLM、TTS
+以独立本地推理进程运行，通过标准 HTTP 适配器接入。这样既方便替换免费开源模型，
+也避免 Python/CUDA 依赖污染 Java 主工程。
+
+云端模型由统一自适应客户端接入：OpenAI 兼容协议覆盖 OpenAI、DashScope、DeepSeek、
+OpenRouter、SiliconFlow、Kimi、智谱、火山方舟、千帆、混元、MiniMax、xAI、Mistral、
+Groq、Together、Perplexity 和 Cerebras；Anthropic Messages 与 Google Gemini 使用原生
+协议适配。每次响应只记录输入、输出、缓存 Token、模型和按用户配置单价计算的费用，
+不记录提示词、图片或模型响应内容。每日费用写入 `data/config/ai-usage.json`，会话统计
+仅保留在当前进程内。
+
+## 下一阶段
+
+1. 增加 FFmpeg 元数据读取与镜头切分执行器。
+2. 定义 `InferenceAdapter` 接口及四类模型适配器。
+3. 实现高光评分与候选片段去重。
+4. 实现文案时间预算和配音对齐。
+5. 使用异步任务线程池与 SSE 推送进度。
+``
+
+### FILE: docs/ASSET_LIBRARY_DESIGN.md
+
+``text
+# 素材库检索与标签设计
+
+## 设计依据
+
+本模块借鉴公开项目和官方接口的“元数据聚合”思路，但 Java 业务代码为本项目独立实现：
+
+- Openverse 官方搜索模型：`q` 同时检索标题、描述和标签，因此中文请求先转换为紧凑英文检索词。
+- Openverse 标签结构：保存标签名称、来源及机器标签置信度；本项目映射为 `SOURCE`、`PLATFORM`、`AI`、`QUERY`。
+- Ollama 官方生成接口：本地模型使用 JSON 结构化结果生成英文检索词和中文标准标签。
+- Freesound API：后续音效适配器保留平台标签和内容分析字段。
+
+## 中文检索流程
+
+```text
+中文搜索词
+→ 本地词典保底扩展
+→ Ollama 生成英文检索词与中文标准标签
+→ Openverse 检索标题、描述和原标签
+→ 保存原始标签
+→ AI 二次分类
+→ 用户修正标签
+```
+
+Ollama 不可用时仍使用内置游戏/动漫剪辑词典，不会导致中文搜索完全失效。
+
+## 标签优先级
+
+```text
+用户 REMOVE
+> 用户 ADD
+> 平台/素材库原始标签
+> 搜索意图标签
+> AI 推断标签
+```
+
+用户操作不删除原始数据，而是写入覆盖表。因此系统可以保留来源事实，同时在后续素材匹配中采用用户确认后的有效标签。
+
+## 平台内容边界
+
+对于 Bilibili、YouTube、抖音和 TikTok：
+
+- 可登记用户本人拥有或已获授权的素材链接、标签与许可声明。
+- 只通过平台官方 API 或明确允许的下载地址获取文件。
+- 不通过解析页面、绕过签名或规避访问控制下载媒体。
+- 未声明许可的引用默认只作为灵感和索引，不自动进入最终成片。
+``
+
+### FILE: docs/DATABASE_DESIGN.md
+
+``text
+# GameNarrator 数据库设计
+
+文档版本：2.0 草案  
+更新时间：2026-07-28  
+目标：支持多用户、完整输入输出留痕、参数版本、Token 统计、轻量工程保存和多规格按需导出。
+
+## 1. 设计结论
+
+当前 `video_tasks` 将任务、媒体信息、九阶段结果和最终视频路径集中在一张表中，适合单机原型，但不适合后续多用户、重复生成、Token 统计和多规格导出。
+
+新版数据库采用以下原则：
+
+1. 用户输入和系统输出按事件永久留痕，不被后续修改覆盖。
+2. 任务配置使用不可变参数快照，能够还原任意一次生成。
+3. 每次模型调用单独记录输入、输出、模型、Token、耗时和状态。
+4. 数据库只保存元数据、文本、JSON 和文件索引，不保存大视频 BLOB。
+5. 视频编辑结果优先保存为轻量工程包，不提前保存所有导出规格。
+6. 导出是独立任务；用户选择格式后，由工程包和源素材重新渲染。
+7. H2 继续用于本地开发，正式多用户版本迁移到 PostgreSQL。
+
+## 2. 关键概念
+
+### 2.1 项目与运行
+
+- `project`：用户持续编辑的视频项目。
+- `generation_run`：项目的一次完整或局部生成过程。
+- `stage_run`：某次生成中的一个处理阶段执行记录。
+- `project_revision`：用户参数、文案或时间线发生变化后形成的不可变版本。
+
+项目可以存在多次生成。重新生成文案或配音时，不覆盖旧结果，而是创建新的运行和修订版本。
+
+### 2.2 输入输出记录
+
+所有用户输入和系统输出统一记录到 `interaction_record`：
+
+- 用户表单参数。
+- 用户上传文件。
+- 用户修改后的文案和时间线。
+- 模型提示词和模型响应。
+- 系统生成摘要、错误和导出请求。
+
+大体积文件不直接写入该表，只通过 `artifact_id` 引用文件索引。
+
+### 2.3 轻量视频工程
+
+系统不将每个生成版本都保存成 100 MB 以上的最终视频，而是保存：
+
+- 源视频引用。
+- 片段入点、出点和顺序。
+- 字幕、文案和配音引用。
+- 特效、转场和音效参数。
+- 输出画布和时间基准。
+- 所使用模型及参数版本。
+
+这些内容组成 `project_revision.manifest_json`，并可额外打包成 `.gnproj` 文件。`.gnproj` 本质上是 ZIP 容器，包含清单 JSON 和必要的小型资源引用，不复制原始大视频。
+
+网页预览只保留一个可清理的低码率代理视频；用户点击导出时才生成指定规格文件。
+
+## 3. 总体关系
+
+```mermaid
+erDiagram
+    APP_USER ||--o{ VIDEO_PROJECT : owns
+    VIDEO_PROJECT ||--o{ PROJECT_REVISION : versions
+    VIDEO_PROJECT ||--o{ GENERATION_RUN : generates
+    GENERATION_RUN ||--o{ STAGE_RUN : contains
+    GENERATION_RUN ||--o{ MODEL_INVOCATION : invokes
+    MODEL_INVOCATION ||--|| TOKEN_USAGE : measures
+    APP_USER ||--o{ INTERACTION_RECORD : produces
+    VIDEO_PROJECT ||--o{ INTERACTION_RECORD : records
+    VIDEO_PROJECT ||--o{ MEDIA_ASSET : uses
+    PROJECT_REVISION ||--o{ ARTIFACT : references
+    VIDEO_PROJECT ||--o{ EXPORT_JOB : exports
+    EXPORT_PRESET ||--o{ EXPORT_JOB : configures
+    EXPORT_JOB ||--o| ARTIFACT : produces
+```
+
+## 4. 表结构
+
+### 4.1 `app_user` 用户
+
+即使毕业设计首先以单用户运行，也必须创建默认本地用户，避免后续所有业务表再次迁移用户归属。
+
+| 字段 | 类型 | 约束 | 说明 |
+|---|---|---|---|
+| id | UUID | PK | 用户 ID |
+| username | VARCHAR(64) | UNIQUE, NOT NULL | 登录名或本地用户标识 |
+| display_name | VARCHAR(100) | NOT NULL | 展示名称 |
+| password_hash | VARCHAR(255) | NULL | 本地单用户模式可以为空 |
+| role | VARCHAR(30) | NOT NULL | USER、ADMIN |
+| status | VARCHAR(20) | NOT NULL | ACTIVE、DISABLED |
+| created_at | TIMESTAMP | NOT NULL | 创建时间 |
+| updated_at | TIMESTAMP | NOT NULL | 修改时间 |
+| last_login_at | TIMESTAMP | NULL | 最近登录时间 |
+
+默认数据：`local-user`。禁止将设备 ID、产品 ID 等硬件隐私作为用户主键。
+
+### 4.2 `video_project` 视频项目
+
+只保存稳定的项目级信息，不再把所有阶段结果都堆积在该表。
+
+| 字段 | 类型 | 约束 | 说明 |
+|---|---|---|---|
+| id | UUID | PK | 项目 ID |
+| owner_id | UUID | FK app_user, NOT NULL | 所属用户 |
+| name | VARCHAR(120) | NOT NULL | 项目名称 |
+| description | VARCHAR(1000) | NULL | 项目描述 |
+| game_category | VARCHAR(40) | NOT NULL | 内容类别 |
+| commentary_style | VARCHAR(40) | NOT NULL | 通用创作风格 |
+| status | VARCHAR(30) | NOT NULL | DRAFT、PROCESSING、READY、FAILED、ARCHIVED |
+| current_revision_id | UUID | NULL | 当前工程修订版本 |
+| latest_run_id | UUID | NULL | 最近生成运行 |
+| created_at | TIMESTAMP | NOT NULL | 创建时间 |
+| updated_at | TIMESTAMP | NOT NULL | 更新时间 |
+| deleted_at | TIMESTAMP | NULL | 软删除时间 |
+| version | BIGINT | NOT NULL | 乐观锁 |
+
+索引：`(owner_id, updated_at DESC)`、`(owner_id, status)`。
+
+### 4.3 `media_asset` 媒体素材
+
+统一管理源视频、配音、图片、音效和字体。
+
+| 字段 | 类型 | 约束 | 说明 |
+|---|---|---|---|
+| id | UUID | PK | 素材 ID |
+| owner_id | UUID | FK, NOT NULL | 所属用户 |
+| project_id | UUID | FK, NULL | 所属项目 |
+| asset_type | VARCHAR(30) | NOT NULL | SOURCE_VIDEO、VOICE、IMAGE、SFX、FONT、PROXY |
+| original_name | VARCHAR(255) | NULL | 原文件名 |
+| storage_key | VARCHAR(500) | UNIQUE, NOT NULL | 相对存储键，不保存机器绝对路径 |
+| sha256 | CHAR(64) | NOT NULL | 内容哈希，用于校验和去重 |
+| mime_type | VARCHAR(100) | NOT NULL | MIME 类型 |
+| size_bytes | BIGINT | NOT NULL | 文件大小 |
+| duration_ms | BIGINT | NULL | 音视频时长 |
+| width | INTEGER | NULL | 宽度 |
+| height | INTEGER | NULL | 高度 |
+| frame_rate | DECIMAL(10,4) | NULL | 帧率 |
+| codec | VARCHAR(60) | NULL | 编码 |
+| metadata_json | JSON/CLOB | NOT NULL | 其他媒体参数 |
+| created_at | TIMESTAMP | NOT NULL | 创建时间 |
+| deleted_at | TIMESTAMP | NULL | 软删除时间 |
+
+文件通过 `storage_key` 相对于 `storage-root` 定位。API 不接受任意本地绝对路径。
+
+### 4.4 `project_revision` 项目修订
+
+保存能够还原成片的轻量工程状态。
+
+| 字段 | 类型 | 约束 | 说明 |
+|---|---|---|---|
+| id | UUID | PK | 修订 ID |
+| project_id | UUID | FK, NOT NULL | 项目 ID |
+| revision_no | INTEGER | NOT NULL | 项目内递增版本号 |
+| parent_revision_id | UUID | NULL | 来源版本 |
+| created_by | UUID | FK app_user, NOT NULL | 创建者 |
+| change_type | VARCHAR(40) | NOT NULL | INITIAL、AI_GENERATED、USER_EDIT、REGENERATED |
+| change_summary | VARCHAR(500) | NULL | 修改摘要 |
+| parameter_snapshot_json | JSON/CLOB | NOT NULL | 用户填写参数的完整快照 |
+| manifest_json | JSON/CLOB | NOT NULL | 时间线、文案、字幕、配音、特效清单 |
+| manifest_schema_version | INTEGER | NOT NULL | 工程格式版本 |
+| manifest_sha256 | CHAR(64) | NOT NULL | 防止文件与数据库不一致 |
+| created_at | TIMESTAMP | NOT NULL | 创建时间 |
+
+唯一约束：`(project_id, revision_no)`。
+
+`parameter_snapshot_json` 必须保留：
+
+- 任务名称和创作要求。
+- 游戏分类和解说风格。
+- 目标时长。
+- 所选模型、音色、语速和采样参数。
+- 高光阈值、字幕模板、特效模板。
+- 用户选择的其他所有表单字段。
+
+### 4.5 `generation_run` 生成运行
+
+| 字段 | 类型 | 约束 | 说明 |
+|---|---|---|---|
+| id | UUID | PK | 运行 ID |
+| project_id | UUID | FK, NOT NULL | 项目 ID |
+| user_id | UUID | FK, NOT NULL | 发起用户 |
+| input_revision_id | UUID | FK, NOT NULL | 使用的参数版本 |
+| output_revision_id | UUID | FK, NULL | 成功后生成的版本 |
+| run_type | VARCHAR(30) | NOT NULL | FULL、SCRIPT_ONLY、VOICE_ONLY、TIMELINE_ONLY |
+| status | VARCHAR(20) | NOT NULL | QUEUED、RUNNING、COMPLETED、FAILED、CANCELED |
+| trigger_source | VARCHAR(20) | NOT NULL | USER、RECOVERY、SYSTEM |
+| started_at | TIMESTAMP | NULL | 开始时间 |
+| finished_at | TIMESTAMP | NULL | 完成时间 |
+| elapsed_ms | BIGINT | NULL | 总耗时 |
+| failure_code | VARCHAR(80) | NULL | 稳定错误码 |
+| failure_message | VARCHAR(2000) | NULL | 用户可读错误 |
+| trace_id | VARCHAR(80) | NULL | 日志追踪号 |
+| created_at | TIMESTAMP | NOT NULL | 创建时间 |
+
+索引：`(project_id, created_at DESC)`、`(user_id, created_at DESC)`、`(status, created_at)`。
+
+### 4.6 `stage_run` 阶段执行
+
+原 `processing_stages` 只保留当前状态，新表保留每次执行历史。
+
+| 字段 | 类型 | 约束 | 说明 |
+|---|---|---|---|
+| id | UUID | PK | 阶段运行 ID |
+| generation_run_id | UUID | FK, NOT NULL | 所属运行 |
+| stage_type | VARCHAR(40) | NOT NULL | 九阶段类型 |
+| attempt_no | INTEGER | NOT NULL | 重试次数 |
+| status | VARCHAR(20) | NOT NULL | 状态 |
+| progress | INTEGER | NOT NULL | 0–100 |
+| input_snapshot_json | JSON/CLOB | NOT NULL | 阶段实际输入 |
+| output_summary_json | JSON/CLOB | NULL | 输出摘要 |
+| started_at | TIMESTAMP | NULL | 开始时间 |
+| finished_at | TIMESTAMP | NULL | 完成时间 |
+| elapsed_ms | BIGINT | NULL | 耗时 |
+| error_code | VARCHAR(80) | NULL | 错误码 |
+| error_message | VARCHAR(2000) | NULL | 错误信息 |
+
+唯一约束：`(generation_run_id, stage_type, attempt_no)`。
+
+### 4.7 `interaction_record` 输入输出留痕
+
+这是满足“每个用户输入输出进行保留”的核心表，只追加，不原地覆盖。
+
+| 字段 | 类型 | 约束 | 说明 |
+|---|---|---|---|
+| id | UUID | PK | 记录 ID |
+| user_id | UUID | FK, NOT NULL | 用户 |
+| project_id | UUID | FK, NULL | 项目 |
+| generation_run_id | UUID | FK, NULL | 生成运行 |
+| stage_run_id | UUID | FK, NULL | 具体阶段 |
+| direction | VARCHAR(10) | NOT NULL | INPUT、OUTPUT |
+| actor_type | VARCHAR(20) | NOT NULL | USER、SYSTEM、MODEL |
+| interaction_type | VARCHAR(40) | NOT NULL | FORM、PROMPT、MODEL_RESPONSE、EDIT、ERROR、EXPORT_REQUEST |
+| content_text | CLOB/TEXT | NULL | 可检索文本内容 |
+| content_json | JSON/CLOB | NULL | 结构化内容 |
+| artifact_id | UUID | FK artifact, NULL | 大文件引用 |
+| content_sha256 | CHAR(64) | NOT NULL | 内容哈希 |
+| contains_sensitive_data | BOOLEAN | NOT NULL | 是否包含敏感信息 |
+| created_at | TIMESTAMP | NOT NULL | 发生时间 |
+
+约束：`content_text`、`content_json`、`artifact_id` 至少一个非空。
+
+保留模型提示词时不得包含图片 Base64，只记录模板、文本参数和图片素材 ID。
+
+### 4.8 `model_invocation` 模型调用
+
+每次 Ollama、Whisper 或 TTS 调用都应建记录。Token 只适用于能提供 Token 的模型；其他引擎保存对应计量单位。
+
+| 字段 | 类型 | 约束 | 说明 |
+|---|---|---|---|
+| id | UUID | PK | 调用 ID |
+| user_id | UUID | FK, NOT NULL | 计费/统计用户 |
+| project_id | UUID | FK, NOT NULL | 项目 |
+| generation_run_id | UUID | FK, NOT NULL | 运行 |
+| stage_run_id | UUID | FK, NOT NULL | 阶段 |
+| provider | VARCHAR(30) | NOT NULL | OLLAMA、WHISPER_CPP、PIPER |
+| model_name | VARCHAR(120) | NOT NULL | 模型名 |
+| model_digest | VARCHAR(128) | NULL | 模型版本或哈希 |
+| operation | VARCHAR(40) | NOT NULL | VISION、CHAT、ASR、TTS |
+| request_record_id | UUID | FK interaction_record | 输入记录 |
+| response_record_id | UUID | FK interaction_record, NULL | 输出记录 |
+| parameters_json | JSON/CLOB | NOT NULL | temperature、threads 等真实参数 |
+| status | VARCHAR(20) | NOT NULL | RUNNING、SUCCEEDED、FAILED、CANCELED |
+| started_at | TIMESTAMP | NOT NULL | 开始时间 |
+| finished_at | TIMESTAMP | NULL | 结束时间 |
+| elapsed_ms | BIGINT | NULL | 总耗时 |
+| queue_ms | BIGINT | NULL | 排队耗时 |
+| error_code | VARCHAR(80) | NULL | 错误码 |
+| error_message | VARCHAR(2000) | NULL | 错误信息 |
+
+### 4.9 `token_usage` Token 与资源统计
+
+一条模型调用对应一条用量记录。使用 Ollama 时直接读取响应字段：
+
+- `prompt_eval_count` → `input_tokens`
+- `eval_count` → `output_tokens`
+- 两者之和 → `total_tokens`
+- `prompt_eval_duration`、`eval_duration` 用于速度实验
+
+| 字段 | 类型 | 约束 | 说明 |
+|---|---|---|---|
+| id | UUID | PK | 用量 ID |
+| invocation_id | UUID | UNIQUE FK, NOT NULL | 模型调用 |
+| user_id | UUID | FK, NOT NULL | 用户，便于直接聚合 |
+| project_id | UUID | FK, NOT NULL | 项目 |
+| input_tokens | BIGINT | NOT NULL DEFAULT 0 | 输入 Token |
+| output_tokens | BIGINT | NOT NULL DEFAULT 0 | 输出 Token |
+| total_tokens | BIGINT | NOT NULL DEFAULT 0 | 总 Token |
+| cached_tokens | BIGINT | NOT NULL DEFAULT 0 | 缓存 Token |
+| image_count | INTEGER | NOT NULL DEFAULT 0 | VLM 图片数 |
+| audio_seconds | DECIMAL(12,3) | NOT NULL DEFAULT 0 | ASR 音频秒数 |
+| tts_characters | BIGINT | NOT NULL DEFAULT 0 | TTS 字符数 |
+| prompt_eval_ms | BIGINT | NULL | 输入处理耗时 |
+| generation_ms | BIGINT | NULL | 生成耗时 |
+| tokens_per_second | DECIMAL(12,3) | NULL | 生成速度 |
+| estimated_cost | DECIMAL(18,8) | NULL | 云模型预估费用，本地模型为 0 |
+| currency | CHAR(3) | NULL | CNY、USD；本地可为空 |
+| measured_at | TIMESTAMP | NOT NULL | 统计时间 |
+
+`total_tokens` 必须由服务端计算，不能信任客户端提交。失败调用也要保存已产生的 Token。
+
+常用统计：
+
+```sql
+-- 用户累计 Token
+SELECT user_id,
+       SUM(input_tokens) AS input_tokens,
+       SUM(output_tokens) AS output_tokens,
+       SUM(total_tokens) AS total_tokens
+FROM token_usage
+GROUP BY user_id;
+
+-- 用户每日、按模型统计
+SELECT t.user_id, CAST(t.measured_at AS DATE) AS usage_date,
+       m.model_name, SUM(t.total_tokens) AS total_tokens
+FROM token_usage t
+JOIN model_invocation m ON m.id = t.invocation_id
+GROUP BY t.user_id, CAST(t.measured_at AS DATE), m.model_name;
+```
+
+索引：`(user_id, measured_at)`、`(project_id, measured_at)`。
+
+### 4.10 `artifact` 生成产物索引
+
+| 字段 | 类型 | 约束 | 说明 |
+|---|---|---|---|
+| id | UUID | PK | 产物 ID |
+| owner_id | UUID | FK, NOT NULL | 用户 |
+| project_id | UUID | FK, NOT NULL | 项目 |
+| revision_id | UUID | FK, NULL | 所属工程版本 |
+| generation_run_id | UUID | FK, NULL | 来源运行 |
+| artifact_type | VARCHAR(40) | NOT NULL | TRANSCRIPT、VISUAL_ANALYSIS、TIMELINE、VOICE、PROJECT_PACKAGE、PREVIEW、EXPORT |
+| storage_key | VARCHAR(500) | UNIQUE, NOT NULL | 相对存储键 |
+| mime_type | VARCHAR(100) | NOT NULL | MIME 类型 |
+| size_bytes | BIGINT | NOT NULL | 大小 |
+| sha256 | CHAR(64) | NOT NULL | 校验值 |
+| schema_version | INTEGER | NULL | JSON/工程格式版本 |
+| temporary | BOOLEAN | NOT NULL | 是否临时产物 |
+| expires_at | TIMESTAMP | NULL | 自动清理时间 |
+| created_at | TIMESTAMP | NOT NULL | 创建时间 |
+| deleted_at | TIMESTAMP | NULL | 删除时间 |
+
+### 4.11 `export_preset` 导出预设
+
+导出选项参考 Premiere 类剪辑软件的常用概念，但只暴露当前 FFmpeg 能稳定支持的参数。
+
+| 字段 | 类型 | 约束 | 说明 |
+|---|---|---|---|
+| id | UUID | PK | 预设 ID |
+| owner_id | UUID | FK, NULL | 空表示系统预设 |
+| name | VARCHAR(100) | NOT NULL | 预设名称 |
+| description | VARCHAR(500) | NULL | 说明 |
+| container | VARCHAR(20) | NOT NULL | MP4、MOV、WEBM |
+| video_codec | VARCHAR(30) | NOT NULL | H264、HEVC、AV1、VP9、PRORES |
+| audio_codec | VARCHAR(30) | NOT NULL | AAC、OPUS、PCM |
+| width | INTEGER | NULL | 空表示跟随源/项目 |
+| height | INTEGER | NULL | 空表示跟随源/项目 |
+| frame_rate | DECIMAL(8,3) | NULL | 空表示跟随源 |
+| rate_control | VARCHAR(20) | NOT NULL | CQ、VBR、CBR |
+| quality_value | INTEGER | NULL | CQ/CRF 值 |
+| target_bitrate_kbps | INTEGER | NULL | 目标码率 |
+| max_bitrate_kbps | INTEGER | NULL | 最大码率 |
+| hardware_encoder | VARCHAR(30) | NULL | H264_NVENC、HEVC_NVENC、LIBX264 等 |
+| audio_bitrate_kbps | INTEGER | NULL | 音频码率 |
+| audio_sample_rate | INTEGER | NOT NULL | 44100、48000 |
+| subtitle_mode | VARCHAR(20) | NOT NULL | NONE、SOFT、BURN_IN、SEPARATE_SRT |
+| color_space | VARCHAR(30) | NOT NULL | REC709、SRGB、SOURCE |
+| extra_options_json | JSON/CLOB | NOT NULL | GOP、B 帧、像素格式等高级参数 |
+| system_preset | BOOLEAN | NOT NULL | 是否内置 |
+| created_at | TIMESTAMP | NOT NULL | 创建时间 |
+| updated_at | TIMESTAMP | NOT NULL | 更新时间 |
+
+系统首批预设：
+
+| 预设 | 容器/编码 | 分辨率 | 帧率 | 字幕 | 用途 |
+|---|---|---|---|---|---|
+| 快速预览 | MP4/H.264 NVENC | 720p | 30 | 软字幕 | 网站快速查看 |
+| 通用高清 | MP4/H.264 NVENC | 1080p | 跟随项目，最高 60 | 可选软/烧录 | B 站、普通播放器 |
+| 高压缩高清 | MP4/HEVC NVENC | 1080p | 跟随项目 | 可选 | 更小文件 |
+| 保持源画质 | MP4/H.264 或 HEVC | 跟随源 | 跟随源 | 可选 | 本地归档 |
+| 后期编辑 | MOV/ProRes 422 + PCM | 跟随项目 | 跟随项目 | 单独 SRT | 导入 Premiere 等软件继续编辑 |
+| Web 发布 | WEBM/VP9 或 AV1 | 1080p | 30/60 | WebVTT/无 | 网页传播 |
+| 纯字幕 | SRT | 无视频 | 无 | 单独文件 | 字幕二次编辑 |
+| 纯配音 | WAV | 无视频 | 无 | 无 | 音频二次编辑 |
+
+1.0 页面建议只显示“格式、清晰度、帧率、质量、字幕”五个主要选项，高级参数折叠，避免普通用户误配。
+
+### 4.12 `export_job` 导出任务
+
+每点击一次导出都创建新记录，并冻结本次导出的真实参数。
+
+| 字段 | 类型 | 约束 | 说明 |
+|---|---|---|---|
+| id | UUID | PK | 导出任务 ID |
+| project_id | UUID | FK, NOT NULL | 项目 |
+| revision_id | UUID | FK, NOT NULL | 要导出的工程版本 |
+| requested_by | UUID | FK, NOT NULL | 用户 |
+| preset_id | UUID | FK, NULL | 使用预设 |
+| export_name | VARCHAR(200) | NOT NULL | 导出名称 |
+| settings_snapshot_json | JSON/CLOB | NOT NULL | 最终生效设置，不能只引用可变预设 |
+| status | VARCHAR(20) | NOT NULL | QUEUED、RENDERING、COMPLETED、FAILED、CANCELED、EXPIRED |
+| progress | INTEGER | NOT NULL | 0–100 |
+| output_artifact_id | UUID | FK artifact, NULL | 导出文件 |
+| started_at | TIMESTAMP | NULL | 开始时间 |
+| completed_at | TIMESTAMP | NULL | 完成时间 |
+| expires_at | TIMESTAMP | NULL | 下载有效期 |
+| downloaded_at | TIMESTAMP | NULL | 最近下载时间 |
+| download_count | INTEGER | NOT NULL DEFAULT 0 | 下载次数 |
+| error_code | VARCHAR(80) | NULL | 错误码 |
+| error_message | VARCHAR(2000) | NULL | 错误信息 |
+| created_at | TIMESTAMP | NOT NULL | 请求时间 |
+
+索引：`(project_id, created_at DESC)`、`(requested_by, created_at DESC)`、`(status, created_at)`。
+
+## 5. 轻量工程清单结构
+
+数据库中的 `manifest_json` 建议使用以下结构：
+
+```json
+{
+  "schemaVersion": 2,
+  "projectId": "uuid",
+  "timebase": 1000,
+  "canvas": {"width": 1920, "height": 1080, "frameRate": 60},
+  "sourceAssets": [{"assetId": "uuid", "role": "MAIN_VIDEO"}],
+  "tracks": [
+    {
+      "type": "VIDEO",
+      "clips": [
+        {
+          "sourceAssetId": "uuid",
+          "sourceInMs": 55133,
+          "sourceOutMs": 67133,
+          "timelineInMs": 12000,
+          "timelineOutMs": 24000,
+          "effects": [{"type": "ZOOM", "params": {"from": 1.0, "to": 1.08}}]
+        }
+      ]
+    },
+    {
+      "type": "VOICE",
+      "clips": [{"assetId": "uuid", "timelineInMs": 12000, "gainDb": 0}]
+    },
+    {
+      "type": "SUBTITLE",
+      "items": [{"startMs": 12000, "endMs": 24000, "text": "字幕内容", "styleId": "anime-default"}]
+    }
+  ]
+}
+```
+
+还原导出流程：
+
+```text
+export_job
+  → 读取 project_revision.manifest_json
+  → 校验源素材和小型产物哈希
+  → 将工程清单编译为 FFmpeg 渲染计划
+  → 按 settings_snapshot_json 编码
+  → 创建 EXPORT artifact
+  → 提供预览或下载
+  → 到期后清理导出文件，但保留 export_job 记录
+```
+
+## 6. Token 统计业务规则
+
+### 6.1 记录时机
+
+1. 模型请求发送前创建 `model_invocation(RUNNING)` 和 INPUT 记录。
+2. 收到完整响应后创建 OUTPUT 记录。
+3. 从响应信封读取 Token 与耗时，写入 `token_usage`。
+4. 在同一事务中把调用标记为 `SUCCEEDED`。
+5. 请求失败时仍保存错误、已知 Token 和耗时。
+
+### 6.2 统计口径
+
+- 用户总消耗：按 `user_id` 聚合全部成功和失败调用。
+- 项目消耗：按 `project_id` 聚合。
+- 单次生成消耗：按 `generation_run_id` 聚合。
+- 阶段消耗：按 `stage_run_id` 聚合。
+- 模型对比：按 `model_name + model_digest` 聚合。
+- 本地模型的 `estimated_cost` 为 0，但 Token 数和算力耗时必须保留。
+- Whisper 统计音频秒数，Piper 统计字符数，不能伪造成 Token。
+
+### 6.3 防重复
+
+- `token_usage.invocation_id` 唯一。
+- 模型调用生成客户端 `request_key`，重试请求不得重复计账。
+- 恢复任务时先检查成功的 invocation 和产物哈希，再决定是否重新调用。
+
+## 7. 用户输入输出保留策略
+
+“保留”不代表无限复制大文件：
+
+- 表单、提示词、模型文本响应、用户编辑：保存在数据库。
+- 图片、视频、音频：保存为文件，数据库记录 `artifact/media_asset`。
+- 图片不得以 Base64 形式长期保存在请求 JSON 中。
+- 每次修改创建新 `project_revision` 和 `interaction_record`。
+- 手动剪辑命令（分割、移动、修剪、轨道状态、关键帧和调色）将 `editorTimeline` 写入新的 `project_revision.manifest_json`。撤销将 `video_project.current_revision_id` 移到父版本，重做移到最新子版本；因此历史可跨页面刷新和进程重启保留。
+- UI 显示“当前版本”，历史页可以查看此前版本和生成结果。
+- 用户删除项目时先软删除；执行物理清理前检查其他版本是否引用同一素材。
+
+建议默认保留：
+
+| 数据 | 默认策略 |
+|---|---|
+| 项目、参数、文本输入输出、Token 记录 | 长期保留，用户明确删除后按策略清理 |
+| 原始素材 | 项目存续期间保留 |
+| 工程清单、文案、字幕、配音 | 项目存续期间保留 |
+| 720p 预览代理 | 7–30 天无访问可重建 |
+| 用户导出文件 | 7 天后自动清理，可重新导出 |
+| render-work 中间文件 | 成功后 24 小时内清理 |
+| 失败诊断文件 | 7 天后清理 |
+
+## 8. 一致性与事务
+
+- 数据库事务不能包住长时间 FFmpeg 或模型调用。
+- 开始外部调用前提交 `RUNNING` 状态。
+- 文件先写入 `.part` 临时路径，校验成功后原子改名，再提交产物记录。
+- 阶段完成、产物记录和输出修订应在同一短事务中提交。
+- 导出成功只有在文件存在、可读取且媒体探测通过后才能写 `COMPLETED`。
+- 删除工程时使用引用计数或查询引用，禁止直接删除仍被历史版本使用的素材。
+- `video_project.version` 使用 JPA `@Version`，防止用户编辑和后台生成互相覆盖。
+
+## 9. H2 与 PostgreSQL 映射
+
+| 逻辑类型 | H2 开发 | PostgreSQL 正式 |
+|---|---|---|
+| UUID | UUID | UUID |
+| JSON | CLOB + 应用层校验 | JSONB |
+| 长文本 | CLOB | TEXT |
+| 时间 | TIMESTAMP WITH TIME ZONE | TIMESTAMPTZ |
+| 乐观锁 | BIGINT | BIGINT |
+
+正式迁移后应为常用 JSON 查询字段增加生成列或 JSONB GIN 索引，但第一阶段不要把所有业务字段都藏在 JSON 中。用户、项目、状态、时间、Token、导出格式等高频筛选字段必须使用普通列。
+
+## 10. 数据迁移方案
+
+### 阶段 A：在现有 H2 中增加审计和 Token 表
+
+1. 创建 `app_user`，插入 `local-user`。
+2. 为现有 `video_tasks` 增加 `owner_id`。
+3. 新增 `generation_run`、`stage_run`、`interaction_record`、`model_invocation`、`token_usage`。
+4. 新任务开始写新表，现有页面仍读取 `video_tasks`。
+
+### 阶段 B：引入项目修订和产物索引
+
+1. 创建 `video_project`、`project_revision`、`media_asset`、`artifact`。
+2. 把现有任务的 JSON 文件转换为初始工程清单。
+3. 相对化所有绝对文件路径为 `storage_key`。
+4. 保留旧字段只读，验证稳定后再删除。
+
+### 阶段 C：按需导出
+
+1. 创建 `export_preset` 和 `export_job`。
+2. 九阶段末尾生成低码率预览代理和工程包，不再默认生成全部质量成片。
+3. 导出页面提交导出设置并轮询/SSE 查看进度。
+4. 导出文件到期清理，工程清单继续保留。
+
+### 阶段 D：PostgreSQL
+
+1. 使用 Flyway 管理版本迁移，禁止继续依赖 `ddl-auto=update`。
+2. 将 JSON CLOB 转换为 JSONB。
+3. 增加用户认证、权限校验和数据隔离测试。
+4. 完成 H2 到 PostgreSQL 数据迁移脚本和校验报告。
+
+## 11. API 对数据库的要求
+
+建议新增：
+
+```text
+GET  /api/users/me/usage                       当前用户 Token 汇总
+GET  /api/projects/{id}/runs                   生成历史
+GET  /api/projects/{id}/revisions              工程版本历史
+POST /api/projects/{id}/revisions              保存用户修改
+GET  /api/export-presets                       可用导出预设
+POST /api/projects/{id}/exports                创建导出任务
+GET  /api/exports/{id}                         查询导出进度
+GET  /api/exports/{id}/download                下载导出文件
+POST /api/exports/{id}/cancel                  取消导出
+```
+
+创建导出请求示例：
+
+```json
+{
+  "revisionId": "uuid",
+  "presetId": "system-h264-1080p",
+  "overrides": {
+    "frameRate": 60,
+    "qualityValue": 23,
+    "subtitleMode": "BURN_IN"
+  }
+}
+```
+
+服务端必须把预设和覆盖项合并为 `settings_snapshot_json`，后续即使预设被修改，本次导出仍可复现。
+
+## 12. 数据安全
+
+- 所有项目查询必须带 `owner_id` 条件，不能先按 ID 查询后再补权限判断。
+- 下载接口通过 `artifact_id/export_job_id` 定位文件，不接受路径参数。
+- `interaction_record` 可能包含用户原始输入，应支持敏感标记和删除审计。
+- 密钥、密码、Authorization Header 不写入输入输出记录。
+- 模型原始响应可长期保存文本，但图片 Base64 和视频二进制必须剥离。
+- 文件下载使用短期授权或当前登录会话验证。
+
+## 13. 首轮实施验收标准
+
+1. 每个新任务都有明确 `owner_id`。
+2. 创建任务时用户填写的全部参数形成不可变快照。
+3. 每次视觉和文案模型请求均产生 INPUT、OUTPUT、invocation 和 usage 记录。
+4. 页面能按用户、项目和单次运行展示输入、输出和总 Token。
+5. 本地模型费用显示为 0，但 Token、耗时、图片数、音频秒数和 TTS 字符数准确。
+6. 项目修改不会覆盖旧版本，可以选择历史版本重新导出。
+7. 默认保存轻量工程清单和预览代理，不为每种导出规格永久保存完整视频。
+8. 用户至少可以选择 H.264 1080p、HEVC 1080p、保持源画质、后期编辑 MOV、字幕模式和帧率。
+9. 每次导出保存完整设置快照，并生成独立 `export_job`。
+10. 清理导出文件后，仍能使用工程修订重新生成相同规格文件。
+
+## 14. 实施优先级
+
+1. Flyway 与数据库迁移基线。
+2. `app_user`、项目归属和参数快照。
+3. `generation_run/stage_run` 执行历史。
+4. 模型调用输入输出与 Token 统计。
+5. `media_asset/artifact` 相对存储键。
+6. `project_revision` 轻量工程清单。
+7. 导出预设、导出任务和多格式 FFmpeg 适配。
+8. 导出文件过期清理和重新导出。
+9. PostgreSQL 切换和权限隔离。
+``
+
+### FILE: docs/FRONTEND_DEVELOPMENT.md
+
+``text
+# 前端开发
+
+GameNarrator 采用前后端分离的开发结构：
+
+- `frontend/`：Vite 前端工程，开发端口默认为 `5173`。
+- Spring Boot：REST API、数据库和媒体处理后端，IntelliJ 开发端口为 `8082`。
+- `src/main/resources/static/`：Vite 生产构建输出，供 Spring Boot 一体化部署。
+
+## 开发启动
+
+先从 IntelliJ 启动 `GameNarratorApplication`，再在项目根目录执行：
+
+```powershell
+npm run dev
+```
+
+浏览器访问 `http://localhost:5173`。Vite 会把 `/api` 请求代理到
+`http://localhost:8082`，因此不需要启用跨域。
+
+如需修改端口，复制 `frontend/.env.example` 为 `frontend/.env.local`：
+
+```text
+VITE_BACKEND_URL=http://localhost:8082
+VITE_DEV_PORT=5173
+VITE_PREVIEW_PORT=4173
+```
+
+## 首次安装
+
+仓库已经包含 `frontend/package-lock.json`。重新安装依赖时执行：
+
+```powershell
+npm run install:frontend
+```
+
+## 生产构建
+
+```powershell
+npm run build
+.\mvnw.cmd package
+```
+
+前端构建会清理并重新生成 `src/main/resources/static/`。Spring Boot 打包后仍可作为
+单个应用运行，浏览器直接访问后端地址即可。
+
+## 目录职责
+
+只在 `frontend/index.html` 和 `frontend/public/` 中修改前端源码。不要直接修改
+`src/main/resources/static/`，该目录是构建产物，下次执行 `npm run build` 时会被覆盖。
+
+## 首屏加载与登录恢复
+
+- 素材库进入视口前不请求素材列表和来源目录，B站推荐同步在浏览器空闲时执行，避免与任务列表争抢首屏资源。
+- 媒体导入成功后会记住权利确认状态以及对应平台已启用登录助手。刷新后会重新向浏览器扩展申请当前登录态。
+- 浏览器 Cookie 和临时认证令牌不会写入 `localStorage`、数据库或日志；持久化内容只包含平台域名和启用标记。
+``
+
+### FILE: docs/MANUAL_EDITOR_PARITY.md
+
+``text
+# 无 AI 剪辑能力对标与路线
+
+## 目标
+
+GameNarrator 在禁用或未配置 AI 时，仍应能完成导入、粗剪、精剪、音频、字幕、贴图、转场、调色、预览和导出的闭环。AI 是加速器，不是编辑器的前置条件。
+
+## 参考项目
+
+| 项目 | 参考点 | 许可证与采用方式 |
+|---|---|---|
+| OpenCut | 浏览器内时间线、素材面板、快捷键 | MIT；仅参考交互，不引入其前端框架 |
+| React Video Editor | 可组合的多轨时间线与属性面板 | 仅参考数据结构与交互 |
+| Kdenlive | 源/项目监视器、代理剪辑、关键帧、多轨混音 | GPL-3.0；仅参考功能分层 |
+| Shotcut | 滤镜栈、转场、轨道控制、导出预设 | GPL-3.0；仅参考功能分层 |
+| Gitee Shotcut/Kdenlive 镜像 | 国内可访问的上游镜像与中文开发生态 | 不复制 GPL 实现 |
+
+参考地址：
+
+- https://github.com/OpenCut-app/OpenCut
+- https://github.com/openvideodev/react-video-editor
+- https://github.com/KDE/kdenlive
+- https://github.com/mltframework/shotcut
+- https://gitee.com/mirrors/shotcut
+- https://gitee.com/mirrors/Kdenlive
+
+## 能力矩阵
+
+| 领域 | 当前 | 下一阶段 |
+|---|---|---|
+| 源监视器 | 已实现原片播放、片段定位、前后跳镜 | 入点/出点标记、逐帧步进、J/K/L 播放 |
+| 时间线 | 已实现视频/叠加/音频/字幕四轨、缩放、拖拽移动、磁吸、拖拽修剪和刀片分割 | 轨道增删、组合片段、嵌套序列 |
+| 历史 | 每条剪辑命令写入不可变 `project_revision`，支持持久化撤销/重做 | 历史树可视化和版本命名 |
+| 音频 | 已有原声、配音、SFX、BGM 混合，轨道静音/独奏和真实 WAV 峰值波形 | 淡入淡出和峰值告警 |
+| 画面 | 已有裁切适配、贴图、抠图、18 种效果，变换/透明度/音量关键帧和亮度/对比度/饱和度/色温面板 | 曲线编辑器、调色轮和 LUT 导入 |
+| 字幕 | 已有 SRT/ASS 和多种动态风格 | 时间线字幕块、批量样式、逐字编辑 |
+| 导出 | 已有 FFmpeg 预设与后台导出 | 自定义分辨率/码率、帧率转换、透明通道、分段导出 |
+
+## 实施原则
+
+1. 所有手动操作必须直接更改可渲染的工程数据，不做“只有界面”的假功能。
+2. 预览可以使用代理媒体，最终导出仍从原素材渲染。
+3. 编辑命令与渲染参数必须可序列化、可验证、可迁移。
+4. 优先使用现有 Java/FFmpeg 边界，不因对标而盲目引入重型框架或不兼容许可证代码。
+``
+
+### FILE: docs/PERFORMANCE_PORTABILITY_AUDIT.md
+
+``text
+# 性能与跨电脑兼容审计
+
+本轮对启动器、任务管线、外部进程、媒体预处理、AI、素材库、前端轮询、安装配置和数据路径进行了项目级静态审计，并结合发行版日志复现实际故障。
+
+## 已处理的高影响问题
+
+- 镜头提取改为 6 FPS、480 像素宽的低分辨率时域采样，避免对 60/120 FPS 视频逐帧做场景计算。
+- 镜头截图改用单线程 PNG 编码，规避部分 FFmpeg 构建在 VFR/MJPEG 下的 `frame_rate 0/0` 初始化失败。
+- 没有转场的短视频自动提取首帧，不再把“没有场景切换”当作失败。
+- 限制每个任务最多 240 张场景图，并把场景处理超时从 60 分钟缩短为可配置的 20 分钟。
+- 工具错误统一截断后再写数据库，保证任何失败都能进入 `FAILED`，不会停留在处理中。
+- FFmpeg、Whisper 等外部进程使用独立虚拟线程排空输出，避免被网络任务占满公共线程池后发生管道阻塞。
+- Whisper 使用统一的进程树终止与真实超时机制。
+- 本地抠图启用 VP9 realtime 参数，并具有进程树终止、输出上限和两分钟超时。
+- 启动器按 CPU 核心数设置 Whisper 与任务并发；本地 Ollama 限制单模型、单并发，减少低内存电脑抖动。
+- 运行中的前端轮询由 3 秒调为 5 秒，空闲调为 60 秒，AI 用量调为 15 秒，减少后端和 H2 无效查询。
+- 发行版日志默认从 DEBUG 调为 INFO，减少磁盘写入。
+- 删除无意义的“待审核/待翻译素材”占位标签，并通过 Flyway 清理已有数据。
+
+## 跨电脑策略
+
+- 安装包限定 Windows x64，并捆绑 Java、FFmpeg、Whisper、Piper、yt-dlp 和 WebView2 安装器，不依赖用户 PATH。
+- 所有发行路径从安装目录与 `GAME_NARRATOR_DATA_ROOT` 推导，未发现用户机器盘符或用户名硬编码。
+- FFmpeg 默认使用软件解码和自动 CPU 线程，避免强制 CUDA、QSV、AMF 在不同显卡上启动失败。
+- 网络素材与云端 AI 均有超时和本地/浏览器回退；实际速度仍受用户网络、平台风控和 API 限流影响。
+- 本地模型仅在用户选择本地 AI 时安装；低内存电脑建议使用云端 AI。
+
+## 保留的取舍
+
+- 没有默认启用硬件编码。自动猜测显卡驱动容易在其他电脑产生黑屏、花屏或编码器不可用；后续应在诊断通过后作为可选性能档开放。
+- 静态前端继续禁用长缓存，因为当前公共脚本文件名未带内容哈希，长缓存会导致升级后仍加载旧代码。
+- 多个视频任务默认偏向少量并发，让单任务尽快完成并避免多个 FFmpeg/AI 同时占满内存。
+## 2026-08-03 memory and automatic asset pass
+
+- Desktop Java heap is now bounded by detected memory: 512 MB on smaller machines, 768 MB on 8 GB-class machines, and 1024 MB on 16 GB+ machines. G1 starts at 64 MB instead of reserving a large heap immediately.
+- Local Ollama keeps one model and one parallel request, enables flash attention, and unloads idle models after two minutes.
+- Remote thumbnail cache is bounded to 24 entries of at most 1.5 MB, with a ten-minute TTL. The previous theoretical retained-byte ceiling was much larger.
+- Completed media download jobs expire after 30 minutes and the in-memory registry is capped at 64 retained jobs.
+- Release H2 page cache is capped at 16 MB and embedded Tomcat worker threads are bounded.
+- Automatic storyboard assignment is idempotent for existing segment/type placements, prefers the best matching downloaded local asset, and bounds automatic additions to eight visual assets, four sound effects, and one background track per project.
+- Selected video, image, green-screen, sound-effect, and background-music assets are consumed by the existing FFmpeg render graph: duration trimming/looping, scaling/cropping, chroma-key overlay, timed SFX mixing, and ducked full-program BGM are applied automatically.
+``
+
+### FILE: docs/REQUIREMENTS.md
+
+``text
+# GameNarrator 产品需求文档
+
+文档版本：1.0  
+文档状态：研发基线  
+更新时间：2026-07-28  
+适用项目：多模态游戏视频智能解说与自动剪辑系统
+
+## 1. 文档目的
+
+本文档用于统一毕业设计后续研发范围、版本边界、功能优先级和验收标准。需求中的“已实现”表示当前代码已经具备并经过本地验证；“待完善”表示已有基础实现但尚未达到正式版本标准；“未实现”表示后续研发内容。
+
+## 2. 产品定义
+
+GameNarrator 是一个面向游戏和动漫内容创作者的本地智能视频剪辑系统。用户上传一段拥有合法使用权的视频后，系统自动完成素材分析、高光筛选、原创解说文案、本地 AI 配音、时间线规划和成片导出，并逐步扩展动态字幕、剧场特效、Meme 和可编辑分镜能力。
+
+### 2.1 产品目标
+
+- 降低游戏高光和动漫剧场类视频的剪辑门槛。
+- 在消费级电脑上使用免费开源模型完成本地推理。
+- 提供可解释、可追踪、可恢复的九阶段处理流程。
+- 输出能够播放、预览、下载并继续编辑的标准视频产物。
+- 形成适合毕业设计展示、论文实验和答辩演示的独立软件系统。
+
+### 2.2 非目标
+
+- 不复刻某位具体 UP 主的独特台词、声音、角色形象或受保护素材。
+- 不在未经授权的情况下抓取、下载或重新分发网络视频和动漫片段。
+- 1.0 不提供专业非线性编辑软件的全部能力。
+- 1.0 不承诺完全无人干预即可生成商业级成片。
+- 不将上传素材或生成内容默认发送到云端。
+
+## 3. 目标用户与使用场景
+
+### 3.1 目标用户
+
+1. 游戏玩家：希望把录屏快速整理为高光解说视频。
+2. 动漫和二次元爱好者：希望制作具有剧场感的字幕、转场和叙事包装。
+3. 初级视频创作者：不会熟练使用 Premiere、After Effects 等软件。
+4. 毕业设计评审人员：需要观察系统流程、技术实现、实验结果和异常处理。
+
+### 3.2 核心使用场景
+
+- 用户上传 Boss 战、竞技对局、剧情流程或游戏教程录像，选择风格后自动生成成片。
+- 用户在任务详情中实时查看当前阶段、日志摘要和中间产物。
+- 用户在线播放生成结果，确认后导出 MP4。
+- 用户对文案、高光或时间线不满意时，在后续版本中修改并重新渲染。
+
+## 4. 运行环境约束
+
+目标设备基线：
+
+- Windows 64 位。
+- Java 21。
+- AMD Ryzen 7 7735H 或同等级处理器。
+- 16 GB 内存。
+- NVIDIA RTX 4060 Laptop 8 GB 显存。
+- 至少 30 GB 可用磁盘空间。
+- FFmpeg、Ollama、whisper.cpp 和 Piper 均在本地运行。
+
+系统应允许替换模型和程序路径，不得把个人电脑上的绝对路径作为唯一运行方式。
+
+## 5. 当前产品基线
+
+### 5.1 已实现
+
+- 视频任务创建、持久化和历史任务恢复。
+- MP4、MOV、MKV、WEBM 上传校验与本地存储。
+- FFmpeg 视频元数据读取、镜头检测和音频提取。
+- whisper.cpp 本地语音识别。
+- Qwen2.5-VL 3B 代表帧理解。
+- 基于视觉评分和事件类型的高光筛选。
+- Ollama 本地原创文案生成。
+- Piper 中文本地配音。
+- 高光、文案、配音统一时间线规划。
+- NVENC 视频裁剪、拼接、混音、软字幕和 MP4 导出。
+- 成片网页在线播放、新窗口预览和下载。
+- 九阶段状态、任务详情、错误原因和追踪日志。
+- 服务重启后自动恢复未完成任务。
+
+### 5.2 待完善
+
+- 视觉理解目前最多抽取少量代表帧，对短暂击杀、弹反等事件容易漏检。
+- 语音识别结果缺少更完善的游戏术语纠错和说话人处理。
+- 文案质量受视觉结果与识别文本质量影响，缺少重新生成和人工修改入口。
+- 当前高光筛选为规则算法，尚未融合音频能量、OCR、操作事件等特征。
+- 当前字幕为可开关软字幕，缺少动态花字和烧录字幕模板。
+- 特效提示会写入时间线并由 FFmpeg 渲染为视觉特效；完成项目可调整预设、强度、动态字幕和程序化音效后重新渲染。
+- 当前任务阶段只有起止进度，缺少逐帧、逐片段的精细实时进度。
+- 中间渲染文件没有自动清理策略。
+
+## 6. 核心业务流程
+
+```text
+创建任务
+  → 素材入库
+  → 镜头检测
+  → 语音转写
+  → 画面理解
+  → 高光筛选
+  → 文案生成
+  → AI 配音
+  → 时间线规划
+  → 视频渲染
+  → 在线预览与导出
+```
+
+每个阶段必须满足：
+
+- 有明确的 `PENDING/RUNNING/COMPLETED/FAILED` 状态。
+- 失败时记录面向用户的原因和面向开发者的日志。
+- 已完成阶段在恢复任务时不得重复执行。
+- 中间产物使用任务 ID 隔离。
+- 后一阶段只能读取已完成前置阶段的有效产物。
+
+## 7. 1.0 功能需求
+
+优先级定义：P0 为发布阻塞，P1 为重要增强，P2 为体验优化。
+
+### 7.1 任务创建与管理
+
+| 编号 | 优先级 | 需求 | 当前状态 | 验收标准 |
+|---|---|---|---|---|
+| FR-001 | P0 | 创建视频剪辑任务 | 已实现 | 必填项校验通过后返回任务 ID，并自动启动流程 |
+| FR-002 | P0 | 支持常见视频格式 | 已实现 | 支持 MP4、MOV、MKV、WEBM，错误格式给出明确提示 |
+| FR-003 | P0 | 查看任务列表和详情 | 已实现 | 可查看状态、九阶段进度、媒体参数和产物路径 |
+| FR-004 | P0 | 失败任务重试 | 待完善 | 用户可从失败阶段重试，不重复执行已完成阶段 |
+| FR-005 | P1 | 删除任务 | 未实现 | 二次确认后删除数据库记录和该任务生成文件，不影响其他任务 |
+| FR-006 | P1 | 取消运行任务 | 未实现 | 能终止外部进程并将任务标记为已取消 |
+| FR-007 | P1 | 任务重命名 | 未实现 | 修改后列表、详情和导出文件名保持一致 |
+
+### 7.2 素材分析
+
+| 编号 | 优先级 | 需求 | 当前状态 | 验收标准 |
+|---|---|---|---|---|
+| FR-101 | P0 | 读取媒体元数据 | 已实现 | 展示时长、分辨率、帧率、视频和音频编码 |
+| FR-102 | P0 | 自动检测镜头变化 | 已实现 | 生成包含时间戳和截图路径的镜头清单 |
+| FR-103 | P0 | 提取语音音轨 | 已实现 | 有音轨时生成 16 kHz 单声道 WAV，无音轨时正常跳过 |
+| FR-104 | P1 | 音频能量分析 | 未实现 | 输出欢呼、爆音、静音和峰值区间，为高光评分提供特征 |
+| FR-105 | P1 | OCR 识别 | 未实现 | 识别击杀、胜利、失败、Boss 血条等关键界面文字 |
+| FR-106 | P1 | 自适应抽帧 | 未实现 | 根据镜头密度和视频时长控制采样，避免只分析固定 8 帧 |
+
+### 7.3 语音与画面理解
+
+| 编号 | 优先级 | 需求 | 当前状态 | 验收标准 |
+|---|---|---|---|---|
+| FR-201 | P0 | 本地语音转写 | 已实现 | 生成 TXT、SRT 和结构化转写文件 |
+| FR-202 | P1 | 游戏术语纠错 | 未实现 | 用户可提供词表，系统在不改变时间戳的情况下修正常见术语 |
+| FR-203 | P0 | 本地画面理解 | 已实现 | 每个采样镜头输出描述、事件类型和高光评分 |
+| FR-204 | P1 | 视觉结果质量校验 | 待完善 | 空描述或全零评分触发重新分析或降级策略 |
+| FR-205 | P2 | 模型切换 | 未实现 | 页面可选择已安装模型并显示显存需求和可用状态 |
+
+### 7.4 高光筛选
+
+| 编号 | 优先级 | 需求 | 当前状态 | 验收标准 |
+|---|---|---|---|---|
+| FR-301 | P0 | 候选片段排序 | 已实现 | 综合视觉评分和事件权重输出排序结果 |
+| FR-302 | P0 | 重复镜头去除 | 已实现 | 时间过近的候选不得重复入选 |
+| FR-303 | P0 | 目标时长控制 | 已实现 | 片段总时长接近用户目标，且不超过原视频边界 |
+| FR-304 | P1 | 多模态高光评分 | 未实现 | 融合视觉、音频、转写关键词、OCR 和镜头运动特征 |
+| FR-305 | P1 | 手动保留与排除 | 未实现 | 用户可锁定或排除候选片段并重新规划 |
+
+### 7.5 文案生成
+
+| 编号 | 优先级 | 需求 | 当前状态 | 验收标准 |
+|---|---|---|---|---|
+| FR-401 | P0 | 按高光生成结构化文案 | 已实现 | 每个片段包含解说、字幕和特效建议 |
+| FR-402 | P0 | 支持三种通用风格 | 已实现 | 动漫剧场、热血高燃和轻松吐槽之间有可辨识差异 |
+| FR-403 | P0 | 原创性约束 | 已实现 | 提示词禁止照抄识别文本和模仿具体创作者独特表达 |
+| FR-404 | P1 | 重新生成文案 | 未实现 | 可只重生成指定片段，不影响其他阶段数据 |
+| FR-405 | P1 | 文案编辑 | 未实现 | 用户修改后保存版本，并使后续配音和渲染失效待重建 |
+| FR-406 | P1 | 文案质量评分 | 未实现 | 检测过短、重复、空字段、事实冲突和明显识别乱码 |
+
+### 7.6 AI 配音
+
+| 编号 | 优先级 | 需求 | 当前状态 | 验收标准 |
+|---|---|---|---|---|
+| FR-501 | P0 | 本地中文配音 | 已实现 | Piper 为每段文案生成可播放 WAV |
+| FR-502 | P0 | 配音清单 | 已实现 | 清单记录片段编号、文本和音频路径 |
+| FR-503 | P1 | 音色选择 | 未实现 | 至少提供两种合法开源中文音色并可试听 |
+| FR-504 | P1 | 语速和情感参数 | 待完善 | 可配置语速；后续接入支持情感控制的本地模型 |
+| FR-505 | P1 | 单段重新配音 | 未实现 | 修改单段后只重生成对应 WAV |
+
+### 7.7 时间线与特效
+
+无 AI 手动剪辑的对标矩阵和分阶段实施边界见 `docs/MANUAL_EDITOR_PARITY.md`。当前已提供源片监视器、可视片段时间线、定位与跳镜、时间线缩放、数值精剪、批量保存以及 50 步撤销/重做；这些功能不依赖 AI。
+
+| 编号 | 优先级 | 需求 | 当前状态 | 验收标准 |
+|---|---|---|---|---|
+| FR-601 | P0 | 生成统一时间线 | 已实现 | 原视频、成片、文案、字幕、配音的时间信息一致 |
+| FR-602 | P0 | 配音溢出检测 | 已实现 | 配音超过镜头可用时长时产生明确标记 |
+| FR-603 | P0 | 基础字幕 | 已实现 | MP4 包含可开关中文软字幕轨，并单独输出 SRT |
+| FR-604 | P0 | 基础剧场特效模板 | 已实现 | 已实现 10 套预设、18 种视觉特效；包含参考 Premiere 常见分类的模糊、暗角、黑白、冷暖色、高对比、RGB 分离、翻转、像素化和镜头畸变，并支持语义选效、动态字幕、程序化提示音、强度调节和成片重渲染 |
+| FR-605 | P0 | 基础转场模板 | 基础实现 | 已实现硬切、淡入淡出、叠化、推拉和动漫冲击的规则选择与 FFmpeg 基础表现 |
+| FR-606 | P1 | 动态字幕模板 | 基础实现 | 已支持 ASS 描边、淡入、弹跳、冲击、打字机风格和智能单行换行；逐字高亮与角色对话仍待加入 |
+| FR-607 | P1 | 音效素材库 | 基础实现 | 已提供无需外部素材授权的程序化冲击、掠过和喜剧提示音，并生成独立音效清单；外部授权素材管理仍待加入 |
+| FR-608 | P1 | 贴图与 Meme 插槽 | 未实现 | 时间线可配置本地图片、出现区间、位置和动画 |
+
+### 7.8 渲染、预览与导出
+
+| 编号 | 优先级 | 需求 | 当前状态 | 验收标准 |
+|---|---|---|---|---|
+| FR-701 | P0 | GPU 加速渲染 | 已实现 | 优先使用 NVENC，失败时自动回退 CPU 编码 |
+| FR-702 | P0 | 原声与配音混音 | 已实现 | AI 配音清晰，原声降低但仍可辨识 |
+| FR-703 | P0 | 导出 MP4 | 已实现 | 输出 H.264、AAC、MP4，普通播放器可正常播放 |
+| FR-704 | P0 | 网站在线播放 | 已实现 | 任务详情内播放器可以读取时长、拖动和播放 |
+| FR-705 | P0 | 导出按钮 | 已实现 | 点击“导出 MP4”触发浏览器下载，接口支持 Range |
+| FR-706 | P1 | 清晰度选择 | 未实现 | 支持 720p、1080p 和保持原分辨率 |
+| FR-707 | P1 | 渲染参数预设 | 未实现 | 可选择质量优先、速度优先和文件大小优先 |
+| FR-708 | P1 | 中间文件清理 | 未实现 | 成片成功后可清理 render-work，失败时保留诊断所需文件 |
+
+## 8. 页面需求
+
+### 8.1 首页工作台
+
+- 展示系统名称、定位和本地运行状态。
+- 提供任务创建表单。
+- 展示最近任务、当前阶段、总体进度和失败原因。
+- 已完成任务必须清楚显示可预览、可导出的状态。
+
+### 8.2 任务详情
+
+- 展示任务配置和原视频参数。
+- 展示九阶段状态、阶段错误和完成比例。
+- 展示转写摘要、视觉摘要、高光摘要、文案和时间线摘要。
+- 展示生成产物，但普通用户操作应使用按钮，不能只显示文件路径。
+- 已完成任务必须提供内嵌播放器、“新窗口预览”和“导出 MP4”。
+- 播放器失败时显示可理解的原因和备用下载入口。
+
+### 8.3 系统诊断页
+
+1.0 发布前应增加可视化诊断区，至少展示：
+
+- Java 版本、CPU、内存和存储可写状态。
+- FFmpeg 是否可用及编码器能力。
+- whisper.cpp 程序和模型是否可用。
+- Ollama 服务和所选模型是否可用。
+- Piper 程序和音色是否可用。
+- 一键复制诊断结果。
+
+## 9. 非功能需求
+
+### 9.1 性能
+
+- 创建任务接口在完成上传和入库后 2 秒内返回，不等待完整剪辑。
+- 列表和详情接口在 100 个任务规模下，普通查询应在 500 ms 内返回。
+- 5 分钟 1440p 视频在目标设备上，完整处理目标时间不超过视频原时长的 2 倍。
+- 渲染阶段优先使用 GPU，显存不足时应降级而非直接崩溃。
+- 同时执行的重型模型或渲染任务数量必须可配置，默认避免三个大任务争抢显存。
+
+### 9.2 稳定性
+
+- 服务异常退出后，重启能够恢复 `READY` 和 `PROCESSING` 任务。
+- 外部程序必须设置超时并回收进程。
+- 单个任务失败不得导致应用停止或其他任务数据损坏。
+- 生成文件必须先写临时文件，成功后再标记阶段完成。
+- 数据库字段和产物文件不一致时，应报告“产物缺失”而不是空指针异常。
+
+### 9.3 安全与隐私
+
+- 上传文件扩展名、大小和媒体有效性必须校验。
+- API 不允许通过用户输入读取任务目录外的任意路径。
+- 日志不得记录密钥、完整模型请求或用户隐私数据。
+- 默认只监听本机地址；若开放局域网访问，必须增加认证和权限控制。
+- 删除操作必须确认任务目录位于配置的存储根目录内。
+
+### 9.4 可维护性
+
+- Java 负责业务编排、状态、文件管理和 API。
+- AI 模型和媒体能力通过独立适配器隔离。
+- 模型名称、程序路径、并发数、超时和渲染参数必须可配置。
+- 新增阶段或产物时应同时增加领域状态、接口字段、页面展示和测试。
+- 关键算法需要单元测试；完整流水线需要至少一个短视频集成测试。
+
+### 9.5 可观测性
+
+- 每个 HTTP 请求包含 `traceId`。
+- 每个异步任务日志包含任务 ID 和当前阶段。
+- 阶段日志至少包含开始、成功、失败、耗时、关键数量和输出路径。
+- 需要增加阶段耗时持久化，为论文性能实验提供数据。
+
+## 10. 数据与产物要求
+
+详细表结构、用户输入输出留痕、Token 统计、轻量工程和多规格导出设计见 [数据库设计](DATABASE_DESIGN.md)。
+
+每个任务使用独立目录：
+
+```text
+storage/tasks/{taskId}/
+  scenes.json
+  visual-analysis.json
+  highlights.json
+  generated-script.json
+  voice-manifest.json
+  timeline.json
+  generated-subtitles.srt
+  final-video.mp4
+  scenes/
+  voice/
+  render-work/
+```
+
+要求：
+
+- JSON 产物必须包含格式版本，方便后续迁移。
+- 文件采用 UTF-8，时间统一使用秒并保留毫秒精度。
+- 数据库保存主要摘要和产物路径，不保存大体积二进制内容。
+- 原视频、中间文件和最终文件应支持分别设置保留周期。
+
+## 11. 异常与边界场景
+
+系统必须覆盖以下情况：
+
+- 视频没有音轨。
+- 视频损坏或 FFmpeg 无法解码。
+- 视频时长过短、全黑或没有检测到转场。
+- Ollama 未启动或模型未安装。
+- 视觉模型输出非法 JSON、空描述或全零评分。
+- whisper.cpp 或 Piper 文件缺失。
+- 文案段数与高光段数不一致。
+- 配音时间超过片段时间。
+- 磁盘空间不足或目录不可写。
+- NVENC 不可用、显存不足或驱动不兼容。
+- 服务在处理中被关闭并重新启动。
+- 浏览器缓存旧版脚本，导致新功能不显示。
+- 在线预览请求使用 Range 分段读取。
+
+## 12. 版本规划
+
+### 12.1 1.0：可用的自动剪辑系统
+
+发布目标：完成从上传到导出的稳定闭环，并加入基础剧场特效。
+
+发布阻塞项：
+
+1. 失败重试、取消任务和中间文件清理。
+2. 动态字幕和至少 8 种基础视觉特效。
+3. 至少 5 种转场和基础音效库。
+4. 文案质量校验与重新生成。
+5. 更精细的实时处理进度。
+6. 端到端短视频自动化测试。
+7. 系统诊断页面和安装向导。
+
+### 12.2 2.0：可编辑剧情与分镜工作台
+
+- 完整时间线可视化。
+- 拖拽调整镜头顺序和长度。
+- 修改文案、字幕、配音和特效。
+- 局部重新生成和局部重新渲染。
+- 项目版本、撤销、重做和草稿保存。
+
+### 12.3 3.0：AI 动画剧场与 Meme
+
+- 接入适合 8 GB 显存的本地图片生成方案。
+- 根据脚本生成过场、表情、标题卡和 Meme 候选。
+- 提供人物一致性和风格一致性控制。
+- 所有网络素材必须记录来源、授权与使用范围。
+
+### 12.4 4.0：多创作风格模板
+
+- 将节奏、句式、色彩、字幕、音色、转场和音效抽象为模板参数。
+- 支持创建和共享通用风格模板。
+- 不提供未经许可的真人声音克隆。
+- 不以具体 UP 主名称作为默认模板名称。
+
+### 12.5 5.0：AI 创意助手
+
+- 根据游戏、动漫、生活素材或模糊需求生成多套方案。
+- 输出标题、剧情结构、镜头清单、台词、音效和素材需求。
+- 用户选择方案后自动创建剪辑任务。
+- 在合法来源中搜索素材并保留来源记录，下载前需要用户确认。
+- 本地镜头搜索结果支持直接在线预览，并按匹配时间点快速剪切 1–600 秒高清视频；提供 10、20、30、40、50、60 秒快捷时长以及静音输出，片尾不足指定时长时自动以实际剩余时长结束。
+- 素材库首屏采用每页 9 项的九宫格分页、250ms 输入防抖和可取消请求；公共搜索使用上一页、下一页切换，不把后续结果继续追加到当前页。默认先返回快速关键词结果，AI 语义排序仅在明确提交时执行。远程缩略图在内存中缓存 30 分钟，减少重复网络加载。
+
+## 13. 1.0 验收场景
+
+### AC-01 标准游戏录像
+
+给定一段 3–5 分钟、包含音频的游戏录像，用户选择 90 秒动漫剧场风格后：
+
+- 九阶段全部完成。
+- 输出视频时长在 70–100 秒之间。
+- 能在网站中播放并拖动进度。
+- 能点击按钮下载 MP4。
+- 视频包含 AI 配音、原声混音和中文字幕。
+- 任务没有未处理异常。
+
+### AC-02 无音轨录像
+
+- 音频提取和转写阶段正常降级。
+- 文案根据画面和任务要求生成。
+- 配音、时间线和渲染仍然完成。
+
+### AC-03 模型未安装
+
+- 任务显示等待状态和准确安装命令。
+- 安装模型并重启后从对应阶段继续。
+- 不重新上传视频，不重复执行已完成阶段。
+
+### AC-04 渲染器降级
+
+- 人为配置不可用的硬件编码器时，日志显示回退原因。
+- 使用 CPU 编码后仍能生成可播放 MP4。
+
+### AC-05 服务恢复
+
+- 在处理中关闭应用。
+- 重新启动后任务自动恢复。
+- 已完成阶段不重复执行，最终可以导出。
+
+## 14. 毕业设计评价指标
+
+建议在论文实验中记录：
+
+- 不同视觉采样数量的事件召回率与处理时间。
+- 规则评分和多模态评分的高光准确率对比。
+- Qwen 不同模型或量化版本的文案质量、耗时和显存占用。
+- Piper 与候选 TTS 的自然度、实时率和内存占用。
+- CPU 与 NVENC 渲染速度、文件大小和质量对比。
+- 完整流程成功率、平均耗时和阶段失败分布。
+
+人工评价可使用 1–5 分量表评价：高光合理性、叙事连贯性、配音自然度、音画同步、字幕可读性和整体观看体验。
+
+## 15. 研发优先顺序
+
+建议后续按以下顺序开发：
+
+1. 任务重试、取消、删除和资源清理。
+2. 文案质量校验、重新生成和编辑。
+3. 特效模板数据结构及 FFmpeg 基础特效执行器。
+4. 动态字幕、转场和音效素材库。
+5. 多模态高光评分和自适应抽帧。
+6. SSE 实时进度和系统诊断页面。
+7. 端到端测试、性能实验与论文数据采集。
+8. 进入 2.0 可编辑时间线研发。
+
+## 16. 完成定义
+
+一项需求只有同时满足以下条件才视为完成：
+
+- 代码实现已合入主工程。
+- 正常路径和主要异常路径均有验证。
+- 后端日志能定位错误。
+- API 字段和页面展示保持一致。
+- 相关单元测试或集成测试通过。
+- 使用文档和配置说明已更新。
+- 不引入未经授权的素材、模型或声音。
+``
+
+### FILE: scripts/build-windows-release.ps1
+
+``powershell
+param(
+  [switch]$InstallInnoSetup,
+  [switch]$SkipDownloads
+)
+$ErrorActionPreference = 'Stop'
+$projectRoot = (Resolve-Path (Join-Path $PSScriptRoot '..')).Path
+$releaseRoot = Join-Path $projectRoot 'release'
+$staging = Join-Path $releaseRoot 'staging'
+$cache = Join-Path $releaseRoot 'cache'
+$dist = Join-Path $projectRoot 'dist'
+
+function Reset-OwnedDirectory([string]$Path, [string]$RequiredParent) {
+  $full = [IO.Path]::GetFullPath($Path)
+  $parent = [IO.Path]::GetFullPath($RequiredParent).TrimEnd('\') + '\'
+  if (-not $full.StartsWith($parent, [StringComparison]::OrdinalIgnoreCase)) { throw "Refusing to reset path outside $RequiredParent" }
+  if (Test-Path -LiteralPath $full) { Remove-Item -LiteralPath $full -Recurse -Force }
+  New-Item -ItemType Directory -Path $full | Out-Null
+}
+function Download([string]$Url, [string]$Destination) {
+  if (Test-Path -LiteralPath $Destination) { return }
+  if ($SkipDownloads) { throw "Missing cached dependency: $Destination" }
+  Write-Host "Downloading $Url"
+  $partial = "$Destination.part"
+  & curl.exe --fail --location --retry 5 --retry-delay 3 --continue-at - --user-agent 'GameNarrator-ReleaseBuilder' --output $partial $Url
+  if ($LASTEXITCODE -ne 0) { throw "Download failed: $Url" }
+  Move-Item -LiteralPath $partial -Destination $Destination
+}
+function Require-File([string]$Path, [string]$Hint) {
+  if (-not (Test-Path -LiteralPath $Path -PathType Leaf)) { throw "$Hint ($Path)" }
+}
+function Download-GitHubText([string]$Repository, [string]$RemotePath, [string]$Destination) {
+  if (Test-Path -LiteralPath $Destination) { return }
+  if ($SkipDownloads) { throw "Missing cached license: $Destination" }
+  $response = Invoke-RestMethod -Headers @{'User-Agent'='GameNarrator-ReleaseBuilder'} -Uri "https://api.github.com/repos/$Repository/contents/$RemotePath"
+  [IO.File]::WriteAllBytes($Destination, [Convert]::FromBase64String(($response.content -replace '\s','')))
+}
+function Copy-Directory([string]$Source, [string]$Destination) {
+  if (-not (Test-Path -LiteralPath $Source -PathType Container)) { throw "Missing directory: $Source" }
+  New-Item -ItemType Directory -Path $Destination -Force | Out-Null
+  Copy-Item -Path (Join-Path $Source '*') -Destination $Destination -Recurse -Force
+}
+
+New-Item -ItemType Directory -Path $cache -Force | Out-Null
+Reset-OwnedDirectory $staging $releaseRoot
+if (-not (Test-Path -LiteralPath $dist)) { New-Item -ItemType Directory -Path $dist | Out-Null }
+
+Write-Host 'Building frontend and Spring Boot application...'
+$npm = (Get-Command npm.cmd -ErrorAction Stop).Source
+& $npm --prefix (Join-Path $projectRoot 'frontend') run build
+if ($LASTEXITCODE -ne 0) { throw 'Frontend build failed' }
+& (Join-Path $projectRoot 'mvnw.cmd') -DskipTests package
+if ($LASTEXITCODE -ne 0) { throw 'Backend build failed' }
+$jar = Get-ChildItem (Join-Path $projectRoot 'target') -Filter '*.jar' | Where-Object Name -NotLike '*.original' | Select-Object -First 1
+if (-not $jar) { throw 'Spring Boot jar was not generated' }
+New-Item -ItemType Directory -Path (Join-Path $staging 'app') | Out-Null
+Copy-Item -LiteralPath $jar.FullName -Destination (Join-Path $staging 'app\game-narrator.jar')
+
+Write-Host 'Creating bundled Java 21 runtime...'
+$jlink = (Get-Command jlink -ErrorAction Stop).Source
+& $jlink --add-modules ALL-MODULE-PATH --strip-debug --no-header-files --no-man-pages --compress=zip-6 --output (Join-Path $staging 'runtime')
+if ($LASTEXITCODE -ne 0) { throw 'jlink failed' }
+
+Write-Host 'Publishing self-contained Windows launcher...'
+& dotnet publish (Join-Path $projectRoot 'launcher\GameNarrator.Launcher.csproj') -c Release -r win-x64 --self-contained true -p:PublishSingleFile=true -p:IncludeNativeLibrariesForSelfExtract=true -o (Join-Path $staging 'launcher-build')
+if ($LASTEXITCODE -ne 0) { throw 'Launcher publish failed' }
+Copy-Item -LiteralPath (Join-Path $staging 'launcher-build\GameNarrator.exe') -Destination (Join-Path $staging 'GameNarrator.exe')
+Remove-Item -LiteralPath (Join-Path $staging 'launcher-build') -Recurse -Force
+
+Write-Host 'Preparing Microsoft Edge WebView2 prerequisite...'
+$webViewBootstrapper = Join-Path $cache 'MicrosoftEdgeWebview2Setup.exe'
+Download 'https://go.microsoft.com/fwlink/p/?LinkId=2124703' $webViewBootstrapper
+New-Item -ItemType Directory -Path (Join-Path $staging 'prerequisites') -Force | Out-Null
+Copy-Item -LiteralPath $webViewBootstrapper -Destination (Join-Path $staging 'prerequisites\MicrosoftEdgeWebview2Setup.exe')
+
+$ffmpegTag = 'latest'
+$ffmpegZip = Join-Path $cache 'ffmpeg-master-latest-win64-gpl.zip'
+Download 'https://github.com/BtbN/FFmpeg-Builds/releases/download/latest/ffmpeg-master-latest-win64-gpl.zip' $ffmpegZip
+$ffmpegExtract = Join-Path $cache 'ffmpeg-extracted'
+Reset-OwnedDirectory $ffmpegExtract $cache
+Expand-Archive -LiteralPath $ffmpegZip -DestinationPath $ffmpegExtract -Force
+$ffmpegExe = Get-ChildItem $ffmpegExtract -Recurse -Filter 'ffmpeg.exe' | Select-Object -First 1
+if (-not $ffmpegExe) { throw 'Downloaded FFmpeg archive has no ffmpeg.exe' }
+Copy-Directory $ffmpegExe.Directory.FullName (Join-Path $staging 'tools\ffmpeg\bin')
+
+$ollamaVersion = 'v0.32.5'
+
+Copy-Directory (Join-Path $projectRoot 'tools\whisper') (Join-Path $staging 'tools\whisper')
+Copy-Directory (Join-Path $projectRoot 'tools\piper') (Join-Path $staging 'tools\piper')
+New-Item -ItemType Directory -Path (Join-Path $staging 'tools\yt-dlp') -Force | Out-Null
+Copy-Item -LiteralPath (Join-Path $projectRoot 'tools\yt-dlp\yt-dlp.exe') -Destination (Join-Path $staging 'tools\yt-dlp\yt-dlp.exe')
+New-Item -ItemType Directory -Path (Join-Path $staging 'models\whisper'),(Join-Path $staging 'models\piper') -Force | Out-Null
+Copy-Item -LiteralPath (Join-Path $projectRoot 'models\ggml-base.bin') -Destination (Join-Path $staging 'models\whisper\ggml-base.bin')
+Copy-Item -Path (Join-Path $projectRoot 'models\piper\*') -Destination (Join-Path $staging 'models\piper') -Force
+
+$licenseDir = Join-Path $staging 'licenses'
+New-Item -ItemType Directory -Path $licenseDir | Out-Null
+Download-GitHubText 'BtbN/FFmpeg-Builds' 'LICENSE' (Join-Path $cache 'FFmpeg-Builds-LICENSE.txt')
+Download-GitHubText 'ollama/ollama' 'LICENSE' (Join-Path $cache 'Ollama-LICENSE.txt')
+Download-GitHubText 'ggml-org/whisper.cpp' 'LICENSE' (Join-Path $cache 'WhisperCpp-LICENSE.txt')
+Download-GitHubText 'yt-dlp/yt-dlp' 'LICENSE' (Join-Path $cache 'yt-dlp-LICENSE.txt')
+Download-GitHubText 'jrsoftware/issrc' 'Files/Languages/ChineseSimplified.isl' (Join-Path $cache 'ChineseSimplified.isl')
+Copy-Item -Path (Join-Path $cache '*LICENSE.txt') -Destination $licenseDir
+
+$lock = [ordered]@{
+  generatedAt = (Get-Date).ToUniversalTime().ToString('o')
+  platform = 'windows-x64'
+  dependencies = @(
+    @{name='ffmpeg'; source='BtbN/FFmpeg-Builds latest'; sha256=(Get-FileHash $ffmpegZip -Algorithm SHA256).Hash; archiveBytes=(Get-Item $ffmpegZip).Length},
+    @{name='ollama'; version=$ollamaVersion; delivery='first-run-resumable-download'; sha256='7c941ae084569d298062d29f8139163a3187c76dbca0479c70d085e78fd8c7bb'},
+    @{name='webview2-evergreen-bootstrapper'; source='Microsoft'; sha256=(Get-FileHash $webViewBootstrapper -Algorithm SHA256).Hash},
+    @{name='whisper-model-base'; sha256=(Get-FileHash (Join-Path $projectRoot 'models\ggml-base.bin') -Algorithm SHA256).Hash},
+    @{name='piper-huayan-medium'; sha256=(Get-FileHash (Join-Path $projectRoot 'models\piper\zh_CN-huayan-medium.onnx') -Algorithm SHA256).Hash},
+    @{name='yt-dlp'; sha256=(Get-FileHash (Join-Path $projectRoot 'tools\yt-dlp\yt-dlp.exe') -Algorithm SHA256).Hash}
+  )
+}
+$lock | ConvertTo-Json -Depth 6 | Set-Content -LiteralPath (Join-Path $staging 'dependency-lock.json') -Encoding utf8
+
+$iscc = Get-Command iscc -ErrorAction SilentlyContinue
+if (-not $iscc -and $InstallInnoSetup) {
+  Write-Host 'Installing Inno Setup compiler with winget...'
+  & winget install --id JRSoftware.InnoSetup -e --accept-package-agreements --accept-source-agreements --silent
+  if ($LASTEXITCODE -ne 0) { throw 'Inno Setup installation failed' }
+  $candidates = @(
+    (Join-Path $env:LOCALAPPDATA 'Programs\Inno Setup 6\ISCC.exe'),
+    (Join-Path $env:ProgramFiles 'Inno Setup 6\ISCC.exe'),
+    (Join-Path ${env:ProgramFiles(x86)} 'Inno Setup 6\ISCC.exe')
+  )
+  $candidate = $candidates | Where-Object { Test-Path -LiteralPath $_ } | Select-Object -First 1
+  if ($candidate) { $iscc = Get-Item $candidate }
+}
+if (-not $iscc) {
+  $candidate = Join-Path $env:LOCALAPPDATA 'Programs\Inno Setup 6\ISCC.exe'
+  if (Test-Path -LiteralPath $candidate) { $iscc = Get-Item $candidate }
+}
+if (-not $iscc) { throw 'Inno Setup 6 is required. Re-run with -InstallInnoSetup.' }
+Write-Host 'Compiling GameNarrator-Setup.exe...'
+$isccPath = if ($iscc -is [IO.FileInfo]) { $iscc.FullName } else { $iscc.Source }
+& $isccPath (Join-Path $releaseRoot 'installer\GameNarrator.iss')
+if ($LASTEXITCODE -ne 0) { throw 'Installer compilation failed' }
+$setup = Join-Path $dist 'GameNarrator-Setup.exe'
+Require-File $setup 'Installer was not generated'
+Write-Host "SUCCESS: $setup"
+``
+
+### FILE: scripts/export-deepseek-context.ps1
+
+``powershell
+param(
+    [string]$OutputPath = "DEEPSEEK_PROJECT_CONTEXT.md",
+    [switch]$Watch
+)
+
+$ErrorActionPreference = "Stop"
+$projectRoot = (Resolve-Path (Join-Path $PSScriptRoot "..")).Path
+$resolvedOutput = Join-Path $projectRoot $OutputPath
+$utf8NoBom = [System.Text.UTF8Encoding]::new($false)
+
+function Get-ContextFiles {
+    $roots = @("src", "docs", "scripts")
+    $extensions = @(".java", ".js", ".css", ".html", ".yml", ".yaml", ".sql", ".md", ".xml", ".ps1")
+    $files = foreach ($root in $roots) {
+        $absoluteRoot = Join-Path $projectRoot $root
+        if (Test-Path -LiteralPath $absoluteRoot) {
+            Get-ChildItem -LiteralPath $absoluteRoot -Recurse -File | Where-Object {
+                $extensions -contains $_.Extension.ToLowerInvariant() -and
+                $_.FullName -ne $resolvedOutput
+            }
+        }
+    }
+    foreach ($name in @("pom.xml", "README.md", ".gitignore")) {
+        $path = Join-Path $projectRoot $name
+        if (Test-Path -LiteralPath $path) { Get-Item -LiteralPath $path }
+    }
+    $files | Sort-Object FullName -Unique
+}
+
+function Get-Language([string]$extension) {
+    switch ($extension.ToLowerInvariant()) {
+        ".java" { "java" }
+        ".js" { "javascript" }
+        ".css" { "css" }
+        ".html" { "html" }
+        ".yml" { "yaml" }
+        ".yaml" { "yaml" }
+        ".sql" { "sql" }
+        ".xml" { "xml" }
+        ".ps1" { "powershell" }
+        default { "text" }
+    }
+}
+
+function Write-ContextBundle {
+    $files = @(Get-ContextFiles)
+    $builder = [System.Text.StringBuilder]::new()
+    [void]$builder.AppendLine("# GameNarrator — DeepSeek 项目上下文包")
+    [void]$builder.AppendLine()
+    [void]$builder.AppendLine("> 自动生成时间：$([DateTimeOffset]::Now.ToString('yyyy-MM-dd HH:mm:ss zzz'))")
+    [void]$builder.AppendLine("> 文件数量：$($files.Count)。本文件由 scripts/export-deepseek-context.ps1 生成，请勿手工维护生成区。")
+    [void]$builder.AppendLine()
+    [void]$builder.AppendLine("## 给 DeepSeek 的强制工作规则")
+    [void]$builder.AppendLine()
+    [void]$builder.AppendLine(@'
+你正在维护一个真实可运行的 Java 21 / Spring Boot 3.2 项目。请先阅读本文件中的项目约束、目录清单和相关源码，再回答或修改。用户的新要求优先于旧文档，但不得擅自扩大范围。
+
+1. 不要虚构不存在的类、接口、API、配置、依赖或测试结果；结论必须能由下方源码验证。
+2. 修改应复用现有分层和命名，保持后端、前端、配置、数据库迁移、诊断和测试一致。
+3. 平台、浏览器、模型、路径、模板和供应商能力必须配置化，不写死单个平台或本机环境。
+4. 不得绕过网站认证、DRM、付费墙或浏览器凭据保护；媒体导入仅处理用户有权使用的内容。
+5. 不输出整文件替换，除非用户明确要求；优先给出可应用的 unified diff，并列出受影响文件。
+6. 不覆盖无关改动，不删除数据，不使用破坏性 Git 命令。数据库变更必须新增 Flyway 迁移，不能修改已执行迁移。
+7. 外部进程必须处理并发输出、超时、中断、退出码、残留进程和安全路径；错误信息不得泄露 Cookie、Token 或完整命令中的秘密。
+8. 前端轮询不得覆盖用户正在编辑的表单、重置视频播放位置或反复重建已打开的详情视图。
+9. 任务重试应保留已完成阶段；取消应终止实际工作；缓存清理应限制在授权存储目录并可解释清理范围。
+10. 修改完成后至少运行 `.\mvnw.cmd test`，报告真实的测试数量与失败原因；不能声称未执行的验证已通过。
+11. 若参考 GitHub/Gitee 项目，只借鉴架构和可靠性做法，检查许可证与版本差异，不直接复制不兼容代码。
+12. 回答使用简洁中文，先说结果，再说改动文件、验证结果、剩余风险和启动/迁移要求。
+'@)
+    [void]$builder.AppendLine()
+    [void]$builder.AppendLine("## 当前文件清单")
+    [void]$builder.AppendLine()
+    foreach ($file in $files) {
+        $relative = $file.FullName.Substring($projectRoot.Length).TrimStart("\").Replace("\", "/")
+        [void]$builder.AppendLine("- ``$relative``（$($file.Length) bytes）")
+    }
+    [void]$builder.AppendLine()
+    [void]$builder.AppendLine("## 当前项目原文")
+    [void]$builder.AppendLine()
+    foreach ($file in $files) {
+        $relative = $file.FullName.Substring($projectRoot.Length).TrimStart("\").Replace("\", "/")
+        $language = Get-Language $file.Extension
+        $content = [IO.File]::ReadAllText($file.FullName, [Text.Encoding]::UTF8)
+        [void]$builder.AppendLine("### FILE: $relative")
+        [void]$builder.AppendLine()
+        [void]$builder.AppendLine("````$language")
+        [void]$builder.Append($content)
+        if (-not $content.EndsWith("`n")) { [void]$builder.AppendLine() }
+        [void]$builder.AppendLine("````")
+        [void]$builder.AppendLine()
+    }
+    [IO.File]::WriteAllText($resolvedOutput, $builder.ToString(), $utf8NoBom)
+    Write-Host "DeepSeek context updated: $resolvedOutput ($($builder.Length) characters)"
+}
+
+Write-ContextBundle
+if ($Watch) {
+    Write-Host "Watching project changes. Press Ctrl+C to stop."
+    while ($true) {
+        Start-Sleep -Seconds 2
+        $latest = (Get-ContextFiles | Measure-Object LastWriteTimeUtc -Maximum).Maximum
+        if ($latest -gt (Get-Item -LiteralPath $resolvedOutput).LastWriteTimeUtc) {
+            Write-ContextBundle
+        }
+    }
+}
+``
+
+### FILE: scripts/generate-app-icon.ps1
+
+``powershell
+param([string]$Output = (Join-Path $PSScriptRoot '..\launcher\assets\GameNarrator.ico'))
+$ErrorActionPreference = 'Stop'
+Add-Type -AssemblyName System.Drawing
+$target = [IO.Path]::GetFullPath($Output)
+[IO.Directory]::CreateDirectory([IO.Path]::GetDirectoryName($target)) | Out-Null
+$bitmap = New-Object Drawing.Bitmap 256,256
+$graphics = [Drawing.Graphics]::FromImage($bitmap)
+$graphics.SmoothingMode = [Drawing.Drawing2D.SmoothingMode]::AntiAlias
+$graphics.Clear([Drawing.Color]::FromArgb(8,14,30))
+$background = New-Object Drawing.SolidBrush ([Drawing.Color]::FromArgb(20,34,62))
+$cyan = New-Object Drawing.SolidBrush ([Drawing.Color]::FromArgb(69,215,234))
+$violet = New-Object Drawing.SolidBrush ([Drawing.Color]::FromArgb(168,104,255))
+$white = New-Object Drawing.SolidBrush ([Drawing.Color]::FromArgb(244,249,255))
+$graphics.FillEllipse($background,12,12,232,232)
+$graphics.FillPie($violet,29,29,198,198,205,95)
+$graphics.FillEllipse($background,45,45,166,166)
+$play = [Drawing.PointF[]]@((New-Object Drawing.PointF 92,73),(New-Object Drawing.PointF 92,183),(New-Object Drawing.PointF 181,128))
+$graphics.FillPolygon($cyan,$play)
+$bars = @(56,39,68,30,51)
+for($i=0;$i -lt $bars.Count;$i++) {
+  $height=$bars[$i]; $x=55+($i*23); $graphics.FillRectangle($white,$x,128-($height/2),9,$height)
+}
+$handle=$bitmap.GetHicon()
+try {
+  $icon=[Drawing.Icon]::FromHandle($handle)
+  $stream=[IO.File]::Create($target)
+  try { $icon.Save($stream) } finally { $stream.Dispose(); $icon.Dispose() }
+} finally {
+  $graphics.Dispose(); $bitmap.Dispose()
+  Add-Type -TypeDefinition 'using System; using System.Runtime.InteropServices; public static class IconNative { [DllImport("user32.dll")] public static extern bool DestroyIcon(IntPtr h); }'
+  [IconNative]::DestroyIcon($handle) | Out-Null
+}
+Write-Host "GameNarrator icon generated: $target"
+``
+
+### FILE: scripts/setup-media-importer.ps1
+
+``powershell
+$ErrorActionPreference = "Stop"
+$toolDir = Join-Path $PSScriptRoot "..\tools\yt-dlp"
+$exePath = Join-Path $toolDir "yt-dlp.exe"
+$sumPath = Join-Path $toolDir "SHA2-256SUMS"
+New-Item -ItemType Directory -Path $toolDir -Force | Out-Null
+
+Invoke-WebRequest -UseBasicParsing `
+  -Uri "https://github.com/yt-dlp/yt-dlp/releases/latest/download/yt-dlp.exe" `
+  -OutFile $exePath
+Invoke-WebRequest -UseBasicParsing `
+  -Uri "https://github.com/yt-dlp/yt-dlp/releases/latest/download/SHA2-256SUMS" `
+  -OutFile $sumPath
+
+$expectedLine = Get-Content -LiteralPath $sumPath |
+  Where-Object { $_ -match "\syt-dlp\.exe$" } |
+  Select-Object -First 1
+if (-not $expectedLine) { throw "Official checksum for yt-dlp.exe was not found." }
+$expected = ($expectedLine -split "\s+")[0].ToLowerInvariant()
+$actual = (Get-FileHash -LiteralPath $exePath -Algorithm SHA256).Hash.ToLowerInvariant()
+if ($actual -ne $expected) {
+  Remove-Item -LiteralPath $exePath -Force
+  throw "yt-dlp SHA-256 verification failed."
+}
+Write-Host "Media importer ready: $exePath"
+``
+
+### FILE: scripts/setup-piper.ps1
+
+``powershell
+$ErrorActionPreference = 'Stop'
+$projectRoot = Split-Path -Parent $PSScriptRoot
+$toolRoot = Join-Path $projectRoot 'tools\piper'
+$modelRoot = Join-Path $projectRoot 'models\piper'
+$archive = Join-Path $toolRoot 'piper_windows_amd64.zip'
+
+New-Item -ItemType Directory -Force -Path $toolRoot, $modelRoot | Out-Null
+
+if (-not (Test-Path (Join-Path $toolRoot 'piper\piper.exe'))) {
+    Write-Host 'Downloading Piper for Windows...'
+    Invoke-WebRequest -UseBasicParsing -Uri 'https://github.com/rhasspy/piper/releases/download/2023.11.14-2/piper_windows_amd64.zip' -OutFile $archive
+    Expand-Archive -Path $archive -DestinationPath $toolRoot -Force
+}
+
+$voice = Join-Path $modelRoot 'zh_CN-huayan-medium.onnx'
+$voiceConfig = "$voice.json"
+if (-not (Test-Path $voice)) {
+    Write-Host 'Downloading Piper Chinese voice...'
+    Invoke-WebRequest -UseBasicParsing -Uri 'https://huggingface.co/rhasspy/piper-voices/resolve/main/zh/zh_CN/huayan/medium/zh_CN-huayan-medium.onnx?download=true' -OutFile $voice
+}
+if (-not (Test-Path $voiceConfig)) {
+    Invoke-WebRequest -UseBasicParsing -Uri 'https://huggingface.co/rhasspy/piper-voices/resolve/main/zh/zh_CN/huayan/medium/zh_CN-huayan-medium.onnx.json?download=true' -OutFile $voiceConfig
+}
+
+Remove-Item $archive -ErrorAction SilentlyContinue
+Write-Host "Piper is ready: $voice"
+``
+
+### FILE: scripts/setup-vision-model.ps1
+
+``powershell
+$ErrorActionPreference = "Stop"
+
+$ollama = Get-Command ollama -ErrorAction SilentlyContinue
+if (-not $ollama) {
+  Write-Host "Installing Ollama..."
+  winget install --id Ollama.Ollama -e `
+    --accept-package-agreements --accept-source-agreements --silent
+  if ($LASTEXITCODE -ne 0) {
+    throw "Ollama installation failed with exit code $LASTEXITCODE"
+  }
+}
+
+$ollama = Get-Command ollama -ErrorAction SilentlyContinue
+if (-not $ollama) {
+  $ollamaPath = Join-Path $env:LOCALAPPDATA "Programs\Ollama\ollama.exe"
+  if (Test-Path -LiteralPath $ollamaPath) {
+    $ollama = Get-Item -LiteralPath $ollamaPath
+  } else {
+    throw "Ollama was installed but ollama.exe was not found. Reopen PowerShell and retry."
+  }
+}
+
+Write-Host "Downloading qwen2.5vl:3b..."
+& $ollama.Source pull qwen2.5vl:3b
+if ($LASTEXITCODE -ne 0) {
+  throw "Model download failed with exit code $LASTEXITCODE"
+}
+
+Write-Host "Vision model is ready: qwen2.5vl:3b"
+``
+
+### FILE: scripts/setup-whisper.ps1
+
+``powershell
+$ErrorActionPreference = "Stop"
+
+$projectRoot = Split-Path -Parent $PSScriptRoot
+$toolDirectory = Join-Path $projectRoot "tools\whisper"
+$modelDirectory = Join-Path $projectRoot "models"
+$archivePath = Join-Path $toolDirectory "whisper-bin.zip"
+$modelPath = Join-Path $modelDirectory "ggml-base.bin"
+
+New-Item -ItemType Directory -Force -Path $toolDirectory, $modelDirectory | Out-Null
+
+Write-Host "Downloading whisper.cpp..."
+curl.exe -L --retry 5 --retry-all-errors `
+  -o $archivePath `
+  "https://github.com/ggml-org/whisper.cpp/releases/download/v1.9.1/whisper-bin-x64.zip"
+if ($LASTEXITCODE -ne 0) {
+  throw "whisper.cpp download failed with exit code $LASTEXITCODE"
+}
+Expand-Archive -LiteralPath $archivePath -DestinationPath $toolDirectory -Force
+
+Write-Host "Downloading multilingual base model..."
+curl.exe -L --retry 5 --retry-all-errors `
+  -o $modelPath `
+  "https://huggingface.co/ggerganov/whisper.cpp/resolve/main/ggml-base.bin"
+if ($LASTEXITCODE -ne 0) {
+  throw "Whisper model download failed with exit code $LASTEXITCODE"
+}
+
+$executable = Join-Path $toolDirectory "Release\whisper-cli.exe"
+if (-not (Test-Path -LiteralPath $executable)) {
+  throw "Installation incomplete: $executable was not created"
+}
+
+Write-Host "Whisper is ready."
+Write-Host "Executable: $executable"
+Write-Host "Model: $modelPath"
+``
+
+### FILE: scripts/test-windows-clean-install.ps1
+
+``powershell
+param([string]$InstallRoot, [int]$Port = 18081, [switch]$BackendSmoke)
+$ErrorActionPreference='Stop'
+if (-not $InstallRoot) { $InstallRoot = Join-Path $env:LOCALAPPDATA 'Programs\GameNarrator' }
+$required = @(
+  'GameNarrator.exe','runtime\bin\java.exe','app\game-narrator.jar','tools\ffmpeg\bin\ffmpeg.exe',
+  'tools\whisper\Release\whisper-cli.exe','tools\piper\piper\piper.exe','tools\yt-dlp\yt-dlp.exe',
+  'models\whisper\ggml-base.bin','models\piper\zh_CN-huayan-medium.onnx'
+)
+$missing = $required | Where-Object { -not (Test-Path -LiteralPath (Join-Path $InstallRoot $_) -PathType Leaf) }
+if ($missing) { throw "Missing packaged components: $($missing -join ', ')" }
+foreach($command in @(
+  @('runtime\bin\java.exe','-version'), @('tools\ffmpeg\bin\ffmpeg.exe','-version'),
+  @('tools\whisper\Release\whisper-cli.exe','--help'), @('tools\piper\piper\piper.exe','--help'),
+  @('tools\yt-dlp\yt-dlp.exe','--version')
+)) {
+  $exe=Join-Path $InstallRoot $command[0]; $p=Start-Process -FilePath $exe -ArgumentList $command[1] -Wait -PassThru -WindowStyle Hidden
+  if($p.ExitCode -ne 0){throw "Packaged command failed: $($command[0])"}
+}
+Write-Host 'Packaged runtime smoke test passed without PATH dependencies.'
+if ($BackendSmoke) {
+  $smokeData = Join-Path $InstallRoot 'data'
+  New-Item -ItemType Directory -Path $smokeData -Force | Out-Null
+  $env:GAME_NARRATOR_APP_ROOT=$InstallRoot; $env:GAME_NARRATOR_DATA_ROOT=$smokeData
+  $env:OLLAMA_BASE_URL='http://127.0.0.1:19999'
+  $env:SERVER_PORT=$Port.ToString()
+  $stdout=Join-Path $smokeData 'stdout.log'; $stderr=Join-Path $smokeData 'stderr.log'
+  $startInfo=[Diagnostics.ProcessStartInfo]::new()
+  $startInfo.FileName=Join-Path $InstallRoot 'runtime\bin\java.exe'
+  $startInfo.WorkingDirectory=$InstallRoot
+  $startInfo.UseShellExecute=$false
+  $startInfo.CreateNoWindow=$true
+  $jarPath=Join-Path $InstallRoot 'app\game-narrator.jar'
+  $startInfo.Arguments='-Dfile.encoding=UTF-8 -jar "' + $jarPath + '" --spring.profiles.active=release'
+  $backend=[Diagnostics.Process]::Start($startInfo)
+  try {
+    $health=$null
+    for($attempt=0;$attempt -lt 120;$attempt++) {
+      try { $health=Invoke-RestMethod "http://127.0.0.1:$Port/api/debug/health" -TimeoutSec 2; break } catch { Start-Sleep -Milliseconds 500 }
+    }
+    if(-not $health) {
+      if(Test-Path $stdout){Get-Content $stdout -Tail 60}
+      if(Test-Path $stderr){Get-Content $stderr -Tail 60}
+      throw 'Packaged backend health check timed out'
+    }
+    if(-not $health.ffmpegAvailable -or -not $health.whisperAvailable -or -not $health.mediaImporterAvailable) {
+      $health | ConvertTo-Json -Depth 4; throw 'Packaged health report shows a missing bundled runtime'
+    }
+    Write-Host 'Packaged Spring Boot release profile health check passed.'
+  } finally {
+    if(-not $backend.HasExited) { Stop-Process -Id $backend.Id -Force; $backend.WaitForExit() }
+  }
+}
+Write-Host 'Launch GameNarrator.exe and verify the first-run model download, then run:'
+Write-Host "Invoke-RestMethod http://127.0.0.1:$Port/api/debug/health"
+``
+
+### FILE: src/main/java/cn/longer233/gamenarrator/ai/AdaptiveAiChatClient.java
+
+``java
+package cn.longer233.gamenarrator.ai;
+
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.stereotype.Component;
+
+import java.net.URI;
+import java.net.http.*;
+import java.nio.charset.StandardCharsets;
+import java.time.Duration;
+import java.util.*;
+
+@Component
+public class AdaptiveAiChatClient {
+    private final ObjectMapper mapper;
+    private final AiSettingsService settings;
+    private final AiUsageService usage;
+    private final HttpClient http = HttpClient.newBuilder().connectTimeout(Duration.ofSeconds(8)).build();
+    private final URI ollama;
+    private final String localVision;
+    private final String localText;
+    private final String cloudImagePolicy;
+    private volatile long localVisionCheckedAt;
+    private volatile boolean localVisionAvailable;
+
+    public AdaptiveAiChatClient(ObjectMapper mapper, AiSettingsService settings, AiUsageService usage,
+            @Value("${game-narrator.ollama.base-url:http://localhost:11434}") String ollama,
+            @Value("${game-narrator.ollama.vision-model:qwen2.5vl:3b}") String localVision,
+            @Value("${game-narrator.ollama.script-model:qwen2.5vl:3b}") String localText,
+            @Value("${game-narrator.ai.cloud-image-policy:LOCAL_FIRST}") String cloudImagePolicy) {
+        this.mapper=mapper; this.settings=settings; this.usage=usage; this.ollama=URI.create(ollama);
+        this.localVision=localVision; this.localText=localText;
+        this.cloudImagePolicy=cloudImagePolicy == null ? "LOCAL_FIRST" : cloudImagePolicy.trim().toUpperCase(Locale.ROOT);
+    }
+
+    public JsonNode chatJson(String prompt, List<String> images, boolean vision, Duration timeout) throws Exception {
+        AiSettingsService.Settings value=settings.current();
+        if ("LOCAL".equals(value.mode()) || (vision && "DEEPSEEK".equals(value.provider())))
+            return ollama(prompt, images, vision ? localVision : localText, timeout);
+        if (vision && "DASHSCOPE".equals(value.provider()) && "LOCAL_FIRST".equals(cloudImagePolicy)) {
+            if (localVisionAvailable()) return ollama(prompt, images, localVision, timeout);
+            throw new AiContentRejectedException("阿里云安全路由未上传原始截图；本地视觉模型不可用，已使用镜头规则");
+        }
+        if (value.apiKey().isBlank()) throw new IllegalStateException("请先在 AI 模型设置中填写云端 API Key");
+        String model=vision ? value.visionModel() : value.textModel();
+        String effectivePrompt = "DASHSCOPE".equals(value.provider()) ? minimizeCloudInput(prompt) : prompt;
+        return switch(value.provider()) {
+            case "ANTHROPIC" -> anthropic(effectivePrompt,images,model,value,timeout);
+            case "GEMINI" -> gemini(effectivePrompt,images,model,value,timeout);
+            default -> openAi(effectivePrompt, images, model, value, timeout);
+        };
+    }
+
+    public String activeModel(boolean vision) {
+        var value=settings.current();
+        return ("LOCAL".equals(value.mode()) || (vision && "DEEPSEEK".equals(value.provider()))) ? (vision ? localVision : localText)
+                : (vision ? value.visionModel() : value.textModel());
+    }
+
+    private JsonNode ollama(String prompt,List<String> images,String model,Duration timeout) throws Exception {
+        Map<String,Object> message=new LinkedHashMap<>(); message.put("role","user"); message.put("content",prompt);
+        if(!images.isEmpty()) message.put("images",images);
+        byte[] body=mapper.writeValueAsBytes(Map.of("model",model,"stream",false,"format","json",
+                "messages",List.of(message),"options",Map.of("temperature",0.2)));
+        HttpRequest request=HttpRequest.newBuilder(ollama.resolve("/api/chat")).timeout(timeout)
+                .header("Content-Type","application/json").POST(HttpRequest.BodyPublishers.ofByteArray(body)).build();
+        HttpResponse<String> response=http.send(request,HttpResponse.BodyHandlers.ofString(StandardCharsets.UTF_8));
+        if(response.statusCode()!=200) throw new IllegalStateException("本地模型 HTTP "+response.statusCode());
+        JsonNode root=mapper.readTree(response.body());
+        usage.record("LOCAL",model,root.path("prompt_eval_count").asLong(),root.path("eval_count").asLong(),0,0,0,0);
+        return parseJson(root.path("message").path("content").asText());
+    }
+
+    private JsonNode openAi(String prompt,List<String> images,String model,AiSettingsService.Settings value,Duration timeout) throws Exception {
+        Object content=prompt;
+        if(!images.isEmpty()) {
+            List<Map<String,Object>> parts=new ArrayList<>(); parts.add(Map.of("type","text","text",prompt));
+            images.forEach(image->parts.add(Map.of("type","image_url","image_url",Map.of("url","data:image/jpeg;base64,"+image))));
+            content=parts;
+        }
+        byte[] body=mapper.writeValueAsBytes(Map.of("model",model,"messages",List.of(Map.of("role","user","content",content)),
+                "temperature",0.2,"response_format",Map.of("type","json_object")));
+        String endpoint=openAiEndpoint(value.baseUrl());
+        HttpRequest request=HttpRequest.newBuilder(URI.create(endpoint)).timeout(timeout)
+                .header("Authorization","Bearer "+value.apiKey()).header("Content-Type","application/json")
+                .POST(HttpRequest.BodyPublishers.ofByteArray(body)).build();
+        HttpResponse<String> response=http.send(request,HttpResponse.BodyHandlers.ofString(StandardCharsets.UTF_8));
+        if(response.statusCode()/100!=2) {
+            JsonNode error=mapper.readTree(response.body()).path("error");
+            String detail=error.path("message").asText("").trim();
+            if(detail.length()>240) detail=detail.substring(0,240);
+            if (isContentRejected(response.body())) {
+                throw new AiContentRejectedException("云端模型拒绝了该条内容，已改用本地规则继续处理");
+            }
+            throw new IllegalStateException("云端模型 HTTP "+response.statusCode()+(detail.isBlank()?"":"："+detail));
+        }
+        JsonNode root=mapper.readTree(response.body());
+        JsonNode tokens=root.path("usage");
+        record(value,model,tokens.path("prompt_tokens").asLong(),tokens.path("completion_tokens").asLong(),
+                tokens.path("prompt_tokens_details").path("cached_tokens").asLong());
+        return parseJson(root.path("choices").path(0).path("message").path("content").asText());
+    }
+
+    private JsonNode anthropic(String prompt,List<String> images,String model,AiSettingsService.Settings value,Duration timeout) throws Exception {
+        List<Map<String,Object>> content=new ArrayList<>();
+        content.add(Map.of("type","text","text",prompt));
+        images.forEach(image->content.add(Map.of("type","image","source",Map.of("type","base64","media_type","image/jpeg","data",image))));
+        byte[] body=mapper.writeValueAsBytes(Map.of("model",model,"max_tokens",4096,"messages",List.of(Map.of("role","user","content",content))));
+        String endpoint=value.baseUrl().replaceAll("/+$","");
+        if(!endpoint.endsWith("/messages")) endpoint+="/messages";
+        HttpRequest request=HttpRequest.newBuilder(URI.create(endpoint)).timeout(timeout).header("x-api-key",value.apiKey())
+                .header("anthropic-version","2023-06-01").header("Content-Type","application/json")
+                .POST(HttpRequest.BodyPublishers.ofByteArray(body)).build();
+        HttpResponse<String> response=http.send(request,HttpResponse.BodyHandlers.ofString(StandardCharsets.UTF_8));
+        JsonNode root=mapper.readTree(response.body());
+        if(response.statusCode()/100!=2) throw providerError("Anthropic",response.statusCode(),root);
+        JsonNode tokens=root.path("usage");
+        record(value,model,tokens.path("input_tokens").asLong(),tokens.path("output_tokens").asLong(),
+                tokens.path("cache_read_input_tokens").asLong());
+        return parseJson(root.path("content").path(0).path("text").asText());
+    }
+
+    private JsonNode gemini(String prompt,List<String> images,String model,AiSettingsService.Settings value,Duration timeout) throws Exception {
+        List<Map<String,Object>> parts=new ArrayList<>(); parts.add(Map.of("text",prompt));
+        images.forEach(image->parts.add(Map.of("inlineData",Map.of("mimeType","image/jpeg","data",image))));
+        byte[] body=mapper.writeValueAsBytes(Map.of("contents",List.of(Map.of("role","user","parts",parts)),
+                "generationConfig",Map.of("responseMimeType","application/json")));
+        String rootUrl=value.baseUrl().replaceAll("/+$","");
+        String endpoint=rootUrl+"/models/"+java.net.URLEncoder.encode(model,StandardCharsets.UTF_8)+":generateContent";
+        HttpRequest request=HttpRequest.newBuilder(URI.create(endpoint)).timeout(timeout).header("x-goog-api-key",value.apiKey())
+                .header("Content-Type","application/json").POST(HttpRequest.BodyPublishers.ofByteArray(body)).build();
+        HttpResponse<String> response=http.send(request,HttpResponse.BodyHandlers.ofString(StandardCharsets.UTF_8));
+        JsonNode root=mapper.readTree(response.body());
+        if(response.statusCode()/100!=2) throw providerError("Gemini",response.statusCode(),root);
+        JsonNode tokens=root.path("usageMetadata");
+        record(value,model,tokens.path("promptTokenCount").asLong(),tokens.path("candidatesTokenCount").asLong(),
+                tokens.path("cachedContentTokenCount").asLong());
+        return parseJson(root.path("candidates").path(0).path("content").path("parts").path(0).path("text").asText());
+    }
+
+    private String openAiEndpoint(String baseUrl) {
+        String value=baseUrl.trim();
+        if(value.contains("/chat/completions")) return value;
+        int query=value.indexOf('?');
+        if(query<0) return value.replaceAll("/+$","")+"/chat/completions";
+        return value.substring(0,query).replaceAll("/+$","")+"/chat/completions"+value.substring(query);
+    }
+
+    private IllegalStateException providerError(String provider,int status,JsonNode root) {
+        String detail=root.path("error").path("message").asText(root.path("message").asText(""));
+        if(detail.length()>240) detail=detail.substring(0,240);
+        return new IllegalStateException(provider+" HTTP "+status+(detail.isBlank()?"":"："+detail));
+    }
+
+    private void record(AiSettingsService.Settings value,String model,long input,long output,long cached) {
+        usage.record(value.provider(),model,input,output,cached,value.inputPricePerMillion(),
+                value.outputPricePerMillion(),value.cachedInputPricePerMillion());
+    }
+
+    private JsonNode parseJson(String content) throws Exception {
+        String cleaned=content.trim().replaceFirst("^```(?:json)?\\s*","").replaceFirst("\\s*```$","");
+        return mapper.readTree(cleaned);
+    }
+
+    static boolean isContentRejected(String body) {
+        String value = Objects.toString(body, "").toLowerCase(Locale.ROOT);
+        return value.contains("inappropriate_content") || value.contains("inappropriate content")
+                || value.contains("data_inspection_failed") || value.contains("content_filter")
+                || value.contains("content moderation");
+    }
+
+    static String minimizeCloudInput(String prompt) {
+        String value = Objects.toString(prompt, "")
+                .replaceAll("(?s)(语音转写|语音参考)：.*?(?=\\n(?:画面时间线|高光片段|返回格式|字段)：)", "$1：[原始转写仅在本地保留]")
+                .replaceAll("(?i)(authorization|api[_-]?key|cookie)\\s*[:=]\\s*\\S+", "$1=***")
+                .replaceAll("https?://\\S+", "[链接已省略]")
+                .replaceAll("[\\p{Cntrl}&&[^\\r\\n\\t]]", "")
+                .trim();
+        return value.substring(0, Math.min(12_000, value.length()));
+    }
+
+    private boolean localVisionAvailable() {
+        long now = System.currentTimeMillis();
+        if (now - localVisionCheckedAt < 60_000) return localVisionAvailable;
+        synchronized (this) {
+            if (now - localVisionCheckedAt < 60_000) return localVisionAvailable;
+            try {
+                byte[] body = mapper.writeValueAsBytes(Map.of("model", localVision));
+                HttpRequest request = HttpRequest.newBuilder(ollama.resolve("/api/show")).timeout(Duration.ofSeconds(3))
+                        .header("Content-Type", "application/json").POST(HttpRequest.BodyPublishers.ofByteArray(body)).build();
+                localVisionAvailable = http.send(request, HttpResponse.BodyHandlers.discarding()).statusCode() == 200;
+            } catch (Exception ignored) { localVisionAvailable = false; }
+            localVisionCheckedAt = now;
+            return localVisionAvailable;
+        }
+    }
+}
+``
+
+### FILE: src/main/java/cn/longer233/gamenarrator/ai/AiContentRejectedException.java
+
+``java
+package cn.longer233.gamenarrator.ai;
+
+public class AiContentRejectedException extends IllegalStateException {
+    public AiContentRejectedException(String message) { super(message); }
+}
+``
+
+### FILE: src/main/java/cn/longer233/gamenarrator/ai/AiSettingsController.java
+
+``java
+package cn.longer233.gamenarrator.ai;
+
+import jakarta.validation.Valid;
+import jakarta.validation.constraints.Pattern;
+import org.springframework.web.bind.annotation.*;
+
+import java.time.Duration;
+import java.util.List;
+import java.util.Map;
+
+@RestController
+@RequestMapping("/api/ai-settings")
+public class AiSettingsController {
+    private final AiSettingsService service;
+    private final AdaptiveAiChatClient chatClient;
+    private final AiUsageService usageService;
+
+    public AiSettingsController(AiSettingsService service, AdaptiveAiChatClient chatClient, AiUsageService usageService) {
+        this.service = service;
+        this.chatClient = chatClient;
+        this.usageService = usageService;
+    }
+
+    @GetMapping
+    public AiSettingsService.PublicSettings get() { return service.publicView(); }
+
+    @PutMapping
+    public AiSettingsService.PublicSettings update(@Valid @RequestBody Update request) {
+        service.save(new AiSettingsService.Settings(request.mode(), request.provider(), request.apiKey(),
+                request.baseUrl(), request.visionModel(), request.textModel(),request.inputPricePerMillion(),
+                request.outputPricePerMillion(),request.cachedInputPricePerMillion()));
+        return service.publicView();
+    }
+
+    @PostMapping("/test")
+    public Map<String, Object> test() throws Exception {
+        chatClient.chatJson("只返回 JSON：{\"connected\":true}", List.of(), false, Duration.ofSeconds(30));
+        return Map.of("connected", true, "model", chatClient.activeModel(false));
+    }
+
+    @GetMapping("/usage")
+    public AiUsageService.UsageSnapshot usage(){return usageService.snapshot();}
+
+    public record Update(@Pattern(regexp = "LOCAL|CLOUD") String mode, String provider, String apiKey,
+                         String baseUrl, String visionModel, String textModel,Double inputPricePerMillion,
+                         Double outputPricePerMillion,Double cachedInputPricePerMillion) { }
+}
+``
+
+### FILE: src/main/java/cn/longer233/gamenarrator/ai/AiSettingsService.java
+
+``java
+package cn.longer233.gamenarrator.ai;
+
+import com.fasterxml.jackson.databind.ObjectMapper;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.stereotype.Service;
+
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.StandardCopyOption;
+
+@Service
+public class AiSettingsService {
+    private final ObjectMapper mapper;
+    private final Path file;
+
+    public AiSettingsService(ObjectMapper mapper,
+            @Value("${game-narrator.data-root:${GAME_NARRATOR_DATA_ROOT:./data}}") String dataRoot) {
+        this.mapper = mapper;
+        this.file = Path.of(dataRoot).toAbsolutePath().normalize().resolve("config").resolve("ai-settings.json");
+    }
+
+    public synchronized Settings current() {
+        try {
+            if (Files.isRegularFile(file)) return normalize(mapper.readValue(file.toFile(), Settings.class));
+        } catch (Exception ignored) { }
+        return defaults();
+    }
+
+    public synchronized Settings save(Settings requested) {
+        try {
+            Settings existing = current();
+            String key = requested.apiKey() == null || requested.apiKey().isBlank()
+                    ? existing.apiKey() : requested.apiKey().trim();
+            Settings value = normalize(new Settings(requested.mode(), requested.provider(), key,
+                    requested.baseUrl(), requested.visionModel(), requested.textModel(), requested.inputPricePerMillion(),
+                    requested.outputPricePerMillion(), requested.cachedInputPricePerMillion()));
+            Files.createDirectories(file.getParent());
+            Path temporary = Files.createTempFile(file.getParent(), "ai-settings-", ".tmp");
+            mapper.writerWithDefaultPrettyPrinter().writeValue(temporary.toFile(), value);
+            try {
+                Files.move(temporary, file, StandardCopyOption.ATOMIC_MOVE, StandardCopyOption.REPLACE_EXISTING);
+            } catch (Exception unsupported) {
+                Files.move(temporary, file, StandardCopyOption.REPLACE_EXISTING);
+            }
+            return value;
+        } catch (Exception exception) {
+            throw new IllegalStateException("无法保存 AI 设置：" + exception.getMessage(), exception);
+        }
+    }
+
+    public PublicSettings publicView() {
+        Settings value = current();
+        String masked = value.apiKey().isBlank() ? "" : "已配置（" + value.apiKey().substring(0, Math.min(4, value.apiKey().length())) + "••••）";
+        return new PublicSettings(value.mode(), value.provider(), masked, !value.apiKey().isBlank(),
+                value.baseUrl(), value.visionModel(), value.textModel(),value.inputPricePerMillion(),
+                value.outputPricePerMillion(),value.cachedInputPricePerMillion());
+    }
+
+    private Settings normalize(Settings value) {
+        String mode = "LOCAL".equalsIgnoreCase(value.mode()) ? "LOCAL" : "CLOUD";
+        String provider = blank(value.provider(), "DASHSCOPE").toUpperCase();
+        boolean deepSeek = "DEEPSEEK".equals(provider);
+        return new Settings(mode, provider, blank(value.apiKey(), ""),
+                blank(value.baseUrl(), deepSeek ? "https://api.deepseek.com" : "https://dashscope.aliyuncs.com/compatible-mode/v1"),
+                blank(value.visionModel(), deepSeek ? "qwen2.5vl:3b" : "qwen-vl-plus"),
+                blank(value.textModel(), deepSeek ? "deepseek-chat" : "qwen-plus"), positive(value.inputPricePerMillion()),
+                positive(value.outputPricePerMillion()),positive(value.cachedInputPricePerMillion()));
+    }
+
+    private Settings defaults() { return normalize(new Settings("CLOUD", "DASHSCOPE", "", "", "", "",0d,0d,0d)); }
+    private String blank(String value, String fallback) { return value == null || value.isBlank() ? fallback : value.trim(); }
+    private double positive(Double value){return value==null?0:Math.max(0,value);}
+
+    public record Settings(String mode, String provider, String apiKey, String baseUrl,
+                           String visionModel, String textModel,Double inputPricePerMillion,
+                           Double outputPricePerMillion,Double cachedInputPricePerMillion) { }
+    public record PublicSettings(String mode, String provider, String apiKeyMasked, boolean apiKeyConfigured,
+                                 String baseUrl, String visionModel, String textModel,double inputPricePerMillion,
+                                 double outputPricePerMillion,double cachedInputPricePerMillion) { }
+}
+``
+
+### FILE: src/main/java/cn/longer233/gamenarrator/ai/AiUsageService.java
+
+``java
+package cn.longer233.gamenarrator.ai;
+
+import com.fasterxml.jackson.databind.ObjectMapper;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.stereotype.Service;
+
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.StandardCopyOption;
+import java.time.LocalDate;
+
+@Service
+public class AiUsageService {
+    private final ObjectMapper mapper;
+    private final Path file;
+    private long sessionInput;
+    private long sessionOutput;
+    private long sessionCached;
+    private double sessionCost;
+    private UsageSnapshot last = UsageSnapshot.empty();
+
+    public AiUsageService(ObjectMapper mapper,
+            @Value("${game-narrator.data-root:${GAME_NARRATOR_DATA_ROOT:./data}}") String dataRoot) {
+        this.mapper = mapper;
+        this.file = Path.of(dataRoot).toAbsolutePath().normalize().resolve("config").resolve("ai-usage.json");
+    }
+
+    public synchronized void record(String provider, String model, long input, long output, long cached,
+                                    double inputPrice, double outputPrice, double cachedPrice) {
+        input=Math.max(0,input); output=Math.max(0,output); cached=Math.min(input,Math.max(0,cached));
+        double cost=((input-cached)*Math.max(0,inputPrice)+output*Math.max(0,outputPrice)+
+                cached*Math.max(0,cachedPrice))/1_000_000d;
+        sessionInput+=input; sessionOutput+=output; sessionCached+=cached; sessionCost+=cost;
+        DailyUsage daily=readDaily();
+        if(!LocalDate.now().toString().equals(daily.date())) daily=DailyUsage.empty();
+        daily=new DailyUsage(LocalDate.now().toString(),daily.input()+input,daily.output()+output,
+                daily.cached()+cached,daily.cost()+cost);
+        writeDaily(daily);
+        last=new UsageSnapshot(input,output,sessionInput,sessionOutput,sessionCached,cachePercent(sessionInput,sessionCached),
+                cost,daily.cost(),provider,model);
+    }
+
+    public synchronized UsageSnapshot snapshot() {
+        DailyUsage daily=readDaily();
+        double today=LocalDate.now().toString().equals(daily.date())?daily.cost():0;
+        return new UsageSnapshot(last.turnInput(),last.turnOutput(),sessionInput,sessionOutput,sessionCached,
+                cachePercent(sessionInput,sessionCached),last.turnCost(),today,last.provider(),last.model());
+    }
+
+    private double cachePercent(long input,long cached) { return input==0?0:cached*100d/input; }
+    private DailyUsage readDaily() {
+        try { if(Files.isRegularFile(file)) return mapper.readValue(file.toFile(),DailyUsage.class); }
+        catch(Exception ignored) { }
+        return DailyUsage.empty();
+    }
+    private void writeDaily(DailyUsage value) {
+        try {
+            Files.createDirectories(file.getParent());
+            Path temporary=Files.createTempFile(file.getParent(),"ai-usage-",".tmp");
+            mapper.writerWithDefaultPrettyPrinter().writeValue(temporary.toFile(),value);
+            try { Files.move(temporary,file,StandardCopyOption.ATOMIC_MOVE,StandardCopyOption.REPLACE_EXISTING); }
+            catch(Exception unsupported) { Files.move(temporary,file,StandardCopyOption.REPLACE_EXISTING); }
+        } catch(Exception exception) { throw new IllegalStateException("无法保存 AI 用量统计",exception); }
+    }
+
+    public record UsageSnapshot(long turnInput,long turnOutput,long sessionInput,long sessionOutput,long sessionCached,
+                                double cachePercent,double turnCost,double todayCost,String provider,String model) {
+        static UsageSnapshot empty(){return new UsageSnapshot(0,0,0,0,0,0,0,0,"","");}
+    }
+    private record DailyUsage(String date,long input,long output,long cached,double cost) {
+        static DailyUsage empty(){return new DailyUsage(LocalDate.now().toString(),0,0,0,0);}
+    }
+}
+``
+
+### FILE: src/main/java/cn/longer233/gamenarrator/asset/AiAssetTagger.java
+
+``java
+package cn.longer233.gamenarrator.asset;
+
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import cn.longer233.gamenarrator.ai.AdaptiveAiChatClient;
+import org.springframework.stereotype.Component;
+
+import java.util.ArrayList;
+import java.util.LinkedHashSet;
+import java.util.List;
+import java.util.regex.Pattern;
+import java.time.Duration;
+
+@Component
+public class AiAssetTagger {
+    private static final Pattern HAN = Pattern.compile("[\\p{IsHan}]");
+    private final AdaptiveAiChatClient client;
+    private final ObjectMapper objectMapper;
+
+    public AiAssetTagger(ObjectMapper objectMapper, AdaptiveAiChatClient client) {
+        this.objectMapper = objectMapper;
+        this.client = client;
+    }
+
+    public List<String> classify(String assetType, String title, List<String> sourceTags) {
+        try {
+            String prompt = """
+                    你是视频剪辑素材分类器。根据素材类型、标题和原始标签，从下面标准标签中选择1到5个：
+                    战斗、冲击、转场、掠过、喜剧、尴尬、失败、胜利、悬疑、恐怖、治愈、
+                    日常、热血、环境、循环、节奏、电子、管弦、角色反应、表情包、标题包装。
+                    仅返回JSON：{"tags":["标签"]}。
+                    素材类型：%s
+                    标题：%s
+                    原始标签：%s
+                    """.formatted(assetType, title, String.join("、", sourceTags));
+            JsonNode parsed = client.chatJson(prompt, List.of(), false, Duration.ofSeconds(20));
+            List<String> tags = new ArrayList<>();
+            parsed.path("tags").forEach(node -> {
+                String value = normalize(node.asText());
+                if (!value.isBlank()) tags.add(value);
+            });
+            return tags.isEmpty() ? fallback(title, sourceTags) : tags.stream().distinct().limit(5).toList();
+        } catch (Exception exception) {
+            return fallback(title, sourceTags);
+        }
+    }
+
+    public List<AssetAiAnalysis> analyzeBatch(List<AssetAiInput> assets) {
+        if (assets == null || assets.isEmpty()) return List.of();
+        List<AssetAiInput> bounded = assets.stream().limit(20).toList();
+        try {
+            String prompt = """
+                    你是中文视频剪辑素材分析器。请分析下面的素材，并严格返回 JSON。
+                    要求：
+                    1. 英文标题翻译成自然、简洁的中文标题；已有中文标题保持原意并适当润色。
+                    2. 将英文标签翻译成中文标签。
+                    3. 根据标题、类型和标签额外生成 3 到 6 个中文内容标签，覆盖场景、情绪、用途、动作或声音特征。
+                    4. chineseTitle、translatedTags、analysisTags 中禁止出现纯英文结果；专有名词可保留但必须带中文说明。
+                    5. 按输入顺序返回，不添加 Markdown。
+                    返回格式：{"assets":[{"chineseTitle":"中文标题","translatedTags":["中文标签"],"analysisTags":["中文标签"]}]}
+                    输入：%s
+                    """.formatted(objectMapper.writeValueAsString(bounded));
+            JsonNode rows = client.chatJson(prompt, List.of(), false, Duration.ofSeconds(30)).path("assets");
+            List<AssetAiAnalysis> result = new ArrayList<>();
+            for (int i = 0; i < bounded.size(); i++) {
+                JsonNode row = rows.isArray() && i < rows.size() ? rows.get(i) : objectMapper.createObjectNode();
+                String chineseTitle = chinese(row.path("chineseTitle").asText(), bounded.get(i).title());
+                List<String> translated = chineseTags(row.path("translatedTags"));
+                List<String> analysis = chineseTags(row.path("analysisTags"));
+                if (analysis.isEmpty()) analysis = fallback(bounded.get(i).title(), bounded.get(i).sourceTags());
+                result.add(new AssetAiAnalysis(chineseTitle, translated, analysis));
+            }
+            return result;
+        } catch (Exception exception) {
+            return bounded.stream().map(input -> new AssetAiAnalysis(
+                    chinese("", input.title()), translateFallback(input.sourceTags()),
+                    fallback(input.title(), input.sourceTags()))).toList();
+        }
+    }
+
+    private List<String> chineseTags(JsonNode nodes) {
+        LinkedHashSet<String> values = new LinkedHashSet<>();
+        if (nodes != null) nodes.forEach(node -> {
+            String value = normalize(node.asText());
+            if (!value.isBlank() && HAN.matcher(value).find()) values.add(value);
+        });
+        return values.stream().limit(8).toList();
+    }
+
+    private String chinese(String generated, String original) {
+        String value = generated == null ? "" : generated.trim();
+        if (!value.isBlank() && HAN.matcher(value).find()) return value.substring(0, Math.min(500, value.length()));
+        if (original != null && HAN.matcher(original).find()) return original.trim();
+        return fallbackTitle(original);
+    }
+
+    private String fallbackTitle(String title) {
+        String value = title == null ? "未命名素材" : title.trim();
+        String lower = value.toLowerCase();
+        if (lower.contains("green screen")) return "绿幕视频素材";
+        if (lower.contains("sound effect")) return "音效素材";
+        if (lower.contains("background music")) return "背景音乐素材";
+        if (lower.contains("funny") || lower.contains("reaction")) return "搞笑反应素材";
+        return value.isBlank() ? "未命名素材" : value.substring(0, Math.min(500, value.length()));
+    }
+
+    private List<String> translateFallback(List<String> sourceTags) {
+        LinkedHashSet<String> translated = new LinkedHashSet<>();
+        String text = String.join(" ", sourceTags == null ? List.of() : sourceTags).toLowerCase();
+        match(translated, text, "欢快", "happy", "upbeat", "cheerful");
+        match(translated, text, "搞笑", "funny", "comedy", "reaction");
+        match(translated, text, "背景音乐", "background", "music");
+        match(translated, text, "音效", "sound", "sfx");
+        match(translated, text, "绿幕", "green screen", "chroma key");
+        match(translated, text, "游戏", "game", "gaming");
+        return translated.stream().limit(8).toList();
+    }
+
+    public record AssetAiInput(String title, String assetType, List<String> sourceTags) { }
+    public record AssetAiAnalysis(String chineseTitle, List<String> translatedTags, List<String> analysisTags) { }
+
+    /** Fast, network-free classification for interactive catalog searches. */
+    public List<String> classifyFast(String assetType, String title, List<String> sourceTags) {
+        return fallback(title, sourceTags);
+    }
+
+    private List<String> fallback(String title, List<String> sourceTags) {
+        String text = (title + " " + String.join(" ", sourceTags)).toLowerCase();
+        LinkedHashSet<String> result = new LinkedHashSet<>();
+        match(result, text, "冲击", "impact", "hit", "boom", "explosion");
+        match(result, text, "转场", "whoosh", "swoosh", "transition");
+        match(result, text, "喜剧", "funny", "comedy", "laugh");
+        match(result, text, "恐怖", "horror", "suspense", "dark");
+        match(result, text, "战斗", "battle", "fight", "combat");
+        match(result, text, "环境", "ambient", "nature", "atmosphere");
+        match(result, text, "循环", "loop");
+        return result.stream().limit(5).toList();
+    }
+
+    private void match(LinkedHashSet<String> result, String text, String label, String... keywords) {
+        for (String keyword : keywords) {
+            if (text.contains(keyword)) {
+                result.add(label);
+                return;
+            }
+        }
+    }
+
+    private String normalize(String value) {
+        return value.trim().replaceAll("[#，,;；]", "").substring(0, Math.min(100,
+                value.trim().replaceAll("[#，,;；]", "").length()));
+    }
+}
+``
+
+### FILE: src/main/java/cn/longer233/gamenarrator/asset/AssetCatalogController.java
+
+``java
+package cn.longer233.gamenarrator.asset;
+
+import jakarta.validation.Valid;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.MediaType;
+import org.springframework.http.MediaTypeFactory;
+import org.springframework.core.io.FileSystemResource;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.*;
+import org.springframework.web.servlet.mvc.method.annotation.StreamingResponseBody;
+import jakarta.servlet.http.HttpServletRequest;
+
+import java.util.List;
+import java.util.UUID;
+import java.nio.file.Path;
+import java.net.HttpURLConnection;
+import cn.longer233.gamenarrator.importer.RemoteThumbnailService;
+import org.springframework.web.multipart.MultipartFile;
+
+@RestController
+@RequestMapping("/api/assets")
+public class AssetCatalogController {
+    private final AssetCatalogService service;
+    private final AssetLibraryProperties properties;
+    private final SafeRemoteHttpConnector remoteConnector;
+    private final RemoteThumbnailService thumbnailService;
+
+    public AssetCatalogController(AssetCatalogService service, AssetLibraryProperties properties,
+                                  SafeRemoteHttpConnector remoteConnector,
+                                  RemoteThumbnailService thumbnailService) {
+        this.service = service;
+        this.properties = properties;
+        this.remoteConnector = remoteConnector;
+        this.thumbnailService = thumbnailService;
+    }
+
+    @PostMapping({"/discover", "/discover/openverse"})
+    public List<AssetView> discover(@Valid @RequestBody AssetSearchRequest request) {
+        return service.discover(request);
+    }
+
+    @GetMapping("/discover/featured")
+    public List<AssetView> discoverFeatured() {
+        return service.discoverFeatured();
+    }
+
+    @GetMapping("/sources")
+    public List<DomesticSourceView> sources() {
+        return properties.getDomesticSources().stream().filter(AssetLibraryProperties.DomesticSource::isEnabled)
+                .sorted(java.util.Comparator.comparingInt(AssetLibraryProperties.DomesticSource::getPriority)
+                        .thenComparing(AssetLibraryProperties.DomesticSource::getName))
+                .map(source -> new DomesticSourceView(source.getId(), source.getName(), source.getUrl(), source.getSearchUrl(),
+                        source.getAssetTypes(), source.getRegion(), source.getPriority(), "RIGHTS_REVIEW_REQUIRED"))
+                .toList();
+    }
+
+    @GetMapping("/{id}/preview")
+    public ResponseEntity<FileSystemResource> preview(@PathVariable UUID id) throws java.io.IOException {
+        Path path = service.previewFile(id);
+        FileSystemResource resource = new FileSystemResource(path);
+        MediaType mediaType = MediaTypeFactory.getMediaType(path.getFileName().toString())
+                .orElse(MediaType.APPLICATION_OCTET_STREAM);
+        return ResponseEntity.ok()
+                .contentType(mediaType)
+                .contentLength(resource.contentLength())
+                .header(HttpHeaders.ACCEPT_RANGES, "bytes")
+                .header(HttpHeaders.CONTENT_DISPOSITION, "inline; filename=\"" + safeFileName(path) + "\"")
+                .header(HttpHeaders.CACHE_CONTROL, "private, max-age=3600")
+                .body(resource);
+    }
+
+    @GetMapping("/{id}/thumbnail")
+    public ResponseEntity<byte[]> thumbnail(@PathVariable UUID id) {
+        AssetCatalogService.RemoteThumbnailSource source = service.remoteThumbnail(id);
+        RemoteThumbnailService.ThumbnailContent content;
+        try {
+            content = thumbnailService.fetch(source.url(), source.referer());
+        } catch (RuntimeException primaryFailure) {
+            if (source.fallbackUrl() == null || source.fallbackUrl().equals(source.url())) throw primaryFailure;
+            content = thumbnailService.fetch(source.fallbackUrl(), source.referer());
+        }
+        return ResponseEntity.ok()
+                .contentType(MediaType.parseMediaType(content.contentType()))
+                .contentLength(content.bytes().length)
+                .header(HttpHeaders.CACHE_CONTROL, "private, max-age=3600")
+                .body(content.bytes());
+    }
+
+    @GetMapping("/{id}/remote-preview")
+    public ResponseEntity<StreamingResponseBody> remotePreview(@PathVariable UUID id,
+                                                               HttpServletRequest request) throws java.io.IOException {
+        AssetCatalogService.RemotePreviewSource source = service.remoteAudioPreview(id);
+        String range = request.getHeader(HttpHeaders.RANGE);
+        java.util.Map<String, String> headers = new java.util.LinkedHashMap<>();
+        headers.put("User-Agent", "GameNarrator/0.1");
+        headers.put("Accept", "audio/*,application/octet-stream;q=0.8");
+        if (range != null && range.matches("bytes=\\d*-\\d*")) headers.put("Range", range);
+        HttpURLConnection connection = remoteConnector.open(source.uri(), headers, 3);
+        int status = connection.getResponseCode();
+        if (status != HttpStatus.OK.value() && status != HttpStatus.PARTIAL_CONTENT.value()) {
+            connection.disconnect();
+            throw new IllegalStateException("在线试听源返回 HTTP " + status);
+        }
+        long length = connection.getContentLengthLong();
+        long maximum = 200L * 1024 * 1024;
+        if (length > maximum) {
+            connection.disconnect();
+            throw new IllegalStateException("在线试听文件超过 200MB 限制");
+        }
+        String contentType = connection.getContentType();
+        MediaType mediaType;
+        try { mediaType = contentType == null ? MediaType.APPLICATION_OCTET_STREAM : MediaType.parseMediaType(contentType); }
+        catch (Exception ignored) { mediaType = MediaType.APPLICATION_OCTET_STREAM; }
+        boolean playableAudio = "audio".equalsIgnoreCase(mediaType.getType())
+                || MediaType.APPLICATION_OCTET_STREAM.isCompatibleWith(mediaType)
+                || "ogg".equalsIgnoreCase(mediaType.getSubtype());
+        if (!playableAudio) {
+            connection.disconnect();
+            throw new IllegalStateException("试听地址没有返回可播放音频，而是 " + mediaType);
+        }
+        StreamingResponseBody body = output -> {
+            try (var input = connection.getInputStream()) {
+                byte[] buffer = new byte[64 * 1024];
+                long total = 0;
+                int count;
+                while ((count = input.read(buffer)) >= 0) {
+                    total += count;
+                    if (total > maximum) throw new java.io.IOException("试听流超过大小限制");
+                    output.write(buffer, 0, count);
+                    output.flush();
+                }
+            } finally {
+                connection.disconnect();
+            }
+        };
+        ResponseEntity.BodyBuilder response = ResponseEntity.status(status).contentType(mediaType)
+                .header(HttpHeaders.ACCEPT_RANGES, "bytes")
+                .header(HttpHeaders.CACHE_CONTROL, "private, no-store")
+                .header(HttpHeaders.CONTENT_DISPOSITION, "inline");
+        String contentRange = connection.getHeaderField(HttpHeaders.CONTENT_RANGE);
+        if (contentRange != null) response.header(HttpHeaders.CONTENT_RANGE, contentRange);
+        if (length >= 0) response.contentLength(length);
+        return response.body(body);
+    }
+
+    private String safeFileName(Path path) {
+        return path.getFileName().toString().replaceAll("[^A-Za-z0-9._-]", "_");
+    }
+
+    @GetMapping
+    public List<AssetView> list(@RequestParam(required = false) String assetType,
+                                @RequestParam(required = false) String query,
+                                @RequestParam(required = false) String provider,
+                                @RequestParam(required = false) String importStatus,
+                                @RequestParam(required = false) Boolean favorite,
+                                @RequestParam(defaultValue = "false") boolean archived,
+                                @RequestParam(defaultValue = "newest") String sort,
+                                @RequestParam(defaultValue = "false") boolean semantic,
+                                @RequestParam(defaultValue = "24") int limit) {
+        return service.list(assetType, query, provider, importStatus, favorite, archived, sort, semantic, limit);
+    }
+
+    @GetMapping("/{id}/similar")
+    public List<AssetView> similar(@PathVariable UUID id) {
+        return service.similar(id);
+    }
+
+    @PostMapping("/repair/bilibili-metadata")
+    public java.util.Map<String, Integer> repairBilibiliMetadata() {
+        return java.util.Map.of("repaired", service.repairBilibiliMetadata());
+    }
+
+    @PostMapping("/references")
+    @ResponseStatus(HttpStatus.CREATED)
+    public AssetView registerReference(@Valid @RequestBody AssetReferenceRequest request) {
+        return service.registerReference(request);
+    }
+
+    @PostMapping(value = "/upload", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    @ResponseStatus(HttpStatus.CREATED)
+    public AssetView upload(@RequestParam("file") MultipartFile file) {
+        return service.uploadLocal(file);
+    }
+
+    @PostMapping("/projects/{taskId}")
+    @ResponseStatus(HttpStatus.CREATED)
+    public AssetView registerCompletedProject(@PathVariable UUID taskId) {
+        return service.registerCompletedProject(taskId);
+    }
+
+    @PutMapping("/{id}/tags")
+    public AssetView updateTags(@PathVariable UUID id,
+                                @RequestBody AssetTagUpdateRequest request) {
+        return service.updateTags(id, request);
+    }
+
+    @PostMapping("/{id}/download")
+    @ResponseStatus(HttpStatus.ACCEPTED)
+    public AssetView download(@PathVariable UUID id) {
+        return service.download(id);
+    }
+
+    @PostMapping("/{id}/derive")
+    @ResponseStatus(HttpStatus.CREATED)
+    public AssetView derive(@PathVariable UUID id, @Valid @RequestBody AssetDerivativeRequest request) {
+        return service.derive(id, request);
+    }
+
+    @DeleteMapping("/{id}")
+    @ResponseStatus(HttpStatus.NO_CONTENT)
+    public void delete(@PathVariable UUID id) {
+        service.delete(id);
+    }
+
+    @PatchMapping("/{id}/state")
+    public AssetView updateState(@PathVariable UUID id,
+                                 @RequestBody AssetStateUpdateRequest request) {
+        return service.updateState(id, request);
+    }
+
+    public record DomesticSourceView(String id, String name, String url, String searchUrl, String assetTypes,
+                                     String region, int priority, String rightsPolicy) { }
+}
+``
+
+### FILE: src/main/java/cn/longer233/gamenarrator/asset/AssetCatalogService.java
+
+``java
+package cn.longer233.gamenarrator.asset;
+
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.jdbc.core.JdbcTemplate;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
+import java.io.InputStream;
+import java.net.HttpURLConnection;
+import java.net.InetAddress;
+import java.net.URI;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.charset.StandardCharsets;
+import java.time.OffsetDateTime;
+import java.time.Duration;
+import java.util.*;
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.Executor;
+import org.springframework.web.multipart.MultipartFile;
+import java.nio.file.StandardCopyOption;
+
+@Service
+public class AssetCatalogService {
+    private static final Logger log = LoggerFactory.getLogger(AssetCatalogService.class);
+    private static final UUID LOCAL_USER = UUID.fromString("00000000-0000-0000-0000-000000000001");
+    private static final long MAX_DOWNLOAD_BYTES = 100L * 1024 * 1024;
+    private static final long MAX_UPLOAD_BYTES = 500L * 1024 * 1024;
+    private final JdbcTemplate jdbc;
+    private final ObjectMapper objectMapper;
+    private final OpenverseAssetClient openverse;
+    private final WikimediaAssetClient wikimedia;
+    private final BilibiliAssetClient bilibili;
+    private final PexelsAssetClient pexels;
+    private final PixabayAssetClient pixabay;
+    private final AiAssetTagger aiTagger;
+    private final ChineseAssetQueryExpander queryExpander;
+    private final AssetLibraryProperties assetLibraryProperties;
+    private final BgeAssetSemanticSearch semanticSearch;
+    private final Executor taskExecutor;
+    private final SafeRemoteHttpConnector remoteConnector;
+    private final Path storageRoot;
+    private final String ffmpegCommand;
+    private final Set<UUID> localizationQueued = java.util.concurrent.ConcurrentHashMap.newKeySet();
+
+    public AssetCatalogService(JdbcTemplate jdbc, ObjectMapper objectMapper,
+                               OpenverseAssetClient openverse, WikimediaAssetClient wikimedia,
+                               BilibiliAssetClient bilibili, PexelsAssetClient pexels,
+                               PixabayAssetClient pixabay, AiAssetTagger aiTagger,
+                               ChineseAssetQueryExpander queryExpander, AssetLibraryProperties assetLibraryProperties,
+                               BgeAssetSemanticSearch semanticSearch,
+                               @Qualifier("taskExecutor") Executor taskExecutor,
+                               SafeRemoteHttpConnector remoteConnector,
+                               @Value("${game-narrator.storage-root}") String storageRoot,
+                               @Value("${game-narrator.ffmpeg-command}") String ffmpegCommand) {
+        this.jdbc = jdbc;
+        this.objectMapper = objectMapper;
+        this.openverse = openverse;
+        this.wikimedia = wikimedia;
+        this.bilibili = bilibili;
+        this.pexels = pexels;
+        this.pixabay = pixabay;
+        this.aiTagger = aiTagger;
+        this.queryExpander = queryExpander;
+        this.assetLibraryProperties = assetLibraryProperties;
+        this.semanticSearch = semanticSearch;
+        this.taskExecutor = taskExecutor;
+        this.remoteConnector = remoteConnector;
+        this.storageRoot = Path.of(storageRoot).toAbsolutePath().normalize();
+        this.ffmpegCommand = ffmpegCommand;
+    }
+
+    public List<AssetView> discoverFeatured() {
+        LinkedHashMap<UUID, AssetView> featured = new LinkedHashMap<>();
+        for (AssetLibraryProperties.FeaturedSearch search : assetLibraryProperties.getFeaturedSearches()) {
+            if (search.getAssetType() == null || search.getAssetType().isBlank()
+                    || search.getQuery() == null || search.getQuery().isBlank()) continue;
+            AssetSearchRequest request = new AssetSearchRequest(search.getQuery(), search.getAssetType(),
+                    assetLibraryProperties.getFeaturedPageSize(), 1, true, true, null, "RELEVANCE");
+            try {
+                for (AssetView asset : discover(request)) featured.putIfAbsent(asset.id(), asset);
+            } catch (Exception exception) {
+                log.warn("Featured asset search failed for type {}: {}", search.getAssetType(), exception.getMessage());
+                throw new IllegalStateException("在线开放素材源不可用；当前只能展示已保存到本地的素材", exception);
+            }
+        }
+        if (featured.isEmpty()) throw new IllegalStateException("在线开放素材源没有返回可用内容");
+        return new ArrayList<>(featured.values());
+    }
+
+    public List<AssetView> discover(AssetSearchRequest request) {
+        AssetSearchExpansion expansion = queryExpander.expand(request.query(), request.assetType());
+        AssetSearchRequest providerRequest = new AssetSearchRequest(expansion.providerQuery(),
+                request.assetType(), request.pageSize(), request.page(), request.commercialUse(),
+                request.allowModification(), request.provider(), request.sort());
+        Set<UUID> ids = Collections.synchronizedSet(new LinkedHashSet<>());
+        List<String> failures = Collections.synchronizedList(new ArrayList<>());
+        List<CompletableFuture<Void>> searches = new ArrayList<>();
+        int attemptedProviders = 0;
+        // Bilibili is a rights-review platform candidate, not an open-license source.
+        // It must be selected explicitly and must never crowd out open results.
+        if ("BILIBILI".equalsIgnoreCase(request.provider())
+                && bilibili.supports(request.assetType())) {
+            attemptedProviders++;
+            searches.add(CompletableFuture.runAsync(() -> discoverFrom("BILIBILI",
+                    () -> bilibili.search(request), request, expansion, ids, failures)));
+        }
+        if (providerSelected(request.provider(), "OPENVERSE")
+                && openverse.supports(request.assetType())) {
+            attemptedProviders++;
+            searches.add(CompletableFuture.runAsync(() ->
+                    discoverFrom("OPENVERSE", () -> openverse.search(providerRequest), request, expansion, ids, failures)));
+        }
+        if (providerSelected(request.provider(), "WIKIMEDIA")
+                && wikimedia.supports(request.assetType())) {
+            attemptedProviders++;
+            searches.add(CompletableFuture.runAsync(() ->
+                    discoverFrom("WIKIMEDIA", () -> wikimedia.search(providerRequest), request, expansion, ids, failures)));
+        }
+        if (providerSelected(request.provider(), "PEXELS")
+                && pexels.supports(request.assetType())) {
+            attemptedProviders++;
+            searches.add(CompletableFuture.runAsync(() ->
+                    discoverFrom("PEXELS", () -> pexels.search(providerRequest), request, expansion, ids, failures)));
+        }
+        if (providerSelected(request.provider(), "PIXABAY")
+                && pixabay.supports(request.assetType())) {
+            attemptedProviders++;
+            searches.add(CompletableFuture.runAsync(() ->
+                    discoverFrom("PIXABAY", () -> pixabay.search(providerRequest), request, expansion, ids, failures)));
+        }
+        requireConfiguredProvider(request);
+        CompletableFuture.allOf(searches.toArray(CompletableFuture[]::new)).join();
+        if (attemptedProviders == 0 || failures.size() == attemptedProviders) {
+            List<AssetView> cached = lexicalList(request.assetType(), request.query(), request.provider(), null, null, false, "newest");
+            if (!cached.isEmpty()) return cached;
+            throw new IllegalStateException(attemptedProviders == 0
+                    ? "当前公共素材源仍在恢复或尚未配置，请稍后重试或使用下方原站检索"
+                    : "公共素材源连接失败：" + String.join("、", failures));
+        }
+        scheduleChineseAi(ids);
+        return ids.stream().map(this::find)
+                .sorted(java.util.Comparator.comparingInt(asset -> providerPriority(asset.provider())))
+                .toList();
+    }
+
+    private boolean providerSelected(String requestedProvider, String provider) {
+        return requestedProvider == null || requestedProvider.isBlank()
+                || provider.equalsIgnoreCase(requestedProvider);
+    }
+
+    private void requireConfiguredProvider(AssetSearchRequest request) {
+        if ("PEXELS".equalsIgnoreCase(request.provider()) && !pexels.configured()) {
+            throw new IllegalStateException("Pexels 搜索尚未配置：请设置 PEXELS_API_KEY");
+        }
+        if ("PIXABAY".equalsIgnoreCase(request.provider()) && !pixabay.configured()) {
+            throw new IllegalStateException("Pixabay 搜索尚未配置：请设置 PIXABAY_API_KEY");
+        }
+    }
+
+    private void discoverFrom(String provider, java.util.function.Supplier<JsonNode> search,
+                              AssetSearchRequest request, AssetSearchExpansion expansion,
+                              Set<UUID> ids, List<String> failures) {
+        JsonNode response;
+        try {
+            response = search.get();
+        } catch (Exception exception) {
+            failures.add(provider);
+            log.warn("Open asset provider {} is temporarily unavailable: {}", provider, concise(exception));
+            return;
+        }
+        // Network calls run concurrently, but catalog writes are serialized so H2 and tag upserts
+        // never race across provider threads. Transaction context is intentionally not assumed here.
+        synchronized (this) {
+            for (JsonNode item : response.path("results")) {
+                UUID id = upsert(item, request.assetType().toUpperCase(Locale.ROOT), provider);
+                ids.add(id);
+                List<String> sourceTags = new ArrayList<>();
+                item.path("tags").forEach(tag -> {
+                    String value = tag.isObject() ? tag.path("name").asText() : tag.asText();
+                    if (!value.isBlank()) sourceTags.add(value);
+                });
+                assignTags(id, sourceTags.stream().limit(20).toList(), "SOURCE", 1.0, null);
+                assignTags(id, expansion.chineseTags(), "QUERY", 0.9, LOCAL_USER);
+                assignTags(id, aiTagger.classifyFast(request.assetType(), item.path("title").asText(), sourceTags),
+                        "AI", 0.65, null);
+            }
+        }
+    }
+
+    private int providerPriority(String provider) {
+        int index = assetLibraryProperties.getProviderPriority().indexOf(provider);
+        return index < 0 ? Integer.MAX_VALUE : index;
+    }
+
+    private String concise(Exception exception) {
+        String message = exception.getMessage();
+        if (message == null) return exception.getClass().getSimpleName();
+        if (message.contains("412")) return "HTTP 412 platform risk control";
+        return message.length() <= 240 ? message : message.substring(0, 240) + "…";
+    }
+
+    public List<AssetView> list(String assetType, String query) {
+        return list(assetType, query, null, null, null, false, "newest");
+    }
+
+    public List<AssetView> similar(UUID assetId) {
+        AssetView anchor = find(assetId);
+        return semanticSearch.similarTo(anchor,
+                list(anchor.assetType(), "", null, null, null, false, "newest"));
+    }
+
+    public int repairBilibiliMetadata() {
+        List<Map<String, Object>> rows = jdbc.queryForList("""
+                SELECT id,landing_url FROM external_asset
+                WHERE provider='BILIBILI' AND landing_url LIKE '%/video/BV%'
+                ORDER BY discovered_at DESC LIMIT 100
+                """);
+        int repaired = 0;
+        for (Map<String, Object> row : rows) {
+            UUID id = (UUID) row.get("ID");
+            String sourceUrl = String.valueOf(row.get("LANDING_URL"));
+            String bvid = extractBvid(sourceUrl);
+            if (bvid == null) continue;
+            try {
+                BilibiliAssetClient.VideoMetadata metadata = bilibili.metadata(bvid);
+                if (metadata.title().isBlank()) continue;
+                jdbc.update("""
+                        UPDATE external_asset SET title=?,localized_title=?,creator=?,duration_ms=?,
+                          preview_url=COALESCE(?,preview_url) WHERE id=?
+                        """, metadata.title(), metadata.title(), metadata.creator(), metadata.durationMs(),
+                        metadata.thumbnailUrl(), id);
+                jdbc.update("DELETE FROM asset_tag_assignment WHERE asset_id=? AND tag_source <> 'USER'", id);
+                jdbc.update("DELETE FROM asset_embedding WHERE asset_id=?", id);
+                assignTags(id, metadata.tags(), "SOURCE", 1.0, null);
+                repaired++;
+            } catch (Exception exception) {
+                log.warn("Bilibili metadata repair skipped bvid={}: {}", bvid, concise(exception));
+            }
+        }
+        return repaired;
+    }
+
+    public List<AssetView> list(String assetType, String query, String provider, String importStatus,
+                                Boolean favorite, boolean archived, String sort) {
+        return list(assetType, query, provider, importStatus, favorite, archived, sort, true);
+    }
+
+    public List<AssetView> list(String assetType, String query, String provider, String importStatus,
+                                Boolean favorite, boolean archived, String sort, boolean semanticEnabled) {
+        return list(assetType, query, provider, importStatus, favorite, archived, sort, semanticEnabled, 100);
+    }
+
+    public List<AssetView> list(String assetType, String query, String provider, String importStatus,
+                                Boolean favorite, boolean archived, String sort, boolean semanticEnabled,
+                                int requestedLimit) {
+        int limit = Math.max(1, Math.min(60, requestedLimit));
+        if (semanticEnabled && query != null && !query.isBlank()) {
+            List<AssetView> semantic = semanticSearch.rerank(query,
+                    lexicalList(assetType, "", provider, importStatus, favorite, archived, sort,
+                            Math.min(100, Math.max(60, limit * 3))));
+            if (!semantic.isEmpty()) return semantic.stream().limit(limit).toList();
+        }
+        return lexicalList(assetType, query, provider, importStatus, favorite, archived, sort, limit);
+    }
+
+    private List<AssetView> lexicalList(String assetType, String query, String provider, String importStatus,
+                                        Boolean favorite, boolean archived, String sort) {
+        return lexicalList(assetType, query, provider, importStatus, favorite, archived, sort, 100);
+    }
+
+    private List<AssetView> lexicalList(String assetType, String query, String provider, String importStatus,
+                                        Boolean favorite, boolean archived, String sort, int requestedLimit) {
+        int limit = Math.max(1, Math.min(100, requestedLimit));
+        String type = assetType == null || assetType.isBlank() ? "%" : assetType.toUpperCase(Locale.ROOT);
+        String text = query == null ? "" : query.trim().toLowerCase(Locale.ROOT);
+        String providerFilter = provider == null || provider.isBlank() ? "%" : provider.toUpperCase(Locale.ROOT);
+        String statusFilter = importStatus == null || importStatus.isBlank() ? "%" : importStatus.toUpperCase(Locale.ROOT);
+        String order = switch (String.valueOf(sort).toLowerCase(Locale.ROOT)) {
+            case "oldest" -> "asset.discovered_at ASC";
+            case "title" -> "LOWER(asset.title) ASC";
+            default -> "asset.discovered_at DESC";
+        };
+        String sql = """
+                SELECT DISTINCT asset.id, asset.discovered_at FROM external_asset asset
+                WHERE asset.asset_type LIKE ? AND asset.provider LIKE ? AND asset.import_status LIKE ?
+                  AND asset.archived=? AND (? IS NULL OR asset.favorite=?) AND (
+                    LOWER(asset.title) LIKE ? OR LOWER(COALESCE(asset.localized_title,'')) LIKE ?
+                    OR LOWER(COALESCE(asset.creator,'')) LIKE ?
+                    OR EXISTS (
+                        SELECT 1 FROM asset_tag_assignment assignment
+                        JOIN asset_tag tag ON tag.id=assignment.tag_id
+                        WHERE assignment.asset_id=asset.id
+                          AND LOWER(tag.display_name) LIKE ?
+                          AND NOT EXISTS (
+                              SELECT 1 FROM asset_tag_override override_tag
+                              WHERE override_tag.asset_id=asset.id
+                                AND override_tag.tag_id=tag.id
+                                AND override_tag.user_id=?
+                                AND override_tag.action='REMOVE'
+                          )
+                    )
+                    OR EXISTS (
+                        SELECT 1 FROM asset_tag_override override_tag
+                        JOIN asset_tag tag ON tag.id=override_tag.tag_id
+                        WHERE override_tag.asset_id=asset.id
+                          AND override_tag.user_id=?
+                          AND override_tag.action='ADD'
+                          AND LOWER(tag.display_name) LIKE ?
+                    )
+                )
+                ORDER BY """ + " " + order + " LIMIT " + limit;
+        List<AssetView> results = jdbc.query(sql, (rs, n) -> find(rs.getObject(1, UUID.class)), type,
+                providerFilter, statusFilter, archived, favorite, favorite,
+                "%" + text + "%", "%" + text + "%", "%" + text + "%", "%" + text + "%",
+                LOCAL_USER, LOCAL_USER, "%" + text + "%");
+        scheduleChineseAi(results.stream().map(AssetView::id).toList());
+        return results;
+    }
+
+    @Transactional
+    public AssetView updateState(UUID assetId, AssetStateUpdateRequest request) {
+        requireAsset(assetId);
+        if (request.favorite() != null) {
+            jdbc.update("UPDATE external_asset SET favorite=? WHERE id=?", request.favorite(), assetId);
+        }
+        if (request.archived() != null) {
+            jdbc.update("UPDATE external_asset SET archived=? WHERE id=?", request.archived(), assetId);
+        }
+        return find(assetId);
+    }
+
+    @Transactional
+    public AssetView registerReference(AssetReferenceRequest request) {
+        URI sourceUri = URI.create(request.sourceUrl());
+        validatePublicHttps(sourceUri);
+        if (request.previewUrl() != null && !request.previewUrl().isBlank()) {
+            validatePublicHttps(URI.create(request.previewUrl()));
+        }
+        if (request.downloadUrl() != null && !request.downloadUrl().isBlank()) {
+            validatePublicHttps(URI.create(request.downloadUrl()));
+        }
+        String provider = request.provider() == null || request.provider().isBlank()
+                ? providerFor(sourceUri.getHost()) : request.provider().toUpperCase(Locale.ROOT);
+        String title = cleanReferenceTitle(provider, request.title(), request.sourceUrl());
+        boolean repairedBilibiliTitle = !title.equals(request.title().trim());
+        String creator = request.creator();
+        String previewUrl = request.previewUrl();
+        Long durationMs = null;
+        List<String> importedTags = request.platformTags() == null ? List.of() : request.platformTags();
+        if ("BILIBILI".equals(provider)) {
+            String bvid = extractBvid(request.sourceUrl());
+            if (bvid != null) {
+                try {
+                    BilibiliAssetClient.VideoMetadata metadata = bilibili.metadata(bvid);
+                    title = metadata.title();
+                    creator = metadata.creator();
+                    previewUrl = metadata.thumbnailUrl();
+                    durationMs = metadata.durationMs();
+                    importedTags = metadata.tags();
+                    repairedBilibiliTitle = false;
+                } catch (Exception exception) {
+                    log.warn("Bilibili reference metadata lookup failed bvid={}: {}", bvid, concise(exception));
+                }
+            }
+        }
+        String externalId = UUID.nameUUIDFromBytes(request.sourceUrl().getBytes(StandardCharsets.UTF_8)).toString();
+        List<UUID> existing = jdbc.query(
+                "SELECT id FROM external_asset WHERE provider=? AND external_id=?",
+                (rs, n) -> rs.getObject(1, UUID.class), provider, externalId);
+        UUID id;
+        if (!existing.isEmpty()) {
+            id = existing.getFirst();
+        } else if (!"USER_REFERENCE".equals(provider)) {
+            List<UUID> legacy = jdbc.query(
+                    "SELECT id FROM external_asset WHERE provider='USER_REFERENCE' AND landing_url=?",
+                    (rs, n) -> rs.getObject(1, UUID.class), request.sourceUrl());
+            id = legacy.isEmpty() ? UUID.randomUUID() : legacy.getFirst();
+            if (!legacy.isEmpty()) {
+                jdbc.update("UPDATE external_asset SET provider=?,external_id=? WHERE id=?", provider, externalId, id);
+            }
+        } else {
+            id = UUID.randomUUID();
+        }
+        String metadata;
+        try {
+            metadata = objectMapper.writeValueAsString(Map.of(
+                    "registeredBy", LOCAL_USER.toString(),
+                    "sourceUrl", request.sourceUrl(),
+                    "platformTags", request.platformTags() == null ? List.of() : request.platformTags()));
+        } catch (Exception exception) {
+            metadata = "{}";
+        }
+        jdbc.update("""
+                MERGE INTO external_asset(id,provider,external_id,asset_type,title,creator,landing_url,
+                preview_url,download_url,license_code,license_url,attribution,duration_ms,local_path,
+                import_status,metadata_json,discovered_at,downloaded_at) KEY(provider,external_id)
+                VALUES(?,?,?,?,?,?,?,?,?,?,?,?,?,NULL,?,?,?,NULL)
+                """, id, provider, externalId, request.assetType(), title, creator,
+                request.sourceUrl(), previewUrl, request.downloadUrl(), request.licenseCode(), request.licenseUrl(),
+                request.attribution(), durationMs, request.downloadUrl() == null ? "REFERENCE_ONLY" : "DISCOVERED",
+                metadata, OffsetDateTime.now());
+        List<String> allTags = importedTags;
+        List<String> originTags = allTags.stream().filter(tag -> tag.startsWith("来源判断:")).toList();
+        List<String> platformTags = allTags.stream().filter(tag -> !tag.startsWith("来源判断:")).toList();
+        String tagSource = Set.of("BILIBILI", "OPENVERSE", "WIKIMEDIA").contains(provider) ? "SOURCE" : "PLATFORM";
+        if ("BILIBILI".equals(provider)) {
+            jdbc.update("DELETE FROM asset_tag_assignment WHERE asset_id=? AND tag_source <> 'USER'", id);
+        }
+        assignTags(id, platformTags, tagSource, 1.0, LOCAL_USER);
+        assignTags(id, originTags, "AI_ORIGIN", 0.55, null);
+        if (repairedBilibiliTitle) {
+            jdbc.update("DELETE FROM asset_tag_assignment WHERE asset_id=? AND tag_source IN ('AI','AI_TRANSLATION')", id);
+            jdbc.update("DELETE FROM asset_embedding WHERE asset_id=?", id);
+            jdbc.update("UPDATE external_asset SET localized_title=NULL WHERE id=?", id);
+        }
+        if (!"BILIBILI".equals(provider)) {
+            assignTags(id, aiTagger.classifyFast(request.assetType(), title, platformTags),
+                    "AI", 0.65, null);
+            enrichWithChineseAi(List.of(id));
+        }
+        return find(id);
+    }
+
+    @Transactional
+    public AssetView registerImportedMedia(ImportedMediaAsset imported, Path localPath) {
+        URI sourceUri = URI.create(imported.sourceUrl());
+        validatePublicHttps(sourceUri);
+        Path resolvedPath = localPath.toAbsolutePath().normalize();
+        Path importRoot = storageRoot.resolve("imports").normalize();
+        if (!resolvedPath.startsWith(importRoot) || !Files.isRegularFile(resolvedPath)) {
+            throw new IllegalArgumentException("导入素材文件不在授权目录中");
+        }
+        String provider = providerFor(sourceUri.getHost());
+        String externalId = UUID.nameUUIDFromBytes(
+                imported.sourceUrl().getBytes(StandardCharsets.UTF_8)).toString();
+        List<UUID> existing = jdbc.query(
+                "SELECT id FROM external_asset WHERE provider=? AND external_id=?",
+                (rs, n) -> rs.getObject(1, UUID.class), provider, externalId);
+        UUID id = existing.isEmpty() ? UUID.randomUUID() : existing.getFirst();
+        String title = imported.title() == null || imported.title().isBlank()
+                ? resolvedPath.getFileName().toString() : imported.title().trim();
+        String preview = normalizePreviewUrl(imported.previewUrl());
+        List<String> tags = imported.platformTags() == null ? List.of() : imported.platformTags();
+        List<String> originTags = tags.stream().filter(tag -> tag.startsWith("来源判断:")).toList();
+        List<String> platformTags = tags.stream().filter(tag -> !tag.startsWith("来源判断:")).toList();
+        String metadata;
+        try {
+            metadata = objectMapper.writeValueAsString(Map.of(
+                    "registeredBy", LOCAL_USER.toString(),
+                    "sourceUrl", imported.sourceUrl(),
+                    "rightsConfirmed", true,
+                    "sizeBytes", Files.size(resolvedPath),
+                    "platformTags", tags));
+        } catch (Exception exception) {
+            throw new IllegalStateException("无法保存导入素材元数据", exception);
+        }
+        Long durationMs = imported.durationSeconds() == null ? null
+                : Math.max(0L, Math.round(imported.durationSeconds() * 1000));
+        jdbc.update("""
+                MERGE INTO external_asset(id,provider,external_id,asset_type,title,creator,landing_url,
+                preview_url,download_url,license_code,license_url,attribution,duration_ms,local_path,
+                import_status,metadata_json,discovered_at,downloaded_at) KEY(provider,external_id)
+                VALUES(?,?,?,?,?,?,?,?,NULL,'USER_AUTHORIZED',NULL,?,?,?,?,?,?,?)
+                """, id, provider, externalId, "VIDEO", title, imported.creator(), imported.sourceUrl(),
+                preview, "用户确认拥有下载和再创作所需权利", durationMs, resolvedPath.toString(),
+                "DOWNLOADED", metadata, OffsetDateTime.now(), OffsetDateTime.now());
+        assignTags(id, platformTags.stream().limit(20).toList(), "PLATFORM", 1.0, LOCAL_USER);
+        assignTags(id, originTags, "AI_ORIGIN", 0.55, null);
+        assignTags(id, aiTagger.classify("VIDEO", title, platformTags), "AI", 0.65, null);
+        enrichWithChineseAi(List.of(id));
+        return find(id);
+    }
+
+    @Transactional
+    public AssetView uploadLocal(MultipartFile file) {
+        if (file == null || file.isEmpty()) throw new IllegalArgumentException("请选择要上传的素材文件");
+        if (file.getSize() > MAX_UPLOAD_BYTES) throw new IllegalArgumentException("单个素材不能超过 500MB");
+        String original = file.getOriginalFilename() == null ? "local-asset" : file.getOriginalFilename();
+        String safeName = Path.of(original).getFileName().toString().replaceAll("[^\\p{L}\\p{N}._ -]", "_");
+        String contentType = file.getContentType() == null ? "" : file.getContentType().toLowerCase(Locale.ROOT);
+        String extension = extension(safeName).toLowerCase(Locale.ROOT);
+        String assetType = localAssetType(contentType, extension);
+        UUID id = UUID.randomUUID();
+        Path directory = storageRoot.resolve("library").resolve(id.toString()).normalize();
+        if (!directory.startsWith(storageRoot)) throw new IllegalStateException("素材存储目录配置无效");
+        Path destination = directory.resolve(safeName).normalize();
+        if (!destination.startsWith(directory)) throw new IllegalArgumentException("素材文件名无效");
+        try {
+            Files.createDirectories(directory);
+            try (InputStream input = file.getInputStream()) { Files.copy(input, destination, StandardCopyOption.REPLACE_EXISTING); }
+        } catch (Exception exception) {
+            throw new IllegalStateException("保存本地素材失败：" + exception.getMessage(), exception);
+        }
+        boolean greenScreen = "VIDEO".equals(assetType)
+                && safeName.toLowerCase(Locale.ROOT).matches(".*(green[ _-]?screen|chroma|greenscreen).*|.*绿幕.*");
+        Path stored = greenScreen ? createCutout(destination, directory) : destination;
+        String metadata;
+        try {
+            metadata = objectMapper.writeValueAsString(Map.of("originalName", original, "sizeBytes", file.getSize(),
+                    "contentType", contentType, "greenScreenDetected", greenScreen, "cutoutApplied", greenScreen));
+        } catch (Exception exception) { throw new IllegalStateException("无法保存素材元数据", exception); }
+        jdbc.update("""
+                INSERT INTO external_asset(id,provider,external_id,asset_type,title,creator,landing_url,
+                license_code,attribution,local_path,import_status,metadata_json,discovered_at,downloaded_at)
+                VALUES(?,'LOCAL_UPLOAD',?,?,?,?,?,'USER_AUTHORIZED',?,?,?,?,?,?)
+                """, id, id.toString(), assetType, safeName, "本地用户", "/api/assets/" + id + "/preview",
+                "用户从本地拖拽上传", stored.toString(), "DOWNLOADED", metadata, OffsetDateTime.now(), OffsetDateTime.now());
+        List<String> tags = new ArrayList<>(aiTagger.classifyFast(assetType, safeName, List.of("本地上传")));
+        tags.add("本地上传");
+        if (greenScreen) { tags.add("绿幕"); tags.add("已抠图"); tags.add("主体素材"); }
+        assignTags(id, tags, greenScreen ? "AI" : "USER", greenScreen ? 0.95 : 0.8, greenScreen ? null : LOCAL_USER);
+        return find(id);
+    }
+
+    private String localAssetType(String contentType, String extension) {
+        if (contentType.startsWith("video/") || Set.of("mp4","mov","mkv","webm","avi").contains(extension)) return "VIDEO";
+        if (contentType.startsWith("image/") || Set.of("png","jpg","jpeg","gif","webp").contains(extension)) return "MEME";
+        if (contentType.startsWith("audio/") || Set.of("mp3","wav","ogg","m4a","flac","aac").contains(extension)) return "SFX";
+        throw new IllegalArgumentException("仅支持视频、图片和音频素材");
+    }
+
+    private Path createCutout(Path source, Path directory) {
+        Path output = directory.resolve("cutout-" + source.getFileName().toString().replaceFirst("\\.[^.]+$", "") + ".webm").normalize();
+        try {
+            var result = cn.longer233.gamenarrator.common.ExternalProcessRunner.run(List.of(
+                    ffmpegCommand, "-nostdin", "-y", "-hide_banner", "-loglevel", "warning", "-threads", "0",
+                    "-i", source.toString(), "-vf", "chromakey=0x00FF00:0.18:0.08,format=yuva420p",
+                    "-an", "-c:v", "libvpx-vp9", "-deadline", "realtime", "-cpu-used", "6",
+                    "-pix_fmt", "yuva420p", output.toString()), Duration.ofMinutes(2));
+            if (result.exitCode() != 0 || !Files.isRegularFile(output))
+                throw new IllegalStateException("FFmpeg 自动抠图失败：" + conciseOutput(result.output()));
+            return output;
+        } catch (cn.longer233.gamenarrator.common.ExternalProcessRunner.ProcessTimeoutException exception) {
+            throw new IllegalStateException("自动抠图超时", exception);
+        } catch (InterruptedException exception) {
+            Thread.currentThread().interrupt();
+            throw new IllegalStateException("自动抠图已中断", exception);
+        } catch (java.io.IOException exception) {
+            throw new IllegalStateException("无法启动 FFmpeg 自动抠图：" + exception.getMessage(), exception);
+        }
+    }
+
+    @Transactional
+    public AssetView registerCompletedProject(UUID taskId) {
+        List<Map<String, Object>> rows = jdbc.queryForList("""
+                SELECT name,status,rendered_video_path,generated_title,game_category,commentary_style,
+                       planned_output_duration_seconds
+                FROM video_tasks WHERE id=?
+                """, taskId);
+        if (rows.isEmpty()) throw new IllegalArgumentException("项目不存在：" + taskId);
+        Map<String, Object> task = rows.getFirst();
+        if (!"COMPLETED".equals(String.valueOf(task.get("STATUS")))) {
+            throw new IllegalStateException("只有已完成并生成最终视频的项目才能加入素材库");
+        }
+        String renderedPath = text(task, "RENDERED_VIDEO_PATH");
+        if (renderedPath == null || renderedPath.isBlank()) throw new IllegalStateException("项目没有可用的最终视频");
+        Path source = Path.of(renderedPath).toAbsolutePath().normalize();
+        if (!source.startsWith(storageRoot) || !Files.isRegularFile(source)) {
+            throw new IllegalStateException("项目最终视频不存在或不在授权存储目录中");
+        }
+        Path projectDirectory = storageRoot.resolve("assets").resolve("projects").normalize();
+        if (!projectDirectory.startsWith(storageRoot)) throw new IllegalStateException("素材目录配置无效");
+        Path destination = projectDirectory.resolve(taskId + "." + extension(source.getFileName().toString())).normalize();
+        if (!destination.startsWith(projectDirectory)) throw new IllegalStateException("素材文件路径无效");
+        try {
+            Files.createDirectories(projectDirectory);
+            Files.copy(source, destination, java.nio.file.StandardCopyOption.REPLACE_EXISTING);
+        } catch (java.io.IOException exception) {
+            throw new IllegalStateException("无法复制项目成片到素材库", exception);
+        }
+
+        String generatedTitle = text(task, "GENERATED_TITLE");
+        String title = generatedTitle == null || generatedTitle.isBlank() ? text(task, "NAME") : generatedTitle;
+        String externalId = taskId.toString();
+        List<UUID> existing = jdbc.query("SELECT id FROM external_asset WHERE provider='PROJECT' AND external_id=?",
+                (rs, n) -> rs.getObject(1, UUID.class), externalId);
+        UUID assetId = existing.isEmpty() ? UUID.randomUUID() : existing.getFirst();
+        Long durationMs = null;
+        Object duration = task.get("PLANNED_OUTPUT_DURATION_SECONDS");
+        if (duration instanceof Number number) durationMs = Math.max(0L, Math.round(number.doubleValue() * 1000));
+        String metadata;
+        try {
+            metadata = objectMapper.writeValueAsString(Map.of("taskId", externalId, "source", "completed-project"));
+        } catch (Exception exception) {
+            throw new IllegalStateException("无法保存项目素材元数据", exception);
+        }
+        jdbc.update("""
+                MERGE INTO external_asset(id,provider,external_id,asset_type,title,creator,landing_url,
+                preview_url,download_url,license_code,license_url,attribution,duration_ms,local_path,
+                import_status,metadata_json,discovered_at,downloaded_at) KEY(provider,external_id)
+                VALUES(?,'PROJECT',?,'VIDEO',?,'GameNarrator',?,NULL,NULL,'USER_AUTHORIZED',NULL,?,?,?,?,?,?,?)
+                """, assetId, externalId, title, "/api/tasks/" + taskId + "/preview",
+                "用户创建并加入素材库的已完成项目", durationMs, destination.toString(), "DOWNLOADED",
+                metadata, OffsetDateTime.now(), OffsetDateTime.now());
+        List<String> tags = new ArrayList<>(List.of("已完成项目"));
+        String category = text(task, "GAME_CATEGORY");
+        String style = text(task, "COMMENTARY_STYLE");
+        if (category != null && !category.isBlank()) tags.add(category);
+        if (style != null && !style.isBlank()) tags.add(style);
+        assignTags(assetId, tags, "PROJECT", 1.0, LOCAL_USER);
+        assignTags(assetId, aiTagger.classifyFast("VIDEO", title, tags), "AI", 0.65, null);
+        return find(assetId);
+    }
+
+    @Transactional
+    public AssetView updateTags(UUID assetId, AssetTagUpdateRequest request) {
+        requireAsset(assetId);
+        if (request.add() != null) {
+            for (String tag : request.add()) override(assetId, tag, "ADD");
+        }
+        if (request.remove() != null) {
+            for (String tag : request.remove()) override(assetId, tag, "REMOVE");
+        }
+        return find(assetId);
+    }
+
+    @Transactional
+    public AssetView download(UUID assetId) {
+        Map<String, Object> row = jdbc.queryForMap(
+                "SELECT download_url,license_code,title FROM external_asset WHERE id=?", assetId);
+        String license = String.valueOf(row.get("LICENSE_CODE")).toLowerCase(Locale.ROOT);
+        if (!Set.of("cc0", "pdm", "by", "by-sa", "pexels_license", "pixabay_content_license").contains(license)) {
+            throw new IllegalStateException("该素材许可证不在自动下载白名单中，请在原始页面人工确认");
+        }
+        URI uri = URI.create(String.valueOf(row.get("DOWNLOAD_URL")));
+        validatePublicHttps(uri);
+        try {
+            Path directory = storageRoot.resolve("library").resolve(assetId.toString());
+            Files.createDirectories(directory);
+            String extension = extension(uri.getPath());
+            Path output = directory.resolve("source." + extension);
+            HttpURLConnection connection = remoteConnector.open(uri,
+                    Map.of("User-Agent", "GameNarrator/0.1"), 3);
+            int status = connection.getResponseCode();
+            if (status < 200 || status >= 300) throw new IllegalStateException("素材下载返回 HTTP " + status);
+            long length = connection.getContentLengthLong();
+            if (length > MAX_DOWNLOAD_BYTES) throw new IllegalStateException("素材超过 100MB 自动下载限制");
+            try (InputStream input = connection.getInputStream();
+                 var outputStream = Files.newOutputStream(output)) {
+                byte[] buffer = new byte[64 * 1024];
+                long total = 0;
+                int count;
+                while ((count = input.read(buffer)) >= 0) {
+                    total += count;
+                    if (total > MAX_DOWNLOAD_BYTES) throw new IllegalStateException("素材超过 100MB 自动下载限制");
+                    outputStream.write(buffer, 0, count);
+                }
+            }
+            jdbc.update("""
+                    UPDATE external_asset SET local_path=?,import_status='DOWNLOADED',downloaded_at=? WHERE id=?
+                    """, output.toString(), OffsetDateTime.now(), assetId);
+            return find(assetId);
+        } catch (java.io.IOException exception) {
+            throw new IllegalStateException("素材下载失败：" + exception.getMessage(), exception);
+        }
+    }
+
+    @Transactional
+    public AssetView derive(UUID assetId, AssetDerivativeRequest request) {
+        AssetView source = find(assetId);
+        if (!"VIDEO".equals(source.assetType())) throw new IllegalArgumentException("只有视频素材可以提取画面或声音");
+        if (!"DOWNLOADED".equals(source.importStatus())) source = download(assetId);
+        Path input = Path.of(source.localPath()).toAbsolutePath().normalize();
+        Path directory = storageRoot.resolve("library").resolve(assetId.toString()).normalize();
+        if (!input.startsWith(storageRoot) || !directory.startsWith(storageRoot) || !Files.isRegularFile(input)) {
+            throw new IllegalStateException("视频文件不在授权素材目录中");
+        }
+        String mode = request.mode().toUpperCase(Locale.ROOT);
+        double timestamp = request.timestampSeconds() == null ? 0 : request.timestampSeconds();
+        String suffix = "FRAME".equals(mode) ? "frame-" + Math.round(timestamp * 1000) + ".jpg" : "audio.m4a";
+        Path output = directory.resolve(suffix).normalize();
+        List<String> command = new ArrayList<>(List.of(ffmpegCommand, "-y"));
+        if ("FRAME".equals(mode)) command.addAll(List.of("-ss", String.valueOf(timestamp)));
+        command.addAll(List.of("-i", input.toString()));
+        if ("FRAME".equals(mode)) command.addAll(List.of("-frames:v", "1", "-q:v", "2", output.toString()));
+        else command.addAll(List.of("-vn", "-c:a", "aac", "-b:a", "192k", output.toString()));
+        try {
+            var result = cn.longer233.gamenarrator.common.ExternalProcessRunner.run(command,
+                    java.time.Duration.ofMinutes(10));
+            if (result.exitCode() != 0 || !Files.isRegularFile(output)) {
+                throw new IllegalStateException("FFmpeg 提取失败：" + conciseOutput(result.output()));
+            }
+        } catch (java.io.IOException exception) {
+            throw new IllegalStateException("无法启动 FFmpeg：" + exception.getMessage(), exception);
+        } catch (InterruptedException exception) {
+            Thread.currentThread().interrupt();
+            throw new IllegalStateException("素材提取已中断", exception);
+        }
+        UUID derivedId = UUID.nameUUIDFromBytes((assetId + ":" + mode + ":" + timestamp)
+                .getBytes(StandardCharsets.UTF_8));
+        String derivedType = "FRAME".equals(mode) ? "MEME" : "SFX";
+        String title = source.title() + ("FRAME".equals(mode) ? " · 单帧" : " · 音轨");
+        jdbc.update("""
+                MERGE INTO external_asset(id,provider,external_id,asset_type,title,creator,landing_url,
+                preview_url,download_url,license_code,license_url,attribution,duration_ms,local_path,
+                import_status,metadata_json,discovered_at,downloaded_at) KEY(provider,external_id)
+                VALUES(?,?,?,?,?,?,?,?,NULL,?,?,?,?,?,?,?, ?,?)
+                """, derivedId, "LOCAL_DERIVED", assetId + ":" + mode + ":" + timestamp, derivedType,
+                title, source.creator(), source.landingUrl(), null, source.licenseCode(), source.licenseUrl(),
+                source.attribution(), "FRAME".equals(mode) ? null : source.durationMs(), output.toString(),
+                "DOWNLOADED", "{\"derivedFrom\":\"" + assetId + "\",\"mode\":\"" + mode + "\"}",
+                OffsetDateTime.now(), OffsetDateTime.now());
+        return find(derivedId);
+    }
+
+    private String conciseOutput(String output) {
+        if (output == null) return "无输出";
+        String value = output.strip();
+        return value.length() <= 600 ? value : value.substring(value.length() - 600);
+    }
+
+    @Transactional
+    public void delete(UUID assetId) {
+        List<String> paths = jdbc.query("SELECT local_path FROM external_asset WHERE id=?",
+                (rs, n) -> rs.getString(1), assetId);
+        if (paths.isEmpty()) throw new IllegalArgumentException("素材不存在：" + assetId);
+        jdbc.update("DELETE FROM asset_embedding WHERE asset_id=?", assetId);
+        jdbc.update("DELETE FROM asset_tag_override WHERE asset_id=?", assetId);
+        jdbc.update("DELETE FROM asset_tag_assignment WHERE asset_id=?", assetId);
+        jdbc.update("DELETE FROM external_asset WHERE id=?", assetId);
+        String localPath = paths.getFirst();
+        if (localPath != null && !localPath.isBlank()) deleteOwnedFile(assetId, localPath);
+    }
+
+    private void deleteOwnedFile(UUID assetId, String value) {
+        try {
+            Path path = Path.of(value).toAbsolutePath().normalize();
+            if (!path.startsWith(storageRoot) || path.equals(storageRoot)) {
+                throw new IllegalArgumentException("素材文件不在授权存储目录中");
+            }
+            Path libraryDirectory = storageRoot.resolve("library").resolve(assetId.toString()).normalize();
+            if (path.startsWith(libraryDirectory) && Files.isDirectory(libraryDirectory)) {
+                try (var entries = Files.walk(libraryDirectory)) {
+                    for (Path entry : entries.sorted(java.util.Comparator.reverseOrder()).toList()) {
+                        Files.deleteIfExists(entry);
+                    }
+                }
+            } else {
+                Files.deleteIfExists(path);
+            }
+        } catch (java.io.IOException exception) {
+            throw new IllegalStateException("素材记录已删除，但本地文件清理失败：" + exception.getMessage(), exception);
+        }
+    }
+
+    public AssetView find(UUID id) {
+        Map<String, Object> row = jdbc.queryForMap("SELECT * FROM external_asset WHERE id=?", id);
+        return new AssetView(id, text(row, "PROVIDER"), text(row, "ASSET_TYPE"), text(row, "TITLE"),
+                text(row, "LOCALIZED_TITLE"),
+                text(row, "CREATOR"), text(row, "LANDING_URL"), text(row, "PREVIEW_URL"), text(row, "DOWNLOAD_URL"),
+                text(row, "LICENSE_CODE"), text(row, "LICENSE_URL"), text(row, "ATTRIBUTION"),
+                row.get("DURATION_MS") == null ? null : ((Number) row.get("DURATION_MS")).longValue(),
+                text(row, "IMPORT_STATUS"), text(row, "LOCAL_PATH"),
+                Boolean.TRUE.equals(row.get("FAVORITE")), Boolean.TRUE.equals(row.get("ARCHIVED")), effectiveTags(id),
+                (OffsetDateTime) row.get("DISCOVERED_AT"));
+    }
+
+    public Path previewFile(UUID assetId) {
+        List<String> paths = jdbc.query("SELECT local_path FROM external_asset WHERE id=?",
+                (rs, n) -> rs.getString(1), assetId);
+        if (paths.isEmpty()) throw new IllegalArgumentException("素材不存在：" + assetId);
+        String value = paths.getFirst();
+        if (value == null || value.isBlank()) throw new IllegalStateException("该素材尚未下载，无法本地预览");
+        Path path = Path.of(value).toAbsolutePath().normalize();
+        if (!path.startsWith(storageRoot) || path.equals(storageRoot) || !Files.isRegularFile(path)) {
+            throw new IllegalStateException("素材预览文件不存在或不在授权存储目录中");
+        }
+        return path;
+    }
+
+    public RemotePreviewSource remoteAudioPreview(UUID assetId) {
+        Map<String, Object> row = jdbc.queryForMap("""
+                SELECT asset_type,title,download_url,preview_url,local_path
+                FROM external_asset WHERE id=?
+                """, assetId);
+        String type = text(row, "ASSET_TYPE");
+        if (!Set.of("SFX", "BGM").contains(type)) {
+            throw new IllegalArgumentException("只有音效和音乐支持远程试听");
+        }
+        if (text(row, "LOCAL_PATH") != null) {
+            throw new IllegalStateException("该素材已经下载，请使用本地预览接口");
+        }
+        String value = text(row, "DOWNLOAD_URL");
+        if (value == null || value.isBlank()) value = text(row, "PREVIEW_URL");
+        if (value == null || value.isBlank()) throw new IllegalStateException("该素材没有可用的试听地址");
+        URI uri = URI.create(value);
+        validatePublicHttps(uri);
+        return new RemotePreviewSource(uri, text(row, "TITLE"));
+    }
+
+    public record RemotePreviewSource(URI uri, String title) { }
+
+    public RemoteThumbnailSource remoteThumbnail(UUID assetId) {
+        Map<String, Object> row = jdbc.queryForMap("""
+                SELECT preview_url,download_url,landing_url,provider,asset_type FROM external_asset WHERE id=?
+                """, assetId);
+        String preview = text(row, "PREVIEW_URL");
+        if (preview == null || preview.isBlank()) throw new IllegalStateException("该素材没有可用的远程封面");
+        URI uri = URI.create(preview);
+        validatePublicHttps(uri);
+        String referer = text(row, "LANDING_URL");
+        if ("BILIBILI".equals(text(row, "PROVIDER"))) referer = "https://www.bilibili.com/";
+        String fallback = "MEME".equals(text(row, "ASSET_TYPE")) ? text(row, "DOWNLOAD_URL") : null;
+        if (fallback != null && !fallback.isBlank()) {
+            URI fallbackUri = URI.create(fallback);
+            validatePublicHttps(fallbackUri);
+            fallback = fallbackUri.toString();
+        }
+        return new RemoteThumbnailSource(uri.toString(), fallback, referer);
+    }
+
+    public record RemoteThumbnailSource(String url, String fallbackUrl, String referer) { }
+
+    private UUID upsert(JsonNode item, String assetType, String provider) {
+        String externalId = item.path("id").asText();
+        List<UUID> existing = jdbc.query("SELECT id FROM external_asset WHERE provider=? AND external_id=?",
+                (rs, n) -> rs.getObject(1, UUID.class), provider, externalId);
+        UUID id = existing.isEmpty() ? UUID.randomUUID() : existing.getFirst();
+        String metadata;
+        try { metadata = objectMapper.writeValueAsString(item); }
+        catch (Exception exception) { metadata = "{}"; }
+        boolean platformCandidate = Set.of("BILIBILI", "DOUYIN", "YOUTUBE", "TIKTOK").contains(provider);
+        jdbc.update("""
+                MERGE INTO external_asset(id,provider,external_id,asset_type,title,creator,landing_url,
+                preview_url,download_url,license_code,license_url,attribution,duration_ms,local_path,
+                import_status,metadata_json,discovered_at,downloaded_at) KEY(provider,external_id)
+                VALUES(?,?,?,?,?,?,?,?,?,?,?,?,?,NULL,?,?,?,NULL)
+                """, id, provider, externalId, assetType, item.path("title").asText("未命名素材"),
+                item.path("creator").asText(null), item.path("foreign_landing_url").asText(),
+                first(item, "thumbnail", "url"), platformCandidate ? null : item.path("url").asText(null),
+                item.path("license").asText("unknown"), item.path("license_url").asText(null),
+                item.path("attribution").asText(null), item.path("duration").isNumber()
+                        ? item.path("duration").asLong() : null,
+                platformCandidate ? "REFERENCE_ONLY" : "DISCOVERED", metadata, OffsetDateTime.now());
+        return id;
+    }
+
+    private void assignTags(UUID assetId, List<String> tags, String source, double confidence, UUID userId) {
+        for (String raw : tags) {
+            String normalized = normalize(raw);
+            if (normalized.isBlank()) continue;
+            UUID tagId = ensureTag(normalized, raw.trim());
+            jdbc.update("""
+                    MERGE INTO asset_tag_assignment(id,asset_id,tag_id,tag_source,confidence,created_by,created_at)
+                    KEY(asset_id,tag_id,tag_source) VALUES(?,?,?,?,?,?,?)
+                    """, UUID.randomUUID(), assetId, tagId, source, confidence, userId, OffsetDateTime.now());
+        }
+    }
+
+    private void enrichWithChineseAi(Collection<UUID> assetIds) {
+        if (assetIds == null || assetIds.isEmpty()) return;
+        List<UUID> pending = assetIds.stream().filter(id -> jdbc.queryForObject(
+                "SELECT localized_title IS NULL FROM external_asset WHERE id=?", Boolean.class, id))
+                .limit(20).toList();
+        if (pending.isEmpty()) return;
+        List<AssetView> assets = pending.stream().map(this::find).toList();
+        List<AiAssetTagger.AssetAiInput> inputs = assets.stream().map(asset ->
+                new AiAssetTagger.AssetAiInput(asset.title(), asset.assetType(),
+                        asset.tags().stream().map(AssetView.TagView::name).toList())).toList();
+        List<AiAssetTagger.AssetAiAnalysis> analyses = aiTagger.analyzeBatch(inputs);
+        for (int i = 0; i < Math.min(pending.size(), analyses.size()); i++) {
+            UUID id = pending.get(i);
+            AiAssetTagger.AssetAiAnalysis analysis = analyses.get(i);
+            jdbc.update("UPDATE external_asset SET localized_title=? WHERE id=?", analysis.chineseTitle(), id);
+            assignTags(id, analysis.translatedTags(), "AI_TRANSLATION", 0.75, null);
+            assignTags(id, analysis.analysisTags(), "AI", 0.7, null);
+            jdbc.update("DELETE FROM asset_embedding WHERE asset_id=?", id);
+        }
+    }
+
+    private void scheduleChineseAi(Collection<UUID> assetIds) {
+        if (assetIds == null || assetIds.isEmpty()) return;
+        List<UUID> batch = assetIds.stream().filter(localizationQueued::add).limit(20).toList();
+        if (batch.isEmpty()) return;
+        taskExecutor.execute(() -> {
+            try {
+                enrichWithChineseAi(batch);
+            } catch (Exception exception) {
+                log.warn("Background asset localization failed: {}", concise(exception));
+            } finally {
+                localizationQueued.removeAll(batch);
+            }
+        });
+    }
+
+    private void override(UUID assetId, String raw, String action) {
+        String normalized = normalize(raw);
+        if (normalized.isBlank()) return;
+        UUID tagId = ensureTag(normalized, raw.trim());
+        jdbc.update("""
+                MERGE INTO asset_tag_override(id,asset_id,tag_id,action,user_id,created_at)
+                KEY(asset_id,tag_id,user_id) VALUES(?,?,?,?,?,?)
+                """, UUID.randomUUID(), assetId, tagId, action, LOCAL_USER, OffsetDateTime.now());
+    }
+
+    private List<AssetView.TagView> effectiveTags(UUID assetId) {
+        return jdbc.query("""
+                SELECT t.normalized_name,t.display_name,
+                LISTAGG(DISTINCT a.tag_source, ',') sources,
+                MAX(CASE WHEN o.action='ADD' THEN 1 ELSE 0 END) user_added,
+                MAX(CASE WHEN o.action='REMOVE' THEN 1 ELSE 0 END) user_removed
+                FROM asset_tag t
+                LEFT JOIN asset_tag_assignment a ON a.tag_id=t.id AND a.asset_id=?
+                LEFT JOIN asset_tag_override o ON o.tag_id=t.id AND o.asset_id=? AND o.user_id=?
+                WHERE a.id IS NOT NULL OR o.id IS NOT NULL
+                GROUP BY t.normalized_name,t.display_name
+                HAVING MAX(CASE WHEN o.action='REMOVE' THEN 1 ELSE 0 END)=0
+                ORDER BY user_added DESC,t.display_name
+                """, (rs, n) -> new AssetView.TagView(rs.getString("display_name"),
+                rs.getString("sources") == null ? List.of() : List.of(rs.getString("sources").split(",")),
+                rs.getInt("user_added") == 1), assetId, assetId, LOCAL_USER);
+    }
+
+    private UUID ensureTag(String normalized, String display) {
+        List<UUID> ids = jdbc.query("SELECT id FROM asset_tag WHERE normalized_name=?",
+                (rs, n) -> rs.getObject(1, UUID.class), normalized);
+        if (!ids.isEmpty()) return ids.getFirst();
+        UUID id = UUID.randomUUID();
+        try {
+            jdbc.update("INSERT INTO asset_tag(id,normalized_name,display_name,created_at) VALUES(?,?,?,?)",
+                    id, normalized, display.substring(0, Math.min(100, display.length())), OffsetDateTime.now());
+            return id;
+        } catch (org.springframework.dao.DuplicateKeyException duplicate) {
+            return jdbc.queryForObject("SELECT id FROM asset_tag WHERE normalized_name=?", UUID.class, normalized);
+        }
+    }
+
+    private void requireAsset(UUID id) {
+        if (jdbc.queryForObject("SELECT COUNT(*) FROM external_asset WHERE id=?", Integer.class, id) == 0)
+            throw new IllegalArgumentException("素材不存在");
+    }
+
+    private void validatePublicHttps(URI uri) {
+        if (!"https".equalsIgnoreCase(uri.getScheme()) || uri.getHost() == null)
+            throw new IllegalArgumentException("只允许下载 HTTPS 素材地址");
+        try {
+            for (InetAddress address : InetAddress.getAllByName(uri.getHost())) {
+                if (address.isAnyLocalAddress() || address.isLoopbackAddress()
+                        || address.isSiteLocalAddress() || address.isLinkLocalAddress()) {
+                    throw new IllegalArgumentException("禁止访问本地或内网素材地址");
+                }
+            }
+        } catch (java.net.UnknownHostException exception) {
+            throw new IllegalArgumentException("素材地址无法解析");
+        }
+    }
+
+    private String first(JsonNode node, String first, String second) {
+        String value = node.path(first).asText();
+        return value.isBlank() ? node.path(second).asText(null) : value;
+    }
+
+    private String extension(String path) {
+        int dot = path.lastIndexOf('.');
+        String value = dot < 0 ? "bin" : path.substring(dot + 1).toLowerCase(Locale.ROOT);
+        return value.matches("[a-z0-9]{1,6}") ? value : "bin";
+    }
+
+    private String providerFor(String host) {
+        String value = host == null ? "" : host.toLowerCase(Locale.ROOT);
+        if (value.endsWith("bilibili.com") || value.endsWith("b23.tv")) return "BILIBILI";
+        if (value.endsWith("youtube.com") || value.endsWith("youtu.be")) return "YOUTUBE";
+        if (value.endsWith("douyin.com")) return "DOUYIN";
+        if (value.endsWith("tiktok.com")) return "TIKTOK";
+        return "USER_REFERENCE";
+    }
+
+    static String cleanReferenceTitle(String provider, String rawTitle, String sourceUrl) {
+        String title = rawTitle == null ? "" : rawTitle.replaceAll("\\s+", " ").trim();
+        if (!"BILIBILI".equals(provider)) return title;
+        boolean interfaceText = title.matches("(?i)^(?:添加至)?稍后再看.*")
+                || title.matches("^[\\d.]+(?:万|亿)?\\s*[\\d.]+(?:万|亿)?\\s*\\d{1,2}:\\d{2}$");
+        if (!interfaceText) return title;
+        java.util.regex.Matcher matcher = java.util.regex.Pattern.compile("(?i)/video/(BV[0-9A-Za-z]+)")
+                .matcher(sourceUrl);
+        return matcher.find() ? "Bilibili 视频 " + matcher.group(1) : "Bilibili 视频候选素材";
+    }
+
+    private String extractBvid(String sourceUrl) {
+        java.util.regex.Matcher matcher = java.util.regex.Pattern.compile("(?i)/video/(BV[0-9A-Za-z]+)")
+                .matcher(sourceUrl == null ? "" : sourceUrl);
+        return matcher.find() ? matcher.group(1) : null;
+    }
+
+    private String normalizePreviewUrl(String value) {
+        if (value == null || value.isBlank()) return null;
+        String normalized = value.startsWith("http://") ? "https://" + value.substring(7) : value;
+        validatePublicHttps(URI.create(normalized));
+        return normalized;
+    }
+
+    private String normalize(String value) {
+        if (value == null) return "";
+        String normalized = value.trim().toLowerCase(Locale.ROOT).replaceAll("[#，,;；]+", "");
+        return normalized.substring(0, Math.min(100, normalized.length()));
+    }
+
+    private String text(Map<String, Object> row, String key) {
+        return row.get(key) == null ? null : row.get(key).toString();
+    }
+}
+``
+
+### FILE: src/main/java/cn/longer233/gamenarrator/asset/AssetDerivativeRequest.java
+
+``java
+package cn.longer233.gamenarrator.asset;
+
+import jakarta.validation.constraints.Pattern;
+import jakarta.validation.constraints.PositiveOrZero;
+
+public record AssetDerivativeRequest(
+        @Pattern(regexp = "(?i)FRAME|AUDIO") String mode,
+        @PositiveOrZero Double timestampSeconds
+) { }
+``
+
+### FILE: src/main/java/cn/longer233/gamenarrator/asset/AssetLibraryProperties.java
+
+``java
+package cn.longer233.gamenarrator.asset;
+
+import org.springframework.boot.context.properties.ConfigurationProperties;
+import org.springframework.stereotype.Component;
+
+import java.util.ArrayList;
+import java.util.List;
+
+@Component
+@ConfigurationProperties(prefix = "game-narrator.asset-library")
+public class AssetLibraryProperties {
+    private int featuredPageSize = 3;
+    private List<FeaturedSearch> featuredSearches = new ArrayList<>();
+    private QueryExpansion queryExpansion = new QueryExpansion();
+    private List<String> providerPriority = new ArrayList<>(List.of(
+            "BILIBILI", "DOUYIN", "USER_REFERENCE", "OPENVERSE", "WIKIMEDIA"));
+    private List<DomesticSource> domesticSources = new ArrayList<>();
+
+    public int getFeaturedPageSize() {
+        return featuredPageSize;
+    }
+
+    public void setFeaturedPageSize(int featuredPageSize) {
+        this.featuredPageSize = Math.max(1, Math.min(12, featuredPageSize));
+    }
+
+    public List<FeaturedSearch> getFeaturedSearches() {
+        return featuredSearches;
+    }
+
+    public void setFeaturedSearches(List<FeaturedSearch> featuredSearches) {
+        this.featuredSearches = featuredSearches == null ? new ArrayList<>() : featuredSearches;
+    }
+
+    public QueryExpansion getQueryExpansion() {
+        return queryExpansion;
+    }
+
+    public void setQueryExpansion(QueryExpansion queryExpansion) {
+        this.queryExpansion = queryExpansion == null ? new QueryExpansion() : queryExpansion;
+    }
+
+    public List<String> getProviderPriority() { return providerPriority; }
+    public void setProviderPriority(List<String> value) {
+        providerPriority = value == null ? new ArrayList<>() : new ArrayList<>(value);
+    }
+    public List<DomesticSource> getDomesticSources() { return domesticSources; }
+    public void setDomesticSources(List<DomesticSource> value) {
+        domesticSources = value == null ? new ArrayList<>() : new ArrayList<>(value);
+    }
+
+    public static class DomesticSource {
+        private String id;
+        private String name;
+        private String url;
+        private String searchUrl;
+        private String assetTypes;
+        private String region = "DOMESTIC";
+        private int priority = 100;
+        private boolean enabled = true;
+        public String getId() { return id; }
+        public void setId(String id) { this.id = id; }
+        public String getName() { return name; }
+        public void setName(String name) { this.name = name; }
+        public String getUrl() { return url; }
+        public void setUrl(String url) { this.url = url; }
+        public String getSearchUrl() { return searchUrl; }
+        public void setSearchUrl(String searchUrl) { this.searchUrl = searchUrl; }
+        public String getAssetTypes() { return assetTypes; }
+        public void setAssetTypes(String assetTypes) { this.assetTypes = assetTypes; }
+        public String getRegion() { return region; }
+        public void setRegion(String region) {
+            this.region = region == null || region.isBlank() ? "DOMESTIC" : region.trim().toUpperCase();
+        }
+        public int getPriority() { return priority; }
+        public void setPriority(int priority) { this.priority = Math.max(0, priority); }
+        public boolean isEnabled() { return enabled; }
+        public void setEnabled(boolean enabled) { this.enabled = enabled; }
+    }
+
+    public static class QueryExpansion {
+        private List<Synonym> synonyms = new ArrayList<>();
+        private int aiTimeoutSeconds = 2;
+        private int cacheHours = 12;
+        private int cacheMaxEntries = 256;
+
+        public List<Synonym> getSynonyms() { return synonyms; }
+        public void setSynonyms(List<Synonym> synonyms) {
+            this.synonyms = synonyms == null ? new ArrayList<>() : new ArrayList<>(synonyms);
+        }
+        public int getAiTimeoutSeconds() { return aiTimeoutSeconds; }
+        public void setAiTimeoutSeconds(int value) { aiTimeoutSeconds = Math.max(1, Math.min(10, value)); }
+        public int getCacheHours() { return cacheHours; }
+        public void setCacheHours(int value) { cacheHours = Math.max(1, Math.min(168, value)); }
+        public int getCacheMaxEntries() { return cacheMaxEntries; }
+        public void setCacheMaxEntries(int value) { cacheMaxEntries = Math.max(16, Math.min(4096, value)); }
+
+        public static class Synonym {
+            private String intent;
+            private String terms;
+            public String getIntent() { return intent; }
+            public void setIntent(String intent) { this.intent = intent; }
+            public String getTerms() { return terms; }
+            public void setTerms(String terms) { this.terms = terms; }
+        }
+    }
+
+    public static class FeaturedSearch {
+        private String assetType;
+        private String query;
+
+        public String getAssetType() {
+            return assetType;
+        }
+
+        public void setAssetType(String assetType) {
+            this.assetType = assetType;
+        }
+
+        public String getQuery() {
+            return query;
+        }
+
+        public void setQuery(String query) {
+            this.query = query;
+        }
+    }
+}
+``
+
+### FILE: src/main/java/cn/longer233/gamenarrator/asset/AssetReferenceRequest.java
+
+``java
+package cn.longer233.gamenarrator.asset;
+
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.Pattern;
+import jakarta.validation.constraints.Size;
+
+import java.util.List;
+
+public record AssetReferenceRequest(
+        @Pattern(regexp = "OPENVERSE|WIKIMEDIA|BILIBILI|YOUTUBE|DOUYIN|TIKTOK|USER_REFERENCE") String provider,
+        @NotBlank @Pattern(regexp = "https://.+") String sourceUrl,
+        String previewUrl,
+        String downloadUrl,
+        @NotBlank @Size(max = 200) String title,
+        @Size(max = 120) String creator,
+        @NotBlank @Pattern(regexp = "SFX|BGM|MEME|VIDEO") String assetType,
+        @NotBlank @Size(max = 40) String licenseCode,
+        String licenseUrl,
+        @Size(max = 500) String attribution,
+        List<@Size(max = 100) String> platformTags
+) {
+}
+``
+
+### FILE: src/main/java/cn/longer233/gamenarrator/asset/AssetSearchExpansion.java
+
+``java
+package cn.longer233.gamenarrator.asset;
+
+import java.util.List;
+
+public record AssetSearchExpansion(String originalQuery, String providerQuery, List<String> chineseTags) {
+}
+``
+
+### FILE: src/main/java/cn/longer233/gamenarrator/asset/AssetSearchRequest.java
+
+``java
+package cn.longer233.gamenarrator.asset;
+
+import jakarta.validation.constraints.Max;
+import jakarta.validation.constraints.Min;
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.Pattern;
+
+public record AssetSearchRequest(
+        @NotBlank String query,
+        @NotBlank String assetType,
+        @Min(1) @Max(50) Integer pageSize,
+        @Min(1) @Max(100) Integer page,
+        Boolean commercialUse,
+        Boolean allowModification,
+        @Pattern(regexp = "(?i)OPENVERSE|WIKIMEDIA|BILIBILI|PEXELS|PIXABAY") String provider,
+        @Pattern(regexp = "(?i)RELEVANCE|NEWEST|POPULAR|DANMAKU") String sort
+) {
+}
+``
+
+### FILE: src/main/java/cn/longer233/gamenarrator/asset/AssetStateUpdateRequest.java
+
+``java
+package cn.longer233.gamenarrator.asset;
+
+public record AssetStateUpdateRequest(Boolean favorite, Boolean archived) {
+}
+``
+
+### FILE: src/main/java/cn/longer233/gamenarrator/asset/AssetTagUpdateRequest.java
+
+``java
+package cn.longer233.gamenarrator.asset;
+
+import java.util.List;
+
+public record AssetTagUpdateRequest(List<String> add, List<String> remove) {
+}
+``
+
+### FILE: src/main/java/cn/longer233/gamenarrator/asset/AssetView.java
+
+``java
+package cn.longer233.gamenarrator.asset;
+
+import java.time.OffsetDateTime;
+import java.util.List;
+import java.util.UUID;
+
+public record AssetView(
+        UUID id,
+        String provider,
+        String assetType,
+        String title,
+        String localizedTitle,
+        String creator,
+        String landingUrl,
+        String previewUrl,
+        String downloadUrl,
+        String licenseCode,
+        String licenseUrl,
+        String attribution,
+        Long durationMs,
+        String importStatus,
+        String localPath,
+        boolean favorite,
+        boolean archived,
+        List<TagView> tags,
+        OffsetDateTime discoveredAt
+) {
+    public record TagView(String name, List<String> sources, boolean userAdded) {}
+}
+``
+
+### FILE: src/main/java/cn/longer233/gamenarrator/asset/BgeAssetSemanticSearch.java
+
+``java
+package cn.longer233.gamenarrator.asset;
+
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.http.client.SimpleClientHttpRequestFactory;
+import org.springframework.jdbc.core.JdbcTemplate;
+import org.springframework.stereotype.Component;
+import org.springframework.web.client.RestClient;
+
+import java.nio.charset.StandardCharsets;
+import java.security.MessageDigest;
+import java.time.Duration;
+import java.time.Instant;
+import java.time.OffsetDateTime;
+import java.util.*;
+
+@Component
+public class BgeAssetSemanticSearch {
+    private static final Logger log = LoggerFactory.getLogger(BgeAssetSemanticSearch.class);
+    private final JdbcTemplate jdbc;
+    private final ObjectMapper objectMapper;
+    private final RestClient client;
+    private final boolean enabled;
+    private final String model;
+    private final double minimumScore;
+    private final int resultLimit;
+    private volatile Instant unavailableUntil = Instant.EPOCH;
+
+    public BgeAssetSemanticSearch(JdbcTemplate jdbc, ObjectMapper objectMapper,
+            @Value("${game-narrator.asset-library.semantic-search.enabled:true}") boolean enabled,
+            @Value("${game-narrator.asset-library.semantic-search.model:bge-m3}") String model,
+            @Value("${game-narrator.asset-library.semantic-search.timeout-seconds:8}") int timeoutSeconds,
+            @Value("${game-narrator.asset-library.semantic-search.minimum-score:0.28}") double minimumScore,
+            @Value("${game-narrator.asset-library.semantic-search.result-limit:60}") int resultLimit,
+            @Value("${game-narrator.ollama.base-url:http://localhost:11434}") String baseUrl) {
+        this.jdbc = jdbc;
+        this.objectMapper = objectMapper;
+        this.enabled = enabled;
+        this.model = model;
+        this.minimumScore = minimumScore;
+        this.resultLimit = Math.max(1, Math.min(100, resultLimit));
+        SimpleClientHttpRequestFactory factory = new SimpleClientHttpRequestFactory();
+        Duration timeout = Duration.ofSeconds(Math.max(1, Math.min(30, timeoutSeconds)));
+        factory.setConnectTimeout(timeout);
+        factory.setReadTimeout(timeout);
+        this.client = RestClient.builder().baseUrl(baseUrl).requestFactory(factory).build();
+    }
+
+    public List<AssetView> rerank(String query, List<AssetView> candidates) {
+        if (!enabled || query == null || query.isBlank() || candidates.isEmpty()
+                || unavailableUntil.isAfter(Instant.now())) return List.of();
+        try {
+            List<String> texts = candidates.stream().map(this::semanticText).toList();
+            List<double[]> vectors = new ArrayList<>(candidates.size());
+            List<Integer> missing = new ArrayList<>();
+            for (int i = 0; i < candidates.size(); i++) {
+                double[] cached = cached(candidates.get(i).id(), hash(texts.get(i)));
+                vectors.add(cached);
+                if (cached == null) missing.add(i);
+            }
+            List<String> inputs = new ArrayList<>();
+            inputs.add(query.trim());
+            for (int index : missing) inputs.add(texts.get(index));
+            List<double[]> generated = embedTexts(inputs);
+            if (generated.size() != inputs.size()) throw new IllegalStateException("BGE returned an unexpected vector count");
+            for (int i = 0; i < missing.size(); i++) {
+                int candidateIndex = missing.get(i);
+                double[] vector = generated.get(i + 1);
+                vectors.set(candidateIndex, vector);
+                save(candidates.get(candidateIndex).id(), hash(texts.get(candidateIndex)), vector);
+            }
+            double[] queryVector = generated.getFirst();
+            List<ScoredAsset> scored = new ArrayList<>();
+            for (int i = 0; i < candidates.size(); i++) {
+                double semanticScore = cosine(queryVector, vectors.get(i));
+                double lexicalScore = lexicalScore(query, semanticText(candidates.get(i)));
+                double score = Math.min(1, semanticScore * .78 + lexicalScore * .22);
+                if (lexicalScore > 0 || semanticScore >= minimumScore) scored.add(new ScoredAsset(candidates.get(i), score));
+            }
+            scored.sort(Comparator.comparingDouble(ScoredAsset::score).reversed());
+            return scored.stream().limit(resultLimit).map(ScoredAsset::asset).toList();
+        } catch (Exception exception) {
+            unavailableUntil = Instant.now().plus(Duration.ofMinutes(1));
+            log.warn("BGE semantic search unavailable; lexical search will be used: {}", exception.getMessage());
+            return List.of();
+        }
+    }
+
+    public String model() { return model; }
+    public boolean configured() { return enabled; }
+    public List<AssetView> similarTo(AssetView anchor, List<AssetView> candidates) {
+        if (anchor == null) return List.of();
+        return rerank(semanticText(anchor), candidates.stream()
+                .filter(candidate -> !candidate.id().equals(anchor.id()))
+                .toList());
+    }
+    public boolean available() {
+        if (!enabled) return false;
+        try {
+            JsonNode response = client.post().uri("/api/show")
+                    .body(Map.of("model", model)).retrieve().body(JsonNode.class);
+            return response != null && !response.isEmpty();
+        } catch (Exception exception) {
+            return false;
+        }
+    }
+
+    public List<double[]> embedTexts(List<String> input) throws Exception {
+        JsonNode response = client.post().uri("/api/embed")
+                .body(Map.of("model", model, "input", input)).retrieve().body(JsonNode.class);
+        List<double[]> result = new ArrayList<>();
+        if (response != null) for (JsonNode embedding : response.path("embeddings")) {
+            double[] vector = new double[embedding.size()];
+            for (int i = 0; i < embedding.size(); i++) vector[i] = embedding.get(i).asDouble();
+            result.add(vector);
+        }
+        return result;
+    }
+
+    public double similarity(double[] left, double[] right) { return cosine(left, right); }
+
+    private double[] cached(UUID assetId, String contentHash) {
+        List<String> rows = jdbc.query("SELECT vector_json FROM asset_embedding WHERE asset_id=? AND model=? AND content_hash=?",
+                (rs, n) -> rs.getString(1), assetId, model, contentHash);
+        if (rows.isEmpty()) return null;
+        try { return objectMapper.readValue(rows.getFirst(), double[].class); }
+        catch (Exception exception) { return null; }
+    }
+
+    private void save(UUID assetId, String contentHash, double[] vector) throws Exception {
+        jdbc.update("""
+                MERGE INTO asset_embedding(asset_id,model,dimensions,content_hash,vector_json,embedded_at)
+                KEY(asset_id) VALUES(?,?,?,?,?,?)
+                """, assetId, model, vector.length, contentHash,
+                objectMapper.writeValueAsString(vector), OffsetDateTime.now());
+    }
+
+    private String semanticText(AssetView asset) {
+        String tags = asset.tags().stream().map(AssetView.TagView::name).reduce("", (a, b) -> a + " " + b);
+        return (asset.assetType() + " " + asset.title() + " " + Objects.toString(asset.localizedTitle(), "")
+                + " " + Objects.toString(asset.creator(), "") + tags).trim();
+    }
+
+    private String hash(String value) throws Exception {
+        return HexFormat.of().formatHex(MessageDigest.getInstance("SHA-256")
+                .digest(value.getBytes(StandardCharsets.UTF_8)));
+    }
+
+    private double cosine(double[] left, double[] right) {
+        if (left == null || right == null || left.length != right.length || left.length == 0) return -1;
+        double dot = 0, leftNorm = 0, rightNorm = 0;
+        for (int i = 0; i < left.length; i++) {
+            dot += left[i] * right[i]; leftNorm += left[i] * left[i]; rightNorm += right[i] * right[i];
+        }
+        return dot / (Math.sqrt(leftNorm) * Math.sqrt(rightNorm) + 1e-12);
+    }
+
+    static double lexicalScore(String query, String candidate) {
+        String text = Objects.toString(candidate, "").toLowerCase(Locale.ROOT);
+        String normalized = Objects.toString(query, "").toLowerCase(Locale.ROOT).trim();
+        if (normalized.isEmpty()) return 0;
+        LinkedHashSet<String> terms = new LinkedHashSet<>();
+        for (String term : normalized.split("[\\s,，;；]+")) if (term.length() >= 2) terms.add(term);
+        java.util.regex.Matcher matcher = java.util.regex.Pattern.compile("[\\p{IsHan}]{2,}").matcher(normalized);
+        while (matcher.find()) {
+            String chinese = matcher.group(); terms.add(chinese);
+            if (chinese.length() > 2) for (int i = 0; i < chinese.length() - 1; i++) terms.add(chinese.substring(i, i + 2));
+        }
+        if (terms.isEmpty()) return text.contains(normalized) ? 1 : 0;
+        long hits = terms.stream().filter(text::contains).count();
+        double coverage = (double) hits / terms.size();
+        if (text.contains(normalized)) coverage = Math.min(1, coverage + .25);
+        return coverage;
+    }
+
+    private record ScoredAsset(AssetView asset, double score) {}
+}
+``
+
+### FILE: src/main/java/cn/longer233/gamenarrator/asset/BilibiliAssetClient.java
+
+``java
+package cn.longer233.gamenarrator.asset;
+
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.node.ArrayNode;
+import com.fasterxml.jackson.databind.node.ObjectNode;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.http.client.SimpleClientHttpRequestFactory;
+import org.springframework.stereotype.Component;
+import org.springframework.web.client.RestClient;
+import org.springframework.web.util.HtmlUtils;
+import org.springframework.web.util.UriComponentsBuilder;
+
+import java.time.Duration;
+import java.util.LinkedHashSet;
+import java.util.List;
+
+/** Discovers public Bilibili metadata. Results remain rights-review candidates, never open-license assets. */
+@Component
+public class BilibiliAssetClient {
+    private final RestClient client;
+    private final ObjectMapper objectMapper;
+    private final boolean enabled;
+    private final long minRequestIntervalMs;
+    private long nextRequestAtMs;
+
+    public BilibiliAssetClient(ObjectMapper objectMapper,
+            @Value("${game-narrator.asset-library.bilibili.base-url:https://api.bilibili.com}") String baseUrl,
+            @Value("${game-narrator.asset-library.bilibili.enabled:true}") boolean enabled,
+            @Value("${game-narrator.asset-library.bilibili.min-request-interval-ms:800}") long minRequestIntervalMs,
+            @Value("${game-narrator.asset-library.request-timeout-seconds:4}") int timeoutSeconds) {
+        this.objectMapper = objectMapper;
+        this.enabled = enabled;
+        this.minRequestIntervalMs = Math.max(0, Math.min(10_000, minRequestIntervalMs));
+        SimpleClientHttpRequestFactory factory = new SimpleClientHttpRequestFactory();
+        Duration timeout = Duration.ofSeconds(Math.max(1, Math.min(15, timeoutSeconds)));
+        factory.setConnectTimeout(timeout);
+        factory.setReadTimeout(timeout);
+        this.client = RestClient.builder().baseUrl(baseUrl).requestFactory(factory)
+                .defaultHeader("User-Agent", "Mozilla/5.0 GameNarrator/0.1")
+                .defaultHeader("Referer", "https://search.bilibili.com/").build();
+    }
+
+    public boolean supports(String assetType) {
+        return enabled && java.util.Set.of("VIDEO", "MEME", "SFX", "BGM")
+                .contains(String.valueOf(assetType).toUpperCase(java.util.Locale.ROOT));
+    }
+
+    public JsonNode search(AssetSearchRequest request) {
+        awaitRequestPermit();
+        String target = UriComponentsBuilder.fromPath("/x/web-interface/search/type")
+                .queryParam("search_type", "video")
+                .queryParam("keyword", request.query())
+                .queryParam("page", request.page() == null ? 1 : request.page())
+                .queryParam("order", order(request.sort()))
+                .build().encode().toUriString();
+        JsonNode response = client.get().uri(target).retrieve().body(JsonNode.class);
+        ObjectNode normalized = objectMapper.createObjectNode();
+        ArrayNode results = normalized.putArray("results");
+        if (response == null) throw new IllegalStateException("Bilibili search returned an empty response");
+        int responseCode = response.path("code").asInt(-1);
+        if (responseCode != 0) {
+            throw new IllegalStateException("Bilibili search rejected the request: code=" + responseCode);
+        }
+        int limit = request.pageSize() == null ? 20 : Math.max(1, Math.min(50, request.pageSize()));
+        for (JsonNode source : response.path("data").path("result")) {
+            if (results.size() >= limit) break;
+            if (!relevant(source, request.query())) continue;
+            String bvid = source.path("bvid").asText();
+            if (bvid.isBlank()) continue;
+            ObjectNode item = results.addObject();
+            String assetType = String.valueOf(request.assetType()).toUpperCase(java.util.Locale.ROOT);
+            item.put("id", bvid + ":" + assetType);
+            item.put("title", clean(source.path("title").asText("未命名视频")));
+            item.put("creator", clean(source.path("author").asText()));
+            item.put("foreign_landing_url", "https://www.bilibili.com/video/" + bvid);
+            item.put("thumbnail", https(source.path("pic").asText()));
+            item.putNull("url");
+            item.put("duration", parseDurationMs(source.path("duration").asText()));
+            item.put("license", "RIGHTS_REVIEW_REQUIRED");
+            item.putNull("license_url");
+            item.put("attribution", candidateLabel(assetType) + "；播放 " + metric(source, "play")
+                    + "，弹幕 " + metric(source, "video_review") + "；导入和再创作前必须由用户确认权利");
+            ArrayNode tags = item.putArray("tags");
+            if ("MEME".equals(assetType)) tags.add("视频封面候选");
+            if ("SFX".equals(assetType) || "BGM".equals(assetType)) tags.add("视频音轨候选");
+            String category = clean(source.path("typename").asText());
+            if (!category.isBlank()) tags.add(category);
+            String tagText = source.path("tag").asText();
+            if (!tagText.isBlank()) for (String tag : tagText.split(",")) if (!tag.isBlank()) tags.add(tag.trim());
+        }
+        return normalized;
+    }
+
+    private boolean relevant(JsonNode source, String query) {
+        String needle = clean(query).toLowerCase(java.util.Locale.ROOT);
+        if (needle.isBlank()) return true;
+        String haystack = (clean(source.path("title").asText()) + " "
+                + clean(source.path("tag").asText()) + " "
+                + clean(source.path("typename").asText())).toLowerCase(java.util.Locale.ROOT);
+        // One/two-character Chinese searches are especially vulnerable to platform
+        // tokenisation noise (for example 狗 matching an unrelated version number).
+        if (needle.codePoints().allMatch(cp -> Character.UnicodeScript.of(cp) == Character.UnicodeScript.HAN)
+                && needle.codePointCount(0, needle.length()) <= 2) return haystack.contains(needle);
+        return true;
+    }
+
+    public VideoMetadata metadata(String bvid) {
+        String value = bvid == null ? "" : bvid.trim();
+        if (!value.matches("(?i)BV[0-9A-Za-z]{8,20}")) throw new IllegalArgumentException("Bilibili BV 号无效");
+        awaitRequestPermit();
+        JsonNode response = client.get().uri("/x/web-interface/view?bvid={bvid}", value)
+                .retrieve().body(JsonNode.class);
+        requireSuccess(response, "video metadata");
+        JsonNode data = response.path("data");
+        LinkedHashSet<String> tags = new LinkedHashSet<>();
+        String category = clean(data.path("tname").asText());
+        if (!category.isBlank()) tags.add(category);
+        awaitRequestPermit();
+        try {
+            JsonNode tagResponse = client.get().uri("/x/tag/archive/tags?bvid={bvid}", value)
+                    .retrieve().body(JsonNode.class);
+            if (tagResponse != null && tagResponse.path("code").asInt(-1) == 0) {
+                tagResponse.path("data").forEach(tag -> {
+                    String name = clean(tag.path("tag_name").asText());
+                    if (!name.isBlank()) tags.add(name);
+                });
+            }
+        } catch (Exception ignored) {
+            // The view endpoint is authoritative enough; tags are optional enrichment.
+        }
+        return new VideoMetadata(value, clean(data.path("title").asText()),
+                clean(data.path("owner").path("name").asText()), category,
+                tags.stream().limit(20).toList(), data.path("duration").asLong(0) * 1000,
+                https(data.path("pic").asText()));
+    }
+
+    private void requireSuccess(JsonNode response, String operation) {
+        if (response == null) throw new IllegalStateException("Bilibili " + operation + " returned an empty response");
+        int code = response.path("code").asInt(-1);
+        if (code != 0) throw new IllegalStateException("Bilibili " + operation + " rejected the request: code=" + code);
+    }
+
+    private synchronized void awaitRequestPermit() {
+        long waitMs = nextRequestAtMs - System.currentTimeMillis();
+        if (waitMs > 0) {
+            try {
+                Thread.sleep(waitMs);
+            } catch (InterruptedException exception) {
+                Thread.currentThread().interrupt();
+                throw new IllegalStateException("Bilibili search was interrupted", exception);
+            }
+        }
+        nextRequestAtMs = System.currentTimeMillis() + minRequestIntervalMs;
+    }
+
+    private long parseDurationMs(String duration) {
+        if (duration == null || duration.isBlank()) return 0;
+        String[] parts = duration.trim().split(":");
+        try {
+            long seconds = 0;
+            for (String part : parts) seconds = Math.addExact(Math.multiplyExact(seconds, 60), Long.parseLong(part));
+            return Math.multiplyExact(seconds, 1000);
+        } catch (ArithmeticException | NumberFormatException exception) {
+            return 0;
+        }
+    }
+
+    private String metric(JsonNode source, String field) {
+        String value = source.path(field).asText("0").trim();
+        return value.isBlank() ? "0" : value;
+    }
+
+    private String order(String requestedSort) {
+        if (requestedSort == null) return "totalrank";
+        return switch (requestedSort.toUpperCase(java.util.Locale.ROOT)) {
+            case "NEWEST" -> "pubdate";
+            case "POPULAR" -> "click";
+            case "DANMAKU" -> "dm";
+            default -> "totalrank";
+        };
+    }
+
+    private String candidateLabel(String assetType) {
+        return switch (assetType) {
+            case "MEME" -> "Bilibili 视频封面图片候选";
+            case "SFX", "BGM" -> "Bilibili 视频音轨候选";
+            default -> "Bilibili 公开视频候选素材";
+        };
+    }
+
+    private String clean(String value) {
+        return HtmlUtils.htmlUnescape(value == null ? "" : value.replaceAll("<[^>]+>", " "))
+                .replaceAll("\\s+", " ").trim();
+    }
+
+    private String https(String value) {
+        if (value == null || value.isBlank()) return null;
+        if (value.startsWith("//")) return "https:" + value;
+        return value.replaceFirst("^http://", "https://");
+    }
+
+    public record VideoMetadata(String bvid, String title, String creator, String category,
+                                List<String> tags, long durationMs, String thumbnailUrl) { }
+}
+``
+
+### FILE: src/main/java/cn/longer233/gamenarrator/asset/ChineseAssetQueryExpander.java
+
+``java
+package cn.longer233.gamenarrator.asset;
+
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.stereotype.Component;
+import org.springframework.web.client.RestClient;
+import org.springframework.http.client.SimpleClientHttpRequestFactory;
+
+import java.time.Duration;
+import java.time.Instant;
+import java.util.*;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.regex.Pattern;
+
+/**
+ * Converts a Chinese editing intent into terms understood by international open-media indexes.
+ * Openverse's q search covers title, description and tags, so a compact English query is used.
+ */
+@Component
+public class ChineseAssetQueryExpander {
+    private static final Pattern CHINESE = Pattern.compile("[\\p{IsHan}]");
+    private static final Map<String, String> FALLBACK_TERMS = new LinkedHashMap<>();
+
+    static {
+        FALLBACK_TERMS.put("\u6b22\u5feb", "happy upbeat cheerful");
+        FALLBACK_TERMS.put("\u8f7b\u5feb", "light upbeat cheerful");
+        FALLBACK_TERMS.put("\u6fc0\u52b1", "inspiring motivational uplifting");
+        FALLBACK_TERMS.put("\u60b2\u4f24", "sad emotional melancholy");
+        FALLBACK_TERMS.put("\u7d27\u5f20", "tense suspense dramatic");
+        FALLBACK_TERMS.put("\u6d6a\u6f2b", "romantic warm gentle");
+        FALLBACK_TERMS.put("冲击", "impact hit boom");
+        FALLBACK_TERMS.put("爆炸", "explosion blast boom");
+        FALLBACK_TERMS.put("转场", "whoosh swoosh transition");
+        FALLBACK_TERMS.put("搞笑", "funny comedy cartoon");
+        FALLBACK_TERMS.put("笑声", "laugh laughter comedy");
+        FALLBACK_TERMS.put("哭", "crying tears sad emotional");
+        FALLBACK_TERMS.put("流泪", "crying tears emotional");
+        FALLBACK_TERMS.put("悬疑", "suspense mystery tension");
+        FALLBACK_TERMS.put("恐怖", "horror scary dark");
+        FALLBACK_TERMS.put("战斗", "battle fight combat");
+        FALLBACK_TERMS.put("胜利", "victory win triumph");
+        FALLBACK_TERMS.put("失败", "failure lose game over");
+        FALLBACK_TERMS.put("热血", "epic energetic heroic");
+        FALLBACK_TERMS.put("治愈", "healing calm gentle");
+        FALLBACK_TERMS.put("日常", "daily casual peaceful");
+        FALLBACK_TERMS.put("环境", "ambient atmosphere background");
+        FALLBACK_TERMS.put("电子", "electronic synth game");
+        FALLBACK_TERMS.put("钢琴", "piano emotional");
+        FALLBACK_TERMS.put("表情包", "reaction meme funny");
+        FALLBACK_TERMS.put("震惊", "surprised shocked reaction meme");
+        FALLBACK_TERMS.put("猫", "cat reaction meme");
+        FALLBACK_TERMS.put("绿幕", "green screen chroma key footage");
+    }
+
+    private final RestClient client;
+    private final ObjectMapper objectMapper;
+    private final String model;
+    private final AssetLibraryProperties.QueryExpansion properties;
+    private final Map<String, CachedExpansion> cache = new ConcurrentHashMap<>();
+
+    public ChineseAssetQueryExpander(ObjectMapper objectMapper,
+                                     @Value("${game-narrator.ollama.base-url}") String baseUrl,
+                                     @Value("${game-narrator.ollama.script-model}") String model,
+                                     AssetLibraryProperties libraryProperties) {
+        this.objectMapper = objectMapper;
+        this.model = model;
+        this.properties = libraryProperties.getQueryExpansion();
+        SimpleClientHttpRequestFactory requestFactory = new SimpleClientHttpRequestFactory();
+        Duration timeout = Duration.ofSeconds(properties.getAiTimeoutSeconds());
+        requestFactory.setConnectTimeout(timeout);
+        requestFactory.setReadTimeout(timeout);
+        this.client = RestClient.builder().baseUrl(baseUrl).requestFactory(requestFactory).build();
+    }
+
+    public AssetSearchExpansion expand(String query, String assetType) {
+        String input = query == null ? "" : query.trim();
+        if (!CHINESE.matcher(input).find()) {
+            return new AssetSearchExpansion(input, input, List.of());
+        }
+        String cacheKey = String.valueOf(assetType).toUpperCase(Locale.ROOT) + "\n" + input;
+        CachedExpansion cached = cache.get(cacheKey);
+        if (cached != null && cached.expiresAt().isAfter(Instant.now())) return cached.value();
+        AssetSearchExpansion local = dictionaryExpansion(input);
+        if (!"game".equals(local.providerQuery())) return local;
+        try {
+            String prompt = """
+                    你是视频剪辑素材搜索词转换器。把中文需求转换成适合开放素材库检索的简短英文关键词。
+                    返回 JSON：{"query":"3到6个英文关键词","tags":["2到5个中文标准标签"]}。
+                    不要解释，不要添加作品名或具体创作者名。
+                    素材类型：%s
+                    中文需求：%s
+                    """.formatted(assetType, input);
+            JsonNode response = client.post().uri("/api/generate").body(Map.of(
+                    "model", model, "prompt", prompt, "stream", false, "format", "json",
+                    "options", Map.of("temperature", 0.0, "num_predict", 100)
+            )).retrieve().body(JsonNode.class);
+            JsonNode result = objectMapper.readTree(response.path("response").asText("{}"));
+            String providerQuery = result.path("query").asText("").trim();
+            List<String> generatedTags = new ArrayList<>();
+            result.path("tags").forEach(node -> {
+                String tag = clean(node.asText());
+                if (!tag.isBlank()) generatedTags.add(tag);
+            });
+            if (!providerQuery.isBlank() && providerQuery.matches("[\\p{ASCII}\\s]+")) {
+                List<String> effectiveTags = generatedTags.isEmpty() ? local.chineseTags() : generatedTags;
+                AssetSearchExpansion expansion = new AssetSearchExpansion(input, providerQuery,
+                        effectiveTags.stream().distinct().limit(5).toList());
+                cache(cacheKey, expansion);
+                return expansion;
+            }
+        } catch (Exception ignored) {
+            // Dictionary expansion keeps Chinese search available when Ollama is offline.
+        }
+        cache(cacheKey, local);
+        return local;
+    }
+
+    private AssetSearchExpansion dictionaryExpansion(String input) {
+        LinkedHashSet<String> english = new LinkedHashSet<>();
+        LinkedHashSet<String> tags = new LinkedHashSet<>();
+        Map<String, String> termsByIntent = new LinkedHashMap<>();
+        for (AssetLibraryProperties.QueryExpansion.Synonym synonym : properties.getSynonyms()) {
+            if (synonym.getIntent() != null && synonym.getTerms() != null) {
+                termsByIntent.put(synonym.getIntent(), synonym.getTerms());
+            }
+        }
+        if (termsByIntent.isEmpty()) termsByIntent.putAll(FALLBACK_TERMS);
+        termsByIntent.forEach((chinese, terms) -> {
+            if (input.contains(chinese)) {
+                english.addAll(List.of(terms.split(" ")));
+                tags.add(chinese);
+            }
+        });
+        if (english.isEmpty()) english.add("game");
+        if (tags.isEmpty()) tags.add(clean(input));
+        return new AssetSearchExpansion(input, String.join(" ", english), tags.stream().limit(5).toList());
+    }
+
+    private void cache(String key, AssetSearchExpansion expansion) {
+        if (cache.size() >= properties.getCacheMaxEntries()) {
+            cache.entrySet().removeIf(entry -> entry.getValue().expiresAt().isBefore(Instant.now()));
+            if (cache.size() >= properties.getCacheMaxEntries()) cache.remove(cache.keySet().iterator().next());
+        }
+        cache.put(key, new CachedExpansion(expansion,
+                Instant.now().plus(Duration.ofHours(properties.getCacheHours()))));
+    }
+
+    private record CachedExpansion(AssetSearchExpansion value, Instant expiresAt) {}
+
+    private String clean(String value) {
+        String result = value == null ? "" : value.trim().replaceAll("[#，,；;]+", "");
+        return result.substring(0, Math.min(100, result.length()));
+    }
+}
+``
+
+### FILE: src/main/java/cn/longer233/gamenarrator/asset/ImportedMediaAsset.java
+
+``java
+package cn.longer233.gamenarrator.asset;
+
+import java.util.List;
+
+public record ImportedMediaAsset(
+        String sourceUrl,
+        String title,
+        String creator,
+        String previewUrl,
+        Double durationSeconds,
+        List<String> platformTags
+) {
+}
+``
+
+### FILE: src/main/java/cn/longer233/gamenarrator/asset/OpenverseAssetClient.java
+
+``java
+package cn.longer233.gamenarrator.asset;
+
+import com.fasterxml.jackson.databind.JsonNode;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.stereotype.Component;
+import org.springframework.web.client.RestClient;
+import org.springframework.web.util.UriComponentsBuilder;
+import org.springframework.http.client.SimpleClientHttpRequestFactory;
+
+import java.time.Duration;
+
+@Component
+public class OpenverseAssetClient {
+    private final RestClient client;
+    private final boolean enabled;
+
+    public OpenverseAssetClient(@Value("${game-narrator.asset-library.openverse.base-url:https://api.openverse.org/v1}") String baseUrl,
+                                @Value("${game-narrator.asset-library.openverse.enabled:true}") boolean enabled,
+                                @Value("${game-narrator.asset-library.request-timeout-seconds:6}") int timeoutSeconds) {
+        SimpleClientHttpRequestFactory requestFactory = new SimpleClientHttpRequestFactory();
+        requestFactory.setConnectTimeout(Duration.ofSeconds(timeoutSeconds));
+        requestFactory.setReadTimeout(Duration.ofSeconds(timeoutSeconds));
+        this.client = RestClient.builder()
+                .baseUrl(baseUrl)
+                .requestFactory(requestFactory)
+                .defaultHeader("User-Agent", "GameNarrator/0.1 graduation-project")
+                .build();
+        this.enabled = enabled;
+    }
+
+    public boolean supports(String assetType) {
+        return enabled && !"VIDEO".equalsIgnoreCase(assetType);
+    }
+
+    public JsonNode search(AssetSearchRequest request) {
+        String endpoint = "MEME".equalsIgnoreCase(request.assetType()) ? "/images/" : "/audio/";
+        var uri = UriComponentsBuilder.fromPath(endpoint)
+                .queryParam("q", request.query())
+                .queryParam("page_size", request.pageSize() == null ? 20 : request.pageSize())
+                .queryParam("page", request.page() == null ? 1 : request.page())
+                .queryParam("mature", false);
+        boolean commercial = Boolean.TRUE.equals(request.commercialUse());
+        boolean modification = Boolean.TRUE.equals(request.allowModification());
+        if (commercial && modification) {
+            uri.queryParam("license", "cc0,pdm,by,by-sa");
+        } else if (commercial) {
+            uri.queryParam("license_type", "commercial");
+        } else if (modification) {
+            uri.queryParam("license_type", "modification");
+        }
+        String target = uri.build().encode().toUriString();
+        return client.get().uri(target).retrieve().body(JsonNode.class);
+    }
+}
+``
+
+### FILE: src/main/java/cn/longer233/gamenarrator/asset/PexelsAssetClient.java
+
+``java
+package cn.longer233.gamenarrator.asset;
+
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.node.ArrayNode;
+import com.fasterxml.jackson.databind.node.ObjectNode;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.http.client.SimpleClientHttpRequestFactory;
+import org.springframework.stereotype.Component;
+import org.springframework.web.client.RestClient;
+import org.springframework.web.util.UriComponentsBuilder;
+
+import java.time.Duration;
+
+@Component
+public class PexelsAssetClient {
+    private final RestClient client;
+    private final ObjectMapper mapper;
+    private final boolean enabled;
+    private final String apiKey;
+
+    public PexelsAssetClient(ObjectMapper mapper,
+                             @Value("${game-narrator.asset-library.pexels.base-url:https://api.pexels.com}") String baseUrl,
+                             @Value("${game-narrator.asset-library.pexels.api-key:}") String apiKey,
+                             @Value("${game-narrator.asset-library.pexels.enabled:true}") boolean enabled,
+                             @Value("${game-narrator.asset-library.request-timeout-seconds:6}") int timeoutSeconds) {
+        SimpleClientHttpRequestFactory factory = new SimpleClientHttpRequestFactory();
+        factory.setConnectTimeout(Duration.ofSeconds(timeoutSeconds));
+        factory.setReadTimeout(Duration.ofSeconds(timeoutSeconds));
+        this.client = RestClient.builder().baseUrl(baseUrl).requestFactory(factory)
+                .defaultHeader("User-Agent", "GameNarrator/0.1")
+                .build();
+        this.mapper = mapper;
+        this.apiKey = apiKey == null ? "" : apiKey.trim();
+        this.enabled = enabled;
+    }
+
+    public boolean configured() { return enabled && !apiKey.isBlank(); }
+
+    public boolean supports(String assetType) {
+        return configured() && ("VIDEO".equalsIgnoreCase(assetType) || "MEME".equalsIgnoreCase(assetType));
+    }
+
+    public JsonNode search(AssetSearchRequest request) {
+        boolean video = "VIDEO".equalsIgnoreCase(request.assetType());
+        String uri = UriComponentsBuilder.fromPath(video ? "/videos/search" : "/v1/search")
+                .queryParam("query", request.query())
+                .queryParam("page", request.page() == null ? 1 : request.page())
+                .queryParam("per_page", request.pageSize() == null ? 20 : request.pageSize())
+                .build().encode().toUriString();
+        JsonNode response = client.get().uri(uri).header("Authorization", apiKey)
+                .retrieve().body(JsonNode.class);
+        ObjectNode normalized = mapper.createObjectNode();
+        ArrayNode results = normalized.putArray("results");
+        JsonNode entries = response == null ? mapper.createArrayNode() : response.path(video ? "videos" : "photos");
+        for (JsonNode item : entries) results.add(video ? normalizeVideo(item) : normalizePhoto(item));
+        return normalized;
+    }
+
+    private ObjectNode normalizePhoto(JsonNode item) {
+        ObjectNode out = mapper.createObjectNode();
+        String creator = item.path("photographer").asText("Pexels contributor");
+        out.put("id", item.path("id").asText());
+        out.put("title", item.path("alt").asText("Pexels photo " + item.path("id").asText()));
+        out.put("creator", creator);
+        out.put("foreign_landing_url", item.path("url").asText());
+        out.put("thumbnail", item.path("src").path("medium").asText());
+        out.put("url", item.path("src").path("original").asText());
+        rights(out, "Photo by " + creator + " on Pexels");
+        out.putArray("tags");
+        return out;
+    }
+
+    private ObjectNode normalizeVideo(JsonNode item) {
+        ObjectNode out = mapper.createObjectNode();
+        String creator = item.path("user").path("name").asText("Pexels contributor");
+        out.put("id", item.path("id").asText());
+        out.put("title", "Pexels video " + item.path("id").asText());
+        out.put("creator", creator);
+        out.put("foreign_landing_url", item.path("url").asText());
+        out.put("thumbnail", item.path("image").asText());
+        JsonNode best = null;
+        for (JsonNode file : item.path("video_files")) {
+            int width = file.path("width").asInt();
+            if (best == null || (width <= 1920 && width > best.path("width").asInt())) best = file;
+        }
+        if (best != null) out.put("url", best.path("link").asText());
+        out.put("duration", item.path("duration").asLong() * 1000L);
+        rights(out, "Video by " + creator + " on Pexels");
+        out.putArray("tags");
+        return out;
+    }
+
+    private void rights(ObjectNode out, String attribution) {
+        out.put("license", "PEXELS_LICENSE");
+        out.put("license_url", "https://www.pexels.com/license/");
+        out.put("attribution", attribution);
+    }
+}
+``
+
+### FILE: src/main/java/cn/longer233/gamenarrator/asset/PixabayAssetClient.java
+
+``java
+package cn.longer233.gamenarrator.asset;
+
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.node.ArrayNode;
+import com.fasterxml.jackson.databind.node.ObjectNode;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.http.client.SimpleClientHttpRequestFactory;
+import org.springframework.stereotype.Component;
+import org.springframework.web.client.RestClient;
+import org.springframework.web.util.UriComponentsBuilder;
+
+import java.time.Duration;
+
+@Component
+public class PixabayAssetClient {
+    private final RestClient client;
+    private final ObjectMapper mapper;
+    private final boolean enabled;
+    private final String apiKey;
+
+    public PixabayAssetClient(ObjectMapper mapper,
+                              @Value("${game-narrator.asset-library.pixabay.base-url:https://pixabay.com}") String baseUrl,
+                              @Value("${game-narrator.asset-library.pixabay.api-key:}") String apiKey,
+                              @Value("${game-narrator.asset-library.pixabay.enabled:true}") boolean enabled,
+                              @Value("${game-narrator.asset-library.request-timeout-seconds:6}") int timeoutSeconds) {
+        SimpleClientHttpRequestFactory factory = new SimpleClientHttpRequestFactory();
+        factory.setConnectTimeout(Duration.ofSeconds(timeoutSeconds));
+        factory.setReadTimeout(Duration.ofSeconds(timeoutSeconds));
+        this.client = RestClient.builder().baseUrl(baseUrl).requestFactory(factory)
+                .defaultHeader("User-Agent", "GameNarrator/0.1").build();
+        this.mapper = mapper;
+        this.apiKey = apiKey == null ? "" : apiKey.trim();
+        this.enabled = enabled;
+    }
+
+    public boolean configured() { return enabled && !apiKey.isBlank(); }
+
+    public boolean supports(String assetType) {
+        return configured() && ("VIDEO".equalsIgnoreCase(assetType) || "MEME".equalsIgnoreCase(assetType));
+    }
+
+    public JsonNode search(AssetSearchRequest request) {
+        boolean video = "VIDEO".equalsIgnoreCase(request.assetType());
+        String uri = UriComponentsBuilder.fromPath(video ? "/api/videos/" : "/api/")
+                .queryParam("key", apiKey).queryParam("q", request.query())
+                .queryParam("page", request.page() == null ? 1 : request.page())
+                .queryParam("per_page", request.pageSize() == null ? 20 : request.pageSize())
+                .queryParam("safesearch", true).build().encode().toUriString();
+        JsonNode response = client.get().uri(uri).retrieve().body(JsonNode.class);
+        ObjectNode normalized = mapper.createObjectNode();
+        ArrayNode results = normalized.putArray("results");
+        if (response != null) for (JsonNode item : response.path("hits")) results.add(normalize(item, video));
+        return normalized;
+    }
+
+    private ObjectNode normalize(JsonNode item, boolean video) {
+        ObjectNode out = mapper.createObjectNode();
+        String creator = item.path("user").asText("Pixabay contributor");
+        String tags = item.path("tags").asText();
+        out.put("id", item.path("id").asText());
+        out.put("title", tags.isBlank() ? "Pixabay " + (video ? "video " : "image ") + item.path("id").asText() : tags);
+        out.put("creator", creator);
+        out.put("foreign_landing_url", item.path("pageURL").asText());
+        out.put("thumbnail", video ? item.path("picture").asText() : item.path("previewURL").asText());
+        if (video) {
+            JsonNode files = item.path("videos");
+            String url = files.path("medium").path("url").asText();
+            if (url.isBlank()) url = files.path("small").path("url").asText();
+            if (url.isBlank()) url = files.path("large").path("url").asText();
+            out.put("url", url);
+            out.put("duration", item.path("duration").asLong() * 1000L);
+        } else {
+            String url = item.path("largeImageURL").asText();
+            out.put("url", url.isBlank() ? item.path("webformatURL").asText() : url);
+        }
+        out.put("license", "PIXABAY_CONTENT_LICENSE");
+        out.put("license_url", "https://pixabay.com/service/license-summary/");
+        out.put("attribution", (video ? "Video" : "Image") + " by " + creator + " on Pixabay");
+        ArrayNode tagList = out.putArray("tags");
+        for (String tag : tags.split(",")) if (!tag.isBlank()) tagList.add(tag.trim());
+        return out;
+    }
+}
+``
+
+### FILE: src/main/java/cn/longer233/gamenarrator/asset/SafeRemoteHttpConnector.java
+
+``java
+package cn.longer233.gamenarrator.asset;
+
+import org.springframework.stereotype.Component;
+
+import java.io.IOException;
+import java.net.HttpURLConnection;
+import java.net.InetAddress;
+import java.net.URI;
+import java.util.Map;
+import java.util.Set;
+
+@Component
+public class SafeRemoteHttpConnector {
+    private static final Set<Integer> REDIRECTS = Set.of(301, 302, 303, 307, 308);
+
+    public HttpURLConnection open(URI initial, Map<String, String> headers, int maximumRedirects) throws IOException {
+        URI current = initial;
+        for (int redirect = 0; redirect <= maximumRedirects; redirect++) {
+            validatePublicHttps(current);
+            HttpURLConnection connection = (HttpURLConnection) current.toURL().openConnection();
+            connection.setInstanceFollowRedirects(false);
+            connection.setConnectTimeout(8_000);
+            connection.setReadTimeout(30_000);
+            headers.forEach(connection::setRequestProperty);
+            int status = connection.getResponseCode();
+            if (!REDIRECTS.contains(status)) return connection;
+            String location = connection.getHeaderField("Location");
+            connection.disconnect();
+            if (location == null || location.isBlank()) throw new IOException("远程素材重定向缺少 Location");
+            if (redirect == maximumRedirects) throw new IOException("远程素材重定向次数过多");
+            current = current.resolve(location);
+        }
+        throw new IOException("远程素材连接失败");
+    }
+
+    public void validatePublicHttps(URI uri) {
+        if (!"https".equalsIgnoreCase(uri.getScheme()) || uri.getHost() == null) {
+            throw new IllegalArgumentException("只允许访问 HTTPS 公网素材地址");
+        }
+        try {
+            for (InetAddress address : InetAddress.getAllByName(uri.getHost())) {
+                if (address.isAnyLocalAddress() || address.isLoopbackAddress()
+                        || address.isSiteLocalAddress() || address.isLinkLocalAddress()) {
+                    throw new IllegalArgumentException("禁止访问本地或内网素材地址");
+                }
+            }
+        } catch (java.net.UnknownHostException exception) {
+            throw new IllegalArgumentException("素材地址无法解析", exception);
+        }
+    }
+}
+``
+
+### FILE: src/main/java/cn/longer233/gamenarrator/asset/WikimediaAssetClient.java
+
+``java
+package cn.longer233.gamenarrator.asset;
+
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.node.ArrayNode;
+import com.fasterxml.jackson.databind.node.ObjectNode;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.stereotype.Component;
+import org.springframework.web.client.RestClient;
+import org.springframework.web.util.HtmlUtils;
+import org.springframework.web.util.UriComponentsBuilder;
+import org.springframework.http.client.SimpleClientHttpRequestFactory;
+
+import java.time.Duration;
+import java.util.Locale;
+
+@Component
+public class WikimediaAssetClient {
+    private final RestClient client;
+    private final ObjectMapper objectMapper;
+    private final boolean enabled;
+
+    public WikimediaAssetClient(ObjectMapper objectMapper,
+                                @Value("${game-narrator.asset-library.wikimedia.base-url:https://commons.wikimedia.org}") String baseUrl,
+                                @Value("${game-narrator.asset-library.wikimedia.enabled:true}") boolean enabled,
+                                @Value("${game-narrator.asset-library.wikimedia.request-timeout-seconds:${game-narrator.asset-library.request-timeout-seconds:3}}") int timeoutSeconds) {
+        this.objectMapper = objectMapper;
+        this.enabled = enabled;
+        SimpleClientHttpRequestFactory requestFactory = new SimpleClientHttpRequestFactory();
+        Duration timeout = Duration.ofSeconds(Math.max(1, Math.min(10, timeoutSeconds)));
+        requestFactory.setConnectTimeout(timeout);
+        requestFactory.setReadTimeout(timeout);
+        this.client = RestClient.builder()
+                .baseUrl(baseUrl)
+                .requestFactory(requestFactory)
+                .defaultHeader("User-Agent", "GameNarrator/0.1 graduation-project")
+                .build();
+    }
+
+    public boolean supports(String assetType) {
+        return enabled;
+    }
+
+    public JsonNode search(AssetSearchRequest request) {
+        int pageSize = request.pageSize() == null ? 20 : request.pageSize();
+        int requestedPage = request.page() == null ? 1 : request.page();
+        String target = UriComponentsBuilder.fromPath("/w/api.php")
+                .queryParam("action", "query")
+                .queryParam("generator", "search")
+                .queryParam("gsrsearch", request.query())
+                .queryParam("gsrnamespace", 6)
+                .queryParam("gsrlimit", pageSize)
+                .queryParam("gsroffset", (requestedPage - 1) * pageSize)
+                .queryParam("prop", "imageinfo")
+                .queryParam("iiprop", "url|mime|extmetadata")
+                .queryParam("iiurlwidth", 640)
+                .queryParam("format", "json")
+                .queryParam("formatversion", 2)
+                .build().encode().toUriString();
+        JsonNode response = client.get().uri(target).retrieve().body(JsonNode.class);
+        ObjectNode normalized = objectMapper.createObjectNode();
+        ArrayNode results = normalized.putArray("results");
+        if (response == null) return normalized;
+        for (JsonNode page : response.path("query").path("pages")) {
+            JsonNode info = page.path("imageinfo").path(0);
+            String mime = info.path("mime").asText();
+            if (!matchesType(request.assetType(), mime)) continue;
+            JsonNode metadata = info.path("extmetadata");
+            String license = clean(metadata.path("LicenseShortName").path("value").asText("unknown"));
+            if (Boolean.TRUE.equals(request.commercialUse()) && license.toLowerCase(Locale.ROOT).contains("nc")) continue;
+            if (Boolean.TRUE.equals(request.allowModification()) && license.toLowerCase(Locale.ROOT).contains("nd")) continue;
+            String originalUrl = info.path("url").asText();
+            ObjectNode item = results.addObject();
+            item.put("id", page.path("pageid").asText());
+            item.put("title", page.path("title").asText("未命名素材").replaceFirst("^File:", ""));
+            item.put("creator", clean(metadata.path("Artist").path("value").asText()));
+            item.put("foreign_landing_url", info.path("descriptionurl").asText());
+            item.put("thumbnail", info.path("thumburl").asText(originalUrl));
+            item.put("url", originalUrl);
+            item.put("license", license);
+            item.put("license_url", metadata.path("LicenseUrl").path("value").asText());
+            item.put("attribution", clean(metadata.path("Credit").path("value").asText()));
+            item.putArray("tags");
+        }
+        return normalized;
+    }
+
+    private boolean matchesType(String assetType, String mime) {
+        if (mime == null) return false;
+        return switch (assetType.toUpperCase(Locale.ROOT)) {
+            case "VIDEO" -> mime.startsWith("video/");
+            case "MEME" -> mime.startsWith("image/");
+            case "SFX", "BGM" -> mime.startsWith("audio/");
+            default -> false;
+        };
+    }
+
+    private String clean(String value) {
+        return HtmlUtils.htmlUnescape(value == null ? "" : value.replaceAll("<[^>]+>", " "))
+                .replaceAll("\\s+", " ").trim();
+    }
+}
+``
+
+### FILE: src/main/java/cn/longer233/gamenarrator/audio/ProceduralSoundEffectLibrary.java
+
+``java
+package cn.longer233.gamenarrator.audio;
+
+import cn.longer233.gamenarrator.effect.EffectPlan;
+import cn.longer233.gamenarrator.effect.TransitionType;
+import cn.longer233.gamenarrator.effect.VisualEffectType;
+import cn.longer233.gamenarrator.timeline.TimelineSegment;
+import org.springframework.stereotype.Component;
+
+import javax.sound.sampled.AudioFileFormat;
+import javax.sound.sampled.AudioFormat;
+import javax.sound.sampled.AudioInputStream;
+import javax.sound.sampled.AudioSystem;
+import java.io.ByteArrayInputStream;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Random;
+
+@Component
+public class ProceduralSoundEffectLibrary {
+    private static final int SAMPLE_RATE = 48_000;
+
+    public List<SoundCue> create(Path taskDirectory, List<TimelineSegment> segments,
+                                 List<EffectPlan> plans) {
+        try {
+            Path directory = taskDirectory.resolve("sound-effects");
+            Files.createDirectories(directory);
+            List<SoundCue> cues = new ArrayList<>();
+            for (int index = 0; index < segments.size(); index++) {
+                TimelineSegment segment = segments.get(index);
+                EffectPlan plan = plans.get(index);
+                String type = select(plan);
+                if (type == null) continue;
+                Path output = directory.resolve("%02d-%s.wav".formatted(segment.sequence(), type.toLowerCase()));
+                write(output, samples(type));
+                cues.add(new SoundCue(segment.sequence(), segment.outputStartSeconds(), type,
+                        output.toString(), volume(type)));
+            }
+            return cues;
+        } catch (Exception exception) {
+            throw new IllegalStateException("生成程序化音效失败：" + exception.getMessage(), exception);
+        }
+    }
+
+    private String select(EffectPlan plan) {
+        if (plan.transition() == TransitionType.ANIME_IMPACT
+                || plan.effects().contains(VisualEffectType.WHITE_FLASH)) return "IMPACT";
+        if (plan.transition() == TransitionType.PUSH
+                || plan.effects().contains(VisualEffectType.SPEED_LINES)) return "WHOOSH";
+        if (plan.effects().contains(VisualEffectType.FREEZE_ACCENT)) return "COMEDY";
+        return null;
+    }
+
+    private double[] samples(String type) {
+        return switch (type) {
+            case "IMPACT" -> impact(0.38);
+            case "WHOOSH" -> whoosh(0.48);
+            default -> comedy(0.34);
+        };
+    }
+
+    private double[] impact(double seconds) {
+        int length = (int) (SAMPLE_RATE * seconds);
+        double[] result = new double[length];
+        Random random = new Random(233);
+        for (int i = 0; i < length; i++) {
+            double time = i / (double) SAMPLE_RATE;
+            double envelope = Math.exp(-9 * time);
+            result[i] = envelope * (0.72 * Math.sin(2 * Math.PI * (78 - 30 * time) * time)
+                    + 0.18 * (random.nextDouble() * 2 - 1));
+        }
+        return result;
+    }
+
+    private double[] whoosh(double seconds) {
+        int length = (int) (SAMPLE_RATE * seconds);
+        double[] result = new double[length];
+        Random random = new Random(404);
+        double smooth = 0;
+        for (int i = 0; i < length; i++) {
+            double progress = i / (double) length;
+            smooth = smooth * 0.86 + (random.nextDouble() * 2 - 1) * 0.14;
+            double envelope = Math.sin(Math.PI * progress);
+            result[i] = smooth * envelope * 0.65;
+        }
+        return result;
+    }
+
+    private double[] comedy(double seconds) {
+        int length = (int) (SAMPLE_RATE * seconds);
+        double[] result = new double[length];
+        for (int i = 0; i < length; i++) {
+            double time = i / (double) SAMPLE_RATE;
+            double frequency = time < seconds / 2 ? 520 : 690;
+            double envelope = Math.min(1, time * 30) * Math.exp(-3.5 * time);
+            result[i] = Math.sin(2 * Math.PI * frequency * time) * envelope * 0.52;
+        }
+        return result;
+    }
+
+    private void write(Path path, double[] samples) throws Exception {
+        byte[] pcm = new byte[samples.length * 2];
+        for (int i = 0; i < samples.length; i++) {
+            short value = (short) Math.round(Math.max(-1, Math.min(1, samples[i])) * 32767);
+            pcm[i * 2] = (byte) (value & 0xff);
+            pcm[i * 2 + 1] = (byte) ((value >>> 8) & 0xff);
+        }
+        AudioFormat format = new AudioFormat(SAMPLE_RATE, 16, 1, true, false);
+        try (var stream = new AudioInputStream(new ByteArrayInputStream(pcm), format, samples.length)) {
+            AudioSystem.write(stream, AudioFileFormat.Type.WAVE, path.toFile());
+        }
+    }
+
+    private double volume(String type) {
+        return "IMPACT".equals(type) ? 0.72 : "WHOOSH".equals(type) ? 0.55 : 0.48;
+    }
+}
+``
+
+### FILE: src/main/java/cn/longer233/gamenarrator/audio/SoundCue.java
+
+``java
+package cn.longer233.gamenarrator.audio;
+
+public record SoundCue(
+        int sequence,
+        double startSeconds,
+        String type,
+        String audioPath,
+        double volume
+) {
+}
+``
+
+### FILE: src/main/java/cn/longer233/gamenarrator/common/ApiExceptionHandler.java
+
+``java
+package cn.longer233.gamenarrator.common;
+
+import cn.longer233.gamenarrator.task.application.TaskNotFoundException;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.slf4j.MDC;
+import org.springframework.http.HttpStatus;
+import org.springframework.web.HttpMediaTypeNotSupportedException;
+import org.springframework.web.bind.MissingServletRequestParameterException;
+import org.springframework.web.bind.MethodArgumentNotValidException;
+import org.springframework.web.bind.annotation.*;
+import org.springframework.web.method.annotation.MethodArgumentTypeMismatchException;
+import org.springframework.web.multipart.MaxUploadSizeExceededException;
+import org.springframework.web.client.ResourceAccessException;
+import org.springframework.web.servlet.resource.NoResourceFoundException;
+
+import java.time.Instant;
+
+@RestControllerAdvice
+public class ApiExceptionHandler {
+
+    private static final Logger log = LoggerFactory.getLogger(ApiExceptionHandler.class);
+
+    @ExceptionHandler(TaskNotFoundException.class)
+    @ResponseStatus(HttpStatus.NOT_FOUND)
+    public ApiError notFound(TaskNotFoundException exception) {
+        log.warn("API_ERROR code=TASK_NOT_FOUND message={}", exception.getMessage());
+        return error("TASK_NOT_FOUND", exception.getMessage(), "确认任务 ID 是否正确");
+    }
+
+    @ExceptionHandler(NoResourceFoundException.class)
+    @ResponseStatus(HttpStatus.NOT_FOUND)
+    public ApiError staticResourceNotFound(NoResourceFoundException exception) {
+        log.debug("STATIC_RESOURCE_NOT_FOUND path={}", exception.getResourcePath());
+        return error("RESOURCE_NOT_FOUND", "请求的资源不存在", "检查资源地址");
+    }
+
+    @ExceptionHandler(MissingServletRequestParameterException.class)
+    @ResponseStatus(HttpStatus.BAD_REQUEST)
+    public ApiError missingParameter(MissingServletRequestParameterException exception) {
+        String message = "缺少必填字段：" + exception.getParameterName();
+        log.warn("API_ERROR code=MISSING_PARAMETER parameter={}", exception.getParameterName());
+        return error("MISSING_PARAMETER", message, "检查表单字段名称和提交内容");
+    }
+
+    @ExceptionHandler(MethodArgumentNotValidException.class)
+    @ResponseStatus(HttpStatus.BAD_REQUEST)
+    public ApiError invalidBody(MethodArgumentNotValidException exception) {
+        String field = exception.getBindingResult().getFieldErrors().isEmpty() ? "请求内容"
+                : exception.getBindingResult().getFieldErrors().getFirst().getField();
+        String message = "字段无效：" + field;
+        log.warn("API_ERROR code=INVALID_REQUEST field={}", field);
+        return error("INVALID_REQUEST", message, "重新解析后选择一个可用格式再试");
+    }
+
+    @ExceptionHandler(MethodArgumentTypeMismatchException.class)
+    @ResponseStatus(HttpStatus.BAD_REQUEST)
+    public ApiError invalidType(MethodArgumentTypeMismatchException exception) {
+        String message = "字段格式错误：" + exception.getName();
+        log.warn("API_ERROR code=INVALID_FIELD_TYPE field={} value={}",
+                exception.getName(), exception.getValue());
+        return error("INVALID_FIELD_TYPE", message, "检查枚举值或数字格式");
+    }
+
+    @ExceptionHandler(HttpMediaTypeNotSupportedException.class)
+    @ResponseStatus(HttpStatus.UNSUPPORTED_MEDIA_TYPE)
+    public ApiError unsupportedMediaType(HttpMediaTypeNotSupportedException exception) {
+        log.warn("API_ERROR code=UNSUPPORTED_MEDIA_TYPE contentType={}", exception.getContentType());
+        return error(
+                "UNSUPPORTED_MEDIA_TYPE",
+                "请求格式不受支持：" + exception.getContentType(),
+                "上传接口必须使用 multipart/form-data"
+        );
+    }
+
+    @ExceptionHandler(MaxUploadSizeExceededException.class)
+    @ResponseStatus(HttpStatus.PAYLOAD_TOO_LARGE)
+    public ApiError uploadTooLarge(MaxUploadSizeExceededException exception) {
+        log.warn("API_ERROR code=VIDEO_TOO_LARGE", exception);
+        return error("VIDEO_TOO_LARGE", "视频超过服务器允许的上传大小", "压缩视频或调整 multipart 配置");
+    }
+
+    @ExceptionHandler(IllegalArgumentException.class)
+    @ResponseStatus(HttpStatus.BAD_REQUEST)
+    public ApiError badRequest(IllegalArgumentException exception) {
+        log.warn("API_ERROR code=INVALID_REQUEST message={}", exception.getMessage());
+        return error("INVALID_REQUEST", exception.getMessage(), "检查文件格式和表单参数");
+    }
+
+    @ExceptionHandler(ResourceAccessException.class)
+    @ResponseStatus(HttpStatus.SERVICE_UNAVAILABLE)
+    public ApiError externalServiceUnavailable(ResourceAccessException exception) {
+        log.warn("API_ERROR code=EXTERNAL_SERVICE_UNAVAILABLE message={}", exception.getMessage());
+        return error("EXTERNAL_SERVICE_UNAVAILABLE",
+                "无法连接外部素材服务，请检查网络或代理后重试",
+                "在线素材源不可用时，本地任务和已导入素材仍可继续使用");
+    }
+
+    @ExceptionHandler(IllegalStateException.class)
+    @ResponseStatus(HttpStatus.CONFLICT)
+    public ApiError operationUnavailable(IllegalStateException exception) {
+        log.warn("API_ERROR code=OPERATION_UNAVAILABLE message={}", exception.getMessage());
+        return error("OPERATION_UNAVAILABLE", exception.getMessage(),
+                "检查依赖工具、内容授权和当前是否已有下载任务");
+    }
+
+    @ExceptionHandler(Exception.class)
+    @ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
+    public ApiError unexpected(Exception exception) {
+        log.error("API_ERROR code=INTERNAL_ERROR type={} message={}",
+                exception.getClass().getName(), exception.getMessage(), exception);
+        return error(
+                "INTERNAL_ERROR",
+                "服务器处理失败，请根据 traceId 查看控制台或日志文件",
+                "查看 logs/game-narrator.log 中相同 traceId 的异常堆栈"
+        );
+    }
+
+    private ApiError error(String code, String message, String suggestion) {
+        return new ApiError(
+                code,
+                message,
+                suggestion,
+                MDC.get(RequestTraceFilter.TRACE_ID),
+                Instant.now().toString()
+        );
+    }
+
+    public record ApiError(
+            String code,
+            String message,
+            String suggestion,
+            String traceId,
+            String timestamp
+    ) {
+    }
+}
+``
+
+### FILE: src/main/java/cn/longer233/gamenarrator/common/AtomicArtifactWriter.java
+
+``java
+package cn.longer233.gamenarrator.common;
+
+import com.fasterxml.jackson.databind.ObjectMapper;
+
+import java.io.IOException;
+import java.nio.charset.Charset;
+import java.nio.file.AtomicMoveNotSupportedException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.StandardCopyOption;
+import java.nio.file.StandardOpenOption;
+import java.util.UUID;
+
+/** Publishes generated artifacts only after their complete contents are on disk. */
+public final class AtomicArtifactWriter {
+    private AtomicArtifactWriter() {
+    }
+
+    public static void writeJson(ObjectMapper objectMapper, Path target, Object value) throws IOException {
+        write(target, temporary -> objectMapper.writerWithDefaultPrettyPrinter().writeValue(temporary.toFile(), value));
+    }
+
+    public static void writeText(Path target, String value, Charset charset) throws IOException {
+        write(target, temporary -> Files.writeString(temporary, value, charset,
+                StandardOpenOption.CREATE_NEW, StandardOpenOption.WRITE));
+    }
+
+    private static void write(Path target, TemporaryWriter writer) throws IOException {
+        Path normalized = target.toAbsolutePath().normalize();
+        Path parent = normalized.getParent();
+        if (parent == null) throw new IOException("Artifact has no parent directory: " + target);
+        Files.createDirectories(parent);
+        Path temporary = parent.resolve("." + normalized.getFileName() + "." + UUID.randomUUID() + ".tmp");
+        try {
+            writer.write(temporary);
+            try {
+                Files.move(temporary, normalized, StandardCopyOption.REPLACE_EXISTING,
+                        StandardCopyOption.ATOMIC_MOVE);
+            } catch (AtomicMoveNotSupportedException exception) {
+                Files.move(temporary, normalized, StandardCopyOption.REPLACE_EXISTING);
+            }
+        } finally {
+            Files.deleteIfExists(temporary);
+        }
+    }
+
+    @FunctionalInterface
+    private interface TemporaryWriter {
+        void write(Path temporary) throws IOException;
+    }
+}
+``
+
+### FILE: src/main/java/cn/longer233/gamenarrator/common/ExternalProcessRunner.java
+
+``java
+package cn.longer233.gamenarrator.common;
+
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStreamReader;
+import java.nio.charset.StandardCharsets;
+import java.time.Duration;
+import java.util.List;
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.CompletionException;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.function.Consumer;
+
+/** Runs tools with concurrent output draining, a real timeout, and process-tree termination. */
+public final class ExternalProcessRunner {
+    private static final int MAX_OUTPUT_CHARS = 64 * 1024;
+    private static final ExecutorService OUTPUT_DRAINER = Executors.newThreadPerTaskExecutor(
+            Thread.ofVirtual().name("external-output-", 0).factory());
+    private ExternalProcessRunner() { }
+
+    public static Result run(List<String> command, Duration timeout) throws IOException, InterruptedException {
+        return run(command, timeout, null);
+    }
+
+    public static Result run(List<String> command, Duration timeout, String standardInput)
+            throws IOException, InterruptedException {
+        return run(command, timeout, standardInput, line -> { });
+    }
+
+    public static Result run(List<String> command, Duration timeout, String standardInput,
+                             Consumer<String> outputLine)
+            throws IOException, InterruptedException {
+        Process process = new ProcessBuilder(command).redirectErrorStream(true).start();
+        CompletableFuture<String> output = drain(process, outputLine);
+        try {
+            if (standardInput == null) process.getOutputStream().close();
+            else try (var input = process.getOutputStream()) {
+                input.write(standardInput.getBytes(StandardCharsets.UTF_8));
+            }
+            if (!process.waitFor(timeout.toMillis(), TimeUnit.MILLISECONDS)) {
+                terminateTree(process);
+                throw new ProcessTimeoutException(timeout);
+            }
+            return new Result(process.exitValue(), join(output));
+        } finally {
+            if (process.isAlive()) terminateTree(process);
+            if (!output.isDone()) output.cancel(true);
+        }
+    }
+
+    public static void terminateTree(Process process) {
+        process.toHandle().descendants().forEach(child -> {
+            child.destroy();
+            if (child.isAlive()) child.destroyForcibly();
+        });
+        process.destroy();
+        if (process.isAlive()) process.destroyForcibly();
+    }
+
+    private static CompletableFuture<String> drain(Process process, Consumer<String> outputLine) {
+        return CompletableFuture.supplyAsync(() -> {
+            StringBuilder tail = new StringBuilder();
+            try (BufferedReader reader = new BufferedReader(new InputStreamReader(
+                    process.getInputStream(), StandardCharsets.UTF_8))) {
+                String line;
+                while ((line = reader.readLine()) != null) {
+                    outputLine.accept(line);
+                    tail.append(line).append('\n');
+                    if (tail.length() > MAX_OUTPUT_CHARS) tail.delete(0, tail.length() - MAX_OUTPUT_CHARS);
+                }
+                return tail.toString();
+            } catch (IOException exception) {
+                throw new CompletionException(exception);
+            }
+        }, OUTPUT_DRAINER);
+    }
+
+    private static String join(CompletableFuture<String> output) throws IOException {
+        try { return output.join(); }
+        catch (CompletionException exception) {
+            if (exception.getCause() instanceof IOException ioException) throw ioException;
+            throw exception;
+        }
+    }
+
+    public record Result(int exitCode, String output) { }
+
+    public static final class ProcessTimeoutException extends IOException {
+        public ProcessTimeoutException(Duration timeout) { super("External process timed out after " + timeout); }
+    }
+}
+``
+
+### FILE: src/main/java/cn/longer233/gamenarrator/common/RequestTraceFilter.java
+
+``java
+package cn.longer233.gamenarrator.common;
+
+import jakarta.servlet.FilterChain;
+import jakarta.servlet.ServletException;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.slf4j.MDC;
+import org.springframework.stereotype.Component;
+import org.springframework.web.filter.OncePerRequestFilter;
+
+import java.io.IOException;
+import java.util.UUID;
+
+@Component
+public class RequestTraceFilter extends OncePerRequestFilter {
+
+    public static final String TRACE_ID = "traceId";
+    private static final Logger log = LoggerFactory.getLogger(RequestTraceFilter.class);
+
+    @Override
+    protected void doFilterInternal(
+            HttpServletRequest request,
+            HttpServletResponse response,
+            FilterChain filterChain
+    ) throws ServletException, IOException {
+        String traceId = request.getHeader("X-Trace-Id");
+        if (traceId == null || traceId.isBlank()) {
+            traceId = UUID.randomUUID().toString().substring(0, 8);
+        }
+
+        long startedAt = System.nanoTime();
+        MDC.put(TRACE_ID, traceId);
+        response.setHeader("X-Trace-Id", traceId);
+        log.info("HTTP_START method={} path={} contentType={} contentLength={}",
+                request.getMethod(),
+                request.getRequestURI(),
+                request.getContentType(),
+                request.getContentLengthLong());
+
+        try {
+            filterChain.doFilter(request, response);
+        } finally {
+            long elapsedMs = (System.nanoTime() - startedAt) / 1_000_000;
+            log.info("HTTP_END method={} path={} status={} elapsedMs={}",
+                    request.getMethod(),
+                    request.getRequestURI(),
+                    response.getStatus(),
+                    elapsedMs);
+            MDC.remove(TRACE_ID);
+        }
+    }
+}
+``
+
+### FILE: src/main/java/cn/longer233/gamenarrator/config/AsyncConfig.java
+
+``java
+package cn.longer233.gamenarrator.config;
+
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Configuration;
+import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
+
+import java.util.concurrent.Executor;
+import java.util.concurrent.ThreadPoolExecutor;
+
+@Configuration
+public class AsyncConfig {
+
+    @Bean(name = "taskExecutor")
+    public Executor taskExecutor(
+            @Value("${game-narrator.async.core-pool-size:2}") int corePoolSize,
+            @Value("${game-narrator.async.max-pool-size:4}") int maxPoolSize,
+            @Value("${game-narrator.async.queue-capacity:10}") int queueCapacity
+    ) {
+        if (corePoolSize < 1 || maxPoolSize < corePoolSize || queueCapacity < 0) {
+            throw new IllegalArgumentException("Invalid game-narrator.async thread-pool configuration");
+        }
+        ThreadPoolTaskExecutor executor = new ThreadPoolTaskExecutor();
+        executor.setCorePoolSize(corePoolSize);
+        executor.setMaxPoolSize(maxPoolSize);
+        executor.setQueueCapacity(queueCapacity);
+        executor.setThreadNamePrefix("game-narrator-");
+        executor.setWaitForTasksToCompleteOnShutdown(true);
+        executor.setAwaitTerminationSeconds(30);
+        executor.setRejectedExecutionHandler(new ThreadPoolExecutor.CallerRunsPolicy());
+        executor.initialize();
+        return executor;
+    }
+}
+``
+
+### FILE: src/main/java/cn/longer233/gamenarrator/diagnostics/DiagnosticLogService.java
+
+``java
+package cn.longer233.gamenarrator.diagnostics;
+
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.stereotype.Service;
+
+import java.io.ByteArrayOutputStream;
+import java.io.RandomAccessFile;
+import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.util.Comparator;
+import java.util.List;
+import java.util.regex.Pattern;
+import java.util.zip.ZipEntry;
+import java.util.zip.ZipOutputStream;
+
+@Service
+public class DiagnosticLogService {
+    private static final int MAX_TAIL_BYTES = 512 * 1024;
+    private static final int MAX_EXPORT_BYTES_PER_FILE = 5 * 1024 * 1024;
+    private static final Pattern BEARER = Pattern.compile("(?i)Bearer\\s+[A-Za-z0-9._~+/-]+=*");
+    private static final Pattern SECRET = Pattern.compile(
+            "(?i)(api[-_ ]?key|authorization|cookie|password|secret|access[-_ ]?token|refresh[-_ ]?token)" +
+                    "(\\s*[=:]\\s*|\\\"?\\s*:\\s*\\\")([^\\s,;}\\\"]+)");
+    private final Path logDirectory;
+    private final Path applicationLog;
+
+    public DiagnosticLogService(@Value("${logging.file.name:./logs/game-narrator.log}") String logFile) {
+        applicationLog = Path.of(logFile).toAbsolutePath().normalize();
+        logDirectory = applicationLog.getParent();
+    }
+
+    public String recent(int requestedLines) {
+        int lines = Math.max(20, Math.min(1000, requestedLines));
+        if (!Files.isRegularFile(applicationLog)) return "日志文件尚未生成：" + applicationLog.getFileName();
+        try {
+            byte[] tail = readTail(applicationLog, MAX_TAIL_BYTES);
+            List<String> values = new String(tail, StandardCharsets.UTF_8).lines().toList();
+            return values.stream().skip(Math.max(0, values.size() - lines)).map(this::sanitize)
+                    .reduce((left, right) -> left + System.lineSeparator() + right).orElse("");
+        } catch (Exception exception) {
+            throw new IllegalStateException("无法读取诊断日志：" + exception.getMessage(), exception);
+        }
+    }
+
+    public byte[] export() {
+        try (var bytes = new ByteArrayOutputStream(); var zip = new ZipOutputStream(bytes, StandardCharsets.UTF_8)) {
+            if (Files.isDirectory(logDirectory)) {
+                try (var files = Files.list(logDirectory)) {
+                    for (Path path : files.filter(Files::isRegularFile)
+                            .filter(path -> path.getFileName().toString().endsWith(".log"))
+                            .sorted(Comparator.comparing(path -> path.getFileName().toString())).toList()) {
+                        zip.putNextEntry(new ZipEntry(path.getFileName().toString()));
+                        String safe = sanitize(new String(readTail(path, MAX_EXPORT_BYTES_PER_FILE), StandardCharsets.UTF_8));
+                        zip.write(safe.getBytes(StandardCharsets.UTF_8));
+                        zip.closeEntry();
+                    }
+                }
+            }
+            zip.putNextEntry(new ZipEntry("README.txt"));
+            zip.write("GameNarrator 诊断日志（已自动隐藏常见凭据字段）。\n".getBytes(StandardCharsets.UTF_8));
+            zip.closeEntry();
+            zip.finish();
+            return bytes.toByteArray();
+        } catch (Exception exception) {
+            throw new IllegalStateException("无法导出诊断日志：" + exception.getMessage(), exception);
+        }
+    }
+
+    public String sanitize(String value) {
+        if (value == null) return "";
+        return SECRET.matcher(BEARER.matcher(value).replaceAll("Bearer ***")).replaceAll("$1=***");
+    }
+
+    private byte[] readTail(Path path, int maximumBytes) throws Exception {
+        try (var file = new RandomAccessFile(path.toFile(), "r")) {
+            long start = Math.max(0, file.length() - maximumBytes);
+            file.seek(start);
+            byte[] data = new byte[(int) (file.length() - start)];
+            file.readFully(data);
+            return data;
+        }
+    }
+}
+``
+
+### FILE: src/main/java/cn/longer233/gamenarrator/diagnostics/DiagnosticsController.java
+
+``java
+package cn.longer233.gamenarrator.diagnostics;
+
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import java.util.Map;
+
+@RestController
+@RequestMapping("/api/debug")
+public class DiagnosticsController {
+
+    private final SystemDiagnosticsService diagnostics;
+    private final DiagnosticLogService logs;
+    private static final Logger log = LoggerFactory.getLogger(DiagnosticsController.class);
+
+    public DiagnosticsController(SystemDiagnosticsService diagnostics, DiagnosticLogService logs) {
+        this.diagnostics = diagnostics;
+        this.logs = logs;
+    }
+
+    @GetMapping("/health")
+    public Map<String, Object> health() {
+        return diagnostics.inspect();
+    }
+
+    @GetMapping(value = "/logs", produces = MediaType.TEXT_PLAIN_VALUE)
+    public String logs(@RequestParam(defaultValue = "300") int lines) {
+        return logs.recent(lines);
+    }
+
+    @GetMapping(value = "/logs/export", produces = "application/zip")
+    public ResponseEntity<byte[]> exportLogs() {
+        return ResponseEntity.ok()
+                .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=GameNarrator-Diagnostics.zip")
+                .body(logs.export());
+    }
+
+    @PostMapping("/client-events")
+    public void clientEvent(@RequestBody ClientEvent event) {
+        String level = logs.sanitize(limit(event.level(), 20));
+        String message = logs.sanitize(limit(event.message(), 1000));
+        String context = logs.sanitize(limit(event.context(), 300));
+        log.warn("CLIENT_EVENT level={} context={} message={}", level, context, message);
+    }
+
+    private String limit(String value, int maximum) {
+        if (value == null) return "";
+        return value.substring(0, Math.min(value.length(), maximum));
+    }
+
+    public record ClientEvent(String level, String message, String context) { }
+}
+``
+
+### FILE: src/main/java/cn/longer233/gamenarrator/diagnostics/StartupDiagnostics.java
+
+``java
+package cn.longer233.gamenarrator.diagnostics;
+
+import org.springframework.boot.ApplicationArguments;
+import org.springframework.boot.ApplicationRunner;
+import org.springframework.stereotype.Component;
+
+@Component
+public class StartupDiagnostics implements ApplicationRunner {
+
+    private final SystemDiagnosticsService diagnostics;
+
+    public StartupDiagnostics(SystemDiagnosticsService diagnostics) {
+        this.diagnostics = diagnostics;
+    }
+
+    @Override
+    public void run(ApplicationArguments args) {
+        diagnostics.logStartupReport();
+    }
+}
+``
+
+### FILE: src/main/java/cn/longer233/gamenarrator/diagnostics/SystemDiagnosticsService.java
+
+``java
+package cn.longer233.gamenarrator.diagnostics;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.stereotype.Service;
+import cn.longer233.gamenarrator.transcription.WhisperCppTranscriber;
+import cn.longer233.gamenarrator.vision.OllamaVisionClient;
+import cn.longer233.gamenarrator.importer.YtDlpMediaImporter;
+import cn.longer233.gamenarrator.asset.BgeAssetSemanticSearch;
+
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.time.Duration;
+import java.util.LinkedHashMap;
+import java.util.Map;
+import java.util.concurrent.TimeUnit;
+
+@Service
+public class SystemDiagnosticsService {
+
+    private static final Logger log = LoggerFactory.getLogger(SystemDiagnosticsService.class);
+
+    private final Path storageRoot;
+    private final String ffmpegCommand;
+    private final WhisperCppTranscriber transcriber;
+    private final OllamaVisionClient visionClient;
+    private final YtDlpMediaImporter mediaImporter;
+    private final BgeAssetSemanticSearch semanticSearch;
+
+    public SystemDiagnosticsService(
+            @Value("${game-narrator.storage-root}") String storageRoot,
+            @Value("${game-narrator.ffmpeg-command}") String ffmpegCommand,
+            WhisperCppTranscriber transcriber,
+            OllamaVisionClient visionClient,
+            YtDlpMediaImporter mediaImporter,
+            BgeAssetSemanticSearch semanticSearch
+    ) {
+        this.storageRoot = Path.of(storageRoot).toAbsolutePath().normalize();
+        this.ffmpegCommand = ffmpegCommand;
+        this.transcriber = transcriber;
+        this.visionClient = visionClient;
+        this.mediaImporter = mediaImporter;
+        this.semanticSearch = semanticSearch;
+    }
+
+    public Map<String, Object> inspect() {
+        Map<String, Object> report = new LinkedHashMap<>();
+        report.put("javaVersion", Runtime.version().toString());
+        report.put("availableProcessors", Runtime.getRuntime().availableProcessors());
+        report.put("maxMemoryMb", Runtime.getRuntime().maxMemory() / 1024 / 1024);
+        report.put("storagePath", storageRoot.toString());
+        report.put("storageWritable", storageWritable());
+        report.put("ffmpegCommand", ffmpegCommand);
+        report.put("ffmpegAvailable", commandAvailable(ffmpegCommand, "-version"));
+        report.put("whisperExecutable", transcriber.executable().toString());
+        report.put("whisperModel", transcriber.model().toString());
+        report.put("whisperAvailable", transcriber.runtimeAvailable());
+        report.put("ollamaUrl", visionClient.baseUri().toString());
+        report.put("visionModel", visionClient.model());
+        report.put("visionModelAvailable", visionClient.available());
+        report.put("semanticModel", semanticSearch.model());
+        report.put("semanticModelAvailable", semanticSearch.available());
+        report.put("mediaImporterExecutable", mediaImporter.executable().toString());
+        report.put("mediaImporterAvailable", mediaImporter.available());
+        return report;
+    }
+
+    public void logStartupReport() {
+        Map<String, Object> report = inspect();
+        log.info("SYSTEM_DIAGNOSTICS {}", report);
+        if (!Boolean.TRUE.equals(report.get("storageWritable"))) {
+            log.error("SYSTEM_REQUIREMENT_FAILED component=storage path={}", storageRoot);
+        }
+        if (!Boolean.TRUE.equals(report.get("ffmpegAvailable"))) {
+            log.warn("SYSTEM_REQUIREMENT_MISSING component=ffmpeg command={} "
+                    + "impact=video_processing_unavailable", ffmpegCommand);
+        }
+        if (!Boolean.TRUE.equals(report.get("whisperAvailable"))) {
+            log.warn("SYSTEM_REQUIREMENT_MISSING component=whisper executable={} model={} "
+                            + "impact=transcription_unavailable",
+                    transcriber.executable(), transcriber.model());
+        }
+        if (!Boolean.TRUE.equals(report.get("visionModelAvailable"))) {
+            log.warn("SYSTEM_REQUIREMENT_MISSING component=vision_model url={} model={} "
+                            + "impact=video_understanding_unavailable",
+                    visionClient.baseUri(), visionClient.model());
+        }
+        if (!Boolean.TRUE.equals(report.get("mediaImporterAvailable"))) {
+            log.warn("SYSTEM_REQUIREMENT_MISSING component=media_importer executable={} "
+                    + "impact=platform_media_import_unavailable", mediaImporter.executable());
+        }
+    }
+
+    private boolean storageWritable() {
+        try {
+            Files.createDirectories(storageRoot);
+            return Files.isWritable(storageRoot);
+        } catch (Exception exception) {
+            log.error("STORAGE_CHECK_FAILED path={} message={}",
+                    storageRoot, exception.getMessage(), exception);
+            return false;
+        }
+    }
+
+    private boolean commandAvailable(String... command) {
+        try {
+            return cn.longer233.gamenarrator.common.ExternalProcessRunner.run(
+                    java.util.List.of(command), Duration.ofSeconds(3)).exitCode() == 0;
+        } catch (Exception exception) {
+            log.debug("COMMAND_CHECK_FAILED command={} message={}",
+                    String.join(" ", command), exception.getMessage());
+            return false;
+        }
+    }
+}
+``
+
+### FILE: src/main/java/cn/longer233/gamenarrator/editor/EditorCommandRequest.java
+
+``java
+package cn.longer233.gamenarrator.editor;
+
+import jakarta.validation.constraints.NotBlank;
+import java.util.Map;
+
+public record EditorCommandRequest(@NotBlank String type, Map<String, Object> payload) {
+    public Map<String, Object> values() { return payload == null ? Map.of() : payload; }
+}
+``
+
+### FILE: src/main/java/cn/longer233/gamenarrator/editor/EditorTimelineController.java
+
+``java
+package cn.longer233.gamenarrator.editor;
+
+import com.fasterxml.jackson.databind.JsonNode;
+import jakarta.validation.Valid;
+import org.springframework.web.bind.annotation.*;
+import java.util.Map;
+import java.util.UUID;
+
+@RestController
+@RequestMapping("/api/tasks/{taskId}/editor")
+public class EditorTimelineController {
+    private final EditorTimelineService service;
+    public EditorTimelineController(EditorTimelineService service) { this.service = service; }
+    @GetMapping public JsonNode timeline(@PathVariable UUID taskId) { return service.timeline(taskId); }
+    @PostMapping("/commands") public JsonNode command(@PathVariable UUID taskId, @Valid @RequestBody EditorCommandRequest request) { return service.command(taskId, request); }
+    @GetMapping("/waveform") public Map<String,Object> waveform(@PathVariable UUID taskId, @RequestParam(defaultValue="800") int points) { return service.waveform(taskId, points); }
+}
+``
+
+### FILE: src/main/java/cn/longer233/gamenarrator/editor/EditorTimelineService.java
+
+``java
+package cn.longer233.gamenarrator.editor;
+
+import cn.longer233.gamenarrator.script.ScriptWorkspaceService;
+import cn.longer233.gamenarrator.script.StoryboardSegmentView;
+import cn.longer233.gamenarrator.task.application.TaskNotFoundException;
+import cn.longer233.gamenarrator.task.domain.VideoTask;
+import cn.longer233.gamenarrator.task.repository.VideoTaskRepository;
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.node.ArrayNode;
+import com.fasterxml.jackson.databind.node.ObjectNode;
+import jakarta.transaction.Transactional;
+import org.springframework.jdbc.core.JdbcTemplate;
+import org.springframework.stereotype.Service;
+
+import javax.sound.sampled.AudioSystem;
+import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.security.MessageDigest;
+import java.time.OffsetDateTime;
+import java.util.*;
+
+@Service
+public class EditorTimelineService {
+    private static final UUID LOCAL_USER = UUID.fromString("00000000-0000-0000-0000-000000000001");
+    private final JdbcTemplate jdbc;
+    private final ObjectMapper mapper;
+    private final VideoTaskRepository tasks;
+    private final ScriptWorkspaceService workspace;
+
+    public EditorTimelineService(JdbcTemplate jdbc, ObjectMapper mapper, VideoTaskRepository tasks,
+                                 ScriptWorkspaceService workspace) {
+        this.jdbc = jdbc; this.mapper = mapper; this.tasks = tasks; this.workspace = workspace;
+    }
+
+    @Transactional
+    public JsonNode timeline(UUID taskId) { return timelineFrom(currentManifest(taskId), taskId); }
+
+    @Transactional
+    public JsonNode command(UUID taskId, EditorCommandRequest request) {
+        String type = request.type().trim().toUpperCase(Locale.ROOT);
+        if ("UNDO".equals(type)) return undo(taskId);
+        if ("REDO".equals(type)) return redo(taskId);
+        ObjectNode manifest = currentManifest(taskId);
+        ObjectNode timeline = timelineFrom(manifest, taskId);
+        Map<String, Object> values = request.values();
+        switch (type) {
+            case "SPLIT" -> split(timeline, text(values, "clipId"), number(values, "atSeconds"));
+            case "MOVE" -> move(timeline, text(values, "clipId"), text(values, "trackId"),
+                    number(values, "timelineStartSeconds"), bool(values, "snap", true));
+            case "TRIM" -> trim(timeline, text(values, "clipId"), number(values, "sourceStartSeconds"),
+                    number(values, "sourceEndSeconds"));
+            case "TRACK_STATE" -> trackState(timeline, text(values, "trackId"),
+                    bool(values, "muted", false), bool(values, "solo", false));
+            case "KEYFRAME_SET" -> keyframe(timeline, text(values, "clipId"), text(values, "property"),
+                    number(values, "timeSeconds"), number(values, "value"));
+            case "COLOR_SET" -> color(timeline, text(values, "clipId"), values);
+            default -> throw new IllegalArgumentException("不支持的剪辑命令：" + type);
+        }
+        manifest.set("editorTimeline", timeline);
+        saveRevision(taskId, manifest, type, "手动剪辑：" + type);
+        return timeline;
+    }
+
+    @Transactional
+    public Map<String, Object> waveform(UUID taskId, int points) {
+        VideoTask task = requireTask(taskId);
+        int target = Math.max(64, Math.min(4096, points));
+        if (task.getExtractedAudioPath() == null) return Map.of("points", List.of(), "available", false);
+        Path audio = Path.of(task.getExtractedAudioPath()).toAbsolutePath().normalize();
+        if (!Files.isRegularFile(audio)) return Map.of("points", List.of(), "available", false);
+        try (var input = AudioSystem.getAudioInputStream(audio.toFile())) {
+            byte[] bytes = input.readAllBytes();
+            int frameSize = Math.max(1, input.getFormat().getFrameSize());
+            int frames = bytes.length / frameSize;
+            int bucket = Math.max(1, frames / target);
+            List<Double> peaks = new ArrayList<>();
+            for (int start = 0; start < frames; start += bucket) {
+                int end = Math.min(frames, start + bucket); double peak = 0;
+                for (int frame = start; frame < end; frame++) {
+                    int offset = frame * frameSize;
+                    if (offset + 1 >= bytes.length) break;
+                    int sample = (short) ((bytes[offset] & 0xff) | (bytes[offset + 1] << 8));
+                    peak = Math.max(peak, Math.abs(sample) / 32768.0);
+                }
+                peaks.add(Math.round(peak * 1000.0) / 1000.0);
+            }
+            return Map.of("points", peaks, "available", true,
+                    "durationSeconds", frames / input.getFormat().getFrameRate());
+        } catch (Exception exception) {
+            throw new IllegalStateException("无法生成音频波形：" + exception.getMessage(), exception);
+        }
+    }
+
+    private ObjectNode timelineFrom(ObjectNode manifest, UUID taskId) {
+        if (manifest.path("editorTimeline").isObject()) return (ObjectNode) manifest.path("editorTimeline").deepCopy();
+        ObjectNode timeline = mapper.createObjectNode(); timeline.put("version", 1); timeline.put("snapSeconds", .15);
+        ArrayNode tracks = timeline.putArray("tracks");
+        addTrack(tracks, "video-1", "VIDEO", "主视频", 0);
+        addTrack(tracks, "overlay-1", "OVERLAY", "叠加", 1);
+        addTrack(tracks, "audio-1", "AUDIO", "原声/配音", 2);
+        addTrack(tracks, "subtitle-1", "SUBTITLE", "字幕", 3);
+        ArrayNode clips = timeline.putArray("clips"); double cursor = 0;
+        List<StoryboardSegmentView> segments;
+        try {
+            segments = workspace.storyboard(taskId).segments();
+        } catch (RuntimeException unavailable) {
+            segments = List.of();
+        }
+        for (StoryboardSegmentView segment : segments) {
+            ObjectNode clip = clips.addObject();
+            clip.put("id", "clip-" + segment.clipIndex()); clip.put("trackId", "video-1");
+            clip.put("sourceStartSeconds", segment.startSeconds()); clip.put("sourceEndSeconds", segment.endSeconds());
+            clip.put("timelineStartSeconds", cursor); clip.put("durationSeconds", segment.endSeconds() - segment.startSeconds());
+            clip.put("sourceVolume", 1.0); clip.put("muted", false); clip.putObject("color")
+                    .put("brightness", 0).put("contrast", 1).put("saturation", 1).put("temperature", 0);
+            clip.putArray("keyframes"); cursor += segment.endSeconds() - segment.startSeconds();
+        }
+        if (clips.isEmpty()) {
+            VideoTask task = requireTask(taskId);
+            double duration = task.getDurationSeconds() == null
+                    ? task.getTargetDurationSeconds() : task.getDurationSeconds();
+            ObjectNode clip = clips.addObject();
+            clip.put("id", "source-video"); clip.put("trackId", "video-1");
+            clip.put("sourceStartSeconds", 0); clip.put("sourceEndSeconds", duration);
+            clip.put("timelineStartSeconds", 0); clip.put("durationSeconds", duration);
+            clip.put("sourceVolume", 1.0); clip.put("muted", false); clip.putObject("color")
+                    .put("brightness", 0).put("contrast", 1).put("saturation", 1).put("temperature", 0);
+            clip.putArray("keyframes"); cursor = duration;
+        }
+        timeline.put("durationSeconds", cursor); return timeline;
+    }
+
+    private void addTrack(ArrayNode tracks, String id, String type, String name, int order) {
+        tracks.addObject().put("id", id).put("type", type).put("name", name).put("order", order)
+                .put("muted", false).put("solo", false).put("locked", false);
+    }
+
+    private void split(ObjectNode timeline, String clipId, double at) {
+        ArrayNode clips = (ArrayNode) timeline.path("clips"); ObjectNode clip = clip(clips, clipId);
+        double start = clip.path("timelineStartSeconds").asDouble(), duration = clip.path("durationSeconds").asDouble();
+        if (at <= start + .04 || at >= start + duration - .04) throw new IllegalArgumentException("分割点必须位于片段内部");
+        double left = at - start; ObjectNode right = clip.deepCopy(); right.put("id", UUID.randomUUID().toString());
+        right.put("timelineStartSeconds", at); right.put("sourceStartSeconds", clip.path("sourceStartSeconds").asDouble() + left);
+        right.put("durationSeconds", duration - left); clip.put("sourceEndSeconds", right.path("sourceStartSeconds").asDouble());
+        clip.put("durationSeconds", left); clips.add(right);
+    }
+
+    private void move(ObjectNode timeline, String clipId, String trackId, double start, boolean snap) {
+        ObjectNode clip = clip((ArrayNode) timeline.path("clips"), clipId);
+        if (timeline.path("tracks").findValuesAsText("id").stream().noneMatch(trackId::equals)) throw new IllegalArgumentException("轨道不存在");
+        clip.put("trackId", trackId); clip.put("timelineStartSeconds", snap ? snapped(timeline, clipId, start) : Math.max(0, start));
+        recalculateDuration(timeline);
+    }
+
+    private double snapped(ObjectNode timeline, String clipId, double value) {
+        double best = Math.max(0, value), distance = timeline.path("snapSeconds").asDouble(.15);
+        for (JsonNode item : timeline.path("clips")) if (!clipId.equals(item.path("id").asText())) {
+            for (double edge : new double[]{item.path("timelineStartSeconds").asDouble(), item.path("timelineStartSeconds").asDouble() + item.path("durationSeconds").asDouble()})
+                if (Math.abs(edge - value) <= distance) { best = edge; distance = Math.abs(edge - value); }
+        }
+        return best;
+    }
+
+    private void trim(ObjectNode timeline, String clipId, double sourceStart, double sourceEnd) {
+        if (sourceEnd <= sourceStart + .04) throw new IllegalArgumentException("修剪后片段过短");
+        ObjectNode clip = clip((ArrayNode) timeline.path("clips"), clipId);
+        clip.put("sourceStartSeconds", sourceStart); clip.put("sourceEndSeconds", sourceEnd);
+        clip.put("durationSeconds", sourceEnd - sourceStart); recalculateDuration(timeline);
+    }
+
+    private void trackState(ObjectNode timeline, String id, boolean muted, boolean solo) {
+        for (JsonNode item : timeline.path("tracks")) if (id.equals(item.path("id").asText())) {
+            ((ObjectNode) item).put("muted", muted).put("solo", solo); return;
+        }
+        throw new IllegalArgumentException("轨道不存在");
+    }
+
+    private void keyframe(ObjectNode timeline, String id, String property, double time, double value) {
+        if (!Set.of("scale", "x", "y", "opacity", "volume").contains(property)) throw new IllegalArgumentException("不支持的关键帧属性");
+        ObjectNode clip = clip((ArrayNode) timeline.path("clips"), id); ArrayNode frames = (ArrayNode) clip.withArray("keyframes");
+        for (JsonNode frame : frames) if (property.equals(frame.path("property").asText()) && Math.abs(time-frame.path("timeSeconds").asDouble()) < .001) {
+            ((ObjectNode) frame).put("value", value); return;
+        }
+        frames.addObject().put("property", property).put("timeSeconds", time).put("value", value);
+    }
+
+    private void color(ObjectNode timeline, String id, Map<String, Object> values) {
+        ObjectNode color = clip((ArrayNode) timeline.path("clips"), id).with("color");
+        color.put("brightness", bounded(number(values, "brightness"), -1, 1));
+        color.put("contrast", bounded(number(values, "contrast"), 0, 3));
+        color.put("saturation", bounded(number(values, "saturation"), 0, 3));
+        color.put("temperature", bounded(number(values, "temperature"), -1, 1));
+    }
+
+    private JsonNode undo(UUID id) {
+        UUID current = currentRevision(id); UUID parent = jdbc.queryForObject("SELECT parent_revision_id FROM project_revision WHERE id=?", UUID.class, current);
+        if (parent != null) jdbc.update("UPDATE video_project SET current_revision_id=?,updated_at=CURRENT_TIMESTAMP WHERE id=?", parent, id);
+        return timeline(id);
+    }
+    private JsonNode redo(UUID id) {
+        UUID current = currentRevision(id);
+        List<UUID> children = jdbc.query("SELECT id FROM project_revision WHERE project_id=? AND parent_revision_id=? ORDER BY revision_no DESC", (rs,n)->rs.getObject(1,UUID.class), id,current);
+        if (!children.isEmpty()) jdbc.update("UPDATE video_project SET current_revision_id=?,updated_at=CURRENT_TIMESTAMP WHERE id=?", children.getFirst(), id);
+        return timeline(id);
+    }
+
+    private ObjectNode currentManifest(UUID id) { requireTask(id); try { return (ObjectNode) mapper.readTree(jdbc.queryForObject("SELECT manifest_json FROM project_revision WHERE id=?", String.class, currentRevision(id))); } catch(Exception e){throw new IllegalStateException("工程清单无法读取",e);} }
+    private UUID currentRevision(UUID id) { return jdbc.queryForObject("SELECT current_revision_id FROM video_project WHERE id=?", UUID.class, id); }
+    private void saveRevision(UUID id, ObjectNode manifest, String type, String summary) {
+        try {
+            UUID parent=currentRevision(id), revision=UUID.randomUUID(); String json=mapper.writeValueAsString(manifest);
+            Integer no=jdbc.queryForObject("SELECT COALESCE(MAX(revision_no),0)+1 FROM project_revision WHERE project_id=?",Integer.class,id);
+            jdbc.update("INSERT INTO project_revision(id,project_id,revision_no,parent_revision_id,created_by,change_type,change_summary,parameter_snapshot_json,manifest_json,manifest_schema_version,manifest_sha256,created_at) VALUES(?,?,?,?,?,?,?,?,?,?,?,?)",
+                    revision,id,no,parent,LOCAL_USER,type,summary,"{}",json,3,HexFormat.of().formatHex(MessageDigest.getInstance("SHA-256").digest(json.getBytes(StandardCharsets.UTF_8))),OffsetDateTime.now());
+            jdbc.update("UPDATE video_project SET current_revision_id=?,updated_at=CURRENT_TIMESTAMP,version=version+1 WHERE id=?",revision,id);
+        } catch(Exception e){throw new IllegalStateException("无法保存剪辑版本",e);}
+    }
+    private ObjectNode clip(ArrayNode clips,String id){for(JsonNode n:clips)if(id.equals(n.path("id").asText()))return(ObjectNode)n;throw new IllegalArgumentException("片段不存在");}
+    private void recalculateDuration(ObjectNode t){double end=0;for(JsonNode n:t.path("clips"))end=Math.max(end,n.path("timelineStartSeconds").asDouble()+n.path("durationSeconds").asDouble());t.put("durationSeconds",end);}
+    private VideoTask requireTask(UUID id){return tasks.findById(id).orElseThrow(()->new TaskNotFoundException(id));}
+    private String text(Map<String,Object>v,String k){String s=Objects.toString(v.get(k),"").trim();if(s.isEmpty())throw new IllegalArgumentException(k+"不能为空");return s;}
+    private double number(Map<String,Object>v,String k){Object n=v.get(k);if(n instanceof Number x)return x.doubleValue();try{return Double.parseDouble(Objects.toString(n));}catch(Exception e){throw new IllegalArgumentException(k+"必须是数字");}}
+    private boolean bool(Map<String,Object>v,String k,boolean d){Object n=v.get(k);return n==null?d:Boolean.parseBoolean(n.toString());}
+    private double bounded(double v,double min,double max){return Math.max(min,Math.min(max,v));}
+}
+``
+
+### FILE: src/main/java/cn/longer233/gamenarrator/effect/EffectController.java
+
+``java
+package cn.longer233.gamenarrator.effect;
+
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
+
+import java.util.List;
+
+@RestController
+@RequestMapping("/api/effect-presets")
+public class EffectController {
+    private final EffectPresetCatalog catalog;
+
+    public EffectController(EffectPresetCatalog catalog) {
+        this.catalog = catalog;
+    }
+
+    @GetMapping
+    public List<EffectPreset> list() {
+        return catalog.all();
+    }
+}
+``
+
+### FILE: src/main/java/cn/longer233/gamenarrator/effect/EffectPlan.java
+
+``java
+package cn.longer233.gamenarrator.effect;
+
+import java.util.List;
+
+public record EffectPlan(
+        List<VisualEffectType> effects,
+        TransitionType transition,
+        String reason
+) {
+}
+``
+
+### FILE: src/main/java/cn/longer233/gamenarrator/effect/EffectPreset.java
+
+``java
+package cn.longer233.gamenarrator.effect;
+
+import java.util.List;
+
+public record EffectPreset(
+        String code,
+        String name,
+        String description,
+        double defaultIntensity,
+        int maxEffectsPerClip,
+        double transitionDurationSeconds,
+        String subtitleTheme,
+        double sourceAudioVolume,
+        List<VisualEffectType> preferredEffects,
+        List<TransitionType> allowedTransitions
+) {
+}
+``
+
+### FILE: src/main/java/cn/longer233/gamenarrator/effect/EffectPresetCatalog.java
+
+``java
+package cn.longer233.gamenarrator.effect;
+
+import org.springframework.stereotype.Component;
+
+import java.util.List;
+
+@Component
+public class EffectPresetCatalog {
+    private final List<EffectPreset> presets = List.of(
+            new EffectPreset("ANIME_THEATER", "动漫剧场",
+                    "强调登场、反转和画面冲击，适合剧情向游戏与动漫解说。",
+                    0.78, 3, 0.28, "ANIME_OUTLINE", 0.18,
+                    List.of(VisualEffectType.TITLE_CARD, VisualEffectType.ZOOM_PUNCH,
+                            VisualEffectType.WHITE_FLASH, VisualEffectType.CINEMA_BARS),
+                    List.of(TransitionType.HARD_CUT, TransitionType.FADE,
+                            TransitionType.DISSOLVE, TransitionType.ANIME_IMPACT)),
+            new EffectPreset("PASSIONATE", "热血高燃",
+                    "更高频的缩放、震动和闪白，适合 Boss 战、击杀和竞技高光。",
+                    0.92, 3, 0.18, "IMPACT_RED", 0.14,
+                    List.of(VisualEffectType.ZOOM_PUNCH, VisualEffectType.CAMERA_SHAKE,
+                            VisualEffectType.WHITE_FLASH, VisualEffectType.SPEED_LINES),
+                    List.of(TransitionType.HARD_CUT, TransitionType.PUSH, TransitionType.ANIME_IMPACT)),
+            new EffectPreset("HUMOROUS", "轻松吐槽",
+                    "以定格、局部放大和短停顿为主，减少强烈闪烁。",
+                    0.66, 2, 0.22, "COMEDY_POP", 0.16,
+                    List.of(VisualEffectType.FREEZE_ACCENT, VisualEffectType.ZOOM_PUNCH,
+                            VisualEffectType.TITLE_CARD),
+                    List.of(TransitionType.HARD_CUT, TransitionType.FADE, TransitionType.PUSH)),
+            new EffectPreset("SUSPENSE", "悬疑叙事",
+                    "慢节奏推进、暗角和电影黑边，适合恐怖与解谜内容。",
+                    0.62, 2, 0.45, "TYPEWRITER_DARK", 0.12,
+                    List.of(VisualEffectType.SLOW_MOTION, VisualEffectType.CINEMA_BARS,
+                            VisualEffectType.TITLE_CARD),
+                    List.of(TransitionType.FADE, TransitionType.DISSOLVE, TransitionType.HARD_CUT)),
+            new EffectPreset("CLEAN", "简洁记录",
+                    "保留自然画面，只使用轻量淡入和基础字幕。",
+                    0.30, 1, 0.20, "CLEAN_WHITE", 0.24,
+                    List.of(VisualEffectType.TITLE_CARD),
+                    List.of(TransitionType.HARD_CUT, TransitionType.FADE)),
+            new EffectPreset("PREMIERE_CINEMATIC", "PR · 电影质感",
+                    "参考 Premiere 常见的 Lumetri 对比、暗角、电影黑边和柔和转场。",
+                    0.58, 3, 0.42, "CLEAN_WHITE", 0.16,
+                    List.of(VisualEffectType.HIGH_CONTRAST, VisualEffectType.VIGNETTE,
+                            VisualEffectType.CINEMA_BARS, VisualEffectType.WARM_TONE),
+                    List.of(TransitionType.DISSOLVE, TransitionType.FADE, TransitionType.HARD_CUT)),
+            new EffectPreset("PREMIERE_DOCUMENTARY", "PR · 纪实清晰",
+                    "保留真实画面，以轻微对比和冷色校正为主，减少强烈动态效果。",
+                    0.34, 2, 0.24, "CLEAN_WHITE", 0.25,
+                    List.of(VisualEffectType.HIGH_CONTRAST, VisualEffectType.COOL_TONE,
+                            VisualEffectType.TITLE_CARD),
+                    List.of(TransitionType.HARD_CUT, TransitionType.DISSOLVE)),
+            new EffectPreset("PREMIERE_RETRO", "PR · 复古回忆",
+                    "参考黑白、暖色、暗角与轻柔模糊的复古组合。",
+                    0.55, 3, 0.38, "TYPEWRITER_DARK", 0.17,
+                    List.of(VisualEffectType.WARM_TONE, VisualEffectType.VIGNETTE,
+                            VisualEffectType.BLACK_AND_WHITE, VisualEffectType.GAUSSIAN_BLUR),
+                    List.of(TransitionType.FADE, TransitionType.DISSOLVE)),
+            new EffectPreset("PREMIERE_GLITCH", "PR · 数字故障",
+                    "RGB 分离、镜头畸变、像素化与短促冲击，适合科技和故障段落。",
+                    0.76, 3, 0.16, "IMPACT_RED", 0.13,
+                    List.of(VisualEffectType.RGB_SPLIT, VisualEffectType.LENS_DISTORTION,
+                            VisualEffectType.PIXELATE, VisualEffectType.CAMERA_SHAKE),
+                    List.of(TransitionType.HARD_CUT, TransitionType.PUSH, TransitionType.ANIME_IMPACT)),
+            new EffectPreset("PREMIERE_DREAM", "PR · 梦境柔焦",
+                    "模糊、冷色与暗角组合，适合回忆、梦境和舒缓段落。",
+                    0.48, 3, 0.48, "ANIME_OUTLINE", 0.12,
+                    List.of(VisualEffectType.GAUSSIAN_BLUR, VisualEffectType.COOL_TONE,
+                            VisualEffectType.VIGNETTE, VisualEffectType.SLOW_MOTION),
+                    List.of(TransitionType.DISSOLVE, TransitionType.FADE))
+    );
+
+    public List<EffectPreset> all() {
+        return presets;
+    }
+
+    public EffectPreset require(String code) {
+        return presets.stream().filter(item -> item.code().equalsIgnoreCase(code))
+                .findFirst().orElseThrow(() -> new IllegalArgumentException("未知特效预设：" + code));
+    }
+}
+``
+
+### FILE: src/main/java/cn/longer233/gamenarrator/effect/EffectRerenderWorker.java
+
+``java
+package cn.longer233.gamenarrator.effect;
+
+import cn.longer233.gamenarrator.pipeline.TaskWorkflowStateService;
+import cn.longer233.gamenarrator.render.FfmpegVideoRenderer;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.scheduling.annotation.Async;
+import org.springframework.stereotype.Component;
+
+import java.nio.file.Path;
+import java.util.UUID;
+
+@Component
+public class EffectRerenderWorker {
+    private static final Logger log = LoggerFactory.getLogger(EffectRerenderWorker.class);
+    private final TaskWorkflowStateService state;
+    private final FfmpegVideoRenderer renderer;
+    private final EffectPresetCatalog presetCatalog;
+
+    public EffectRerenderWorker(TaskWorkflowStateService state, FfmpegVideoRenderer renderer,
+                                EffectPresetCatalog presetCatalog) {
+        this.state = state;
+        this.renderer = renderer;
+        this.presetCatalog = presetCatalog;
+    }
+
+    @Async
+    public void rerender(UUID taskId, EffectSettingsRequest settings) {
+        try {
+            var context = state.context(taskId);
+            if (context.timelinePath() == null) throw new IllegalStateException("任务尚未生成时间线");
+            state.markRenderingRunning(taskId);
+            EffectPreset preset = presetCatalog.require(settings.presetCode());
+            if (settings.intensity() != null) {
+                preset = new EffectPreset(preset.code(), preset.name(), preset.description(),
+                        settings.intensity(), preset.maxEffectsPerClip(),
+                        preset.transitionDurationSeconds(), preset.subtitleTheme(),
+                        preset.sourceAudioVolume(), preset.preferredEffects(), preset.allowedTransitions());
+            }
+            var result = renderer.render(Path.of(context.sourceVideoPath()),
+                    Path.of(context.timelinePath()), context.hasAudio(), preset, settings);
+            state.markRenderingCompleted(taskId, result);
+            log.info("EFFECT_RERENDER_SUCCESS taskId={} output={}", taskId, result.videoPath());
+        } catch (Exception exception) {
+            state.markRenderingFailed(taskId, exception.getMessage());
+            log.error("EFFECT_RERENDER_FAILED taskId={}", taskId, exception);
+        }
+    }
+}
+``
+
+### FILE: src/main/java/cn/longer233/gamenarrator/effect/EffectSettingsRequest.java
+
+``java
+package cn.longer233.gamenarrator.effect;
+
+import jakarta.validation.constraints.DecimalMax;
+import jakarta.validation.constraints.DecimalMin;
+import jakarta.validation.constraints.NotBlank;
+
+public record EffectSettingsRequest(
+        @NotBlank String presetCode,
+        @DecimalMin("0.0") @DecimalMax("1.0") Double intensity,
+        Boolean dynamicSubtitles,
+        Boolean soundEffects
+) {
+    public static EffectSettingsRequest defaults() {
+        return new EffectSettingsRequest("ANIME_THEATER", null, true, false);
+    }
+}
+``
+
+### FILE: src/main/java/cn/longer233/gamenarrator/effect/SemanticEffectPlanner.java
+
+``java
+package cn.longer233.gamenarrator.effect;
+
+import org.springframework.stereotype.Component;
+
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Locale;
+
+@Component
+public class SemanticEffectPlanner {
+
+    public EffectPlan plan(String cue, String narration, int sequence) {
+        return plan(cue, narration, sequence, null);
+    }
+
+    public EffectPlan plan(String cue, String narration, int sequence, EffectPreset preset) {
+        String text = ((cue == null ? "" : cue) + " " + (narration == null ? "" : narration))
+                .toLowerCase(Locale.ROOT);
+        List<VisualEffectType> effects = new ArrayList<>();
+        TransitionType transition = TransitionType.HARD_CUT;
+        List<String> reasons = new ArrayList<>();
+
+        if (contains(text, "冲击", "高燃", "击杀", "爆发", "反转", "impact")) {
+            add(effects, VisualEffectType.ZOOM_PUNCH, VisualEffectType.WHITE_FLASH);
+            transition = TransitionType.ANIME_IMPACT;
+            reasons.add("冲击/高燃语义");
+        }
+        if (contains(text, "震动", "爆炸", "重击", "boss", "战斗")) {
+            add(effects, VisualEffectType.CAMERA_SHAKE);
+            reasons.add("战斗语义");
+        }
+        if (contains(text, "速度线", "冲刺", "加速", "追击", "疾驰")) {
+            add(effects, VisualEffectType.SPEED_LINES);
+            transition = TransitionType.PUSH;
+            reasons.add("高速运动语义");
+        }
+        if (contains(text, "慢放", "慢动作", "悬念", "紧张", "凝固")) {
+            add(effects, VisualEffectType.SLOW_MOTION, VisualEffectType.CINEMA_BARS);
+            transition = TransitionType.DISSOLVE;
+            reasons.add("悬念/慢动作语义");
+        }
+        if (contains(text, "定格", "搞笑", "吐槽", "尴尬", "失败")) {
+            add(effects, VisualEffectType.FREEZE_ACCENT);
+            reasons.add("定格强调语义");
+        }
+        if (contains(text, "标题", "登场", "章节", "人物介绍", "开场")) {
+            add(effects, VisualEffectType.TITLE_CARD);
+            transition = TransitionType.FADE;
+            reasons.add("标题/登场语义");
+        }
+        if (contains(text, "模糊", "柔焦", "梦境", "回忆", "blur")) {
+            add(effects, VisualEffectType.GAUSSIAN_BLUR, VisualEffectType.VIGNETTE);
+            transition = TransitionType.DISSOLVE;
+            reasons.add("模糊/梦境语义");
+        }
+        if (contains(text, "黑白", "单色", "往事", "black and white")) {
+            add(effects, VisualEffectType.BLACK_AND_WHITE);
+            reasons.add("黑白语义");
+        }
+        if (contains(text, "暖色", "夕阳", "温暖", "怀旧")) {
+            add(effects, VisualEffectType.WARM_TONE, VisualEffectType.VIGNETTE);
+            reasons.add("暖色语义");
+        }
+        if (contains(text, "冷色", "冰冷", "科技", "夜晚")) {
+            add(effects, VisualEffectType.COOL_TONE);
+            reasons.add("冷色语义");
+        }
+        if (contains(text, "故障", "干扰", "rgb", "像素", "马赛克", "glitch")) {
+            add(effects, VisualEffectType.RGB_SPLIT, VisualEffectType.PIXELATE);
+            transition = TransitionType.HARD_CUT;
+            reasons.add("数字故障语义");
+        }
+        if (contains(text, "镜像", "翻转", "反向")) {
+            add(effects, VisualEffectType.HORIZONTAL_FLIP);
+            reasons.add("镜像语义");
+        }
+        if (effects.isEmpty()) {
+            if (sequence == 1) {
+                effects.add(VisualEffectType.TITLE_CARD);
+                transition = TransitionType.FADE;
+                reasons.add("首段默认开场");
+            } else {
+                effects.add(VisualEffectType.ZOOM_PUNCH);
+                reasons.add("节奏转场默认强调");
+            }
+        }
+        if (preset != null) {
+            effects.removeIf(effect -> !preset.preferredEffects().contains(effect));
+            if (effects.isEmpty() && !preset.preferredEffects().isEmpty()) {
+                effects.add(preset.preferredEffects().getFirst());
+                reasons.add("预设默认效果");
+            }
+            while (effects.size() > preset.maxEffectsPerClip()) effects.remove(effects.size() - 1);
+            if ("PASSIONATE".equals(preset.code()) && reasons.contains("预设默认效果")
+                    && preset.allowedTransitions().contains(TransitionType.ANIME_IMPACT)) {
+                transition = TransitionType.ANIME_IMPACT;
+            }
+            if (!preset.allowedTransitions().contains(transition)) {
+                transition = preset.allowedTransitions().getFirst();
+            }
+            reasons.add("预设：" + preset.name());
+        }
+        return new EffectPlan(List.copyOf(effects), transition, String.join("、", reasons));
+    }
+
+    private boolean contains(String value, String... words) {
+        for (String word : words) if (value.contains(word)) return true;
+        return false;
+    }
+
+    private void add(List<VisualEffectType> target, VisualEffectType... values) {
+        for (VisualEffectType value : values) if (!target.contains(value)) target.add(value);
+    }
+}
+``
+
+### FILE: src/main/java/cn/longer233/gamenarrator/effect/TransitionType.java
+
+``java
+package cn.longer233.gamenarrator.effect;
+
+public enum TransitionType {
+    HARD_CUT,
+    FADE,
+    DISSOLVE,
+    PUSH,
+    ANIME_IMPACT
+}
+``
+
+### FILE: src/main/java/cn/longer233/gamenarrator/effect/VisualEffectType.java
+
+``java
+package cn.longer233.gamenarrator.effect;
+
+public enum VisualEffectType {
+    ZOOM_PUNCH,
+    CAMERA_SHAKE,
+    WHITE_FLASH,
+    SLOW_MOTION,
+    FREEZE_ACCENT,
+    SPEED_LINES,
+    CINEMA_BARS,
+    TITLE_CARD,
+    GAUSSIAN_BLUR,
+    VIGNETTE,
+    BLACK_AND_WHITE,
+    WARM_TONE,
+    COOL_TONE,
+    HIGH_CONTRAST,
+    RGB_SPLIT,
+    HORIZONTAL_FLIP,
+    PIXELATE,
+    LENS_DISTORTION
+}
+``
+
+### FILE: src/main/java/cn/longer233/gamenarrator/export/CreateExportRequest.java
+
+``java
+package cn.longer233.gamenarrator.export;
+
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotNull;
+
+import java.util.UUID;
+
+public record CreateExportRequest(
+        @NotNull UUID presetId,
+        @NotBlank String exportName,
+        Integer width,
+        Integer height,
+        Double frameRate,
+        Integer qualityValue,
+        Integer targetBitrateKbps,
+        String subtitleMode
+) {
+}
+``
+
+### FILE: src/main/java/cn/longer233/gamenarrator/export/ExportController.java
+
+``java
+package cn.longer233.gamenarrator.export;
+
+import jakarta.validation.Valid;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.*;
+
+import java.nio.charset.StandardCharsets;
+import java.util.List;
+import java.util.UUID;
+
+@RestController
+@RequestMapping("/api")
+public class ExportController {
+    private final ExportService service;
+
+    public ExportController(ExportService service) {
+        this.service = service;
+    }
+
+    @GetMapping("/export-presets")
+    public List<ExportPresetView> presets() {
+        return service.presets();
+    }
+
+    @GetMapping("/tasks/{taskId}/exports")
+    public List<ExportJobView> jobs(@PathVariable UUID taskId) {
+        return service.jobs(taskId);
+    }
+
+    @PostMapping("/tasks/{taskId}/exports")
+    public ResponseEntity<ExportJobView> create(@PathVariable UUID taskId,
+                                                @Valid @RequestBody CreateExportRequest request) {
+        return ResponseEntity.accepted().body(service.create(taskId, request));
+    }
+
+    @GetMapping("/exports/{jobId}")
+    public ExportJobView job(@PathVariable UUID jobId) {
+        return service.findJob(jobId);
+    }
+
+    @GetMapping("/exports/{jobId}/download")
+    public ResponseEntity<?> download(@PathVariable UUID jobId) {
+        var download = service.download(jobId);
+        String encoded = java.net.URLEncoder.encode(download.filename(), StandardCharsets.UTF_8).replace("+", "%20");
+        return ResponseEntity.ok()
+                .contentType(MediaType.APPLICATION_OCTET_STREAM)
+                .contentLength(download.resource().getFile().length())
+                .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename*=UTF-8''" + encoded)
+                .body(download.resource());
+    }
+}
+``
+
+### FILE: src/main/java/cn/longer233/gamenarrator/export/ExportJobView.java
+
+``java
+package cn.longer233.gamenarrator.export;
+
+import java.time.OffsetDateTime;
+import java.util.UUID;
+
+public record ExportJobView(
+        UUID id,
+        UUID projectId,
+        UUID presetId,
+        String presetName,
+        String exportName,
+        String container,
+        String status,
+        int progress,
+        String outputFileName,
+        Long outputSizeBytes,
+        String errorMessage,
+        int downloadCount,
+        OffsetDateTime createdAt,
+        OffsetDateTime completedAt
+) {
+}
+``
+
+### FILE: src/main/java/cn/longer233/gamenarrator/export/ExportPresetView.java
+
+``java
+package cn.longer233.gamenarrator.export;
+
+import java.util.UUID;
+
+public record ExportPresetView(
+        UUID id,
+        String name,
+        String description,
+        String container,
+        String videoCodec,
+        String audioCodec,
+        Integer width,
+        Integer height,
+        Double frameRate,
+        String rateControl,
+        Integer qualityValue,
+        Integer targetBitrateKbps,
+        String hardwareEncoder,
+        Integer audioBitrateKbps,
+        Integer audioSampleRate,
+        String subtitleMode
+) {
+}
+``
+
+### FILE: src/main/java/cn/longer233/gamenarrator/export/ExportService.java
+
+``java
+package cn.longer233.gamenarrator.export;
+
+import com.fasterxml.jackson.databind.ObjectMapper;
+import org.springframework.core.io.FileSystemResource;
+import org.springframework.jdbc.core.JdbcTemplate;
+import org.springframework.stereotype.Service;
+
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.time.OffsetDateTime;
+import java.util.List;
+import java.util.Locale;
+import java.util.Map;
+import java.util.UUID;
+
+@Service
+public class ExportService {
+    private final JdbcTemplate jdbc;
+    private final ObjectMapper objectMapper;
+    private final ExportWorker worker;
+
+    public ExportService(JdbcTemplate jdbc, ObjectMapper objectMapper, ExportWorker worker) {
+        this.jdbc = jdbc;
+        this.objectMapper = objectMapper;
+        this.worker = worker;
+    }
+
+    public List<ExportPresetView> presets() {
+        return jdbc.query("""
+                SELECT id,name,description,container,video_codec,audio_codec,width,height,frame_rate,
+                rate_control,quality_value,target_bitrate_kbps,hardware_encoder,audio_bitrate_kbps,
+                audio_sample_rate,subtitle_mode FROM export_preset ORDER BY system_preset DESC,name
+                """, (rs, n) -> new ExportPresetView(
+                rs.getObject("id", UUID.class), rs.getString("name"), rs.getString("description"),
+                rs.getString("container"), rs.getString("video_codec"), rs.getString("audio_codec"),
+                number(rs, "width"), number(rs, "height"),
+                rs.getObject("frame_rate") == null ? null : rs.getDouble("frame_rate"),
+                rs.getString("rate_control"), number(rs, "quality_value"), number(rs, "target_bitrate_kbps"),
+                rs.getString("hardware_encoder"), number(rs, "audio_bitrate_kbps"),
+                rs.getInt("audio_sample_rate"), rs.getString("subtitle_mode")));
+    }
+
+    public ExportJobView create(UUID taskId, CreateExportRequest request) {
+        Map<String, Object> task = jdbc.queryForMap("""
+                SELECT id,project_id,owner_id,rendered_video_path,generated_subtitle_path,
+                voice_manifest_path FROM video_tasks WHERE id=?
+                """, taskId);
+        Path source = requiredFile(task.get("RENDERED_VIDEO_PATH"), "任务尚未生成可导出的成片");
+        ExportPresetView preset = presets().stream().filter(item -> item.id().equals(request.presetId()))
+                .findFirst().orElseThrow(() -> new IllegalArgumentException("导出预设不存在"));
+        UUID projectId = (UUID) task.get("PROJECT_ID");
+        UUID ownerId = (UUID) task.get("OWNER_ID");
+        UUID revisionId = jdbc.queryForObject("SELECT current_revision_id FROM video_project WHERE id=?",
+                UUID.class, projectId);
+        if (revisionId == null) throw new IllegalStateException("项目没有可导出的工程版本");
+        UUID jobId = UUID.randomUUID();
+        String safeName = request.exportName().replaceAll("[\\\\/:*?\"<>|]", "_").trim();
+        if (safeName.isBlank()) safeName = "game-narrator-" + taskId;
+        String extension = preset.container().toLowerCase(Locale.ROOT);
+        Path output = source.getParent().resolve("exports").resolve(jobId + "-" + safeName + "." + extension);
+        String snapshot;
+        try {
+            snapshot = objectMapper.writeValueAsString(Map.of(
+                    "preset", preset, "overrides", request, "schemaVersion", 1));
+        } catch (Exception exception) {
+            throw new IllegalStateException("无法保存导出参数", exception);
+        }
+        jdbc.update("""
+                INSERT INTO export_job(id,project_id,revision_id,requested_by,preset_id,export_name,
+                settings_snapshot_json,status,progress,output_artifact_id,started_at,completed_at,
+                expires_at,downloaded_at,download_count,error_code,error_message,created_at)
+                VALUES(?,?,?,?,?,? ,?,'PENDING',0,NULL,NULL,NULL,NULL,NULL,0,NULL,NULL,?)
+                """, jobId, projectId, revisionId, ownerId, preset.id(), safeName, snapshot, OffsetDateTime.now());
+        worker.execute(jobId, source, optionalPath(task.get("GENERATED_SUBTITLE_PATH")),
+                optionalPath(task.get("VOICE_MANIFEST_PATH")), output, preset, request);
+        return findJob(jobId);
+    }
+
+    public List<ExportJobView> jobs(UUID taskId) {
+        return jdbc.query("""
+                SELECT ej.*,ep.name preset_name,ep.container,a.storage_key,a.size_bytes
+                FROM export_job ej JOIN export_preset ep ON ep.id=ej.preset_id
+                LEFT JOIN artifact a ON a.id=ej.output_artifact_id
+                WHERE ej.project_id=(SELECT project_id FROM video_tasks WHERE id=?)
+                ORDER BY ej.created_at DESC
+                """, (rs, n) -> map(rs), taskId);
+    }
+
+    public ExportJobView findJob(UUID id) {
+        return jdbc.queryForObject("""
+                SELECT ej.*,ep.name preset_name,ep.container,a.storage_key,a.size_bytes
+                FROM export_job ej JOIN export_preset ep ON ep.id=ej.preset_id
+                LEFT JOIN artifact a ON a.id=ej.output_artifact_id WHERE ej.id=?
+                """, (rs, n) -> map(rs), id);
+    }
+
+    public Download download(UUID jobId) {
+        Map<String, Object> row = jdbc.queryForMap("""
+                SELECT ej.export_name,ep.container,a.storage_key
+                FROM export_job ej JOIN export_preset ep ON ep.id=ej.preset_id
+                JOIN artifact a ON a.id=ej.output_artifact_id
+                WHERE ej.id=? AND ej.status='COMPLETED'
+                """, jobId);
+        Path path = requiredFile(row.get("STORAGE_KEY"), "导出文件不存在或已过期");
+        jdbc.update("UPDATE export_job SET download_count=download_count+1,downloaded_at=? WHERE id=?",
+                OffsetDateTime.now(), jobId);
+        return new Download(new FileSystemResource(path), row.get("EXPORT_NAME") + "." +
+                row.get("CONTAINER").toString().toLowerCase(Locale.ROOT));
+    }
+
+    private ExportJobView map(java.sql.ResultSet rs) throws java.sql.SQLException {
+        return new ExportJobView(rs.getObject("id", UUID.class), rs.getObject("project_id", UUID.class),
+                rs.getObject("preset_id", UUID.class), rs.getString("preset_name"), rs.getString("export_name"),
+                rs.getString("container"), rs.getString("status"), rs.getInt("progress"),
+                rs.getString("storage_key") == null ? null : Path.of(rs.getString("storage_key")).getFileName().toString(),
+                rs.getObject("size_bytes") == null ? null : rs.getLong("size_bytes"),
+                rs.getString("error_message"), rs.getInt("download_count"),
+                rs.getObject("created_at", OffsetDateTime.class),
+                rs.getObject("completed_at", OffsetDateTime.class));
+    }
+
+    private Integer number(java.sql.ResultSet rs, String name) throws java.sql.SQLException {
+        return rs.getObject(name) == null ? null : rs.getInt(name);
+    }
+
+    private Path requiredFile(Object value, String message) {
+        if (value == null) throw new IllegalStateException(message);
+        Path path = Path.of(value.toString()).toAbsolutePath().normalize();
+        if (!Files.isRegularFile(path)) throw new IllegalStateException(message);
+        return path;
+    }
+
+    private Path optionalPath(Object value) {
+        return value == null ? null : Path.of(value.toString()).toAbsolutePath().normalize();
+    }
+
+    public record Download(FileSystemResource resource, String filename) {}
+}
+``
+
+### FILE: src/main/java/cn/longer233/gamenarrator/export/ExportWorker.java
+
+``java
+package cn.longer233.gamenarrator.export;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.jdbc.core.JdbcTemplate;
+import org.springframework.scheduling.annotation.Async;
+import org.springframework.stereotype.Component;
+import cn.longer233.gamenarrator.media.FfmpegMediaProbe;
+
+import java.io.BufferedReader;
+import java.io.InputStreamReader;
+import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.security.MessageDigest;
+import java.time.Duration;
+import java.time.OffsetDateTime;
+import java.util.ArrayList;
+import java.util.HexFormat;
+import java.util.List;
+import java.util.UUID;
+import java.util.concurrent.TimeUnit;
+
+@Component
+public class ExportWorker {
+    private static final Logger log = LoggerFactory.getLogger(ExportWorker.class);
+    private final JdbcTemplate jdbc;
+    private final String ffmpegCommand;
+    private final FfmpegMediaProbe mediaProbe;
+
+    public ExportWorker(JdbcTemplate jdbc,
+                        @Value("${game-narrator.ffmpeg-command}") String ffmpegCommand,
+                        FfmpegMediaProbe mediaProbe) {
+        this.jdbc = jdbc;
+        this.ffmpegCommand = ffmpegCommand;
+        this.mediaProbe = mediaProbe;
+    }
+
+    @Async
+    public void execute(UUID jobId, Path sourceVideo, Path subtitle, Path voiceManifest,
+                        Path output, ExportPresetView preset, CreateExportRequest request) {
+        try {
+            update(jobId, "RUNNING", 10, null);
+            Files.createDirectories(output.getParent());
+            String container = preset.container().toUpperCase();
+            if ("SRT".equals(container)) {
+                if (subtitle == null || !Files.isRegularFile(subtitle)) {
+                    throw new IllegalStateException("当前任务没有可导出的字幕文件");
+                }
+                Files.copy(subtitle, output);
+            } else {
+                double durationSeconds = mediaProbe.inspect(sourceVideo).durationSeconds();
+                if ("WAV".equals(container)) {
+                    exportAudio(jobId, sourceVideo, output, request, preset, durationSeconds);
+                } else {
+                    exportVideo(jobId, sourceVideo, subtitle, output, preset, request, durationSeconds);
+                }
+            }
+            update(jobId, "RUNNING", 90, null);
+            registerArtifact(jobId, output);
+            jdbc.update("""
+                    UPDATE export_job SET status='COMPLETED', progress=100,
+                    completed_at=?, expires_at=? WHERE id=?
+                    """, OffsetDateTime.now(), OffsetDateTime.now().plusDays(7), jobId);
+            log.info("EXPORT_SUCCESS jobId={} preset={} output={} sizeBytes={}",
+                    jobId, preset.name(), output, Files.size(output));
+        } catch (Exception exception) {
+            String message = exception.getMessage() == null ? exception.getClass().getSimpleName() : exception.getMessage();
+            update(jobId, "FAILED", 0, message.length() > 1900 ? message.substring(0, 1900) : message);
+            log.error("EXPORT_FAILED jobId={} output={}", jobId, output, exception);
+        }
+    }
+
+    private void exportAudio(UUID jobId, Path source, Path output, CreateExportRequest request,
+                             ExportPresetView preset, double durationSeconds) {
+        run(jobId, List.of(ffmpegCommand, "-y", "-hide_banner", "-loglevel", "warning",
+                "-i", source.toString(), "-vn", "-c:a", "pcm_s16le",
+                "-ar", String.valueOf(preset.audioSampleRate()), "-ac", "2",
+                "-progress", "pipe:1", "-nostats", output.toString()), durationSeconds);
+    }
+
+    private void exportVideo(UUID jobId, Path source, Path subtitle, Path output,
+                             ExportPresetView preset, CreateExportRequest request, double durationSeconds) {
+        List<String> command = new ArrayList<>(List.of(ffmpegCommand, "-y", "-hide_banner",
+                "-loglevel", "warning", "-i", source.toString()));
+        Integer width = request.width() != null ? request.width() : preset.width();
+        Integer height = request.height() != null ? request.height() : preset.height();
+        Double frameRate = request.frameRate() != null ? request.frameRate() : preset.frameRate();
+        String subtitleMode = request.subtitleMode() == null ? preset.subtitleMode() : request.subtitleMode();
+        List<String> filters = new ArrayList<>();
+        if (width != null && height != null) filters.add("scale=" + width + ":" + height
+                + ":force_original_aspect_ratio=decrease,pad=" + width + ":" + height + ":(ow-iw)/2:(oh-ih)/2");
+        if ("BURN_IN".equalsIgnoreCase(subtitleMode)) {
+            if (subtitle == null || !Files.isRegularFile(subtitle)) {
+                throw new IllegalStateException("当前任务没有可烧录的字幕文件");
+            }
+            filters.add("subtitles='" + subtitle.toAbsolutePath().toString()
+                    .replace("\\", "/").replace(":", "\\:").replace("'", "\\'") + "'");
+        }
+        if (!filters.isEmpty()) command.addAll(List.of("-vf", String.join(",", filters)));
+        if (frameRate != null) command.addAll(List.of("-r", trim(frameRate)));
+        String encoder = encoder(preset.videoCodec(), preset.hardwareEncoder());
+        command.addAll(List.of("-c:v", encoder));
+        Integer quality = request.qualityValue() != null ? request.qualityValue() : preset.qualityValue();
+        Integer bitrate = request.targetBitrateKbps() != null ? request.targetBitrateKbps() : preset.targetBitrateKbps();
+        if (bitrate != null) command.addAll(List.of("-b:v", bitrate + "k"));
+        else if (quality != null && encoder.contains("nvenc")) command.addAll(List.of("-cq", String.valueOf(quality), "-preset", "p4"));
+        else if (quality != null) command.addAll(List.of("-crf", String.valueOf(quality)));
+        if ("PRORES".equalsIgnoreCase(preset.videoCodec())) command.addAll(List.of("-profile:v", "2"));
+        command.addAll(List.of("-map", "0:v:0", "-map", "0:a:0?"));
+        if ("SOFT".equalsIgnoreCase(subtitleMode)) {
+            command.addAll(List.of("-map", "0:s:0?", "-c:s",
+                    "WEBM".equalsIgnoreCase(preset.container()) ? "webvtt" : "mov_text"));
+        }
+        command.addAll(List.of("-c:a", audioEncoder(preset.audioCodec())));
+        if ("AAC".equalsIgnoreCase(preset.audioCodec()) && preset.audioBitrateKbps() != null) {
+            command.addAll(List.of("-b:a", preset.audioBitrateKbps() + "k"));
+        }
+        command.addAll(List.of("-ar", String.valueOf(preset.audioSampleRate()), "-movflags", "+faststart",
+                "-progress", "pipe:1", "-nostats", output.toString()));
+        run(jobId, command, durationSeconds);
+    }
+
+    private String encoder(String codec, String hardware) {
+        if (hardware != null && !hardware.isBlank()) return hardware.toLowerCase();
+        return switch (codec.toUpperCase()) {
+            case "HEVC" -> "libx265";
+            case "AV1" -> "libsvtav1";
+            case "VP9" -> "libvpx-vp9";
+            case "PRORES" -> "prores_ks";
+            default -> "libx264";
+        };
+    }
+
+    private String audioEncoder(String codec) {
+        return switch (codec.toUpperCase()) {
+            case "OPUS" -> "libopus";
+            case "PCM" -> "pcm_s16le";
+            default -> "aac";
+        };
+    }
+
+    private void registerArtifact(UUID jobId, Path output) throws Exception {
+        var row = jdbc.queryForMap("""
+                SELECT ej.project_id, ej.revision_id, ej.requested_by
+                FROM export_job ej WHERE ej.id=?
+                """, jobId);
+        UUID artifactId = UUID.randomUUID();
+        jdbc.update("""
+                INSERT INTO artifact(id,owner_id,project_id,revision_id,generation_run_id,
+                artifact_type,storage_key,mime_type,size_bytes,sha256,schema_version,temporary,
+                expires_at,created_at,deleted_at)
+                VALUES(?,?,?,?,NULL,'EXPORT',?,?,?,?,NULL,TRUE,?,?,NULL)
+                """, artifactId, row.get("REQUESTED_BY"), row.get("PROJECT_ID"), row.get("REVISION_ID"),
+                output.toAbsolutePath().toString(), mime(output), Files.size(output), sha256(output),
+                OffsetDateTime.now().plusDays(7), OffsetDateTime.now());
+        jdbc.update("UPDATE export_job SET output_artifact_id=? WHERE id=?", artifactId, jobId);
+    }
+
+    private void update(UUID id, String status, int progress, String error) {
+        jdbc.update("UPDATE export_job SET status=?, progress=?, error_message=?, started_at=COALESCE(started_at,?) WHERE id=?",
+                status, progress, error, OffsetDateTime.now(), id);
+    }
+
+    private void run(UUID jobId, List<String> command, double durationSeconds) {
+        try {
+            log.info("EXPORT_FFMPEG command={}", command);
+            FfmpegProgressParser progressParser = new FfmpegProgressParser(durationSeconds);
+            java.util.concurrent.atomic.AtomicInteger lastProgress = new java.util.concurrent.atomic.AtomicInteger(10);
+            var result = cn.longer233.gamenarrator.common.ExternalProcessRunner.run(
+                    command, Duration.ofHours(2), null, line -> progressParser.parsePercent(line).ifPresent(progress -> {
+                        int previous = lastProgress.getAndUpdate(current -> Math.max(current, progress));
+                        if (progress > previous) {
+                            try {
+                                update(jobId, "RUNNING", progress, null);
+                            } catch (RuntimeException exception) {
+                                log.warn("EXPORT_PROGRESS_UPDATE_FAILED jobId={} progress={} message={}",
+                                        jobId, progress, exception.getMessage());
+                            }
+                        }
+                    }));
+            if (result.exitCode() != 0) {
+                throw new IllegalStateException("FFmpeg 导出失败：" + tail(result.output(), 1800));
+            }
+        } catch (cn.longer233.gamenarrator.common.ExternalProcessRunner.ProcessTimeoutException exception) {
+            throw new IllegalStateException("导出超时", exception);
+        } catch (InterruptedException exception) {
+            Thread.currentThread().interrupt();
+            throw new IllegalStateException("导出被中断", exception);
+        } catch (java.io.IOException exception) {
+            throw new IllegalStateException("无法启动 FFmpeg：" + exception.getMessage(), exception);
+        }
+    }
+
+    private String sha256(Path path) throws Exception {
+        MessageDigest digest = MessageDigest.getInstance("SHA-256");
+        try (var input = Files.newInputStream(path)) {
+            byte[] buffer = new byte[1024 * 1024];
+            int count;
+            while ((count = input.read(buffer)) >= 0) digest.update(buffer, 0, count);
+        }
+        return HexFormat.of().formatHex(digest.digest());
+    }
+
+    private String mime(Path path) {
+        String name = path.getFileName().toString().toLowerCase();
+        if (name.endsWith(".srt")) return "application/x-subrip";
+        if (name.endsWith(".wav")) return "audio/wav";
+        if (name.endsWith(".webm")) return "video/webm";
+        if (name.endsWith(".mov")) return "video/quicktime";
+        return "video/mp4";
+    }
+
+    private String trim(double value) {
+        return value == Math.rint(value) ? Long.toString(Math.round(value)) : Double.toString(value);
+    }
+
+    private String tail(String value, int limit) {
+        return value.length() <= limit ? value : value.substring(value.length() - limit);
+    }
+}
+``
+
+### FILE: src/main/java/cn/longer233/gamenarrator/export/FfmpegProgressParser.java
+
+``java
+package cn.longer233.gamenarrator.export;
+
+import java.util.OptionalInt;
+
+final class FfmpegProgressParser {
+    private final double durationSeconds;
+
+    FfmpegProgressParser(double durationSeconds) {
+        this.durationSeconds = durationSeconds;
+    }
+
+    OptionalInt parsePercent(String line) {
+        if (line == null || durationSeconds <= 0) return OptionalInt.empty();
+        int separator = line.indexOf('=');
+        if (separator <= 0) return OptionalInt.empty();
+        String key = line.substring(0, separator).trim();
+        String value = line.substring(separator + 1).trim();
+        double elapsedSeconds;
+        try {
+            if ("out_time_us".equals(key) || "out_time_ms".equals(key)) {
+                elapsedSeconds = Long.parseLong(value) / 1_000_000d;
+            } else if ("out_time".equals(key)) {
+                elapsedSeconds = parseClock(value);
+            } else {
+                return OptionalInt.empty();
+            }
+        } catch (NumberFormatException exception) {
+            return OptionalInt.empty();
+        }
+        int percent = 10 + (int) Math.floor(Math.max(0, elapsedSeconds) / durationSeconds * 80);
+        return OptionalInt.of(Math.max(10, Math.min(89, percent)));
+    }
+
+    private double parseClock(String value) {
+        String[] parts = value.split(":");
+        if (parts.length != 3) throw new NumberFormatException("invalid FFmpeg clock");
+        return Long.parseLong(parts[0]) * 3600d + Long.parseLong(parts[1]) * 60d
+                + Double.parseDouble(parts[2]);
+    }
+}
+``
+
+### FILE: src/main/java/cn/longer233/gamenarrator/GameNarratorApplication.java
+
+``java
+package cn.longer233.gamenarrator;
+
+import org.springframework.boot.SpringApplication;
+import org.springframework.boot.autoconfigure.SpringBootApplication;
+import org.springframework.scheduling.annotation.EnableAsync;
+import org.springframework.scheduling.annotation.EnableScheduling;
+
+@SpringBootApplication
+@EnableAsync
+@EnableScheduling
+public class GameNarratorApplication {
+
+    public static void main(String[] args) {
+        SpringApplication.run(GameNarratorApplication.class, args);
+    }
+}
+``
+
+### FILE: src/main/java/cn/longer233/gamenarrator/highlight/HighlightClip.java
+
+``java
+package cn.longer233.gamenarrator.highlight;
+
+public record HighlightClip(int sourceFrameIndex, double startSeconds, double endSeconds,
+        double anchorSeconds, String eventType, String description, int sourceScore, int finalScore) {
+    public double durationSeconds() { return endSeconds - startSeconds; }
+}
+``
+
+### FILE: src/main/java/cn/longer233/gamenarrator/highlight/HighlightSelectionResult.java
+
+``java
+package cn.longer233.gamenarrator.highlight;
+
+import java.util.List;
+
+public record HighlightSelectionResult(String summary, String manifestPath, List<HighlightClip> clips) {
+}
+``
+
+### FILE: src/main/java/cn/longer233/gamenarrator/highlight/RuleBasedHighlightSelector.java
+
+``java
+package cn.longer233.gamenarrator.highlight;
+
+import cn.longer233.gamenarrator.vision.FrameUnderstanding;
+import cn.longer233.gamenarrator.vision.HighlightHint;
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.stereotype.Component;
+
+import java.nio.file.Path;
+import java.util.ArrayList;
+import java.util.Comparator;
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Map;
+
+@Component
+public class RuleBasedHighlightSelector {
+    private static final Logger log = LoggerFactory.getLogger(RuleBasedHighlightSelector.class);
+    private static final double STORY_SEGMENT_SECONDS = 30.0;
+    private final ObjectMapper objectMapper;
+
+    public RuleBasedHighlightSelector(ObjectMapper objectMapper) { this.objectMapper = objectMapper; }
+
+    public HighlightSelectionResult select(Path visualAnalysisPath, double videoDurationSeconds,
+                                           int targetDurationSeconds) {
+        try {
+            JsonNode document = objectMapper.readTree(visualAnalysisPath.toFile());
+            List<FrameUnderstanding> frames = objectMapper.readerForListOf(FrameUnderstanding.class)
+                    .readValue(document.path("frames"));
+            if (frames.isEmpty()) throw new IllegalStateException("视觉分析结果中没有候选镜头");
+            List<HighlightHint> hints = document.path("contentAnalysis").path("highlightHints").isArray()
+                    ? objectMapper.readerForListOf(HighlightHint.class)
+                            .readValue(document.path("contentAnalysis").path("highlightHints"))
+                    : List.of();
+            List<HighlightClip> clips = buildContinuousStoryClips(frames, videoDurationSeconds, hints);
+            double totalSeconds = clips.stream().mapToDouble(HighlightClip::durationSeconds).sum();
+            String summary = "已将完整源视频划分为 %d 个连续叙事片段，共 %.1f 秒；高光仅用于标注重点，不再裁掉普通内容"
+                    .formatted(clips.size(), totalSeconds);
+            Path output = visualAnalysisPath.getParent().resolve("highlights.json");
+            Map<String, Object> result = new LinkedHashMap<>();
+            result.put("strategy", hints.isEmpty() ? "full-story-v1" : "ai-guided-full-story-v1");
+            result.put("contentOverview", document.path("contentAnalysis").path("overview").asText(""));
+            result.put("highlightStrategy", document.path("contentAnalysis").path("highlightStrategy").asText(""));
+            result.put("aiHintCount", hints.size());
+            result.put("summary", summary);
+            result.put("requestedTargetDurationSeconds", targetDurationSeconds);
+            result.put("selectedDurationSeconds", totalSeconds);
+            result.put("clips", clips);
+            cn.longer233.gamenarrator.common.AtomicArtifactWriter.writeJson(objectMapper, output, result);
+            log.info("HIGHLIGHT_SELECTION_SUCCESS candidates={} selected={} duration={} output={}",
+                    frames.size(), clips.size(), totalSeconds, output);
+            return new HighlightSelectionResult(summary, output.toString(), clips);
+        } catch (IllegalStateException exception) {
+            throw exception;
+        } catch (Exception exception) {
+            throw new IllegalStateException("高光筛选失败：" + exception.getMessage(), exception);
+        }
+    }
+
+    private List<HighlightClip> buildContinuousStoryClips(List<FrameUnderstanding> frames, double duration,
+                                                           List<HighlightHint> hints) {
+        if (!Double.isFinite(duration) || duration <= 0) throw new IllegalStateException("源视频时长无效");
+        List<HighlightClip> clips = new ArrayList<>();
+        for (double start = 0; start < duration; start += STORY_SEGMENT_SECONDS) {
+            double end = Math.min(duration, start + STORY_SEGMENT_SECONDS);
+            double segmentStart = start;
+            double segmentEnd = end;
+            FrameUnderstanding anchor = frames.stream()
+                    .filter(frame -> frame.timestampSeconds() >= segmentStart && frame.timestampSeconds() < segmentEnd)
+                    .max(Comparator.comparingInt((FrameUnderstanding frame) -> finalScore(frame, hints)))
+                    .orElseGet(() -> frames.stream().min(Comparator.comparingDouble(frame ->
+                            Math.abs(frame.timestampSeconds() - ((segmentStart + segmentEnd) / 2.0)))).orElseThrow());
+            clips.add(new HighlightClip(anchor.index(), segmentStart, segmentEnd, anchor.timestampSeconds(),
+                    anchor.eventType(), anchor.description(), anchor.excitementScore(), finalScore(anchor, hints)));
+        }
+        return clips;
+    }
+
+    private int finalScore(FrameUnderstanding frame, List<HighlightHint> hints) {
+        return Math.min(100, frame.excitementScore() + eventBonus(frame.eventType()) + hintBonus(frame, hints));
+    }
+
+    private int hintBonus(FrameUnderstanding frame, List<HighlightHint> hints) {
+        return hints.stream()
+                .filter(hint -> Math.abs(hint.timestampSeconds() - frame.timestampSeconds()) <= 8.0)
+                .mapToInt(hint -> Math.max(0, Math.min(25, hint.importance() / 4)))
+                .max().orElse(0);
+    }
+
+    private int eventBonus(String eventType) {
+        if (eventType == null) return 0;
+        return switch (eventType.trim()) {
+            case "胜利" -> 15;
+            case "战斗", "失败" -> 10;
+            case "剧情" -> 8;
+            case "探索" -> 4;
+            default -> 0;
+        };
+    }
+}
+``
+
+### FILE: src/main/java/cn/longer233/gamenarrator/importer/ContentOriginAssessment.java
+
+``java
+package cn.longer233.gamenarrator.importer;
+
+public record ContentOriginAssessment(String code, String label, double confidence, String reason) {
+}
+``
+
+### FILE: src/main/java/cn/longer233/gamenarrator/importer/MediaDownloadJobService.java
+
+``java
+package cn.longer233.gamenarrator.importer;
+
+import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.stereotype.Service;
+
+import java.util.UUID;
+import java.time.Duration;
+import java.time.Instant;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.Executor;
+
+@Service
+public class MediaDownloadJobService {
+    private static final int MAX_RETAINED_JOBS = 64;
+    private static final Duration COMPLETED_JOB_TTL = Duration.ofMinutes(30);
+    private final YtDlpMediaImporter importer;
+    private final Executor executor;
+    private final ConcurrentHashMap<String, Job> jobs = new ConcurrentHashMap<>();
+
+    public MediaDownloadJobService(YtDlpMediaImporter importer,
+                                   @Qualifier("taskExecutor") Executor executor) {
+        this.importer = importer;
+        this.executor = executor;
+    }
+
+    public String start(MediaDownloadRequest request, String sessionId) {
+        cleanup();
+        String id = UUID.randomUUID().toString();
+        Job job = new Job(sessionId);
+        jobs.put(id, job);
+        executor.execute(() -> {
+            try {
+                job.status = "RUNNING";
+                job.result = importer.download(request, progress -> job.progress = progress);
+                job.status = "COMPLETED";
+                job.completedAt = Instant.now();
+            } catch (Exception exception) {
+                job.error = exception.getMessage();
+                job.status = "FAILED";
+                job.completedAt = Instant.now();
+            }
+        });
+        return id;
+    }
+
+    public MediaDownloadJobView find(String id, String sessionId) {
+        cleanup();
+        Job job = jobs.get(id);
+        if (job == null || !job.sessionId.equals(sessionId)) return null;
+        return new MediaDownloadJobView(id, job.status, job.progress, job.result, job.error);
+    }
+
+    private void cleanup() {
+        Instant cutoff = Instant.now().minus(COMPLETED_JOB_TTL);
+        jobs.entrySet().removeIf(entry -> entry.getValue().completedAt != null
+                && entry.getValue().completedAt.isBefore(cutoff));
+        if (jobs.size() <= MAX_RETAINED_JOBS) return;
+        jobs.entrySet().stream()
+                .filter(entry -> entry.getValue().completedAt != null)
+                .sorted(java.util.Comparator.comparing(entry -> entry.getValue().completedAt))
+                .limit(jobs.size() - MAX_RETAINED_JOBS)
+                .map(java.util.Map.Entry::getKey)
+                .toList().forEach(jobs::remove);
+    }
+
+    private static final class Job {
+        private final String sessionId;
+        private volatile String status = "QUEUED";
+        private volatile MediaDownloadProgress progress =
+                new MediaDownloadProgress("0%", "0", "0", "--", "--");
+        private volatile MediaDownloadResult result;
+        private volatile String error;
+        private volatile Instant completedAt;
+        private Job(String sessionId) { this.sessionId = sessionId; }
+    }
+}
+``
+
+### FILE: src/main/java/cn/longer233/gamenarrator/importer/MediaDownloadJobView.java
+
+``java
+package cn.longer233.gamenarrator.importer;
+
+public record MediaDownloadJobView(String id, String status, MediaDownloadProgress progress,
+                                   MediaDownloadResult result, String error) {
+}
+``
+
+### FILE: src/main/java/cn/longer233/gamenarrator/importer/MediaDownloadProgress.java
+
+``java
+package cn.longer233.gamenarrator.importer;
+
+public record MediaDownloadProgress(String percent, String downloadedBytes, String totalBytes,
+                                    String speed, String eta) {
+}
+``
+
+### FILE: src/main/java/cn/longer233/gamenarrator/importer/MediaDownloadRequest.java
+
+``java
+package cn.longer233.gamenarrator.importer;
+
+import jakarta.validation.constraints.AssertTrue;
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.Pattern;
+import jakarta.validation.constraints.PositiveOrZero;
+import jakarta.validation.constraints.Size;
+import java.util.List;
+
+public record MediaDownloadRequest(
+        @NotBlank @Pattern(regexp = "https://.+") String url,
+        @NotBlank @Pattern(regexp = "[A-Za-z0-9_+\\-/\\[\\].()<>?=!*]{1,120}") String formatId,
+        boolean subtitles,
+        boolean addToLibrary,
+        @AssertTrue(message = "必须确认拥有下载和再创作所需权利") boolean rightsConfirmed,
+        @Pattern(regexp = "[0-9a-fA-F-]{36}", message = "cookieToken is invalid")
+        String cookieToken,
+        @Size(max = 500) String title,
+        @Size(max = 300) String creator,
+        @Size(max = 2000) String thumbnail,
+        @PositiveOrZero Double durationSeconds,
+        @Size(max = 20) List<@Size(max = 100) String> tags
+) {
+}
+``
+
+### FILE: src/main/java/cn/longer233/gamenarrator/importer/MediaDownloadResult.java
+
+``java
+package cn.longer233.gamenarrator.importer;
+
+public record MediaDownloadResult(String status,
+                                  @com.fasterxml.jackson.annotation.JsonIgnore String localPath,
+                                  String fileName, long sizeBytes,
+                                  java.util.UUID assetId, String downloadUrl) {
+}
+``
+
+### FILE: src/main/java/cn/longer233/gamenarrator/importer/MediaImportController.java
+
+``java
+package cn.longer233.gamenarrator.importer;
+
+import cn.longer233.gamenarrator.asset.AssetCatalogService;
+import cn.longer233.gamenarrator.asset.AssetReferenceRequest;
+import jakarta.validation.Valid;
+import jakarta.servlet.http.HttpSession;
+import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
+import org.springframework.http.ContentDisposition;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.ResponseEntity;
+import org.springframework.http.MediaType;
+import org.springframework.core.io.FileSystemResource;
+import org.springframework.web.servlet.mvc.method.annotation.StreamingResponseBody;
+
+import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Map;
+import java.util.Set;
+import java.util.UUID;
+
+@RestController
+@RequestMapping("/api/media-import")
+public class MediaImportController {
+    private static final String COOKIE_TOKENS = MediaImportController.class.getName() + ".COOKIE_TOKENS";
+    private static final String DOWNLOAD_GRANTS = MediaImportController.class.getName() + ".DOWNLOAD_GRANTS";
+    private static final String THUMBNAIL_GRANTS = MediaImportController.class.getName() + ".THUMBNAIL_GRANTS";
+    private static final String PREVIEW_GRANTS = MediaImportController.class.getName() + ".PREVIEW_GRANTS";
+    private static final String JOB_DOWNLOAD_URLS = MediaImportController.class.getName() + ".JOB_DOWNLOAD_URLS";
+    private static final String JOB_PREVIEW_URLS = MediaImportController.class.getName() + ".JOB_PREVIEW_URLS";
+    private final YtDlpMediaImporter importer;
+    private final RemoteThumbnailService thumbnailService;
+    private final MediaDownloadJobService downloadJobs;
+    private final PlatformContentClassifier contentClassifier;
+    private final AssetCatalogService assetCatalogService;
+
+    public MediaImportController(YtDlpMediaImporter importer, RemoteThumbnailService thumbnailService,
+                                 MediaDownloadJobService downloadJobs, PlatformContentClassifier contentClassifier,
+                                 AssetCatalogService assetCatalogService) {
+        this.importer = importer;
+        this.thumbnailService = thumbnailService;
+        this.downloadJobs = downloadJobs;
+        this.contentClassifier = contentClassifier;
+        this.assetCatalogService = assetCatalogService;
+    }
+
+    @GetMapping("/status")
+    public Map<String, Object> status() {
+        return Map.of("available", importer.available(), "authentication", "CLIENT_COOKIE_UPLOAD");
+    }
+
+    @GetMapping("/browser-auth/config")
+    public Map<String, Object> browserAuthenticationConfig(@RequestParam("url") String url) {
+        return importer.browserAuthenticationConfig(url);
+    }
+
+    @PostMapping("/resolve")
+    public ResolvedMedia resolve(@Valid @RequestBody MediaResolveRequest request, HttpSession session) {
+        requireOwnedToken(session, request.cookieToken());
+        ResolvedMedia media = importer.resolve(request);
+        String previewUrl = null;
+        if (media.thumbnail() != null && !media.thumbnail().isBlank()) {
+            String token = UUID.randomUUID().toString();
+            Map<String, ThumbnailGrant> grants = thumbnailGrants(session);
+            if (grants.size() >= 20) grants.remove(grants.keySet().iterator().next());
+            grants.put(token, new ThumbnailGrant(media.thumbnail(), request.url()));
+            previewUrl = "/api/media-import/thumbnails/" + token;
+        }
+        ContentOriginAssessment assessment = contentClassifier.assess(media);
+        java.util.List<String> candidateTags = new java.util.ArrayList<>(media.tags());
+        candidateTags.add("来源判断:" + assessment.label());
+        assetCatalogService.registerReference(new AssetReferenceRequest(media.platform(), request.url(), media.thumbnail(), null,
+                limit(media.title(), 200), limit(media.creator(), 120), "VIDEO", "RIGHTS_REVIEW_REQUIRED", null,
+                "公开可见不等于获得下载或再创作授权", candidateTags.stream().distinct().limit(20).toList()));
+        return new ResolvedMedia(media.platform(), media.sourceId(), media.title(), media.creator(),
+                media.thumbnail(), previewUrl, media.durationSeconds(), media.tags(), media.variants(),
+                assessment.code(), assessment.label(), assessment.confidence(), assessment.reason());
+    }
+
+    private String limit(String value, int maximum) {
+        if (value == null) return null;
+        return value.substring(0, Math.min(maximum, value.length()));
+    }
+
+    @PostMapping(value = "/cookies", consumes = "multipart/form-data")
+    public Map<String, String> uploadCookies(@RequestParam("file") MultipartFile file,
+                                             @RequestParam("url") String url,
+                                             HttpSession session) {
+        String token = importer.uploadCookies(file, url);
+        ownedTokens(session).add(token);
+        return Map.of("token", token);
+    }
+
+    @PostMapping("/download")
+    public MediaDownloadResult download(@Valid @RequestBody MediaDownloadRequest request, HttpSession session) {
+        requireOwnedToken(session, request.cookieToken());
+        MediaDownloadResult result = importer.download(request);
+        if (request.cookieToken() != null && !request.cookieToken().isBlank()) {
+            ownedTokens(session).remove(request.cookieToken());
+            importer.discardCookies(request.cookieToken());
+        }
+        String downloadToken = UUID.randomUUID().toString();
+        downloadGrants(session).put(downloadToken,
+                new DownloadGrant(result.localPath(), result.fileName(), !request.addToLibrary()));
+        return new MediaDownloadResult(result.status(), result.localPath(), result.fileName(),
+                result.sizeBytes(), result.assetId(), "/api/media-import/files/" + downloadToken);
+    }
+
+    @PostMapping("/download-jobs")
+    public Map<String, String> startDownload(@Valid @RequestBody MediaDownloadRequest request,
+                                             HttpSession session) {
+        requireOwnedToken(session, request.cookieToken());
+        return Map.of("id", downloadJobs.start(request, session.getId()));
+    }
+
+    @GetMapping("/download-jobs/{id}")
+    public ResponseEntity<MediaDownloadJobView> downloadStatus(@PathVariable UUID id,
+                                                               HttpSession session) {
+        MediaDownloadJobView job = downloadJobs.find(id.toString(), session.getId());
+        if (job == null) return ResponseEntity.notFound().build();
+        if (!"COMPLETED".equals(job.status())) return ResponseEntity.ok(job);
+        String url = jobDownloadUrls(session).get(id.toString());
+        if (url == null) {
+            String token = UUID.randomUUID().toString();
+            MediaDownloadResult result = job.result();
+            downloadGrants(session).put(token,
+                    new DownloadGrant(result.localPath(), result.fileName(), result.assetId() == null));
+            url = "/api/media-import/files/" + token;
+            jobDownloadUrls(session).put(id.toString(), url);
+        }
+        MediaDownloadResult result = job.result();
+        MediaDownloadResult publicResult = new MediaDownloadResult(result.status(), result.localPath(),
+                result.fileName(), result.sizeBytes(), result.assetId(), url);
+        return ResponseEntity.ok(new MediaDownloadJobView(job.id(), job.status(), job.progress(),
+                publicResult, job.error()));
+    }
+
+    @PostMapping("/preview-jobs")
+    public Map<String, String> startPreview(@Valid @RequestBody MediaDownloadRequest request,
+                                            HttpSession session) {
+        requireOwnedToken(session, request.cookieToken());
+        String lightweightFormat = "bestvideo[height<=480][ext=mp4]+bestaudio[ext=m4a]"
+                + "/best[height<=480][ext=mp4]/best[height<=480]";
+        MediaDownloadRequest previewRequest = new MediaDownloadRequest(request.url(), lightweightFormat,
+                false, false, request.rightsConfirmed(), request.cookieToken(), request.title(),
+                request.creator(), request.thumbnail(), request.durationSeconds(), request.tags());
+        return Map.of("id", downloadJobs.start(previewRequest, session.getId()));
+    }
+
+    @GetMapping("/preview-jobs/{id}")
+    public ResponseEntity<MediaDownloadJobView> previewStatus(@PathVariable UUID id,
+                                                              HttpSession session) {
+        MediaDownloadJobView job = downloadJobs.find(id.toString(), session.getId());
+        if (job == null) return ResponseEntity.notFound().build();
+        if (!"COMPLETED".equals(job.status())) return ResponseEntity.ok(job);
+        String url = jobPreviewUrls(session).get(id.toString());
+        if (url == null) {
+            String token = UUID.randomUUID().toString();
+            MediaDownloadResult result = job.result();
+            Map<String, PreviewGrant> grants = previewGrants(session);
+            if (grants.size() >= 5) grants.remove(grants.keySet().iterator().next());
+            grants.put(token, new PreviewGrant(result.localPath(), result.fileName()));
+            url = "/api/media-import/previews/" + token;
+            jobPreviewUrls(session).put(id.toString(), url);
+        }
+        MediaDownloadResult result = job.result();
+        MediaDownloadResult publicResult = new MediaDownloadResult(result.status(), result.localPath(),
+                result.fileName(), result.sizeBytes(), null, url);
+        return ResponseEntity.ok(new MediaDownloadJobView(job.id(), job.status(), job.progress(),
+                publicResult, job.error()));
+    }
+
+    @PostMapping("/preview")
+    public MediaPreviewResult createPreview(@Valid @RequestBody MediaDownloadRequest request,
+                                            HttpSession session) {
+        requireOwnedToken(session, request.cookieToken());
+        MediaDownloadRequest previewRequest = new MediaDownloadRequest(request.url(), request.formatId(),
+                false, false, request.rightsConfirmed(), request.cookieToken(), request.title(),
+                request.creator(), request.thumbnail(), request.durationSeconds(), request.tags());
+        MediaDownloadResult result = importer.download(previewRequest);
+        String token = UUID.randomUUID().toString();
+        Map<String, PreviewGrant> grants = previewGrants(session);
+        if (grants.size() >= 5) grants.remove(grants.keySet().iterator().next());
+        grants.put(token, new PreviewGrant(result.localPath(), result.fileName()));
+        return new MediaPreviewResult("/api/media-import/previews/" + token,
+                result.fileName(), result.sizeBytes());
+    }
+
+    @GetMapping("/previews/{token}")
+    public ResponseEntity<FileSystemResource> preview(@PathVariable UUID token, HttpSession session) {
+        PreviewGrant grant = previewGrants(session).get(token.toString());
+        if (grant == null) return ResponseEntity.notFound().build();
+        Path path = Path.of(grant.path()).toAbsolutePath().normalize();
+        if (!Files.isRegularFile(path)) return ResponseEntity.notFound().build();
+        return ResponseEntity.ok()
+                .contentType(MediaType.parseMediaType("video/mp4"))
+                .contentLength(fileSize(path))
+                .header(HttpHeaders.CONTENT_DISPOSITION,
+                        ContentDisposition.inline().filename(grant.fileName(), StandardCharsets.UTF_8)
+                                .build().toString())
+                .header(HttpHeaders.CACHE_CONTROL, "private, max-age=3600")
+                .body(new FileSystemResource(path));
+    }
+
+    @GetMapping("/files/{token}")
+    public ResponseEntity<StreamingResponseBody> downloadFile(@PathVariable UUID token, HttpSession session) {
+        DownloadGrant grant = downloadGrants(session).remove(token.toString());
+        if (grant == null) throw new IllegalStateException("下载地址已失效或不属于当前浏览器会话");
+        Path path = Path.of(grant.path()).toAbsolutePath().normalize();
+        if (!Files.isRegularFile(path)) throw new IllegalStateException("下载文件已不存在");
+        StreamingResponseBody body = output -> {
+            try (var input = Files.newInputStream(path)) {
+                input.transferTo(output);
+            } finally {
+                if (grant.deleteAfterDownload()) Files.deleteIfExists(path);
+            }
+        };
+        String disposition = ContentDisposition.attachment()
+                .filename(grant.fileName(), StandardCharsets.UTF_8).build().toString();
+        return ResponseEntity.ok()
+                .header(HttpHeaders.CONTENT_DISPOSITION, disposition)
+                .header(HttpHeaders.CONTENT_LENGTH, Long.toString(fileSize(path)))
+                .body(body);
+    }
+
+    @GetMapping("/thumbnails/{token}")
+    public ResponseEntity<byte[]> thumbnail(@PathVariable UUID token, HttpSession session) {
+        ThumbnailGrant grant = thumbnailGrants(session).get(token.toString());
+        if (grant == null) return ResponseEntity.notFound().build();
+        RemoteThumbnailService.ThumbnailContent content =
+                thumbnailService.fetch(grant.thumbnailUrl(), grant.sourceUrl());
+        return ResponseEntity.ok()
+                .header(HttpHeaders.CONTENT_TYPE, content.contentType())
+                .header(HttpHeaders.CACHE_CONTROL, "private, max-age=900")
+                .body(content.bytes());
+    }
+
+    @SuppressWarnings("unchecked")
+    private Set<String> ownedTokens(HttpSession session) {
+        Object existing = session.getAttribute(COOKIE_TOKENS);
+        if (existing instanceof Set<?> set) return (Set<String>) set;
+        Set<String> created = new HashSet<>();
+        session.setAttribute(COOKIE_TOKENS, created);
+        return created;
+    }
+
+    private void requireOwnedToken(HttpSession session, String token) {
+        if (token != null && !token.isBlank() && !ownedTokens(session).contains(token)) {
+            throw new IllegalStateException("临时 Cookie 不属于当前浏览器会话，请重新上传");
+        }
+    }
+
+    @SuppressWarnings("unchecked")
+    private Map<String, DownloadGrant> downloadGrants(HttpSession session) {
+        Object existing = session.getAttribute(DOWNLOAD_GRANTS);
+        if (existing instanceof Map<?, ?> map) return (Map<String, DownloadGrant>) map;
+        Map<String, DownloadGrant> created = new HashMap<>();
+        session.setAttribute(DOWNLOAD_GRANTS, created);
+        return created;
+    }
+
+    @SuppressWarnings("unchecked")
+    private Map<String, ThumbnailGrant> thumbnailGrants(HttpSession session) {
+        Object existing = session.getAttribute(THUMBNAIL_GRANTS);
+        if (existing instanceof Map<?, ?> map) return (Map<String, ThumbnailGrant>) map;
+        Map<String, ThumbnailGrant> created = new java.util.LinkedHashMap<>();
+        session.setAttribute(THUMBNAIL_GRANTS, created);
+        return created;
+    }
+
+    @SuppressWarnings("unchecked")
+    private Map<String, PreviewGrant> previewGrants(HttpSession session) {
+        Object existing = session.getAttribute(PREVIEW_GRANTS);
+        if (existing instanceof Map<?, ?> map) return (Map<String, PreviewGrant>) map;
+        Map<String, PreviewGrant> created = new java.util.LinkedHashMap<>();
+        session.setAttribute(PREVIEW_GRANTS, created);
+        return created;
+    }
+
+    @SuppressWarnings("unchecked")
+    private Map<String, String> jobDownloadUrls(HttpSession session) {
+        Object existing = session.getAttribute(JOB_DOWNLOAD_URLS);
+        if (existing instanceof Map<?, ?> map) return (Map<String, String>) map;
+        Map<String, String> created = new HashMap<>();
+        session.setAttribute(JOB_DOWNLOAD_URLS, created);
+        return created;
+    }
+
+    @SuppressWarnings("unchecked")
+    private Map<String, String> jobPreviewUrls(HttpSession session) {
+        Object existing = session.getAttribute(JOB_PREVIEW_URLS);
+        if (existing instanceof Map<?, ?> map) return (Map<String, String>) map;
+        Map<String, String> created = new HashMap<>();
+        session.setAttribute(JOB_PREVIEW_URLS, created);
+        return created;
+    }
+
+    private long fileSize(Path path) {
+        try { return Files.size(path); }
+        catch (java.io.IOException exception) { throw new IllegalStateException("无法读取下载文件", exception); }
+    }
+
+    private record DownloadGrant(String path, String fileName, boolean deleteAfterDownload)
+            implements java.io.Serializable { }
+    private record ThumbnailGrant(String thumbnailUrl, String sourceUrl)
+            implements java.io.Serializable { }
+    private record PreviewGrant(String path, String fileName)
+            implements java.io.Serializable { }
+}
+``
+
+### FILE: src/main/java/cn/longer233/gamenarrator/importer/MediaImportProperties.java
+
+``java
+package cn.longer233.gamenarrator.importer;
+
+import org.springframework.boot.context.properties.ConfigurationProperties;
+import org.springframework.stereotype.Component;
+
+import java.util.ArrayList;
+import java.util.List;
+
+@Component
+@ConfigurationProperties(prefix = "game-narrator.media-import")
+public class MediaImportProperties {
+    private String ytDlp = "./tools/yt-dlp/yt-dlp.exe";
+    private boolean forceIpv4 = true;
+    private boolean localAuthenticationDiscovery = false;
+    private List<String> browserPriority = new ArrayList<>(List.of("edge", "chrome", "firefox"));
+    private List<String> cookieSearchPaths = new ArrayList<>();
+    private List<Platform> platforms = new ArrayList<>();
+
+    public String getYtDlp() { return ytDlp; }
+    public void setYtDlp(String ytDlp) { this.ytDlp = ytDlp; }
+    public boolean isForceIpv4() { return forceIpv4; }
+    public void setForceIpv4(boolean forceIpv4) { this.forceIpv4 = forceIpv4; }
+    public boolean isLocalAuthenticationDiscovery() { return localAuthenticationDiscovery; }
+    public void setLocalAuthenticationDiscovery(boolean localAuthenticationDiscovery) {
+        this.localAuthenticationDiscovery = localAuthenticationDiscovery;
+    }
+    public List<String> getBrowserPriority() { return browserPriority; }
+    public void setBrowserPriority(List<String> browserPriority) {
+        this.browserPriority = browserPriority == null ? new ArrayList<>() : browserPriority;
+    }
+    public List<String> getCookieSearchPaths() { return cookieSearchPaths; }
+    public void setCookieSearchPaths(List<String> cookieSearchPaths) {
+        this.cookieSearchPaths = cookieSearchPaths == null ? new ArrayList<>() : cookieSearchPaths;
+    }
+    public List<Platform> getPlatforms() { return platforms; }
+    public void setPlatforms(List<Platform> platforms) {
+        this.platforms = platforms == null ? new ArrayList<>() : platforms;
+    }
+
+    public static class Platform {
+        private String id;
+        private List<String> hosts = new ArrayList<>();
+        private List<String> cookieDomains = new ArrayList<>();
+        private String referer;
+
+        public String getId() { return id; }
+        public void setId(String id) { this.id = id; }
+        public List<String> getHosts() { return hosts; }
+        public void setHosts(List<String> hosts) { this.hosts = hosts; }
+        public List<String> getCookieDomains() { return cookieDomains; }
+        public void setCookieDomains(List<String> cookieDomains) { this.cookieDomains = cookieDomains; }
+        public String getReferer() { return referer; }
+        public void setReferer(String referer) { this.referer = referer; }
+
+        public boolean matchesHost(String host) {
+            return hosts.stream().anyMatch(suffix ->
+                    host.equalsIgnoreCase(suffix)
+                            || host.toLowerCase().endsWith("." + suffix.toLowerCase()));
+        }
+
+        public boolean acceptsCookieDomain(String domain) {
+            String normalized = domain.startsWith(".") ? domain.substring(1) : domain;
+            return cookieDomains.stream().anyMatch(suffix ->
+                    normalized.equalsIgnoreCase(suffix)
+                            || normalized.toLowerCase().endsWith("." + suffix.toLowerCase()));
+        }
+    }
+}
+``
+
+### FILE: src/main/java/cn/longer233/gamenarrator/importer/MediaPreviewResult.java
+
+``java
+package cn.longer233.gamenarrator.importer;
+
+public record MediaPreviewResult(String previewUrl, String fileName, long sizeBytes) {
+}
+``
+
+### FILE: src/main/java/cn/longer233/gamenarrator/importer/MediaResolveRequest.java
+
+``java
+package cn.longer233.gamenarrator.importer;
+
+import jakarta.validation.constraints.AssertTrue;
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.Pattern;
+
+public record MediaResolveRequest(
+        @NotBlank @Pattern(regexp = "https://.+") String url,
+        @AssertTrue(message = "必须确认拥有下载和再创作所需权利") boolean rightsConfirmed,
+        @Pattern(regexp = "[0-9a-fA-F-]{36}", message = "cookieToken is invalid")
+        String cookieToken
+) {
+}
+``
+
+### FILE: src/main/java/cn/longer233/gamenarrator/importer/MediaVariant.java
+
+``java
+package cn.longer233.gamenarrator.importer;
+
+public record MediaVariant(
+        String formatId,
+        String label,
+        String extension,
+        Integer width,
+        Integer height,
+        Double frameRate,
+        String videoCodec,
+        String audioCodec,
+        Long approximateBytes
+) {
+}
+``
+
+### FILE: src/main/java/cn/longer233/gamenarrator/importer/PlatformContentClassifier.java
+
+``java
+package cn.longer233.gamenarrator.importer;
+
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.http.client.SimpleClientHttpRequestFactory;
+import org.springframework.stereotype.Component;
+import org.springframework.web.client.RestClient;
+
+import java.time.Duration;
+import java.util.List;
+import java.util.Locale;
+import java.util.Map;
+import java.util.Set;
+
+@Component
+public class PlatformContentClassifier {
+    private static final Set<String> CODES = Set.of(
+            "CREATOR_UPLOAD", "ORGANIZATION_UPLOAD", "PLATFORM_OFFICIAL", "UNKNOWN");
+    private final RestClient client;
+    private final ObjectMapper objectMapper;
+    private final String model;
+
+    public PlatformContentClassifier(ObjectMapper objectMapper,
+                                     @Value("${game-narrator.ollama.base-url}") String baseUrl,
+                                     @Value("${game-narrator.ollama.script-model}") String model) {
+        this.objectMapper = objectMapper;
+        this.model = model;
+        SimpleClientHttpRequestFactory factory = new SimpleClientHttpRequestFactory();
+        factory.setConnectTimeout(Duration.ofSeconds(2));
+        factory.setReadTimeout(Duration.ofSeconds(5));
+        this.client = RestClient.builder().baseUrl(baseUrl).requestFactory(factory).build();
+    }
+
+    public ContentOriginAssessment assess(ResolvedMedia media) {
+        ContentOriginAssessment fallback = fallback(media);
+        try {
+            String prompt = """
+                    根据视频平台公开元数据，推测内容账号性质。只返回 JSON：
+                    {"code":"CREATOR_UPLOAD|ORGANIZATION_UPLOAD|PLATFORM_OFFICIAL|UNKNOWN","confidence":0到1,"reason":"简短依据"}
+                    CREATOR_UPLOAD 表示普通创作者或个人投稿；ORGANIZATION_UPLOAD 表示机构、媒体或品牌账号投稿；
+                    PLATFORM_OFFICIAL 仅表示视频平台自身官方账号；无法可靠判断必须返回 UNKNOWN。
+                    这不是版权或下载授权判断，不得根据标题内容推断用户拥有权利。
+                    平台：%s
+                    标题：%s
+                    投稿者：%s
+                    标签：%s
+                    """.formatted(media.platform(), media.title(), media.creator(), media.tags());
+            JsonNode response = client.post().uri("/api/generate").body(Map.of(
+                    "model", model, "prompt", prompt, "stream", false, "format", "json",
+                    "options", Map.of("temperature", 0.0, "num_predict", 100)
+            )).retrieve().body(JsonNode.class);
+            JsonNode result = objectMapper.readTree(response.path("response").asText("{}"));
+            String code = result.path("code").asText("UNKNOWN").toUpperCase(Locale.ROOT);
+            if (!CODES.contains(code)) return fallback;
+            double confidence = Math.max(0, Math.min(1, result.path("confidence").asDouble(0)));
+            if (confidence < 0.55) return fallback;
+            String reason = result.path("reason").asText("AI 根据公开元数据推测").trim();
+            return new ContentOriginAssessment(code, label(code), confidence,
+                    reason.substring(0, Math.min(200, reason.length())));
+        } catch (Exception ignored) {
+            return fallback;
+        }
+    }
+
+    private ContentOriginAssessment fallback(ResolvedMedia media) {
+        String combined = (String.valueOf(media.creator()) + " " + String.valueOf(media.title())).toLowerCase(Locale.ROOT);
+        if (combined.contains("官方") || combined.contains("official")) {
+            return new ContentOriginAssessment("UNKNOWN", label("UNKNOWN"), 0.35,
+                    "仅检测到“官方”字样，无法确认是否为平台自身账号");
+        }
+        if (media.creator() != null && !media.creator().isBlank()) {
+            return new ContentOriginAssessment("CREATOR_UPLOAD", label("CREATOR_UPLOAD"), 0.55,
+                    "平台元数据提供了明确投稿者，暂按创作者投稿标注");
+        }
+        return new ContentOriginAssessment("UNKNOWN", label("UNKNOWN"), 0.0, "公开元数据不足");
+    }
+
+    private String label(String code) {
+        return switch (code) {
+            case "CREATOR_UPLOAD" -> "疑似创作者投稿";
+            case "ORGANIZATION_UPLOAD" -> "疑似机构账号投稿";
+            case "PLATFORM_OFFICIAL" -> "疑似平台官方内容";
+            default -> "来源性质未知";
+        };
+    }
+}
+``
+
+### FILE: src/main/java/cn/longer233/gamenarrator/importer/RemoteThumbnailService.java
+
+``java
+package cn.longer233.gamenarrator.importer;
+
+import org.springframework.stereotype.Service;
+import org.springframework.beans.factory.annotation.Value;
+
+import java.io.InputStream;
+import java.net.InetAddress;
+import java.net.URI;
+import java.net.http.HttpClient;
+import java.net.http.HttpRequest;
+import java.net.http.HttpResponse;
+import java.time.Duration;
+import java.time.Instant;
+import java.util.LinkedHashMap;
+import java.util.Locale;
+import java.util.Map;
+
+@Service
+public class RemoteThumbnailService {
+    private final int maxBytes;
+    private final int maxCacheEntries;
+    private final Duration cacheTtl;
+    private final Map<String, CachedThumbnail> cache;
+    private final HttpClient client;
+
+    public RemoteThumbnailService(
+            @Value("${game-narrator.media-preview.thumbnail-max-bytes:1572864}") int maxBytes,
+            @Value("${game-narrator.media-preview.thumbnail-cache-entries:24}") int maxCacheEntries,
+            @Value("${game-narrator.media-preview.thumbnail-cache-minutes:10}") int cacheMinutes) {
+        this.maxBytes = Math.max(128 * 1024, Math.min(5 * 1024 * 1024, maxBytes));
+        this.maxCacheEntries = Math.max(4, Math.min(128, maxCacheEntries));
+        this.cacheTtl = Duration.ofMinutes(Math.max(1, Math.min(60, cacheMinutes)));
+        this.cache = java.util.Collections.synchronizedMap(
+            new LinkedHashMap<>(this.maxCacheEntries, 0.75f, true) {
+                @Override protected boolean removeEldestEntry(Map.Entry<String, CachedThumbnail> eldest) {
+                    return size() > RemoteThumbnailService.this.maxCacheEntries;
+                }
+            });
+        this.client = HttpClient.newBuilder()
+                .connectTimeout(Duration.ofSeconds(8))
+                .followRedirects(HttpClient.Redirect.NEVER)
+                .build();
+    }
+
+    public ThumbnailContent fetch(String thumbnailUrl, String sourceUrl) {
+        try {
+            URI uri = requirePublicHttps(thumbnailUrl);
+            String cacheKey = uri + "\n" + (sourceUrl == null ? "" : sourceUrl);
+            CachedThumbnail cached = cache.get(cacheKey);
+            if (cached != null && cached.expiresAt().isAfter(Instant.now())) return cached.content();
+            if (cached != null) cache.remove(cacheKey);
+            HttpResponse<InputStream> response = fetchFollowingRedirects(uri, sourceUrl);
+            if (response.statusCode() < 200 || response.statusCode() >= 300) {
+                response.body().close();
+                throw new IllegalStateException("封面源返回 HTTP " + response.statusCode());
+            }
+            String contentType = response.headers().firstValue("Content-Type")
+                    .orElse("application/octet-stream").split(";", 2)[0].trim().toLowerCase(Locale.ROOT);
+            if (!contentType.startsWith("image/")) {
+                response.body().close();
+                throw new IllegalStateException("封面源返回的不是图片");
+            }
+            try (InputStream input = response.body()) {
+                byte[] bytes = input.readNBytes(maxBytes + 1);
+                if (bytes.length > maxBytes) throw new IllegalStateException("封面图片超过缓存大小限制");
+                ThumbnailContent content = new ThumbnailContent(contentType, bytes);
+                cache.put(cacheKey, new CachedThumbnail(content, Instant.now().plus(cacheTtl)));
+                return content;
+            }
+        } catch (IllegalArgumentException | IllegalStateException exception) {
+            throw exception;
+        } catch (Exception exception) {
+            throw new IllegalStateException("无法读取视频封面：" + exception.getMessage(), exception);
+        }
+    }
+
+    private HttpResponse<InputStream> fetchFollowingRedirects(URI initial, String sourceUrl) throws Exception {
+        URI current = initial;
+        for (int redirect = 0; redirect <= 3; redirect++) {
+            current = requirePublicHttps(current.toString());
+            HttpRequest.Builder request = HttpRequest.newBuilder(current)
+                    .timeout(Duration.ofSeconds(20))
+                    .header("User-Agent", "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 GameNarrator/1.0")
+                    .header("Accept", "image/avif,image/webp,image/png,image/jpeg,image/*;q=0.8");
+            if (sourceUrl != null && !sourceUrl.isBlank()) request.header("Referer", sourceUrl);
+            HttpResponse<InputStream> response = client.send(request.GET().build(), HttpResponse.BodyHandlers.ofInputStream());
+            int status = response.statusCode();
+            if (status < 300 || status >= 400) return response;
+            String location = response.headers().firstValue("Location")
+                    .orElseThrow(() -> new IllegalStateException("封面跳转缺少 Location"));
+            response.body().close();
+            current = current.resolve(location);
+        }
+        throw new IllegalStateException("封面跳转次数过多");
+    }
+
+    private URI requirePublicHttps(String value) throws Exception {
+        URI uri = upgradeToHttps(URI.create(value));
+        if (!"https".equalsIgnoreCase(uri.getScheme()) || uri.getHost() == null) {
+            throw new IllegalArgumentException("封面地址必须是 HTTPS 公网地址");
+        }
+        for (InetAddress address : InetAddress.getAllByName(uri.getHost())) {
+            if (address.isAnyLocalAddress() || address.isLoopbackAddress()
+                    || address.isSiteLocalAddress() || address.isLinkLocalAddress()) {
+                throw new IllegalArgumentException("禁止代理本地或内网封面地址");
+            }
+        }
+        return uri;
+    }
+
+    static URI upgradeToHttps(URI uri) {
+        if (!"http".equalsIgnoreCase(uri.getScheme())) return uri;
+        try {
+            return new URI("https", uri.getUserInfo(), uri.getHost(), uri.getPort(),
+                    uri.getPath(), uri.getQuery(), uri.getFragment());
+        } catch (java.net.URISyntaxException exception) {
+            throw new IllegalArgumentException("封面地址格式无效", exception);
+        }
+    }
+
+    public record ThumbnailContent(String contentType, byte[] bytes) { }
+    private record CachedThumbnail(ThumbnailContent content, Instant expiresAt) { }
+}
+``
+
+### FILE: src/main/java/cn/longer233/gamenarrator/importer/ResolvedMedia.java
+
+``java
+package cn.longer233.gamenarrator.importer;
+
+import java.util.List;
+
+public record ResolvedMedia(
+        String platform,
+        String sourceId,
+        String title,
+        String creator,
+        String thumbnail,
+        String thumbnailPreviewUrl,
+        Double durationSeconds,
+        List<String> tags,
+        List<MediaVariant> variants,
+        String contentOrigin,
+        String contentOriginLabel,
+        Double originConfidence,
+        String originReason
+) {
+    public ResolvedMedia(String platform, String sourceId, String title, String creator,
+                         String thumbnail, String thumbnailPreviewUrl, Double durationSeconds,
+                         List<String> tags, List<MediaVariant> variants) {
+        this(platform, sourceId, title, creator, thumbnail, thumbnailPreviewUrl, durationSeconds,
+                tags, variants, "UNKNOWN", "来源性质未知", 0.0, "尚未评估");
+    }
+}
+``
+
+### FILE: src/main/java/cn/longer233/gamenarrator/importer/YtDlpMediaImporter.java
+
+``java
+package cn.longer233.gamenarrator.importer;
+
+import cn.longer233.gamenarrator.asset.AssetCatalogService;
+import cn.longer233.gamenarrator.asset.AssetView;
+import cn.longer233.gamenarrator.asset.ImportedMediaAsset;
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.stereotype.Service;
+import org.springframework.web.multipart.MultipartFile;
+
+import java.io.IOException;
+import java.net.InetAddress;
+import java.net.URI;
+import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.time.Duration;
+import java.util.*;
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.CompletionException;
+import java.util.concurrent.Semaphore;
+import java.util.concurrent.TimeUnit;
+
+@Service
+public class YtDlpMediaImporter {
+    private final Path executable;
+    private final Path importDirectory;
+    private final Path transientDownloadDirectory;
+    private final Path cookieDirectory;
+    private final ObjectMapper objectMapper;
+    private final MediaImportProperties properties;
+    private final AssetCatalogService assetCatalogService;
+    private final Semaphore worker = new Semaphore(1);
+
+    public YtDlpMediaImporter(ObjectMapper objectMapper,
+                              MediaImportProperties properties,
+                              AssetCatalogService assetCatalogService,
+                              @Value("${game-narrator.storage-root}") String storageRoot) {
+        this.objectMapper = objectMapper;
+        this.properties = properties;
+        this.assetCatalogService = assetCatalogService;
+        this.executable = Path.of(properties.getYtDlp()).toAbsolutePath().normalize();
+        this.importDirectory = Path.of(storageRoot).toAbsolutePath().normalize().resolve("imports");
+        this.transientDownloadDirectory = Path.of(storageRoot).toAbsolutePath().normalize()
+                .resolve("import-downloads");
+        this.cookieDirectory = Path.of(storageRoot).toAbsolutePath().normalize().resolve("import-auth");
+    }
+
+    public boolean available() {
+        return Files.isRegularFile(executable);
+    }
+
+    public Path executable() {
+        return executable;
+    }
+
+    public Map<String, Object> browserAuthenticationConfig(String sourceUrl) {
+        URI source = validateSource(sourceUrl);
+        MediaImportProperties.Platform platform = requirePlatform(source.getHost());
+        return Map.of("platform", platform.getId(),
+                "cookieDomains", List.copyOf(platform.getCookieDomains()));
+    }
+
+    public String uploadCookies(MultipartFile file, String sourceUrl) {
+        if (file == null || file.isEmpty()) {
+            throw new IllegalArgumentException("请选择 cookies.txt 文件");
+        }
+        if (file.getSize() > 2 * 1024 * 1024) {
+            throw new IllegalArgumentException("cookies.txt 不能超过 2 MB");
+        }
+        try {
+            URI source = validateSource(sourceUrl);
+            MediaImportProperties.Platform platform = requirePlatform(source.getHost());
+            String content = new String(file.getBytes(), StandardCharsets.UTF_8);
+            List<String> lines = content.lines().toList();
+            if (lines.isEmpty() || (!lines.getFirst().startsWith("# Netscape HTTP Cookie File")
+                    && !lines.getFirst().startsWith("# HTTP Cookie File"))) {
+                throw new IllegalArgumentException("Cookie 文件必须是 Netscape cookies.txt 格式");
+            }
+            List<String> filtered = new ArrayList<>();
+            filtered.add("# Netscape HTTP Cookie File");
+            for (String line : lines) {
+                if (line.isBlank() || line.startsWith("#")) continue;
+                String[] fields = line.split("\\t", -1);
+                if (fields.length < 7) continue;
+                String domain = fields[0].toLowerCase(Locale.ROOT);
+                if (platform.acceptsCookieDomain(domain)) {
+                    filtered.add(line);
+                }
+            }
+            if (filtered.size() == 1) {
+                throw new IllegalArgumentException(
+                        "Cookie 文件中没有 " + platform.getId() + " 登录信息");
+            }
+            Files.createDirectories(cookieDirectory);
+            purgeExpiredCookies();
+            String token = UUID.randomUUID().toString();
+            Path output = cookieDirectory.resolve(token + ".txt");
+            Files.writeString(output, String.join(System.lineSeparator(), filtered)
+                    + System.lineSeparator(), StandardCharsets.UTF_8);
+            return token;
+        } catch (IllegalArgumentException exception) {
+            throw exception;
+        } catch (IOException exception) {
+            throw new IllegalStateException("无法保存临时 Cookie 文件", exception);
+        }
+    }
+
+    public ResolvedMedia resolve(MediaResolveRequest request) {
+        requireAvailable();
+        URI uri = validateSource(request.url());
+        List<String> command = new ArrayList<>(List.of(executable.toString(), "--dump-single-json",
+                "--skip-download", "--no-playlist", "--no-warnings"));
+        JsonNode root = readJson(runAuthenticated(command, uri, null,
+                request.cookieToken(), request.url(), Duration.ofMinutes(2)));
+        List<MediaVariant> variants = new ArrayList<>();
+        root.path("formats").forEach(format -> {
+            String formatId = format.path("format_id").asText("");
+            if (formatId.isBlank() || !formatId.matches("[A-Za-z0-9_+\\-]+")) return;
+            int width = format.path("width").asInt(0);
+            int height = format.path("height").asInt(0);
+            String vcodec = format.path("vcodec").asText("none");
+            String acodec = format.path("acodec").asText("none");
+            if ("none".equals(vcodec) && "none".equals(acodec)) return;
+            String note = format.path("format_note").asText("");
+            String label = height > 0 ? height + "p" : ("none".equals(vcodec) ? "仅音频" : note);
+            variants.add(new MediaVariant(formatId, label, format.path("ext").asText(),
+                    width == 0 ? null : width, height == 0 ? null : height,
+                    format.path("fps").isNumber() ? format.path("fps").asDouble() : null,
+                    vcodec, acodec, approximateSize(format)));
+        });
+        variants.sort(Comparator.comparing((MediaVariant item) ->
+                item.height() == null ? 0 : item.height()).reversed());
+        if (variants.isEmpty()) {
+            variants.add(new MediaVariant("best", "自动选择最佳可播放格式", "mp4",
+                    null, null, null, "unknown", "unknown", null));
+        }
+        List<String> tags = new ArrayList<>();
+        root.path("tags").forEach(tag -> tags.add(tag.asText()));
+        return new ResolvedMedia(requirePlatform(uri.getHost()).getId(), root.path("id").asText(),
+                root.path("title").asText("未命名视频"), root.path("uploader").asText(null),
+                normalizeThumbnail(root.path("thumbnail").asText(null)),
+                null,
+                root.path("duration").isNumber() ? root.path("duration").asDouble() : null,
+                tags.stream().filter(value -> !value.isBlank()).limit(20).toList(),
+                variants.stream().limit(40).toList());
+    }
+
+    private String normalizeThumbnail(String value) {
+        if (value == null || value.isBlank()) return null;
+        URI uri = URI.create(value);
+        return RemoteThumbnailService.upgradeToHttps(uri).toString();
+    }
+
+    public MediaDownloadResult download(MediaDownloadRequest request) {
+        return download(request, progress -> { });
+    }
+
+    public MediaDownloadResult download(MediaDownloadRequest request,
+                                        java.util.function.Consumer<MediaDownloadProgress> progressConsumer) {
+        requireAvailable();
+        validateSource(request.url());
+        if (!worker.tryAcquire()) throw new IllegalStateException("已有一个平台素材下载任务正在运行");
+        try {
+            Path targetDirectory = request.addToLibrary() ? importDirectory : transientDownloadDirectory;
+            Files.createDirectories(targetDirectory);
+            purgeTransientDownloads();
+            String marker = "FINAL_FILE:";
+            URI uri = validateSource(request.url());
+            List<String> command = new ArrayList<>(List.of(executable.toString(), "--no-playlist",
+                    "--no-warnings", "--newline", "--restrict-filenames",
+                    "--progress-template", "download:GNPROGRESS:%(progress._percent_str)s|%(progress.downloaded_bytes)s|%(progress.total_bytes_estimate)s|%(progress._speed_str)s|%(progress._eta_str)s",
+                    "--merge-output-format", "mp4", "--format", playableFormatSelector(request.formatId()),
+                    "--output", targetDirectory.resolve("%(extractor)s-%(id)s-%(title).80s.%(ext)s").toString(),
+                    "--print", "after_move:" + marker + "%(filepath)s"));
+            if (request.subtitles()) {
+                command.addAll(List.of("--write-subs", "--write-auto-subs", "--sub-langs", "zh.*,ja.*,en.*"));
+            }
+            String output = runAuthenticated(command, uri, null,
+                    request.cookieToken(), request.url(), Duration.ofHours(2), line -> {
+                        if (!line.startsWith("GNPROGRESS:")) return;
+                        String[] values = line.substring(11).split("\\|", -1);
+                        if (values.length >= 5) progressConsumer.accept(new MediaDownloadProgress(
+                                values[0].trim(), values[1], values[2], values[3].trim(), values[4].trim()));
+                    });
+            String pathText = output.lines().filter(line -> line.startsWith(marker))
+                    .map(line -> line.substring(marker.length())).reduce((first, second) -> second)
+                    .orElseThrow(() -> new IllegalStateException("下载完成但未返回文件路径"));
+            Path outputPath = Path.of(pathText).toAbsolutePath().normalize();
+            if (!outputPath.startsWith(targetDirectory) || !Files.isRegularFile(outputPath)) {
+                throw new IllegalStateException("下载结果不在授权的素材目录中");
+            }
+            long size = Files.size(outputPath);
+            AssetView asset = request.addToLibrary()
+                    ? assetCatalogService.registerImportedMedia(new ImportedMediaAsset(
+                            request.url(), request.title(), request.creator(), request.thumbnail(),
+                            request.durationSeconds(), request.tags()), outputPath)
+                    : null;
+            return new MediaDownloadResult("COMPLETED", outputPath.toString(),
+                    outputPath.getFileName().toString(), size,
+                    asset == null ? null : asset.id(), null);
+        } catch (IOException exception) {
+            throw new IllegalStateException("无法读取下载结果：" + exception.getMessage(), exception);
+        } finally {
+            worker.release();
+        }
+    }
+
+    static String playableFormatSelector(String requested) {
+        String value = requested == null ? "" : requested.trim();
+        if (value.isBlank() || "best".equalsIgnoreCase(value)) {
+            return "bestvideo+bestaudio/best";
+        }
+        if (value.contains("+") || value.contains("/")) return value;
+        return value + "+bestaudio/" + value + "/bestvideo+bestaudio/best";
+    }
+
+    private String run(List<String> command, Duration timeout,
+                       java.util.function.Consumer<String> outputLine) {
+        try {
+            var result = cn.longer233.gamenarrator.common.ExternalProcessRunner.run(
+                    command, timeout, null, outputLine);
+            String output = result.output();
+            if (result.exitCode() != 0) {
+                String safe = output.length() > 1200 ? output.substring(output.length() - 1200) : output;
+                if (safe.contains("HTTP Error 412") && safe.contains("BiliBili")) {
+                    throw new IllegalStateException(
+                            "Bilibili 拒绝了匿名请求（HTTP 412）。请选择已登录 Bilibili 的浏览器后重试。");
+                }
+                if (safe.contains("Failed to decrypt with DPAPI")) {
+                    throw new IllegalStateException(
+                            "Windows 无法解密浏览器 Cookie。请上传 Netscape 格式的 cookies.txt 后重试。");
+                }
+                throw new IllegalStateException("媒体工具执行失败：" + safe.trim());
+            }
+            return output;
+        } catch (cn.longer233.gamenarrator.common.ExternalProcessRunner.ProcessTimeoutException exception) {
+            throw new IllegalStateException("媒体解析或下载超时", exception);
+        } catch (IOException exception) {
+            throw new IllegalStateException("无法启动媒体导入工具：" + exception.getMessage(), exception);
+        } catch (InterruptedException exception) {
+            Thread.currentThread().interrupt();
+            throw new IllegalStateException("媒体导入已中断", exception);
+        }
+    }
+
+    private String runAuthenticated(List<String> baseCommand, URI source, String requestedBrowser,
+                                    String cookieToken, String url, Duration timeout) {
+        return runAuthenticated(baseCommand, source, requestedBrowser, cookieToken, url, timeout, line -> { });
+    }
+
+    private String runAuthenticated(List<String> baseCommand, URI source, String requestedBrowser,
+                                    String cookieToken, String url, Duration timeout,
+                                    java.util.function.Consumer<String> outputLine) {
+        if (cookieToken != null && !cookieToken.isBlank()) {
+            return runAttempt(baseCommand, source, null, cookieToken, url, timeout, outputLine);
+        }
+        if (requestedBrowser != null && !requestedBrowser.isBlank()) {
+            return runAttempt(baseCommand, source, requestedBrowser, null, url, timeout, outputLine);
+        }
+        List<String> attempts = new ArrayList<>();
+        try {
+            return runAttempt(baseCommand, source, null, null, url, timeout, outputLine);
+        } catch (IllegalStateException exception) {
+            if (!isAuthenticationFailure(exception)) throw exception;
+            attempts.add("anonymous");
+        }
+        if (!properties.isLocalAuthenticationDiscovery()) {
+            throw new IllegalStateException(
+                    "平台要求登录认证。请上传从本人浏览器导出的 Netscape cookies.txt；"
+                            + "服务器不会读取本机浏览器、下载目录或桌面文件。");
+        }
+        CookieDiscovery discovery = discoverCookieToken(source);
+        if (discovery.token() != null) {
+            attempts.add("downloaded-cookie-file");
+            try {
+                return runAttempt(baseCommand, source, null, discovery.token(), url, timeout, outputLine);
+            } catch (IllegalStateException exception) {
+                if (!isAuthenticationFailure(exception)) throw exception;
+            }
+        }
+        for (String browser : properties.getBrowserPriority()) {
+            try {
+                return runAttempt(baseCommand, source, browser, null, url, timeout, outputLine);
+            } catch (IllegalStateException exception) {
+                if (!isAuthenticationFailure(exception)) throw exception;
+                attempts.add(browser);
+            }
+        }
+        throw new IllegalStateException("自动认证失败（已尝试 " + String.join("、", attempts)
+                + "）。" + discovery.message());
+    }
+
+    private CookieDiscovery discoverCookieToken(URI source) {
+        if (!properties.isLocalAuthenticationDiscovery()) {
+            return new CookieDiscovery(null, "服务器本地认证发现已关闭。");
+        }
+        MediaImportProperties.Platform platform = requirePlatform(source.getHost());
+        java.time.Instant cutoff = java.time.Instant.now().minus(Duration.ofDays(7));
+        List<Path> candidates = new ArrayList<>();
+        for (Path directory : cookieSearchDirectories()) {
+            if (!Files.isDirectory(directory)) continue;
+            try (var paths = Files.list(directory)) {
+                candidates.addAll(paths.filter(Files::isRegularFile)
+                        .filter(path -> {
+                            String name = path.getFileName().toString().toLowerCase(Locale.ROOT);
+                            return name.endsWith(".txt");
+                        })
+                        .filter(path -> isRecentSmallFile(path, cutoff))
+                        .toList());
+            } catch (IOException ignored) {
+                // Continue with other configured directories.
+            }
+        }
+        candidates.sort(Comparator.comparing(this::lastModified).reversed());
+        for (Path candidate : candidates) {
+            try {
+                String token = storeFilteredCookies(
+                        Files.readString(candidate, StandardCharsets.UTF_8), platform);
+                if (token != null) return new CookieDiscovery(token, "");
+            } catch (Exception ignored) {
+                // Ignore invalid candidates without logging sensitive local paths.
+            }
+        }
+        if (candidates.isEmpty()) {
+            return new CookieDiscovery(null,
+                    "未在系统下载目录或桌面发现近 7 天的 cookies.txt。请先从已登录浏览器导出 Netscape 格式 Cookie，程序会自动识别，无需手动上传。");
+        }
+        return new CookieDiscovery(null,
+                "已发现 " + candidates.size() + " 个文本文件，但其中没有当前平台可用的 Netscape Cookie。");
+    }
+
+    private List<Path> cookieSearchDirectories() {
+        if (!properties.isLocalAuthenticationDiscovery()) return List.of();
+        java.util.LinkedHashSet<Path> directories = new java.util.LinkedHashSet<>();
+        for (String configuredPath : properties.getCookieSearchPaths()) {
+            if (configuredPath == null || configuredPath.isBlank()) continue;
+            directories.add(Path.of(configuredPath).toAbsolutePath().normalize());
+        }
+        String userHome = System.getProperty("user.home");
+        if (userHome != null && !userHome.isBlank()) {
+            Path home = Path.of(userHome).toAbsolutePath().normalize();
+            directories.add(home.resolve("Downloads"));
+            directories.add(home.resolve("Desktop"));
+            directories.add(home.resolve("OneDrive").resolve("Downloads"));
+            directories.add(home.resolve("OneDrive").resolve("Desktop"));
+        }
+        return List.copyOf(directories);
+    }
+
+    private record CookieDiscovery(String token, String message) {}
+
+    private boolean isRecentSmallFile(Path path, java.time.Instant cutoff) {
+        try {
+            return Files.size(path) <= 2 * 1024 * 1024
+                    && Files.getLastModifiedTime(path).toInstant().isAfter(cutoff);
+        } catch (IOException exception) {
+            return false;
+        }
+    }
+
+    private String storeFilteredCookies(String content, MediaImportProperties.Platform platform)
+            throws IOException {
+        List<String> lines = content.lines().toList();
+        if (lines.isEmpty() || (!lines.getFirst().startsWith("# Netscape HTTP Cookie File")
+                && !lines.getFirst().startsWith("# HTTP Cookie File"))) return null;
+        List<String> filtered = new ArrayList<>();
+        filtered.add("# Netscape HTTP Cookie File");
+        for (String line : lines) {
+            if (line.isBlank() || line.startsWith("#")) continue;
+            String[] fields = line.split("\\t", -1);
+            if (fields.length >= 7 && platform.acceptsCookieDomain(fields[0])) filtered.add(line);
+        }
+        if (filtered.size() == 1) return null;
+        Files.createDirectories(cookieDirectory);
+        purgeExpiredCookies();
+        String token = UUID.randomUUID().toString();
+        Files.writeString(cookieDirectory.resolve(token + ".txt"),
+                String.join(System.lineSeparator(), filtered) + System.lineSeparator(),
+                StandardCharsets.UTF_8);
+        return token;
+    }
+
+    private java.time.Instant lastModified(Path path) {
+        try {
+            return Files.getLastModifiedTime(path).toInstant();
+        } catch (IOException exception) {
+            return java.time.Instant.EPOCH;
+        }
+    }
+
+    private String runAttempt(List<String> baseCommand, URI source, String browser,
+                              String cookieToken, String url, Duration timeout) {
+        return runAttempt(baseCommand, source, browser, cookieToken, url, timeout, line -> { });
+    }
+
+    private String runAttempt(List<String> baseCommand, URI source, String browser,
+                              String cookieToken, String url, Duration timeout,
+                              java.util.function.Consumer<String> outputLine) {
+        try {
+            return run(commandWithAuthentication(
+                    baseCommand, source, browser, cookieToken, url, true), timeout, outputLine);
+        } catch (IllegalStateException exception) {
+            if (!isImpersonationFallbackFailure(exception)) throw exception;
+            return run(commandWithAuthentication(
+                    baseCommand, source, browser, cookieToken, url, false), timeout, outputLine);
+        }
+    }
+
+    boolean isImpersonationFallbackFailure(IllegalStateException exception) {
+        String message = String.valueOf(exception.getMessage()).toLowerCase(Locale.ROOT);
+        return message.contains("curl: (35)")
+                || message.contains("sslerror")
+                || message.contains("connection was reset")
+                || message.contains("recv failure")
+                || message.contains("no video formats found")
+                || message.contains("impersonate target") && message.contains("not available");
+    }
+
+    private List<String> commandWithAuthentication(List<String> baseCommand, URI source,
+                                                   String browser, String cookieToken, String url,
+                                                   boolean impersonate) {
+        List<String> command = new ArrayList<>(baseCommand);
+        addRequestOptions(command, source, browser, cookieToken, impersonate);
+        command.add(url);
+        return command;
+    }
+
+    private boolean isAuthenticationFailure(IllegalStateException exception) {
+        String message = String.valueOf(exception.getMessage()).toLowerCase(Locale.ROOT);
+        return message.contains("412") || message.contains("401") || message.contains("403")
+                || message.contains("cookie") || message.contains("dpapi")
+                || message.contains("sign in") || message.contains("login")
+                || message.contains("no video formats found");
+    }
+
+    private JsonNode readJson(String value) {
+        try {
+            return objectMapper.readTree(value);
+        } catch (Exception exception) {
+            throw new IllegalStateException("媒体工具返回了无法识别的数据", exception);
+        }
+    }
+
+    private URI validateSource(String value) {
+        URI uri = URI.create(value);
+        if (!"https".equalsIgnoreCase(uri.getScheme()) || uri.getHost() == null)
+            throw new IllegalArgumentException("只允许 HTTPS 平台链接");
+        String host = uri.getHost().toLowerCase(Locale.ROOT);
+        if (properties.getPlatforms().stream().noneMatch(platform ->
+                platform.matchesHost(host)))
+            throw new IllegalArgumentException("当前只支持 Bilibili、YouTube、抖音和 TikTok 链接");
+        try {
+            for (InetAddress address : InetAddress.getAllByName(host)) {
+                if (address.isAnyLocalAddress() || address.isLoopbackAddress()
+                        || address.isSiteLocalAddress() || address.isLinkLocalAddress())
+                    throw new IllegalArgumentException("禁止访问本地或内网地址");
+            }
+        } catch (java.net.UnknownHostException exception) {
+            throw new IllegalArgumentException("平台地址无法解析");
+        }
+        return uri;
+    }
+
+    private void addRequestOptions(List<String> command, URI source,
+                                   String cookieBrowser, String cookieToken,
+                                   boolean impersonate) {
+        if (properties.isForceIpv4()) command.add("--force-ipv4");
+        if (impersonate) command.addAll(List.of("--impersonate", ""));
+        MediaImportProperties.Platform platform = requirePlatform(source.getHost());
+        if (platform.getReferer() != null && !platform.getReferer().isBlank()) {
+            command.addAll(List.of("--referer", platform.getReferer()));
+        }
+        Path cookieFile = resolveCookieFile(cookieToken);
+        if (cookieFile != null) {
+            command.addAll(List.of("--cookies", cookieFile.toString()));
+        } else if (cookieBrowser != null && !cookieBrowser.isBlank()) {
+            command.addAll(List.of("--cookies-from-browser", cookieBrowser));
+        }
+    }
+
+    private Path resolveCookieFile(String token) {
+        if (token == null || token.isBlank()) return null;
+        UUID parsed;
+        try {
+            parsed = UUID.fromString(token);
+        } catch (IllegalArgumentException exception) {
+            throw new IllegalArgumentException("Cookie token is invalid");
+        }
+        Path path = cookieDirectory.resolve(parsed + ".txt").toAbsolutePath().normalize();
+        if (!path.startsWith(cookieDirectory) || !Files.isRegularFile(path)) {
+            throw new IllegalStateException("临时 Cookie 已失效，请重新上传");
+        }
+        try {
+            if (Files.getLastModifiedTime(path).toInstant()
+                    .isBefore(java.time.Instant.now().minus(Duration.ofHours(1)))) {
+                Files.deleteIfExists(path);
+                throw new IllegalStateException("临时 Cookie 已过期，请重新上传");
+            }
+        } catch (IOException exception) {
+            throw new IllegalStateException("无法读取临时 Cookie", exception);
+        }
+        return path;
+    }
+
+    public void discardCookies(String token) {
+        if (token == null || token.isBlank()) return;
+        try {
+            UUID parsed = UUID.fromString(token);
+            Path path = cookieDirectory.resolve(parsed + ".txt").toAbsolutePath().normalize();
+            if (path.startsWith(cookieDirectory)) Files.deleteIfExists(path);
+        } catch (IllegalArgumentException | IOException ignored) {
+            // Invalid or already removed client credentials require no further action.
+        }
+    }
+
+    private void purgeExpiredCookies() throws IOException {
+        if (!Files.isDirectory(cookieDirectory)) return;
+        java.time.Instant cutoff = java.time.Instant.now().minus(Duration.ofHours(1));
+        try (var paths = Files.list(cookieDirectory)) {
+            for (Path path : paths.filter(Files::isRegularFile).toList()) {
+                if (Files.getLastModifiedTime(path).toInstant().isBefore(cutoff)) {
+                    Files.deleteIfExists(path);
+                }
+            }
+        }
+    }
+
+    private void purgeTransientDownloads() throws IOException {
+        if (!Files.isDirectory(transientDownloadDirectory)) return;
+        java.time.Instant cutoff = java.time.Instant.now().minus(Duration.ofHours(1));
+        try (var paths = Files.list(transientDownloadDirectory)) {
+            for (Path path : paths.filter(Files::isRegularFile).toList()) {
+                if (Files.getLastModifiedTime(path).toInstant().isBefore(cutoff)) {
+                    Files.deleteIfExists(path);
+                }
+            }
+        }
+    }
+
+    private Long approximateSize(JsonNode format) {
+        if (format.path("filesize").isNumber()) return format.path("filesize").asLong();
+        if (format.path("filesize_approx").isNumber()) return format.path("filesize_approx").asLong();
+        return null;
+    }
+
+    private MediaImportProperties.Platform requirePlatform(String host) {
+        return properties.getPlatforms().stream()
+                .filter(platform -> platform.matchesHost(host))
+                .findFirst()
+                .orElseThrow(() -> new IllegalArgumentException("当前平台未配置"));
+    }
+
+    private void requireAvailable() {
+        if (!available()) throw new IllegalStateException(
+                "媒体导入工具未安装，请运行 .\\scripts\\setup-media-importer.ps1");
+    }
+}
+``
+
+### FILE: src/main/java/cn/longer233/gamenarrator/media/FfmpegMediaPreprocessor.java
+
+``java
+package cn.longer233.gamenarrator.media;
+
+import com.fasterxml.jackson.databind.ObjectMapper;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.stereotype.Component;
+
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStreamReader;
+import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.time.Duration;
+import java.util.ArrayList;
+import java.util.Comparator;
+import java.util.List;
+import java.util.concurrent.TimeUnit;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+
+@Component
+public class FfmpegMediaPreprocessor {
+
+    private static final Logger log = LoggerFactory.getLogger(FfmpegMediaPreprocessor.class);
+    private static final Pattern PTS_TIME = Pattern.compile("pts_time:([0-9]+(?:\\.[0-9]+)?)");
+    private final String ffmpegCommand;
+    private final Path storageRoot;
+    private final ObjectMapper objectMapper;
+    private final double sceneThreshold;
+    private final int sceneAnalysisFps;
+    private final int maximumSceneFrames;
+    private final Duration sceneTimeout;
+
+    public FfmpegMediaPreprocessor(
+            @Value("${game-narrator.ffmpeg-command}") String ffmpegCommand,
+            @Value("${game-narrator.storage-root}") String storageRoot,
+            @Value("${game-narrator.scene-threshold:0.35}") double sceneThreshold,
+            @Value("${game-narrator.scene-analysis-fps:6}") int sceneAnalysisFps,
+            @Value("${game-narrator.maximum-scene-frames:240}") int maximumSceneFrames,
+            @Value("${game-narrator.scene-timeout-minutes:20}") int sceneTimeoutMinutes,
+            ObjectMapper objectMapper
+    ) {
+        this.ffmpegCommand = ffmpegCommand;
+        this.storageRoot = Path.of(storageRoot).toAbsolutePath().normalize();
+        this.sceneThreshold = sceneThreshold;
+        this.sceneAnalysisFps = Math.max(1, Math.min(12, sceneAnalysisFps));
+        this.maximumSceneFrames = Math.max(10, Math.min(1000, maximumSceneFrames));
+        this.sceneTimeout = Duration.ofMinutes(Math.max(2, Math.min(120, sceneTimeoutMinutes)));
+        this.objectMapper = objectMapper;
+    }
+
+    public MediaPreparationResult prepare(
+            java.util.UUID taskId,
+            Path sourceVideo,
+            boolean hasAudio
+    ) {
+        Path taskDirectory = storageRoot.resolve("tasks").resolve(taskId.toString());
+        Path sceneDirectory = taskDirectory.resolve("scenes");
+        Path audioPath = taskDirectory.resolve("speech-16k.wav");
+        Path manifestPath = taskDirectory.resolve("scenes.json");
+        try {
+            Files.createDirectories(sceneDirectory);
+            if (hasAudio) {
+                extractAudio(sourceVideo, audioPath);
+            }
+            List<SceneFrame> scenes = detectScenes(sourceVideo, sceneDirectory);
+            cn.longer233.gamenarrator.common.AtomicArtifactWriter.writeJson(objectMapper, manifestPath, scenes);
+            log.info("MEDIA_PREPARATION_SUCCESS taskId={} sceneCount={} audioExtracted={} manifest={}",
+                    taskId, scenes.size(), hasAudio, manifestPath);
+            return new MediaPreparationResult(
+                    hasAudio ? audioPath.toString() : null,
+                    manifestPath.toString(),
+                    scenes
+            );
+        } catch (IOException exception) {
+            throw new IllegalStateException("无法创建媒体预处理产物：" + exception.getMessage(), exception);
+        }
+    }
+
+    private void extractAudio(Path sourceVideo, Path outputPath) {
+        log.info("AUDIO_EXTRACTION_BEGIN source={} output={}", sourceVideo, outputPath);
+        run(List.of(
+                ffmpegCommand, "-nostdin", "-y", "-hide_banner", "-loglevel", "warning", "-threads", "0",
+                "-i", sourceVideo.toString(), "-vn",
+                "-ac", "1", "-ar", "16000", "-c:a", "pcm_s16le",
+                outputPath.toString()
+        ), Duration.ofMinutes(30), "音频提取");
+        log.info("AUDIO_EXTRACTION_SUCCESS output={} sizeBytes={}",
+                outputPath, fileSize(outputPath));
+    }
+
+    private List<SceneFrame> detectScenes(Path sourceVideo, Path sceneDirectory) {
+        log.info("SCENE_DETECTION_BEGIN source={} threshold={} output={}",
+                sourceVideo, sceneThreshold, sceneDirectory);
+        clearSceneImages(sceneDirectory);
+        String outputPattern = sceneDirectory.resolve("scene-%04d.png").toString();
+        String output = run(List.of(
+                ffmpegCommand, "-nostdin", "-y", "-hide_banner", "-threads", "0",
+                "-i", sourceVideo.toString(),
+                "-an", "-sn", "-dn",
+                "-vf", "fps=" + sceneAnalysisFps + ",scale=480:-2:flags=fast_bilinear,select=gt(scene\\," + sceneThreshold + "),showinfo",
+                "-fps_mode", "vfr", "-frames:v", String.valueOf(maximumSceneFrames),
+                "-c:v", "png", "-compression_level", "1", "-threads:v", "1",
+                outputPattern
+        ), sceneTimeout, "场景检测");
+
+        List<Double> timestamps = PTS_TIME.matcher(output).results()
+                .map(result -> Double.parseDouble(result.group(1)))
+                .toList();
+        try (var paths = Files.list(sceneDirectory)) {
+            List<Path> images = paths
+                    .filter(path -> path.getFileName().toString().endsWith(".png"))
+                    .sorted(Comparator.comparing(Path::toString))
+                    .toList();
+            if (images.isEmpty()) {
+                Path first = sceneDirectory.resolve("scene-0001.png");
+                run(List.of(ffmpegCommand, "-nostdin", "-y", "-hide_banner", "-loglevel", "warning",
+                        "-ss", "0", "-i", sourceVideo.toString(), "-an", "-frames:v", "1",
+                        "-vf", "scale=480:-2:flags=fast_bilinear", "-c:v", "png", "-threads:v", "1",
+                        "-update", "1",
+                        first.toString()), Duration.ofMinutes(2), "首帧提取");
+                images = List.of(first);
+            }
+            List<SceneFrame> scenes = new ArrayList<>();
+            for (int index = 0; index < images.size(); index++) {
+                double timestamp = index < timestamps.size() ? timestamps.get(index) : 0.0;
+                scenes.add(new SceneFrame(index + 1, timestamp, images.get(index).toString()));
+            }
+            log.info("SCENE_DETECTION_SUCCESS sceneCount={}", scenes.size());
+            return scenes;
+        } catch (IOException exception) {
+            throw new IllegalStateException("无法读取场景截图：" + exception.getMessage(), exception);
+        }
+    }
+
+    private void clearSceneImages(Path sceneDirectory) {
+        try (var paths = Files.list(sceneDirectory)) {
+            for (Path path : paths.filter(item -> item.getFileName().toString().matches("scene-\\d+\\.(?:jpg|png)"))
+                    .toList()) Files.deleteIfExists(path);
+        } catch (IOException exception) {
+            throw new IllegalStateException("无法清理旧镜头缓存：" + exception.getMessage(), exception);
+        }
+    }
+
+    private String run(List<String> command, Duration timeout, String operation) {
+        try {
+            var result = cn.longer233.gamenarrator.common.ExternalProcessRunner.run(command, timeout);
+            if (result.exitCode() != 0) {
+                throw new IllegalStateException(operation + "失败，FFmpeg 退出码 "
+                        + result.exitCode() + "：" + tail(result.output(), 1200));
+            }
+            return result.output();
+        } catch (cn.longer233.gamenarrator.common.ExternalProcessRunner.ProcessTimeoutException exception) {
+            throw new IllegalStateException(operation + "超时（" + timeout.toMinutes() + " 分钟）", exception);
+        } catch (IOException exception) {
+            throw new IllegalStateException(operation + "无法启动 FFmpeg：" + exception.getMessage(), exception);
+        } catch (InterruptedException exception) {
+            Thread.currentThread().interrupt();
+            throw new IllegalStateException(operation + "被中断", exception);
+        }
+    }
+
+    private long fileSize(Path path) {
+        try {
+            return Files.size(path);
+        } catch (IOException ignored) {
+            return -1;
+        }
+    }
+
+    private String tail(String value, int limit) {
+        return value.length() <= limit ? value : value.substring(value.length() - limit);
+    }
+}
+``
+
+### FILE: src/main/java/cn/longer233/gamenarrator/media/FfmpegMediaProbe.java
+
+``java
+package cn.longer233.gamenarrator.media;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.stereotype.Component;
+
+import java.nio.charset.StandardCharsets;
+import java.nio.file.Path;
+import java.time.Duration;
+import java.util.List;
+import java.util.concurrent.TimeUnit;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+
+@Component
+public class FfmpegMediaProbe {
+
+    private static final Logger log = LoggerFactory.getLogger(FfmpegMediaProbe.class);
+    private static final Pattern DURATION =
+            Pattern.compile("Duration:\\s*(\\d+):(\\d+):([\\d.]+)");
+    private static final Pattern VIDEO =
+            Pattern.compile("Video:\\s*([^,\\s]+).*?(\\d{2,5})x(\\d{2,5}).*?([\\d.]+)\\s*fps");
+    private static final Pattern AUDIO =
+            Pattern.compile("Audio:\\s*([^,\\s]+)");
+
+    private final String ffmpegCommand;
+
+    public FfmpegMediaProbe(@Value("${game-narrator.ffmpeg-command}") String ffmpegCommand) {
+        this.ffmpegCommand = ffmpegCommand;
+    }
+
+    public MediaMetadata inspect(Path videoPath) {
+        log.info("MEDIA_PROBE_BEGIN path={}", videoPath);
+        try {
+            var result = cn.longer233.gamenarrator.common.ExternalProcessRunner.run(List.of(
+                    ffmpegCommand, "-hide_banner", "-i", videoPath.toString()), Duration.ofSeconds(30));
+            String output = result.output();
+            log.debug("MEDIA_PROBE_RAW_OUTPUT%n{}", output);
+            MediaMetadata metadata = parse(output);
+            log.info("MEDIA_PROBE_SUCCESS duration={} resolution={}x{} fps={} videoCodec={} audioCodec={}",
+                    metadata.durationSeconds(),
+                    metadata.width(),
+                    metadata.height(),
+                    metadata.framesPerSecond(),
+                    metadata.videoCodec(),
+                    metadata.audioCodec());
+            return metadata;
+        } catch (Exception exception) {
+            log.error("MEDIA_PROBE_FAILED path={} type={} message={}",
+                    videoPath, exception.getClass().getName(), exception.getMessage(), exception);
+            throw new IllegalStateException("无法读取视频媒体信息：" + exception.getMessage(), exception);
+        }
+    }
+
+    MediaMetadata parse(String output) {
+        Matcher durationMatcher = DURATION.matcher(output);
+        Matcher videoMatcher = VIDEO.matcher(output);
+        Matcher audioMatcher = AUDIO.matcher(output);
+        if (!durationMatcher.find()) {
+            throw new IllegalArgumentException("FFmpeg 输出中没有视频时长");
+        }
+        if (!videoMatcher.find()) {
+            throw new IllegalArgumentException("FFmpeg 输出中没有可识别的视频流");
+        }
+
+        double duration = Integer.parseInt(durationMatcher.group(1)) * 3600
+                + Integer.parseInt(durationMatcher.group(2)) * 60
+                + Double.parseDouble(durationMatcher.group(3));
+        String audioCodec = audioMatcher.find() ? audioMatcher.group(1) : "none";
+        return new MediaMetadata(
+                duration,
+                Integer.parseInt(videoMatcher.group(2)),
+                Integer.parseInt(videoMatcher.group(3)),
+                Double.parseDouble(videoMatcher.group(4)),
+                videoMatcher.group(1),
+                audioCodec
+        );
+    }
+}
+``
+
+### FILE: src/main/java/cn/longer233/gamenarrator/media/MediaMetadata.java
+
+``java
+package cn.longer233.gamenarrator.media;
+
+public record MediaMetadata(
+        double durationSeconds,
+        int width,
+        int height,
+        double framesPerSecond,
+        String videoCodec,
+        String audioCodec
+) {
+}
+``
+
+### FILE: src/main/java/cn/longer233/gamenarrator/media/MediaPreparationResult.java
+
+``java
+package cn.longer233.gamenarrator.media;
+
+import java.util.List;
+
+public record MediaPreparationResult(
+        String extractedAudioPath,
+        String sceneManifestPath,
+        List<SceneFrame> scenes
+) {
+}
+``
+
+### FILE: src/main/java/cn/longer233/gamenarrator/media/SceneFrame.java
+
+``java
+package cn.longer233.gamenarrator.media;
+
+public record SceneFrame(int index, double timestampSeconds, String imagePath) {
+}
+``
+
+### FILE: src/main/java/cn/longer233/gamenarrator/pipeline/EngineTaskContext.java
+
+``java
+package cn.longer233.gamenarrator.pipeline;
+
+public record EngineTaskContext(
+        String sourceVideoPath,
+        boolean ingestionCompleted,
+        boolean sceneDetectionCompleted,
+        boolean transcriptionCompleted,
+        boolean videoUnderstandingCompleted,
+        boolean highlightSelectionCompleted,
+        boolean scriptGenerationCompleted,
+        boolean voiceGenerationCompleted,
+        boolean timelinePlanningCompleted,
+        boolean renderingCompleted,
+        boolean hasAudio,
+        String extractedAudioPath,
+        String sceneManifestPath,
+        String transcriptText,
+        String visualAnalysisPath,
+        String highlightManifestPath,
+        String generatedScriptPath,
+        String voiceManifestPath,
+        String timelinePath,
+        Double durationSeconds,
+        int targetDurationSeconds,
+        String gameCategory,
+        String commentaryStyle,
+        String taskBrief,
+        boolean storyboardReviewEnabled,
+        boolean storyboardApproved,
+        boolean cloudVisionEnabled,
+        boolean aiScriptEnabled,
+        boolean aiVoiceEnabled,
+        boolean autoAssetsEnabled,
+        boolean automaticGenerationEnabled
+) {
+}
+``
+
+### FILE: src/main/java/cn/longer233/gamenarrator/pipeline/FailedVisionTaskRepair.java
+
+``java
+package cn.longer233.gamenarrator.pipeline;
+
+import cn.longer233.gamenarrator.task.domain.TaskStatus;
+import cn.longer233.gamenarrator.task.repository.VideoTaskRepository;
+import jakarta.transaction.Transactional;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.boot.ApplicationArguments;
+import org.springframework.boot.ApplicationRunner;
+import org.springframework.core.annotation.Order;
+import org.springframework.stereotype.Component;
+
+@Component
+@Order(10)
+public class FailedVisionTaskRepair implements ApplicationRunner {
+
+    private static final Logger log = LoggerFactory.getLogger(FailedVisionTaskRepair.class);
+    private final VideoTaskRepository repository;
+
+    public FailedVisionTaskRepair(VideoTaskRepository repository) {
+        this.repository = repository;
+    }
+
+    @Override
+    @Transactional
+    public void run(ApplicationArguments args) {
+        var failedTasks = repository.findByStatus(TaskStatus.FAILED);
+        int repaired = 0;
+        for (var task : failedTasks) {
+            if (task.canDeferFailedVideoUnderstanding()
+                    && isUnavailableDependencyFailure(task.getFailureReason())) {
+                String previousFailure = task.getFailureReason();
+                task.deferVideoUnderstanding(
+                        "等待本地视觉模型 qwen2.5vl:3b；请执行 .\\scripts\\setup-vision-model.ps1");
+                repaired++;
+                log.info("VISION_TASK_REPAIRED taskId={} previousFailure={}",
+                        task.getId(), previousFailure);
+            }
+        }
+        log.info("VISION_TASK_REPAIR_SCAN failedTaskCount={} repairedTaskCount={}",
+                failedTasks.size(), repaired);
+    }
+
+    private boolean isUnavailableDependencyFailure(String reason) {
+        if (reason == null) return false;
+        return reason.contains("ClosedChannelException")
+                || reason.contains("ConnectException")
+                || reason.contains("Ollama")
+                || reason.contains("视觉模型未就绪");
+    }
+}
+``
+
+### FILE: src/main/java/cn/longer233/gamenarrator/pipeline/PendingTaskRecovery.java
+
+``java
+package cn.longer233.gamenarrator.pipeline;
+
+import cn.longer233.gamenarrator.task.domain.TaskStatus;
+import cn.longer233.gamenarrator.task.repository.VideoTaskRepository;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.boot.ApplicationArguments;
+import org.springframework.boot.ApplicationRunner;
+import org.springframework.core.annotation.Order;
+import org.springframework.stereotype.Component;
+
+@Component
+@Order(20)
+public class PendingTaskRecovery implements ApplicationRunner {
+
+    private static final Logger log = LoggerFactory.getLogger(PendingTaskRecovery.class);
+    private final VideoTaskRepository repository;
+    private final VideoTaskEngine engine;
+
+    public PendingTaskRecovery(VideoTaskRepository repository, VideoTaskEngine engine) {
+        this.repository = repository;
+        this.engine = engine;
+    }
+
+    @Override
+    public void run(ApplicationArguments args) {
+        var readyTasks = repository.findByStatusIn(
+                java.util.List.of(TaskStatus.READY, TaskStatus.PROCESSING));
+        log.info("ENGINE_RECOVERY_SCAN recoverableTaskCount={}", readyTasks.size());
+        readyTasks.forEach(task -> {
+            log.info("ENGINE_RECOVERY_SUBMIT taskId={} name={}", task.getId(), task.getName());
+            engine.start(task.getId());
+        });
+    }
+}
+``
+
+### FILE: src/main/java/cn/longer233/gamenarrator/pipeline/PipelineRunTracker.java
+
+``java
+package cn.longer233.gamenarrator.pipeline;
+
+import com.fasterxml.jackson.databind.ObjectMapper;
+import org.springframework.jdbc.core.JdbcTemplate;
+import org.springframework.stereotype.Component;
+
+import java.time.OffsetDateTime;
+import java.time.ZoneOffset;
+import java.util.Map;
+import java.util.UUID;
+
+/** Mirrors the legacy task state into the versioned run model during the transition period. */
+@Component
+public class PipelineRunTracker {
+    private static final UUID LOCAL_USER = UUID.fromString("00000000-0000-0000-0000-000000000001");
+    private final JdbcTemplate jdbc;
+    private final ObjectMapper objectMapper;
+
+    public PipelineRunTracker(JdbcTemplate jdbc, ObjectMapper objectMapper) {
+        this.jdbc = jdbc;
+        this.objectMapper = objectMapper;
+    }
+
+    public void running(UUID taskId, String stageType) {
+        UUID runId = activeRun(taskId);
+        int attempt = jdbc.queryForObject(
+                "SELECT COALESCE(MAX(attempt_no),0)+1 FROM stage_run WHERE generation_run_id=? AND stage_type=?",
+                Integer.class, runId, stageType);
+        jdbc.update("""
+                INSERT INTO stage_run(id,generation_run_id,stage_type,attempt_no,status,progress,
+                input_snapshot_json,started_at) VALUES(?,?,?,?,'RUNNING',10,?,?)
+                """, UUID.randomUUID(), runId, stageType, attempt, json(Map.of("taskId", taskId)), now());
+    }
+
+    public void completed(UUID taskId, String stageType, Map<String, ?> summary) {
+        updateStage(taskId, stageType, "COMPLETED", 100, json(summary), null);
+        if ("RENDERING".equals(stageType)) finishRun(taskId, "COMPLETED", null);
+    }
+
+    public void failed(UUID taskId, String stageType, String reason) {
+        updateStage(taskId, stageType, "FAILED", 100, null, reason);
+        finishRun(taskId, "FAILED", reason);
+    }
+
+    public void waiting(UUID taskId, String stageType, String reason) {
+        updateStage(taskId, stageType, "WAITING", 10, null, reason);
+        jdbc.update("UPDATE generation_run SET status='WAITING',failure_message=? WHERE id=?",
+                limited(reason), activeRun(taskId));
+    }
+
+    private UUID activeRun(UUID taskId) {
+        var runs = jdbc.query("""
+                SELECT id FROM generation_run WHERE project_id=? AND status IN ('RUNNING','WAITING')
+                ORDER BY created_at DESC LIMIT 1
+                """, (rs, row) -> rs.getObject(1, UUID.class), taskId);
+        if (!runs.isEmpty()) {
+            UUID runId = runs.getFirst();
+            jdbc.update("UPDATE generation_run SET status='RUNNING',failure_message=NULL WHERE id=?", runId);
+            return runId;
+        }
+        UUID revisionId = jdbc.queryForObject(
+                "SELECT current_revision_id FROM video_project WHERE id=?", UUID.class, taskId);
+        UUID runId = UUID.randomUUID();
+        jdbc.update("""
+                INSERT INTO generation_run(id,project_id,user_id,input_revision_id,run_type,status,
+                trigger_source,started_at,trace_id,created_at) VALUES(?,?,?,?,?,'RUNNING','SYSTEM',?,?,?)
+                """, runId, taskId, LOCAL_USER, revisionId, "FULL_PIPELINE", now(), "task-" + taskId, now());
+        jdbc.update("UPDATE video_project SET latest_run_id=?,status='PROCESSING',updated_at=? WHERE id=?",
+                runId, now(), taskId);
+        return runId;
+    }
+
+    private void updateStage(UUID taskId, String stageType, String status, int progress,
+                             String summary, String error) {
+        UUID runId = activeRun(taskId);
+        int changed = jdbc.update("""
+                UPDATE stage_run SET status=?,progress=?,output_summary_json=?,finished_at=?,
+                elapsed_ms=DATEDIFF('MILLISECOND',started_at,?),error_message=?
+                WHERE id=(SELECT id FROM stage_run WHERE generation_run_id=? AND stage_type=?
+                ORDER BY attempt_no DESC LIMIT 1)
+                """, status, progress, summary, now(), now(), limited(error), runId, stageType);
+        if (changed == 0) {
+            running(taskId, stageType);
+            updateStage(taskId, stageType, status, progress, summary, error);
+        }
+    }
+
+    private void finishRun(UUID taskId, String status, String error) {
+        UUID runId = activeRun(taskId);
+        jdbc.update("""
+                UPDATE generation_run SET status=?,finished_at=?,elapsed_ms=DATEDIFF('MILLISECOND',started_at,?),
+                failure_message=? WHERE id=?
+                """, status, now(), now(), limited(error), runId);
+        jdbc.update("UPDATE video_project SET status=?,updated_at=? WHERE id=?",
+                "COMPLETED".equals(status) ? "READY" : "FAILED", now(), taskId);
+    }
+
+    private String json(Object value) {
+        try { return objectMapper.writeValueAsString(value); }
+        catch (Exception exception) { return "{}"; }
+    }
+
+    private String limited(String value) {
+        if (value == null) return null;
+        return value.length() <= 2000 ? value : value.substring(0, 2000);
+    }
+
+    private OffsetDateTime now() { return OffsetDateTime.now(ZoneOffset.UTC); }
+}
+``
+
+### FILE: src/main/java/cn/longer233/gamenarrator/pipeline/TaskWorkflowStateService.java
+
+``java
+package cn.longer233.gamenarrator.pipeline;
+
+import cn.longer233.gamenarrator.media.MediaMetadata;
+import cn.longer233.gamenarrator.media.MediaPreparationResult;
+import cn.longer233.gamenarrator.task.domain.ProcessingStageType;
+import cn.longer233.gamenarrator.task.domain.VideoTask;
+import cn.longer233.gamenarrator.task.repository.VideoTaskRepository;
+import cn.longer233.gamenarrator.transcription.TranscriptionResult;
+import cn.longer233.gamenarrator.vision.VideoUnderstandingResult;
+import cn.longer233.gamenarrator.highlight.HighlightSelectionResult;
+import cn.longer233.gamenarrator.script.GeneratedScript;
+import cn.longer233.gamenarrator.voice.VoiceGenerationResult;
+import cn.longer233.gamenarrator.timeline.TimelinePlanningResult;
+import cn.longer233.gamenarrator.render.RenderResult;
+import jakarta.transaction.Transactional;
+import org.springframework.stereotype.Service;
+
+import java.util.UUID;
+
+@Service
+public class TaskWorkflowStateService {
+
+    private final VideoTaskRepository repository;
+    private final PipelineRunTracker runTracker;
+
+    public TaskWorkflowStateService(VideoTaskRepository repository, PipelineRunTracker runTracker) {
+        this.repository = repository;
+        this.runTracker = runTracker;
+    }
+
+    @Transactional
+    public EngineTaskContext context(UUID taskId) {
+        VideoTask task = requireTask(taskId);
+        return new EngineTaskContext(
+                task.getSourceVideoPath(),
+                task.isStageCompleted(ProcessingStageType.VIDEO_INGESTION),
+                task.isStageCompleted(ProcessingStageType.SCENE_DETECTION),
+                task.isStageCompleted(ProcessingStageType.TRANSCRIPTION),
+                task.isStageCompleted(ProcessingStageType.VIDEO_UNDERSTANDING),
+                task.isStageCompleted(ProcessingStageType.HIGHLIGHT_SELECTION),
+                task.isStageCompleted(ProcessingStageType.SCRIPT_GENERATION),
+                task.isStageCompleted(ProcessingStageType.VOICE_GENERATION),
+                task.isStageCompleted(ProcessingStageType.TIMELINE_PLANNING),
+                task.isStageCompleted(ProcessingStageType.RENDERING),
+                task.getAudioCodec() != null && !"none".equalsIgnoreCase(task.getAudioCodec()),
+                task.getExtractedAudioPath(),
+                task.getSceneManifestPath(),
+                task.getTranscriptText(),
+                task.getVisualAnalysisPath(),
+                task.getHighlightManifestPath(),
+                task.getGeneratedScriptPath(),
+                task.getVoiceManifestPath(),
+                task.getTimelinePath(),
+                task.getDurationSeconds(),
+                task.getTargetDurationSeconds(),
+                task.getGameCategory(),
+                task.getCommentaryStyle().name(),
+                task.getTaskBrief(),
+                task.isStoryboardReviewEnabled(),
+                task.isStoryboardApproved(),
+                task.isCloudVisionEnabled(),
+                task.isAiScriptEnabled(),
+                task.isAiVoiceEnabled(),
+                task.isAutoAssetsEnabled(),
+                task.isAutomaticGenerationEnabled()
+        );
+    }
+
+    @Transactional
+    public void markManualEditingReady(UUID taskId) {
+        requireTask(taskId).readyForManualEditing();
+    }
+
+    @Transactional
+    public void updateStageProgress(UUID taskId, ProcessingStageType stageType, int progress) {
+        requireTask(taskId).updateStageProgress(stageType, progress);
+    }
+
+    @Transactional
+    public void markIngestionRunning(UUID taskId) {
+        requireTask(taskId).startIngestion();
+        runTracker.running(taskId, "VIDEO_INGESTION");
+    }
+
+    @Transactional
+    public void markIngestionCompleted(UUID taskId, MediaMetadata metadata) {
+        requireTask(taskId).completeIngestion(
+                metadata.durationSeconds(),
+                metadata.width(),
+                metadata.height(),
+                metadata.framesPerSecond(),
+                metadata.videoCodec(),
+                metadata.audioCodec()
+        );
+        runTracker.completed(taskId, "VIDEO_INGESTION", java.util.Map.of("durationSeconds", metadata.durationSeconds()));
+    }
+
+    @Transactional
+    public void markIngestionFailed(UUID taskId, String reason) {
+        requireTask(taskId).failIngestion(reason);
+        runTracker.failed(taskId, "VIDEO_INGESTION", reason);
+    }
+
+    @Transactional
+    public void markSceneDetectionRunning(UUID taskId) {
+        requireTask(taskId).startSceneDetection();
+        runTracker.running(taskId, "SCENE_DETECTION");
+    }
+
+    @Transactional
+    public void markSceneDetectionCompleted(UUID taskId, MediaPreparationResult result) {
+        requireTask(taskId).completeSceneDetection(
+                result.extractedAudioPath(),
+                result.sceneManifestPath(),
+                result.scenes().size()
+        );
+        runTracker.completed(taskId, "SCENE_DETECTION", java.util.Map.of("sceneCount", result.scenes().size()));
+    }
+
+    @Transactional
+    public void markSceneDetectionFailed(UUID taskId, String reason) {
+        requireTask(taskId).failSceneDetection(reason);
+        runTracker.failed(taskId, "SCENE_DETECTION", reason);
+    }
+
+    @Transactional
+    public void markTranscriptionRunning(UUID taskId) {
+        requireTask(taskId).startTranscription();
+        runTracker.running(taskId, "TRANSCRIPTION");
+    }
+
+    @Transactional
+    public void markTranscriptionCompleted(UUID taskId, TranscriptionResult result) {
+        requireTask(taskId).completeTranscription(
+                result.text(), result.textPath(), result.subtitlePath(), result.detailJsonPath());
+        runTracker.completed(taskId, "TRANSCRIPTION", java.util.Map.of("characterCount", result.text().length()));
+    }
+
+    @Transactional
+    public void markTranscriptionFailed(UUID taskId, String reason) {
+        requireTask(taskId).failTranscription(reason);
+        runTracker.failed(taskId, "TRANSCRIPTION", reason);
+    }
+
+    @Transactional
+    public void markVideoUnderstandingRunning(UUID taskId) {
+        requireTask(taskId).startVideoUnderstanding();
+        runTracker.running(taskId, "VIDEO_UNDERSTANDING");
+    }
+
+    @Transactional
+    public void markVideoUnderstandingCompleted(UUID taskId, VideoUnderstandingResult result) {
+        requireTask(taskId).completeVideoUnderstanding(
+                result.summary(), result.analysisPath(), result.frames().size());
+        runTracker.completed(taskId, "VIDEO_UNDERSTANDING", java.util.Map.of("frameCount", result.frames().size()));
+    }
+
+    @Transactional
+    public void markVideoUnderstandingFailed(UUID taskId, String reason) {
+        requireTask(taskId).failVideoUnderstanding(reason);
+        runTracker.failed(taskId, "VIDEO_UNDERSTANDING", reason);
+    }
+
+    @Transactional
+    public void deferVideoUnderstanding(UUID taskId, String reason) {
+        requireTask(taskId).deferVideoUnderstanding(reason);
+        runTracker.waiting(taskId, "VIDEO_UNDERSTANDING", reason);
+    }
+
+    @Transactional
+    public void markHighlightSelectionRunning(UUID taskId) {
+        requireTask(taskId).startHighlightSelection();
+        runTracker.running(taskId, "HIGHLIGHT_SELECTION");
+    }
+
+    @Transactional
+    public void markHighlightSelectionCompleted(UUID taskId, HighlightSelectionResult result) {
+        requireTask(taskId).completeHighlightSelection(result.summary(), result.manifestPath(), result.clips().size());
+        runTracker.completed(taskId, "HIGHLIGHT_SELECTION", java.util.Map.of("clipCount", result.clips().size()));
+    }
+
+    @Transactional
+    public void markHighlightSelectionFailed(UUID taskId, String reason) {
+        requireTask(taskId).failHighlightSelection(reason);
+        runTracker.failed(taskId, "HIGHLIGHT_SELECTION", reason);
+    }
+
+    @Transactional
+    public void markScriptGenerationRunning(UUID taskId) {
+        requireTask(taskId).startScriptGeneration();
+        runTracker.running(taskId, "SCRIPT_GENERATION");
+    }
+
+    @Transactional
+    public void markScriptGenerationCompleted(UUID taskId, GeneratedScript result) {
+        requireTask(taskId).completeScriptGeneration(result.title(), result.synopsis(),
+                result.fullNarration(), result.scriptPath(), result.segments().size());
+        runTracker.completed(taskId, "SCRIPT_GENERATION", java.util.Map.of("segmentCount", result.segments().size()));
+    }
+
+    @Transactional
+    public void markScriptGenerationFailed(UUID taskId, String reason) {
+        requireTask(taskId).failScriptGeneration(reason);
+        runTracker.failed(taskId, "SCRIPT_GENERATION", reason);
+    }
+
+    @Transactional
+    public void markStoryboardReviewWaiting(UUID taskId) {
+        requireTask(taskId).awaitStoryboardReview();
+    }
+
+    @Transactional
+    public void markVoiceGenerationRunning(UUID taskId) {
+        requireTask(taskId).startVoiceGeneration();
+        runTracker.running(taskId, "VOICE_GENERATION");
+    }
+
+    @Transactional
+    public void markVoiceGenerationCompleted(UUID taskId, VoiceGenerationResult result) {
+        requireTask(taskId).completeVoiceGeneration(result.manifestPath(), result.segments().size());
+        runTracker.completed(taskId, "VOICE_GENERATION", java.util.Map.of("segmentCount", result.segments().size()));
+    }
+
+    @Transactional
+    public void deferVoiceGeneration(UUID taskId, String reason) {
+        requireTask(taskId).deferVoiceGeneration(reason);
+        runTracker.waiting(taskId, "VOICE_GENERATION", reason);
+    }
+
+    @Transactional
+    public void markVoiceGenerationFailed(UUID taskId, String reason) {
+        requireTask(taskId).failVoiceGeneration(reason);
+        runTracker.failed(taskId, "VOICE_GENERATION", reason);
+    }
+
+    @Transactional
+    public void markTimelinePlanningRunning(UUID taskId) {
+        requireTask(taskId).startTimelinePlanning();
+        runTracker.running(taskId, "TIMELINE_PLANNING");
+    }
+
+    @Transactional
+    public void markTimelinePlanningCompleted(UUID taskId, TimelinePlanningResult result) {
+        requireTask(taskId).completeTimelinePlanning(
+                result.timelinePath(), result.outputDurationSeconds(), result.overflowCount());
+        runTracker.completed(taskId, "TIMELINE_PLANNING", java.util.Map.of(
+                "outputDurationSeconds", result.outputDurationSeconds(), "overflowCount", result.overflowCount()));
+    }
+
+    @Transactional
+    public void markTimelinePlanningFailed(UUID taskId, String reason) {
+        requireTask(taskId).failTimelinePlanning(reason);
+        runTracker.failed(taskId, "TIMELINE_PLANNING", reason);
+    }
+
+    @Transactional
+    public void markRenderingRunning(UUID taskId) {
+        requireTask(taskId).startRendering();
+        runTracker.running(taskId, "RENDERING");
+    }
+
+    @Transactional
+    public void markRenderingCompleted(UUID taskId, RenderResult result) {
+        requireTask(taskId).completeRendering(result.videoPath(), result.subtitlePath(), result.fileSizeBytes());
+        runTracker.completed(taskId, "RENDERING", java.util.Map.of("fileSizeBytes", result.fileSizeBytes()));
+    }
+
+    @Transactional
+    public void markRenderingFailed(UUID taskId, String reason) {
+        requireTask(taskId).failRendering(reason);
+        runTracker.failed(taskId, "RENDERING", reason);
+    }
+
+    private VideoTask requireTask(UUID taskId) {
+        return repository.findById(taskId)
+                .orElseThrow(() -> new IllegalStateException("异步任务不存在：" + taskId));
+    }
+}
+``
+
+### FILE: src/main/java/cn/longer233/gamenarrator/pipeline/VideoTaskEngine.java
+
+``java
+package cn.longer233.gamenarrator.pipeline;
+
+import cn.longer233.gamenarrator.media.FfmpegMediaPreprocessor;
+import cn.longer233.gamenarrator.media.FfmpegMediaProbe;
+import cn.longer233.gamenarrator.media.MediaMetadata;
+import cn.longer233.gamenarrator.media.MediaPreparationResult;
+import cn.longer233.gamenarrator.transcription.TranscriptionResult;
+import cn.longer233.gamenarrator.transcription.WhisperCppTranscriber;
+import cn.longer233.gamenarrator.vision.OllamaVisionClient;
+import cn.longer233.gamenarrator.vision.VideoUnderstandingResult;
+import cn.longer233.gamenarrator.vision.VideoSegmentSemanticIndex;
+import cn.longer233.gamenarrator.highlight.HighlightSelectionResult;
+import cn.longer233.gamenarrator.highlight.RuleBasedHighlightSelector;
+import cn.longer233.gamenarrator.script.GeneratedScript;
+import cn.longer233.gamenarrator.script.OllamaScriptGenerator;
+import cn.longer233.gamenarrator.script.StoryboardAssetPlacementService;
+import cn.longer233.gamenarrator.voice.VoiceGenerator;
+import cn.longer233.gamenarrator.voice.VoiceGenerationResult;
+import cn.longer233.gamenarrator.voice.SilentVoiceGenerator;
+import cn.longer233.gamenarrator.timeline.TimelinePlanner;
+import cn.longer233.gamenarrator.timeline.TimelinePlanningResult;
+import cn.longer233.gamenarrator.render.FfmpegVideoRenderer;
+import cn.longer233.gamenarrator.render.RenderResult;
+import cn.longer233.gamenarrator.effect.EffectPresetCatalog;
+import cn.longer233.gamenarrator.effect.EffectSettingsRequest;
+import cn.longer233.gamenarrator.task.domain.ProcessingStageType;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.slf4j.MDC;
+import org.springframework.scheduling.annotation.Async;
+import org.springframework.stereotype.Service;
+
+import java.nio.file.Path;
+import java.util.UUID;
+import java.util.Set;
+import java.util.concurrent.ConcurrentHashMap;
+
+@Service
+public class VideoTaskEngine {
+
+    private static final Logger log = LoggerFactory.getLogger(VideoTaskEngine.class);
+    private final TaskWorkflowStateService stateService;
+    private final FfmpegMediaProbe mediaProbe;
+    private final FfmpegMediaPreprocessor mediaPreprocessor;
+    private final WhisperCppTranscriber transcriber;
+    private final OllamaVisionClient visionClient;
+    private final VideoSegmentSemanticIndex segmentSemanticIndex;
+    private final RuleBasedHighlightSelector highlightSelector;
+    private final OllamaScriptGenerator scriptGenerator;
+    private final VoiceGenerator voiceGenerator;
+    private final SilentVoiceGenerator silentVoiceGenerator;
+    private final TimelinePlanner timelinePlanner;
+    private final FfmpegVideoRenderer videoRenderer;
+    private final EffectPresetCatalog effectPresetCatalog;
+    private final StoryboardAssetPlacementService storyboardAssets;
+    private final Set<UUID> deletionRequested = ConcurrentHashMap.newKeySet();
+    private final Set<UUID> activeTasks = ConcurrentHashMap.newKeySet();
+
+    public void requestDeletion(UUID taskId) {
+        deletionRequested.add(taskId);
+    }
+
+    public VideoTaskEngine(
+            TaskWorkflowStateService stateService,
+            FfmpegMediaProbe mediaProbe,
+            FfmpegMediaPreprocessor mediaPreprocessor,
+            WhisperCppTranscriber transcriber,
+            OllamaVisionClient visionClient,
+            VideoSegmentSemanticIndex segmentSemanticIndex,
+            RuleBasedHighlightSelector highlightSelector,
+            OllamaScriptGenerator scriptGenerator,
+            VoiceGenerator voiceGenerator,
+            SilentVoiceGenerator silentVoiceGenerator,
+            TimelinePlanner timelinePlanner,
+            FfmpegVideoRenderer videoRenderer,
+            EffectPresetCatalog effectPresetCatalog,
+            StoryboardAssetPlacementService storyboardAssets
+    ) {
+        this.stateService = stateService;
+        this.mediaProbe = mediaProbe;
+        this.mediaPreprocessor = mediaPreprocessor;
+        this.transcriber = transcriber;
+        this.visionClient = visionClient;
+        this.segmentSemanticIndex = segmentSemanticIndex;
+        this.highlightSelector = highlightSelector;
+        this.scriptGenerator = scriptGenerator;
+        this.voiceGenerator = voiceGenerator;
+        this.silentVoiceGenerator = silentVoiceGenerator;
+        this.timelinePlanner = timelinePlanner;
+        this.videoRenderer = videoRenderer;
+        this.effectPresetCatalog = effectPresetCatalog;
+        this.storyboardAssets = storyboardAssets;
+    }
+
+    @Async
+    public void start(UUID taskId) {
+        if (!activeTasks.add(taskId)) {
+            log.debug("ENGINE_DUPLICATE_IGNORED taskId={}", taskId);
+            return;
+        }
+        MDC.put("traceId", "task-" + taskId.toString().substring(0, 8));
+        log.info("ENGINE_START taskId={}", taskId);
+        String activeStage = "VIDEO_INGESTION";
+        try {
+            EngineTaskContext context = stateService.context(taskId);
+            Path sourcePath = Path.of(context.sourceVideoPath());
+            if (!context.ingestionCompleted()) {
+                stateService.markIngestionRunning(taskId);
+                MediaMetadata metadata = mediaProbe.inspect(sourcePath);
+                stateService.markIngestionCompleted(taskId, metadata);
+                log.info("ENGINE_STAGE_COMPLETED taskId={} stage=VIDEO_INGESTION", taskId);
+                context = stateService.context(taskId);
+            } else {
+                log.info("ENGINE_STAGE_SKIPPED taskId={} stage=VIDEO_INGESTION reason=already_completed",
+                        taskId);
+            }
+
+            activeStage = "SCENE_DETECTION";
+            if (!context.sceneDetectionCompleted()) {
+                stateService.markSceneDetectionRunning(taskId);
+                MediaPreparationResult result = mediaPreprocessor.prepare(
+                        taskId, sourcePath, context.hasAudio());
+                stateService.markSceneDetectionCompleted(taskId, result);
+                log.info("ENGINE_STAGE_COMPLETED taskId={} stage=SCENE_DETECTION sceneCount={}",
+                        taskId, result.scenes().size());
+                context = stateService.context(taskId);
+            } else {
+                log.info("ENGINE_STAGE_SKIPPED taskId={} stage=SCENE_DETECTION reason=already_completed",
+                        taskId);
+            }
+
+            if (!context.automaticGenerationEnabled()) {
+                stateService.markManualEditingReady(taskId);
+                log.info("ENGINE_READY taskId={} mode=manual mediaPrepared=true", taskId);
+                return;
+            }
+
+            activeStage = "TRANSCRIPTION";
+            if (!context.transcriptionCompleted()) {
+                stateService.markTranscriptionRunning(taskId);
+                TranscriptionResult result;
+                if (context.hasAudio()) {
+                    result = transcriber.transcribe(Path.of(context.extractedAudioPath()));
+                } else {
+                    result = new TranscriptionResult("", null, null, null);
+                    log.info("TRANSCRIPTION_SKIPPED taskId={} reason=no_audio_track", taskId);
+                }
+                stateService.markTranscriptionCompleted(taskId, result);
+                log.info("ENGINE_STAGE_COMPLETED taskId={} stage=TRANSCRIPTION characterCount={}",
+                        taskId, result.text().length());
+                context = stateService.context(taskId);
+            } else {
+                log.info("ENGINE_STAGE_SKIPPED taskId={} stage=TRANSCRIPTION reason=already_completed",
+                        taskId);
+            }
+
+            activeStage = "VIDEO_UNDERSTANDING";
+            if (!context.videoUnderstandingCompleted()) {
+                if (context.cloudVisionEnabled() && !visionClient.available()) {
+                    String reason = "当前视觉服务不可用：请检查云端 API Key/服务状态，或安装并启动本地视觉模型";
+                    stateService.deferVideoUnderstanding(taskId, reason);
+                    log.warn("ENGINE_WAITING taskId={} stage=VIDEO_UNDERSTANDING "
+                                    + "reason=vision_model_unavailable model={}",
+                            taskId, visionClient.model());
+                    return;
+                }
+                stateService.markVideoUnderstandingRunning(taskId);
+                VideoUnderstandingResult result = context.cloudVisionEnabled()
+                        ? visionClient.analyze(Path.of(context.sceneManifestPath()), context.transcriptText(),
+                            progress -> stateService.updateStageProgress(taskId,
+                                    ProcessingStageType.VIDEO_UNDERSTANDING, progress))
+                        : visionClient.analyzeWithoutAi(Path.of(context.sceneManifestPath()), context.transcriptText());
+                stateService.markVideoUnderstandingCompleted(taskId, result);
+                segmentSemanticIndex.index(taskId, Path.of(result.analysisPath()));
+                log.info("ENGINE_STAGE_COMPLETED taskId={} stage=VIDEO_UNDERSTANDING frameCount={}",
+                        taskId, result.frames().size());
+                context = stateService.context(taskId);
+            } else {
+                log.info("ENGINE_STAGE_SKIPPED taskId={} stage=VIDEO_UNDERSTANDING reason=already_completed",
+                        taskId);
+            }
+            activeStage = "HIGHLIGHT_SELECTION";
+            if (!context.highlightSelectionCompleted()) {
+                stateService.markHighlightSelectionRunning(taskId);
+                HighlightSelectionResult result = highlightSelector.select(
+                        Path.of(context.visualAnalysisPath()), context.durationSeconds(),
+                        context.targetDurationSeconds());
+                stateService.markHighlightSelectionCompleted(taskId, result);
+                log.info("ENGINE_STAGE_COMPLETED taskId={} stage=HIGHLIGHT_SELECTION clipCount={}",
+                        taskId, result.clips().size());
+                context = stateService.context(taskId);
+            } else {
+                log.info("ENGINE_STAGE_SKIPPED taskId={} stage=HIGHLIGHT_SELECTION reason=already_completed",
+                        taskId);
+            }
+            activeStage = "SCRIPT_GENERATION";
+            if (!context.scriptGenerationCompleted()) {
+                stateService.markScriptGenerationRunning(taskId);
+                GeneratedScript result = context.aiScriptEnabled()
+                        ? scriptGenerator.generate(Path.of(context.highlightManifestPath()),
+                            context.gameCategory(), context.commentaryStyle(), context.taskBrief(), context.transcriptText())
+                        : scriptGenerator.generateWithoutAi(Path.of(context.highlightManifestPath()));
+                stateService.markScriptGenerationCompleted(taskId, result);
+                log.info("ENGINE_STAGE_COMPLETED taskId={} stage=SCRIPT_GENERATION segmentCount={}",
+                        taskId, result.segments().size());
+                context = stateService.context(taskId);
+            } else {
+                log.info("ENGINE_STAGE_SKIPPED taskId={} stage=SCRIPT_GENERATION reason=already_completed", taskId);
+            }
+            if (context.autoAssetsEnabled()) try {
+                var assignment = storyboardAssets.autoAssignIfEmpty(taskId);
+                log.info("STORYBOARD_AUTO_ASSETS taskId={} assigned={} warnings={}", taskId,
+                        assignment.assignedCount(), assignment.warnings().size());
+            } catch (Exception exception) {
+                log.warn("STORYBOARD_AUTO_ASSETS_SKIPPED taskId={} reason={}", taskId, exception.getMessage());
+            }
+            if (context.storyboardReviewEnabled() && !context.storyboardApproved()) {
+                stateService.markStoryboardReviewWaiting(taskId);
+                log.info("ENGINE_WAITING taskId={} stage=STORYBOARD_REVIEW", taskId);
+                return;
+            }
+            activeStage = "VOICE_GENERATION";
+            if (!context.voiceGenerationCompleted()) {
+                if (context.aiVoiceEnabled() && !voiceGenerator.available()) {
+                    String reason = "等待本地 Piper 配音引擎；请执行 .\\scripts\\setup-piper.ps1";
+                    stateService.deferVoiceGeneration(taskId, reason);
+                    log.warn("ENGINE_WAITING taskId={} stage=VOICE_GENERATION reason=piper_unavailable", taskId);
+                    return;
+                }
+                stateService.markVoiceGenerationRunning(taskId);
+                VoiceGenerationResult result = context.aiVoiceEnabled()
+                        ? voiceGenerator.generate(Path.of(context.generatedScriptPath()),
+                            progress -> stateService.updateStageProgress(taskId,
+                                    ProcessingStageType.VOICE_GENERATION, progress))
+                        : silentVoiceGenerator.generate(Path.of(context.generatedScriptPath()));
+                stateService.markVoiceGenerationCompleted(taskId, result);
+                log.info("ENGINE_STAGE_COMPLETED taskId={} stage=VOICE_GENERATION segmentCount={}",
+                        taskId, result.segments().size());
+                context = stateService.context(taskId);
+            } else {
+                log.info("ENGINE_STAGE_SKIPPED taskId={} stage=VOICE_GENERATION reason=already_completed", taskId);
+            }
+            activeStage = "TIMELINE_PLANNING";
+            if (!context.timelinePlanningCompleted()) {
+                stateService.markTimelinePlanningRunning(taskId);
+                TimelinePlanningResult result = timelinePlanner.plan(
+                        Path.of(context.highlightManifestPath()), Path.of(context.generatedScriptPath()),
+                        Path.of(context.voiceManifestPath()));
+                stateService.markTimelinePlanningCompleted(taskId, result);
+                log.info("ENGINE_STAGE_COMPLETED taskId={} stage=TIMELINE_PLANNING segmentCount={} duration={}",
+                        taskId, result.segments().size(), result.outputDurationSeconds());
+                context = stateService.context(taskId);
+            } else {
+                log.info("ENGINE_STAGE_SKIPPED taskId={} stage=TIMELINE_PLANNING reason=already_completed", taskId);
+            }
+            activeStage = "RENDERING";
+            if (!context.renderingCompleted()) {
+                stateService.markRenderingRunning(taskId);
+                var preset = effectPresetCatalog.require(context.commentaryStyle());
+                var settings = new EffectSettingsRequest(preset.code(), null, true, false);
+                RenderResult result = videoRenderer.render(sourcePath, Path.of(context.timelinePath()),
+                        context.hasAudio(), preset, settings);
+                stateService.markRenderingCompleted(taskId, result);
+                log.info("ENGINE_STAGE_COMPLETED taskId={} stage=RENDERING output={} sizeBytes={}",
+                        taskId, result.videoPath(), result.fileSizeBytes());
+            } else {
+                log.info("ENGINE_STAGE_SKIPPED taskId={} stage=RENDERING reason=already_completed", taskId);
+            }
+            log.info("ENGINE_COMPLETED taskId={}", taskId);
+        } catch (Exception exception) {
+            if (deletionRequested.contains(taskId)) {
+                log.info("ENGINE_STOPPED_DELETED taskId={} stage={}", taskId, activeStage);
+                return;
+            }
+            String reason = rootMessage(exception);
+            log.error("ENGINE_FAILED taskId={} stage={} message={}",
+                    taskId, activeStage, reason, exception);
+            if ("SCENE_DETECTION".equals(activeStage)) {
+                stateService.markSceneDetectionFailed(taskId, reason);
+            } else if ("TRANSCRIPTION".equals(activeStage)) {
+                stateService.markTranscriptionFailed(taskId, reason);
+            } else if ("VIDEO_UNDERSTANDING".equals(activeStage)) {
+                stateService.markVideoUnderstandingFailed(taskId, reason);
+            } else if ("HIGHLIGHT_SELECTION".equals(activeStage)) {
+                stateService.markHighlightSelectionFailed(taskId, reason);
+            } else if ("SCRIPT_GENERATION".equals(activeStage)) {
+                stateService.markScriptGenerationFailed(taskId, reason);
+            } else if ("VOICE_GENERATION".equals(activeStage)) {
+                stateService.markVoiceGenerationFailed(taskId, reason);
+            } else if ("TIMELINE_PLANNING".equals(activeStage)) {
+                stateService.markTimelinePlanningFailed(taskId, reason);
+            } else if ("RENDERING".equals(activeStage)) {
+                stateService.markRenderingFailed(taskId, reason);
+            } else {
+                stateService.markIngestionFailed(taskId, reason);
+            }
+        } finally {
+            activeTasks.remove(taskId);
+            deletionRequested.remove(taskId);
+            MDC.remove("traceId");
+        }
+    }
+
+    private String rootMessage(Throwable throwable) {
+        Throwable current = throwable;
+        while (current.getCause() != null) {
+            current = current.getCause();
+        }
+        return current.getMessage() == null
+                ? current.getClass().getSimpleName()
+                : current.getMessage();
+    }
+}
+``
+
+### FILE: src/main/java/cn/longer233/gamenarrator/pipeline/WaitingTaskRetryScheduler.java
+
+``java
+package cn.longer233.gamenarrator.pipeline;
+
+import cn.longer233.gamenarrator.vision.OllamaVisionClient;
+import cn.longer233.gamenarrator.voice.VoiceGenerator;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.jdbc.core.JdbcTemplate;
+import org.springframework.scheduling.annotation.Scheduled;
+import org.springframework.stereotype.Component;
+
+import java.util.UUID;
+
+@Component
+public class WaitingTaskRetryScheduler {
+    private static final Logger log = LoggerFactory.getLogger(WaitingTaskRetryScheduler.class);
+    private final JdbcTemplate jdbc;
+    private final VideoTaskEngine engine;
+    private final OllamaVisionClient visionClient;
+    private final VoiceGenerator voiceGenerator;
+
+    public WaitingTaskRetryScheduler(JdbcTemplate jdbc, VideoTaskEngine engine,
+                                     OllamaVisionClient visionClient, VoiceGenerator voiceGenerator) {
+        this.jdbc = jdbc;
+        this.engine = engine;
+        this.visionClient = visionClient;
+        this.voiceGenerator = voiceGenerator;
+    }
+
+    @Scheduled(fixedDelayString = "${game-narrator.pipeline.waiting-retry-delay-ms:30000}",
+            initialDelayString = "${game-narrator.pipeline.waiting-retry-initial-delay-ms:30000}")
+    public void retryReadyDependencies() {
+        var waiting = jdbc.query("""
+                SELECT DISTINCT task.id, stage.stage_type
+                FROM video_tasks task
+                JOIN video_project project ON project.id=task.project_id
+                JOIN generation_run run ON run.id=project.latest_run_id AND run.status='WAITING'
+                JOIN stage_run stage ON stage.generation_run_id=run.id AND stage.status='WAITING'
+                WHERE task.status='PROCESSING'
+                """, (rs, row) -> new WaitingTask(rs.getObject(1, UUID.class), rs.getString(2)));
+        for (WaitingTask task : waiting) {
+            boolean ready = switch (task.stageType()) {
+                case "VIDEO_UNDERSTANDING" -> visionClient.available();
+                case "VOICE_GENERATION" -> voiceGenerator.available();
+                default -> false;
+            };
+            if (ready) {
+                log.info("WAITING_TASK_RETRY_SUBMIT taskId={} stage={}", task.id(), task.stageType());
+                engine.start(task.id());
+            }
+        }
+    }
+
+    private record WaitingTask(UUID id, String stageType) { }
+}
+``
+
+### FILE: src/main/java/cn/longer233/gamenarrator/render/FfmpegVideoRenderer.java
+
+``java
+package cn.longer233.gamenarrator.render;
+
+import cn.longer233.gamenarrator.audio.ProceduralSoundEffectLibrary;
+import cn.longer233.gamenarrator.audio.SoundCue;
+import cn.longer233.gamenarrator.effect.EffectPlan;
+import cn.longer233.gamenarrator.effect.EffectPreset;
+import cn.longer233.gamenarrator.effect.EffectSettingsRequest;
+import cn.longer233.gamenarrator.effect.SemanticEffectPlanner;
+import cn.longer233.gamenarrator.effect.TransitionType;
+import cn.longer233.gamenarrator.effect.VisualEffectType;
+import cn.longer233.gamenarrator.timeline.TimelineSegment;
+import cn.longer233.gamenarrator.subtitle.AssSubtitleBuilder;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.stereotype.Component;
+
+import java.io.BufferedReader;
+import java.io.InputStreamReader;
+import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.time.Duration;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Locale;
+import java.util.concurrent.TimeUnit;
+
+@Component
+public class FfmpegVideoRenderer {
+    private static final Logger log = LoggerFactory.getLogger(FfmpegVideoRenderer.class);
+    private final ObjectMapper objectMapper;
+    private final String ffmpegCommand;
+    private final String preferredEncoder;
+    private final SemanticEffectPlanner effectPlanner;
+    private final AssSubtitleBuilder assSubtitleBuilder;
+    private final ProceduralSoundEffectLibrary soundEffectLibrary;
+    private final RenderAssetResolver renderAssetResolver;
+
+    public FfmpegVideoRenderer(ObjectMapper objectMapper,
+            SemanticEffectPlanner effectPlanner,
+            AssSubtitleBuilder assSubtitleBuilder,
+            ProceduralSoundEffectLibrary soundEffectLibrary,
+            RenderAssetResolver renderAssetResolver,
+            @Value("${game-narrator.ffmpeg-command}") String ffmpegCommand,
+            @Value("${game-narrator.render.video-encoder:h264_nvenc}") String preferredEncoder) {
+        this.objectMapper = objectMapper;
+        this.effectPlanner = effectPlanner;
+        this.assSubtitleBuilder = assSubtitleBuilder;
+        this.soundEffectLibrary = soundEffectLibrary;
+        this.renderAssetResolver = renderAssetResolver;
+        this.ffmpegCommand = ffmpegCommand;
+        this.preferredEncoder = preferredEncoder;
+    }
+
+    public RenderResult render(Path sourceVideo, Path timelinePath, boolean hasSourceAudio) {
+        return render(sourceVideo, timelinePath, hasSourceAudio, null, null);
+    }
+
+    public RenderResult render(Path sourceVideo, Path timelinePath, boolean hasSourceAudio,
+                               EffectPreset preset) {
+        return render(sourceVideo, timelinePath, hasSourceAudio, preset, null);
+    }
+
+    public RenderResult render(Path sourceVideo, Path timelinePath, boolean hasSourceAudio,
+                               EffectPreset preset, EffectSettingsRequest settings) {
+        try {
+            var root = objectMapper.readTree(timelinePath.toFile());
+            List<TimelineSegment> segments = objectMapper.readerForListOf(TimelineSegment.class)
+                    .readValue(root.path("segments"));
+            if (segments.isEmpty()) throw new IllegalStateException("剪辑时间线为空");
+            Path taskDirectory = timelinePath.getParent();
+            Path workDirectory = taskDirectory.resolve("render-work");
+            Files.createDirectories(workDirectory);
+            List<RenderAssetResolver.RenderAsset> storyboardAssets = renderAssetResolver.resolve(timelinePath);
+            log.info("RENDERING_BEGIN segments={} source={} preferredEncoder={}",
+                    segments.size(), sourceVideo, preferredEncoder);
+
+            List<Path> clips = new ArrayList<>();
+            List<java.util.Map<String, Object>> effectManifest = new ArrayList<>();
+            List<EffectPlan> effectPlans = new ArrayList<>();
+            String encoder = preferredEncoder;
+            for (int index = 0; index < segments.size(); index++) {
+                Path clip = workDirectory.resolve("clip-%02d.mp4".formatted(index + 1));
+                TimelineSegment segment = segments.get(index);
+                EffectPlan effectPlan = effectPlanner.plan(
+                        segment.effectCue(), segment.narration(), segment.sequence(), preset);
+                effectPlans.add(effectPlan);
+                try {
+                    encodeClip(sourceVideo, segment, clip, hasSourceAudio, encoder, effectPlan, preset,
+                            visualAssets(storyboardAssets, segment.sequence()));
+                } catch (IllegalStateException exception) {
+                    if (index == 0 && !"libx264".equals(encoder)) {
+                        log.warn("RENDER_ENCODER_FALLBACK from={} to=libx264 reason={}", encoder, exception.getMessage());
+                        encoder = "libx264";
+                        encodeClip(sourceVideo, segment, clip, hasSourceAudio, encoder, effectPlan, preset,
+                                visualAssets(storyboardAssets, segment.sequence()));
+                    } else {
+                        throw exception;
+                    }
+                }
+                clips.add(clip);
+                effectManifest.add(java.util.Map.of(
+                        "sequence", segment.sequence(),
+                        "effectCue", segment.effectCue() == null ? "" : segment.effectCue(),
+                        "effects", effectPlan.effects(),
+                        "transition", effectPlan.transition(),
+                        "reason", effectPlan.reason()));
+                log.info("RENDER_CLIP_SUCCESS sequence={} encoder={} output={}", index + 1, encoder, clip);
+            }
+            cn.longer233.gamenarrator.common.AtomicArtifactWriter.writeJson(objectMapper,
+                    taskDirectory.resolve("effects-manifest.json"),
+                    java.util.Map.of(
+                            "version", 2,
+                            "presetCode", preset == null ? "AUTO" : preset.code(),
+                            "intensity", preset == null ? 0.75 : preset.defaultIntensity(),
+                            "subtitleTheme", preset == null ? "DEFAULT" : preset.subtitleTheme(),
+                            "sourceAudioVolume", preset == null ? 0.20 : preset.sourceAudioVolume(),
+                            "segments", effectManifest));
+
+            Path concatList = workDirectory.resolve("concat.txt");
+            cn.longer233.gamenarrator.common.AtomicArtifactWriter.writeText(concatList, clips.stream()
+                    .map(path -> "file '" + path.toAbsolutePath().toString().replace('\\', '/') + "'")
+                    .reduce((left, right) -> left + System.lineSeparator() + right).orElseThrow(),
+                    StandardCharsets.UTF_8);
+            Path baseVideo = workDirectory.resolve("base.mp4");
+            run(List.of(ffmpegCommand, "-y", "-hide_banner", "-loglevel", "warning",
+                    "-f", "concat", "-safe", "0", "-i", concatList.toString(),
+                    "-c", "copy", baseVideo.toString()), Duration.ofMinutes(30), "片段拼接");
+
+            Path subtitle = taskDirectory.resolve("generated-subtitles.srt");
+            cn.longer233.gamenarrator.common.AtomicArtifactWriter.writeText(
+                    subtitle, buildSrt(segments), StandardCharsets.UTF_8);
+            boolean dynamicSubtitles = settings != null && Boolean.TRUE.equals(settings.dynamicSubtitles());
+            boolean soundEffects = settings != null && Boolean.TRUE.equals(settings.soundEffects());
+            List<SoundCue> soundCues = soundEffects
+                    ? soundEffectLibrary.create(taskDirectory, segments, effectPlans) : List.of();
+            if (soundEffects) {
+                cn.longer233.gamenarrator.common.AtomicArtifactWriter.writeJson(objectMapper,
+                        taskDirectory.resolve("sound-effects-manifest.json"),
+                        java.util.Map.of("version", 1, "cues", soundCues));
+            }
+            Path dynamicSubtitle = null;
+            if (dynamicSubtitles) {
+                dynamicSubtitle = taskDirectory.resolve("generated-subtitles.ass");
+                cn.longer233.gamenarrator.common.AtomicArtifactWriter.writeText(dynamicSubtitle,
+                        assSubtitleBuilder.build(segments,
+                                preset == null ? "ANIME_OUTLINE" : preset.subtitleTheme()),
+                        StandardCharsets.UTF_8);
+            }
+            Path output = taskDirectory.resolve("final-video.mp4");
+            mixVoiceAndSubtitle(baseVideo, segments, subtitle, output,
+                    preset == null ? 0.20 : preset.sourceAudioVolume(), dynamicSubtitle, soundCues,
+                    storyboardAssets.stream().filter(RenderAssetResolver.RenderAsset::audio).toList());
+            long size = Files.size(output);
+            log.info("RENDERING_SUCCESS encoder={} duration={} sizeBytes={} output={}",
+                    encoder, root.path("outputDurationSeconds").asDouble(), size, output);
+            cleanupWorkDirectory(workDirectory);
+            return new RenderResult(output.toString(), subtitle.toString(), size);
+        } catch (IllegalStateException exception) {
+            throw exception;
+        } catch (Exception exception) {
+            throw new IllegalStateException("视频渲染失败：" + exception.getMessage(), exception);
+        }
+    }
+
+    private void encodeClip(Path source, TimelineSegment segment, Path output,
+                            boolean hasAudio, String encoder, EffectPlan effectPlan, EffectPreset preset,
+                            List<RenderAssetResolver.RenderAsset> assets) {
+        List<String> command = new ArrayList<>(List.of(ffmpegCommand, "-y", "-hide_banner",
+                "-loglevel", "warning", "-ss", decimal(segment.sourceStartSeconds()),
+                "-t", decimal(segment.sourceEndSeconds() - segment.sourceStartSeconds()),
+                "-i", source.toString()));
+        if (!hasAudio) {
+            command.addAll(List.of("-f", "lavfi", "-i", "anullsrc=r=48000:cl=stereo"));
+        }
+        double duration = segment.sourceEndSeconds() - segment.sourceStartSeconds();
+        for (RenderAssetResolver.RenderAsset asset : assets) {
+            if ("MEME".equals(asset.assetType())) command.addAll(List.of("-loop", "1", "-t", decimal(duration)));
+            else command.addAll(List.of("-stream_loop", "-1"));
+            command.addAll(List.of("-i", asset.path().toString()));
+        }
+        command.addAll(List.of("-map", assets.isEmpty() ? "0:v:0" : "[vout]",
+                "-map", hasAudio ? "0:a:0" : "1:a:0"));
+        if (assets.isEmpty()) command.addAll(List.of("-vf", buildVideoFilter(segment, effectPlan, preset)));
+        else command.addAll(List.of("-filter_complex", buildStoryboardVideoFilter(segment, effectPlan, preset,
+                assets, hasAudio ? 1 : 2)));
+        command.addAll(List.of("-c:v", encoder));
+        if ("h264_nvenc".equals(encoder)) command.addAll(List.of("-preset", "p4", "-cq", "24"));
+        else command.addAll(List.of("-preset", "veryfast", "-crf", "23"));
+        command.addAll(List.of("-c:a", "aac", "-ar", "48000", "-ac", "2", "-shortest", output.toString()));
+        run(command, Duration.ofMinutes(45), "片段编码");
+    }
+
+    private List<RenderAssetResolver.RenderAsset> visualAssets(List<RenderAssetResolver.RenderAsset> assets,
+                                                                int sequence) {
+        return assets.stream().filter(asset -> !asset.audio() && asset.clipIndex() == sequence).limit(2).toList();
+    }
+
+    String buildStoryboardVideoFilter(TimelineSegment segment, EffectPlan plan, EffectPreset preset,
+                                      List<RenderAssetResolver.RenderAsset> assets, int firstInput) {
+        StringBuilder graph = new StringBuilder("[0:v]").append(buildVideoFilter(segment, plan, preset)).append("[base];");
+        String previous = "base";
+        for (int index = 0; index < assets.size(); index++) {
+            RenderAssetResolver.RenderAsset asset = assets.get(index);
+            String prepared = "asset" + index;
+            boolean background = "BACKGROUND".equals(asset.placementType());
+            graph.append('[').append(firstInput + index).append(":v]")
+                    .append("setpts=PTS-STARTPTS,");
+            if (background) graph.append("scale=1920:1080:force_original_aspect_ratio=increase,crop=1920:1080,")
+                    .append("format=rgba,colorchannelmixer=aa=0.38");
+            else graph.append("scale=720:720:force_original_aspect_ratio=decrease,format=rgba");
+            if (asset.cutoutApplied()) graph.append(",chromakey=0x00FF00:0.18:0.08");
+            graph.append('[').append(prepared).append("];[").append(previous).append("][")
+                    .append(prepared).append("]overlay=").append(overlayPosition(asset.position()))
+                    .append(":shortest=1[v").append(index).append("];");
+            previous = "v" + index;
+        }
+        graph.append('[').append(previous).append("]null[vout]");
+        return graph.toString();
+    }
+
+    private String overlayPosition(String position) {
+        return switch (String.valueOf(position)) {
+            case "TOP_LEFT" -> "40:40"; case "TOP_RIGHT" -> "W-w-40:40";
+            case "BOTTOM_LEFT" -> "40:H-h-40"; case "BOTTOM_RIGHT" -> "W-w-40:H-h-40";
+            default -> "(W-w)/2:(H-h)/2";
+        };
+    }
+
+    String buildVideoFilter(TimelineSegment segment, EffectPlan plan) {
+        return buildVideoFilter(segment, plan, null);
+    }
+
+    String buildVideoFilter(TimelineSegment segment, EffectPlan plan, EffectPreset preset) {
+        double duration = Math.max(0.5, segment.sourceEndSeconds() - segment.sourceStartSeconds());
+        double intensity = preset == null ? 0.75 : preset.defaultIntensity();
+        double transitionDuration = preset == null ? 0.28 : preset.transitionDurationSeconds();
+        List<String> filters = new ArrayList<>();
+        filters.add("scale=1920:1080:force_original_aspect_ratio=decrease");
+        filters.add("pad=1920:1080:(ow-iw)/2:(oh-ih)/2:black");
+        filters.add("setsar=1");
+        if (plan.effects().contains(VisualEffectType.ZOOM_PUNCH)) {
+            int zoomWidth = even(1920 * (1 + 0.10 * intensity));
+            int zoomHeight = even(1080 * (1 + 0.10 * intensity));
+            int offsetX = (zoomWidth - 1920) / 2;
+            int offsetY = (zoomHeight - 1080) / 2;
+            filters.add("scale=" + zoomWidth + ":" + zoomHeight);
+            filters.add("crop=1920:1080:x='" + offsetX + "+" + decimal(24 * intensity)
+                    + "*sin(2*PI*t/" + decimal(duration) + ")':y='" + offsetY + "+"
+                    + decimal(14 * intensity) + "*sin(2*PI*t/" + decimal(duration) + ")'");
+        }
+        if (plan.effects().contains(VisualEffectType.CAMERA_SHAKE)) {
+            filters.add("scale=1960:1120");
+            filters.add("crop=1920:1080:x='20+" + decimal(12 * intensity)
+                    + "*sin(45*t)':y='20+" + decimal(10 * intensity) + "*cos(39*t)'");
+        }
+        if (plan.effects().contains(VisualEffectType.WHITE_FLASH)) {
+            filters.add("fade=t=in:st=0:d=" + decimal(0.08 + 0.08 * intensity) + ":color=white");
+        }
+        if (plan.effects().contains(VisualEffectType.SLOW_MOTION)) {
+            filters.add("tmix=frames=3:weights='1 1 1'");
+        }
+        if (plan.effects().contains(VisualEffectType.FREEZE_ACCENT)) {
+            filters.add("eq=saturation=0.75:contrast=1.18");
+            filters.add("unsharp=5:5:1.2");
+        }
+        if (plan.effects().contains(VisualEffectType.SPEED_LINES)) {
+            filters.add("vignette=PI/5");
+            filters.add("unsharp=7:7:1.5");
+        }
+        if (plan.effects().contains(VisualEffectType.CINEMA_BARS)) {
+            filters.add("drawbox=x=0:y=0:w=iw:h=70:color=black:t=fill");
+            filters.add("drawbox=x=0:y=ih-70:w=iw:h=70:color=black:t=fill");
+        }
+        if (plan.effects().contains(VisualEffectType.TITLE_CARD)) {
+            filters.add("drawbox=x=0:y=0:w=iw:h=ih:color=black@0.22:t=fill:enable='between(t,0,0.8)'");
+        }
+        if (plan.effects().contains(VisualEffectType.GAUSSIAN_BLUR)) {
+            filters.add("gblur=sigma=" + decimal(0.5 + 1.8 * intensity));
+        }
+        if (plan.effects().contains(VisualEffectType.VIGNETTE)) {
+            filters.add("vignette=angle='PI/2.8'");
+        }
+        if (plan.effects().contains(VisualEffectType.BLACK_AND_WHITE)) {
+            filters.add("hue=s=0");
+        }
+        if (plan.effects().contains(VisualEffectType.WARM_TONE)) {
+            filters.add("colorbalance=rs=" + decimal(0.08 * intensity) + ":bs=-" + decimal(0.06 * intensity));
+        }
+        if (plan.effects().contains(VisualEffectType.COOL_TONE)) {
+            filters.add("colorbalance=rs=-" + decimal(0.05 * intensity) + ":bs=" + decimal(0.08 * intensity));
+        }
+        if (plan.effects().contains(VisualEffectType.HIGH_CONTRAST)) {
+            filters.add("eq=contrast=" + decimal(1 + 0.28 * intensity) + ":saturation=" + decimal(1 + 0.10 * intensity));
+        }
+        if (plan.effects().contains(VisualEffectType.RGB_SPLIT)) {
+            filters.add("rgbashift=rh=" + Math.max(1,Math.round(5 * intensity)) + ":bh=-" + Math.max(1,Math.round(4 * intensity)));
+        }
+        if (plan.effects().contains(VisualEffectType.HORIZONTAL_FLIP)) {
+            filters.add("hflip");
+        }
+        if (plan.effects().contains(VisualEffectType.PIXELATE)) {
+            int width=even(1920-(1500*intensity)); int height=even(1080-(840*intensity));
+            filters.add("scale=" + Math.max(320,width) + ":" + Math.max(180,height) + ":flags=neighbor");
+            filters.add("scale=1920:1080:flags=neighbor");
+        }
+        if (plan.effects().contains(VisualEffectType.LENS_DISTORTION)) {
+            filters.add("lenscorrection=k1=" + decimal(-0.12 * intensity) + ":k2=" + decimal(0.04 * intensity));
+        }
+        if (plan.transition() == TransitionType.FADE || plan.transition() == TransitionType.DISSOLVE) {
+            filters.add("fade=t=in:st=0:d=" + decimal(transitionDuration));
+            filters.add("fade=t=out:st=" + decimal(Math.max(0, duration - transitionDuration))
+                    + ":d=" + decimal(transitionDuration));
+        } else if (plan.transition() == TransitionType.PUSH) {
+            filters.add("crop=iw:ih:x='min(30,30*t/0.25)':y=0");
+            filters.add("scale=1920:1080");
+        }
+        filters.add("setsar=1");
+        filters.add("format=yuv420p");
+        return String.join(",", filters);
+    }
+
+    private int even(double value) {
+        int rounded = (int) Math.round(value);
+        return rounded % 2 == 0 ? rounded : rounded + 1;
+    }
+
+    private void mixVoiceAndSubtitle(Path baseVideo, List<TimelineSegment> segments,
+                                     Path subtitle, Path output, double sourceAudioVolume,
+                                     Path dynamicSubtitle, List<SoundCue> soundCues,
+                                     List<RenderAssetResolver.RenderAsset> externalAudio) {
+        List<String> command = new ArrayList<>(List.of(ffmpegCommand, "-y", "-hide_banner",
+                "-loglevel", "warning", "-i", baseVideo.toString()));
+        for (TimelineSegment segment : segments) command.addAll(List.of("-i", segment.voicePath()));
+        for (SoundCue cue : soundCues) command.addAll(List.of("-i", cue.audioPath()));
+        for (RenderAssetResolver.RenderAsset asset : externalAudio) {
+            if ("BACKGROUND_AUDIO".equals(asset.placementType())) command.addAll(List.of("-stream_loop", "-1"));
+            command.addAll(List.of("-i", asset.path().toString()));
+        }
+        command.addAll(List.of("-i", subtitle.toString()));
+        StringBuilder filter = new StringBuilder("[0:a]volume=")
+                .append(decimal(sourceAudioVolume)).append("[bg];");
+        for (int index = 0; index < segments.size(); index++) {
+            TimelineSegment segment = segments.get(index);
+            long delay = Math.round(segment.outputStartSeconds() * 1000);
+            filter.append('[').append(index + 1).append(":a]");
+            double clipDuration = segment.outputEndSeconds() - segment.outputStartSeconds();
+            if (segment.voiceDurationSeconds() > clipDuration - 0.25) {
+                double speed = Math.min(2.0,
+                        segment.voiceDurationSeconds() / Math.max(0.5, clipDuration - 0.25));
+                filter.append("atempo=").append(decimal(speed)).append(',');
+            }
+            filter.append("adelay=")
+                    .append(delay).append('|').append(delay).append("[v").append(index).append("];");
+        }
+        for (int index = 0; index < soundCues.size(); index++) {
+            SoundCue cue = soundCues.get(index);
+            int inputIndex = segments.size() + 1 + index;
+            long delay = Math.round(cue.startSeconds() * 1000);
+            filter.append('[').append(inputIndex).append(":a]volume=")
+                    .append(decimal(cue.volume())).append(",adelay=")
+                    .append(delay).append('|').append(delay).append("[s").append(index).append("];");
+        }
+        double totalDuration = segments.getLast().outputEndSeconds();
+        for (int index = 0; index < externalAudio.size(); index++) {
+            RenderAssetResolver.RenderAsset asset = externalAudio.get(index);
+            int inputIndex = segments.size() + 1 + soundCues.size() + index;
+            TimelineSegment segment = segments.stream().filter(item -> item.sequence() == asset.clipIndex())
+                    .findFirst().orElse(segments.getFirst());
+            filter.append('[').append(inputIndex).append(":a]");
+            if ("BACKGROUND_AUDIO".equals(asset.placementType())) {
+                filter.append("atrim=0:").append(decimal(totalDuration)).append(",volume=0.14");
+            } else {
+                long delay = Math.round(segment.outputStartSeconds() * 1000);
+                filter.append("atrim=0:").append(decimal(segment.outputEndSeconds()-segment.outputStartSeconds()))
+                        .append(",volume=0.48,adelay=").append(delay).append('|').append(delay);
+            }
+            filter.append("[x").append(index).append("];");
+        }
+        for (int index = 0; index < segments.size(); index++) filter.append("[v").append(index).append(']');
+        for (int index = 0; index < soundCues.size(); index++) filter.append("[s").append(index).append(']');
+        for (int index = 0; index < externalAudio.size(); index++) filter.append("[x").append(index).append(']');
+        filter.append("amix=inputs=").append(segments.size() + soundCues.size() + externalAudio.size())
+                .append(":duration=longest:normalize=0,asplit=2[voiceSide][voiceMix];")
+                .append("[bg][voiceSide]sidechaincompress=threshold=0.02:ratio=8:attack=20:release=320[ducked];")
+                .append("[ducked][voiceMix]amix=inputs=2:duration=first:dropout_transition=0[aout]");
+        int subtitleInput = segments.size() + soundCues.size() + externalAudio.size() + 1;
+        command.addAll(List.of("-filter_complex", filter.toString()));
+        if (dynamicSubtitle != null) {
+            command.addAll(List.of("-vf", "ass='" + filterPath(dynamicSubtitle) + "'",
+                    "-map", "0:v:0", "-map", "[aout]", "-c:v", preferredEncoder));
+            if ("h264_nvenc".equals(preferredEncoder)) {
+                command.addAll(List.of("-preset", "p4", "-cq", "22"));
+            }
+        } else {
+            command.addAll(List.of("-map", "0:v:0", "-map", "[aout]",
+                    "-map", subtitleInput + ":s:0", "-c:v", "copy",
+                    "-c:s", "mov_text", "-metadata:s:s:0", "language=zho"));
+        }
+        command.addAll(List.of("-c:a", "aac", "-b:a", "192k", "-movflags", "+faststart",
+                output.toString()));
+        run(command, Duration.ofMinutes(45), "音画合成");
+    }
+
+    private String filterPath(Path path) {
+        return path.toAbsolutePath().toString().replace("\\", "/")
+                .replace(":", "\\:").replace("'", "\\'");
+    }
+
+    private String buildSrt(List<TimelineSegment> segments) {
+        StringBuilder result = new StringBuilder();
+        for (TimelineSegment segment : segments) {
+            String text = segment.subtitle() == null || segment.subtitle().isBlank()
+                    ? segment.narration() : segment.subtitle();
+            if (text == null || text.isBlank()) text = "\u200B";
+            result.append(segment.sequence()).append('\n')
+                    .append(srtTime(segment.outputStartSeconds())).append(" --> ")
+                    .append(srtTime(segment.outputEndSeconds())).append('\n')
+                    .append(text.replace("\r", " ").replace("\n", " ")).append("\n\n");
+        }
+        return result.toString();
+    }
+
+    private String srtTime(double seconds) {
+        long millis = Math.round(seconds * 1000);
+        return "%02d:%02d:%02d,%03d".formatted(millis / 3_600_000,
+                millis / 60_000 % 60, millis / 1000 % 60, millis % 1000);
+    }
+
+    private String decimal(double value) { return String.format(Locale.ROOT, "%.3f", value); }
+
+    private void cleanupWorkDirectory(Path workDirectory) {
+        Path normalized = workDirectory.toAbsolutePath().normalize();
+        if (!"render-work".equals(String.valueOf(normalized.getFileName())) || !Files.isDirectory(normalized)) return;
+        try (var paths = Files.walk(normalized)) {
+            paths.sorted(java.util.Comparator.reverseOrder()).forEach(path -> {
+                try { Files.deleteIfExists(path); }
+                catch (java.io.IOException exception) {
+                    log.warn("RENDER_WORK_CLEANUP_FAILED path={} message={}", path, exception.getMessage());
+                }
+            });
+        } catch (java.io.IOException exception) {
+            log.warn("RENDER_WORK_CLEANUP_FAILED path={} message={}", normalized, exception.getMessage());
+        }
+    }
+
+    private void run(List<String> command, Duration timeout, String operation) {
+        try {
+            var result = cn.longer233.gamenarrator.common.ExternalProcessRunner.run(command, timeout);
+            if (result.exitCode() != 0) {
+                throw new IllegalStateException(operation + "失败，FFmpeg 退出码 " + result.exitCode()
+                        + "：" + tail(result.output(), 1600));
+            }
+        } catch (cn.longer233.gamenarrator.common.ExternalProcessRunner.ProcessTimeoutException exception) {
+            throw new IllegalStateException(operation + "超时", exception);
+        } catch (InterruptedException exception) {
+            Thread.currentThread().interrupt();
+            throw new IllegalStateException(operation + "被中断", exception);
+        } catch (java.io.IOException exception) {
+            throw new IllegalStateException(operation + "无法启动 FFmpeg：" + exception.getMessage(), exception);
+        }
+    }
+
+    private String tail(String value, int limit) {
+        return value.length() <= limit ? value : value.substring(value.length() - limit);
+    }
+}
+``
+
+### FILE: src/main/java/cn/longer233/gamenarrator/render/RenderAssetResolver.java
+
+``java
+package cn.longer233.gamenarrator.render;
+
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.jdbc.core.JdbcTemplate;
+import org.springframework.stereotype.Component;
+
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.util.List;
+
+@Component
+public class RenderAssetResolver {
+    private final JdbcTemplate jdbc;
+    private final Path storageRoot;
+
+    public RenderAssetResolver(JdbcTemplate jdbc, @Value("${game-narrator.storage-root}") String storageRoot) {
+        this.jdbc = jdbc;
+        this.storageRoot = Path.of(storageRoot).toAbsolutePath().normalize();
+    }
+
+    public List<RenderAsset> resolve(Path timelinePath) {
+        List<java.util.UUID> taskIds = jdbc.query("SELECT id FROM video_tasks WHERE timeline_path=?",
+                (rs, n) -> rs.getObject(1, java.util.UUID.class), timelinePath.toAbsolutePath().normalize().toString());
+        if (taskIds.isEmpty()) return List.of();
+        return jdbc.query("""
+                SELECT p.clip_index,p.placement_type,p.position_name,p.cutout_applied,
+                       a.asset_type,a.local_path,a.title
+                FROM storyboard_asset_placement p JOIN external_asset a ON a.id=p.asset_id
+                WHERE p.task_id=? AND a.import_status='DOWNLOADED' AND a.local_path IS NOT NULL
+                ORDER BY p.clip_index,p.created_at
+                """, (rs, n) -> {
+            Path path = Path.of(rs.getString("local_path")).toAbsolutePath().normalize();
+            if (!path.startsWith(storageRoot) || !Files.isRegularFile(path)) return null;
+            return new RenderAsset(rs.getInt("clip_index"), rs.getString("asset_type"),
+                    rs.getString("placement_type"), rs.getString("position_name"),
+                    rs.getBoolean("cutout_applied"), path, rs.getString("title"));
+        }, taskIds.getFirst()).stream().filter(java.util.Objects::nonNull).toList();
+    }
+
+    public record RenderAsset(int clipIndex, String assetType, String placementType, String position,
+                              boolean cutoutApplied, Path path, String title) {
+        public boolean audio() { return "SFX".equals(assetType) || "BGM".equals(assetType); }
+    }
+}
+``
+
+### FILE: src/main/java/cn/longer233/gamenarrator/render/RenderResult.java
+
+``java
+package cn.longer233.gamenarrator.render;
+
+public record RenderResult(String videoPath, String subtitlePath, long fileSizeBytes) {
+}
+``
+
+### FILE: src/main/java/cn/longer233/gamenarrator/script/AutoAssetAssignmentView.java
+
+``java
+package cn.longer233.gamenarrator.script;
+
+import java.util.List;
+
+public record AutoAssetAssignmentView(
+        int assignedCount, boolean bilibiliLoginRequired, List<String> warnings,
+        List<StoryboardAssetPlacementView> placements) { }
+``
+
+### FILE: src/main/java/cn/longer233/gamenarrator/script/GeneratedScript.java
+
+``java
+package cn.longer233.gamenarrator.script;
+
+import java.util.List;
+
+public record GeneratedScript(
+        String title,
+        String synopsis,
+        String fullNarration,
+        String scriptPath,
+        List<ScriptSegment> segments
+) {
+}
+``
+
+### FILE: src/main/java/cn/longer233/gamenarrator/script/MoveStoryboardSegmentRequest.java
+
+``java
+package cn.longer233.gamenarrator.script;
+
+import jakarta.validation.constraints.Pattern;
+
+public record MoveStoryboardSegmentRequest(
+        @Pattern(regexp = "UP|DOWN") String direction
+) {
+}
+``
+
+### FILE: src/main/java/cn/longer233/gamenarrator/script/OllamaScriptGenerator.java
+
+``java
+package cn.longer233.gamenarrator.script;
+
+import cn.longer233.gamenarrator.ai.AdaptiveAiChatClient;
+import cn.longer233.gamenarrator.ai.AiContentRejectedException;
+import cn.longer233.gamenarrator.highlight.HighlightClip;
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
+
+import java.net.URI;
+import java.net.http.HttpClient;
+import java.net.http.HttpRequest;
+import java.net.http.HttpResponse;
+import java.nio.charset.StandardCharsets;
+import java.nio.file.Path;
+import java.time.Duration;
+import java.util.ArrayList;
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Objects;
+
+@Component
+public class OllamaScriptGenerator {
+    private static final Logger log = LoggerFactory.getLogger(OllamaScriptGenerator.class);
+    private final ObjectMapper objectMapper;
+    private final HttpClient httpClient;
+    private final URI baseUri;
+    private final String model;
+    private final AdaptiveAiChatClient adaptiveChat;
+
+    @Autowired
+    public OllamaScriptGenerator(ObjectMapper objectMapper, AdaptiveAiChatClient adaptiveChat,
+            @Value("${game-narrator.ollama.base-url:http://localhost:11434}") String baseUrl,
+            @Value("${game-narrator.ollama.script-model:${game-narrator.ollama.vision-model:qwen2.5vl:3b}}") String model) {
+        this.objectMapper = objectMapper;
+        this.adaptiveChat = adaptiveChat;
+        this.baseUri = URI.create(baseUrl);
+        this.model = model;
+        this.httpClient = HttpClient.newBuilder().connectTimeout(Duration.ofSeconds(5)).build();
+    }
+
+    OllamaScriptGenerator(ObjectMapper objectMapper, String baseUrl, String model) {
+        this.objectMapper = objectMapper;
+        this.adaptiveChat = null;
+        this.baseUri = URI.create(baseUrl);
+        this.model = model;
+        this.httpClient = HttpClient.newBuilder().connectTimeout(Duration.ofSeconds(5)).build();
+    }
+
+    public GeneratedScript generate(Path highlightPath, String category, String style,
+                                    String taskBrief, String transcript) {
+        if (adaptiveChat != null) return generateAdaptive(highlightPath, category, style, taskBrief, transcript);
+        try {
+            JsonNode highlightDocument = objectMapper.readTree(highlightPath.toFile());
+            List<HighlightClip> clips = objectMapper.readerForListOf(HighlightClip.class)
+                    .readValue(highlightDocument.path("clips"));
+            if (clips.isEmpty()) throw new IllegalStateException("高光清单中没有可写作文案的片段");
+            String prompt = buildPrompt(clips, category, style, taskBrief, transcript);
+            log.info("SCRIPT_GENERATION_BEGIN model={} clipCount={} promptChars={}", model, clips.size(), prompt.length());
+            Map<String, Object> requestBody = Map.of(
+                    "model", model, "stream", false, "format", "json",
+                    "messages", List.of(Map.of("role", "user", "content", prompt)),
+                    "options", Map.of("temperature", 0.65));
+            HttpRequest request = HttpRequest.newBuilder(baseUri.resolve("/api/chat"))
+                    .timeout(Duration.ofMinutes(5)).header("Content-Type", "application/json")
+                    .POST(HttpRequest.BodyPublishers.ofByteArray(objectMapper.writeValueAsBytes(requestBody))).build();
+            HttpResponse<String> response = httpClient.send(request,
+                    HttpResponse.BodyHandlers.ofString(StandardCharsets.UTF_8));
+            if (response.statusCode() != 200) {
+                throw new IllegalStateException("Ollama 文案请求返回 HTTP " + response.statusCode());
+            }
+            String content = objectMapper.readTree(response.body()).path("message").path("content").asText();
+            JsonNode generated = objectMapper.readTree(content);
+            String title = generated.path("title").asText("游戏高光剧场");
+            String synopsis = generated.path("synopsis").asText("围绕高光镜头生成的解说剧场");
+            List<ScriptSegment> segments = alignSegments(generated.path("segments"), clips);
+            String fullNarration = String.join("\n", segments.stream().map(ScriptSegment::narration).toList());
+            Path output = highlightPath.getParent().resolve("generated-script.json");
+            Map<String, Object> document = new LinkedHashMap<>();
+            document.put("model", model);
+            document.put("title", title);
+            document.put("synopsis", synopsis);
+            document.put("fullNarration", fullNarration);
+            document.put("segments", segments);
+            document.put("qualityReview", qualityReview(generated, segments));
+            cn.longer233.gamenarrator.common.AtomicArtifactWriter.writeJson(objectMapper, output, document);
+            log.info("SCRIPT_GENERATION_SUCCESS model={} segmentCount={} narrationChars={} output={}",
+                    model, segments.size(), fullNarration.length(), output);
+            return new GeneratedScript(title, synopsis, fullNarration, output.toString(), segments);
+        } catch (IllegalStateException exception) {
+            throw exception;
+        } catch (Exception exception) {
+            throw new IllegalStateException("AI 文案生成失败：" + exception.getMessage(), exception);
+        }
+    }
+
+    public GeneratedScript generateWithoutAi(Path highlightPath) {
+        try {
+            List<HighlightClip> clips = objectMapper.readerForListOf(HighlightClip.class)
+                    .readValue(objectMapper.readTree(highlightPath.toFile()).path("clips"));
+            if (clips.isEmpty()) throw new IllegalStateException("高光清单为空");
+            List<ScriptSegment> segments = new ArrayList<>();
+            for (int index = 0; index < clips.size(); index++) {
+                HighlightClip clip = clips.get(index);
+                segments.add(new ScriptSegment(index + 1, clip.startSeconds(), clip.endSeconds(), "", "", ""));
+            }
+            Path output = highlightPath.getParent().resolve("generated-script.json");
+            cn.longer233.gamenarrator.common.AtomicArtifactWriter.writeJson(objectMapper, output, Map.of(
+                    "model", "MANUAL", "title", "手动剪辑", "synopsis", "未启用 AI 文案",
+                    "fullNarration", "", "segments", segments));
+            return new GeneratedScript("手动剪辑", "未启用 AI 文案", "", output.toString(), segments);
+        } catch (Exception exception) {
+            throw new IllegalStateException("创建手动文案轨道失败：" + exception.getMessage(), exception);
+        }
+    }
+
+    public ScriptSegment regenerateSegment(ScriptSegment current, String instruction,
+                                           String previousNarration, String nextNarration) {
+        if (adaptiveChat != null) return regenerateAdaptive(current, instruction, previousNarration, nextNarration);
+        try {
+            String prompt = """
+                    请重写一个中文游戏解说片段，只返回 JSON，不要输出 Markdown。
+                    保持原有事实、人物关系和时间范围，不模仿任何具名创作者。
+                    narration、subtitle、effectCue 三个字段必须全部使用简体中文，不得返回纯英文内容。
+                    上一段解说：%s
+                    当前片段：%s
+                    下一段解说：%s
+                    用户要求：%s
+                    返回格式：{"narration":"25到55个中文字符","subtitle":"简洁中文字幕","effectCue":"中文特效建议"}
+                    """.formatted(
+                    previousNarration == null ? "" : previousNarration,
+                    objectMapper.writeValueAsString(current),
+                    nextNarration == null ? "" : nextNarration,
+                    instruction == null ? "" : instruction);
+            Map<String, Object> requestBody = Map.of(
+                    "model", model, "stream", false, "format", "json",
+                    "messages", List.of(Map.of("role", "user", "content", prompt)),
+                    "options", Map.of("temperature", 0.7));
+            HttpRequest request = HttpRequest.newBuilder(baseUri.resolve("/api/chat"))
+                    .timeout(Duration.ofMinutes(3)).header("Content-Type", "application/json")
+                    .POST(HttpRequest.BodyPublishers.ofByteArray(objectMapper.writeValueAsBytes(requestBody))).build();
+            HttpResponse<String> response = httpClient.send(request,
+                    HttpResponse.BodyHandlers.ofString(StandardCharsets.UTF_8));
+            if (response.statusCode() != 200) {
+                throw new IllegalStateException("Ollama segment request returned HTTP " + response.statusCode());
+            }
+            JsonNode generated = objectMapper.readTree(
+                    objectMapper.readTree(response.body()).path("message").path("content").asText());
+            String narration = generated.path("narration").asText().trim();
+            if (narration.isBlank()) {
+                throw new IllegalStateException("Generated narration is empty");
+            }
+            if (!containsChinese(narration)) {
+                throw new IllegalStateException("AI 重写没有返回中文解说，请调整要求后重试");
+            }
+            String subtitle = generated.path("subtitle").asText(narration).trim();
+            String effectCue = generated.path("effectCue").asText(current.effectCue()).trim();
+            if (!containsChinese(subtitle)) subtitle = narration;
+            if (!containsChinese(effectCue)) effectCue = containsChinese(current.effectCue())
+                    ? current.effectCue() : "节奏转场";
+            return new ScriptSegment(current.clipIndex(), current.startSeconds(), current.endSeconds(),
+                    narration, subtitle.isBlank() ? narration : subtitle,
+                    effectCue.isBlank() ? current.effectCue() : effectCue);
+        } catch (IllegalStateException exception) {
+            throw exception;
+        } catch (Exception exception) {
+            throw new IllegalStateException("Script segment regeneration failed: " + exception.getMessage(), exception);
+        }
+    }
+
+    private GeneratedScript generateAdaptive(Path highlightPath, String category, String style,
+                                             String taskBrief, String transcript) {
+        try {
+            JsonNode highlightDocument = objectMapper.readTree(highlightPath.toFile());
+            List<HighlightClip> clips = objectMapper.readerForListOf(HighlightClip.class)
+                    .readValue(highlightDocument.path("clips"));
+            if (clips.isEmpty()) throw new IllegalStateException("高光清单中没有可生成文案的片段");
+            JsonNode generated = adaptiveChat.chatJson(
+                    buildPrompt(clips, category, style, taskBrief, transcript), List.of(), false, Duration.ofMinutes(5));
+            String title = generated.path("title").asText("游戏高光剧场");
+            String synopsis = generated.path("synopsis").asText("根据高光镜头生成的解说剧场");
+            List<ScriptSegment> segments = alignSegments(generated.path("segments"), clips);
+            String fullNarration = String.join("\n", segments.stream().map(ScriptSegment::narration).toList());
+            Path output = highlightPath.getParent().resolve("generated-script.json");
+            Map<String,Object> document = new LinkedHashMap<>();
+            document.put("model", adaptiveChat.activeModel(false));
+            document.put("title", title); document.put("synopsis", synopsis);
+            document.put("fullNarration", fullNarration); document.put("segments", segments);
+            document.put("qualityReview", generated.path("qualityReview"));
+            cn.longer233.gamenarrator.common.AtomicArtifactWriter.writeJson(objectMapper, output, document);
+            return new GeneratedScript(title, synopsis, fullNarration, output.toString(), segments);
+        } catch (AiContentRejectedException exception) {
+            try {
+                List<HighlightClip> clips = objectMapper.readerForListOf(HighlightClip.class)
+                        .readValue(objectMapper.readTree(highlightPath.toFile()).path("clips"));
+                List<ScriptSegment> segments = alignSegments(objectMapper.createArrayNode(), clips);
+                String narration = String.join("\n", segments.stream().map(ScriptSegment::narration).toList());
+                Path output = highlightPath.getParent().resolve("generated-script.json");
+                cn.longer233.gamenarrator.common.AtomicArtifactWriter.writeJson(objectMapper, output, Map.of(
+                        "model", "RULE_FALLBACK", "title", "游戏剪辑", "synopsis", "云端审核拒绝单次请求，已使用本地通用文案",
+                        "fullNarration", narration, "segments", segments));
+                return new GeneratedScript("游戏剪辑", "已使用本地通用文案", narration, output.toString(), segments);
+            } catch (Exception fallbackFailure) { throw new IllegalStateException("本地文案降级失败", fallbackFailure); }
+        } catch (IllegalStateException exception) { throw exception; }
+        catch (Exception exception) { throw new IllegalStateException("AI 文案生成失败：" + exception.getMessage(), exception); }
+    }
+
+    private ScriptSegment regenerateAdaptive(ScriptSegment current, String instruction,
+                                              String previousNarration, String nextNarration) {
+        try {
+            String prompt = "请重写中文游戏解说片段，只返回 JSON，字段为 narration、subtitle、effectCue。"
+                    + "\n上一段：" + Objects.toString(previousNarration, "")
+                    + "\n当前段：" + objectMapper.writeValueAsString(current)
+                    + "\n下一段：" + Objects.toString(nextNarration, "")
+                    + "\n用户要求：" + Objects.toString(instruction, "");
+            JsonNode generated = adaptiveChat.chatJson(prompt, List.of(), false, Duration.ofMinutes(3));
+            String narration = generated.path("narration").asText().trim();
+            if (narration.isBlank()) throw new IllegalStateException("AI 返回的解说为空");
+            String subtitle = generated.path("subtitle").asText(narration).trim();
+            String effectCue = generated.path("effectCue").asText(current.effectCue()).trim();
+            return new ScriptSegment(current.clipIndex(), current.startSeconds(), current.endSeconds(), narration,
+                    subtitle.isBlank() ? narration : subtitle, effectCue.isBlank() ? current.effectCue() : effectCue);
+        } catch (IllegalStateException exception) { throw exception; }
+        catch (Exception exception) { throw new IllegalStateException("AI 片段重写失败：" + exception.getMessage(), exception); }
+    }
+
+    private boolean containsChinese(String value) {
+        return value != null && value.codePoints().anyMatch(codePoint ->
+                Character.UnicodeScript.of(codePoint) == Character.UnicodeScript.HAN);
+    }
+
+    List<ScriptSegment> alignSegments(JsonNode generatedSegments, List<HighlightClip> clips) {
+        List<ScriptSegment> result = new ArrayList<>();
+        for (int index = 0; index < clips.size(); index++) {
+            HighlightClip clip = clips.get(index);
+            JsonNode node = generatedSegments.isArray() && index < generatedSegments.size()
+                    ? generatedSegments.get(index) : objectMapper.createObjectNode();
+            String narration = node.path("narration").asText();
+            if (narration.isBlank()) narration = "镜头切换，故事在这一刻继续推进。";
+            String subtitle = node.path("subtitle").asText();
+            if (subtitle.isBlank()) subtitle = narration;
+            String effectCue = node.path("effectCue").asText();
+            if (effectCue.isBlank()) effectCue = "节奏转场";
+            result.add(new ScriptSegment(index + 1, clip.startSeconds(), clip.endSeconds(),
+                    narration, subtitle, effectCue));
+        }
+        return result;
+    }
+
+    Map<String, Object> qualityReview(JsonNode generated, List<ScriptSegment> segments) {
+        JsonNode review = generated.path("qualityReview");
+        List<String> issues = new ArrayList<>();
+        review.path("issues").forEach(issue -> {
+            String value = issue.asText().trim();
+            if (!value.isBlank() && issues.size() < 8) issues.add(value);
+        });
+        if (segments.stream().anyMatch(segment -> segment.narration().isBlank()
+                || segment.subtitle().isBlank() || segment.effectCue().isBlank())) {
+            issues.add("存在空白文案、字幕或特效提示");
+        }
+        int score = Math.max(0, Math.min(100, review.path("score").asInt(issues.isEmpty() ? 85 : 65)));
+        return Map.of(
+                "model", model,
+                "score", score,
+                "passed", review.path("passed").asBoolean(score >= 70 && issues.isEmpty()),
+                "issues", issues,
+                "summary", review.path("summary").asText(issues.isEmpty() ? "文案结构完整" : "文案需要人工复核")
+        );
+    }
+
+    private String buildPrompt(List<HighlightClip> clips, String category, String style,
+                               String brief, String transcript) throws Exception {
+        String transcriptHint = transcript == null ? "" : transcript.substring(0, Math.min(900, transcript.length()));
+        return """
+                你是原创游戏视频剧场编剧。根据高光片段写一份中文解说文案，只返回 JSON，不使用 Markdown。
+                内容类别：%s
+                风格：%s（ANIME_THEATER 表示日式动漫剧场感，但不得模仿具体作者的独特措辞）
+                创作要求：%s
+                原视频语音参考（可能有识别错误，只用于理解内容，严禁逐句复制）：%s
+                高光片段：%s
+                JSON 格式：{"title":"原创标题","synopsis":"剧情概述","segments":[{"clipIndex":1,"narration":"适合配音的台词","subtitle":"精简字幕","effectCue":"建议的转场或屏幕特效"}]}
+                segments 数量必须与高光片段完全一致并保持原顺序。每段台词约 25 到 55 个汉字，必须重新创作、口语自然、前后连贯、有起承转合；不得照抄语音参考，不虚构具体角色姓名。subtitle 和 effectCue 均不得为空。
+                同时返回 qualityReview：{"score":0-100,"passed":true或false,"issues":["具体问题"],"summary":"简短结论"}，检查连贯性、事实一致性、可配音性和字幕精炼度。
+                """.formatted(category, style, brief, transcriptHint, objectMapper.writeValueAsString(clips));
+    }
+}
+``
+
+### FILE: src/main/java/cn/longer233/gamenarrator/script/PlaceStoryboardAssetRequest.java
+
+``java
+package cn.longer233.gamenarrator.script;
+
+import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.Size;
+import java.util.UUID;
+
+public record PlaceStoryboardAssetRequest(
+        @NotNull UUID assetId,
+        @Size(max = 500) String instruction,
+        boolean aiAssign) { }
+``
+
+### FILE: src/main/java/cn/longer233/gamenarrator/script/RegenerateScriptSegmentRequest.java
+
+``java
+package cn.longer233.gamenarrator.script;
+
+import jakarta.validation.constraints.Size;
+
+public record RegenerateScriptSegmentRequest(@Size(max = 500) String instruction) {
+}
+``
+
+### FILE: src/main/java/cn/longer233/gamenarrator/script/ScriptDocumentView.java
+
+``java
+package cn.longer233.gamenarrator.script;
+
+import java.util.List;
+
+public record ScriptDocumentView(
+        String title,
+        String synopsis,
+        String fullNarration,
+        List<ScriptSegment> segments
+) {
+}
+``
+
+### FILE: src/main/java/cn/longer233/gamenarrator/script/ScriptSegment.java
+
+``java
+package cn.longer233.gamenarrator.script;
+
+public record ScriptSegment(
+        int clipIndex,
+        double startSeconds,
+        double endSeconds,
+        String narration,
+        String subtitle,
+        String effectCue
+) {
+}
+``
+
+### FILE: src/main/java/cn/longer233/gamenarrator/script/ScriptWorkspaceController.java
+
+``java
+package cn.longer233.gamenarrator.script;
+
+import cn.longer233.gamenarrator.voice.VoiceSegment;
+import cn.longer233.gamenarrator.voice.VoiceOption;
+import cn.longer233.gamenarrator.voice.VoiceRegenerationRequest;
+import jakarta.validation.Valid;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
+import org.springframework.core.io.FileSystemResource;
+import org.springframework.web.bind.annotation.*;
+
+import java.util.UUID;
+
+@RestController
+@RequestMapping("/api/tasks/{taskId}")
+public class ScriptWorkspaceController {
+    private final ScriptWorkspaceService service;
+    private final StoryboardAssetPlacementService placements;
+
+    public ScriptWorkspaceController(ScriptWorkspaceService service, StoryboardAssetPlacementService placements) {
+        this.service = service;
+        this.placements = placements;
+    }
+
+    @GetMapping("/script")
+    public ScriptDocumentView script(@PathVariable UUID taskId) {
+        return service.find(taskId);
+    }
+
+    @PutMapping("/script/segments/{clipIndex}")
+    public ScriptDocumentView update(@PathVariable UUID taskId, @PathVariable int clipIndex,
+                                     @Valid @RequestBody UpdateScriptSegmentRequest request) {
+        return service.update(taskId, clipIndex, request);
+    }
+
+    @PostMapping("/script/segments/{clipIndex}/regenerate")
+    public ScriptDocumentView regenerate(@PathVariable UUID taskId, @PathVariable int clipIndex,
+                                         @Valid @RequestBody(required = false)
+                                         RegenerateScriptSegmentRequest request) {
+        return service.regenerate(taskId, clipIndex, request);
+    }
+
+    @PostMapping("/voice/segments/{clipIndex}/regenerate")
+    @ResponseStatus(HttpStatus.ACCEPTED)
+    public VoiceSegment regenerateVoice(@PathVariable UUID taskId, @PathVariable int clipIndex,
+                                        @Valid @RequestBody(required = false) VoiceRegenerationRequest request) {
+        return service.regenerateVoice(taskId, clipIndex, request);
+    }
+
+    @GetMapping("/voice/options")
+    public java.util.List<VoiceOption> voiceOptions() {
+        return service.voiceOptions();
+    }
+
+    @GetMapping("/storyboard")
+    public StoryboardView storyboard(@PathVariable UUID taskId) {
+        return service.storyboard(taskId);
+    }
+
+    @PutMapping("/storyboard/segments/{clipIndex}")
+    public StoryboardView updateStoryboard(@PathVariable UUID taskId, @PathVariable int clipIndex,
+                                           @Valid @RequestBody UpdateStoryboardSegmentRequest request) {
+        return service.updateStoryboard(taskId, clipIndex, request);
+    }
+
+    @PostMapping("/storyboard/segments/{clipIndex}/move")
+    public StoryboardView moveStoryboard(@PathVariable UUID taskId, @PathVariable int clipIndex,
+                                         @Valid @RequestBody MoveStoryboardSegmentRequest request) {
+        return service.moveStoryboard(taskId, clipIndex, request);
+    }
+
+    @GetMapping("/storyboard/segments/{clipIndex}/thumbnail")
+    public ResponseEntity<FileSystemResource> storyboardThumbnail(@PathVariable UUID taskId,
+                                                                   @PathVariable int clipIndex) {
+        var path = service.storyboardThumbnail(taskId, clipIndex);
+        MediaType mediaType = org.springframework.http.MediaTypeFactory.getMediaType(path.getFileName().toString())
+                .orElse(MediaType.APPLICATION_OCTET_STREAM);
+        return ResponseEntity.ok().contentType(mediaType)
+                .cacheControl(org.springframework.http.CacheControl.noCache())
+                .body(new FileSystemResource(path));
+    }
+
+    @GetMapping("/storyboard/assets")
+    public java.util.List<StoryboardAssetPlacementView> storyboardAssets(@PathVariable UUID taskId) {
+        return placements.list(taskId);
+    }
+
+    @PostMapping("/storyboard/assets/auto")
+    public AutoAssetAssignmentView autoAssets(@PathVariable UUID taskId) {
+        return placements.autoAssign(taskId);
+    }
+
+    @PostMapping("/storyboard/segments/{clipIndex}/assets")
+    @ResponseStatus(HttpStatus.CREATED)
+    public StoryboardAssetPlacementView placeAsset(@PathVariable UUID taskId, @PathVariable int clipIndex,
+                                                    @Valid @RequestBody PlaceStoryboardAssetRequest request) {
+        return placements.place(taskId, clipIndex, request);
+    }
+
+    @DeleteMapping("/storyboard/assets/{placementId}")
+    @ResponseStatus(HttpStatus.NO_CONTENT)
+    public void removeAsset(@PathVariable UUID taskId, @PathVariable UUID placementId) {
+        placements.delete(taskId, placementId);
+    }
+
+    @PutMapping("/storyboard/assets/{placementId}")
+    public StoryboardAssetPlacementView updateAsset(@PathVariable UUID taskId, @PathVariable UUID placementId,
+                                                     @Valid @RequestBody UpdateStoryboardAssetRequest request) {
+        return placements.update(taskId, placementId, request);
+    }
+}
+``
+
+### FILE: src/main/java/cn/longer233/gamenarrator/script/ScriptWorkspaceService.java
+
+``java
+package cn.longer233.gamenarrator.script;
+
+import cn.longer233.gamenarrator.task.application.TaskNotFoundException;
+import cn.longer233.gamenarrator.common.AtomicArtifactWriter;
+import cn.longer233.gamenarrator.task.domain.VideoTask;
+import cn.longer233.gamenarrator.task.repository.VideoTaskRepository;
+import cn.longer233.gamenarrator.voice.VoiceGenerator;
+import cn.longer233.gamenarrator.voice.VoiceSegment;
+import cn.longer233.gamenarrator.voice.VoiceOption;
+import cn.longer233.gamenarrator.voice.VoiceRegenerationRequest;
+import cn.longer233.gamenarrator.highlight.HighlightClip;
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import jakarta.transaction.Transactional;
+import org.springframework.stereotype.Service;
+
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.util.ArrayList;
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.UUID;
+
+@Service
+public class ScriptWorkspaceService {
+    private final VideoTaskRepository repository;
+    private final ObjectMapper objectMapper;
+    private final OllamaScriptGenerator scriptGenerator;
+    private final VoiceGenerator voiceGenerator;
+
+    public ScriptWorkspaceService(VideoTaskRepository repository, ObjectMapper objectMapper,
+                                  OllamaScriptGenerator scriptGenerator, VoiceGenerator voiceGenerator) {
+        this.repository = repository;
+        this.objectMapper = objectMapper;
+        this.scriptGenerator = scriptGenerator;
+        this.voiceGenerator = voiceGenerator;
+    }
+
+    @Transactional
+    public ScriptDocumentView find(UUID taskId) {
+        return readDocument(requireTask(taskId));
+    }
+
+    @Transactional
+    public ScriptDocumentView update(UUID taskId, int clipIndex, UpdateScriptSegmentRequest request) {
+        VideoTask task = requireTask(taskId);
+        ScriptDocumentView document = readDocument(task);
+        ScriptSegment current = requireSegment(document.segments(), clipIndex);
+        ScriptSegment replacement = new ScriptSegment(
+                current.clipIndex(), current.startSeconds(), current.endSeconds(),
+                request.narration().trim(),
+                defaultText(request.subtitle(), request.narration()),
+                defaultText(request.effectCue(), current.effectCue()));
+        return saveRevision(task, document, replacement);
+    }
+
+    @Transactional
+    public ScriptDocumentView regenerate(UUID taskId, int clipIndex,
+                                         RegenerateScriptSegmentRequest request) {
+        VideoTask task = requireTask(taskId);
+        ScriptDocumentView document = readDocument(task);
+        List<ScriptSegment> segments = document.segments();
+        int position = positionOf(segments, clipIndex);
+        ScriptSegment replacement = scriptGenerator.regenerateSegment(
+                segments.get(position),
+                request == null ? null : request.instruction(),
+                position == 0 ? null : segments.get(position - 1).narration(),
+                position + 1 >= segments.size() ? null : segments.get(position + 1).narration());
+        return saveRevision(task, document, replacement);
+    }
+
+    @Transactional
+    public VoiceSegment regenerateVoice(UUID taskId, int clipIndex, VoiceRegenerationRequest request) {
+        VideoTask task = requireTask(taskId);
+        Path scriptPath = requireScriptPath(task);
+        requireSegment(readDocument(task).segments(), clipIndex);
+        String voiceId = request == null ? null : request.voiceId();
+        double speed = request == null ? 1.0 : request.effectiveSpeed();
+        VoiceSegment result = voiceGenerator.regenerateSegment(scriptPath, clipIndex, voiceId, speed);
+        Path manifest = scriptPath.getParent().resolve("voice-manifest.json");
+        JsonNode manifestDocument = readJson(manifest);
+        List<VoiceSegment> voices = readVoiceSegments(manifestDocument);
+        validateVoiceManifest(readDocument(task).segments(), voices);
+        task.applyVoiceRevision(manifest.toString(), voices.size());
+        return result;
+    }
+
+    public List<VoiceOption> voiceOptions() {
+        return voiceGenerator.options();
+    }
+
+    @Transactional
+    public StoryboardView storyboard(UUID taskId) {
+        VideoTask task = requireTask(taskId);
+        ScriptDocumentView script = readDocument(task);
+        List<HighlightClip> clips = readHighlightClips(task);
+        if (script.segments().size() != clips.size()) {
+            throw new IllegalStateException("分镜、文案片段数量不一致");
+        }
+        List<StoryboardSegmentView> segments = new ArrayList<>();
+        for (int index = 0; index < clips.size(); index++) {
+            HighlightClip clip = clips.get(index);
+            ScriptSegment text = script.segments().get(index);
+            segments.add(new StoryboardSegmentView(text.clipIndex(), clip.startSeconds(), clip.endSeconds(),
+                    text.narration(), text.subtitle(), text.effectCue(), clip.eventType(),
+                    clip.description(), clip.finalScore()));
+        }
+        return new StoryboardView(script.title(), script.synopsis(), task.isStoryboardReviewEnabled(),
+                task.isStoryboardApproved(), List.copyOf(segments));
+    }
+
+    @Transactional
+    public StoryboardView updateStoryboard(UUID taskId, int clipIndex, UpdateStoryboardSegmentRequest request) {
+        VideoTask task = requireTask(taskId);
+        if (request.endSeconds() <= request.startSeconds()) {
+            throw new IllegalArgumentException("分镜结束时间必须晚于开始时间");
+        }
+        if (task.getDurationSeconds() != null && request.endSeconds() > task.getDurationSeconds() + 0.001) {
+            throw new IllegalArgumentException("分镜时间不能超过源视频时长");
+        }
+        ScriptDocumentView document = readDocument(task);
+        ScriptSegment current = requireSegment(document.segments(), clipIndex);
+        ScriptSegment replacement = new ScriptSegment(current.clipIndex(), request.startSeconds(), request.endSeconds(),
+                request.narration().trim(), defaultText(request.subtitle(), request.narration()),
+                defaultText(request.effectCue(), current.effectCue()));
+        saveRevision(task, document, replacement);
+
+        Path highlightPath = requireHighlightPath(task);
+        JsonNode root = readJson(highlightPath);
+        List<HighlightClip> clips = readHighlightClips(task);
+        int position = positionOf(document.segments(), clipIndex);
+        HighlightClip currentClip = clips.get(position);
+        clips.set(position, new HighlightClip(currentClip.sourceFrameIndex(), request.startSeconds(), request.endSeconds(),
+                Math.max(request.startSeconds(), Math.min(request.endSeconds(), currentClip.anchorSeconds())),
+                currentClip.eventType(), currentClip.description(), currentClip.sourceScore(), currentClip.finalScore()));
+        Map<String, Object> updated = objectMapper.convertValue(root, new com.fasterxml.jackson.core.type.TypeReference<LinkedHashMap<String, Object>>() {});
+        updated.put("clips", clips);
+        updated.put("selectedDurationSeconds", clips.stream().mapToDouble(HighlightClip::durationSeconds).sum());
+        writeAtomically(highlightPath, updated);
+        return storyboard(taskId);
+    }
+
+    @Transactional
+    public StoryboardView moveStoryboard(UUID taskId, int clipIndex, MoveStoryboardSegmentRequest request) {
+        VideoTask task = requireTask(taskId);
+        ScriptDocumentView document = readDocument(task);
+        List<ScriptSegment> scripts = new ArrayList<>(document.segments());
+        List<HighlightClip> clips = readHighlightClips(task);
+        int from = positionOf(scripts, clipIndex);
+        int to = "UP".equals(request.direction()) ? from - 1 : from + 1;
+        if (to < 0 || to >= scripts.size()) return storyboard(taskId);
+        java.util.Collections.swap(scripts, from, to);
+        java.util.Collections.swap(clips, from, to);
+
+        List<ScriptSegment> reindexed = new ArrayList<>();
+        for (int index = 0; index < scripts.size(); index++) {
+            ScriptSegment item = scripts.get(index);
+            reindexed.add(new ScriptSegment(index + 1, item.startSeconds(), item.endSeconds(),
+                    item.narration(), item.subtitle(), item.effectCue()));
+        }
+        String narration = String.join("\n", reindexed.stream().map(ScriptSegment::narration).toList());
+        Path scriptPath = requireScriptPath(task);
+        JsonNode scriptRoot = readJson(scriptPath);
+        Map<String, Object> scriptOutput = objectMapper.convertValue(scriptRoot,
+                new com.fasterxml.jackson.core.type.TypeReference<LinkedHashMap<String, Object>>() {});
+        scriptOutput.put("fullNarration", narration);
+        scriptOutput.put("segments", reindexed);
+
+        Path highlightPath = requireHighlightPath(task);
+        Map<String, Object> highlightOutput = objectMapper.convertValue(readJson(highlightPath),
+                new com.fasterxml.jackson.core.type.TypeReference<LinkedHashMap<String, Object>>() {});
+        highlightOutput.put("clips", clips);
+        writeAtomically(highlightPath, highlightOutput);
+        writeAtomically(scriptPath, scriptOutput);
+        task.applyScriptRevision(document.title(), document.synopsis(), narration, scriptPath.toString(), reindexed.size());
+        return storyboard(taskId);
+    }
+
+    @Transactional
+    public Path storyboardThumbnail(UUID taskId, int clipIndex) {
+        VideoTask task = requireTask(taskId);
+        List<HighlightClip> clips = readHighlightClips(task);
+        int position = positionOf(readDocument(task).segments(), clipIndex);
+        int frameIndex = clips.get(position).sourceFrameIndex();
+        JsonNode frames = readJson(Path.of(task.getVisualAnalysisPath())).path("frames");
+        for (JsonNode frame : frames) {
+            if (frame.path("index").asInt() == frameIndex) {
+                Path image = Path.of(frame.path("imagePath").asText()).toAbsolutePath().normalize();
+                Path ownedRoot = Path.of(task.getSourceVideoPath()).toAbsolutePath().normalize().getParent();
+                if (ownedRoot == null || !image.startsWith(ownedRoot) || !Files.isRegularFile(image)) {
+                    throw new IllegalStateException("分镜缩略图不存在或不属于该任务存储目录");
+                }
+                return image;
+            }
+        }
+        throw new IllegalStateException("没有找到对应的分镜缩略图");
+    }
+
+    private ScriptDocumentView saveRevision(VideoTask task, ScriptDocumentView current,
+                                            ScriptSegment replacement) {
+        List<ScriptSegment> segments = new ArrayList<>(current.segments());
+        int position = positionOf(segments, replacement.clipIndex());
+        segments.set(position, replacement);
+        String fullNarration = String.join("\n", segments.stream().map(ScriptSegment::narration).toList());
+        ScriptDocumentView revised = new ScriptDocumentView(
+                current.title(), current.synopsis(), fullNarration, List.copyOf(segments));
+        Path scriptPath = requireScriptPath(task);
+        Map<String, Object> output = new LinkedHashMap<>();
+        JsonNode existing = readJson(scriptPath);
+        if (existing.hasNonNull("model")) output.put("model", existing.path("model").asText());
+        output.put("title", revised.title());
+        output.put("synopsis", revised.synopsis());
+        output.put("fullNarration", revised.fullNarration());
+        output.put("segments", revised.segments());
+        writeAtomically(scriptPath, output);
+        task.applyScriptRevision(revised.title(), revised.synopsis(), revised.fullNarration(),
+                scriptPath.toString(), revised.segments().size());
+        return revised;
+    }
+
+    private ScriptDocumentView readDocument(VideoTask task) {
+        Path path = requireScriptPath(task);
+        JsonNode document = readJson(path);
+        try {
+            List<ScriptSegment> segments = objectMapper.readerForListOf(ScriptSegment.class)
+                    .readValue(document.path("segments"));
+            if (segments.isEmpty()) throw new IllegalStateException("Script has no segments");
+            return new ScriptDocumentView(
+                    document.path("title").asText(),
+                    document.path("synopsis").asText(),
+                    document.path("fullNarration").asText(),
+                    List.copyOf(segments));
+        } catch (Exception exception) {
+            throw new IllegalStateException("Cannot read script segments: " + exception.getMessage(), exception);
+        }
+    }
+
+    private List<VoiceSegment> readVoiceSegments(JsonNode document) {
+        try {
+            return objectMapper.readerForListOf(VoiceSegment.class).readValue(document.path("segments"));
+        } catch (Exception exception) {
+            throw new IllegalStateException("Cannot read voice manifest: " + exception.getMessage(), exception);
+        }
+    }
+
+    private void validateVoiceManifest(List<ScriptSegment> scripts, List<VoiceSegment> voices) {
+        for (ScriptSegment script : scripts) {
+            boolean matched = voices.stream().anyMatch(voice ->
+                    voice.clipIndex() == script.clipIndex()
+                            && script.narration().equals(voice.narration())
+                            && Files.isRegularFile(Path.of(voice.audioPath())));
+            if (!matched) {
+                throw new IllegalStateException(
+                        "Voice manifest is incomplete; regenerate the full voice stage first");
+            }
+        }
+    }
+
+    private VideoTask requireTask(UUID taskId) {
+        return repository.findById(taskId).orElseThrow(() -> new TaskNotFoundException(taskId));
+    }
+
+    private Path requireHighlightPath(VideoTask task) {
+        if (task.getHighlightManifestPath() == null) throw new IllegalStateException("任务尚未生成高光分镜");
+        Path path = Path.of(task.getHighlightManifestPath()).toAbsolutePath().normalize();
+        if (!Files.isRegularFile(path)) throw new IllegalStateException("高光分镜文件不存在");
+        return path;
+    }
+
+    private List<HighlightClip> readHighlightClips(VideoTask task) {
+        try {
+            return new ArrayList<>(objectMapper.readerForListOf(HighlightClip.class)
+                    .readValue(readJson(requireHighlightPath(task)).path("clips")));
+        } catch (Exception exception) {
+            throw new IllegalStateException("无法读取高光分镜：" + exception.getMessage(), exception);
+        }
+    }
+
+    private Path requireScriptPath(VideoTask task) {
+        if (task.getGeneratedScriptPath() == null) {
+            throw new IllegalStateException("Task has no generated script");
+        }
+        Path path = Path.of(task.getGeneratedScriptPath()).toAbsolutePath().normalize();
+        if (!Files.isRegularFile(path)) throw new IllegalStateException("Generated script file is missing");
+        return path;
+    }
+
+    private ScriptSegment requireSegment(List<ScriptSegment> segments, int clipIndex) {
+        return segments.stream().filter(item -> item.clipIndex() == clipIndex).findFirst()
+                .orElseThrow(() -> new IllegalArgumentException("Script segment does not exist: " + clipIndex));
+    }
+
+    private int positionOf(List<ScriptSegment> segments, int clipIndex) {
+        for (int index = 0; index < segments.size(); index++) {
+            if (segments.get(index).clipIndex() == clipIndex) return index;
+        }
+        throw new IllegalArgumentException("Script segment does not exist: " + clipIndex);
+    }
+
+    private String defaultText(String value, String fallback) {
+        return value == null || value.isBlank() ? fallback.trim() : value.trim();
+    }
+
+    private JsonNode readJson(Path path) {
+        try {
+            return objectMapper.readTree(path.toFile());
+        } catch (Exception exception) {
+            throw new IllegalStateException("Cannot read JSON artifact: " + exception.getMessage(), exception);
+        }
+    }
+
+    private void writeAtomically(Path target, Object value) {
+        try {
+            AtomicArtifactWriter.writeJson(objectMapper, target, value);
+        } catch (Exception exception) {
+            throw new IllegalStateException("Cannot save script revision: " + exception.getMessage(), exception);
+        }
+    }
+}
+``
+
+### FILE: src/main/java/cn/longer233/gamenarrator/script/StoryboardAssetPlacementService.java
+
+``java
+package cn.longer233.gamenarrator.script;
+
+import cn.longer233.gamenarrator.asset.AssetView;
+import cn.longer233.gamenarrator.asset.AssetCatalogService;
+import cn.longer233.gamenarrator.asset.AssetSearchRequest;
+import cn.longer233.gamenarrator.task.application.TaskNotFoundException;
+import cn.longer233.gamenarrator.task.repository.VideoTaskRepository;
+import org.springframework.jdbc.core.JdbcTemplate;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
+import java.time.OffsetDateTime;
+import java.util.*;
+
+@Service
+public class StoryboardAssetPlacementService {
+    private static final int MAX_AUTOMATIC_VISUALS = 8;
+    private static final int MAX_AUTOMATIC_SOUND_EFFECTS = 4;
+    private final JdbcTemplate jdbc;
+    private final VideoTaskRepository tasks;
+    private final AssetCatalogService assets;
+    private final ScriptWorkspaceService workspace;
+
+    public StoryboardAssetPlacementService(JdbcTemplate jdbc, VideoTaskRepository tasks,
+                                           AssetCatalogService assets, ScriptWorkspaceService workspace) {
+        this.jdbc = jdbc; this.tasks = tasks; this.assets = assets; this.workspace = workspace;
+    }
+
+    public List<StoryboardAssetPlacementView> list(UUID taskId) {
+        requireTask(taskId);
+        return jdbc.query("""
+                SELECT p.id,p.asset_id,p.clip_index,a.title,a.asset_type,p.placement_type,
+                       p.position_name,p.instruction,p.ai_assigned,p.cutout_applied
+                FROM storyboard_asset_placement p JOIN external_asset a ON a.id=p.asset_id
+                WHERE p.task_id=? ORDER BY p.clip_index,p.created_at
+                """, (rs, n) -> new StoryboardAssetPlacementView(
+                rs.getObject("id", UUID.class), rs.getObject("asset_id", UUID.class), rs.getInt("clip_index"),
+                rs.getString("title"), rs.getString("asset_type"), rs.getString("placement_type"),
+                rs.getString("position_name"), rs.getString("instruction"), rs.getBoolean("ai_assigned"),
+                rs.getBoolean("cutout_applied"), "/api/assets/" + rs.getObject("asset_id") + "/preview"), taskId);
+    }
+
+    @Transactional
+    public StoryboardAssetPlacementView place(UUID taskId, int requestedClip, PlaceStoryboardAssetRequest request) {
+        requireTask(taskId);
+        AssetView asset = assets.find(request.assetId());
+        if (!"DOWNLOADED".equals(asset.importStatus())) throw new IllegalStateException("素材必须先下载或上传到本地");
+        StoryboardView storyboard = workspace.storyboard(taskId);
+        String instruction = request.instruction() == null ? "" : request.instruction().trim();
+        int clip = request.aiAssign() ? chooseClip(storyboard, asset, requestedClip, instruction) : requestedClip;
+        if (storyboard.segments().stream().noneMatch(item -> item.clipIndex() == clip)) {
+            throw new IllegalArgumentException("分镜不存在：" + clip);
+        }
+        String placementType = switch (asset.assetType()) {
+            case "SFX" -> "SOUND_EFFECT"; case "BGM" -> "BACKGROUND_AUDIO";
+            case "MEME" -> instruction.contains("背景") ? "BACKGROUND" : "OVERLAY";
+            default -> instruction.contains("背景") ? "BACKGROUND" : "OVERLAY";
+        };
+        String position = inferPosition(instruction, placementType);
+        boolean cutout = asset.tags().stream().anyMatch(tag -> tag.name().contains("已抠图"));
+        UUID id = UUID.randomUUID();
+        jdbc.update("""
+                MERGE INTO storyboard_asset_placement(id,task_id,clip_index,asset_id,placement_type,
+                position_name,instruction,ai_assigned,cutout_applied,created_at) KEY(task_id,clip_index,asset_id)
+                VALUES(?,?,?,?,?,?,?,?,?,?)
+                """, id, taskId, clip, asset.id(), placementType, position, instruction,
+                request.aiAssign(), cutout, OffsetDateTime.now());
+        return list(taskId).stream().filter(item -> item.assetId().equals(asset.id()) && item.clipIndex() == clip)
+                .findFirst().orElseThrow();
+    }
+
+    @Transactional
+    public void delete(UUID taskId, UUID placementId) {
+        requireTask(taskId);
+        if (jdbc.update("DELETE FROM storyboard_asset_placement WHERE id=? AND task_id=?", placementId, taskId) == 0)
+            throw new IllegalArgumentException("分镜素材不存在");
+    }
+
+    @Transactional
+    public StoryboardAssetPlacementView update(UUID taskId, UUID placementId, UpdateStoryboardAssetRequest request) {
+        requireTask(taskId);
+        int changed = jdbc.update("""
+                UPDATE storyboard_asset_placement SET position_name=?,cutout_applied=?,instruction=?
+                WHERE id=? AND task_id=?
+                """, request.position(), request.cutoutApplied(),
+                request.instruction() == null ? "" : request.instruction().trim(), placementId, taskId);
+        if (changed == 0) throw new IllegalArgumentException("分镜素材不存在");
+        return list(taskId).stream().filter(item -> item.id().equals(placementId)).findFirst().orElseThrow();
+    }
+
+    public AutoAssetAssignmentView autoAssign(UUID taskId) {
+        requireTask(taskId);
+        StoryboardView board = workspace.storyboard(taskId);
+        List<String> warnings = new ArrayList<>();
+        List<StoryboardAssetPlacementView> existing = list(taskId);
+        int initialCount = existing.size();
+        Set<UUID> used = new HashSet<>();
+        for (StoryboardAssetPlacementView placement : existing) used.add(placement.assetId());
+        boolean bgmAssigned = existing.stream().anyMatch(item -> "BACKGROUND_AUDIO".equals(item.placementType()));
+        int visualCount = (int) existing.stream().filter(item -> !isAudioPlacement(item)).count();
+        int soundEffectCount = (int) existing.stream().filter(item -> "SOUND_EFFECT".equals(item.placementType())).count();
+        for (StoryboardSegmentView segment : board.segments()) {
+            String query = String.join(" ", Objects.toString(segment.eventType(), ""),
+                    Objects.toString(segment.description(), ""), Objects.toString(segment.effectCue(), ""),
+                    Objects.toString(segment.subtitle(), ""));
+            boolean hasVisual = existing.stream().anyMatch(item -> item.clipIndex() == segment.clipIndex()
+                    && !isAudioPlacement(item));
+            AssetView visual = hasVisual || visualCount >= MAX_AUTOMATIC_VISUALS ? null
+                    : findOrDownload(query, List.of("VIDEO", "MEME"), used, warnings);
+            if (visual != null) {
+                place(taskId, segment.clipIndex(), new PlaceStoryboardAssetRequest(visual.id(),
+                        "自动匹配分镜；视频自动按镜头时长剪切，图片自动循环并裁切适配；透明或绿幕素材自动抠图", false));
+                used.add(visual.id());
+                visualCount++;
+            }
+            boolean hasSfx = existing.stream().anyMatch(item -> item.clipIndex() == segment.clipIndex()
+                    && "SOUND_EFFECT".equals(item.placementType()));
+            if (!hasSfx && soundEffectCount < MAX_AUTOMATIC_SOUND_EFFECTS && segment.finalScore() >= 65) {
+                AssetView sfx = findOrDownload(query + " 音效", List.of("SFX"), used, warnings);
+                if (sfx != null) {
+                    place(taskId, segment.clipIndex(), new PlaceStoryboardAssetRequest(sfx.id(), "关键事件自动音效", false));
+                    used.add(sfx.id());
+                    soundEffectCount++;
+                }
+            }
+            if (!bgmAssigned) {
+                AssetView bgm = findOrDownload(query + " 背景音乐", List.of("BGM"), used, warnings);
+                if (bgm != null) {
+                    place(taskId, segment.clipIndex(), new PlaceStoryboardAssetRequest(bgm.id(), "全片低音量背景音乐", false));
+                    used.add(bgm.id()); bgmAssigned = true;
+                }
+            }
+        }
+        List<StoryboardAssetPlacementView> result = list(taskId);
+        if (result.size() == initialCount && result.isEmpty()) warnings.add("没有找到许可允许自动使用且可下载的匹配素材");
+        return new AutoAssetAssignmentView(Math.max(0, result.size() - initialCount), true,
+                warnings.stream().distinct().limit(12).toList(), result);
+    }
+
+    public AutoAssetAssignmentView autoAssignIfEmpty(UUID taskId) {
+        List<StoryboardAssetPlacementView> current = list(taskId);
+        return current.isEmpty() ? autoAssign(taskId)
+                : new AutoAssetAssignmentView(current.size(), true, List.of(), current);
+    }
+
+    private AssetView findOrDownload(String query, List<String> types, Set<UUID> used, List<String> warnings) {
+        for (String type : types) {
+            List<AssetView> local = assets.list(type, query, null, "DOWNLOADED", null, false,
+                    "newest", true, 12);
+            Optional<AssetView> available = local.stream().filter(item -> !used.contains(item.id()))
+                    .max(Comparator.comparingInt(item -> suitability(item, query)));
+            if (available.isPresent()) return available.get();
+            for (String provider : providersFor(type)) {
+                try {
+                    List<AssetView> found = assets.discover(new AssetSearchRequest(query, type, 8, 1,
+                            true, true, provider, "RELEVANCE"));
+                    for (AssetView candidate : found) {
+                        if (used.contains(candidate.id())) continue;
+                        try { return "DOWNLOADED".equals(candidate.importStatus()) ? candidate : assets.download(candidate.id()); }
+                        catch (Exception exception) { warnings.add(type + "/" + provider + "：" + concise(exception.getMessage())); }
+                    }
+                } catch (Exception exception) {
+                    warnings.add(type + "/" + provider + "：" + concise(exception.getMessage()));
+                }
+            }
+        }
+        return null;
+    }
+
+    private boolean isAudioPlacement(StoryboardAssetPlacementView item) {
+        return "BACKGROUND_AUDIO".equals(item.placementType()) || "SOUND_EFFECT".equals(item.placementType());
+    }
+
+    private int suitability(AssetView asset, String query) {
+        String haystack = (Objects.toString(asset.title(), "") + " "
+                + Objects.toString(asset.localizedTitle(), "") + " "
+                + asset.tags().stream().map(AssetView.TagView::name).reduce("", (a, b) -> a + " " + b))
+                .toLowerCase(Locale.ROOT);
+        return Arrays.stream(Objects.toString(query, "").toLowerCase(Locale.ROOT).split("\\s+"))
+                .filter(word -> word.length() >= 2 && haystack.contains(word))
+                .mapToInt(String::length).sum();
+    }
+
+    private List<String> providersFor(String type) {
+        return switch (type) {
+            case "VIDEO" -> List.of("PEXELS", "PIXABAY", "WIKIMEDIA");
+            case "MEME" -> List.of("OPENVERSE", "WIKIMEDIA");
+            default -> List.of("OPENVERSE", "PIXABAY");
+        };
+    }
+
+    private String concise(String message) {
+        if (message == null) return "不可用";
+        return message.substring(0, Math.min(160, message.length()));
+    }
+
+    private int chooseClip(StoryboardView board, AssetView asset, int fallback, String instruction) {
+        java.util.regex.Matcher number = java.util.regex.Pattern.compile("第?\\s*(\\d+)\\s*(?:个|镜|分镜)").matcher(instruction);
+        if (number.find()) return Integer.parseInt(number.group(1));
+        Set<String> words = new LinkedHashSet<>();
+        words.add(asset.title());
+        asset.tags().forEach(tag -> words.add(tag.name()));
+        return board.segments().stream().max(Comparator.comparingInt(segment -> {
+            String text = (segment.narration() + " " + segment.subtitle() + " " + segment.description() + " " + segment.eventType()).toLowerCase();
+            return words.stream().filter(Objects::nonNull).map(String::toLowerCase)
+                    .mapToInt(word -> !word.isBlank() && text.contains(word) ? word.length() : 0).sum();
+        })).filter(best -> score(best, words) > 0).map(StoryboardSegmentView::clipIndex).orElse(fallback);
+    }
+
+    private int score(StoryboardSegmentView segment, Set<String> words) {
+        String text = (segment.narration() + segment.subtitle() + segment.description() + segment.eventType()).toLowerCase();
+        return words.stream().filter(Objects::nonNull).map(String::toLowerCase)
+                .mapToInt(word -> !word.isBlank() && text.contains(word) ? word.length() : 0).sum();
+    }
+
+    private String inferPosition(String text, String type) {
+        if (type.contains("AUDIO") || type.equals("SOUND_EFFECT")) return "AUDIO_TRACK";
+        if (text.contains("左上")) return "TOP_LEFT"; if (text.contains("右上")) return "TOP_RIGHT";
+        if (text.contains("左下")) return "BOTTOM_LEFT"; if (text.contains("右下")) return "BOTTOM_RIGHT";
+        if (text.contains("背景") || type.equals("BACKGROUND")) return "FULL_SCREEN";
+        return "CENTER";
+    }
+
+    private void requireTask(UUID id) { if (!tasks.existsById(id)) throw new TaskNotFoundException(id); }
+}
+``
+
+### FILE: src/main/java/cn/longer233/gamenarrator/script/StoryboardAssetPlacementView.java
+
+``java
+package cn.longer233.gamenarrator.script;
+
+import java.util.UUID;
+
+public record StoryboardAssetPlacementView(
+        UUID id, UUID assetId, int clipIndex, String title, String assetType,
+        String placementType, String position, String instruction,
+        boolean aiAssigned, boolean cutoutApplied, String previewUrl) { }
+``
+
+### FILE: src/main/java/cn/longer233/gamenarrator/script/StoryboardSegmentView.java
+
+``java
+package cn.longer233.gamenarrator.script;
+
+public record StoryboardSegmentView(
+        int clipIndex, double startSeconds, double endSeconds,
+        String narration, String subtitle, String effectCue,
+        String eventType, String description, int finalScore
+) {
+}
+``
+
+### FILE: src/main/java/cn/longer233/gamenarrator/script/StoryboardView.java
+
+``java
+package cn.longer233.gamenarrator.script;
+
+import java.util.List;
+
+public record StoryboardView(
+        String title, String synopsis,
+        boolean reviewEnabled, boolean approved,
+        List<StoryboardSegmentView> segments
+) {
+}
+``
+
+### FILE: src/main/java/cn/longer233/gamenarrator/script/UpdateScriptSegmentRequest.java
+
+``java
+package cn.longer233.gamenarrator.script;
+
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.Size;
+
+public record UpdateScriptSegmentRequest(
+        @NotBlank @Size(max = 500) String narration,
+        @Size(max = 500) String subtitle,
+        @Size(max = 200) String effectCue
+) {
+}
+``
+
+### FILE: src/main/java/cn/longer233/gamenarrator/script/UpdateStoryboardAssetRequest.java
+
+``java
+package cn.longer233.gamenarrator.script;
+
+import jakarta.validation.constraints.Pattern;
+import jakarta.validation.constraints.Size;
+
+public record UpdateStoryboardAssetRequest(
+        @Pattern(regexp = "TOP_LEFT|TOP_RIGHT|CENTER|BOTTOM_LEFT|BOTTOM_RIGHT|FULL_SCREEN|AUDIO_TRACK") String position,
+        boolean cutoutApplied,
+        @Size(max = 500) String instruction) { }
+``
+
+### FILE: src/main/java/cn/longer233/gamenarrator/script/UpdateStoryboardSegmentRequest.java
+
+``java
+package cn.longer233.gamenarrator.script;
+
+import jakarta.validation.constraints.DecimalMin;
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.Size;
+
+public record UpdateStoryboardSegmentRequest(
+        @DecimalMin("0.0") double startSeconds,
+        @DecimalMin("0.01") double endSeconds,
+        @NotBlank @Size(max = 500) String narration,
+        @Size(max = 500) String subtitle,
+        @Size(max = 200) String effectCue
+) {
+}
+``
+
+### FILE: src/main/java/cn/longer233/gamenarrator/storage/VideoStorage.java
+
+``java
+package cn.longer233.gamenarrator.storage;
+
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.stereotype.Component;
+import org.springframework.web.multipart.MultipartFile;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import java.io.IOException;
+import java.nio.file.*;
+import java.util.Set;
+import java.util.UUID;
+
+@Component
+public class VideoStorage {
+
+    private static final Logger log = LoggerFactory.getLogger(VideoStorage.class);
+    private static final Set<String> ALLOWED_EXTENSIONS =
+            Set.of("mp4", "mov", "mkv", "webm");
+
+    private final Path root;
+
+    public VideoStorage(@Value("${game-narrator.storage-root}") String root) {
+        this.root = Path.of(root).toAbsolutePath().normalize();
+    }
+
+    public String save(MultipartFile video) throws IOException {
+        String originalName = video.getOriginalFilename() == null
+                ? "video.mp4" : video.getOriginalFilename();
+        String extension = extensionOf(originalName);
+        log.info("VIDEO_VALIDATE originalName={} size={} contentType={} extension={}",
+                originalName, video.getSize(), video.getContentType(), extension);
+        if (!ALLOWED_EXTENSIONS.contains(extension)) {
+            log.warn("VIDEO_REJECTED reason=unsupported_extension extension={}", extension);
+            throw new IllegalArgumentException("仅支持 mp4、mov、mkv、webm 视频");
+        }
+        if (video.isEmpty()) {
+            log.warn("VIDEO_REJECTED reason=empty_file originalName={}", originalName);
+            throw new IllegalArgumentException("上传的视频文件为空");
+        }
+        Files.createDirectories(root);
+        Path target = root.resolve(UUID.randomUUID() + "." + extension).normalize();
+        if (!target.startsWith(root)) {
+            throw new IllegalArgumentException("非法文件路径");
+        }
+        video.transferTo(target);
+        log.info("VIDEO_STORED path={} size={}", target, Files.size(target));
+        return target.toString();
+    }
+
+    private String extensionOf(String filename) {
+        int dot = filename.lastIndexOf('.');
+        return dot < 0 ? "" : filename.substring(dot + 1).toLowerCase();
+    }
+}
+``
+
+### FILE: src/main/java/cn/longer233/gamenarrator/subtitle/AssSubtitleBuilder.java
+
+``java
+package cn.longer233.gamenarrator.subtitle;
+
+import cn.longer233.gamenarrator.timeline.TimelineSegment;
+import org.springframework.stereotype.Component;
+
+import java.util.List;
+
+@Component
+public class AssSubtitleBuilder {
+
+    public String build(List<TimelineSegment> segments, String theme) {
+        Style style = style(theme);
+        StringBuilder ass = new StringBuilder("""
+                [Script Info]
+                ScriptType: v4.00+
+                PlayResX: 1920
+                PlayResY: 1080
+                WrapStyle: 2
+                ScaledBorderAndShadow: yes
+
+                [V4+ Styles]
+                Format: Name,Fontname,Fontsize,PrimaryColour,SecondaryColour,OutlineColour,BackColour,Bold,Italic,Underline,StrikeOut,ScaleX,ScaleY,Spacing,Angle,BorderStyle,Outline,Shadow,Alignment,MarginL,MarginR,MarginV,Encoding
+                """);
+        ass.append("Style: Default,Microsoft YaHei,").append(style.fontSize)
+                .append(',').append(style.primaryColor)
+                .append(",&H0000FFFF,&H00101018,&H90000000,")
+                .append(style.bold ? "-1" : "0")
+                .append(",0,0,0,100,100,1,0,1,")
+                .append(style.outline).append(",1,2,80,80,85,1\n\n")
+                .append("[Events]\n")
+                .append("Format: Layer,Start,End,Style,Name,MarginL,MarginR,MarginV,Effect,Text\n");
+
+        for (TimelineSegment segment : segments) {
+            String text = clean(segment.subtitle() == null || segment.subtitle().isBlank()
+                    ? segment.narration() : segment.subtitle());
+            String animation = switch (style.animation) {
+                case "POP" -> "{\\fad(80,100)\\fscx70\\fscy70\\t(0,180,\\fscx100\\fscy100)}";
+                case "TYPEWRITER" -> "{\\fad(180,160)\\blur0.5}";
+                case "IMPACT" -> "{\\fad(50,80)\\bord5\\fscx115\\fscy115\\t(0,140,\\fscx100\\fscy100)}";
+                default -> "{\\fad(120,100)}";
+            };
+            ass.append("Dialogue: 0,").append(time(segment.outputStartSeconds()))
+                    .append(',').append(time(segment.outputEndSeconds()))
+                    .append(",Default,,0,0,0,,").append(animation)
+                    .append(wrap(text, 16)).append('\n');
+        }
+        return ass.toString();
+    }
+
+    private Style style(String theme) {
+        return switch (theme == null ? "" : theme) {
+            case "IMPACT_RED" -> new Style(62, "&H002D5BFF", true, 4, "IMPACT");
+            case "COMEDY_POP" -> new Style(58, "&H004DE6F7", true, 4, "POP");
+            case "TYPEWRITER_DARK" -> new Style(48, "&H00F2F2F2", false, 3, "TYPEWRITER");
+            case "CLEAN_WHITE" -> new Style(46, "&H00FFFFFF", false, 2, "FADE");
+            default -> new Style(56, "&H00FFFFFF", true, 4, "POP");
+        };
+    }
+
+    private String wrap(String value, int maxChars) {
+        if (value.length() <= maxChars) return value;
+        int split = Math.min(maxChars, value.length());
+        for (int index = split; index > Math.max(6, split - 6); index--) {
+            if ("，。！？、；： ".indexOf(value.charAt(index - 1)) >= 0) {
+                split = index;
+                break;
+            }
+        }
+        return value.substring(0, split) + "\\N" + value.substring(split);
+    }
+
+    private String clean(String value) {
+        return value.replace("\\", "").replace("{", "（").replace("}", "）")
+                .replace("\r", " ").replace("\n", " ").trim();
+    }
+
+    private String time(double seconds) {
+        long centiseconds = Math.round(seconds * 100);
+        return "%d:%02d:%02d.%02d".formatted(centiseconds / 360000,
+                centiseconds / 6000 % 60, centiseconds / 100 % 60, centiseconds % 100);
+    }
+
+    private record Style(int fontSize, String primaryColor, boolean bold, int outline, String animation) {}
+}
+``
+
+### FILE: src/main/java/cn/longer233/gamenarrator/task/application/CreateVideoTaskCommand.java
+
+``java
+package cn.longer233.gamenarrator.task.application;
+
+import cn.longer233.gamenarrator.task.domain.CommentaryStyle;
+import jakarta.validation.constraints.*;
+
+public record CreateVideoTaskCommand(
+        @NotBlank @Size(max = 120) String name,
+        @NotBlank @Size(max = 40) String gameCategory,
+        @NotNull CommentaryStyle commentaryStyle,
+        @Min(15) @Max(3600) int targetDurationSeconds,
+        @NotBlank @Size(max = 500) String taskBrief,
+        boolean storyboardReviewEnabled,
+        boolean automaticGenerationEnabled,
+        boolean cloudVisionEnabled,
+        boolean aiScriptEnabled,
+        boolean aiVoiceEnabled,
+        boolean autoAssetsEnabled
+) {
+}
+``
+
+### FILE: src/main/java/cn/longer233/gamenarrator/task/application/ProjectHistoryService.java
+
+``java
+package cn.longer233.gamenarrator.task.application;
+
+import cn.longer233.gamenarrator.task.domain.VideoTask;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import org.springframework.jdbc.core.JdbcTemplate;
+import org.springframework.stereotype.Service;
+
+import java.nio.charset.StandardCharsets;
+import java.security.MessageDigest;
+import java.time.OffsetDateTime;
+import java.time.ZoneOffset;
+import java.util.HexFormat;
+import java.util.LinkedHashMap;
+import java.util.Map;
+import java.util.UUID;
+
+@Service
+public class ProjectHistoryService {
+    static final UUID LOCAL_USER_ID = UUID.fromString("00000000-0000-0000-0000-000000000001");
+
+    private final JdbcTemplate jdbc;
+    private final ObjectMapper objectMapper;
+
+    public ProjectHistoryService(JdbcTemplate jdbc, ObjectMapper objectMapper) {
+        this.jdbc = jdbc;
+        this.objectMapper = objectMapper;
+    }
+
+    public void createInitialHistory(VideoTask task) {
+        UUID projectId = task.getId();
+        UUID revisionId = UUID.randomUUID();
+        OffsetDateTime createdAt = task.getCreatedAt().atOffset(ZoneOffset.UTC);
+        String parameters = json(Map.of(
+                "name", task.getName(),
+                "gameCategory", task.getGameCategory(),
+                "commentaryStyle", task.getCommentaryStyle().name(),
+                "targetDurationSeconds", task.getTargetDurationSeconds(),
+                "taskBrief", task.getTaskBrief(),
+                "sourceVideoPath", task.getSourceVideoPath()));
+        Map<String, Object> manifestValues = new LinkedHashMap<>();
+        manifestValues.put("schemaVersion", 2);
+        manifestValues.put("projectId", projectId.toString());
+        manifestValues.put("legacyTaskId", task.getId().toString());
+        manifestValues.put("timelinePath", null);
+        manifestValues.put("renderedVideoPath", null);
+        String manifest = json(manifestValues);
+
+        jdbc.update("""
+                INSERT INTO video_project(id,owner_id,name,description,game_category,
+                commentary_style,status,current_revision_id,latest_run_id,created_at,updated_at,
+                deleted_at,version) VALUES(?,?,?,?,?,?,'DRAFT',NULL,NULL,?,?,NULL,0)
+                """, projectId, LOCAL_USER_ID, task.getName(), task.getTaskBrief(),
+                task.getGameCategory(), task.getCommentaryStyle().name(), createdAt, createdAt);
+        jdbc.update("""
+                INSERT INTO project_revision(id,project_id,revision_no,parent_revision_id,created_by,
+                change_type,change_summary,parameter_snapshot_json,manifest_json,
+                manifest_schema_version,manifest_sha256,created_at)
+                VALUES(?,?,1,NULL,?,'INITIAL',?,?,?,?,?,?)
+                """, revisionId, projectId, LOCAL_USER_ID, "任务创建时生成的初始工程版本",
+                parameters, manifest, 2, sha256(manifest), createdAt);
+        jdbc.update("UPDATE video_project SET current_revision_id=? WHERE id=?", revisionId, projectId);
+        jdbc.update("UPDATE video_tasks SET owner_id=?,project_id=? WHERE id=?",
+                LOCAL_USER_ID, projectId, task.getId());
+    }
+
+    public void renameProject(UUID projectId, String name) {
+        jdbc.update("UPDATE video_project SET name=?,updated_at=CURRENT_TIMESTAMP,version=version+1 WHERE id=?",
+                name, projectId);
+    }
+
+    private String json(Object value) {
+        try {
+            return objectMapper.writeValueAsString(value);
+        } catch (Exception exception) {
+            throw new IllegalStateException("无法创建工程版本快照", exception);
+        }
+    }
+
+    private String sha256(String value) {
+        try {
+            return HexFormat.of().formatHex(MessageDigest.getInstance("SHA-256")
+                    .digest(value.getBytes(StandardCharsets.UTF_8)));
+        } catch (Exception exception) {
+            throw new IllegalStateException("无法计算工程清单摘要", exception);
+        }
+    }
+}
+``
+
+### FILE: src/main/java/cn/longer233/gamenarrator/task/application/RenameTaskRequest.java
+
+``java
+package cn.longer233.gamenarrator.task.application;
+
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.Size;
+
+public record RenameTaskRequest(@NotBlank @Size(max = 120) String name) {
+}
+``
+
+### FILE: src/main/java/cn/longer233/gamenarrator/task/application/StageView.java
+
+``java
+package cn.longer233.gamenarrator.task.application;
+
+import cn.longer233.gamenarrator.task.domain.ProcessingStage;
+import cn.longer233.gamenarrator.task.domain.ProcessingStageType;
+import cn.longer233.gamenarrator.task.domain.StageStatus;
+import java.util.UUID;
+
+public record StageView(
+        UUID id,
+        ProcessingStageType type,
+        int sequence,
+        StageStatus status,
+        int progress,
+        String errorMessage
+) {
+    static StageView from(ProcessingStage stage) {
+        return new StageView(
+                stage.getId(),
+                stage.getStageType(),
+                stage.getSequenceNumber(),
+                stage.getStatus(),
+                stage.getProgress(),
+                stage.getErrorMessage()
+        );
+    }
+}
+``
+
+### FILE: src/main/java/cn/longer233/gamenarrator/task/application/TaskNotFoundException.java
+
+``java
+package cn.longer233.gamenarrator.task.application;
+
+import java.util.UUID;
+
+public class TaskNotFoundException extends RuntimeException {
+    public TaskNotFoundException(UUID id) {
+        super("未找到视频任务：" + id);
+    }
+}
+``
+
+### FILE: src/main/java/cn/longer233/gamenarrator/task/application/VideoTaskService.java
+
+``java
+package cn.longer233.gamenarrator.task.application;
+
+import cn.longer233.gamenarrator.storage.VideoStorage;
+import cn.longer233.gamenarrator.pipeline.VideoTaskEngine;
+import cn.longer233.gamenarrator.effect.EffectRerenderWorker;
+import cn.longer233.gamenarrator.effect.EffectSettingsRequest;
+import cn.longer233.gamenarrator.task.domain.VideoTask;
+import cn.longer233.gamenarrator.task.repository.VideoTaskRepository;
+import jakarta.transaction.Transactional;
+import org.springframework.data.domain.Sort;
+import org.springframework.stereotype.Service;
+import org.springframework.web.multipart.MultipartFile;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.transaction.support.TransactionSynchronization;
+import org.springframework.transaction.support.TransactionSynchronizationManager;
+import java.io.IOException;
+import java.util.List;
+import java.util.UUID;
+import java.nio.file.Files;
+import java.nio.file.Path;
+
+@Service
+public class VideoTaskService {
+
+    private static final Logger log = LoggerFactory.getLogger(VideoTaskService.class);
+    private final VideoTaskRepository repository;
+    private final VideoStorage storage;
+    private final VideoTaskEngine engine;
+    private final EffectRerenderWorker effectRerenderWorker;
+    private final ProjectHistoryService projectHistoryService;
+    private final Path storageRoot;
+
+    public VideoTaskService(
+            VideoTaskRepository repository,
+            VideoStorage storage,
+            VideoTaskEngine engine,
+            EffectRerenderWorker effectRerenderWorker,
+            ProjectHistoryService projectHistoryService,
+            @org.springframework.beans.factory.annotation.Value("${game-narrator.storage-root}") String storageRoot
+    ) {
+        this.repository = repository;
+        this.storage = storage;
+        this.engine = engine;
+        this.effectRerenderWorker = effectRerenderWorker;
+        this.projectHistoryService = projectHistoryService;
+        this.storageRoot = Path.of(storageRoot).toAbsolutePath().normalize();
+    }
+
+    @Transactional
+    public VideoTaskView create(CreateVideoTaskCommand command, MultipartFile video)
+            throws IOException {
+        log.info("TASK_CREATE_BEGIN name={} category={} style={} targetSeconds={}",
+                command.name(),
+                command.gameCategory(),
+                command.commentaryStyle(),
+                command.targetDurationSeconds());
+        String videoPath = storage.save(video);
+        VideoTask task = new VideoTask(
+                command.name(),
+                command.gameCategory(),
+                command.commentaryStyle(),
+                command.targetDurationSeconds(),
+                command.taskBrief(),
+                videoPath,
+                command.storyboardReviewEnabled()
+        );
+        VideoTask savedTask = repository.saveAndFlush(task);
+        savedTask.configureAiOptions(command.automaticGenerationEnabled(), command.cloudVisionEnabled(), command.aiScriptEnabled(),
+                command.aiVoiceEnabled(), command.autoAssetsEnabled());
+        repository.saveAndFlush(savedTask);
+        projectHistoryService.createInitialHistory(savedTask);
+        log.info("TASK_CREATE_SUCCESS taskId={} stageCount={} videoPath={}",
+                savedTask.getId(), savedTask.getStages().size(), videoPath);
+        VideoTaskView createdTask = VideoTaskView.from(savedTask);
+        TransactionSynchronizationManager.registerSynchronization(new TransactionSynchronization() {
+            @Override public void afterCommit() { engine.start(savedTask.getId()); }
+        });
+        return createdTask;
+    }
+
+    @Transactional
+    public VideoTaskView find(UUID id) {
+        log.debug("TASK_FIND taskId={}", id);
+        return repository.findById(id)
+                .map(VideoTaskView::from)
+                .orElseThrow(() -> new TaskNotFoundException(id));
+    }
+
+    @Transactional
+    public List<VideoTaskView> findAll() {
+        log.debug("TASK_LIST");
+        return repository.findAll(Sort.by(Sort.Direction.DESC, "createdAt"))
+                .stream()
+                .map(VideoTaskView::from)
+                .toList();
+    }
+
+    @Transactional
+    public VideoTaskView rename(UUID id, RenameTaskRequest request) {
+        VideoTask task = repository.findById(id).orElseThrow(() -> new TaskNotFoundException(id));
+        task.rename(request.name());
+        projectHistoryService.renameProject(id, task.getName());
+        log.info("TASK_RENAMED taskId={}", id);
+        return VideoTaskView.from(task);
+    }
+
+    public void start(UUID id) {
+        if (!repository.existsById(id)) {
+            throw new TaskNotFoundException(id);
+        }
+        log.info("TASK_MANUAL_START taskId={}", id);
+        engine.start(id);
+    }
+
+    @Transactional
+    public VideoTaskView retry(UUID id) {
+        VideoTask task = repository.findById(id)
+                .orElseThrow(() -> new TaskNotFoundException(id));
+        task.prepareRetry();
+        repository.save(task);
+        log.info("TASK_RETRY_ACCEPTED taskId={}", id);
+        TransactionSynchronizationManager.registerSynchronization(new TransactionSynchronization() {
+            @Override
+            public void afterCommit() {
+                engine.start(id);
+            }
+        });
+        return VideoTaskView.from(task);
+    }
+
+    @Transactional
+    public VideoTaskView approveStoryboard(UUID id) {
+        VideoTask task = repository.findById(id).orElseThrow(() -> new TaskNotFoundException(id));
+        task.approveStoryboard();
+        repository.save(task);
+        TransactionSynchronizationManager.registerSynchronization(new TransactionSynchronization() {
+            @Override
+            public void afterCommit() { engine.start(id); }
+        });
+        log.info("STORYBOARD_APPROVED taskId={}", id);
+        return VideoTaskView.from(task);
+    }
+
+    public void rerenderEffects(UUID id, EffectSettingsRequest settings) {
+        if (!repository.existsById(id)) throw new TaskNotFoundException(id);
+        log.info("TASK_EFFECT_RERENDER taskId={}", id);
+        effectRerenderWorker.rerender(id, settings);
+    }
+
+    @Transactional
+    public Path renderedVideo(UUID id) {
+        VideoTask task = repository.findById(id).orElseThrow(() -> new TaskNotFoundException(id));
+        if (task.getRenderedVideoPath() == null) {
+            throw new IllegalStateException("该任务尚未生成最终视频");
+        }
+        Path output = Path.of(task.getRenderedVideoPath()).toAbsolutePath().normalize();
+        if (!Files.isRegularFile(output)) {
+            throw new IllegalStateException("最终视频文件不存在：" + output);
+        }
+        return output;
+    }
+
+    @Transactional
+    public Path sourceVideo(UUID id) {
+        VideoTask task = repository.findById(id).orElseThrow(() -> new TaskNotFoundException(id));
+        Path source = Path.of(task.getSourceVideoPath()).toAbsolutePath().normalize();
+        if (!source.startsWith(storageRoot) || !Files.isRegularFile(source)) {
+            throw new IllegalStateException("源视频文件不存在或不属于任务存储目录");
+        }
+        return source;
+    }
+
+    @Transactional
+    public void delete(UUID id) {
+        VideoTask task = repository.findById(id).orElseThrow(() -> new TaskNotFoundException(id));
+        if (task.getStatus() == cn.longer233.gamenarrator.task.domain.TaskStatus.READY
+                || task.getStatus() == cn.longer233.gamenarrator.task.domain.TaskStatus.PROCESSING) {
+            engine.requestDeletion(id);
+        }
+        List<String> paths = java.util.stream.Stream.of(task.getSourceVideoPath(), task.getExtractedAudioPath(),
+                task.getSceneManifestPath(), task.getTranscriptTextPath(), task.getSubtitlePath(),
+                task.getTranscriptJsonPath(), task.getVisualAnalysisPath(), task.getHighlightManifestPath(),
+                task.getGeneratedScriptPath(), task.getVoiceManifestPath(), task.getTimelinePath(),
+                task.getGeneratedSubtitlePath(), task.getRenderedVideoPath())
+                .filter(java.util.Objects::nonNull).filter(value -> !value.isBlank()).toList();
+        Path taskDirectory = storageRoot.resolve("tasks").resolve(id.toString()).normalize();
+        repository.delete(task);
+        repository.flush();
+        TransactionSynchronizationManager.registerSynchronization(new TransactionSynchronization() {
+            @Override
+            public void afterCommit() {
+                paths.forEach(VideoTaskService.this::deleteOwnedArtifact);
+                deleteOwnedTree(taskDirectory);
+                log.info("TASK_DELETED taskId={} artifactCandidates={}", id, paths.size());
+            }
+        });
+    }
+
+    private void deleteOwnedArtifact(String value) {
+        try {
+            Path path = Path.of(value).toAbsolutePath().normalize();
+            if (!path.startsWith(storageRoot) || path.equals(storageRoot)) {
+                log.warn("TASK_ARTIFACT_DELETE_SKIPPED reason=outside_storage_root");
+                return;
+            }
+            Files.deleteIfExists(path);
+        } catch (Exception exception) {
+            log.warn("TASK_ARTIFACT_DELETE_SKIPPED reason={}", exception.getClass().getSimpleName());
+        }
+    }
+
+    private void deleteOwnedTree(Path candidate) {
+        Path path = candidate.toAbsolutePath().normalize();
+        Path taskRoot = storageRoot.resolve("tasks").normalize();
+        if (!path.startsWith(taskRoot) || path.equals(taskRoot)) {
+            log.warn("TASK_DIRECTORY_DELETE_SKIPPED reason=outside_task_root");
+            return;
+        }
+        if (!Files.exists(path)) return;
+        try (var entries = Files.walk(path)) {
+            for (Path entry : entries.sorted(java.util.Comparator.reverseOrder()).toList()) {
+                Files.deleteIfExists(entry);
+            }
+        } catch (Exception exception) {
+            log.warn("TASK_DIRECTORY_DELETE_SKIPPED reason={}", exception.getClass().getSimpleName());
+        }
+    }
+}
+``
+
+### FILE: src/main/java/cn/longer233/gamenarrator/task/application/VideoTaskView.java
+
+``java
+package cn.longer233.gamenarrator.task.application;
+
+import cn.longer233.gamenarrator.task.domain.*;
+import java.time.Instant;
+import java.util.List;
+import java.util.UUID;
+
+public record VideoTaskView(
+        UUID id,
+        String name,
+        String gameCategory,
+        CommentaryStyle commentaryStyle,
+        int targetDurationSeconds,
+        String taskBrief,
+        TaskStatus status,
+        Double durationSeconds,
+        Integer videoWidth,
+        Integer videoHeight,
+        Double framesPerSecond,
+        String videoCodec,
+        String audioCodec,
+        String extractedAudioPath,
+        String sceneManifestPath,
+        Integer detectedSceneCount,
+        String transcriptText,
+        String transcriptTextPath,
+        String subtitlePath,
+        String transcriptJsonPath,
+        String visualSummary,
+        String visualAnalysisPath,
+        Integer analyzedFrameCount,
+        String highlightSummary,
+        String highlightManifestPath,
+        Integer selectedHighlightCount,
+        String generatedTitle,
+        String scriptSynopsis,
+        String generatedNarration,
+        String generatedScriptPath,
+        Integer generatedScriptSegmentCount,
+        String voiceManifestPath,
+        Integer generatedVoiceSegmentCount,
+        String timelinePath,
+        Double plannedOutputDurationSeconds,
+        Integer voiceOverflowCount,
+        String renderedVideoPath,
+        String generatedSubtitlePath,
+        Long renderedFileSizeBytes,
+        boolean storyboardReviewEnabled,
+        boolean storyboardApproved,
+        boolean cloudVisionEnabled,
+        boolean aiScriptEnabled,
+        boolean aiVoiceEnabled,
+        boolean autoAssetsEnabled,
+        boolean automaticGenerationEnabled,
+        String failureReason,
+        Instant createdAt,
+        List<StageView> stages
+) {
+    public static VideoTaskView from(VideoTask task) {
+        return new VideoTaskView(
+                task.getId(),
+                task.getName(),
+                task.getGameCategory(),
+                task.getCommentaryStyle(),
+                task.getTargetDurationSeconds(),
+                task.getTaskBrief(),
+                task.getStatus(),
+                task.getDurationSeconds(),
+                task.getVideoWidth(),
+                task.getVideoHeight(),
+                task.getFramesPerSecond(),
+                task.getVideoCodec(),
+                task.getAudioCodec(),
+                task.getExtractedAudioPath(),
+                task.getSceneManifestPath(),
+                task.getDetectedSceneCount(),
+                task.getTranscriptText(),
+                task.getTranscriptTextPath(),
+                task.getSubtitlePath(),
+                task.getTranscriptJsonPath(),
+                task.getVisualSummary(),
+                task.getVisualAnalysisPath(),
+                task.getAnalyzedFrameCount(),
+                task.getHighlightSummary(),
+                task.getHighlightManifestPath(),
+                task.getSelectedHighlightCount(),
+                task.getGeneratedTitle(),
+                task.getScriptSynopsis(),
+                task.getGeneratedNarration(),
+                task.getGeneratedScriptPath(),
+                task.getGeneratedScriptSegmentCount(),
+                task.getVoiceManifestPath(),
+                task.getGeneratedVoiceSegmentCount(),
+                task.getTimelinePath(),
+                task.getPlannedOutputDurationSeconds(),
+                task.getVoiceOverflowCount(),
+                task.getRenderedVideoPath(),
+                task.getGeneratedSubtitlePath(),
+                task.getRenderedFileSizeBytes(),
+                task.isStoryboardReviewEnabled(),
+                task.isStoryboardApproved(),
+                task.isCloudVisionEnabled(),
+                task.isAiScriptEnabled(),
+                task.isAiVoiceEnabled(),
+                task.isAutoAssetsEnabled(),
+                task.isAutomaticGenerationEnabled(),
+                task.getFailureReason(),
+                task.getCreatedAt(),
+                task.getStages().stream().map(StageView::from).toList()
+        );
+    }
+}
+``
+
+### FILE: src/main/java/cn/longer233/gamenarrator/task/domain/CommentaryStyle.java
+
+``java
+package cn.longer233.gamenarrator.task.domain;
+
+public enum CommentaryStyle {
+    PASSIONATE,
+    HUMOROUS,
+    ANIME_THEATER
+}
+``
+
+### FILE: src/main/java/cn/longer233/gamenarrator/task/domain/GameEvent.java
+
+``java
+package cn.longer233.gamenarrator.task.domain;
+
+import jakarta.persistence.*;
+import java.util.UUID;
+
+@Entity
+@Table(name = "game_events")
+public class GameEvent {
+
+    @Id
+    private UUID id;
+
+    @Column(nullable = false)
+    private UUID taskId;
+
+    @Column(nullable = false)
+    private double startSeconds;
+
+    @Column(nullable = false)
+    private double endSeconds;
+
+    @Column(nullable = false, length = 40)
+    private String eventType;
+
+    @Column(nullable = false)
+    private double confidence;
+
+    @Column(nullable = false)
+    private double highlightScore;
+
+    @Column(nullable = false, length = 500)
+    private String description;
+
+    protected GameEvent() {
+    }
+}
+``
+
+### FILE: src/main/java/cn/longer233/gamenarrator/task/domain/ProcessingStage.java
+
+``java
+package cn.longer233.gamenarrator.task.domain;
+
+import jakarta.persistence.*;
+import java.util.UUID;
+
+@Entity
+@Table(name = "processing_stages",
+       uniqueConstraints = @UniqueConstraint(columnNames = {"task_id", "stageType"}))
+public class ProcessingStage {
+
+    @Id
+    private UUID id;
+
+    @ManyToOne(fetch = FetchType.LAZY, optional = false)
+    @JoinColumn(name = "task_id", nullable = false)
+    private VideoTask task;
+
+    @Enumerated(EnumType.STRING)
+    @Column(name = "stage_type", nullable = false, length = 40)
+    private ProcessingStageType stageType;
+
+    @Column(nullable = false)
+    private int sequenceNumber;
+
+    @Enumerated(EnumType.STRING)
+    @Column(nullable = false, length = 20)
+    private StageStatus status;
+
+    @Column(nullable = false)
+    private int progress;
+
+    @Column(length = 1000)
+    private String errorMessage;
+
+    protected ProcessingStage() {
+    }
+
+    ProcessingStage(VideoTask task, ProcessingStageType stageType, int sequenceNumber) {
+        this.id = UUID.randomUUID();
+        this.task = task;
+        this.stageType = stageType;
+        this.sequenceNumber = sequenceNumber;
+        this.status = StageStatus.PENDING;
+        this.progress = 0;
+    }
+
+    public UUID getId() { return id; }
+    public ProcessingStageType getStageType() { return stageType; }
+    public int getSequenceNumber() { return sequenceNumber; }
+    public StageStatus getStatus() { return status; }
+    public int getProgress() { return progress; }
+    public String getErrorMessage() { return errorMessage; }
+
+    public void start() {
+        this.status = StageStatus.RUNNING;
+        this.progress = 10;
+        this.errorMessage = null;
+    }
+
+    public void complete() {
+        this.status = StageStatus.COMPLETED;
+        this.progress = 100;
+        this.errorMessage = null;
+    }
+
+    public void updateProgress(int progress) {
+        if (this.status != StageStatus.RUNNING) return;
+        this.progress = Math.max(this.progress, Math.min(99, Math.max(10, progress)));
+    }
+
+    public void fail(String message) {
+        this.status = StageStatus.FAILED;
+        this.progress = 0;
+        this.errorMessage = message == null || message.length() <= 900 ? message : message.substring(0, 897) + "...";
+    }
+
+    public void defer(String message) {
+        this.status = StageStatus.PENDING;
+        this.progress = 0;
+        this.errorMessage = message == null || message.length() <= 900 ? message : message.substring(0, 897) + "...";
+    }
+
+    public void prepareRetry() {
+        if (this.status != StageStatus.FAILED) {
+            throw new IllegalStateException("Only a failed stage can be retried");
+        }
+        this.status = StageStatus.PENDING;
+        this.progress = 0;
+        this.errorMessage = null;
+    }
+
+    public void reset() {
+        this.status = StageStatus.PENDING;
+        this.progress = 0;
+        this.errorMessage = null;
+    }
+}
+``
+
+### FILE: src/main/java/cn/longer233/gamenarrator/task/domain/ProcessingStageType.java
+
+``java
+package cn.longer233.gamenarrator.task.domain;
+
+public enum ProcessingStageType {
+    VIDEO_INGESTION,
+    SCENE_DETECTION,
+    TRANSCRIPTION,
+    VIDEO_UNDERSTANDING,
+    HIGHLIGHT_SELECTION,
+    SCRIPT_GENERATION,
+    VOICE_GENERATION,
+    TIMELINE_PLANNING,
+    RENDERING
+}
+``
+
+### FILE: src/main/java/cn/longer233/gamenarrator/task/domain/StageStatus.java
+
+``java
+package cn.longer233.gamenarrator.task.domain;
+
+public enum StageStatus {
+    PENDING, RUNNING, COMPLETED, FAILED
+}
+``
+
+### FILE: src/main/java/cn/longer233/gamenarrator/task/domain/TaskStatus.java
+
+``java
+package cn.longer233.gamenarrator.task.domain;
+
+public enum TaskStatus {
+    DRAFT, READY, PROCESSING, WAITING_REVIEW, COMPLETED, FAILED
+}
+``
+
+### FILE: src/main/java/cn/longer233/gamenarrator/task/domain/VideoTask.java
+
+``java
+package cn.longer233.gamenarrator.task.domain;
+
+import jakarta.persistence.*;
+import java.time.Instant;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.UUID;
+
+@Entity
+@Table(name = "video_tasks")
+public class VideoTask {
+
+    @Id
+    private UUID id;
+
+    @Column(nullable = false, length = 120)
+    private String name;
+
+    @Column(nullable = false, length = 40)
+    private String gameCategory;
+
+    @Enumerated(EnumType.STRING)
+    @Column(nullable = false, length = 30)
+    private CommentaryStyle commentaryStyle;
+
+    @Column(nullable = false)
+    private int targetDurationSeconds;
+
+    @Column(nullable = false, length = 500)
+    private String taskBrief;
+
+    @Column(nullable = false, length = 500)
+    private String sourceVideoPath;
+
+    @Enumerated(EnumType.STRING)
+    @Column(nullable = false, length = 20)
+    private TaskStatus status;
+
+    private Double durationSeconds;
+    private Integer videoWidth;
+    private Integer videoHeight;
+    private Double framesPerSecond;
+
+    @Column(length = 80)
+    private String videoCodec;
+
+    @Column(length = 80)
+    private String audioCodec;
+
+    @Column(length = 1000)
+    private String failureReason;
+
+    @Column(length = 500)
+    private String extractedAudioPath;
+
+    @Column(length = 500)
+    private String sceneManifestPath;
+
+    private Integer detectedSceneCount;
+
+    @Lob
+    private String transcriptText;
+
+    @Column(length = 500)
+    private String transcriptTextPath;
+
+    @Column(length = 500)
+    private String subtitlePath;
+
+    @Column(length = 500)
+    private String transcriptJsonPath;
+
+    @Lob
+    private String visualSummary;
+
+    @Column(length = 500)
+    private String visualAnalysisPath;
+
+    private Integer analyzedFrameCount;
+
+    @Lob
+    private String highlightSummary;
+
+    @Column(length = 500)
+    private String highlightManifestPath;
+
+    private Integer selectedHighlightCount;
+
+    @Column(length = 200)
+    private String generatedTitle;
+
+    @Lob
+    private String scriptSynopsis;
+
+    @Lob
+    private String generatedNarration;
+
+    @Column(length = 500)
+    private String generatedScriptPath;
+
+    private Integer generatedScriptSegmentCount;
+
+    @Column(length = 500)
+    private String voiceManifestPath;
+
+    private Integer generatedVoiceSegmentCount;
+
+    @Column(length = 500)
+    private String timelinePath;
+
+    private Double plannedOutputDurationSeconds;
+    private Integer voiceOverflowCount;
+
+    @Column(length = 500)
+    private String renderedVideoPath;
+
+    @Column(length = 500)
+    private String generatedSubtitlePath;
+
+    private Long renderedFileSizeBytes;
+
+    @Column(nullable = false)
+    private boolean storyboardReviewEnabled;
+
+    @Column(nullable = false)
+    private boolean storyboardApproved;
+
+    @Column(nullable = false) private boolean cloudVisionEnabled = true;
+    @Column(nullable = false) private boolean aiScriptEnabled = true;
+    @Column(nullable = false) private boolean aiVoiceEnabled = true;
+    @Column(nullable = false) private boolean autoAssetsEnabled = true;
+    @Column(nullable = false) private boolean automaticGenerationEnabled = true;
+
+    @Column(nullable = false, updatable = false)
+    private Instant createdAt;
+
+    @OneToMany(mappedBy = "task", cascade = CascadeType.ALL, orphanRemoval = true)
+    @OrderBy("sequenceNumber ASC")
+    private List<ProcessingStage> stages = new ArrayList<>();
+
+    protected VideoTask() {
+    }
+
+    public VideoTask(String name, String gameCategory, CommentaryStyle commentaryStyle,
+                     int targetDurationSeconds, String taskBrief, String sourceVideoPath) {
+        this(name, gameCategory, commentaryStyle, targetDurationSeconds, taskBrief, sourceVideoPath, false);
+    }
+
+    public VideoTask(String name, String gameCategory, CommentaryStyle commentaryStyle,
+                     int targetDurationSeconds, String taskBrief, String sourceVideoPath,
+                     boolean storyboardReviewEnabled) {
+        this.id = UUID.randomUUID();
+        this.name = name;
+        this.gameCategory = gameCategory;
+        this.commentaryStyle = commentaryStyle;
+        this.targetDurationSeconds = targetDurationSeconds;
+        this.taskBrief = taskBrief;
+        this.sourceVideoPath = sourceVideoPath;
+        this.status = TaskStatus.READY;
+        this.storyboardReviewEnabled = storyboardReviewEnabled;
+        this.storyboardApproved = !storyboardReviewEnabled;
+        this.createdAt = Instant.now();
+        int sequence = 1;
+        for (ProcessingStageType type : ProcessingStageType.values()) {
+            stages.add(new ProcessingStage(this, type, sequence++));
+        }
+    }
+
+    public void configureAiOptions(boolean automaticGenerationEnabled, boolean cloudVisionEnabled,
+                                   boolean aiScriptEnabled, boolean aiVoiceEnabled, boolean autoAssetsEnabled) {
+        this.automaticGenerationEnabled = automaticGenerationEnabled;
+        this.cloudVisionEnabled = cloudVisionEnabled;
+        this.aiScriptEnabled = aiScriptEnabled;
+        this.aiVoiceEnabled = aiVoiceEnabled;
+        this.autoAssetsEnabled = autoAssetsEnabled;
+    }
+
+    public UUID getId() { return id; }
+    public String getName() { return name; }
+    public String getGameCategory() { return gameCategory; }
+    public CommentaryStyle getCommentaryStyle() { return commentaryStyle; }
+    public int getTargetDurationSeconds() { return targetDurationSeconds; }
+    public String getTaskBrief() { return taskBrief; }
+    public String getSourceVideoPath() { return sourceVideoPath; }
+    public TaskStatus getStatus() { return status; }
+    public Instant getCreatedAt() { return createdAt; }
+    public List<ProcessingStage> getStages() { return List.copyOf(stages); }
+    public Double getDurationSeconds() { return durationSeconds; }
+    public Integer getVideoWidth() { return videoWidth; }
+    public Integer getVideoHeight() { return videoHeight; }
+    public Double getFramesPerSecond() { return framesPerSecond; }
+    public String getVideoCodec() { return videoCodec; }
+    public String getAudioCodec() { return audioCodec; }
+    public String getFailureReason() { return failureReason; }
+    public String getExtractedAudioPath() { return extractedAudioPath; }
+    public String getSceneManifestPath() { return sceneManifestPath; }
+    public Integer getDetectedSceneCount() { return detectedSceneCount; }
+    public String getTranscriptText() { return transcriptText; }
+    public String getTranscriptTextPath() { return transcriptTextPath; }
+    public String getSubtitlePath() { return subtitlePath; }
+    public String getTranscriptJsonPath() { return transcriptJsonPath; }
+    public String getVisualSummary() { return visualSummary; }
+    public String getVisualAnalysisPath() { return visualAnalysisPath; }
+    public Integer getAnalyzedFrameCount() { return analyzedFrameCount; }
+    public String getHighlightSummary() { return highlightSummary; }
+    public String getHighlightManifestPath() { return highlightManifestPath; }
+    public Integer getSelectedHighlightCount() { return selectedHighlightCount; }
+    public String getGeneratedTitle() { return generatedTitle; }
+    public String getScriptSynopsis() { return scriptSynopsis; }
+    public String getGeneratedNarration() { return generatedNarration; }
+    public String getGeneratedScriptPath() { return generatedScriptPath; }
+    public Integer getGeneratedScriptSegmentCount() { return generatedScriptSegmentCount; }
+    public String getVoiceManifestPath() { return voiceManifestPath; }
+    public Integer getGeneratedVoiceSegmentCount() { return generatedVoiceSegmentCount; }
+    public String getTimelinePath() { return timelinePath; }
+    public Double getPlannedOutputDurationSeconds() { return plannedOutputDurationSeconds; }
+    public Integer getVoiceOverflowCount() { return voiceOverflowCount; }
+    public String getRenderedVideoPath() { return renderedVideoPath; }
+    public String getGeneratedSubtitlePath() { return generatedSubtitlePath; }
+    public Long getRenderedFileSizeBytes() { return renderedFileSizeBytes; }
+    public boolean isStoryboardReviewEnabled() { return storyboardReviewEnabled; }
+    public boolean isStoryboardApproved() { return storyboardApproved; }
+    public boolean isCloudVisionEnabled() { return cloudVisionEnabled; }
+    public boolean isAiScriptEnabled() { return aiScriptEnabled; }
+    public boolean isAiVoiceEnabled() { return aiVoiceEnabled; }
+    public boolean isAutoAssetsEnabled() { return autoAssetsEnabled; }
+    public boolean isAutomaticGenerationEnabled() { return automaticGenerationEnabled; }
+    public void readyForManualEditing() { this.status = TaskStatus.READY; this.failureReason = null; }
+
+    public void awaitStoryboardReview() {
+        if (storyboardReviewEnabled && !storyboardApproved) {
+            this.status = TaskStatus.WAITING_REVIEW;
+            this.failureReason = null;
+        }
+    }
+
+    public void approveStoryboard() {
+        if (!isStageCompleted(ProcessingStageType.SCRIPT_GENERATION)) {
+            throw new IllegalStateException("AI 尚未生成分镜和文案");
+        }
+        this.storyboardApproved = true;
+        this.status = TaskStatus.READY;
+        this.failureReason = null;
+    }
+
+    public void rename(String newName) {
+        String normalized = newName == null ? "" : newName.trim();
+        if (normalized.isBlank() || normalized.length() > 120) {
+            throw new IllegalArgumentException("任务名称长度必须为 1 到 120 个字符");
+        }
+        this.name = normalized;
+    }
+
+    public void startIngestion() {
+        this.status = TaskStatus.PROCESSING;
+        stage(ProcessingStageType.VIDEO_INGESTION).start();
+    }
+
+    public void completeIngestion(
+            double durationSeconds,
+            int videoWidth,
+            int videoHeight,
+            double framesPerSecond,
+            String videoCodec,
+            String audioCodec
+    ) {
+        this.durationSeconds = durationSeconds;
+        this.videoWidth = videoWidth;
+        this.videoHeight = videoHeight;
+        this.framesPerSecond = framesPerSecond;
+        this.videoCodec = videoCodec;
+        this.audioCodec = audioCodec;
+        stage(ProcessingStageType.VIDEO_INGESTION).complete();
+    }
+
+    public void failIngestion(String reason) {
+        this.status = TaskStatus.FAILED;
+        this.failureReason = safeFailure(reason);
+        stage(ProcessingStageType.VIDEO_INGESTION).fail(this.failureReason);
+    }
+
+    public boolean isStageCompleted(ProcessingStageType type) {
+        return stage(type).getStatus() == StageStatus.COMPLETED;
+    }
+
+    public void updateStageProgress(ProcessingStageType type, int progress) {
+        stage(type).updateProgress(progress);
+    }
+
+    public void prepareRetry() {
+        if (status != TaskStatus.FAILED) {
+            throw new IllegalStateException("Only a failed task can be retried");
+        }
+        ProcessingStage failedStage = stages.stream()
+                .filter(item -> item.getStatus() == StageStatus.FAILED)
+                .findFirst()
+                .orElseThrow(() -> new IllegalStateException("Failed task has no failed stage"));
+        failedStage.prepareRetry();
+        this.status = TaskStatus.READY;
+        this.failureReason = null;
+    }
+
+    public void startSceneDetection() {
+        this.status = TaskStatus.PROCESSING;
+        this.failureReason = null;
+        stage(ProcessingStageType.SCENE_DETECTION).start();
+    }
+
+    public void completeSceneDetection(
+            String extractedAudioPath,
+            String sceneManifestPath,
+            int detectedSceneCount
+    ) {
+        this.extractedAudioPath = extractedAudioPath;
+        this.sceneManifestPath = sceneManifestPath;
+        this.detectedSceneCount = detectedSceneCount;
+        stage(ProcessingStageType.SCENE_DETECTION).complete();
+    }
+
+    public void failSceneDetection(String reason) {
+        this.status = TaskStatus.FAILED;
+        this.failureReason = safeFailure(reason);
+        stage(ProcessingStageType.SCENE_DETECTION).fail(this.failureReason);
+    }
+
+    public void startTranscription() {
+        this.status = TaskStatus.PROCESSING;
+        this.failureReason = null;
+        stage(ProcessingStageType.TRANSCRIPTION).start();
+    }
+
+    public void completeTranscription(
+            String text,
+            String textPath,
+            String subtitlePath,
+            String jsonPath
+    ) {
+        this.transcriptText = text;
+        this.transcriptTextPath = textPath;
+        this.subtitlePath = subtitlePath;
+        this.transcriptJsonPath = jsonPath;
+        stage(ProcessingStageType.TRANSCRIPTION).complete();
+    }
+
+    public void failTranscription(String reason) {
+        this.status = TaskStatus.FAILED;
+        this.failureReason = safeFailure(reason);
+        stage(ProcessingStageType.TRANSCRIPTION).fail(this.failureReason);
+    }
+
+    public void startVideoUnderstanding() {
+        this.status = TaskStatus.PROCESSING;
+        this.failureReason = null;
+        stage(ProcessingStageType.VIDEO_UNDERSTANDING).start();
+    }
+
+    public void completeVideoUnderstanding(String summary, String analysisPath, int frameCount) {
+        this.visualSummary = summary;
+        this.visualAnalysisPath = analysisPath;
+        this.analyzedFrameCount = frameCount;
+        stage(ProcessingStageType.VIDEO_UNDERSTANDING).complete();
+    }
+
+    public void failVideoUnderstanding(String reason) {
+        this.status = TaskStatus.FAILED;
+        this.failureReason = safeFailure(reason);
+        stage(ProcessingStageType.VIDEO_UNDERSTANDING).fail(this.failureReason);
+    }
+
+    public void deferVideoUnderstanding(String reason) {
+        this.status = TaskStatus.PROCESSING;
+        this.failureReason = null;
+        stage(ProcessingStageType.VIDEO_UNDERSTANDING).defer(reason);
+    }
+
+    public boolean canDeferFailedVideoUnderstanding() {
+        return status == TaskStatus.FAILED
+                && isStageCompleted(ProcessingStageType.TRANSCRIPTION)
+                && stage(ProcessingStageType.VIDEO_UNDERSTANDING).getStatus() == StageStatus.FAILED;
+    }
+
+    public void startHighlightSelection() {
+        this.status = TaskStatus.PROCESSING;
+        this.failureReason = null;
+        stage(ProcessingStageType.HIGHLIGHT_SELECTION).start();
+    }
+
+    public void completeHighlightSelection(String summary, String manifestPath, int clipCount) {
+        this.highlightSummary = summary;
+        this.highlightManifestPath = manifestPath;
+        this.selectedHighlightCount = clipCount;
+        stage(ProcessingStageType.HIGHLIGHT_SELECTION).complete();
+    }
+
+    public void failHighlightSelection(String reason) {
+        this.status = TaskStatus.FAILED;
+        this.failureReason = safeFailure(reason);
+        stage(ProcessingStageType.HIGHLIGHT_SELECTION).fail(this.failureReason);
+    }
+
+    public void startScriptGeneration() {
+        this.status = TaskStatus.PROCESSING;
+        this.failureReason = null;
+        stage(ProcessingStageType.SCRIPT_GENERATION).start();
+    }
+
+    public void completeScriptGeneration(String title, String synopsis, String narration,
+                                         String scriptPath, int segmentCount) {
+        this.generatedTitle = title;
+        this.scriptSynopsis = synopsis;
+        this.generatedNarration = narration;
+        this.generatedScriptPath = scriptPath;
+        this.generatedScriptSegmentCount = segmentCount;
+        stage(ProcessingStageType.SCRIPT_GENERATION).complete();
+    }
+
+    public void applyScriptRevision(String title, String synopsis, String narration,
+                                    String scriptPath, int segmentCount) {
+        this.generatedTitle = title;
+        this.scriptSynopsis = synopsis;
+        this.generatedNarration = narration;
+        this.generatedScriptPath = scriptPath;
+        this.generatedScriptSegmentCount = segmentCount;
+        stage(ProcessingStageType.SCRIPT_GENERATION).complete();
+        invalidateAfterScript();
+    }
+
+    public void failScriptGeneration(String reason) {
+        this.status = TaskStatus.FAILED;
+        this.failureReason = safeFailure(reason);
+        stage(ProcessingStageType.SCRIPT_GENERATION).fail(this.failureReason);
+    }
+
+    public void startVoiceGeneration() {
+        this.status = TaskStatus.PROCESSING;
+        this.failureReason = null;
+        stage(ProcessingStageType.VOICE_GENERATION).start();
+    }
+
+    public void completeVoiceGeneration(String manifestPath, int segmentCount) {
+        this.voiceManifestPath = manifestPath;
+        this.generatedVoiceSegmentCount = segmentCount;
+        stage(ProcessingStageType.VOICE_GENERATION).complete();
+    }
+
+    public void applyVoiceRevision(String manifestPath, int segmentCount) {
+        this.voiceManifestPath = manifestPath;
+        this.generatedVoiceSegmentCount = segmentCount;
+        stage(ProcessingStageType.VOICE_GENERATION).complete();
+        this.timelinePath = null;
+        this.plannedOutputDurationSeconds = null;
+        this.voiceOverflowCount = null;
+        this.renderedVideoPath = null;
+        this.generatedSubtitlePath = null;
+        this.renderedFileSizeBytes = null;
+        stage(ProcessingStageType.TIMELINE_PLANNING).reset();
+        stage(ProcessingStageType.RENDERING).reset();
+        this.status = storyboardReviewEnabled && !storyboardApproved
+                ? TaskStatus.WAITING_REVIEW : TaskStatus.READY;
+        this.failureReason = null;
+    }
+
+    public void deferVoiceGeneration(String reason) {
+        this.status = TaskStatus.PROCESSING;
+        this.failureReason = null;
+        stage(ProcessingStageType.VOICE_GENERATION).defer(reason);
+    }
+
+    public void failVoiceGeneration(String reason) {
+        this.status = TaskStatus.FAILED;
+        this.failureReason = safeFailure(reason);
+        stage(ProcessingStageType.VOICE_GENERATION).fail(this.failureReason);
+    }
+
+    public void startTimelinePlanning() {
+        this.status = TaskStatus.PROCESSING;
+        this.failureReason = null;
+        stage(ProcessingStageType.TIMELINE_PLANNING).start();
+    }
+
+    public void completeTimelinePlanning(String path, double outputDuration, int overflowCount) {
+        this.timelinePath = path;
+        this.plannedOutputDurationSeconds = outputDuration;
+        this.voiceOverflowCount = overflowCount;
+        stage(ProcessingStageType.TIMELINE_PLANNING).complete();
+    }
+
+    public void failTimelinePlanning(String reason) {
+        this.status = TaskStatus.FAILED;
+        this.failureReason = safeFailure(reason);
+        stage(ProcessingStageType.TIMELINE_PLANNING).fail(this.failureReason);
+    }
+
+    public void startRendering() {
+        this.status = TaskStatus.PROCESSING;
+        this.failureReason = null;
+        stage(ProcessingStageType.RENDERING).start();
+    }
+
+    public void completeRendering(String videoPath, String subtitlePath, long fileSizeBytes) {
+        this.renderedVideoPath = videoPath;
+        this.generatedSubtitlePath = subtitlePath;
+        this.renderedFileSizeBytes = fileSizeBytes;
+        this.status = TaskStatus.COMPLETED;
+        stage(ProcessingStageType.RENDERING).complete();
+    }
+
+    public void failRendering(String reason) {
+        this.status = TaskStatus.FAILED;
+        this.failureReason = safeFailure(reason);
+        stage(ProcessingStageType.RENDERING).fail(this.failureReason);
+    }
+
+    private void invalidateAfterScript() {
+        this.voiceManifestPath = null;
+        this.generatedVoiceSegmentCount = null;
+        this.timelinePath = null;
+        this.plannedOutputDurationSeconds = null;
+        this.voiceOverflowCount = null;
+        this.renderedVideoPath = null;
+        this.generatedSubtitlePath = null;
+        this.renderedFileSizeBytes = null;
+        stage(ProcessingStageType.VOICE_GENERATION).reset();
+        stage(ProcessingStageType.TIMELINE_PLANNING).reset();
+        stage(ProcessingStageType.RENDERING).reset();
+        this.status = storyboardReviewEnabled && !storyboardApproved
+                ? TaskStatus.WAITING_REVIEW : TaskStatus.READY;
+        this.failureReason = null;
+    }
+
+    private String safeFailure(String reason) {
+        if (reason == null || reason.isBlank()) return "处理失败，未返回错误详情";
+        String normalized = reason.strip();
+        return normalized.length() <= 900 ? normalized : normalized.substring(0, 897) + "...";
+    }
+
+    private ProcessingStage stage(ProcessingStageType type) {
+        return stages.stream()
+                .filter(stage -> stage.getStageType() == type)
+                .findFirst()
+                .orElseThrow(() -> new IllegalStateException("任务缺少处理阶段：" + type));
+    }
+}
+``
+
+### FILE: src/main/java/cn/longer233/gamenarrator/task/repository/VideoTaskRepository.java
+
+``java
+package cn.longer233.gamenarrator.task.repository;
+
+import cn.longer233.gamenarrator.task.domain.VideoTask;
+import cn.longer233.gamenarrator.task.domain.TaskStatus;
+import org.springframework.data.jpa.repository.JpaRepository;
+import java.util.List;
+import java.util.Collection;
+import java.util.UUID;
+
+public interface VideoTaskRepository extends JpaRepository<VideoTask, UUID> {
+    List<VideoTask> findByStatus(TaskStatus status);
+    List<VideoTask> findByStatusIn(Collection<TaskStatus> statuses);
+}
+``
+
+### FILE: src/main/java/cn/longer233/gamenarrator/task/web/VideoTaskController.java
+
+``java
+package cn.longer233.gamenarrator.task.web;
+
+import cn.longer233.gamenarrator.task.application.*;
+import cn.longer233.gamenarrator.task.domain.CommentaryStyle;
+import cn.longer233.gamenarrator.effect.EffectSettingsRequest;
+import jakarta.validation.Valid;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
+import org.springframework.core.io.FileSystemResource;
+import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
+import java.io.IOException;
+import java.util.List;
+import java.util.UUID;
+
+@RestController
+@RequestMapping("/api/tasks")
+public class VideoTaskController {
+
+    private final VideoTaskService service;
+
+    public VideoTaskController(VideoTaskService service) {
+        this.service = service;
+    }
+
+    @GetMapping
+    public List<VideoTaskView> list() {
+        return service.findAll();
+    }
+
+    @GetMapping("/{id}")
+    public VideoTaskView detail(@PathVariable UUID id) {
+        return service.find(id);
+    }
+
+    @PatchMapping("/{id}/name")
+    public VideoTaskView rename(@PathVariable UUID id,
+                                @Valid @RequestBody RenameTaskRequest request) {
+        return service.rename(id, request);
+    }
+
+    @DeleteMapping("/{id}")
+    @ResponseStatus(HttpStatus.NO_CONTENT)
+    public void delete(@PathVariable UUID id) {
+        service.delete(id);
+    }
+
+    @GetMapping("/{id}/output")
+    public ResponseEntity<FileSystemResource> downloadOutput(@PathVariable UUID id) {
+        var path = service.renderedVideo(id);
+        return ResponseEntity.ok()
+                .contentType(MediaType.parseMediaType("video/mp4"))
+                .contentLength(path.toFile().length())
+                .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=game-narrator-" + id + ".mp4")
+                .body(new FileSystemResource(path));
+    }
+
+    @GetMapping("/{id}/preview")
+    public ResponseEntity<FileSystemResource> previewOutput(@PathVariable UUID id) {
+        var path = service.renderedVideo(id);
+        return ResponseEntity.ok()
+                .contentType(MediaType.parseMediaType("video/mp4"))
+                .contentLength(path.toFile().length())
+                .header(HttpHeaders.CONTENT_DISPOSITION, "inline; filename=preview-" + id + ".mp4")
+                .header(HttpHeaders.CACHE_CONTROL, "private, max-age=3600")
+                .body(new FileSystemResource(path));
+    }
+
+    @GetMapping("/{id}/source")
+    public ResponseEntity<FileSystemResource> previewSource(@PathVariable UUID id) {
+        var path = service.sourceVideo(id);
+        MediaType mediaType = org.springframework.http.MediaTypeFactory.getMediaType(path.getFileName().toString())
+                .orElse(MediaType.APPLICATION_OCTET_STREAM);
+        return ResponseEntity.ok()
+                .contentType(mediaType)
+                .contentLength(path.toFile().length())
+                .header(HttpHeaders.CONTENT_DISPOSITION, "inline; filename=source-" + id)
+                .header(HttpHeaders.CACHE_CONTROL, "private, max-age=3600")
+                .body(new FileSystemResource(path));
+    }
+
+    @PostMapping("/{id}/start")
+    @ResponseStatus(HttpStatus.ACCEPTED)
+    public void start(@PathVariable UUID id) {
+        service.start(id);
+    }
+
+    @PostMapping("/{id}/retry")
+    @ResponseStatus(HttpStatus.ACCEPTED)
+    public VideoTaskView retry(@PathVariable UUID id) {
+        return service.retry(id);
+    }
+
+    @PostMapping("/{id}/storyboard/approve")
+    @ResponseStatus(HttpStatus.ACCEPTED)
+    public VideoTaskView approveStoryboard(@PathVariable UUID id) {
+        return service.approveStoryboard(id);
+    }
+
+    @PostMapping("/{id}/rerender-effects")
+    @ResponseStatus(HttpStatus.ACCEPTED)
+    public void rerenderEffects(@PathVariable UUID id,
+            @Valid @RequestBody(required = false) EffectSettingsRequest settings) {
+        service.rerenderEffects(id, settings == null ? EffectSettingsRequest.defaults() : settings);
+    }
+
+    @PostMapping(consumes = "multipart/form-data")
+    @ResponseStatus(HttpStatus.CREATED)
+    public VideoTaskView create(
+            @RequestParam("name") String name,
+            @RequestParam("gameCategory") String gameCategory,
+            @RequestParam("commentaryStyle") CommentaryStyle commentaryStyle,
+            @RequestParam("targetDurationSeconds") int targetDurationSeconds,
+            @RequestParam("taskBrief") String taskBrief,
+            @RequestParam(value = "storyboardReviewEnabled", defaultValue = "false") boolean storyboardReviewEnabled,
+            @RequestParam(value = "automaticGenerationEnabled", defaultValue = "true") boolean automaticGenerationEnabled,
+            @RequestParam(value = "cloudVisionEnabled", defaultValue = "true") boolean cloudVisionEnabled,
+            @RequestParam(value = "aiScriptEnabled", defaultValue = "true") boolean aiScriptEnabled,
+            @RequestParam(value = "aiVoiceEnabled", defaultValue = "true") boolean aiVoiceEnabled,
+            @RequestParam(value = "autoAssetsEnabled", defaultValue = "true") boolean autoAssetsEnabled,
+            @RequestParam("video") MultipartFile video
+    ) throws IOException {
+        CreateVideoTaskCommand command = new CreateVideoTaskCommand(
+                name,
+                gameCategory,
+                commentaryStyle,
+                targetDurationSeconds,
+                taskBrief,
+                storyboardReviewEnabled,
+                automaticGenerationEnabled,
+                cloudVisionEnabled,
+                aiScriptEnabled,
+                aiVoiceEnabled,
+                autoAssetsEnabled
+        );
+        return service.create(command, video);
+    }
+}
+``
+
+### FILE: src/main/java/cn/longer233/gamenarrator/timeline/TimelinePlanner.java
+
+``java
+package cn.longer233.gamenarrator.timeline;
+
+import cn.longer233.gamenarrator.highlight.HighlightClip;
+import cn.longer233.gamenarrator.common.AtomicArtifactWriter;
+import cn.longer233.gamenarrator.script.ScriptSegment;
+import cn.longer233.gamenarrator.voice.VoiceSegment;
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.stereotype.Component;
+
+import javax.sound.sampled.AudioSystem;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.util.ArrayList;
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Map;
+
+@Component
+public class TimelinePlanner {
+    private static final Logger log = LoggerFactory.getLogger(TimelinePlanner.class);
+    private final ObjectMapper objectMapper;
+    private final TimelineValidator timelineValidator;
+
+    public TimelinePlanner(ObjectMapper objectMapper, TimelineValidator timelineValidator) {
+        this.objectMapper = objectMapper;
+        this.timelineValidator = timelineValidator;
+    }
+
+    public TimelinePlanningResult plan(Path highlightPath, Path scriptPath, Path voiceManifestPath) {
+        try {
+            List<HighlightClip> clips = readList(highlightPath, "clips", HighlightClip.class);
+            List<ScriptSegment> scripts = readList(scriptPath, "segments", ScriptSegment.class);
+            List<VoiceSegment> voices = readList(voiceManifestPath, "segments", VoiceSegment.class);
+            if (clips.isEmpty()) throw new IllegalStateException("高光清单为空，无法规划时间线");
+            if (clips.size() != scripts.size() || clips.size() != voices.size()) {
+                throw new IllegalStateException("高光、文案和配音的片段数量不一致");
+            }
+            log.info("TIMELINE_PLANNING_BEGIN segmentCount={}", clips.size());
+            List<TimelineSegment> timeline = new ArrayList<>();
+            double cursor = 0;
+            int overflowCount = 0;
+            for (int index = 0; index < clips.size(); index++) {
+                HighlightClip clip = clips.get(index);
+                ScriptSegment script = scripts.get(index);
+                VoiceSegment voice = voices.get(index);
+                double clipDuration = clip.endSeconds() - clip.startSeconds();
+                double voiceDuration = wavDuration(Path.of(voice.audioPath()));
+                boolean overflow = voiceDuration > clipDuration - 0.3;
+                if (overflow) overflowCount++;
+                timeline.add(new TimelineSegment(index + 1, cursor, cursor + clipDuration,
+                        clip.startSeconds(), clip.endSeconds(), script.narration(), script.subtitle(),
+                        script.effectCue(), voice.audioPath(), voiceDuration, overflow));
+                cursor += clipDuration;
+            }
+            Path output = highlightPath.getParent().resolve("timeline.json");
+            Map<String, Object> document = new LinkedHashMap<>();
+            document.put("version", 1);
+            document.put("outputDurationSeconds", cursor);
+            document.put("voiceOverflowCount", overflowCount);
+            document.put("segments", timeline);
+            timelineValidator.validate(timeline, cursor);
+            AtomicArtifactWriter.writeJson(objectMapper, output, document);
+            log.info("TIMELINE_PLANNING_SUCCESS segmentCount={} outputDuration={} overflowCount={} output={}",
+                    timeline.size(), cursor, overflowCount, output);
+            return new TimelinePlanningResult(output.toString(), cursor, overflowCount, timeline);
+        } catch (IllegalStateException exception) {
+            throw exception;
+        } catch (Exception exception) {
+            throw new IllegalStateException("时间线规划失败：" + exception.getMessage(), exception);
+        }
+    }
+
+    private <T> List<T> readList(Path path, String field, Class<T> type) throws Exception {
+        JsonNode root = objectMapper.readTree(path.toFile());
+        return objectMapper.readerForListOf(type).readValue(root.path(field));
+    }
+
+    private double wavDuration(Path path) throws Exception {
+        if (!Files.isRegularFile(path)) throw new IllegalStateException("配音文件不存在：" + path);
+        try (var stream = AudioSystem.getAudioInputStream(path.toFile())) {
+            long frames = stream.getFrameLength();
+            float rate = stream.getFormat().getFrameRate();
+            if (frames <= 0 || rate <= 0) throw new IllegalStateException("无法读取配音时长：" + path);
+            return frames / rate;
+        }
+    }
+}
+``
+
+### FILE: src/main/java/cn/longer233/gamenarrator/timeline/TimelinePlanningResult.java
+
+``java
+package cn.longer233.gamenarrator.timeline;
+
+import java.util.List;
+
+public record TimelinePlanningResult(
+        String timelinePath,
+        double outputDurationSeconds,
+        int overflowCount,
+        List<TimelineSegment> segments
+) {
+}
+``
+
+### FILE: src/main/java/cn/longer233/gamenarrator/timeline/TimelineSegment.java
+
+``java
+package cn.longer233.gamenarrator.timeline;
+
+public record TimelineSegment(
+        int sequence,
+        double outputStartSeconds,
+        double outputEndSeconds,
+        double sourceStartSeconds,
+        double sourceEndSeconds,
+        String narration,
+        String subtitle,
+        String effectCue,
+        String voicePath,
+        double voiceDurationSeconds,
+        boolean voiceOverflow
+) {
+}
+``
+
+### FILE: src/main/java/cn/longer233/gamenarrator/timeline/TimelineValidator.java
+
+``java
+package cn.longer233.gamenarrator.timeline;
+
+import org.springframework.stereotype.Component;
+
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
+
+@Component
+public class TimelineValidator {
+    private static final double EPSILON = 0.001;
+
+    public void validate(List<TimelineSegment> segments, double outputDurationSeconds) {
+        if (segments == null || segments.isEmpty()) {
+            throw new IllegalStateException("时间线没有可渲染片段");
+        }
+        if (!Double.isFinite(outputDurationSeconds) || outputDurationSeconds <= 0) {
+            throw new IllegalStateException("时间线输出时长无效");
+        }
+        Set<Integer> sequences = new HashSet<>();
+        double expectedStart = 0;
+        for (TimelineSegment segment : segments) {
+            String prefix = "时间线片段 " + segment.sequence() + "：";
+            if (segment.sequence() <= 0 || !sequences.add(segment.sequence())) {
+                throw new IllegalStateException(prefix + "序号无效或重复");
+            }
+            requireFiniteRange(prefix, segment.outputStartSeconds(), segment.outputEndSeconds(), "输出");
+            requireFiniteRange(prefix, segment.sourceStartSeconds(), segment.sourceEndSeconds(), "源视频");
+            if (Math.abs(segment.outputStartSeconds() - expectedStart) > EPSILON) {
+                throw new IllegalStateException(prefix + "与上一片段之间存在空隙或重叠");
+            }
+            if (!Double.isFinite(segment.voiceDurationSeconds()) || segment.voiceDurationSeconds() <= 0) {
+                throw new IllegalStateException(prefix + "配音时长无效");
+            }
+            if (segment.voicePath() == null || segment.voicePath().isBlank()
+                    || !Files.isRegularFile(Path.of(segment.voicePath()))) {
+                throw new IllegalStateException(prefix + "配音文件不存在");
+            }
+            // Narration and subtitle are independent optional tracks.
+            expectedStart = segment.outputEndSeconds();
+        }
+        if (Math.abs(expectedStart - outputDurationSeconds) > EPSILON) {
+            throw new IllegalStateException("时间线总时长与最后片段结束时间不一致");
+        }
+    }
+
+    private void requireFiniteRange(String prefix, double start, double end, String label) {
+        if (!Double.isFinite(start) || !Double.isFinite(end) || start < 0 || end <= start) {
+            throw new IllegalStateException(prefix + label + "时间范围无效");
+        }
+    }
+}
+``
+
+### FILE: src/main/java/cn/longer233/gamenarrator/transcription/TranscriptionResult.java
+
+``java
+package cn.longer233.gamenarrator.transcription;
+
+public record TranscriptionResult(
+        String text,
+        String textPath,
+        String subtitlePath,
+        String detailJsonPath
+) {
+}
+``
+
+### FILE: src/main/java/cn/longer233/gamenarrator/transcription/WhisperCppTranscriber.java
+
+``java
+package cn.longer233.gamenarrator.transcription;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.stereotype.Component;
+
+import java.io.IOException;
+import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.time.Duration;
+import java.util.List;
+
+@Component
+public class WhisperCppTranscriber {
+
+    private static final Logger log = LoggerFactory.getLogger(WhisperCppTranscriber.class);
+    private final Path executable;
+    private final Path model;
+    private final String language;
+    private final int threads;
+
+    public WhisperCppTranscriber(
+            @Value("${game-narrator.whisper.executable}") String executable,
+            @Value("${game-narrator.whisper.model}") String model,
+            @Value("${game-narrator.whisper.language:auto}") String language,
+            @Value("${game-narrator.whisper.threads:8}") int threads
+    ) {
+        this.executable = Path.of(executable).toAbsolutePath().normalize();
+        this.model = Path.of(model).toAbsolutePath().normalize();
+        this.language = language;
+        this.threads = threads;
+    }
+
+    public TranscriptionResult transcribe(Path audioPath) {
+        validateRuntime(audioPath);
+        Path outputPrefix = audioPath.getParent().resolve("transcript");
+        log.info("TRANSCRIPTION_BEGIN audio={} model={} language={} threads={}",
+                audioPath, model.getFileName(), language, threads);
+        String output = run(List.of(
+                executable.toString(),
+                "-m", model.toString(),
+                "-f", audioPath.toString(),
+                "-l", language,
+                "-t", String.valueOf(threads),
+                "-otxt", "-osrt", "-oj",
+                "-of", outputPrefix.toString()
+        ));
+        Path textPath = Path.of(outputPrefix + ".txt");
+        Path subtitlePath = Path.of(outputPrefix + ".srt");
+        Path jsonPath = Path.of(outputPrefix + ".json");
+        if (!Files.isRegularFile(textPath)) {
+            throw new IllegalStateException("Whisper 未生成文本文件：" + tail(output, 1200));
+        }
+        try {
+            String text = Files.readString(textPath, StandardCharsets.UTF_8).trim();
+            log.info("TRANSCRIPTION_SUCCESS characterCount={} text={} subtitle={} json={}",
+                    text.length(), textPath, subtitlePath, jsonPath);
+            return new TranscriptionResult(
+                    text,
+                    textPath.toString(),
+                    Files.isRegularFile(subtitlePath) ? subtitlePath.toString() : null,
+                    Files.isRegularFile(jsonPath) ? jsonPath.toString() : null
+            );
+        } catch (IOException exception) {
+            throw new IllegalStateException("无法读取 Whisper 转写结果：" + exception.getMessage(), exception);
+        }
+    }
+
+    public boolean runtimeAvailable() {
+        return Files.isRegularFile(executable) && Files.isRegularFile(model);
+    }
+
+    public Path executable() {
+        return executable;
+    }
+
+    public Path model() {
+        return model;
+    }
+
+    private void validateRuntime(Path audioPath) {
+        if (!Files.isRegularFile(executable)) {
+            throw new IllegalStateException("未找到 whisper.cpp 执行程序：" + executable);
+        }
+        if (!Files.isRegularFile(model)) {
+            throw new IllegalStateException("未找到 Whisper 模型：" + model);
+        }
+        if (!Files.isRegularFile(audioPath)) {
+            throw new IllegalStateException("未找到待转写音频：" + audioPath);
+        }
+    }
+
+    private String run(List<String> command) {
+        try {
+            var result = cn.longer233.gamenarrator.common.ExternalProcessRunner.run(
+                    command, Duration.ofHours(2), null,
+                    line -> { if (line.contains("progress")) log.debug("TRANSCRIPTION_PROGRESS {}", line.trim()); });
+            if (result.exitCode() != 0) throw new IllegalStateException("Whisper 转写失败，退出码 "
+                    + result.exitCode() + "：" + tail(result.output(), 2000));
+            return result.output();
+        } catch (cn.longer233.gamenarrator.common.ExternalProcessRunner.ProcessTimeoutException exception) {
+            throw new IllegalStateException("Whisper 转写超过 2 小时", exception);
+        } catch (IOException exception) {
+            throw new IllegalStateException("无法启动 whisper.cpp：" + exception.getMessage(), exception);
+        } catch (InterruptedException exception) {
+            Thread.currentThread().interrupt();
+            throw new IllegalStateException("Whisper 转写被中断", exception);
+        }
+    }
+
+    private String tail(CharSequence value, int limit) {
+        int start = Math.max(0, value.length() - limit);
+        return value.subSequence(start, value.length()).toString();
+    }
+}
+``
+
+### FILE: src/main/java/cn/longer233/gamenarrator/vision/FrameUnderstanding.java
+
+``java
+package cn.longer233.gamenarrator.vision;
+
+public record FrameUnderstanding(
+        int index,
+        double timestampSeconds,
+        String imagePath,
+        String description,
+        String eventType,
+        int excitementScore,
+        String rawJson
+) {
+}
+``
+
+### FILE: src/main/java/cn/longer233/gamenarrator/vision/HighlightHint.java
+
+``java
+package cn.longer233.gamenarrator.vision;
+
+public record HighlightHint(double timestampSeconds, String reason, int importance) {
+}
+``
+
+### FILE: src/main/java/cn/longer233/gamenarrator/vision/ImagePerceptualHash.java
+
+``java
+package cn.longer233.gamenarrator.vision;
+
+import java.awt.Graphics2D;
+import java.awt.RenderingHints;
+import java.awt.image.BufferedImage;
+
+final class ImagePerceptualHash {
+    private ImagePerceptualHash() {}
+
+    static long differenceHash(BufferedImage source) {
+        if (source == null) throw new IllegalArgumentException("图片内容无效");
+        BufferedImage scaled = new BufferedImage(9, 8, BufferedImage.TYPE_BYTE_GRAY);
+        Graphics2D graphics = scaled.createGraphics();
+        try {
+            graphics.setRenderingHint(RenderingHints.KEY_INTERPOLATION, RenderingHints.VALUE_INTERPOLATION_BILINEAR);
+            graphics.drawImage(source, 0, 0, 9, 8, null);
+        } finally {
+            graphics.dispose();
+        }
+        long hash = 0L;
+        int bit = 0;
+        for (int y = 0; y < 8; y++) {
+            for (int x = 0; x < 8; x++) {
+                int left = scaled.getRaster().getSample(x, y, 0);
+                int right = scaled.getRaster().getSample(x + 1, y, 0);
+                if (left > right) hash |= 1L << bit;
+                bit++;
+            }
+        }
+        return hash;
+    }
+
+    static double similarity(long left, long right) {
+        return 1.0 - Long.bitCount(left ^ right) / 64.0;
+    }
+}
+``
+
+### FILE: src/main/java/cn/longer233/gamenarrator/vision/OllamaVisionClient.java
+
+``java
+package cn.longer233.gamenarrator.vision;
+
+import cn.longer233.gamenarrator.common.AtomicArtifactWriter;
+import cn.longer233.gamenarrator.ai.AdaptiveAiChatClient;
+import cn.longer233.gamenarrator.ai.AiSettingsService;
+import cn.longer233.gamenarrator.ai.AiContentRejectedException;
+import cn.longer233.gamenarrator.media.SceneFrame;
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.stereotype.Component;
+
+import java.net.URI;
+import java.net.http.HttpClient;
+import java.net.http.HttpRequest;
+import java.net.http.HttpResponse;
+import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.time.Duration;
+import java.util.*;
+import java.util.function.IntConsumer;
+
+@Component
+public class OllamaVisionClient {
+    private static final Logger log = LoggerFactory.getLogger(OllamaVisionClient.class);
+    private final HttpClient httpClient;
+    private final ObjectMapper objectMapper;
+    private final URI baseUri;
+    private final String model;
+    private final String contentModel;
+    private final int maxFrames;
+    private final AdaptiveAiChatClient adaptiveChat;
+    private final AiSettingsService aiSettings;
+
+    public OllamaVisionClient(ObjectMapper objectMapper, AdaptiveAiChatClient adaptiveChat,
+            AiSettingsService aiSettings,
+            @Value("${game-narrator.ollama.base-url:http://localhost:11434}") String baseUrl,
+            @Value("${game-narrator.ollama.vision-model:qwen2.5vl:3b}") String model,
+            @Value("${game-narrator.ollama.script-model:qwen2.5vl:3b}") String contentModel,
+            @Value("${game-narrator.ollama.max-frames:0}") int maxFrames) {
+        this.objectMapper = objectMapper;
+        this.adaptiveChat = adaptiveChat;
+        this.aiSettings = aiSettings;
+        this.baseUri = URI.create(baseUrl);
+        this.model = model;
+        this.contentModel = contentModel;
+        this.maxFrames = Math.max(0, maxFrames);
+        this.httpClient = HttpClient.newBuilder().connectTimeout(Duration.ofSeconds(5)).build();
+    }
+
+    public VideoUnderstandingResult analyze(Path manifestPath, String transcriptText) {
+        return analyze(manifestPath, transcriptText, ignored -> { });
+    }
+
+    public VideoUnderstandingResult analyze(Path manifestPath, String transcriptText, IntConsumer progress) {
+        try {
+            List<SceneFrame> allFrames = objectMapper.readerForListOf(SceneFrame.class).readValue(manifestPath.toFile());
+            List<SceneFrame> selectedFrames = sample(allFrames);
+            if (selectedFrames.isEmpty()) throw new IllegalStateException("场景清单中没有可分析的截图");
+            log.info("VIDEO_UNDERSTANDING_BEGIN model={} totalFrames={} selectedFrames={}", model, allFrames.size(), selectedFrames.size());
+            List<FrameUnderstanding> analyses = new ArrayList<>();
+            for (int index = 0; index < selectedFrames.size(); index++) {
+                SceneFrame frame = selectedFrames.get(index);
+                try {
+                    analyses.add(analyzeFrame(frame, transcriptText));
+                } catch (AiContentRejectedException exception) {
+                    log.warn("VIDEO_FRAME_CONTENT_REJECTED frame={} action=rule_fallback", frame.index());
+                    analyses.add(fallbackFrame(frame, transcriptText));
+                }
+                progress.accept(10 + (int) Math.round((index + 1) * 80.0 / selectedFrames.size()));
+            }
+
+            VideoContentAnalysis contentAnalysis;
+            try {
+                contentAnalysis = analyzeContent(transcriptText, analyses);
+            } catch (Exception exception) {
+                log.warn("VIDEO_CONTENT_ANALYSIS_FALLBACK reason={}", exception.getMessage());
+                contentAnalysis = fallbackContentAnalysis(transcriptText, analyses);
+            }
+            String summary = formatSummary(contentAnalysis);
+            progress.accept(95);
+            Path output = manifestPath.getParent().resolve("visual-analysis.json");
+            Map<String, Object> document = new LinkedHashMap<>();
+            document.put("model", model);
+            document.put("contentModel", contentModel);
+            document.put("summary", summary);
+            document.put("contentAnalysis", contentAnalysis);
+            document.put("frames", analyses);
+            AtomicArtifactWriter.writeJson(objectMapper, output, document);
+            log.info("VIDEO_UNDERSTANDING_SUCCESS analyzedFrames={} output={}", analyses.size(), output);
+            return new VideoUnderstandingResult(summary, output.toString(), analyses);
+        } catch (IllegalStateException exception) {
+            throw exception;
+        } catch (Exception exception) {
+            throw new IllegalStateException("视频内容理解失败：" + exception.getMessage(), exception);
+        }
+    }
+
+    public VideoUnderstandingResult analyzeWithoutAi(Path manifestPath, String transcriptText) {
+        try {
+            List<SceneFrame> frames = objectMapper.readerForListOf(SceneFrame.class).readValue(manifestPath.toFile());
+            if (frames.isEmpty()) throw new IllegalStateException("场景清单为空");
+            List<FrameUnderstanding> analyses = frames.stream().map(frame -> fallbackFrame(frame, transcriptText)).toList();
+            VideoContentAnalysis content = fallbackContentAnalysis(transcriptText, analyses);
+            String summary = formatSummary(content);
+            Path output = manifestPath.getParent().resolve("visual-analysis.json");
+            AtomicArtifactWriter.writeJson(objectMapper, output, Map.of(
+                    "model", "RULE_BASED", "summary", summary, "contentAnalysis", content, "frames", analyses));
+            return new VideoUnderstandingResult(summary, output.toString(), analyses);
+        } catch (Exception exception) {
+            throw new IllegalStateException("非 AI 场景分析失败：" + exception.getMessage(), exception);
+        }
+    }
+
+    public boolean available() {
+        if ("CLOUD".equals(aiSettings.current().mode()) && !"DEEPSEEK".equals(aiSettings.current().provider()))
+            return !aiSettings.current().apiKey().isBlank();
+        try {
+            HttpRequest request = HttpRequest.newBuilder(baseUri.resolve("/api/tags")).timeout(Duration.ofSeconds(3)).GET().build();
+            HttpResponse<String> response = httpClient.send(request, HttpResponse.BodyHandlers.ofString(StandardCharsets.UTF_8));
+            return response.statusCode() == 200 && response.body().contains(model.split(":")[0]);
+        } catch (Exception ignored) { return false; }
+    }
+
+    public String model() { return adaptiveChat.activeModel(true); }
+    public URI baseUri() { return baseUri; }
+
+    private FrameUnderstanding analyzeFrame(SceneFrame frame, String transcriptText) throws Exception {
+        String image = Base64.getEncoder().encodeToString(Files.readAllBytes(Path.of(frame.imagePath())));
+        String transcriptHint = abbreviate(transcriptText, 500);
+        String prompt = """
+                你是视频剪辑分析器。分析截图，严格返回 JSON 对象，不要 Markdown。
+                字段：description（简体中文画面描述）、eventType（从探索/战斗/剧情/菜单/胜利/失败/其他选择）、
+                excitementScore（0到100整数，代表适合作为高光片段的程度）。
+                同期语音参考：%s
+                """.formatted(transcriptHint);
+        JsonNode analysis = chat(model, prompt, List.of(image), Duration.ofMinutes(5));
+        String raw = objectMapper.writeValueAsString(analysis);
+        return new FrameUnderstanding(frame.index(), frame.timestampSeconds(), frame.imagePath(),
+                analysis.path("description").asText("未识别出明确画面内容"),
+                analysis.path("eventType").asText("其他"),
+                Math.max(0, Math.min(100, analysis.path("excitementScore").asInt(0))), raw);
+    }
+
+    private FrameUnderstanding fallbackFrame(SceneFrame frame, String transcriptText) {
+        String hint = abbreviate(transcriptText, 120);
+        String description = hint.isBlank() ? "该画面未经云端分析，已保留为普通剪辑候选镜头"
+                : "同期语音：" + hint;
+        return new FrameUnderstanding(frame.index(), frame.timestampSeconds(), frame.imagePath(),
+                description, "其他", 35, "{\"fallback\":\"content_rejected\"}");
+    }
+
+    private VideoContentAnalysis analyzeContent(String transcriptText, List<FrameUnderstanding> frames) throws Exception {
+        String frameDigest = frames.stream().map(frame -> "%.2f秒：%s（%s，高光分%d）".formatted(
+                frame.timestampSeconds(), frame.description(), frame.eventType(), frame.excitementScore()))
+                .reduce((left, right) -> left + "\n" + right).orElse("");
+        String prompt = """
+                你是专业中文视频内容策划。结合语音转写和按时间排列的画面分析，先判断整段视频讲了什么，
+                再给出适合剪辑高光的时间点。必须使用简体中文，严格返回 JSON，不要 Markdown。
+                JSON 字段：
+                overview：2到4句完整内容概述；topics：主题关键词数组；tone：整体情绪和节奏；
+                keyEvents：关键事件数组；highlightHints：数组，每项含 timestampSeconds、reason、importance（0到100）；
+                highlightStrategy：一句具体剪辑建议。不要编造输入中不存在的事实。
+
+                语音转写：
+                %s
+
+                画面时间线：
+                %s
+                """.formatted(abbreviate(transcriptText, 6000), frameDigest);
+        JsonNode node = chat(contentModel, prompt, List.of(), Duration.ofMinutes(3));
+        return objectMapper.treeToValue(node, VideoContentAnalysis.class);
+    }
+
+    private JsonNode chat(String chatModel, String prompt, List<String> images, Duration timeout) throws Exception {
+        if (adaptiveChat != null) return adaptiveChat.chatJson(prompt, images, !images.isEmpty(), timeout);
+        Map<String, Object> message = new LinkedHashMap<>();
+        message.put("role", "user");
+        message.put("content", prompt);
+        if (!images.isEmpty()) message.put("images", images);
+        byte[] body = objectMapper.writeValueAsBytes(Map.of("model", chatModel, "stream", false,
+                "format", "json", "messages", List.of(message), "options", Map.of("temperature", 0.1)));
+        HttpRequest request = HttpRequest.newBuilder(baseUri.resolve("/api/chat")).timeout(timeout)
+                .header("Content-Type", "application/json").POST(HttpRequest.BodyPublishers.ofByteArray(body)).build();
+        HttpResponse<String> response = httpClient.send(request, HttpResponse.BodyHandlers.ofString(StandardCharsets.UTF_8));
+        if (response.statusCode() != 200) throw new IllegalStateException("Ollama HTTP " + response.statusCode() + "：" + tail(response.body(), 1000));
+        String content = objectMapper.readTree(response.body()).path("message").path("content").asText();
+        return objectMapper.readTree(content);
+    }
+
+    private VideoContentAnalysis fallbackContentAnalysis(String transcriptText, List<FrameUnderstanding> analyses) {
+        FrameUnderstanding highlight = analyses.stream().max(Comparator.comparingInt(FrameUnderstanding::excitementScore)).orElseThrow();
+        Map<String, Long> counts = new LinkedHashMap<>();
+        analyses.forEach(frame -> counts.merge(frame.eventType(), 1L, Long::sum));
+        String overview = "视频语音主要内容：" + (abbreviate(transcriptText, 240).isBlank() ? "未检测到清晰语音" : abbreviate(transcriptText, 240))
+                + "。画面以" + counts + "为主。";
+        return new VideoContentAnalysis(overview, new ArrayList<>(counts.keySet()), "根据画面事件强度判断",
+                List.of(highlight.description()), List.of(new HighlightHint(highlight.timestampSeconds(), highlight.description(), highlight.excitementScore())),
+                "优先保留事件评分高且时间上分散的片段。");
+    }
+
+    private String formatSummary(VideoContentAnalysis analysis) {
+        return "%s\n主题：%s；情绪与节奏：%s；高光建议：%s".formatted(
+                Objects.toString(analysis.overview(), "未生成内容概述"),
+                analysis.topics() == null ? "未识别" : String.join("、", analysis.topics()),
+                Objects.toString(analysis.tone(), "未识别"), Objects.toString(analysis.highlightStrategy(), "按事件强度筛选"));
+    }
+
+    private List<SceneFrame> sample(List<SceneFrame> frames) {
+        // 0 means every detected scene frame. The pipeline blocks here until the
+        // complete manifest has been inspected, so downstream writing can never
+        // accidentally be based on only the opening frame.
+        if (maxFrames == 0) return frames;
+        if (frames.size() <= maxFrames) return frames;
+        if (maxFrames == 1) return List.of(frames.getFirst());
+        List<SceneFrame> selected = new ArrayList<>();
+        for (int index = 0; index < maxFrames; index++) {
+            int sourceIndex = (int) Math.round(index * (frames.size() - 1.0) / (maxFrames - 1.0));
+            if (!selected.contains(frames.get(sourceIndex))) selected.add(frames.get(sourceIndex));
+        }
+        return selected;
+    }
+
+    private String abbreviate(String value, int limit) {
+        if (value == null) return "";
+        return value.length() <= limit ? value : value.substring(0, limit);
+    }
+
+    private String tail(String value, int limit) { return value.length() <= limit ? value : value.substring(value.length() - limit); }
+}
+``
+
+### FILE: src/main/java/cn/longer233/gamenarrator/vision/VideoContentAnalysis.java
+
+``java
+package cn.longer233.gamenarrator.vision;
+
+import java.util.List;
+
+public record VideoContentAnalysis(
+        String overview,
+        List<String> topics,
+        String tone,
+        List<String> keyEvents,
+        List<HighlightHint> highlightHints,
+        String highlightStrategy
+) {
+}
+``
+
+### FILE: src/main/java/cn/longer233/gamenarrator/vision/VideoSegmentClipService.java
+
+``java
+package cn.longer233.gamenarrator.vision;
+
+import cn.longer233.gamenarrator.common.ExternalProcessRunner;
+import cn.longer233.gamenarrator.task.repository.VideoTaskRepository;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.stereotype.Service;
+
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.time.Duration;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Locale;
+import java.util.UUID;
+
+@Service
+public class VideoSegmentClipService {
+    private final VideoTaskRepository repository;
+    private final String ffmpegCommand;
+    private final Path clipRoot;
+
+    public VideoSegmentClipService(VideoTaskRepository repository,
+                                   @Value("${game-narrator.ffmpeg-command}") String ffmpegCommand,
+                                   @Value("${game-narrator.storage-root}") String storageRoot) {
+        this.repository = repository;
+        this.ffmpegCommand = ffmpegCommand;
+        this.clipRoot = Path.of(storageRoot).toAbsolutePath().normalize().resolve("segment-clips").normalize();
+    }
+
+    public Path create(UUID taskId, double startSeconds, double durationSeconds, boolean mute)
+            throws IOException, InterruptedException {
+        if (!Double.isFinite(startSeconds) || startSeconds < 0) throw new IllegalArgumentException("开始时间不能小于 0 秒");
+        if (!Double.isFinite(durationSeconds) || durationSeconds < 1 || durationSeconds > 600) {
+            throw new IllegalArgumentException("剪切时长必须在 1 到 600 秒之间");
+        }
+        var task = repository.findById(taskId).orElseThrow(() -> new IllegalArgumentException("没有找到所属视频任务"));
+        Path source = Path.of(task.getSourceVideoPath()).toAbsolutePath().normalize();
+        if (!Files.isRegularFile(source)) throw new IllegalStateException("原始视频文件不存在，无法剪切镜头");
+
+        Files.createDirectories(clipRoot);
+        String key = ("%s-%.3f-%.3f-%s".formatted(taskId, startSeconds, durationSeconds, mute ? "mute" : "audio")
+                .replace('.', '_')) + ".mp4";
+        Path output = clipRoot.resolve(key).normalize();
+        if (!output.startsWith(clipRoot)) throw new IllegalStateException("剪切输出路径无效");
+        if (Files.isRegularFile(output) && Files.size(output) > 0) return output;
+
+        Path temporary = clipRoot.resolve(key + ".part.mp4").normalize();
+        List<String> command = new ArrayList<>(List.of(ffmpegCommand, "-y", "-hide_banner", "-loglevel", "warning",
+                "-ss", decimal(startSeconds), "-i", source.toString(), "-t", decimal(durationSeconds),
+                "-map", "0:v:0", "-c:v", "libx264", "-preset", "veryfast", "-crf", "21",
+                "-pix_fmt", "yuv420p", "-movflags", "+faststart"));
+        if (mute) command.add("-an");
+        else command.addAll(List.of("-map", "0:a:0?", "-c:a", "aac", "-b:a", "160k"));
+        command.add(temporary.toString());
+        try {
+            var result = ExternalProcessRunner.run(command, Duration.ofSeconds(Math.max(90, Math.round(durationSeconds * 3))));
+            if (result.exitCode() != 0 || !Files.isRegularFile(temporary) || Files.size(temporary) == 0) {
+                throw new IllegalStateException("FFmpeg 镜头剪切失败：" + result.output().strip());
+            }
+            try {
+                Files.move(temporary, output, java.nio.file.StandardCopyOption.ATOMIC_MOVE);
+            } catch (java.nio.file.AtomicMoveNotSupportedException ignored) {
+                Files.move(temporary, output, java.nio.file.StandardCopyOption.REPLACE_EXISTING);
+            }
+            return output;
+        } finally {
+            Files.deleteIfExists(temporary);
+        }
+    }
+
+    private String decimal(double value) {
+        return String.format(Locale.ROOT, "%.3f", value);
+    }
+}
+``
+
+### FILE: src/main/java/cn/longer233/gamenarrator/vision/VideoSegmentSearchController.java
+
+``java
+package cn.longer233.gamenarrator.vision;
+
+import org.springframework.core.io.FileSystemResource;
+import org.springframework.http.CacheControl;
+import org.springframework.http.MediaTypeFactory;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
+
+import java.util.List;
+import java.util.UUID;
+import org.springframework.http.HttpHeaders;
+
+@RestController
+@RequestMapping("/api/video-segments")
+public class VideoSegmentSearchController {
+    private final VideoSegmentSemanticIndex index;
+    private final VideoSegmentClipService clipService;
+    public VideoSegmentSearchController(VideoSegmentSemanticIndex index, VideoSegmentClipService clipService) {
+        this.index = index;
+        this.clipService = clipService;
+    }
+
+    @GetMapping("/search")
+    public List<VideoSegmentSearchResult> search(@RequestParam String query,
+                                                 @RequestParam(defaultValue = "12") int limit) {
+        return index.search(query, limit);
+    }
+
+    @PostMapping(value = "/search-image", consumes = "multipart/form-data")
+    public List<VideoSegmentSearchResult> searchImage(@RequestPart("image") MultipartFile image,
+                                                       @RequestParam(defaultValue = "12") int limit) throws Exception {
+        return index.searchByImage(image.getBytes(), limit);
+    }
+
+    @GetMapping("/{taskId}/{frameIndex}/thumbnail")
+    public ResponseEntity<FileSystemResource> thumbnail(@PathVariable UUID taskId, @PathVariable int frameIndex) {
+        var path = index.thumbnail(taskId, frameIndex);
+        return ResponseEntity.ok().contentType(MediaTypeFactory.getMediaType(path.getFileName().toString())
+                        .orElse(org.springframework.http.MediaType.APPLICATION_OCTET_STREAM))
+                .cacheControl(CacheControl.noCache()).body(new FileSystemResource(path));
+    }
+
+    @GetMapping("/{taskId}/clip")
+    public ResponseEntity<FileSystemResource> clip(@PathVariable UUID taskId,
+                                                    @RequestParam double startSeconds,
+                                                    @RequestParam(defaultValue = "10") double durationSeconds,
+                                                    @RequestParam(defaultValue = "false") boolean mute,
+                                                    @RequestParam(defaultValue = "false") boolean download)
+            throws Exception {
+        var path = clipService.create(taskId, startSeconds, durationSeconds, mute);
+        var resource = new FileSystemResource(path);
+        String disposition = download ? "attachment" : "inline";
+        return ResponseEntity.ok().contentType(org.springframework.http.MediaType.valueOf("video/mp4"))
+                .contentLength(resource.contentLength())
+                .header(HttpHeaders.ACCEPT_RANGES, "bytes")
+                .header(HttpHeaders.CACHE_CONTROL, "private, max-age=3600")
+                .header(HttpHeaders.CONTENT_DISPOSITION, disposition + "; filename=\"segment.mp4\"")
+                .body(resource);
+    }
+
+}
+``
+
+### FILE: src/main/java/cn/longer233/gamenarrator/vision/VideoSegmentSearchResult.java
+
+``java
+package cn.longer233.gamenarrator.vision;
+
+import java.util.UUID;
+
+public record VideoSegmentSearchResult(
+        UUID taskId, String taskName, int frameIndex, double timestampSeconds,
+        String eventType, String description, double similarity
+) {
+}
+``
+
+### FILE: src/main/java/cn/longer233/gamenarrator/vision/VideoSegmentSemanticIndex.java
+
+``java
+package cn.longer233.gamenarrator.vision;
+
+import cn.longer233.gamenarrator.asset.BgeAssetSemanticSearch;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.jdbc.core.JdbcTemplate;
+import org.springframework.stereotype.Service;
+
+import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.io.ByteArrayInputStream;
+import java.security.MessageDigest;
+import java.time.OffsetDateTime;
+import java.util.*;
+import javax.imageio.ImageIO;
+
+@Service
+public class VideoSegmentSemanticIndex {
+    private static final Logger log = LoggerFactory.getLogger(VideoSegmentSemanticIndex.class);
+    private final JdbcTemplate jdbc;
+    private final ObjectMapper objectMapper;
+    private final BgeAssetSemanticSearch embeddings;
+    private final Path storageRoot;
+
+    public VideoSegmentSemanticIndex(JdbcTemplate jdbc, ObjectMapper objectMapper,
+            BgeAssetSemanticSearch embeddings,
+            @Value("${game-narrator.storage-root}") String storageRoot) {
+        this.jdbc = jdbc;
+        this.objectMapper = objectMapper;
+        this.embeddings = embeddings;
+        this.storageRoot = Path.of(storageRoot).toAbsolutePath().normalize();
+    }
+
+    public void index(UUID taskId, Path visualAnalysisPath) {
+        if (!embeddings.available()) return;
+        try {
+            var root = objectMapper.readTree(visualAnalysisPath.toFile());
+            List<FrameUnderstanding> frames = objectMapper.readerForListOf(FrameUnderstanding.class)
+                    .readValue(root.path("frames"));
+            List<String> texts = frames.stream().map(this::semanticText).toList();
+            List<double[]> vectors = embeddings.embedTexts(texts);
+            if (vectors.size() != frames.size()) throw new IllegalStateException("BGE 返回的镜头向量数量不一致");
+            for (int index = 0; index < frames.size(); index++) {
+                FrameUnderstanding frame = frames.get(index);
+                String text = texts.get(index);
+                jdbc.update("""
+                        MERGE INTO video_segment_embedding(task_id,frame_index,timestamp_seconds,event_type,
+                        description,image_path,image_hash,model,content_hash,vector_json,indexed_at) KEY(task_id,frame_index)
+                        VALUES(?,?,?,?,?,?,?,?,?,?,?)
+                        """, taskId, frame.index(), frame.timestampSeconds(), frame.eventType(), frame.description(),
+                        frame.imagePath(), imageHash(Path.of(frame.imagePath())), embeddings.model(), sha256(text),
+                        objectMapper.writeValueAsString(vectors.get(index)), OffsetDateTime.now());
+            }
+            log.info("VIDEO_SEGMENT_INDEXED taskId={} frames={} model={}", taskId, frames.size(), embeddings.model());
+        } catch (Exception exception) {
+            log.warn("VIDEO_SEGMENT_INDEX_SKIPPED taskId={} reason={}", taskId, exception.getMessage());
+        }
+    }
+
+    public List<VideoSegmentSearchResult> search(String query, int requestedLimit) {
+        if (query == null || query.isBlank()) throw new IllegalArgumentException("请输入镜头搜索内容");
+        int limit = Math.max(1, Math.min(30, requestedLimit));
+        try {
+            backfillMissingTasks();
+            String normalizedQuery = query.trim();
+            double[] queryVector = embeddings.embedTexts(List.of(expandSearchQuery(normalizedQuery))).getFirst();
+            List<Scored> scored = jdbc.query("""
+                    SELECT e.task_id,t.name,e.frame_index,e.timestamp_seconds,e.event_type,
+                    e.description,e.vector_json FROM video_segment_embedding e
+                    JOIN video_tasks t ON t.id=e.task_id WHERE e.model=?
+                    """, (rs, row) -> {
+                double[] vector = parseVector(rs.getString("vector_json"));
+                double semantic = embeddings.similarity(queryVector, vector);
+                String eventType = rs.getString("event_type");
+                String description = rs.getString("description");
+                String taskName = rs.getString("name");
+                double hybrid = hybridScore(normalizedQuery, semantic, taskName, eventType, description);
+                return new Scored(new VideoSegmentSearchResult(
+                        rs.getObject("task_id", UUID.class), rs.getString("name"), rs.getInt("frame_index"),
+                        rs.getDouble("timestamp_seconds"), eventType, description, hybrid));
+            }, embeddings.model());
+            List<VideoSegmentSearchResult> ordered = scored.stream()
+                    .sorted(Comparator.comparingDouble((Scored item) -> item.result.similarity()).reversed())
+                    .map(Scored::result).toList();
+            return diversify(ordered, limit);
+        } catch (Exception exception) {
+            throw new IllegalStateException("本地镜头语义搜索失败：" + exception.getMessage(), exception);
+        }
+    }
+
+    public List<VideoSegmentSearchResult> searchByImage(byte[] imageBytes, int requestedLimit) {
+        if (imageBytes == null || imageBytes.length == 0) throw new IllegalArgumentException("请选择截图");
+        if (imageBytes.length > 10 * 1024 * 1024) throw new IllegalArgumentException("截图不能超过 10 MB");
+        try {
+            var image = ImageIO.read(new ByteArrayInputStream(imageBytes));
+            if (image == null) throw new IllegalArgumentException("无法识别该图片格式");
+            if ((long) image.getWidth() * image.getHeight() > 25_000_000L) {
+                throw new IllegalArgumentException("截图分辨率过大");
+            }
+            backfillMissingTasks();
+            backfillImageHashes();
+            long queryHash = ImagePerceptualHash.differenceHash(image);
+            int limit = Math.max(1, Math.min(30, requestedLimit));
+            return jdbc.query("""
+                    SELECT e.task_id,t.name,e.frame_index,e.timestamp_seconds,e.event_type,
+                    e.description,e.image_hash FROM video_segment_embedding e
+                    JOIN video_tasks t ON t.id=e.task_id WHERE e.image_hash IS NOT NULL
+                    """, (rs, row) -> new VideoSegmentSearchResult(
+                    rs.getObject("task_id", UUID.class), rs.getString("name"), rs.getInt("frame_index"),
+                    rs.getDouble("timestamp_seconds"), rs.getString("event_type"), rs.getString("description"),
+                    ImagePerceptualHash.similarity(queryHash, rs.getLong("image_hash"))))
+                    .stream().sorted(Comparator.comparingDouble(VideoSegmentSearchResult::similarity).reversed())
+                    .limit(limit).toList();
+        } catch (IllegalArgumentException exception) {
+            throw exception;
+        } catch (Exception exception) {
+            throw new IllegalStateException("截图镜头搜索失败：" + exception.getMessage(), exception);
+        }
+    }
+
+    private void backfillMissingTasks() {
+        List<TaskAnalysis> missing = jdbc.query("""
+                SELECT t.id,t.visual_analysis_path FROM video_tasks t
+                WHERE t.visual_analysis_path IS NOT NULL
+                AND NOT EXISTS (SELECT 1 FROM video_segment_embedding e WHERE e.task_id=t.id AND e.model=?)
+                """, (rs, row) -> new TaskAnalysis(rs.getObject(1, UUID.class), rs.getString(2)), embeddings.model());
+        for (TaskAnalysis task : missing) {
+            try {
+                Path analysis = Path.of(task.path()).toAbsolutePath().normalize();
+                if (analysis.startsWith(storageRoot) && Files.isRegularFile(analysis)) index(task.id(), analysis);
+            } catch (Exception exception) {
+                log.warn("VIDEO_SEGMENT_BACKFILL_SKIPPED taskId={} reason={}", task.id(), exception.getMessage());
+            }
+        }
+    }
+
+    private void backfillImageHashes() {
+        List<FrameImage> missing = jdbc.query("""
+                SELECT task_id,frame_index,image_path FROM video_segment_embedding WHERE image_hash IS NULL
+                """, (rs, row) -> new FrameImage(rs.getObject(1, UUID.class), rs.getInt(2), rs.getString(3)));
+        for (FrameImage frame : missing) {
+            try {
+                Long hash = imageHash(Path.of(frame.path()));
+                if (hash != null) jdbc.update("UPDATE video_segment_embedding SET image_hash=? WHERE task_id=? AND frame_index=?",
+                        hash, frame.taskId(), frame.frameIndex());
+            } catch (Exception exception) {
+                log.debug("VIDEO_SEGMENT_IMAGE_HASH_SKIPPED taskId={} frame={} reason={}",
+                        frame.taskId(), frame.frameIndex(), exception.getMessage());
+            }
+        }
+    }
+
+    private Long imageHash(Path source) throws Exception {
+        Path path = source.toAbsolutePath().normalize();
+        if (!path.startsWith(storageRoot) || !Files.isRegularFile(path)) return null;
+        var image = ImageIO.read(path.toFile());
+        return image == null ? null : ImagePerceptualHash.differenceHash(image);
+    }
+
+    public Path thumbnail(UUID taskId, int frameIndex) {
+        List<String> paths = jdbc.query("SELECT image_path FROM video_segment_embedding WHERE task_id=? AND frame_index=?",
+                (rs, row) -> rs.getString(1), taskId, frameIndex);
+        if (paths.isEmpty()) throw new IllegalArgumentException("镜头不存在");
+        Path path = Path.of(paths.getFirst()).toAbsolutePath().normalize();
+        if (!path.startsWith(storageRoot) || !Files.isRegularFile(path)) {
+            throw new IllegalStateException("镜头缩略图不存在或不属于存储目录");
+        }
+        return path;
+    }
+
+    private String semanticText(FrameUnderstanding frame) {
+        return "%s；事件：%s；时间：%.2f秒".formatted(frame.description(), frame.eventType(), frame.timestampSeconds());
+    }
+
+    static double hybridScore(String query, double semantic, String taskName, String eventType, String description) {
+        String searchable = String.join(" ", Objects.toString(taskName, ""), Objects.toString(eventType, ""),
+                Objects.toString(description, "")).toLowerCase(Locale.ROOT);
+        List<String> terms = searchTerms(query);
+        long hits = terms.stream().filter(searchable::contains).count();
+        double lexical = terms.isEmpty() ? 0 : (double) hits / terms.size();
+        String normalized = query.trim().toLowerCase(Locale.ROOT);
+        double phrase = normalized.length() >= 2 && searchable.contains(normalized) ? 1 : 0;
+        double event = eventIntentScore(normalized, Objects.toString(eventType, "").toLowerCase(Locale.ROOT));
+        return Math.max(0, Math.min(1, semantic * .68 + lexical * .20 + event * .08 + phrase * .04));
+    }
+
+    static List<VideoSegmentSearchResult> diversify(List<VideoSegmentSearchResult> ordered, int limit) {
+        List<VideoSegmentSearchResult> selected = new ArrayList<>();
+        for (VideoSegmentSearchResult candidate : ordered) {
+            boolean nearDuplicate = selected.stream().anyMatch(item -> item.taskId().equals(candidate.taskId())
+                    && Math.abs(item.timestampSeconds() - candidate.timestampSeconds()) < 3.0);
+            if (!nearDuplicate) selected.add(candidate);
+            if (selected.size() == limit) return selected;
+        }
+        if (selected.size() < limit) for (VideoSegmentSearchResult candidate : ordered) {
+            if (!selected.contains(candidate)) selected.add(candidate);
+            if (selected.size() == limit) break;
+        }
+        return List.copyOf(selected);
+    }
+
+    private static String expandSearchQuery(String query) {
+        StringBuilder result = new StringBuilder(query);
+        Map.of("战斗", " fight combat action", "胜利", " victory win", "失败", " defeat game over",
+                "搞笑", " funny comedy", "对话", " dialogue conversation", "风景", " landscape scenery",
+                "爆炸", " explosion blast", "追逐", " chase pursuit").forEach((key, value) -> {
+            if (query.contains(key)) result.append(value);
+        });
+        return result.toString();
+    }
+
+    private static List<String> searchTerms(String query) {
+        LinkedHashSet<String> terms = new LinkedHashSet<>();
+        String normalized = query.toLowerCase(Locale.ROOT).replaceAll("[\\p{Punct}\\s]+", " ").trim();
+        for (String part : normalized.split(" ")) if (part.length() >= 2) terms.add(part);
+        java.util.regex.Matcher matcher = java.util.regex.Pattern.compile("[\\p{IsHan}]{2,}").matcher(normalized);
+        while (matcher.find()) {
+            String chinese = matcher.group(); terms.add(chinese);
+            if (chinese.length() > 2) for (int i = 0; i < chinese.length() - 1; i++) terms.add(chinese.substring(i, i + 2));
+        }
+        return List.copyOf(terms);
+    }
+
+    private static double eventIntentScore(String query, String eventType) {
+        if ((query.matches(".*(战斗|攻击|boss|打斗).*")) && eventType.matches(".*(battle|combat|action|fight|boss).*")) return 1;
+        if ((query.matches(".*(胜利|成功|通关).*")) && eventType.matches(".*(victory|win|success|clear).*")) return 1;
+        if ((query.matches(".*(失败|死亡|翻车).*")) && eventType.matches(".*(fail|death|lose|game.over).*")) return 1;
+        if ((query.matches(".*(对话|剧情|交谈).*")) && eventType.matches(".*(dialog|story|conversation).*")) return 1;
+        return 0;
+    }
+    private double[] parseVector(String value) {
+        try { return objectMapper.readValue(value, double[].class); }
+        catch (Exception exception) { throw new IllegalStateException("镜头向量缓存损坏", exception); }
+    }
+    private String sha256(String value) throws Exception {
+        return HexFormat.of().formatHex(MessageDigest.getInstance("SHA-256").digest(value.getBytes(StandardCharsets.UTF_8)));
+    }
+    private record Scored(VideoSegmentSearchResult result) {}
+    private record TaskAnalysis(UUID id, String path) {}
+    private record FrameImage(UUID taskId, int frameIndex, String path) {}
+}
+``
+
+### FILE: src/main/java/cn/longer233/gamenarrator/vision/VideoUnderstandingResult.java
+
+``java
+package cn.longer233.gamenarrator.vision;
+
+import java.util.List;
+
+public record VideoUnderstandingResult(
+        String summary,
+        String analysisPath,
+        List<FrameUnderstanding> frames
+) {
+}
+``
+
+### FILE: src/main/java/cn/longer233/gamenarrator/voice/PiperProperties.java
+
+``java
+package cn.longer233.gamenarrator.voice;
+
+import org.springframework.boot.context.properties.ConfigurationProperties;
+import org.springframework.stereotype.Component;
+
+import java.util.ArrayList;
+import java.util.List;
+
+@Component
+@ConfigurationProperties(prefix = "game-narrator.piper")
+public class PiperProperties {
+    private String executable = "./tools/piper/piper/piper.exe";
+    private String model = "./models/piper/zh_CN-huayan-medium.onnx";
+    private double lengthScale = 1.0;
+    private String defaultVoice = "default";
+    private List<Voice> voices = new ArrayList<>();
+
+    public String getExecutable() { return executable; }
+    public void setExecutable(String executable) { this.executable = executable; }
+    public String getModel() { return model; }
+    public void setModel(String model) { this.model = model; }
+    public double getLengthScale() { return lengthScale; }
+    public void setLengthScale(double lengthScale) { this.lengthScale = lengthScale; }
+    public String getDefaultVoice() { return defaultVoice; }
+    public void setDefaultVoice(String defaultVoice) { this.defaultVoice = defaultVoice; }
+    public List<Voice> getVoices() { return voices; }
+    public void setVoices(List<Voice> voices) { this.voices = voices == null ? new ArrayList<>() : voices; }
+
+    public static class Voice {
+        private String id;
+        private String name;
+        private String model;
+        public String getId() { return id; }
+        public void setId(String id) { this.id = id; }
+        public String getName() { return name; }
+        public void setName(String name) { this.name = name; }
+        public String getModel() { return model; }
+        public void setModel(String model) { this.model = model; }
+    }
+}
+``
+
+### FILE: src/main/java/cn/longer233/gamenarrator/voice/PiperVoiceGenerator.java
+
+``java
+package cn.longer233.gamenarrator.voice;
+
+import cn.longer233.gamenarrator.script.ScriptSegment;
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.stereotype.Component;
+
+import java.io.OutputStream;
+import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.time.Duration;
+import java.util.ArrayList;
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.concurrent.TimeUnit;
+import java.util.function.IntConsumer;
+
+@Component
+public class PiperVoiceGenerator implements VoiceGenerator {
+    private static final Logger log = LoggerFactory.getLogger(PiperVoiceGenerator.class);
+    private final ObjectMapper objectMapper;
+    private final Path executable;
+    private final Map<String, ConfiguredVoice> voices;
+    private final String defaultVoiceId;
+    private final double lengthScale;
+
+    public PiperVoiceGenerator(ObjectMapper objectMapper, PiperProperties properties) {
+        this.objectMapper = objectMapper;
+        this.executable = Path.of(properties.getExecutable()).toAbsolutePath().normalize();
+        this.lengthScale = properties.getLengthScale();
+        LinkedHashMap<String, ConfiguredVoice> configured = new LinkedHashMap<>();
+        for (PiperProperties.Voice voice : properties.getVoices()) {
+            if (voice.getId() == null || voice.getId().isBlank() || voice.getModel() == null || voice.getModel().isBlank()) continue;
+            configured.put(voice.getId(), new ConfiguredVoice(voice.getId(),
+                    voice.getName() == null || voice.getName().isBlank() ? voice.getId() : voice.getName(),
+                    Path.of(voice.getModel()).toAbsolutePath().normalize()));
+        }
+        if (configured.isEmpty()) {
+            configured.put("default", new ConfiguredVoice("default", "默认中文音色",
+                    Path.of(properties.getModel()).toAbsolutePath().normalize()));
+        }
+        this.voices = Map.copyOf(configured);
+        this.defaultVoiceId = configured.containsKey(properties.getDefaultVoice())
+                ? properties.getDefaultVoice() : configured.keySet().iterator().next();
+    }
+
+    @Override
+    public String engineId() { return "piper"; }
+
+    @Override
+    public boolean available() {
+        return Files.isRegularFile(executable) && voices.values().stream().anyMatch(voice -> Files.isRegularFile(voice.model()));
+    }
+
+    @Override
+    public List<VoiceOption> options() {
+        return voices.values().stream().map(voice -> new VoiceOption(voice.id(), voice.name(),
+                Files.isRegularFile(executable) && Files.isRegularFile(voice.model()),
+                voice.id().equals(defaultVoiceId))).toList();
+    }
+
+    @Override
+    public VoiceGenerationResult generate(Path scriptPath) {
+        return generate(scriptPath, ignored -> { });
+    }
+
+    @Override
+    public VoiceGenerationResult generate(Path scriptPath, IntConsumer progress) {
+        if (!available()) {
+            throw new IllegalStateException("等待本地 Piper 配音引擎；请执行 .\\scripts\\setup-piper.ps1");
+        }
+        try {
+            JsonNode document = objectMapper.readTree(scriptPath.toFile());
+            List<ScriptSegment> scripts = objectMapper.readerForListOf(ScriptSegment.class)
+                    .readValue(document.path("segments"));
+            if (scripts.isEmpty()) throw new IllegalStateException("生成文案中没有可配音片段");
+            Path voiceDirectory = scriptPath.getParent().resolve("voice");
+            Files.createDirectories(voiceDirectory);
+            ConfiguredVoice voice = requireVoice(defaultVoiceId);
+            log.info("VOICE_GENERATION_BEGIN engine=piper segmentCount={} voiceId={}", scripts.size(), voice.id());
+            List<VoiceSegment> voices = new ArrayList<>();
+            for (int index = 0; index < scripts.size(); index++) {
+                ScriptSegment script = scripts.get(index);
+                Path output = voiceDirectory.resolve("voice-%02d.wav".formatted(script.clipIndex()));
+                synthesize(script.narration(), output, voice.model(), 1.0);
+                voices.add(new VoiceSegment(script.clipIndex(), output.toString(), script.narration(), voice.id(), 1.0));
+                log.info("VOICE_SEGMENT_SUCCESS clipIndex={} characters={} output={}",
+                        script.clipIndex(), script.narration().length(), output);
+                progress.accept(10 + (int) Math.round((index + 1) * 85.0 / scripts.size()));
+            }
+            Path manifest = scriptPath.getParent().resolve("voice-manifest.json");
+            Map<String, Object> result = new LinkedHashMap<>();
+            result.put("engine", "piper");
+            result.put("voiceId", voice.id());
+            result.put("model", voice.model().toString());
+            result.put("segments", voices);
+            cn.longer233.gamenarrator.common.AtomicArtifactWriter.writeJson(objectMapper, manifest, result);
+            log.info("VOICE_GENERATION_SUCCESS segmentCount={} output={}", voices.size(), manifest);
+            return new VoiceGenerationResult(manifest.toString(), voices);
+        } catch (IllegalStateException exception) {
+            throw exception;
+        } catch (Exception exception) {
+            throw new IllegalStateException("AI 配音生成失败：" + exception.getMessage(), exception);
+        }
+    }
+
+    @Override
+    public VoiceSegment regenerateSegment(Path scriptPath, int clipIndex) {
+        return regenerateSegment(scriptPath, clipIndex, defaultVoiceId, 1.0);
+    }
+
+    @Override
+    public VoiceSegment regenerateSegment(Path scriptPath, int clipIndex, String voiceId, double speed) {
+        if (!available()) {
+            throw new IllegalStateException("Piper is not available");
+        }
+        if (!Double.isFinite(speed) || speed < 0.5 || speed > 2.0) {
+            throw new IllegalArgumentException("Voice speed must be between 0.5 and 2.0");
+        }
+        try {
+            ConfiguredVoice voice = requireVoice(voiceId == null || voiceId.isBlank() ? defaultVoiceId : voiceId);
+            JsonNode document = objectMapper.readTree(scriptPath.toFile());
+            List<ScriptSegment> scripts = objectMapper.readerForListOf(ScriptSegment.class)
+                    .readValue(document.path("segments"));
+            ScriptSegment script = scripts.stream()
+                    .filter(item -> item.clipIndex() == clipIndex)
+                    .findFirst()
+                    .orElseThrow(() -> new IllegalArgumentException("Script segment does not exist: " + clipIndex));
+            Path voiceDirectory = scriptPath.getParent().resolve("voice");
+            Files.createDirectories(voiceDirectory);
+            Path output = voiceDirectory.resolve("voice-%02d.wav".formatted(clipIndex));
+            synthesize(script.narration(), output, voice.model(), speed);
+            VoiceSegment regenerated = new VoiceSegment(clipIndex, output.toString(), script.narration(), voice.id(), speed);
+
+            Path manifest = scriptPath.getParent().resolve("voice-manifest.json");
+            List<VoiceSegment> voices = new ArrayList<>();
+            if (Files.isRegularFile(manifest)) {
+                JsonNode existing = objectMapper.readTree(manifest.toFile());
+                voices.addAll(objectMapper.readerForListOf(VoiceSegment.class)
+                        .readValue(existing.path("segments")));
+            }
+            voices.removeIf(item -> item.clipIndex() == clipIndex);
+            voices.add(regenerated);
+            voices.sort(java.util.Comparator.comparingInt(VoiceSegment::clipIndex));
+            Map<String, Object> result = new LinkedHashMap<>();
+            result.put("engine", engineId());
+            result.put("voiceId", voice.id());
+            result.put("model", voice.model().toString());
+            result.put("segments", voices);
+            cn.longer233.gamenarrator.common.AtomicArtifactWriter.writeJson(objectMapper, manifest, result);
+            log.info("VOICE_SEGMENT_REGENERATED engine={} clipIndex={} output={}",
+                    engineId(), clipIndex, output);
+            return regenerated;
+        } catch (IllegalArgumentException | IllegalStateException exception) {
+            throw exception;
+        } catch (Exception exception) {
+            throw new IllegalStateException("Voice segment regeneration failed: " + exception.getMessage(), exception);
+        }
+    }
+
+    private void synthesize(String text, Path output, Path model, double speed) throws Exception {
+        var result = cn.longer233.gamenarrator.common.ExternalProcessRunner.run(List.of(
+                        executable.toString(), "--model", model.toString(), "--output_file", output.toString(),
+                        "--length_scale", Double.toString(lengthScale / speed)),
+                Duration.ofMinutes(2), text + System.lineSeparator());
+        String processOutput = result.output();
+        if (result.exitCode() != 0 || !Files.isRegularFile(output)) {
+            throw new IllegalStateException("Piper 退出码 " + result.exitCode() + "：" + tail(processOutput, 800));
+        }
+    }
+
+    private String tail(String value, int limit) {
+        return value.length() <= limit ? value : value.substring(value.length() - limit);
+    }
+
+    private ConfiguredVoice requireVoice(String voiceId) {
+        ConfiguredVoice voice = voices.get(voiceId);
+        if (voice == null) throw new IllegalArgumentException("Unknown configured voice: " + voiceId);
+        if (!Files.isRegularFile(voice.model())) throw new IllegalStateException("Voice model is not installed: " + voice.name());
+        return voice;
+    }
+
+    private record ConfiguredVoice(String id, String name, Path model) {}
+}
+``
+
+### FILE: src/main/java/cn/longer233/gamenarrator/voice/SilentVoiceGenerator.java
+
+``java
+package cn.longer233.gamenarrator.voice;
+
+import cn.longer233.gamenarrator.common.AtomicArtifactWriter;
+import cn.longer233.gamenarrator.script.ScriptSegment;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import org.springframework.stereotype.Component;
+
+import javax.sound.sampled.*;
+import java.io.ByteArrayInputStream;
+import java.nio.file.Path;
+import java.util.*;
+
+@Component
+public class SilentVoiceGenerator {
+    private final ObjectMapper mapper;
+    public SilentVoiceGenerator(ObjectMapper mapper) { this.mapper = mapper; }
+
+    public VoiceGenerationResult generate(Path scriptPath) {
+        try {
+            List<ScriptSegment> scripts = mapper.readerForListOf(ScriptSegment.class)
+                    .readValue(mapper.readTree(scriptPath.toFile()).path("segments"));
+            List<VoiceSegment> result = new ArrayList<>();
+            AudioFormat format = new AudioFormat(16000, 16, 1, true, false);
+            for (ScriptSegment script : scripts) {
+                Path wav = scriptPath.getParent().resolve("silence-" + script.clipIndex() + ".wav");
+                byte[] pcm = new byte[3200]; // 100 ms valid silence keeps the normal renderer path intact.
+                try (AudioInputStream stream = new AudioInputStream(new ByteArrayInputStream(pcm), format, pcm.length / 2)) {
+                    AudioSystem.write(stream, AudioFileFormat.Type.WAVE, wav.toFile());
+                }
+                result.add(new VoiceSegment(script.clipIndex(), wav.toString(), "", "NONE", 1.0));
+            }
+            Path manifest = scriptPath.getParent().resolve("voice-manifest.json");
+            AtomicArtifactWriter.writeJson(mapper, manifest, Map.of("engine", "NONE", "segments", result));
+            return new VoiceGenerationResult(manifest.toString(), result);
+        } catch (Exception exception) {
+            throw new IllegalStateException("创建无配音轨道失败：" + exception.getMessage(), exception);
+        }
+    }
+}
+``
+
+### FILE: src/main/java/cn/longer233/gamenarrator/voice/VoiceGenerationResult.java
+
+``java
+package cn.longer233.gamenarrator.voice;
+
+import java.util.List;
+
+public record VoiceGenerationResult(String manifestPath, List<VoiceSegment> segments) {
+}
+``
+
+### FILE: src/main/java/cn/longer233/gamenarrator/voice/VoiceGenerator.java
+
+``java
+package cn.longer233.gamenarrator.voice;
+
+import java.nio.file.Path;
+import java.util.List;
+import java.util.function.IntConsumer;
+
+public interface VoiceGenerator {
+    String engineId();
+    boolean available();
+    VoiceGenerationResult generate(Path scriptPath);
+    default VoiceGenerationResult generate(Path scriptPath, IntConsumer progress) {
+        return generate(scriptPath);
+    }
+    VoiceSegment regenerateSegment(Path scriptPath, int clipIndex);
+    VoiceSegment regenerateSegment(Path scriptPath, int clipIndex, String voiceId, double speed);
+    List<VoiceOption> options();
+}
+``
+
+### FILE: src/main/java/cn/longer233/gamenarrator/voice/VoiceOption.java
+
+``java
+package cn.longer233.gamenarrator.voice;
+
+public record VoiceOption(String id, String name, boolean available, boolean defaultVoice) {
+}
+``
+
+### FILE: src/main/java/cn/longer233/gamenarrator/voice/VoiceRegenerationRequest.java
+
+``java
+package cn.longer233.gamenarrator.voice;
+
+import jakarta.validation.constraints.DecimalMax;
+import jakarta.validation.constraints.DecimalMin;
+import jakarta.validation.constraints.Size;
+
+public record VoiceRegenerationRequest(
+        @Size(max = 60) String voiceId,
+        @DecimalMin("0.5") @DecimalMax("2.0") Double speed
+) {
+    public double effectiveSpeed() {
+        return speed == null ? 1.0 : speed;
+    }
+}
+``
+
+### FILE: src/main/java/cn/longer233/gamenarrator/voice/VoiceSegment.java
+
+``java
+package cn.longer233.gamenarrator.voice;
+
+public record VoiceSegment(int clipIndex, String audioPath, String narration, String voiceId, Double speed) {
+    public VoiceSegment(int clipIndex, String audioPath, String narration) {
+        this(clipIndex, audioPath, narration, null, null);
+    }
+}
+``
+
+### FILE: src/main/resources/application.yml
+
+``yaml
+spring:
+  application:
+    name: game-narrator
+  datasource:
+    url: jdbc:h2:file:./data/game-narrator;AUTO_SERVER=TRUE
+    driver-class-name: org.h2.Driver
+    username: sa
+    password:
+  jpa:
+    hibernate:
+      ddl-auto: validate
+    open-in-view: false
+  flyway:
+    enabled: true
+    baseline-on-migrate: true
+    baseline-version: 0
+    locations: classpath:db/migration
+  servlet:
+    multipart:
+      max-file-size: 4GB
+      max-request-size: 4GB
+  web:
+    resources:
+      cache:
+        cachecontrol:
+          no-cache: true
+
+server:
+  port: ${SERVER_PORT:8081}
+  tomcat:
+    threads:
+      max: ${SERVER_MAX_THREADS:32}
+      min-spare: ${SERVER_MIN_SPARE_THREADS:2}
+  servlet:
+    session:
+      timeout: 1h
+      cookie:
+        http-only: true
+        same-site: strict
+  error:
+    include-message: always
+
+logging:
+  level:
+    root: INFO
+    cn.longer233.gamenarrator: ${GAME_NARRATOR_LOG_LEVEL:DEBUG}
+    org.springframework.web: INFO
+    org.hibernate.SQL: ${HIBERNATE_SQL_LOG_LEVEL:WARN}
+  file:
+    name: ./logs/game-narrator.log
+  pattern:
+    console: "%d{HH:mm:ss.SSS} %-5level [%thread] [trace=%X{traceId:-system}] %logger{36} - %msg%n"
+    file: "%d{yyyy-MM-dd HH:mm:ss.SSS} %-5level [%thread] [trace=%X{traceId:-system}] %logger{48} - %msg%n"
+
+game-narrator:
+  ai:
+    # DashScope 对原始游戏截图审核较严；默认本地优先，未安装本地视觉模型时使用规则降级，不上传图片。
+    cloud-image-policy: ${CLOUD_IMAGE_POLICY:CLOUD_ALLOWED}
+  storage-root: ./storage
+  media-preview:
+    thumbnail-max-bytes: ${THUMBNAIL_MAX_BYTES:5242880}
+    thumbnail-cache-entries: ${THUMBNAIL_CACHE_ENTRIES:128}
+    thumbnail-cache-minutes: ${THUMBNAIL_CACHE_MINUTES:10}
+  asset-library:
+    provider-priority: [BILIBILI, PEXELS, PIXABAY, DOUYIN, USER_REFERENCE, OPENVERSE, WIKIMEDIA, YOUTUBE, TIKTOK]
+    domestic-sources:
+      - { id: fabiaoqing, name: 发表情, url: "https://fabiaoqing.com/", search-url: "https://fabiaoqing.com/search/bqb/keyword/{query}", asset-types: "表情包·斗图·Meme", priority: 10 }
+      - { id: soogif, name: SOOGIF, url: "https://www.soogif.com/", search-url: "https://www.soogif.com/gif/{query}.html", asset-types: "GIF 动图·表情包·在线制作", priority: 20 }
+      - { id: chuangkit-meme, name: 创客贴表情包, url: "https://www.chuangkit.com/", search-url: "https://www.chuangkit.com/designtools/designindex?keyword={query}%20%E8%A1%A8%E6%83%85%E5%8C%85", asset-types: "表情包·Meme 模板·在线编辑", priority: 30 }
+      - { id: bilibili, name: Bilibili, url: "https://search.bilibili.com/", search-url: "https://search.bilibili.com/all?keyword={query}", asset-types: "视频·专栏图片（需授权）" }
+      - { id: newcger, name: 新CG儿, url: "https://www.newcger.com/", asset-types: "视频·AE模板·音频" }
+      - { id: aigei, name: 爱给网, url: "https://www.aigei.com/", asset-types: "音效·配乐·视频·模型" }
+      - { id: gaoding, name: 稿定设计, url: "https://www.gaoding.com/", asset-types: "图片·模板·视频" }
+      - { id: ibaotu, name: 包图网, url: "https://ibaotu.com/", asset-types: "视频·音效·配乐·模板" }
+      - { id: qiantu, name: 千图网, url: "https://www.58pic.com/", asset-types: "图片·模板·视频" }
+      - { id: chinaz, name: 站长素材, url: "https://sc.chinaz.com/", asset-types: "图片·音效·模板" }
+      - { id: photophoto, name: 图行天下, url: "https://www.photophoto.cn/", asset-types: "图片·设计素材" }
+      - { id: 16sucai, name: 16素材, url: "https://16sucai.com/", asset-types: "网页·图片素材" }
+      - { id: lanrentuku, name: 懒人图库, url: "https://www.lanrentuku.com/", asset-types: "图片·网页素材" }
+      - { id: psjia, name: PS家园网, url: "https://www.psjia.com/", asset-types: "PSD·图片" }
+      - { id: sj33, name: 设计之家, url: "https://www.sj33.cn/sc/", asset-types: "设计·图片素材" }
+      - { id: pexels, name: Pexels, url: "https://www.pexels.com/", search-url: "https://www.pexels.com/search/{query}/", asset-types: "图片·视频", region: INTERNATIONAL, priority: 200 }
+      - { id: pixabay, name: Pixabay, url: "https://pixabay.com/zh/", search-url: "https://pixabay.com/zh/images/search/{query}/", asset-types: "图片·视频·音乐·音效", region: INTERNATIONAL, priority: 190 }
+      - { id: clipseek, name: ClipSeek, url: "https://clipseek.ai/zh/", search-url: "https://clipseek.ai/zh/?q={query}", asset-types: "图片·视频·插画（原站检索）", region: INTERNATIONAL, priority: 195 }
+      - { id: mixkit, name: Mixkit, url: "https://mixkit.co/", asset-types: "视频·音乐·音效·模板", region: INTERNATIONAL, priority: 200 }
+      - { id: openfootage, name: OpenFootage, url: "https://www.openfootage.net/", asset-types: "视频·特效素材", region: INTERNATIONAL, priority: 200 }
+      - { id: coverr, name: Coverr, url: "https://coverr.co/", asset-types: "视频·音乐", region: INTERNATIONAL, priority: 200 }
+      - { id: looperman, name: Looperman, url: "https://www.looperman.com/", asset-types: "循环音乐·音效", region: INTERNATIONAL, priority: 210 }
+      - { id: bensound, name: Bensound, url: "https://www.bensound.com/", asset-types: "配乐", region: INTERNATIONAL, priority: 210 }
+      - { id: free-music-archive, name: Free Music Archive, url: "https://freemusicarchive.org/", asset-types: "音乐", region: INTERNATIONAL, priority: 210 }
+      - { id: freesound, name: Freesound, url: "https://freesound.org/", asset-types: "音效·环境声", region: INTERNATIONAL, priority: 210 }
+      - { id: musopen, name: Musopen, url: "https://musopen.org/", asset-types: "古典音乐·乐谱", region: INTERNATIONAL, priority: 210 }
+      - { id: soundgator, name: SoundGator, url: "https://www.soundgator.com/", asset-types: "音效", region: INTERNATIONAL, priority: 210 }
+      - { id: audionautix, name: Audionautix, url: "https://audionautix.com/", asset-types: "配乐", region: INTERNATIONAL, priority: 210 }
+    request-timeout-seconds: ${ASSET_LIBRARY_REQUEST_TIMEOUT_SECONDS:4}
+    featured-page-size: ${ASSET_FEATURED_PAGE_SIZE:3}
+    featured-searches:
+      - asset-type: MEME
+        query: funny reaction
+      - asset-type: VIDEO
+        query: green screen footage
+      - asset-type: SFX
+        query: game sound effect
+      - asset-type: BGM
+        query: background music
+    query-expansion:
+      ai-timeout-seconds: ${ASSET_QUERY_AI_TIMEOUT_SECONDS:2}
+      cache-hours: ${ASSET_QUERY_CACHE_HOURS:12}
+      cache-max-entries: ${ASSET_QUERY_CACHE_MAX_ENTRIES:256}
+      synonyms:
+        - intent: 欢快
+          terms: happy upbeat cheerful
+        - intent: 轻快
+          terms: light upbeat cheerful
+        - intent: 搞笑
+          terms: funny comedy cartoon
+        - intent: 表情包
+          terms: reaction meme funny
+        - intent: 绿幕
+          terms: green screen chroma key footage
+        - intent: 音效
+          terms: sound effect sfx
+        - intent: 背景音乐
+          terms: background music instrumental
+        - intent: 战斗
+          terms: battle fight combat
+        - intent: 冲击
+          terms: impact hit boom
+        - intent: 爆炸
+          terms: explosion blast boom
+        - intent: 转场
+          terms: whoosh swoosh transition
+        - intent: 悬疑
+          terms: suspense mystery tension
+        - intent: 恐怖
+          terms: horror scary dark
+        - intent: 胜利
+          terms: victory win triumph
+        - intent: 失败
+          terms: failure lose game over
+        - intent: 热血
+          terms: epic energetic heroic
+        - intent: 治愈
+          terms: healing calm gentle
+        - intent: 日常
+          terms: daily casual peaceful
+        - intent: 环境
+          terms: ambient atmosphere background
+        - intent: 电子
+          terms: electronic synth game
+        - intent: 钢琴
+          terms: piano emotional
+        - intent: 激励
+          terms: inspiring motivational uplifting
+        - intent: 悲伤
+          terms: sad emotional melancholy
+        - intent: 哭
+          terms: crying tears sad emotional
+        - intent: 流泪
+          terms: crying tears emotional
+        - intent: 紧张
+          terms: tense suspense dramatic
+        - intent: 浪漫
+          terms: romantic warm gentle
+    semantic-search:
+      enabled: ${ASSET_SEMANTIC_SEARCH_ENABLED:true}
+      model: ${ASSET_SEMANTIC_MODEL:bge-m3}
+      timeout-seconds: ${ASSET_SEMANTIC_TIMEOUT_SECONDS:8}
+      minimum-score: ${ASSET_SEMANTIC_MINIMUM_SCORE:0.28}
+      result-limit: ${ASSET_SEMANTIC_RESULT_LIMIT:60}
+    openverse:
+      enabled: ${OPENVERSE_ENABLED:true}
+      base-url: ${OPENVERSE_BASE_URL:https://api.openverse.org/v1}
+    wikimedia:
+      enabled: ${WIKIMEDIA_ENABLED:true}
+      base-url: ${WIKIMEDIA_BASE_URL:https://commons.wikimedia.org}
+      request-timeout-seconds: ${WIKIMEDIA_REQUEST_TIMEOUT_SECONDS:3}
+    bilibili:
+      # Search only public metadata. Every result remains a rights-review candidate.
+      enabled: ${BILIBILI_ASSET_SEARCH_ENABLED:true}
+      base-url: ${BILIBILI_ASSET_SEARCH_BASE_URL:https://api.bilibili.com}
+      min-request-interval-ms: ${BILIBILI_ASSET_SEARCH_MIN_INTERVAL_MS:800}
+    pexels:
+      enabled: ${PEXELS_ENABLED:true}
+      base-url: ${PEXELS_BASE_URL:https://api.pexels.com}
+      api-key: ${PEXELS_API_KEY:}
+    pixabay:
+      enabled: ${PIXABAY_ENABLED:true}
+      base-url: ${PIXABAY_BASE_URL:https://pixabay.com}
+      api-key: ${PIXABAY_API_KEY:}
+  async:
+    core-pool-size: ${ASYNC_CORE_POOL_SIZE:2}
+    max-pool-size: ${ASYNC_MAX_POOL_SIZE:4}
+    queue-capacity: ${ASYNC_QUEUE_CAPACITY:10}
+  pipeline:
+    waiting-retry-delay-ms: ${PIPELINE_WAITING_RETRY_DELAY_MS:30000}
+    waiting-retry-initial-delay-ms: ${PIPELINE_WAITING_RETRY_INITIAL_DELAY_MS:30000}
+  ffmpeg-command: "${FFMPEG_COMMAND:./tools/ffmpeg/bin/ffmpeg.exe}"
+  scene-threshold: ${SCENE_THRESHOLD:0.35}
+  scene-analysis-fps: ${SCENE_ANALYSIS_FPS:6}
+  maximum-scene-frames: ${MAXIMUM_SCENE_FRAMES:240}
+  scene-timeout-minutes: ${SCENE_TIMEOUT_MINUTES:20}
+  whisper:
+    executable: "${WHISPER_EXECUTABLE:./tools/whisper/Release/whisper-cli.exe}"
+    model: "${WHISPER_MODEL:./models/ggml-base.bin}"
+    language: ${WHISPER_LANGUAGE:auto}
+    threads: ${WHISPER_THREADS:8}
+  ollama:
+    base-url: ${OLLAMA_BASE_URL:http://localhost:11434}
+    vision-model: ${OLLAMA_VISION_MODEL:qwen2.5vl:3b}
+    script-model: ${OLLAMA_SCRIPT_MODEL:${OLLAMA_VISION_MODEL:qwen2.5vl:3b}}
+    # 0 = inspect every detected scene frame before highlight/script generation.
+    max-frames: ${OLLAMA_MAX_FRAMES:0}
+  media-import:
+    local-authentication-discovery: ${MEDIA_IMPORT_LOCAL_AUTH_DISCOVERY:false}
+    yt-dlp: "${YT_DLP_EXECUTABLE:./tools/yt-dlp/yt-dlp.exe}"
+    force-ipv4: ${MEDIA_IMPORT_FORCE_IPV4:true}
+    browser-priority:
+      - edge
+      - chrome
+      - firefox
+    cookie-search-paths:
+      - "${USERPROFILE}/Downloads"
+      - "${USERPROFILE}/Desktop"
+    platforms:
+      - id: BILIBILI
+        hosts: [bilibili.com, b23.tv]
+        cookie-domains: [bilibili.com]
+        referer: "https://www.bilibili.com/"
+      - id: YOUTUBE
+        hosts: [youtube.com, youtu.be]
+        cookie-domains: [youtube.com, google.com]
+        referer: "https://www.youtube.com/"
+      - id: DOUYIN
+        hosts: [douyin.com]
+        cookie-domains: [douyin.com]
+        referer: "https://www.douyin.com/"
+      - id: TIKTOK
+        hosts: [tiktok.com]
+        cookie-domains: [tiktok.com]
+        referer: "https://www.tiktok.com/"
+  piper:
+    executable: "${PIPER_EXECUTABLE:./tools/piper/piper/piper.exe}"
+    model: "${PIPER_MODEL:./models/piper/zh_CN-huayan-medium.onnx}"
+    length-scale: ${PIPER_LENGTH_SCALE:1.0}
+    default-voice: ${PIPER_DEFAULT_VOICE:huayan}
+    voices:
+      - id: huayan
+        name: 华妍中文女声
+        model: "${PIPER_MODEL:./models/piper/zh_CN-huayan-medium.onnx}"
+      - id: xiaoxiao
+        name: 晓晓中文女声（可选安装）
+        model: "${PIPER_XIAOXIAO_MODEL:./models/piper/zh_CN-xiaoxiao-medium.onnx}"
+  render:
+    video-encoder: ${VIDEO_ENCODER:h264_nvenc}
+``
+
+### FILE: src/main/resources/application-release.yml
+
+``yaml
+server:
+  address: 127.0.0.1
+  port: ${SERVER_PORT:18081}
+spring:
+  datasource:
+    url: "jdbc:h2:file:${GAME_NARRATOR_DATA_ROOT}/game-narrator;AUTO_SERVER=TRUE;CACHE_SIZE=16384"
+logging:
+  level:
+    cn.longer233.gamenarrator: INFO
+  file:
+    name: "${GAME_NARRATOR_DATA_ROOT}/logs/game-narrator.log"
+game-narrator:
+  storage-root: "${GAME_NARRATOR_DATA_ROOT}/storage"
+  ffmpeg-command: "${GAME_NARRATOR_APP_ROOT}/tools/ffmpeg/bin/ffmpeg.exe"
+  whisper:
+    executable: "${GAME_NARRATOR_APP_ROOT}/tools/whisper/Release/whisper-cli.exe"
+    model: "${GAME_NARRATOR_APP_ROOT}/models/whisper/ggml-base.bin"
+  media-import:
+    yt-dlp: "${GAME_NARRATOR_APP_ROOT}/tools/yt-dlp/yt-dlp.exe"
+  piper:
+    executable: "${GAME_NARRATOR_APP_ROOT}/tools/piper/piper/piper.exe"
+    model: "${GAME_NARRATOR_APP_ROOT}/models/piper/zh_CN-huayan-medium.onnx"
+    voices:
+      - id: huayan
+        name: 华妍中文女声
+        model: "${GAME_NARRATOR_APP_ROOT}/models/piper/zh_CN-huayan-medium.onnx"
+  ollama:
+    base-url: ${OLLAMA_BASE_URL:http://127.0.0.1:11434}
+``
+
+### FILE: src/main/resources/db/migration/V1__database_v2_foundation.sql
+
+``sql
+CREATE TABLE IF NOT EXISTS video_tasks (
+    id UUID PRIMARY KEY,
+    name VARCHAR(120) NOT NULL,
+    game_category VARCHAR(40) NOT NULL,
+    commentary_style VARCHAR(30) NOT NULL,
+    target_duration_seconds INTEGER NOT NULL,
+    task_brief VARCHAR(500) NOT NULL,
+    source_video_path VARCHAR(500) NOT NULL,
+    status VARCHAR(20) NOT NULL,
+    duration_seconds DOUBLE PRECISION,
+    video_width INTEGER,
+    video_height INTEGER,
+    frames_per_second DOUBLE PRECISION,
+    video_codec VARCHAR(80),
+    audio_codec VARCHAR(80),
+    failure_reason VARCHAR(1000),
+    extracted_audio_path VARCHAR(500),
+    scene_manifest_path VARCHAR(500),
+    detected_scene_count INTEGER,
+    transcript_text CLOB,
+    transcript_text_path VARCHAR(500),
+    subtitle_path VARCHAR(500),
+    transcript_json_path VARCHAR(500),
+    visual_summary CLOB,
+    visual_analysis_path VARCHAR(500),
+    analyzed_frame_count INTEGER,
+    highlight_summary CLOB,
+    highlight_manifest_path VARCHAR(500),
+    selected_highlight_count INTEGER,
+    generated_title VARCHAR(200),
+    script_synopsis CLOB,
+    generated_narration CLOB,
+    generated_script_path VARCHAR(500),
+    generated_script_segment_count INTEGER,
+    voice_manifest_path VARCHAR(500),
+    generated_voice_segment_count INTEGER,
+    timeline_path VARCHAR(500),
+    planned_output_duration_seconds DOUBLE PRECISION,
+    voice_overflow_count INTEGER,
+    rendered_video_path VARCHAR(500),
+    generated_subtitle_path VARCHAR(500),
+    rendered_file_size_bytes BIGINT,
+    created_at TIMESTAMP WITH TIME ZONE NOT NULL
+);
+
+CREATE TABLE IF NOT EXISTS processing_stages (
+    id UUID PRIMARY KEY,
+    task_id UUID NOT NULL,
+    stage_type VARCHAR(40) NOT NULL,
+    sequence_number INTEGER NOT NULL,
+    status VARCHAR(20) NOT NULL,
+    progress INTEGER NOT NULL,
+    error_message VARCHAR(1000),
+    CONSTRAINT fk_processing_stage_task FOREIGN KEY (task_id) REFERENCES video_tasks(id),
+    CONSTRAINT uk_processing_stage_task_type UNIQUE (task_id, stage_type)
+);
+
+CREATE TABLE IF NOT EXISTS game_events (
+    id UUID PRIMARY KEY,
+    task_id UUID NOT NULL,
+    start_seconds DOUBLE PRECISION NOT NULL,
+    end_seconds DOUBLE PRECISION NOT NULL,
+    event_type VARCHAR(40) NOT NULL,
+    confidence DOUBLE PRECISION NOT NULL,
+    highlight_score DOUBLE PRECISION NOT NULL,
+    description VARCHAR(500) NOT NULL
+);
+
+CREATE TABLE app_user (
+    id UUID PRIMARY KEY,
+    username VARCHAR(64) NOT NULL UNIQUE,
+    display_name VARCHAR(100) NOT NULL,
+    password_hash VARCHAR(255),
+    role VARCHAR(30) NOT NULL,
+    status VARCHAR(20) NOT NULL,
+    created_at TIMESTAMP WITH TIME ZONE NOT NULL,
+    updated_at TIMESTAMP WITH TIME ZONE NOT NULL,
+    last_login_at TIMESTAMP WITH TIME ZONE
+);
+
+CREATE TABLE video_project (
+    id UUID PRIMARY KEY,
+    owner_id UUID NOT NULL,
+    name VARCHAR(120) NOT NULL,
+    description VARCHAR(1000),
+    game_category VARCHAR(40) NOT NULL,
+    commentary_style VARCHAR(40) NOT NULL,
+    status VARCHAR(30) NOT NULL,
+    current_revision_id UUID,
+    latest_run_id UUID,
+    created_at TIMESTAMP WITH TIME ZONE NOT NULL,
+    updated_at TIMESTAMP WITH TIME ZONE NOT NULL,
+    deleted_at TIMESTAMP WITH TIME ZONE,
+    version BIGINT NOT NULL DEFAULT 0,
+    CONSTRAINT fk_video_project_owner FOREIGN KEY (owner_id) REFERENCES app_user(id)
+);
+
+CREATE TABLE media_asset (
+    id UUID PRIMARY KEY,
+    owner_id UUID NOT NULL,
+    project_id UUID,
+    asset_type VARCHAR(30) NOT NULL,
+    original_name VARCHAR(255),
+    storage_key VARCHAR(500) NOT NULL UNIQUE,
+    sha256 CHAR(64) NOT NULL,
+    mime_type VARCHAR(100) NOT NULL,
+    size_bytes BIGINT NOT NULL,
+    duration_ms BIGINT,
+    width INTEGER,
+    height INTEGER,
+    frame_rate DECIMAL(10,4),
+    codec VARCHAR(60),
+    metadata_json CLOB NOT NULL,
+    created_at TIMESTAMP WITH TIME ZONE NOT NULL,
+    deleted_at TIMESTAMP WITH TIME ZONE,
+    CONSTRAINT fk_media_asset_owner FOREIGN KEY (owner_id) REFERENCES app_user(id),
+    CONSTRAINT fk_media_asset_project FOREIGN KEY (project_id) REFERENCES video_project(id)
+);
+
+CREATE TABLE project_revision (
+    id UUID PRIMARY KEY,
+    project_id UUID NOT NULL,
+    revision_no INTEGER NOT NULL,
+    parent_revision_id UUID,
+    created_by UUID NOT NULL,
+    change_type VARCHAR(40) NOT NULL,
+    change_summary VARCHAR(500),
+    parameter_snapshot_json CLOB NOT NULL,
+    manifest_json CLOB NOT NULL,
+    manifest_schema_version INTEGER NOT NULL,
+    manifest_sha256 CHAR(64) NOT NULL,
+    created_at TIMESTAMP WITH TIME ZONE NOT NULL,
+    CONSTRAINT fk_revision_project FOREIGN KEY (project_id) REFERENCES video_project(id),
+    CONSTRAINT fk_revision_parent FOREIGN KEY (parent_revision_id) REFERENCES project_revision(id),
+    CONSTRAINT fk_revision_creator FOREIGN KEY (created_by) REFERENCES app_user(id),
+    CONSTRAINT uk_revision_project_no UNIQUE (project_id, revision_no)
+);
+
+CREATE TABLE generation_run (
+    id UUID PRIMARY KEY,
+    project_id UUID NOT NULL,
+    user_id UUID NOT NULL,
+    input_revision_id UUID NOT NULL,
+    output_revision_id UUID,
+    run_type VARCHAR(30) NOT NULL,
+    status VARCHAR(20) NOT NULL,
+    trigger_source VARCHAR(20) NOT NULL,
+    started_at TIMESTAMP WITH TIME ZONE,
+    finished_at TIMESTAMP WITH TIME ZONE,
+    elapsed_ms BIGINT,
+    failure_code VARCHAR(80),
+    failure_message VARCHAR(2000),
+    trace_id VARCHAR(80),
+    created_at TIMESTAMP WITH TIME ZONE NOT NULL,
+    CONSTRAINT fk_run_project FOREIGN KEY (project_id) REFERENCES video_project(id),
+    CONSTRAINT fk_run_user FOREIGN KEY (user_id) REFERENCES app_user(id),
+    CONSTRAINT fk_run_input_revision FOREIGN KEY (input_revision_id) REFERENCES project_revision(id),
+    CONSTRAINT fk_run_output_revision FOREIGN KEY (output_revision_id) REFERENCES project_revision(id)
+);
+
+CREATE TABLE stage_run (
+    id UUID PRIMARY KEY,
+    generation_run_id UUID NOT NULL,
+    stage_type VARCHAR(40) NOT NULL,
+    attempt_no INTEGER NOT NULL,
+    status VARCHAR(20) NOT NULL,
+    progress INTEGER NOT NULL,
+    input_snapshot_json CLOB NOT NULL,
+    output_summary_json CLOB,
+    started_at TIMESTAMP WITH TIME ZONE,
+    finished_at TIMESTAMP WITH TIME ZONE,
+    elapsed_ms BIGINT,
+    error_code VARCHAR(80),
+    error_message VARCHAR(2000),
+    CONSTRAINT fk_stage_run_generation FOREIGN KEY (generation_run_id) REFERENCES generation_run(id),
+    CONSTRAINT uk_stage_run_attempt UNIQUE (generation_run_id, stage_type, attempt_no),
+    CONSTRAINT ck_stage_run_progress CHECK (progress BETWEEN 0 AND 100)
+);
+
+CREATE TABLE artifact (
+    id UUID PRIMARY KEY,
+    owner_id UUID NOT NULL,
+    project_id UUID NOT NULL,
+    revision_id UUID,
+    generation_run_id UUID,
+    artifact_type VARCHAR(40) NOT NULL,
+    storage_key VARCHAR(500) NOT NULL UNIQUE,
+    mime_type VARCHAR(100) NOT NULL,
+    size_bytes BIGINT NOT NULL,
+    sha256 CHAR(64) NOT NULL,
+    schema_version INTEGER,
+    temporary BOOLEAN NOT NULL,
+    expires_at TIMESTAMP WITH TIME ZONE,
+    created_at TIMESTAMP WITH TIME ZONE NOT NULL,
+    deleted_at TIMESTAMP WITH TIME ZONE,
+    CONSTRAINT fk_artifact_owner FOREIGN KEY (owner_id) REFERENCES app_user(id),
+    CONSTRAINT fk_artifact_project FOREIGN KEY (project_id) REFERENCES video_project(id),
+    CONSTRAINT fk_artifact_revision FOREIGN KEY (revision_id) REFERENCES project_revision(id),
+    CONSTRAINT fk_artifact_run FOREIGN KEY (generation_run_id) REFERENCES generation_run(id)
+);
+
+CREATE TABLE interaction_record (
+    id UUID PRIMARY KEY,
+    user_id UUID NOT NULL,
+    project_id UUID,
+    generation_run_id UUID,
+    stage_run_id UUID,
+    direction VARCHAR(10) NOT NULL,
+    actor_type VARCHAR(20) NOT NULL,
+    interaction_type VARCHAR(40) NOT NULL,
+    content_text CLOB,
+    content_json CLOB,
+    artifact_id UUID,
+    content_sha256 CHAR(64) NOT NULL,
+    contains_sensitive_data BOOLEAN NOT NULL DEFAULT FALSE,
+    created_at TIMESTAMP WITH TIME ZONE NOT NULL,
+    CONSTRAINT fk_interaction_user FOREIGN KEY (user_id) REFERENCES app_user(id),
+    CONSTRAINT fk_interaction_project FOREIGN KEY (project_id) REFERENCES video_project(id),
+    CONSTRAINT fk_interaction_run FOREIGN KEY (generation_run_id) REFERENCES generation_run(id),
+    CONSTRAINT fk_interaction_stage FOREIGN KEY (stage_run_id) REFERENCES stage_run(id),
+    CONSTRAINT fk_interaction_artifact FOREIGN KEY (artifact_id) REFERENCES artifact(id),
+    CONSTRAINT ck_interaction_content CHECK (content_text IS NOT NULL OR content_json IS NOT NULL OR artifact_id IS NOT NULL)
+);
+
+CREATE TABLE model_invocation (
+    id UUID PRIMARY KEY,
+    user_id UUID NOT NULL,
+    project_id UUID NOT NULL,
+    generation_run_id UUID NOT NULL,
+    stage_run_id UUID NOT NULL,
+    provider VARCHAR(30) NOT NULL,
+    model_name VARCHAR(120) NOT NULL,
+    model_digest VARCHAR(128),
+    operation VARCHAR(40) NOT NULL,
+    request_record_id UUID NOT NULL,
+    response_record_id UUID,
+    parameters_json CLOB NOT NULL,
+    status VARCHAR(20) NOT NULL,
+    started_at TIMESTAMP WITH TIME ZONE NOT NULL,
+    finished_at TIMESTAMP WITH TIME ZONE,
+    elapsed_ms BIGINT,
+    queue_ms BIGINT,
+    error_code VARCHAR(80),
+    error_message VARCHAR(2000),
+    CONSTRAINT fk_invocation_user FOREIGN KEY (user_id) REFERENCES app_user(id),
+    CONSTRAINT fk_invocation_project FOREIGN KEY (project_id) REFERENCES video_project(id),
+    CONSTRAINT fk_invocation_run FOREIGN KEY (generation_run_id) REFERENCES generation_run(id),
+    CONSTRAINT fk_invocation_stage FOREIGN KEY (stage_run_id) REFERENCES stage_run(id),
+    CONSTRAINT fk_invocation_request FOREIGN KEY (request_record_id) REFERENCES interaction_record(id),
+    CONSTRAINT fk_invocation_response FOREIGN KEY (response_record_id) REFERENCES interaction_record(id)
+);
+
+CREATE TABLE token_usage (
+    id UUID PRIMARY KEY,
+    invocation_id UUID NOT NULL UNIQUE,
+    user_id UUID NOT NULL,
+    project_id UUID NOT NULL,
+    input_tokens BIGINT NOT NULL DEFAULT 0,
+    output_tokens BIGINT NOT NULL DEFAULT 0,
+    total_tokens BIGINT NOT NULL DEFAULT 0,
+    cached_tokens BIGINT NOT NULL DEFAULT 0,
+    image_count INTEGER NOT NULL DEFAULT 0,
+    audio_seconds DECIMAL(12,3) NOT NULL DEFAULT 0,
+    tts_characters BIGINT NOT NULL DEFAULT 0,
+    prompt_eval_ms BIGINT,
+    generation_ms BIGINT,
+    tokens_per_second DECIMAL(12,3),
+    estimated_cost DECIMAL(18,8),
+    currency CHAR(3),
+    measured_at TIMESTAMP WITH TIME ZONE NOT NULL,
+    CONSTRAINT fk_usage_invocation FOREIGN KEY (invocation_id) REFERENCES model_invocation(id),
+    CONSTRAINT fk_usage_user FOREIGN KEY (user_id) REFERENCES app_user(id),
+    CONSTRAINT fk_usage_project FOREIGN KEY (project_id) REFERENCES video_project(id),
+    CONSTRAINT ck_usage_tokens CHECK (input_tokens >= 0 AND output_tokens >= 0 AND total_tokens = input_tokens + output_tokens)
+);
+
+CREATE TABLE export_preset (
+    id UUID PRIMARY KEY,
+    owner_id UUID,
+    name VARCHAR(100) NOT NULL,
+    description VARCHAR(500),
+    container VARCHAR(20) NOT NULL,
+    video_codec VARCHAR(30) NOT NULL,
+    audio_codec VARCHAR(30) NOT NULL,
+    width INTEGER,
+    height INTEGER,
+    frame_rate DECIMAL(8,3),
+    rate_control VARCHAR(20) NOT NULL,
+    quality_value INTEGER,
+    target_bitrate_kbps INTEGER,
+    max_bitrate_kbps INTEGER,
+    hardware_encoder VARCHAR(30),
+    audio_bitrate_kbps INTEGER,
+    audio_sample_rate INTEGER NOT NULL,
+    subtitle_mode VARCHAR(20) NOT NULL,
+    color_space VARCHAR(30) NOT NULL,
+    extra_options_json CLOB NOT NULL,
+    system_preset BOOLEAN NOT NULL,
+    created_at TIMESTAMP WITH TIME ZONE NOT NULL,
+    updated_at TIMESTAMP WITH TIME ZONE NOT NULL,
+    CONSTRAINT fk_export_preset_owner FOREIGN KEY (owner_id) REFERENCES app_user(id)
+);
+
+CREATE TABLE export_job (
+    id UUID PRIMARY KEY,
+    project_id UUID NOT NULL,
+    revision_id UUID NOT NULL,
+    requested_by UUID NOT NULL,
+    preset_id UUID,
+    export_name VARCHAR(200) NOT NULL,
+    settings_snapshot_json CLOB NOT NULL,
+    status VARCHAR(20) NOT NULL,
+    progress INTEGER NOT NULL,
+    output_artifact_id UUID,
+    started_at TIMESTAMP WITH TIME ZONE,
+    completed_at TIMESTAMP WITH TIME ZONE,
+    expires_at TIMESTAMP WITH TIME ZONE,
+    downloaded_at TIMESTAMP WITH TIME ZONE,
+    download_count INTEGER NOT NULL DEFAULT 0,
+    error_code VARCHAR(80),
+    error_message VARCHAR(2000),
+    created_at TIMESTAMP WITH TIME ZONE NOT NULL,
+    CONSTRAINT fk_export_project FOREIGN KEY (project_id) REFERENCES video_project(id),
+    CONSTRAINT fk_export_revision FOREIGN KEY (revision_id) REFERENCES project_revision(id),
+    CONSTRAINT fk_export_user FOREIGN KEY (requested_by) REFERENCES app_user(id),
+    CONSTRAINT fk_export_preset FOREIGN KEY (preset_id) REFERENCES export_preset(id),
+    CONSTRAINT fk_export_artifact FOREIGN KEY (output_artifact_id) REFERENCES artifact(id),
+    CONSTRAINT ck_export_progress CHECK (progress BETWEEN 0 AND 100)
+);
+
+ALTER TABLE video_project ADD CONSTRAINT fk_project_current_revision FOREIGN KEY (current_revision_id) REFERENCES project_revision(id);
+ALTER TABLE video_project ADD CONSTRAINT fk_project_latest_run FOREIGN KEY (latest_run_id) REFERENCES generation_run(id);
+ALTER TABLE video_tasks ADD COLUMN IF NOT EXISTS owner_id UUID;
+ALTER TABLE video_tasks ADD COLUMN IF NOT EXISTS project_id UUID;
+ALTER TABLE video_tasks ADD CONSTRAINT IF NOT EXISTS fk_legacy_task_owner FOREIGN KEY (owner_id) REFERENCES app_user(id);
+ALTER TABLE video_tasks ADD CONSTRAINT IF NOT EXISTS fk_legacy_task_project FOREIGN KEY (project_id) REFERENCES video_project(id);
+
+CREATE INDEX idx_project_owner_updated ON video_project(owner_id, updated_at);
+CREATE INDEX idx_project_owner_status ON video_project(owner_id, status);
+CREATE INDEX idx_run_project_created ON generation_run(project_id, created_at);
+CREATE INDEX idx_run_user_created ON generation_run(user_id, created_at);
+CREATE INDEX idx_run_status_created ON generation_run(status, created_at);
+CREATE INDEX idx_interaction_project_created ON interaction_record(project_id, created_at);
+CREATE INDEX idx_usage_user_measured ON token_usage(user_id, measured_at);
+CREATE INDEX idx_usage_project_measured ON token_usage(project_id, measured_at);
+CREATE INDEX idx_export_project_created ON export_job(project_id, created_at);
+CREATE INDEX idx_export_user_created ON export_job(requested_by, created_at);
+CREATE INDEX idx_export_status_created ON export_job(status, created_at);
+
+MERGE INTO app_user (id, username, display_name, password_hash, role, status, created_at, updated_at, last_login_at)
+KEY (id) VALUES ('00000000-0000-0000-0000-000000000001', 'local-user', '本地用户', NULL, 'ADMIN', 'ACTIVE', CURRENT_TIMESTAMP, CURRENT_TIMESTAMP, NULL);
+
+INSERT INTO video_project (id, owner_id, name, description, game_category, commentary_style, status, created_at, updated_at, version)
+SELECT id, '00000000-0000-0000-0000-000000000001', name, task_brief, game_category, commentary_style,
+       CASE WHEN status = 'COMPLETED' THEN 'READY' WHEN status = 'FAILED' THEN 'FAILED' WHEN status = 'PROCESSING' THEN 'PROCESSING' ELSE 'DRAFT' END,
+       created_at, CURRENT_TIMESTAMP, 0
+FROM video_tasks
+WHERE NOT EXISTS (SELECT 1 FROM video_project p WHERE p.id = video_tasks.id);
+
+UPDATE video_tasks SET owner_id = '00000000-0000-0000-0000-000000000001' WHERE owner_id IS NULL;
+UPDATE video_tasks SET project_id = id WHERE project_id IS NULL;
+
+INSERT INTO export_preset (id, name, description, container, video_codec, audio_codec, width, height, frame_rate, rate_control, quality_value, target_bitrate_kbps, max_bitrate_kbps, hardware_encoder, audio_bitrate_kbps, audio_sample_rate, subtitle_mode, color_space, extra_options_json, system_preset, created_at, updated_at) VALUES
+('10000000-0000-0000-0000-000000000001', '快速预览', '720p 快速预览文件', 'MP4', 'H264', 'AAC', 1280, 720, 30, 'CQ', 28, NULL, NULL, 'H264_NVENC', 128, 48000, 'SOFT', 'REC709', '{}', TRUE, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP),
+('10000000-0000-0000-0000-000000000002', '通用高清', '1080p 通用发布格式', 'MP4', 'H264', 'AAC', 1920, 1080, NULL, 'CQ', 20, NULL, NULL, 'H264_NVENC', 192, 48000, 'SOFT', 'REC709', '{}', TRUE, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP),
+('10000000-0000-0000-0000-000000000003', '高压缩高清', 'HEVC 高压缩 1080p', 'MP4', 'HEVC', 'AAC', 1920, 1080, NULL, 'CQ', 24, NULL, NULL, 'HEVC_NVENC', 160, 48000, 'SOFT', 'REC709', '{}', TRUE, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP),
+('10000000-0000-0000-0000-000000000004', '保持源画质', '保持源分辨率和帧率', 'MP4', 'H264', 'AAC', NULL, NULL, NULL, 'CQ', 18, NULL, NULL, 'H264_NVENC', 192, 48000, 'SOFT', 'SOURCE', '{}', TRUE, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP),
+('10000000-0000-0000-0000-000000000005', '后期编辑', '用于导入专业剪辑软件', 'MOV', 'PRORES', 'PCM', NULL, NULL, NULL, 'CQ', NULL, NULL, NULL, NULL, NULL, 48000, 'SEPARATE_SRT', 'REC709', '{"profile":"422"}', TRUE, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP),
+('10000000-0000-0000-0000-000000000006', 'Web 发布', '适合网页播放', 'WEBM', 'VP9', 'OPUS', 1920, 1080, 30, 'CQ', 30, NULL, NULL, NULL, 128, 48000, 'NONE', 'REC709', '{}', TRUE, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP),
+('10000000-0000-0000-0000-000000000007', '纯字幕', '单独导出 SRT 字幕', 'SRT', 'NONE', 'NONE', NULL, NULL, NULL, 'CQ', NULL, NULL, NULL, NULL, NULL, 48000, 'SEPARATE_SRT', 'SOURCE', '{}', TRUE, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP),
+('10000000-0000-0000-0000-000000000008', '纯配音', '单独导出 WAV 配音', 'WAV', 'NONE', 'PCM', NULL, NULL, NULL, 'CQ', NULL, NULL, NULL, NULL, NULL, 48000, 'NONE', 'SOURCE', '{}', TRUE, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP);
+``
+
+### FILE: src/main/resources/db/migration/V10__allow_storyboard_review_task_status.sql
+
+``sql
+-- Legacy databases created by Hibernate have an automatically named enum check
+-- constraint that predates WAITING_REVIEW. Replace it with a stable Flyway-owned
+-- constraint so storyboard review can persist its waiting state.
+ALTER TABLE video_tasks DROP CONSTRAINT IF EXISTS CONSTRAINT_98;
+
+ALTER TABLE video_tasks DROP CONSTRAINT IF EXISTS ck_video_tasks_status;
+
+ALTER TABLE video_tasks ADD CONSTRAINT ck_video_tasks_status CHECK (
+    status IN ('DRAFT', 'READY', 'PROCESSING', 'WAITING_REVIEW', 'COMPLETED', 'FAILED')
+);
+``
+
+### FILE: src/main/resources/db/migration/V11__repair_bilibili_scraped_titles_and_tags.sql
+
+``sql
+DELETE FROM asset_embedding
+WHERE asset_id IN (
+    SELECT id FROM external_asset
+    WHERE provider='BILIBILI'
+      AND (title LIKE '添加至稍后再看%' OR title LIKE '稍后再看%')
+);
+
+DELETE FROM asset_tag_assignment
+WHERE tag_source IN ('AI','AI_TRANSLATION')
+  AND asset_id IN (
+    SELECT id FROM external_asset
+    WHERE provider='BILIBILI'
+      AND (title LIKE '添加至稍后再看%' OR title LIKE '稍后再看%')
+);
+
+UPDATE external_asset
+SET title=CONCAT('Bilibili 视频 ', REGEXP_REPLACE(landing_url, '^.*/video/(BV[0-9A-Za-z]+).*$', '$1')),
+    localized_title=NULL
+WHERE provider='BILIBILI'
+  AND (title LIKE '添加至稍后再看%' OR title LIKE '稍后再看%');
+``
+
+### FILE: src/main/resources/db/migration/V12__storyboard_asset_placement.sql
+
+``sql
+CREATE TABLE storyboard_asset_placement (
+    id UUID PRIMARY KEY,
+    task_id UUID NOT NULL,
+    clip_index INTEGER NOT NULL,
+    asset_id UUID NOT NULL,
+    placement_type VARCHAR(20) NOT NULL,
+    position_name VARCHAR(30) NOT NULL,
+    instruction VARCHAR(500),
+    ai_assigned BOOLEAN NOT NULL DEFAULT FALSE,
+    cutout_applied BOOLEAN NOT NULL DEFAULT FALSE,
+    created_at TIMESTAMP WITH TIME ZONE NOT NULL,
+    CONSTRAINT fk_storyboard_asset_task FOREIGN KEY(task_id) REFERENCES video_tasks(id) ON DELETE CASCADE,
+    CONSTRAINT fk_storyboard_asset_asset FOREIGN KEY(asset_id) REFERENCES external_asset(id) ON DELETE CASCADE,
+    CONSTRAINT uk_storyboard_asset_clip UNIQUE(task_id, clip_index, asset_id)
+);
+
+CREATE INDEX idx_storyboard_asset_task_clip ON storyboard_asset_placement(task_id, clip_index);
+``
+
+### FILE: src/main/resources/db/migration/V13__remove_placeholder_asset_labels.sql
+
+``sql
+DELETE FROM asset_tag_assignment
+WHERE tag_id IN (SELECT id FROM asset_tag WHERE normalized_name IN ('待审核', '待翻译素材'));
+
+DELETE FROM asset_tag_override
+WHERE tag_id IN (SELECT id FROM asset_tag WHERE normalized_name IN ('待审核', '待翻译素材'));
+
+DELETE FROM asset_tag
+WHERE normalized_name IN ('待审核', '待翻译素材')
+  AND id NOT IN (SELECT tag_id FROM asset_tag_assignment)
+  AND id NOT IN (SELECT tag_id FROM asset_tag_override);
+
+UPDATE external_asset
+SET localized_title = title
+WHERE localized_title IN ('待翻译素材', '待审核');
+``
+
+### FILE: src/main/resources/db/migration/V14__optional_ai_pipeline.sql
+
+``sql
+ALTER TABLE video_tasks ADD COLUMN IF NOT EXISTS cloud_vision_enabled BOOLEAN NOT NULL DEFAULT TRUE;
+ALTER TABLE video_tasks ADD COLUMN IF NOT EXISTS ai_script_enabled BOOLEAN NOT NULL DEFAULT TRUE;
+ALTER TABLE video_tasks ADD COLUMN IF NOT EXISTS ai_voice_enabled BOOLEAN NOT NULL DEFAULT TRUE;
+ALTER TABLE video_tasks ADD COLUMN IF NOT EXISTS auto_assets_enabled BOOLEAN NOT NULL DEFAULT TRUE;
+``
+
+### FILE: src/main/resources/db/migration/V15__automatic_pipeline_mode.sql
+
+``sql
+ALTER TABLE video_tasks ADD COLUMN IF NOT EXISTS automatic_generation_enabled BOOLEAN NOT NULL DEFAULT TRUE;
+``
+
+### FILE: src/main/resources/db/migration/V2__backfill_legacy_project_history.sql
+
+``sql
+INSERT INTO project_revision (
+    id, project_id, revision_no, parent_revision_id, created_by, change_type,
+    change_summary, parameter_snapshot_json, manifest_json,
+    manifest_schema_version, manifest_sha256, created_at
+)
+SELECT
+    task.id,
+    task.id,
+    1,
+    NULL,
+    '00000000-0000-0000-0000-000000000001',
+    'INITIAL',
+    '由旧版任务迁移生成的初始工程版本',
+    JSON_OBJECT(
+        KEY 'name' VALUE task.name,
+        KEY 'gameCategory' VALUE task.game_category,
+        KEY 'commentaryStyle' VALUE task.commentary_style,
+        KEY 'targetDurationSeconds' VALUE task.target_duration_seconds,
+        KEY 'taskBrief' VALUE task.task_brief,
+        KEY 'sourceVideoPath' VALUE task.source_video_path
+    ),
+    JSON_OBJECT(
+        KEY 'schemaVersion' VALUE 2,
+        KEY 'projectId' VALUE CAST(task.id AS VARCHAR),
+        KEY 'legacyTaskId' VALUE CAST(task.id AS VARCHAR),
+        KEY 'timelinePath' VALUE task.timeline_path,
+        KEY 'renderedVideoPath' VALUE task.rendered_video_path
+    ),
+    2,
+    RAWTOHEX(HASH('SHA-256', STRINGTOUTF8('{}'))),
+    task.created_at
+FROM video_tasks task
+WHERE NOT EXISTS (
+    SELECT 1 FROM project_revision revision WHERE revision.project_id = task.id
+);
+
+UPDATE video_project project
+SET current_revision_id = (
+    SELECT revision.id
+    FROM project_revision revision
+    WHERE revision.project_id = project.id AND revision.revision_no = 1
+)
+WHERE project.current_revision_id IS NULL
+  AND EXISTS (SELECT 1 FROM project_revision revision WHERE revision.project_id = project.id);
+
+INSERT INTO interaction_record (
+    id, user_id, project_id, generation_run_id, stage_run_id,
+    direction, actor_type, interaction_type, content_text, content_json,
+    artifact_id, content_sha256, contains_sensitive_data, created_at
+)
+SELECT
+    RANDOM_UUID(),
+    '00000000-0000-0000-0000-000000000001',
+    task.id,
+    NULL,
+    NULL,
+    'INPUT',
+    'USER',
+    'FORM',
+    task.task_brief,
+    JSON_OBJECT(
+        KEY 'name' VALUE task.name,
+        KEY 'gameCategory' VALUE task.game_category,
+        KEY 'commentaryStyle' VALUE task.commentary_style,
+        KEY 'targetDurationSeconds' VALUE task.target_duration_seconds,
+        KEY 'sourceVideoPath' VALUE task.source_video_path,
+        KEY 'migrationSource' VALUE 'video_tasks'
+    ),
+    NULL,
+    RAWTOHEX(HASH('SHA-256', STRINGTOUTF8(COALESCE(task.task_brief, '')))),
+    FALSE,
+    task.created_at
+FROM video_tasks task
+WHERE NOT EXISTS (
+    SELECT 1
+    FROM interaction_record record
+    WHERE record.project_id = task.id
+      AND record.direction = 'INPUT'
+      AND record.interaction_type = 'FORM'
+);
+``
+
+### FILE: src/main/resources/db/migration/V3__external_asset_catalog.sql
+
+``sql
+CREATE TABLE external_asset (
+    id UUID PRIMARY KEY,
+    provider VARCHAR(30) NOT NULL,
+    external_id VARCHAR(200) NOT NULL,
+    asset_type VARCHAR(20) NOT NULL,
+    title VARCHAR(500) NOT NULL,
+    creator VARCHAR(300),
+    landing_url VARCHAR(2000) NOT NULL,
+    preview_url VARCHAR(2000),
+    download_url VARCHAR(2000),
+    license_code VARCHAR(80) NOT NULL,
+    license_url VARCHAR(2000),
+    attribution CLOB,
+    duration_ms BIGINT,
+    local_path VARCHAR(1000),
+    import_status VARCHAR(20) NOT NULL DEFAULT 'DISCOVERED',
+    metadata_json CLOB NOT NULL,
+    discovered_at TIMESTAMP WITH TIME ZONE NOT NULL,
+    downloaded_at TIMESTAMP WITH TIME ZONE,
+    CONSTRAINT uk_external_asset_provider_id UNIQUE(provider, external_id)
+);
+
+CREATE TABLE asset_tag (
+    id UUID PRIMARY KEY,
+    normalized_name VARCHAR(100) NOT NULL UNIQUE,
+    display_name VARCHAR(100) NOT NULL,
+    created_at TIMESTAMP WITH TIME ZONE NOT NULL
+);
+
+CREATE TABLE asset_tag_assignment (
+    id UUID PRIMARY KEY,
+    asset_id UUID NOT NULL,
+    tag_id UUID NOT NULL,
+    tag_source VARCHAR(20) NOT NULL,
+    confidence DECIMAL(6,5),
+    created_by UUID,
+    created_at TIMESTAMP WITH TIME ZONE NOT NULL,
+    CONSTRAINT fk_asset_tag_assignment_asset FOREIGN KEY(asset_id) REFERENCES external_asset(id),
+    CONSTRAINT fk_asset_tag_assignment_tag FOREIGN KEY(tag_id) REFERENCES asset_tag(id),
+    CONSTRAINT fk_asset_tag_assignment_user FOREIGN KEY(created_by) REFERENCES app_user(id),
+    CONSTRAINT uk_asset_tag_source UNIQUE(asset_id, tag_id, tag_source)
+);
+
+CREATE TABLE asset_tag_override (
+    id UUID PRIMARY KEY,
+    asset_id UUID NOT NULL,
+    tag_id UUID NOT NULL,
+    action VARCHAR(10) NOT NULL,
+    user_id UUID NOT NULL,
+    created_at TIMESTAMP WITH TIME ZONE NOT NULL,
+    CONSTRAINT fk_asset_tag_override_asset FOREIGN KEY(asset_id) REFERENCES external_asset(id),
+    CONSTRAINT fk_asset_tag_override_tag FOREIGN KEY(tag_id) REFERENCES asset_tag(id),
+    CONSTRAINT fk_asset_tag_override_user FOREIGN KEY(user_id) REFERENCES app_user(id),
+    CONSTRAINT uk_asset_tag_override UNIQUE(asset_id, tag_id, user_id)
+);
+
+CREATE INDEX idx_external_asset_type_title ON external_asset(asset_type, title);
+CREATE INDEX idx_external_asset_provider ON external_asset(provider, discovered_at);
+CREATE INDEX idx_asset_tag_assignment_asset ON asset_tag_assignment(asset_id, tag_source);
+``
+
+### FILE: src/main/resources/db/migration/V4__asset_library_organization.sql
+
+``sql
+ALTER TABLE external_asset ADD COLUMN favorite BOOLEAN NOT NULL DEFAULT FALSE;
+ALTER TABLE external_asset ADD COLUMN archived BOOLEAN NOT NULL DEFAULT FALSE;
+CREATE INDEX idx_external_asset_library_state ON external_asset(archived, favorite, asset_type, discovered_at);
+``
+
+### FILE: src/main/resources/db/migration/V5__asset_semantic_embeddings.sql
+
+``sql
+CREATE TABLE asset_embedding (
+    asset_id UUID PRIMARY KEY,
+    model VARCHAR(120) NOT NULL,
+    dimensions INTEGER NOT NULL,
+    content_hash VARCHAR(64) NOT NULL,
+    vector_json CLOB NOT NULL,
+    embedded_at TIMESTAMP WITH TIME ZONE NOT NULL,
+    CONSTRAINT fk_asset_embedding_asset FOREIGN KEY(asset_id) REFERENCES external_asset(id)
+);
+
+CREATE INDEX idx_asset_embedding_model_hash ON asset_embedding(model, content_hash);
+``
+
+### FILE: src/main/resources/db/migration/V6__asset_chinese_localization.sql
+
+``sql
+ALTER TABLE external_asset ADD COLUMN localized_title VARCHAR(500);
+CREATE INDEX idx_external_asset_localized_title ON external_asset(localized_title);
+``
+
+### FILE: src/main/resources/db/migration/V7__storyboard_review.sql
+
+``sql
+ALTER TABLE video_tasks ADD COLUMN IF NOT EXISTS storyboard_review_enabled BOOLEAN NOT NULL DEFAULT FALSE;
+ALTER TABLE video_tasks ADD COLUMN IF NOT EXISTS storyboard_approved BOOLEAN NOT NULL DEFAULT TRUE;
+``
+
+### FILE: src/main/resources/db/migration/V8__video_segment_semantic_index.sql
+
+``sql
+CREATE TABLE video_segment_embedding (
+    task_id UUID NOT NULL,
+    frame_index INTEGER NOT NULL,
+    timestamp_seconds DOUBLE PRECISION NOT NULL,
+    event_type VARCHAR(60),
+    description VARCHAR(1000) NOT NULL,
+    image_path VARCHAR(500) NOT NULL,
+    model VARCHAR(120) NOT NULL,
+    content_hash VARCHAR(64) NOT NULL,
+    vector_json CLOB NOT NULL,
+    indexed_at TIMESTAMP WITH TIME ZONE NOT NULL,
+    PRIMARY KEY(task_id, frame_index),
+    CONSTRAINT fk_segment_embedding_task FOREIGN KEY(task_id) REFERENCES video_tasks(id) ON DELETE CASCADE
+);
+CREATE INDEX idx_segment_embedding_model ON video_segment_embedding(model);
+
+``
+
+### FILE: src/main/resources/db/migration/V9__video_segment_image_hash.sql
+
+``sql
+ALTER TABLE video_segment_embedding ADD COLUMN image_hash BIGINT;
+CREATE INDEX idx_segment_embedding_image_hash ON video_segment_embedding(image_hash);
+``
+
+### FILE: src/main/resources/static/app.css
+
+``css
+:root{font-family:Inter,"Microsoft YaHei",sans-serif;color:#edf4ff;background:#070b17;color-scheme:dark}*{box-sizing:border-box}body{margin:0;min-height:100vh;background:radial-gradient(circle at 80% 10%,#20255d 0,transparent 30%),#070b17}.aurora{position:fixed;inset:0;pointer-events:none;background:linear-gradient(115deg,rgba(34,211,238,.04),transparent 35%,rgba(236,72,153,.05));}.topbar{height:72px;padding:0 max(5vw,24px);display:flex;align-items:center;justify-content:space-between;border-bottom:1px solid #293047;background:rgba(7,11,23,.75);backdrop-filter:blur(16px);position:sticky;top:0;z-index:2}.brand{color:#fff;text-decoration:none;font-weight:900;letter-spacing:.08em}.brand span{color:#4de6f7}.system-state{font-size:13px;color:#9aa7c2}.system-state i{display:inline-block;width:8px;height:8px;border-radius:50%;background:#38e09d;box-shadow:0 0 12px #38e09d;margin-right:8px}main{position:relative;max-width:1280px;margin:auto;padding:64px 5vw}.hero{max-width:880px}.eyebrow,.section-title small{color:#45d7ea;font-size:12px;font-weight:800;letter-spacing:.2em}.hero h1{font-size:clamp(42px,6vw,78px);line-height:1.02;margin:18px 0}.hero h1 span{background:linear-gradient(90deg,#4de6f7,#9b8cff 55%,#ff5fac);background-clip:text;color:transparent}.lead{max-width:720px;color:#9ba8c3;line-height:1.8}.metrics{display:flex;gap:12px;margin:32px 0 56px}.metrics div{min-width:130px;padding:16px 20px;border:1px solid #293047;background:#0d1325;border-radius:12px}.metrics strong,.metrics span{display:block}.metrics strong{font-size:20px}.metrics span{font-size:12px;color:#8290ad;margin-top:4px}.workspace{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:24px}.create-panel,.task-panel{padding:28px;border:1px solid #293047;border-radius:20px;background:rgba(13,19,37,.88);box-shadow:0 24px 80px rgba(0,0,0,.24)}.create-panel{border-top-color:#45d7ea}.task-panel{border-top-color:#ff5fac}.section-title{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:24px}.section-title h2{font-size:24px;margin:6px 0}.step{font-size:42px;font-weight:900;color:#283149}form{display:grid;gap:16px}label{display:grid;gap:8px;font-size:13px;color:#a9b6ce}.grid{display:grid;grid-template-columns:1fr 1fr;gap:14px}input,select,textarea{width:100%;border:1px solid #303a55;border-radius:10px;background:#090f20;color:#fff;padding:12px 14px;outline:none}input:focus,select:focus,textarea:focus{border-color:#45d7ea;box-shadow:0 0 0 3px rgba(69,215,234,.1)}textarea{min-height:92px;resize:vertical}.dropzone{padding:18px;border:1px dashed #46526f;border-radius:12px}.dropzone span{font-size:11px;color:#687690}button{border:0;border-radius:10px;padding:13px 18px;background:linear-gradient(90deg,#16b8ce,#6f64e8);color:#fff;font-weight:800;cursor:pointer}button b{float:right}.icon-button{background:#161d33;padding:8px 13px;font-size:20px}.task-list{display:grid;gap:12px;max-height:610px;overflow:auto}.task-card{padding:18px;border:1px solid #2a334c;border-radius:14px;background:#0a1020}.task-head{display:flex;justify-content:space-between;gap:12px}.task-head span{color:#44dba0;font-size:11px}.task-card p{color:#8492ad;font-size:13px}.tags{display:flex;gap:7px;flex-wrap:wrap}.tags i{font-style:normal;font-size:10px;padding:5px 8px;border-radius:99px;background:#18213a;color:#aebbd4}.stage-line{display:grid;grid-template-columns:repeat(9,1fr);gap:4px;margin-top:16px}.stage-line span{height:3px;background:#34405d;border-radius:3px}.empty{color:#7886a1;text-align:center;padding:50px 10px}#form-message{min-height:20px;color:#45d7ea;margin:0}@media(max-width:860px){main{padding-top:36px}.workspace{grid-template-columns:1fr}.metrics{overflow:auto}.grid{grid-template-columns:1fr}.system-state{display:none}}
+.stage-line span{height:4px}.stage-line span.running{background:#45d7ea;box-shadow:0 0 10px #45d7ea}.stage-line span.completed{background:#38e09d}.stage-line span.failed{background:#ff5577}.stage-caption,.media-meta{margin-top:9px;color:#7f8daa;font-size:11px}.task-error{margin-top:10px;padding:9px;border:1px solid rgba(255,85,119,.35);border-radius:8px;color:#ff8ba3;background:rgba(255,85,119,.08);font-size:12px}
+.task-card{cursor:pointer;transition:transform .18s ease,border-color .18s ease,box-shadow .18s ease}.task-card:hover,.task-card:focus-visible{transform:translateY(-2px);border-color:#45d7ea;box-shadow:0 12px 30px rgba(0,0,0,.22);outline:none}
+.task-operations{display:flex;align-items:center;gap:12px}.task-operations button{padding:10px 14px}.task-operations button:disabled{cursor:wait;opacity:.65}.task-operations small{color:#8492ad}
+.task-delete-operation{border-color:rgba(255,85,119,.35)}.task-delete-operation button{background:#8f2941}.task-delete-operation small{color:#d79aaa}
+.task-card-actions{display:flex;align-items:center;gap:8px}.task-card-delete{padding:5px 9px;border:1px solid rgba(255,85,119,.42);border-radius:7px;background:rgba(143,41,65,.32);color:#ff9caf;font-size:10px}.task-card-delete:hover{background:#8f2941;color:#fff}.task-card-delete:disabled{opacity:.6;cursor:wait}
+.script-segment-list{display:grid;gap:14px}.script-segment-card{padding:16px;border:1px solid #2b3652;border-radius:12px;background:#0a1020}.script-segment-card header{display:flex;justify-content:space-between;margin-bottom:12px}.script-segment-card header small{color:#8492ad}.script-segment-card label{margin-top:10px}.script-segment-card textarea{min-height:80px}.script-actions{display:flex;gap:8px;flex-wrap:wrap;margin-top:12px}.script-actions button{padding:9px 12px;font-size:11px}.script-actions button:nth-child(2){background:linear-gradient(90deg,#7559dc,#d64ba0)}.script-actions button:nth-child(3){background:#1b2943}
+.task-dialog{width:min(900px,calc(100vw - 28px));max-height:90vh;padding:0;border:1px solid #35405e;border-radius:20px;background:#0b1122;color:#edf4ff;box-shadow:0 30px 100px rgba(0,0,0,.65)}.task-dialog::backdrop{background:rgba(2,5,13,.78);backdrop-filter:blur(5px)}.dialog-shell{min-height:300px}.dialog-header{position:sticky;top:0;z-index:1;display:flex;align-items:center;justify-content:space-between;padding:22px 26px;border-bottom:1px solid #28324b;background:rgba(11,17,34,.96)}.dialog-header small{color:#45d7ea;font-size:10px;letter-spacing:.18em}.dialog-header h2{margin:5px 0 0}.dialog-close{width:40px;height:40px;padding:0;border-radius:50%;background:#171f35;font-size:25px}.detail-content{padding:24px;display:grid;gap:18px}
+.detail-summary{display:grid;grid-template-columns:repeat(4,1fr);gap:10px}.detail-summary>div{min-width:0;padding:14px;border:1px solid #29344f;border-radius:12px;background:#0f172b}.detail-summary span,.detail-summary strong{display:block}.detail-summary span{font-size:10px;color:#7f8daa;margin-bottom:6px}.detail-summary strong{font-size:14px}.detail-status{display:flex;align-items:center;color:#45d7ea;font-weight:900}.detail-status.failed{color:#ff6d88}.detail-status.completed{color:#38e09d}
+.detail-block{padding:18px;border:1px solid #28324b;border-radius:14px;background:#0d1427}.detail-block h3{margin:0 0 15px;font-size:14px}.detail-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin:0}.detail-grid>div{padding:10px;background:#111a30;border-radius:9px}.detail-grid dt{font-size:10px;color:#71809e}.detail-grid dd{margin:5px 0 0;font-size:12px;color:#dce7f8}.detail-brief{margin:12px 0 0;color:#94a3bf;line-height:1.7}
+.stage-details{display:grid;gap:8px}.stage-row{display:grid;grid-template-columns:34px minmax(145px,1fr) minmax(100px,1.5fr) 42px;align-items:center;gap:10px;padding:10px;border-radius:10px;background:#10182c}.stage-index{font-size:11px;color:#64728e}.stage-info strong,.stage-info small{display:block}.stage-info strong{font-size:12px}.stage-info small{margin-top:3px;color:#71809e;font-size:9px}.stage-progress{height:5px;overflow:hidden;border-radius:4px;background:#28344e}.stage-progress i{display:block;height:100%;background:#52617e}.stage-row.running .stage-progress i{background:#45d7ea;box-shadow:0 0 10px #45d7ea}.stage-row.completed .stage-progress i{background:#38e09d}.stage-row.failed .stage-progress i{background:#ff5577}.stage-row>b{font-size:10px;text-align:right;color:#8391ad}
+.artifact-list{display:grid;gap:8px}.artifact-list>div{display:grid;grid-template-columns:80px minmax(0,1fr);gap:10px;align-items:center}.artifact-list span{font-size:11px;color:#8391ad}.artifact-list code{overflow:hidden;text-overflow:ellipsis;white-space:nowrap;padding:8px;border-radius:7px;background:#080e1d;color:#65ddeb;font-size:10px}.transcript-text{max-height:280px;overflow:auto;white-space:pre-wrap;margin:0;padding:14px;border-radius:10px;background:#080e1d;color:#b9c8df;line-height:1.7;font:12px/1.7 "Microsoft YaHei",sans-serif}.transcript{margin-top:10px;color:#8fa0bd;font-size:11px}.transcript p{white-space:pre-wrap;max-height:100px;overflow:auto}
+@media(max-width:680px){.detail-summary{grid-template-columns:1fr 1fr}.detail-grid{grid-template-columns:1fr}.stage-row{grid-template-columns:28px 1fr 38px}.stage-progress{grid-column:2/4}.dialog-header,.detail-content{padding:18px}}
+.visual-summary{color:#b9c8df;line-height:1.8;font-size:13px}
+.rendered-video{border-color:rgba(56,224,157,.42)}.rendered-video-head{display:flex;align-items:flex-start;justify-content:space-between;gap:18px}.rendered-video-head h3{margin-bottom:5px}.rendered-video-head p{margin:0;color:#91a1bd;font-size:12px}.rendered-video-head span{padding:5px 9px;border-radius:99px;background:rgba(56,224,157,.12);color:#38e09d;font-size:9px;font-weight:900}.result-player{display:block;width:100%;max-height:480px;margin:16px 0;border-radius:12px;background:#03050a;box-shadow:0 12px 35px rgba(0,0,0,.35)}.render-actions{display:flex;gap:10px;flex-wrap:wrap;margin-bottom:12px}.download-button,.preview-button{display:inline-block;padding:11px 18px;border-radius:10px;color:#fff;text-decoration:none;font-size:12px;font-weight:800}.download-button{background:linear-gradient(90deg,#16b8ce,#6f64e8)}.preview-button{border:1px solid #3b4969;background:#151e34}.rendered-video>code{display:block;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;color:#65ddeb;font-size:10px}
+.roadmap{margin-top:54px;padding:28px;border:1px solid #293047;border-radius:20px;background:rgba(13,19,37,.76)}.roadmap-title{align-items:center}.roadmap-title .step{font-size:24px}.roadmap-list{display:grid;grid-template-columns:repeat(5,1fr);gap:12px}.roadmap-list article{min-width:0;padding:18px;border:1px solid #2a334c;border-radius:14px;background:#0a1020;transition:transform .18s ease,border-color .18s ease}.roadmap-list article:hover{transform:translateY(-3px);border-color:#45d7ea}.roadmap-list b{display:inline-block;margin-bottom:15px;color:#45d7ea;font-size:20px}.roadmap-list h3{margin:0 0 9px;font-size:14px}.roadmap-list p{margin:0;color:#8492ad;font-size:11px;line-height:1.7}@media(max-width:1050px){.roadmap-list{grid-template-columns:repeat(2,1fr)}}@media(max-width:600px){.roadmap-list{grid-template-columns:1fr}}
+.export-panel{width:100%;margin:14px 0;padding:16px;border:1px solid #33405f;border-radius:12px;background:#090f20}.export-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:12px}.export-toolbar{display:flex;align-items:center;gap:14px;margin:15px 0}.export-message{font-size:12px;color:#45d7ea}.export-jobs{display:grid;gap:8px}.export-job{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:11px;border-radius:9px;background:#111a30}.export-job>div{min-width:0}.export-job strong,.export-job small{display:block}.export-job strong{font-size:12px}.export-job small{margin-top:5px;color:#8190ad;font-size:10px}.export-job.running{border-left:3px solid #45d7ea}.export-job.completed{border-left:3px solid #38e09d}.export-job.failed{border-left:3px solid #ff5577}.empty.compact{padding:12px}.open-export{float:none}@media(max-width:680px){.export-grid{grid-template-columns:1fr}.export-job{align-items:flex-start;flex-direction:column}}
+.effect-settings-panel{border-color:rgba(155,140,255,.55)}.effect-settings-panel output{color:#45d7ea;font-size:12px}.effect-toggle{display:flex;grid-template-columns:auto 1fr;align-items:center;gap:9px;padding:12px;border-radius:10px;background:#111a30}.effect-toggle input{width:auto}.effect-note{color:#8492ad;font-size:11px;line-height:1.7}.effect-message{font-size:12px;color:#45d7ea}
+.effect-preset-details{padding:12px;border:1px solid #33405f;border-radius:10px;background:#0a1020}.effect-preset-details p{margin:0 0 9px;color:#a9b6ce;font-size:11px}.effect-preset-details div{display:flex;flex-wrap:wrap;gap:6px}.effect-preset-details span{padding:4px 7px;border-radius:99px;background:#182842;color:#72dce8;font-size:10px}.effect-preset-details small{display:block;margin-top:9px;color:#71809e}
+.asset-library{margin-top:54px;padding:28px;border:1px solid #293047;border-radius:20px;background:rgba(13,19,37,.82)}.asset-library-note{color:#91a1bd;line-height:1.7}.asset-search-form{display:grid;grid-template-columns:2fr 1fr 1fr 1fr auto;align-items:end;margin:22px 0}.asset-library-toolbar{display:flex;justify-content:space-between;align-items:center;gap:12px;margin-bottom:16px;color:#45d7ea;font-size:12px}.asset-list{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:14px}.asset-card{min-width:0;overflow:hidden;border:1px solid #2b3652;border-radius:14px;background:#0a1020}.asset-card-body{padding:15px}.asset-preview-image{display:block;width:100%;height:180px;object-fit:cover;background:#050811}.asset-preview-audio{width:calc(100% - 24px);margin:14px 12px 0}.asset-card-head{display:flex;justify-content:space-between;gap:12px}.asset-card-head small{color:#45d7ea;font-size:9px}.asset-card-head h3{margin:5px 0;font-size:14px}.asset-card-head>span{height:max-content;padding:5px 7px;border-radius:99px;background:#19233c;color:#9bcbff;font-size:9px}.asset-card-body>p{margin:5px 0 12px;color:#8290ad;font-size:11px}.asset-tags{display:flex;flex-wrap:wrap;gap:6px;min-height:28px}.asset-tag{display:inline-flex;align-items:center;gap:5px;padding:4px 7px;border-radius:99px;background:#18223a;color:#c1cee2;font-size:10px}.asset-tag.user{outline:1px solid #45d7ea}.asset-tag small{color:#65738f;font-size:8px}.asset-tag button{padding:0;background:transparent;color:#ff8098;font-size:13px}.asset-tag-form{display:grid;grid-template-columns:1fr auto;gap:7px;margin-top:12px}.asset-tag-form input,.asset-tag-form button{padding:8px 10px;font-size:10px}.asset-actions{display:flex;justify-content:space-between;align-items:center;gap:8px;margin-top:12px}.asset-actions a{color:#65ddeb;font-size:10px}.asset-actions button{padding:8px 10px;font-size:10px}.asset-attribution{display:block;margin-top:10px;color:#697793;font-size:9px;line-height:1.5}@media(max-width:1050px){.asset-search-form{grid-template-columns:1fr 1fr}.asset-list{grid-template-columns:repeat(2,minmax(0,1fr))}}@media(max-width:650px){.asset-search-form,.asset-list{grid-template-columns:1fr}.asset-library{padding:18px}.asset-library-toolbar{align-items:flex-start;flex-direction:column}}
+.asset-load-more{display:block;min-width:260px;margin:20px auto 0}.asset-load-more[hidden]{display:none}
+.asset-pagination{display:flex;justify-content:center;align-items:center;gap:12px;margin-top:18px}.asset-pagination span{color:#91a1bd;font-size:12px}.asset-pagination .asset-load-more{width:auto;min-width:110px;margin:0;padding:10px 18px}.asset-pagination .asset-load-more:disabled{opacity:.45;cursor:not-allowed}
+.asset-actions>div{display:flex;gap:6px}.asset-actions .asset-delete{border:1px solid rgba(255,85,119,.4);background:#582438;color:#ffabc0}
+.asset-filter-form{display:grid;grid-template-columns:2fr repeat(4,1fr);gap:10px;margin:0 0 18px}.asset-filter-form .effect-toggle{align-self:end}.asset-state-actions{display:flex;align-items:center;gap:5px}.asset-state-actions button{padding:5px 7px;background:#17213a;color:#ffd166;font-size:10px}.asset-state-actions span{padding:5px 7px;border-radius:99px;background:#19233c;color:#9bcbff;font-size:9px}@media(max-width:1000px){.asset-filter-form{grid-template-columns:repeat(3,1fr)}}@media(max-width:650px){.asset-filter-form{grid-template-columns:1fr}}
+.asset-preview-video{display:block;width:100%;height:180px;object-fit:contain;background:#050811}
+.domestic-source-directory{margin:16px 0;padding:12px 14px;border:1px solid #2b3652;border-radius:12px;background:#0a1020}.domestic-source-directory summary{cursor:pointer;color:#45d7ea}.domestic-source-directory p{color:#91a1bd;font-size:11px}.domestic-source-directory>div{display:flex;flex-wrap:wrap;gap:8px}.domestic-source-directory a{display:flex;gap:7px;align-items:center;padding:7px 10px;border:1px solid #30405f;border-radius:99px;color:#dce7f8;font-size:11px}.domestic-source-directory a small{color:#71809d;font-size:9px}
+.domestic-source-directory>div{display:grid;gap:12px}.domestic-source-directory section{display:grid;gap:7px}.domestic-source-directory section>strong{font-size:11px;color:#91a1bd}.domestic-source-directory section>div{display:flex;flex-wrap:wrap;gap:8px}.domestic-source-directory a b{font-size:9px;color:#45d7ea}
+.asset-original-title{display:block;margin-top:3px;color:#71809d;font-weight:400;overflow-wrap:anywhere}
+.asset-audio-thumbnail{display:grid;width:100%;height:118px;place-items:center;padding:14px;border:0;border-radius:0;background:linear-gradient(135deg,#0b1830,#162849);color:#dce7f8}.asset-audio-thumbnail span{font-size:32px;color:#45d7ea}.asset-audio-thumbnail b{font-size:12px}.asset-audio-thumbnail small{color:#8290ad;font-size:9px}.asset-online-preview audio{display:block;width:100%;margin:38px 0 12px}
+.asset-video-thumbnail{position:relative;display:block;width:100%;height:180px;padding:0;overflow:hidden;border:0;border-radius:0;background:#050811;color:#fff}.asset-video-thumbnail img{width:100%;height:100%;object-fit:cover}.asset-video-thumbnail>span{display:grid;height:100%;place-items:center;color:#71809d}.asset-video-thumbnail b{position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);padding:9px 13px;border-radius:99px;background:rgba(5,10,20,.82);font-size:11px}.asset-online-preview{position:fixed;z-index:1000;inset:0;display:grid;place-items:center;padding:24px;background:rgba(2,5,13,.86)}.asset-online-preview>div{position:relative;width:min(900px,96vw);padding:16px;border:1px solid #35405e;border-radius:16px;background:#080e1c}.asset-online-preview video{display:block;width:100%;max-height:75vh;background:#000}.asset-online-preview button{position:absolute;z-index:1;right:24px;top:24px;width:36px;height:36px;padding:0;border-radius:50%;background:rgba(5,10,20,.86);font-size:24px}.asset-online-preview small{display:block;margin-top:10px;color:#91a1bd}
+.task-card-rename{padding:5px 9px;border:1px solid rgba(69,215,234,.35);border-radius:7px;background:rgba(31,88,112,.32);color:#73e4ee;font-size:10px}.voice-controls{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:10px}.voice-controls label{margin:0}.voice-controls output{color:#45d7ea;font-size:11px}@media(max-width:650px){.voice-controls{grid-template-columns:1fr}}
+.content-origin-assessment{margin:10px 0;padding:11px;border:1px solid #33405f;border-radius:10px;background:#0c1428}.content-origin-assessment strong,.content-origin-assessment span{display:inline-block;margin-right:10px}.content-origin-assessment strong{color:#45d7ea}.content-origin-assessment span,.content-origin-assessment small{color:#8492ad;font-size:10px}.content-origin-assessment p{margin:7px 0;font-size:11px}
+.storyboard-review-option{margin-bottom:.35rem}.storyboard-review-hint{display:block;margin:-.2rem 0 1rem;color:var(--muted)}
+.storyboard-editor-head{display:flex;justify-content:space-between;gap:1rem;align-items:flex-start;margin-bottom:1rem}.storyboard-editor-head h3{margin:.2rem 0}.storyboard-editor-head p{margin:.25rem 0;color:var(--muted)}
+.storyboard-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:1rem}.storyboard-card{padding:1rem;border:1px solid rgba(255,255,255,.12);border-radius:14px;background:rgba(7,12,24,.65)}
+.storyboard-card>img{width:100%;aspect-ratio:16/9;object-fit:cover;border-radius:10px;background:#101522}.storyboard-card>header{display:flex;justify-content:space-between;gap:.5rem;margin:.75rem 0}.storyboard-card>header span,.storyboard-description{color:var(--muted);font-size:.85rem}.storyboard-time{display:grid;grid-template-columns:1fr 1fr;gap:.65rem}.storyboard-card label{display:block;margin:.55rem 0}.storyboard-card input,.storyboard-card textarea{width:100%}.storyboard-card textarea{min-height:90px}.storyboard-approve{white-space:nowrap}.storyboard-approved{color:#75e6a4}
+.storyboard-stats,.storyboard-order,.storyboard-actions{display:flex;flex-wrap:wrap;gap:.55rem}.storyboard-stats{margin:.7rem 0 1rem}.storyboard-stats span{padding:.35rem .65rem;border-radius:999px;background:rgba(117,230,164,.1);color:#9cf0bd;font-size:.82rem}.storyboard-order{margin-bottom:.5rem}.storyboard-order button{padding:.35rem .65rem}.storyboard-actions button{flex:1}
+@media (max-width:700px){.storyboard-editor-head{display:block}.storyboard-approve{width:100%;margin-top:.75rem}}
+.local-asset-dropzone{display:grid;grid-template-columns:1fr auto;gap:.35rem 1rem;align-items:center;margin:1rem 0;padding:1rem 1.2rem;border:1px dashed #465b7f;border-radius:14px;background:#0a1020}.local-asset-dropzone strong,.local-asset-dropzone span{grid-column:1}.local-asset-dropzone span{color:#8492ad;font-size:.78rem}.local-asset-dropzone button{grid-column:2;grid-row:1/3}.local-asset-dropzone.dragging{border-color:#45d7ea;background:rgba(69,215,234,.08)}.local-asset-dropzone.uploading{opacity:.65;pointer-events:none}
+.storyboard-assets{margin:.8rem 0;padding:.75rem;border:1px solid rgba(69,215,234,.25);border-radius:10px;background:rgba(10,22,40,.7)}.storyboard-asset-picker{display:grid;grid-template-columns:1fr 1.4fr auto auto;gap:.45rem;margin-top:.5rem}.storyboard-asset-picker button{padding:.55rem;font-size:.72rem}.storyboard-placement-list{display:flex;flex-wrap:wrap;gap:.4rem;margin-top:.55rem}.storyboard-placement-list span{display:flex;align-items:center;gap:.35rem;padding:.3rem .5rem;border-radius:999px;background:#172842;color:#b9d9ea;font-size:.72rem}.storyboard-placement-list button{padding:0;background:transparent;color:#ff8098}@media(max-width:900px){.storyboard-asset-picker{grid-template-columns:1fr}}
+.segment-search-panel{margin:2rem 0;padding:1.5rem;border:1px solid rgba(255,255,255,.1);border-radius:18px;background:rgba(8,13,27,.72)}.segment-search-form{display:grid;grid-template-columns:minmax(0,1fr) 130px auto;gap:.8rem;align-items:end}.segment-search-form input,.segment-search-form select{width:100%}.segment-search-results{display:grid;grid-template-columns:repeat(auto-fit,minmax(300px,1fr));gap:1rem;margin-top:1rem}.segment-search-card{display:grid;grid-template-columns:150px 1fr;gap:.9rem;padding:.8rem;border:1px solid rgba(255,255,255,.1);border-radius:14px;background:rgba(4,9,20,.7)}.segment-search-card img{width:150px;aspect-ratio:16/9;object-fit:cover;border-radius:9px;background:#111827}.segment-search-card header{display:flex;justify-content:space-between;gap:.5rem}.segment-search-card header span{color:#75e6a4}.segment-search-card p{margin:.4rem 0;font-size:.88rem}.segment-search-card small{color:var(--muted)}.segment-search-card button{margin-top:.6rem}
+.segment-clip-controls{display:grid;grid-template-columns:minmax(100px,1fr) auto auto auto;gap:.55rem;align-items:end;margin-top:.7rem}.segment-clip-controls label{font-size:.78rem;color:var(--muted)}.segment-clip-controls input[type=number]{display:block;width:100%;margin-top:.25rem}.segment-clip-controls .segment-mute{display:flex;align-items:center;gap:.25rem;padding-bottom:.55rem;color:var(--text)}.segment-clip-controls button{margin:0}.segment-clip-player{width:100%;margin-top:.75rem;border-radius:9px;background:#050811}.segment-clip-message{min-height:1.2em;margin:.4rem 0;color:#75e6a4;font-size:.78rem}
+.segment-image-search-form{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:.8rem;align-items:end;margin-top:1rem;padding-top:1rem;border-top:1px solid rgba(255,255,255,.08)}.segment-image-search-form input{display:block;width:100%;margin-top:.35rem}
+@media (max-width:700px){.segment-search-form,.segment-image-search-form,.segment-clip-controls{grid-template-columns:1fr}.segment-search-card{grid-template-columns:1fr}.segment-search-card img{width:100%}.segment-clip-controls .segment-mute{padding-bottom:0}}
+.asset-library-toolbar>div{display:flex;flex-wrap:wrap;gap:.5rem}.asset-state-actions label{display:inline-flex;align-items:center;justify-content:center;padding:.35rem;cursor:pointer}.asset-state-actions [data-select-asset]{width:1rem;height:1rem;accent-color:#45d7ea}
+.ai-settings-panel { max-width:1120px; margin:24px auto; padding:24px; border:1px solid rgba(255,255,255,.14); border-radius:18px; background:rgba(12,18,28,.88); }
+.ai-settings-panel form,.ai-settings-panel [data-cloud-settings] { display:grid; gap:14px; }
+.ai-settings-panel [data-cloud-settings][hidden] { display:none; }
+.ai-pricing{padding:12px;border:1px solid #29344f;border-radius:10px}.ai-pricing summary{cursor:pointer;color:#91a1bd}.ai-pricing .grid{margin-top:12px;grid-template-columns:repeat(3,1fr)}
+.ai-usage{display:grid;grid-template-columns:repeat(6,minmax(90px,1fr)) minmax(150px,1.5fr);gap:8px;margin-top:18px}.ai-usage>div{padding:11px 12px;border:1px solid #29344f;border-radius:10px;background:#090f20}.ai-usage span,.ai-usage strong{display:block}.ai-usage span{color:#71809e;font-size:10px}.ai-usage strong{margin-top:5px;color:#edf4ff;font-size:14px}.ai-usage strong b,.ai-usage strong i{font:inherit}.ai-usage strong small{color:#71809e}.ai-usage-model strong{overflow:hidden;text-overflow:ellipsis;white-space:nowrap;color:#45d7ea}@media(max-width:900px){.ai-usage{grid-template-columns:repeat(3,1fr)}}@media(max-width:560px){.ai-usage{grid-template-columns:repeat(2,1fr)}.ai-pricing .grid{grid-template-columns:1fr}}
+.topbar-actions{display:flex;align-items:center;gap:14px}.diagnostics-open{padding:8px 12px;border:1px solid #34415f;background:#121a2e;color:#9edfe8;font-size:11px}.diagnostics-content{padding:22px}.diagnostics-content>p{color:#91a1bd;font-size:12px;line-height:1.7}.diagnostics-actions{display:flex;gap:10px;margin:16px 0}.diagnostics-actions a{padding:11px 16px;border:1px solid #3b4969;border-radius:10px;background:#151e34;color:#fff;text-decoration:none;font-size:12px;font-weight:800}.diagnostics-dialog{width:min(1050px,calc(100vw - 28px))}.diagnostics-content pre{height:min(62vh,620px);margin:0;overflow:auto;padding:16px;border:1px solid #27334c;border-radius:12px;background:#050914;color:#b9c9df;white-space:pre-wrap;word-break:break-word;font:11px/1.65 Consolas,"Microsoft YaHei",monospace}
+.storyboard-head-actions{display:flex;gap:8px;align-items:center;flex-wrap:wrap}.bilibili-asset-login-hint{padding:10px 12px;border:1px solid rgba(251,114,153,.45);border-radius:10px;background:rgba(251,114,153,.08);color:#ffb3c8;font-size:11px}
+.storyboard-placement-item{display:grid;grid-template-columns:minmax(140px,1fr) auto auto;gap:7px;align-items:center;padding:9px;border:1px solid #2b3652;border-radius:9px;background:#090f20}.storyboard-placement-item label{display:flex;align-items:center;gap:5px}.storyboard-placement-item label input{width:auto}.storyboard-placement-item input{grid-column:1/-1}.storyboard-placement-item button{padding:7px 9px;font-size:10px}
+.storyboard-launch{border:1px solid rgba(69,215,234,.55);background:linear-gradient(110deg,rgba(22,184,206,.14),rgba(111,100,232,.1))}.storyboard-launch button{font-size:14px}.storyboard-launch small{display:block;margin-top:9px;color:#a9bdd8}.storyboard-workspace-dialog{width:100vw;height:100vh;max-width:none;max-height:none;margin:0;padding:0;border:0;background:#070b17;color:#edf4ff}.storyboard-workspace-dialog::backdrop{background:#02040a}.storyboard-workspace-shell{height:100vh;display:grid;grid-template-rows:auto minmax(0,1fr)}.storyboard-workspace-shell>.dialog-header{padding:16px 28px;border-bottom:1px solid #293047;background:#0b1122}.storyboard-workspace{overflow:auto;padding:24px max(24px,calc((100vw - 1180px)/2)) 80px}.storyboard-workspace .storyboard-editor{max-width:1180px;margin:auto}.storyboard-linear{display:grid;grid-template-columns:1fr;gap:0;counter-reset:shot}.storyboard-linear .storyboard-card{position:relative;display:grid;grid-template-columns:minmax(260px,34%) minmax(0,1fr);column-gap:24px;margin-left:38px;padding:22px 22px 28px;border-radius:0;border-width:0 0 0 3px;border-color:#283a58;background:linear-gradient(90deg,rgba(16,29,51,.92),rgba(8,14,28,.84))}.storyboard-linear .storyboard-card::before{content:counter(shot);counter-increment:shot;position:absolute;left:-24px;top:20px;display:grid;place-items:center;width:44px;height:44px;border-radius:50%;background:#16b8ce;color:#041018;font-weight:900;box-shadow:0 0 0 7px #070b17}.storyboard-linear .storyboard-card>img{grid-row:1/8;grid-column:1;width:100%;position:sticky;top:16px}.storyboard-linear .storyboard-card>header,.storyboard-linear .storyboard-card>.storyboard-order,.storyboard-linear .storyboard-card>.storyboard-description,.storyboard-linear .storyboard-card>.storyboard-time,.storyboard-linear .storyboard-card>label,.storyboard-linear .storyboard-card>.storyboard-assets,.storyboard-linear .storyboard-card>.storyboard-actions{grid-column:2}.storyboard-linear .storyboard-card+ .storyboard-card{padding-top:34px}.storyboard-linear .storyboard-card+ .storyboard-card::before{top:32px}@media(max-width:760px){.storyboard-workspace{padding:14px 10px 60px}.storyboard-linear .storyboard-card{display:block;margin-left:24px;padding:18px}.storyboard-linear .storyboard-card>img{position:static}.storyboard-linear .storyboard-card::before{left:-18px;width:34px;height:34px}.storyboard-workspace-shell>.dialog-header{padding:12px 16px}}
+.storyboard-pipeline-progress{position:sticky;top:0;z-index:5;margin:0 0 18px;padding:16px;border:1px solid #304563;border-radius:14px;background:rgba(7,13,27,.96);box-shadow:0 12px 34px rgba(0,0,0,.32);backdrop-filter:blur(12px)}.storyboard-pipeline-progress header{display:flex;align-items:end;justify-content:space-between;gap:16px}.storyboard-pipeline-progress header small,.storyboard-pipeline-progress header strong{display:block}.storyboard-pipeline-progress header small{color:#7891af;font-size:10px}.storyboard-pipeline-progress header strong{margin-top:4px;color:#eaf7ff}.storyboard-pipeline-progress header>b{font-size:22px;color:#54ddec}.storyboard-overall-progress{height:9px;margin:12px 0;overflow:hidden;border-radius:99px;background:#17243a}.storyboard-overall-progress i{display:block;height:100%;border-radius:inherit;background:linear-gradient(90deg,#16b8ce,#7a68ee,#ff5fac);transition:width .35s}.storyboard-stage-strip{display:grid;grid-template-columns:repeat(9,minmax(90px,1fr));gap:6px;overflow-x:auto}.storyboard-stage-strip span{display:grid;grid-template-columns:auto 1fr auto;align-items:center;gap:5px;padding:7px;border:1px solid #25344c;border-radius:8px;color:#71819e;font-size:9px;white-space:nowrap}.storyboard-stage-strip span>i{width:7px;height:7px;border-radius:50%;background:#40506b}.storyboard-stage-strip span>b{font-size:9px}.storyboard-stage-strip .completed{color:#7be8ae;border-color:rgba(56,224,157,.3)}.storyboard-stage-strip .completed>i{background:#38e09d}.storyboard-stage-strip .running{color:#7eeeff;border-color:#32cde3;background:rgba(50,205,227,.08)}.storyboard-stage-strip .running>i{background:#45d7ea;box-shadow:0 0 10px #45d7ea}.storyboard-pipeline-progress>p{margin:10px 0 0;color:#9fb0ca;font-size:11px}.storyboard-continue-bar{position:sticky;bottom:0;z-index:6;display:flex;align-items:center;justify-content:space-between;gap:20px;margin:24px -8px 0;padding:16px 18px;border:1px solid rgba(69,215,234,.48);border-radius:14px;background:rgba(9,18,35,.97);box-shadow:0 -12px 36px rgba(0,0,0,.42)}.storyboard-continue-bar strong,.storyboard-continue-bar small{display:block}.storyboard-continue-bar small{margin-top:4px;color:#91a4c1}.storyboard-continue-bar button{min-width:270px;background:linear-gradient(90deg,#16b8ce,#765fe9,#e750a2)}@media(max-width:760px){.storyboard-continue-bar{display:block}.storyboard-continue-bar button{width:100%;min-width:0;margin-top:12px}}
+``
+
+### FILE: src/main/resources/static/app.js
+
+``javascript
+const taskList = document.querySelector('#task-list');
+const aiSettingsForm = document.querySelector('#ai-settings-form');
+const aiKeyState = document.querySelector('#ai-key-state');
+const aiProviderPresets = {
+  DASHSCOPE:['https://dashscope.aliyuncs.com/compatible-mode/v1','qwen-vl-plus','qwen-plus'], DEEPSEEK:['https://api.deepseek.com','qwen2.5vl:3b','deepseek-chat'],
+  OPENAI:['https://api.openai.com/v1','gpt-4.1','gpt-4.1-mini'], ANTHROPIC:['https://api.anthropic.com/v1','claude-sonnet-4-20250514','claude-sonnet-4-20250514'],
+  GEMINI:['https://generativelanguage.googleapis.com/v1beta','gemini-2.5-pro','gemini-2.5-flash'], OPENROUTER:['https://openrouter.ai/api/v1','',''],
+  SILICONFLOW:['https://api.siliconflow.cn/v1','Qwen/Qwen2.5-VL-72B-Instruct','deepseek-ai/DeepSeek-V3'], MOONSHOT:['https://api.moonshot.cn/v1','','moonshot-v1-128k'],
+  ZHIPU:['https://open.bigmodel.cn/api/paas/v4','glm-4v-plus','glm-4-plus'], VOLCENGINE:['https://ark.cn-beijing.volces.com/api/v3','',''],
+  BAIDU:['https://qianfan.baidubce.com/v2','',''], TENCENT:['https://api.hunyuan.cloud.tencent.com/v1','',''], MINIMAX:['https://api.minimax.chat/v1','',''],
+  XAI:['https://api.x.ai/v1','grok-2-vision-1212','grok-3-mini'], MISTRAL:['https://api.mistral.ai/v1','pixtral-large-latest','mistral-large-latest'],
+  GROQ:['https://api.groq.com/openai/v1','',''], TOGETHER:['https://api.together.xyz/v1','',''], PERPLEXITY:['https://api.perplexity.ai','','sonar'], CEREBRAS:['https://api.cerebras.ai/v1','','']
+};
+
+async function loadAiSettings() {
+  if (!aiSettingsForm) return;
+  const response = await fetch('/api/ai-settings');
+  if (!response.ok) return;
+  const value = await response.json();
+  for (const name of ['mode','provider','baseUrl','visionModel','textModel','inputPricePerMillion','outputPricePerMillion','cachedInputPricePerMillion'])
+    if (aiSettingsForm.elements[name] && value[name]) aiSettingsForm.elements[name].value = value[name];
+  aiKeyState.textContent = value.apiKeyConfigured ? `API Key：${value.apiKeyMasked}` : '尚未配置云端 API Key';
+  aiSettingsForm.querySelector('[data-cloud-settings]').hidden = value.mode === 'LOCAL';
+  updateAiProviderHint();
+}
+
+function updateAiProviderHint() {
+  if (!aiSettingsForm) return;
+  const deepSeek = aiSettingsForm.elements.provider.value === 'DEEPSEEK';
+  document.querySelector('#ai-provider-hint').textContent = deepSeek
+    ? 'DeepSeek API 用于文案生成；视频画面分析自动使用本地视觉模型，首次使用会确认下载安装。'
+    : '云端视觉和文案均使用当前服务。';
+}
+
+aiSettingsForm?.elements.mode.addEventListener('change', event => {
+  aiSettingsForm.querySelector('[data-cloud-settings]').hidden = event.target.value === 'LOCAL';
+});
+aiSettingsForm?.elements.provider.addEventListener('change', event => {
+  const preset=aiProviderPresets[event.target.value];
+  if(preset) [aiSettingsForm.elements.baseUrl.value,aiSettingsForm.elements.visionModel.value,aiSettingsForm.elements.textModel.value]=preset;
+  updateAiProviderHint();
+});
+const compactTokens=value => value>=1_000_000?`${(value/1_000_000).toFixed(2)}M`:value>=1_000?`${(value/1_000).toFixed(1)}K`:String(value||0);
+async function loadAiUsage(){
+  const response=await fetch('/api/ai-settings/usage'); if(!response.ok)return;
+  const value=await response.json(); const put=(name,text)=>{const target=document.querySelector(`[data-usage="${name}"]`);if(target)target.textContent=text;};
+  put('turnInput',compactTokens(value.turnInput)); put('turnOutput',compactTokens(value.turnOutput)); put('session',compactTokens(value.sessionInput+value.sessionOutput));
+  put('cached',compactTokens(value.sessionCached)); put('cachePercent',`${Number(value.cachePercent||0).toFixed(1)}%`);
+  put('turnCost',`$${Number(value.turnCost||0).toFixed(4)}`); put('todayCost',`$${Number(value.todayCost||0).toFixed(4)}`); put('model',value.model||'尚未调用');
+}
+loadAiUsage(); setInterval(()=>{if(!document.hidden)loadAiUsage();},15000);
+aiSettingsForm?.addEventListener('submit', async event => {
+  event.preventDefault(); aiKeyState.textContent='正在保存并测试连接…';
+  const body=Object.fromEntries(new FormData(aiSettingsForm).entries());
+  for(const name of ['inputPricePerMillion','outputPricePerMillion','cachedInputPricePerMillion']) body[name]=Number(body[name]||0);
+  const response=await fetch('/api/ai-settings',{method:'PUT',headers:{'Content-Type':'application/json'},body:JSON.stringify(body)});
+  if(!response.ok){aiKeyState.textContent=`保存失败：${await response.text()}`;return;}
+  const value=await response.json(); aiSettingsForm.elements.apiKey.value='';
+  try {
+    const testResponse=await fetch('/api/ai-settings/test',{method:'POST'});
+    if(!testResponse.ok) throw await readApiError(testResponse);
+    const test=await testResponse.json();
+    aiKeyState.textContent=`连接成功：${test.model}；配置已自动保存。`;
+    await loadAiUsage();
+  } catch(error) {
+    aiKeyState.textContent=`配置已保存，但连接测试失败：${error.message}`;
+  }
+});
+loadAiSettings().catch(error=>{if(aiKeyState)aiKeyState.textContent=`配置读取失败：${error.message}`;});
+const taskForm = document.querySelector('#task-form');
+const message = document.querySelector('#form-message');
+const detailDialog = document.querySelector('#task-detail-dialog');
+const detailTitle = document.querySelector('#detail-title');
+const detailContent = document.querySelector('#detail-content');
+const storyboardDialog = document.querySelector('#storyboard-dialog');
+const storyboardWorkspace = document.querySelector('#storyboard-workspace');
+let activeTaskId = null;
+let tasksLoading = false;
+let taskPollTimer = null;
+let effectPresets = [];
+let storyboardProgressTimer = null;
+const segmentSearchForm = document.querySelector('#segment-search-form');
+const segmentSearchMessage = document.querySelector('#segment-search-message');
+const segmentSearchResults = document.querySelector('#segment-search-results');
+const segmentImageSearchForm = document.querySelector('#segment-image-search-form');
+
+const stageNames = {
+  VIDEO_INGESTION: '素材读取',
+  SCENE_DETECTION: '镜头检测与音频提取',
+  TRANSCRIPTION: '语音转写',
+  VIDEO_UNDERSTANDING: '画面理解',
+  HIGHLIGHT_SELECTION: '完整分镜与高光标注',
+  SCRIPT_GENERATION: '文案生成',
+  VOICE_GENERATION: 'AI 配音',
+  TIMELINE_PLANNING: '时间轴规划',
+  RENDERING: '视频合成'
+};
+
+async function loadTasks() {
+  if (tasksLoading) return;
+  tasksLoading = true;
+  console.debug('[GameNarrator] GET /api/tasks');
+  try {
+    const response = await fetch('/api/tasks');
+    if (!response.ok) throw await readApiError(response);
+    const tasks = await response.json();
+    reconcileTaskCards(tasks);
+    scheduleTaskPoll(tasks.some(task => ['DRAFT', 'READY', 'PROCESSING'].includes(task.status)) ? 5000 : 60000);
+    return tasks;
+  } finally {
+    tasksLoading = false;
+  }
+}
+
+function scheduleTaskPoll(delayMs) {
+  clearTimeout(taskPollTimer);
+  taskPollTimer = setTimeout(() => {
+    if (document.hidden) {
+      scheduleTaskPoll(60000);
+      return;
+    }
+    loadTasks().catch(error => {
+      showLoadError(error);
+      scheduleTaskPoll(10000);
+    });
+  }, delayMs);
+}
+
+function taskCardHtml(task) {
+  return `
+      <div class="task-head"><strong>${escapeHtml(task.name)}</strong><div class="task-card-actions"><span>${task.status}</span><button type="button" class="task-card-rename" data-rename-list-task="${task.id}" data-task-name="${escapeHtml(task.name)}">重命名</button><button type="button" class="task-card-delete" data-delete-list-task="${task.id}" data-task-name="${escapeHtml(task.name)}" aria-label="删除任务 ${escapeHtml(task.name)}">删除</button></div></div>
+      <p>${escapeHtml(task.taskBrief)}</p>
+      <div class="tags"><i>${escapeHtml(task.gameCategory)}</i><i>${escapeHtml(task.commentaryStyle)}</i><i>${task.targetDurationSeconds}s</i></div>
+      <div class="media-meta"${task.durationSeconds ? '' : ' hidden'}>${task.durationSeconds ? escapeHtml(mediaMetadataText(task)) : ''}</div>
+      ${task.failureReason ? `<div class="task-error">${escapeHtml(task.failureReason)}</div>` : ''}
+      ${task.transcriptText ? `<details class="transcript"><summary>查看语音转写</summary><p>${escapeHtml(task.transcriptText)}</p></details>` : ''}
+      <div class="stage-line">${task.stages.map(stage =>
+        `<span class="${stage.status.toLowerCase()}" title="${escapeHtml(stageTitle(stage))}"></span>`
+      ).join('')}</div>
+      <div class="stage-caption">${escapeHtml(currentStageText(task))}</div>`;
+}
+
+function createTaskCard(task) {
+  const card = document.createElement('div');
+  card.className = 'task-card';
+  card.dataset.taskId = task.id;
+  card.setAttribute('role', 'button');
+  card.setAttribute('tabindex', '0');
+  card.setAttribute('aria-label', `查看任务 ${task.name} 的详情`);
+  card.innerHTML = taskCardHtml(task);
+  return card;
+}
+
+function reconcileTaskCards(tasks) {
+  if (!tasks.length) {
+    const empty = taskList.querySelector('.empty');
+    if (empty && taskList.children.length === 1) empty.textContent = '还没有任务，上传一段游戏录像开始实验。';
+    else taskList.innerHTML = '<p class="empty">还没有任务，上传一段游戏录像开始实验。</p>';
+    return;
+  }
+  taskList.querySelector('.empty')?.remove();
+  const incomingIds = new Set(tasks.map(task => task.id));
+  taskList.querySelectorAll('.task-card').forEach(card => {
+    if (!incomingIds.has(card.dataset.taskId)) card.remove();
+  });
+  tasks.forEach(task => {
+    let card = Array.from(taskList.children).find(item => item.dataset?.taskId === task.id);
+    if (card) updateTaskCard(card, task);
+    else card = createTaskCard(task);
+    taskList.appendChild(card);
+  });
+}
+
+function updateTaskCard(card, task) {
+  card.setAttribute('aria-label', `查看任务 ${task.name} 的详情`);
+  card.querySelector('.task-head strong').textContent = task.name;
+  card.querySelectorAll('[data-task-name]').forEach(button => { button.dataset.taskName = task.name; });
+  card.querySelector('.task-head span').textContent = task.status;
+  const metadata = card.querySelector('.media-meta');
+  metadata.hidden = !task.durationSeconds;
+  metadata.textContent = task.durationSeconds ? mediaMetadataText(task) : '';
+
+  let error = card.querySelector('.task-error');
+  if (task.failureReason) {
+    if (!error) {
+      error = document.createElement('div');
+      error.className = 'task-error';
+      metadata.insertAdjacentElement('afterend', error);
+    }
+    error.textContent = task.failureReason;
+  } else {
+    error?.remove();
+  }
+
+  let transcript = card.querySelector('details.transcript');
+  if (!task.transcriptText) {
+    transcript?.remove();
+  } else if (transcript) {
+    transcript.querySelector('p').textContent = task.transcriptText;
+  } else {
+    transcript = document.createElement('details');
+    transcript.className = 'transcript';
+    transcript.innerHTML = '<summary>查看语音转写</summary><p></p>';
+    transcript.querySelector('p').textContent = task.transcriptText;
+    card.querySelector('.stage-line').insertAdjacentElement('beforebegin', transcript);
+  }
+
+  const stageLine = card.querySelector('.stage-line');
+  if (stageLine.children.length !== task.stages.length) {
+    stageLine.innerHTML = task.stages.map(stage => '<span></span>').join('');
+  }
+  task.stages.forEach((stage, index) => {
+    const marker = stageLine.children[index];
+    marker.className = stage.status.toLowerCase();
+    marker.title = stageTitle(stage);
+  });
+  card.querySelector('.stage-caption').textContent = currentStageText(task);
+}
+
+function stageTitle(stage) {
+  return `${stageNames[stage.type]}：${stage.status}${stage.errorMessage ? `；${stage.errorMessage}` : ''}`;
+}
+
+function mediaMetadataText(task) {
+  const sceneText = task.detectedSceneCount == null ? '' : ` · ${task.detectedSceneCount} 个转场`;
+  const audioText = task.audioCodec === 'none' ? '无音轨' : task.audioCodec;
+  return `${formatDuration(task.durationSeconds)} · ${task.videoWidth}×${task.videoHeight} · ${task.framesPerSecond}fps · ${task.videoCodec} · ${audioText}${sceneText}`;
+}
+
+taskForm.addEventListener('submit', async event => {
+  event.preventDefault();
+  message.textContent = '正在上传并建立任务…';
+  const requestBody = new FormData(taskForm);
+  const video = requestBody.get('video');
+  console.info('[GameNarrator] 创建任务', {
+    name: requestBody.get('name'),
+    gameCategory: requestBody.get('gameCategory'),
+    commentaryStyle: requestBody.get('commentaryStyle'),
+    targetDurationSeconds: requestBody.get('targetDurationSeconds'),
+    videoName: video?.name,
+    videoSize: video?.size,
+    videoType: video?.type
+  });
+  try {
+    const createdTask = await createTaskWithProgress(requestBody);
+    console.info('[GameNarrator] 任务创建成功', createdTask);
+    message.textContent = `任务创建成功：${createdTask.id}。处理引擎已自动启动。`;
+    taskForm.reset();
+    await loadTasks();
+  } catch (error) {
+    console.error('[GameNarrator] 任务创建失败', error);
+    const traceHint = error.traceId ? `（追踪号：${error.traceId}）` : '';
+    const suggestion = error.suggestion ? `；建议：${error.suggestion}` : '';
+    message.textContent = `${error.message || '创建失败'}${traceHint}${suggestion}`;
+  }
+});
+
+document.querySelector('#refresh').addEventListener('click', () => {
+  loadTasks().catch(showLoadError);
+});
+
+segmentSearchForm?.addEventListener('submit', async event => {
+  event.preventDefault();
+  const data = new FormData(segmentSearchForm);
+  const query = String(data.get('query') || '').trim();
+  const limit = String(data.get('limit') || '12');
+  segmentSearchMessage.textContent = '正在使用 BGE-M3 搜索本地视频镜头…';
+  segmentSearchResults.innerHTML = '';
+  try {
+    const results = await requestJson(`/api/video-segments/search?query=${encodeURIComponent(query)}&limit=${encodeURIComponent(limit)}`);
+    segmentSearchMessage.textContent = results.length ? `找到 ${results.length} 个语义相关镜头。` : '没有找到匹配镜头；请先完成至少一个视频的 AI 内容分析。';
+    segmentSearchResults.innerHTML = renderSegmentResults(results, '语义');
+  } catch (error) {
+    segmentSearchMessage.textContent = error.message;
+  }
+});
+
+function renderSegmentResults(results, scoreLabel) {
+  return results.map(item => `
+    <article class="segment-search-card" data-segment-result data-task-id="${item.taskId}" data-start-seconds="${item.timestampSeconds}">
+      <img src="/api/video-segments/${item.taskId}/${item.frameIndex}/thumbnail" alt="${escapeHtml(item.description)}" loading="lazy">
+      <div><header><strong>${escapeHtml(item.taskName)}</strong><span>${escapeHtml(scoreLabel)} ${(item.similarity * 100).toFixed(1)}%</span></header>
+      <p>${escapeHtml(item.description)}</p><small>${formatDuration(item.timestampSeconds)} · ${escapeHtml(item.eventType || '其他')}</small>
+      <div class="segment-clip-controls">
+        <label>剪切时长（秒）<input name="clipDuration" type="number" min="1" max="600" step="1" value="10" list="segment-duration-options"></label>
+        <label class="segment-mute"><input name="clipMute" type="checkbox"> 静音</label>
+        <button type="button" data-preview-segment>在线预览</button>
+        <button type="button" data-download-segment>高清剪切</button>
+      </div>
+      <video class="segment-clip-player" controls playsinline preload="metadata" hidden></video>
+      <p class="segment-clip-message" aria-live="polite"></p>
+      <button type="button" data-open-segment-task="${item.taskId}">查看所属任务与分镜</button></div>
+    </article>`).join('');
+}
+
+segmentImageSearchForm?.addEventListener('submit', async event => {
+  event.preventDefault();
+  const formData = new FormData(segmentImageSearchForm);
+  segmentSearchMessage.textContent = '正在本地比较截图与已分析镜头…';
+  segmentSearchResults.innerHTML = '';
+  try {
+    const response = await fetch('/api/video-segments/search-image?limit=12', {method: 'POST', body: formData});
+    if (!response.ok) throw new Error((await response.json().catch(() => ({}))).message || `截图搜索失败（${response.status}）`);
+    const results = await response.json();
+    segmentSearchMessage.textContent = results.length ? `找到 ${results.length} 个画面相近镜头；分数表示构图相似度。` : '没有可比较的镜头，请先完成视频 AI 分析。';
+    segmentSearchResults.innerHTML = renderSegmentResults(results, '构图');
+  } catch (error) {
+    segmentSearchMessage.textContent = error.message;
+  }
+});
+
+segmentSearchResults?.addEventListener('click', async event => {
+  const button = event.target.closest('[data-open-segment-task]');
+  if (button) {
+    openTaskDetails(button.dataset.openSegmentTask);
+    return;
+  }
+  const clipButton = event.target.closest('[data-preview-segment],[data-download-segment]');
+  if (!clipButton) return;
+  const card = clipButton.closest('[data-segment-result]');
+  const duration = Number(card.querySelector('[name="clipDuration"]').value);
+  const mute = card.querySelector('[name="clipMute"]').checked;
+  const status = card.querySelector('.segment-clip-message');
+  if (!Number.isFinite(duration) || duration < 1 || duration > 600) {
+    status.textContent = '剪切时长必须在 1 到 600 秒之间。';
+    return;
+  }
+  const params = new URLSearchParams({startSeconds:card.dataset.startSeconds,
+    durationSeconds:String(duration), mute:String(mute),
+    download:String(clipButton.hasAttribute('data-download-segment'))});
+  const url = `/api/video-segments/${card.dataset.taskId}/clip?${params}`;
+  clipButton.disabled = true;
+  status.textContent = clipButton.hasAttribute('data-download-segment') ? '正在生成高清片段…' : '正在生成预览片段…';
+  try {
+    const response = await fetch(url);
+    if (!response.ok) throw await readApiError(response);
+    const blobUrl = URL.createObjectURL(await response.blob());
+    if (clipButton.hasAttribute('data-download-segment')) {
+      const link = document.createElement('a');
+      link.href = blobUrl;
+      link.download = `${card.dataset.taskId}-${Math.round(Number(card.dataset.startSeconds))}s.mp4`;
+      link.click();
+      setTimeout(() => URL.revokeObjectURL(blobUrl), 60_000);
+      status.textContent = '高清片段已生成并开始下载。';
+    } else {
+      const player = card.querySelector('.segment-clip-player');
+      if (player.dataset.objectUrl) URL.revokeObjectURL(player.dataset.objectUrl);
+      player.dataset.objectUrl = blobUrl;
+      player.src = blobUrl;
+      player.hidden = false;
+      await player.play().catch(() => {});
+      status.textContent = '预览片段已就绪。';
+    }
+  } catch (error) {
+    status.textContent = error.message;
+  } finally {
+    clipButton.disabled = false;
+  }
+});
+
+taskList.addEventListener('click', event => {
+  const renameButton = event.target.closest('[data-rename-list-task]');
+  if (renameButton) {
+    event.stopPropagation();
+    renameTask(renameButton.dataset.renameListTask, renameButton.dataset.taskName);
+    return;
+  }
+  const deleteButton = event.target.closest('[data-delete-list-task]');
+  if (deleteButton) {
+    event.stopPropagation();
+    deleteTaskFromList(deleteButton);
+    return;
+  }
+  const card = event.target.closest('[data-task-id]');
+  if (card) openTaskDetails(card.dataset.taskId);
+});
+
+async function renameTask(taskId, currentName) {
+  const name = window.prompt('请输入新的任务名称', currentName);
+  if (name == null || name.trim() === currentName || !name.trim()) return;
+  try {
+    await requestJson(`/api/tasks/${taskId}/name`, {
+      method: 'PATCH', headers: {'Content-Type':'application/json'},
+      body: JSON.stringify({name: name.trim()})
+    });
+    await loadTasks();
+    if (activeTaskId === taskId) await refreshTaskDetails(taskId);
+  } catch (error) {
+    window.alert(`重命名失败：${error.message}`);
+  }
+}
+
+async function deleteTaskFromList(button) {
+  if (!window.confirm(`确定删除任务“${button.dataset.taskName}”吗？任务记录、源视频、输出视频和 data 中的处理文件都会永久删除。`)) return;
+  button.disabled = true;
+  button.textContent = '删除中…';
+  try {
+    const response = await fetch(`/api/tasks/${button.dataset.deleteListTask}`, {method:'DELETE'});
+    if (!response.ok) throw await readApiError(response);
+    button.closest('.task-card')?.remove();
+    await loadTasks();
+  } catch (error) {
+    button.disabled = false;
+    button.textContent = '删除';
+    button.title = error.message;
+  }
+}
+
+taskList.addEventListener('keydown', event => {
+  if (event.key !== 'Enter' && event.key !== ' ') return;
+  const card = event.target.closest('[data-task-id]');
+  if (!card) return;
+  event.preventDefault();
+  openTaskDetails(card.dataset.taskId);
+});
+
+document.querySelector('#detail-close').addEventListener('click', () => detailDialog.close());
+detailDialog.addEventListener('click', event => {
+  if (event.target === detailDialog) detailDialog.close();
+});
+detailDialog.addEventListener('close', () => { activeTaskId = null; });
+detailContent.addEventListener('click', async event => {
+  const retryButton = event.target.closest('[data-retry-task]');
+  const addAssetButton = event.target.closest('[data-add-project-asset]');
+  if (addAssetButton) {
+    addAssetButton.disabled = true;
+    addAssetButton.textContent = '正在加入…';
+    try {
+      await requestJson(`/api/assets/projects/${addAssetButton.dataset.addProjectAsset}`, {method:'POST'});
+      addAssetButton.textContent = '已加入素材库';
+    } catch (error) {
+      addAssetButton.disabled = false;
+      addAssetButton.textContent = '加入素材库';
+      addAssetButton.title = error.message;
+    }
+    return;
+  }
+  if (!retryButton) return;
+  retryButton.disabled = true;
+  retryButton.textContent = '正在重新启动…';
+  try {
+    const response = await fetch(`/api/tasks/${retryButton.dataset.retryTask}/retry`, {
+      method: 'POST'
+    });
+    if (!response.ok) throw await readApiError(response);
+    await Promise.all([loadTasks(), refreshTaskDetails(retryButton.dataset.retryTask)]);
+  } catch (error) {
+    retryButton.disabled = false;
+    retryButton.textContent = '重试失败阶段';
+    retryButton.title = error.message;
+  }
+});
+
+detailContent.addEventListener('input', event => {
+  if (event.target.matches('[name="voiceSpeed"]')) {
+    event.target.closest('label')?.querySelector('output').replaceChildren(`${Number(event.target.value).toFixed(2)}×`);
+  } else if (event.target.matches('[name="intensity"]')) {
+    event.target.closest('label')?.querySelector('output').replaceChildren(`${Math.round(Number(event.target.value) * 100)}%`);
+  }
+});
+detailContent.addEventListener('change', event => {
+  if (!event.target.matches('[name="presetCode"]')) return;
+  const preset=effectPresets.find(item=>item.code===event.target.value);
+  const panel=event.target.closest('[data-effect-settings]');
+  if(!preset||!panel)return;
+  panel.querySelector('[name="intensity"]').value=String(preset.defaultIntensity);
+  panel.querySelector('[data-effect-intensity]').textContent=`${Math.round(preset.defaultIntensity*100)}%`;
+  panel.querySelector('[data-effect-preset-details]').innerHTML=effectPresetDetails(preset);
+});
+detailContent.addEventListener('submit', async event => {
+  const form = event.target.closest('[data-effect-settings]');
+  if (!form) return;
+  event.preventDefault();
+  const button = form.querySelector('button[type="submit"]');
+  const status = form.querySelector('.effect-message');
+  const values = new FormData(form);
+  button.disabled = true;
+  button.textContent = '正在启动渲染…';
+  try {
+    const response = await fetch(`/api/tasks/${form.dataset.effectSettings}/rerender-effects`, {
+      method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify({
+        presetCode:String(values.get('presetCode')),
+        intensity:Number(values.get('intensity')),
+        dynamicSubtitles:values.get('dynamicSubtitles') === 'on',
+        soundEffects:values.get('soundEffects') === 'on'
+      })
+    });
+    if (!response.ok) throw await readApiError(response);
+    status.textContent = '特效重渲染已启动，可在处理流水线查看进度。';
+    button.textContent = '渲染进行中';
+    scheduleTaskPoll(1000);
+    setTimeout(() => refreshTaskDetails(form.dataset.effectSettings), 1200);
+  } catch (error) {
+    button.disabled = false;
+    button.textContent = '应用特效并重新渲染';
+    status.textContent = error.message;
+  }
+});
+detailContent.addEventListener('click', async event => {
+  const storyboardButton = event.target.closest('[data-open-storyboard]');
+  if (storyboardButton) {
+    await loadStoryboardEditor(storyboardButton.dataset.openStoryboard);
+    return;
+  }
+  const storyboardAction = event.target.closest('[data-storyboard-action]');
+  if (storyboardAction) {
+    await handleStoryboardAction(storyboardAction);
+    return;
+  }
+  const openButton = event.target.closest('[data-open-script]');
+  if (openButton) {
+    await loadScriptEditor(openButton.dataset.openScript);
+    return;
+  }
+  const actionButton = event.target.closest('[data-script-action]');
+  if (!actionButton) return;
+  const card = actionButton.closest('[data-script-segment]');
+  const taskId = actionButton.dataset.taskId;
+  const clipIndex = actionButton.dataset.clipIndex;
+  actionButton.disabled = true;
+  try {
+    if (actionButton.dataset.scriptAction === 'save') {
+      const payload = {
+        narration: card.querySelector('[name="narration"]').value,
+        subtitle: card.querySelector('[name="subtitle"]').value,
+        effectCue: card.querySelector('[name="effectCue"]').value
+      };
+      await requestJson(`/api/tasks/${taskId}/script/segments/${clipIndex}`, {
+        method: 'PUT', headers: {'Content-Type': 'application/json'}, body: JSON.stringify(payload)
+      });
+    } else if (actionButton.dataset.scriptAction === 'regenerate') {
+      const instruction = card.querySelector('[name="instruction"]').value;
+      await requestJson(`/api/tasks/${taskId}/script/segments/${clipIndex}/regenerate`, {
+        method: 'POST', headers: {'Content-Type': 'application/json'},
+        body: JSON.stringify({instruction})
+      });
+    } else if (actionButton.dataset.scriptAction === 'voice') {
+      await requestJson(`/api/tasks/${taskId}/voice/segments/${clipIndex}/regenerate`, {
+        method: 'POST', headers: {'Content-Type': 'application/json'},
+        body: JSON.stringify({
+          voiceId: card.querySelector('[name="voiceId"]').value,
+          speed: Number(card.querySelector('[name="voiceSpeed"]').value)
+        })
+      });
+    }
+    await refreshTaskDetails(taskId);
+    await loadScriptEditor(taskId);
+  } catch (error) {
+    actionButton.disabled = false;
+    actionButton.title = error.message;
+  }
+});
+
+async function openTaskDetails(taskId) {
+  activeTaskId = taskId;
+  detailTitle.textContent = '任务详情';
+  detailContent.innerHTML = '<p class="empty">正在读取任务详情…</p>';
+  if (!detailDialog.open) detailDialog.showModal();
+  await refreshTaskDetails(taskId);
+}
+
+async function refreshTaskDetails(taskId) {
+  try {
+    if (!effectPresets.length) {
+      const presetResponse = await fetch('/api/effect-presets');
+      if (presetResponse.ok) effectPresets = await presetResponse.json();
+    }
+    const response = await fetch(`/api/tasks/${taskId}`);
+    if (!response.ok) throw await readApiError(response);
+    const task = await response.json();
+    if (activeTaskId === taskId) renderTaskDetails(task);
+  } catch (error) {
+    if (activeTaskId === taskId) {
+      detailContent.innerHTML = `<div class="task-error">详情加载失败：${escapeHtml(error.message)}</div>`;
+    }
+  }
+}
+
+function renderTaskDetails(task) {
+  detailTitle.textContent = task.name;
+  const completedCount = task.stages.filter(stage => stage.status === 'COMPLETED').length;
+  const overallProgress = Math.round(task.stages.reduce((sum, stage) => sum + stage.progress, 0) / task.stages.length);
+  detailContent.innerHTML = `
+    <section class="detail-block task-operations"><button type="button" data-rename-task="${task.id}" data-task-name="${escapeHtml(task.name)}">重命名任务</button><small>只修改显示名称，不影响正在处理的阶段和已有文件。</small></section>
+    <section class="detail-block task-operations task-delete-operation"><button type="button" data-delete-task="${task.id}" data-task-name="${escapeHtml(task.name)}">删除任务及数据</button><small>同时删除任务记录、源视频、输出视频及 data 中的全部处理文件；不可撤销。</small></section>
+    ${task.status === 'FAILED' ? `<section class="detail-block task-operations"><button type="button" data-retry-task="${task.id}">重试失败阶段</button><small>已完成阶段会保留，从失败位置继续处理。</small></section>` : ''}
+    ${task.generatedScriptPath ? `<section class="detail-block task-operations storyboard-launch"><button type="button" data-open-storyboard="${task.id}">进入线性分镜工作台 →</button><small>${task.storyboardReviewEnabled && !task.storyboardApproved ? '需要在独立分镜时间线中检查并确认后才能继续生成。' : '按镜头顺序编辑画面、起止时间、文案、字幕、素材和特效。'}</small></section>` : ''}
+    ${task.generatedScriptPath ? `<section class="detail-block task-operations"><button type="button" data-open-script="${task.id}">编辑分段文案</button><small>支持保存、AI 单段重写和单段重新配音。</small></section>` : ''}
+    <section class="detail-summary">
+      <div class="detail-status ${task.status.toLowerCase()}">${task.status}</div>
+      <div><span>总体进度</span><strong>${overallProgress}%</strong></div>
+      <div><span>已完成阶段</span><strong>${completedCount} / ${task.stages.length}</strong></div>
+      <div><span>创建时间</span><strong>${formatDate(task.createdAt)}</strong></div>
+    </section>
+    <section class="detail-block">
+      <h3>任务配置</h3>
+      <dl class="detail-grid">
+        <div><dt>内容类别</dt><dd>${escapeHtml(task.gameCategory)}</dd></div>
+        <div><dt>解说风格</dt><dd>${escapeHtml(task.commentaryStyle)}</dd></div>
+        <div><dt>目标时长</dt><dd>${task.targetDurationSeconds} 秒</dd></div>
+        <div><dt>素材参数</dt><dd>${task.durationSeconds ? `${formatDuration(task.durationSeconds)} / ${task.videoWidth}×${task.videoHeight} / ${task.framesPerSecond}fps` : '等待读取'}</dd></div>
+      </dl>
+      <p class="detail-brief">${escapeHtml(task.taskBrief)}</p>
+    </section>
+    ${task.failureReason ? `<section class="detail-block"><h3>失败原因</h3><div class="task-error">${escapeHtml(task.failureReason)}</div></section>` : ''}
+    <section class="detail-block">
+      <h3>处理流水线</h3>
+      <div class="stage-details">${task.stages.map(stage => `
+        <article class="stage-row ${stage.status.toLowerCase()}">
+          <span class="stage-index">${String(stage.sequence).padStart(2, '0')}</span>
+          <div class="stage-info"><strong>${stageNames[stage.type]}</strong><small>${stage.status}${stage.errorMessage ? ` · ${escapeHtml(stage.errorMessage)}` : ''}</small></div>
+          <div class="stage-progress"><i style="width:${stage.progress}%"></i></div>
+          <b>${stage.progress}%</b>
+        </article>`).join('')}
+      </div>
+    </section>
+    ${artifactSection(task)}
+    ${task.visualSummary ? `<section class="detail-block"><h3>AI 视频内容分析</h3><p class="visual-summary">${escapeHtml(task.visualSummary)}</p><div class="tags"><i>已分析 ${task.analyzedFrameCount} 个镜头，并用于高光筛选</i></div></section>` : ''}
+    ${task.highlightSummary ? `<section class="detail-block"><h3>完整分镜与高光标注</h3><p class="visual-summary">${escapeHtml(task.highlightSummary)}</p><div class="tags"><i>已生成 ${task.selectedHighlightCount} 个连续片段</i></div></section>` : ''}
+    ${task.generatedNarration ? `<section class="detail-block"><h3>${escapeHtml(task.generatedTitle || 'AI 文案')}</h3><p class="visual-summary">${escapeHtml(task.scriptSynopsis)}</p><pre class="transcript-text">${escapeHtml(task.generatedNarration)}</pre><div class="tags"><i>${task.generatedScriptSegmentCount} 段配音文案</i></div></section>` : ''}
+    ${task.generatedVoiceSegmentCount ? `<section class="detail-block"><h3>${task.aiVoiceEnabled ? 'AI 配音' : '音频轨道'}</h3><p class="visual-summary">${task.aiVoiceEnabled ? `Piper 中文音色已生成 ${task.generatedVoiceSegmentCount} 段本地配音。` : `已跳过 AI 配音，并为 ${task.generatedVoiceSegmentCount} 段建立静音占位轨道，可在剪辑器中替换或删除。`}</p></section>` : ''}
+    ${task.timelinePath ? `<section class="detail-block"><h3>剪辑时间线</h3><p class="visual-summary">已规划 ${formatDuration(task.plannedOutputDurationSeconds)} 的成片时间线；${task.voiceOverflowCount ? `${task.voiceOverflowCount} 段配音需要在渲染时调整语速。` : '所有配音均可放入对应镜头。'}</p></section>` : ''}
+    ${effectSettingsSection(task)}
+    ${renderedVideoSection(task)}
+    ${task.transcriptText ? `<section class="detail-block"><h3>语音转写</h3><pre class="transcript-text">${escapeHtml(task.transcriptText)}</pre></section>` : ''}
+  `;
+}
+
+function effectSettingsSection(task) {
+  if (!task.timelinePath || !effectPresets.length) return '';
+  const defaultCode = effectPresets.some(item => item.code === task.commentaryStyle)
+    ? task.commentaryStyle : effectPresets[0].code;
+  const defaultPreset=effectPresets.find(item=>item.code===defaultCode)||effectPresets[0];
+  return `<section class="detail-block effect-settings-panel">
+    <h3>剧场特效</h3>
+    <form data-effect-settings="${task.id}">
+      <div class="grid">
+        <label>特效预设<select name="presetCode">${effectPresets.map(item =>
+          `<option value="${escapeHtml(item.code)}" ${item.code === defaultCode ? 'selected' : ''}>${escapeHtml(item.name)}</option>`
+        ).join('')}</select></label>
+        <label>特效强度 <output data-effect-intensity>默认</output>
+          <input name="intensity" type="range" min="0" max="1" step="0.05" value="${effectPresets.find(item => item.code === defaultCode)?.defaultIntensity ?? 0.75}">
+        </label>
+      </div>
+      <div class="effect-preset-details" data-effect-preset-details>${effectPresetDetails(defaultPreset)}</div>
+      <label class="effect-toggle"><input name="dynamicSubtitles" type="checkbox" checked>启用动态 ASS 字幕主题</label>
+      <label class="effect-toggle"><input name="soundEffects" type="checkbox">加入冲击、转场和喜剧提示音</label>
+      <p class="effect-note">参考 Premiere 常见的运动、模糊、颜色、风格化和转场效果；系统只显示当前 FFmpeg 渲染器能够实际输出的类型。</p>
+      <button type="submit">应用特效并重新渲染</button>
+      <span class="effect-message" aria-live="polite"></span>
+    </form>
+  </section>`;
+}
+
+const visualEffectLabels={ZOOM_PUNCH:'缩放冲击',CAMERA_SHAKE:'镜头震动',WHITE_FLASH:'闪白',SLOW_MOTION:'慢动作',FREEZE_ACCENT:'定格强调',SPEED_LINES:'速度线',CINEMA_BARS:'电影黑边',TITLE_CARD:'标题卡',GAUSSIAN_BLUR:'高斯模糊',VIGNETTE:'暗角',BLACK_AND_WHITE:'黑白',WARM_TONE:'暖色调',COOL_TONE:'冷色调',HIGH_CONTRAST:'高对比',RGB_SPLIT:'RGB 分离',HORIZONTAL_FLIP:'水平翻转',PIXELATE:'马赛克像素化',LENS_DISTORTION:'镜头畸变'};
+const transitionLabels={HARD_CUT:'硬切',FADE:'淡入淡出',DISSOLVE:'叠化',PUSH:'推镜',ANIME_IMPACT:'冲击转场'};
+function effectPresetDetails(preset){
+  return `<p>${escapeHtml(preset.description)}</p><div>${preset.preferredEffects.map(item=>`<span>${escapeHtml(visualEffectLabels[item]||item)}</span>`).join('')}</div><small>转场：${preset.allowedTransitions.map(item=>escapeHtml(transitionLabels[item]||item)).join(' / ')}</small>`;
+}
+
+detailContent.addEventListener('click', async event => {
+  const renameButton = event.target.closest('[data-rename-task]');
+  if (renameButton) {
+    await renameTask(renameButton.dataset.renameTask, renameButton.dataset.taskName);
+    return;
+  }
+  const button = event.target.closest('[data-delete-task]');
+  if (!button) return;
+  if (!window.confirm(`确定删除任务“${button.dataset.taskName}”吗？任务记录、源视频、输出视频和 data 中的处理文件都会永久删除。`)) return;
+  button.disabled = true;
+  button.textContent = '正在删除…';
+  try {
+    const response = await fetch(`/api/tasks/${button.dataset.deleteTask}`, {method:'DELETE'});
+    if (!response.ok) throw await readApiError(response);
+    activeTaskId = null;
+    detailDialog.close();
+    await loadTasks();
+  } catch (error) {
+    button.disabled = false;
+    button.textContent = '删除任务';
+    button.title = error.message;
+  }
+});
+
+async function loadScriptEditor(taskId) {
+  const [script, voices] = await Promise.all([
+    requestJson(`/api/tasks/${taskId}/script`),
+    requestJson(`/api/tasks/${taskId}/voice/options`)
+  ]);
+  const voiceOptions = voices.map(voice => `<option value="${escapeHtml(voice.id)}" ${voice.available ? '' : 'disabled'} ${voice.defaultVoice ? 'selected' : ''}>${escapeHtml(voice.name)}${voice.available ? '' : '（未安装）'}</option>`).join('');
+  const existing = detailContent.querySelector('.script-editor');
+  if (existing) existing.remove();
+  detailContent.insertAdjacentHTML('beforeend', `
+    <section class="detail-block script-editor">
+      <h3>分段文案编辑</h3>
+      <p class="effect-note">修改文案会使配音、时间线和成片进入待重建状态。单段配音完成后可重新启动任务生成时间线和成片。</p>
+      <div class="script-segment-list">${script.segments.map(segment => `
+        <article class="script-segment-card" data-script-segment="${segment.clipIndex}">
+          <header><strong>片段 ${segment.clipIndex}</strong><small>${segment.startSeconds.toFixed(1)}s – ${segment.endSeconds.toFixed(1)}s</small></header>
+          <label>解说文案<textarea name="narration" maxlength="500">${escapeHtml(segment.narration)}</textarea></label>
+          <label>字幕<input name="subtitle" maxlength="500" value="${escapeHtml(segment.subtitle)}"></label>
+          <label>特效提示<input name="effectCue" maxlength="200" value="${escapeHtml(segment.effectCue)}"></label>
+          <label>AI 重写要求<input name="instruction" maxlength="500" placeholder="例如：更紧张、更精简，保持事实不变"></label>
+          <div class="voice-controls"><label>配音音色<select name="voiceId">${voiceOptions}</select></label><label>语速<input name="voiceSpeed" type="range" min="0.5" max="2" step="0.05" value="1"><output>1.00×</output></label></div>
+          <div class="script-actions">
+            <button type="button" data-script-action="save" data-task-id="${taskId}" data-clip-index="${segment.clipIndex}">保存片段</button>
+            <button type="button" data-script-action="regenerate" data-task-id="${taskId}" data-clip-index="${segment.clipIndex}">AI 重写</button>
+            <button type="button" data-script-action="voice" data-task-id="${taskId}" data-clip-index="${segment.clipIndex}">重新配音</button>
+          </div>
+        </article>`).join('')}</div>
+    </section>`);
+  detailContent.querySelector('.script-editor').scrollIntoView({behavior: 'smooth', block: 'start'});
+}
+
+async function loadStoryboardEditor(taskId) {
+  clearInterval(storyboardProgressTimer);
+  if (!storyboardDialog.open) storyboardDialog.showModal();
+  storyboardWorkspace.innerHTML = '<p class="empty">正在读取完整分镜时间线…</p>';
+  const [storyboard, localAssets, placements] = await Promise.all([
+    requestJson(`/api/tasks/${taskId}/storyboard`),
+    requestJson('/api/assets?importStatus=DOWNLOADED&limit=100'),
+    requestJson(`/api/tasks/${taskId}/storyboard/assets`)
+  ]);
+  const totalDuration = storyboard.segments.reduce((sum, item) => sum + item.endSeconds - item.startSeconds, 0);
+  storyboardWorkspace.innerHTML = `
+    <section class="detail-block storyboard-editor" data-review-enabled="${storyboard.reviewEnabled}" data-approved="${storyboard.approved}">
+      <header class="storyboard-editor-head"><div><small>AI STORYBOARD</small><h3>${escapeHtml(storyboard.title || 'AI 分镜与文案')}</h3><p>${escapeHtml(storyboard.synopsis || '')}</p></div>
+      <div class="storyboard-head-actions"><button type="button" data-storyboard-action="auto-assets" data-task-id="${taskId}">自动匹配并下载素材</button>${storyboard.approved ? '<span class="storyboard-approved">已确认 / 自动模式</span>' : '<span class="storyboard-review-pending">修改后请使用底部主按钮保存并继续</span>'}</div></header>
+      <div class="storyboard-stats"><span>${storyboard.segments.length} 个分镜</span><span>预计素材时长 ${formatDuration(totalDuration)}</span><span>拖动替代：使用上移/下移精确排序</span></div>
+      <section class="storyboard-pipeline-progress" data-storyboard-progress><p>正在读取处理进度…</p></section>
+      <p class="bilibili-asset-login-hint">自动接取 Bilibili 视频和专栏素材前必须先完成上方 Bilibili 登录；未登录时只会使用本地素材与开放许可素材源。</p>
+      <p class="effect-note">修改镜头起止时间会直接改变最终成片使用的源视频范围；保存文案后，后续配音、字幕和渲染会使用最新内容。</p>
+      <div class="storyboard-grid storyboard-linear">${storyboard.segments.map(segment => `
+        <article class="storyboard-card" data-storyboard-segment="${segment.clipIndex}">
+          <img src="/api/tasks/${taskId}/storyboard/segments/${segment.clipIndex}/thumbnail" alt="分镜 ${segment.clipIndex} 缩略图" loading="lazy">
+          <header><strong>分镜 ${segment.clipIndex}</strong><span>${escapeHtml(segment.eventType || '其他')} · AI ${segment.finalScore} 分</span></header>
+          <div class="storyboard-order"><button type="button" data-storyboard-action="move" data-direction="UP" data-task-id="${taskId}" data-clip-index="${segment.clipIndex}" ${segment.clipIndex === 1 ? 'disabled' : ''}>上移</button><button type="button" data-storyboard-action="move" data-direction="DOWN" data-task-id="${taskId}" data-clip-index="${segment.clipIndex}" ${segment.clipIndex === storyboard.segments.length ? 'disabled' : ''}>下移</button></div>
+          <p class="storyboard-description">${escapeHtml(segment.description || '')}</p>
+          <div class="storyboard-time"><label>开始秒数<input name="startSeconds" type="number" min="0" step="0.1" value="${segment.startSeconds.toFixed(2)}"></label><label>结束秒数<input name="endSeconds" type="number" min="0.01" step="0.1" value="${segment.endSeconds.toFixed(2)}"></label></div>
+          <label>解说文案<textarea name="narration" maxlength="500">${escapeHtml(segment.narration)}</textarea></label>
+          <label>字幕<input name="subtitle" maxlength="500" value="${escapeHtml(segment.subtitle)}"></label>
+          <label>特效提示<input name="effectCue" maxlength="200" value="${escapeHtml(segment.effectCue)}"></label>
+          <label>AI 重写要求<input name="rewriteInstruction" maxlength="500" placeholder="例如：更紧凑、更有悬念，保持事实不变"></label>
+          <section class="storyboard-assets">
+            <strong>添加素材内容</strong>
+            <div class="storyboard-asset-picker">
+              <select name="assetId"><option value="">选择本地素材库…</option>${localAssets.map(asset => `<option value="${asset.id}">${escapeHtml(asset.title)} · ${escapeHtml(asset.assetType)}</option>`).join('')}</select>
+              <input name="assetInstruction" maxlength="500" placeholder="例如：放到第 3 镜右下角；作为背景；爆炸时播放">
+              <button type="button" data-storyboard-action="asset-ai" data-task-id="${taskId}" data-clip-index="${segment.clipIndex}">AI 分析并添加</button>
+              <button type="button" data-storyboard-action="asset-manual" data-task-id="${taskId}" data-clip-index="${segment.clipIndex}">按指令添加</button>
+            </div>
+            <div class="storyboard-placement-list">${placements.filter(item => item.clipIndex === segment.clipIndex).map(item => `<div class="storyboard-placement-item" data-placement-item="${item.id}"><strong>${escapeHtml(item.title)}</strong><small>${item.assetType === 'VIDEO' ? '自动剪切' : item.assetType === 'MEME' ? '裁切适配' : item.assetType === 'BGM' ? '背景混音' : '事件混音'}</small><select name="placementPosition">${['TOP_LEFT','TOP_RIGHT','CENTER','BOTTOM_LEFT','BOTTOM_RIGHT','FULL_SCREEN','AUDIO_TRACK'].map(position => `<option value="${position}" ${item.position === position ? 'selected' : ''}>${position}</option>`).join('')}</select><label><input name="placementCutout" type="checkbox" ${item.cutoutApplied ? 'checked' : ''}>抠图/透明叠加</label><input name="placementInstruction" value="${escapeHtml(item.instruction || '')}" placeholder="素材处理说明"><button type="button" data-storyboard-action="asset-save" data-task-id="${taskId}" data-placement-id="${item.id}">保存素材设置</button><button type="button" data-storyboard-action="asset-remove" data-task-id="${taskId}" data-placement-id="${item.id}">移除</button></div>`).join('') || '<small>尚未添加额外素材</small>'}</div>
+          </section>
+          <div class="storyboard-actions"><button type="button" data-storyboard-action="save" data-task-id="${taskId}" data-clip-index="${segment.clipIndex}">保存此分镜</button><button type="button" data-storyboard-action="rewrite" data-task-id="${taskId}" data-clip-index="${segment.clipIndex}">AI 重写此镜</button></div>
+        </article>`).join('')}</div>
+      <footer class="storyboard-continue-bar"><div><strong>修改完成了吗？</strong><small>点击后会先保存全部分镜，再明确启动配音、时间线规划和视频渲染。</small></div><button type="button" data-storyboard-action="save-all-continue" data-task-id="${taskId}">保存全部修改并执行下一步 →</button></footer>
+    </section>`;
+  storyboardWorkspace.scrollTo({top:0, behavior:'smooth'});
+  await updateStoryboardProgress(taskId);
+  storyboardProgressTimer = setInterval(() => updateStoryboardProgress(taskId), 2000);
+}
+
+document.querySelector('#storyboard-close')?.addEventListener('click', () => { clearInterval(storyboardProgressTimer); storyboardDialog.close(); });
+storyboardDialog?.addEventListener('click', event => { if (event.target === storyboardDialog) { clearInterval(storyboardProgressTimer); storyboardDialog.close(); } });
+storyboardWorkspace?.addEventListener('click', async event => {
+  const action = event.target.closest('[data-storyboard-action]');
+  if (action) await handleStoryboardAction(action);
+});
+
+async function updateStoryboardProgress(taskId) {
+  const panel = storyboardWorkspace?.querySelector('[data-storyboard-progress]');
+  if (!panel) return;
+  try {
+    const task = await requestJson(`/api/tasks/${taskId}`);
+    const completed = task.stages.filter(stage => stage.status === 'COMPLETED').length;
+    const running = task.stages.find(stage => stage.status === 'RUNNING');
+    const waiting = task.stages.find(stage => stage.status === 'PENDING');
+    const exact = Math.round(((completed + (running?.progress || 0) / 100) / task.stages.length) * 100);
+    const currentText = running ? `${stageNames[running.type]} · ${running.progress}%`
+      : task.status === 'WAITING_REVIEW' ? '等待保存并确认分镜'
+      : task.status === 'COMPLETED' ? '全部处理完成'
+      : task.status === 'FAILED' ? `处理失败：${task.failureReason || '请查看诊断日志'}` : '准备进入下一阶段';
+    const voiceHint = running?.type === 'VOICE_GENERATION'
+      ? '正在逐段生成 AI 语音；文案较长时会明显慢于其他阶段，请不要重复点击。' : '';
+    panel.innerHTML = `<header><div><small>当前阶段</small><strong>${escapeHtml(currentText)}</strong></div><b>${exact}%</b></header>
+      <div class="storyboard-overall-progress"><i style="width:${exact}%"></i></div>
+      <div class="storyboard-stage-strip">${task.stages.map(stage => `<span class="${stage.status.toLowerCase()}"><i></i>${escapeHtml(stageNames[stage.type])}<b>${stage.progress}%</b></span>`).join('')}</div>
+      <p>${voiceHint || (waiting ? `下一阶段：${stageNames[waiting.type]}` : '正在整理最终结果')}</p>`;
+  } catch (error) {
+    panel.innerHTML = `<p class="task-error">进度读取失败：${escapeHtml(error.message)}</p>`;
+  }
+}
+
+async function handleStoryboardAction(button) {
+  const taskId = button.dataset.taskId;
+  button.disabled = true;
+  try {
+    if (button.dataset.storyboardAction === 'save-all-continue') {
+      const editor = storyboardWorkspace.querySelector('.storyboard-editor');
+      await saveAllStoryboardSegments(taskId, button);
+      button.textContent = '修改已保存，正在启动下一阶段…';
+      if (editor.dataset.reviewEnabled === 'true' && editor.dataset.approved !== 'true') {
+        await requestJson(`/api/tasks/${taskId}/storyboard/approve`, {method:'POST'});
+        editor.dataset.approved = 'true';
+      } else {
+        const response = await fetch(`/api/tasks/${taskId}/start`, {method:'POST'});
+        if (!response.ok) throw await readApiError(response);
+      }
+      button.textContent = '已执行：等待下一阶段';
+      await updateStoryboardProgress(taskId);
+      scheduleTaskPoll(1000);
+      return;
+    }
+    if (['auto-assets','asset-remove','asset-save','move','rewrite','asset-ai','asset-manual'].includes(button.dataset.storyboardAction)) {
+      await saveAllStoryboardSegments(taskId);
+    }
+    if (button.dataset.storyboardAction === 'auto-assets') {
+      const result = await requestJson(`/api/tasks/${taskId}/storyboard/assets/auto`, {method:'POST'});
+      const warning = result.warnings?.length ? `；部分来源不可用：${result.warnings.slice(0,3).join('；')}` : '';
+      window.alert(`已自动挂载 ${result.assignedCount} 项素材。Bilibili 素材需要先登录${warning}`);
+      await loadStoryboardEditor(taskId); return;
+    }
+    if (button.dataset.storyboardAction === 'asset-remove') {
+      await fetch(`/api/tasks/${taskId}/storyboard/assets/${button.dataset.placementId}`, {method:'DELETE'}).then(async response => { if (!response.ok) throw await readApiError(response); });
+      await loadStoryboardEditor(taskId); return;
+    }
+    if (button.dataset.storyboardAction === 'asset-save') {
+      const item = button.closest('[data-placement-item]');
+      await requestJson(`/api/tasks/${taskId}/storyboard/assets/${button.dataset.placementId}`, {
+        method:'PUT', headers:{'Content-Type':'application/json'}, body:JSON.stringify({
+          position:item.querySelector('[name="placementPosition"]').value,
+          cutoutApplied:item.querySelector('[name="placementCutout"]').checked,
+          instruction:item.querySelector('[name="placementInstruction"]').value
+        })
+      });
+      await loadStoryboardEditor(taskId); return;
+    }
+    if (button.dataset.storyboardAction === 'move') {
+      await requestJson(`/api/tasks/${taskId}/storyboard/segments/${button.dataset.clipIndex}/move`, {
+        method:'POST', headers:{'Content-Type':'application/json'},
+        body:JSON.stringify({direction:button.dataset.direction})
+      });
+      await loadStoryboardEditor(taskId);
+      return;
+    }
+    const card = button.closest('[data-storyboard-segment]');
+    if (button.dataset.storyboardAction === 'asset-ai' || button.dataset.storyboardAction === 'asset-manual') {
+      const assetId = card.querySelector('[name="assetId"]').value;
+      if (!assetId) throw new Error('请先选择一个本地素材');
+      await requestJson(`/api/tasks/${taskId}/storyboard/segments/${button.dataset.clipIndex}/assets`, {
+        method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify({
+          assetId, instruction:card.querySelector('[name="assetInstruction"]').value,
+          aiAssign:button.dataset.storyboardAction === 'asset-ai'
+        })
+      });
+      await loadStoryboardEditor(taskId); return;
+    }
+    if (button.dataset.storyboardAction === 'rewrite') {
+      await requestJson(`/api/tasks/${taskId}/script/segments/${button.dataset.clipIndex}/regenerate`, {
+        method:'POST', headers:{'Content-Type':'application/json'},
+        body:JSON.stringify({instruction:card.querySelector('[name="rewriteInstruction"]').value})
+      });
+      await loadStoryboardEditor(taskId);
+      return;
+    }
+    await requestJson(`/api/tasks/${taskId}/storyboard/segments/${button.dataset.clipIndex}`, {
+      method:'PUT', headers:{'Content-Type':'application/json'}, body:JSON.stringify({
+        startSeconds:Number(card.querySelector('[name="startSeconds"]').value),
+        endSeconds:Number(card.querySelector('[name="endSeconds"]').value),
+        narration:card.querySelector('[name="narration"]').value,
+        subtitle:card.querySelector('[name="subtitle"]').value,
+        effectCue:card.querySelector('[name="effectCue"]').value
+      })
+    });
+    button.textContent = '已保存';
+    setTimeout(() => { button.textContent = '保存此分镜'; button.disabled = false; }, 1000);
+  } catch (error) {
+    button.disabled = false;
+    button.title = error.message;
+    window.alert(error.message);
+  }
+}
+
+async function saveAllStoryboardSegments(taskId, progressButton = null) {
+  const cards = [...storyboardWorkspace.querySelectorAll('[data-storyboard-segment]')];
+  if (progressButton) progressButton.textContent = `正在保存 0 / ${cards.length}…`;
+  for (let index = 0; index < cards.length; index++) {
+    const card = cards[index];
+    await requestJson(`/api/tasks/${taskId}/storyboard/segments/${card.dataset.storyboardSegment}`, {
+      method:'PUT', headers:{'Content-Type':'application/json'}, body:JSON.stringify({
+        startSeconds:Number(card.querySelector('[name="startSeconds"]').value),
+        endSeconds:Number(card.querySelector('[name="endSeconds"]').value),
+        narration:card.querySelector('[name="narration"]').value,
+        subtitle:card.querySelector('[name="subtitle"]').value,
+        effectCue:card.querySelector('[name="effectCue"]').value
+      })
+    });
+    if (progressButton) progressButton.textContent = `正在保存 ${index + 1} / ${cards.length}…`;
+  }
+}
+
+async function requestJson(url, options) {
+  const response = await fetch(url, options);
+  if (!response.ok) throw await readApiError(response);
+  return response.json();
+}
+
+function renderedVideoSection(task) {
+  if (!task.renderedVideoPath) return '';
+  const previewUrl = `/api/tasks/${task.id}/preview`;
+  const downloadUrl = `/api/tasks/${task.id}/output`;
+  const sizeMb = (task.renderedFileSizeBytes / 1024 / 1024).toFixed(1);
+  return `<section class="detail-block rendered-video">
+    <div class="rendered-video-head">
+      <div><h3>最终成片</h3><p>视频已完成，可以直接在线播放或导出到电脑（${sizeMb} MB）。</p></div>
+      <span>COMPLETED</span>
+    </div>
+    <video class="result-player" controls preload="metadata" playsinline src="${previewUrl}">
+      当前浏览器不支持 HTML5 视频播放，请使用下方导出按钮。
+    </video>
+    <div class="render-actions">
+      <a class="preview-button" href="${previewUrl}" target="_blank" rel="noopener">新窗口预览</a>
+      <a class="download-button" href="${downloadUrl}" download>导出 MP4</a>
+      <button class="preview-button" type="button" data-add-project-asset="${task.id}">加入素材库</button>
+    </div>
+    <code title="${escapeHtml(task.renderedVideoPath)}">${escapeHtml(task.renderedVideoPath)}</code>
+  </section>`;
+}
+
+function artifactSection(task) {
+  const artifacts = [
+    ['提取音频', task.extractedAudioPath],
+    ['场景清单', task.sceneManifestPath],
+    ['转写文本', task.transcriptTextPath],
+    ['字幕文件', task.subtitlePath],
+    ['转写数据', task.transcriptJsonPath],
+    ['画面分析', task.visualAnalysisPath],
+    ['高光清单', task.highlightManifestPath]
+    ,['生成文案', task.generatedScriptPath]
+    ,['配音清单', task.voiceManifestPath]
+    ,['剪辑时间线', task.timelinePath]
+    ,['中文字幕', task.generatedSubtitlePath]
+    ,['最终成片', task.renderedVideoPath]
+  ].filter(([, path]) => path);
+  if (!artifacts.length) return '';
+  return `<section class="detail-block"><h3>已生成产物</h3><div class="artifact-list">${
+    artifacts.map(([label, path]) => `<div><span>${label}</span><code title="${escapeHtml(path)}">${escapeHtml(path)}</code></div>`).join('')
+  }</div></section>`;
+}
+
+function formatDate(value) {
+  if (!value) return '—';
+  return new Intl.DateTimeFormat('zh-CN', {
+    month: '2-digit', day: '2-digit', hour: '2-digit', minute: '2-digit', second: '2-digit'
+  }).format(new Date(value));
+}
+
+function currentStageText(task) {
+  if (task.status === 'WAITING_REVIEW') return '等待检查 AI 分镜和文案，确认后继续生成';
+  if (task.status === 'FAILED') return `处理失败：${task.failureReason || '请查看后端日志'}`;
+  const running = task.stages.find(stage => stage.status === 'RUNNING');
+  if (running) return `正在执行：${stageNames[running.type]}（${running.progress}%）`;
+  const pending = task.stages.find(stage => stage.status === 'PENDING');
+  if (pending?.errorMessage) return pending.errorMessage;
+  if (pending) return `下一阶段：${stageNames[pending.type]}`;
+  return '全部阶段已完成';
+}
+
+function formatDuration(totalSeconds) {
+  const hours = Math.floor(totalSeconds / 3600);
+  const minutes = Math.floor((totalSeconds % 3600) / 60);
+  const seconds = Math.floor(totalSeconds % 60);
+  return [hours, minutes, seconds].map(value => String(value).padStart(2, '0')).join(':');
+}
+
+function escapeHtml(value) {
+  const node = document.createElement('div');
+  node.textContent = value ?? '';
+  return node.innerHTML;
+}
+
+function createTaskWithProgress(requestBody) {
+  return new Promise((resolve, reject) => {
+    const request = new XMLHttpRequest();
+    request.open('POST', '/api/tasks');
+    request.responseType = 'json';
+
+    request.upload.addEventListener('progress', event => {
+      if (!event.lengthComputable) {
+        message.textContent = '正在上传视频…';
+        return;
+      }
+      const percent = Math.round((event.loaded / event.total) * 100);
+      const loadedMb = (event.loaded / 1024 / 1024).toFixed(1);
+      const totalMb = (event.total / 1024 / 1024).toFixed(1);
+      message.textContent = `正在上传：${percent}%（${loadedMb} / ${totalMb} MB）`;
+    });
+
+    request.addEventListener('load', () => {
+      if (request.status >= 200 && request.status < 300) {
+        resolve(request.response);
+        return;
+      }
+      const payload = request.response || {};
+      reject(Object.assign(new Error(payload.message || `请求失败：HTTP ${request.status}`), {
+        code: payload.code,
+        suggestion: payload.suggestion,
+        traceId: payload.traceId || request.getResponseHeader('X-Trace-Id'),
+        status: request.status
+      }));
+    });
+    request.addEventListener('error', () => reject(Object.assign(
+      new Error('网络连接中断，视频未能完整上传'),
+      { suggestion: '确认后端仍在运行，然后重新提交任务' }
+    )));
+    request.send(requestBody);
+  });
+}
+
+async function readApiError(response) {
+  const traceId = response.headers.get('X-Trace-Id');
+  try {
+    const payload = await response.json();
+    return Object.assign(new Error(payload.message || `请求失败：HTTP ${response.status}`), {
+      code: payload.code,
+      suggestion: payload.suggestion,
+      traceId: payload.traceId || traceId,
+      status: response.status
+    });
+  } catch (parseError) {
+    return Object.assign(new Error(`请求失败：HTTP ${response.status}`), {
+      traceId, status: response.status, cause: parseError
+    });
+  }
+}
+
+function showLoadError(error) {
+  console.error('[GameNarrator] 状态刷新失败', error);
+  taskList.innerHTML = `<p class="empty">任务加载失败：${escapeHtml(error.message)}</p>`;
+}
+
+loadTasks().catch(error => {
+  showLoadError(error);
+  scheduleTaskPoll(10000);
+});
+document.addEventListener('visibilitychange', () => {
+  if (!document.hidden) scheduleTaskPoll(0);
+});
+``
+
+### FILE: src/main/resources/static/asset-library.js
+
+``javascript
+(() => {
+  const form = document.querySelector("#asset-search-form");
+  const list = document.querySelector("#asset-list");
+  const message = document.querySelector("#asset-message");
+  const refresh = document.querySelector("#asset-refresh");
+  const filters = document.querySelector("#asset-filter-form");
+  const domesticSources = document.querySelector("#domestic-source-list");
+  const loadMore = document.querySelector('#asset-load-more');
+  const previousPage = document.querySelector('#asset-previous-page');
+  const pageIndicator = document.querySelector('#asset-page-indicator');
+  const selectAll = document.querySelector('#asset-select-all');
+  const favoriteSelected = document.querySelector('#asset-favorite-selected');
+  const localDropzone = document.querySelector('#local-asset-dropzone');
+  const localInput = document.querySelector('#local-asset-input');
+  const localBrowse = document.querySelector('#local-asset-browse');
+  const searchPreferencesKey = 'gameNarrator.publicAssetSearch';
+  const recommendationSyncKey = 'gameNarrator.bilibiliRecommendationSyncAt';
+  let translationNotice = '';
+  let discoveryState = {query:'', assetType:'', provider:'', sort:'RELEVANCE', page:1, pageSize:9, commercialUse:true, allowModification:true, loading:false};
+
+  async function uploadLocalFiles(files) {
+    const accepted = [...files].filter(file => /^(video|image|audio)\//.test(file.type));
+    if (!accepted.length) { message.textContent = '请选择视频、图片或音频文件。'; return; }
+    localDropzone.classList.add('uploading');
+    for (let index = 0; index < accepted.length; index++) {
+      const file = accepted[index];
+      message.textContent = `正在上传并分析 ${index + 1}/${accepted.length}：${file.name}`;
+      const body = new FormData(); body.append('file', file);
+      await request('/api/assets/upload', {method:'POST', body});
+    }
+    localDropzone.classList.remove('uploading');
+    message.textContent = `已上传并分析 ${accepted.length} 个本地素材。`;
+    await load(false);
+  }
+
+  localBrowse?.addEventListener('click', () => localInput.click());
+  localInput?.addEventListener('change', () => uploadLocalFiles(localInput.files).catch(error => {
+    localDropzone.classList.remove('uploading'); message.textContent = error.message;
+  }));
+  for (const type of ['dragenter','dragover']) localDropzone?.addEventListener(type, event => {
+    event.preventDefault(); localDropzone.classList.add('dragging');
+  });
+  for (const type of ['dragleave','drop']) localDropzone?.addEventListener(type, event => {
+    event.preventDefault(); localDropzone.classList.remove('dragging');
+  });
+  localDropzone?.addEventListener('drop', event => uploadLocalFiles(event.dataTransfer.files).catch(error => {
+    localDropzone.classList.remove('uploading'); message.textContent = error.message;
+  }));
+  if (!form || !list) return;
+
+  const escapeHtml = value => String(value ?? "").replace(/[&<>"']/g, char => ({
+    "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;"
+  })[char]);
+
+  async function request(url, options = {}) {
+    const response = await fetch(url, options);
+    const body = await response.json().catch(() => ({}));
+    if (!response.ok) throw new Error(body.message || `请求失败（HTTP ${response.status}）`);
+    return body;
+  }
+
+  async function refreshTranslationNotice() {
+    try {
+      const settings = await request('/api/ai-settings');
+      translationNotice = settings.mode === 'CLOUD' && !settings.apiKeyConfigured
+        ? '；尚未绑定云端 AI，英文素材先保留原名。请在顶部“AI 模型设置”填写 API Key 后再生成中文标题'
+        : '';
+    } catch { translationNotice = ''; }
+  }
+
+  async function loadDomesticSources() {
+    if (!domesticSources) return;
+    try {
+      const sources = await request('/api/assets/sources');
+      const query = String(form.elements.query?.value || '').trim();
+      const target = source => source.searchUrl && query
+        ? source.searchUrl.replace('{query}', encodeURIComponent(query)) : source.url;
+      const sourceLink = source => `<a href="${escapeHtml(target(source))}" target="_blank"
+        rel="noopener noreferrer" title="授权需在原站确认"><b>${source.region === 'INTERNATIONAL' ? '海外' : '国内'}</b>
+        ${escapeHtml(source.name)}<small>${escapeHtml(source.assetTypes || '综合素材')}</small></a>`;
+      const domestic = sources.filter(source => source.region !== 'INTERNATIONAL');
+      const international = sources.filter(source => source.region === 'INTERNATIONAL');
+      domesticSources.innerHTML = `<section><strong>国内来源（优先）</strong><div>${domestic.map(sourceLink).join('')}</div></section>
+        <section><strong>海外视频与音效</strong><div>${international.map(sourceLink).join('')}</div></section>`;
+    } catch (error) {
+      domesticSources.textContent = '国内素材站目录暂时无法加载。';
+    }
+  }
+
+  async function externalJson(url) {
+    const response = await fetch(url, {signal: AbortSignal.timeout(5000)});
+    if (!response.ok) throw new Error(`开放接口返回 HTTP ${response.status}`);
+    return response.json();
+  }
+
+  const cleanExternalText = value => {
+    const node = document.createElement('div');
+    node.innerHTML = String(value || '').replace(/<[^>]+>/g, ' ');
+    return (node.textContent || '').replace(/\s+/g, ' ').trim();
+  };
+
+  async function browserDiscover(query, assetType, pageSize = 6, page = 1, provider = '') {
+    const candidates = [];
+    if ((!provider || provider === 'OPENVERSE') && assetType !== 'VIDEO') {
+      const endpoint = assetType === 'MEME' ? 'images' : 'audio';
+      const params = new URLSearchParams({q: query, page_size: String(pageSize), page: String(page), mature: 'false', license: 'cc0,pdm,by,by-sa'});
+      try {
+        const data = await externalJson(`https://api.openverse.org/v1/${endpoint}/?${params}`);
+        for (const item of data.results || []) candidates.push({
+          provider:'OPENVERSE', sourceUrl: item.foreign_landing_url, previewUrl: item.thumbnail || item.url, downloadUrl: item.url,
+          title: item.title || '未命名素材', creator: item.creator || null, assetType,
+          licenseCode: item.license || 'unknown', licenseUrl: item.license_url || null,
+          attribution: item.attribution || null,
+          platformTags: (item.tags || []).map(tag => typeof tag === 'string' ? tag : tag.name).filter(Boolean).slice(0, 20)
+        });
+      } catch (error) {
+        console.warn('[GameNarrator] 浏览器 Openverse 回退失败', error);
+      }
+    }
+    if (!provider || provider === 'WIKIMEDIA') {
+      const params = new URLSearchParams({action:'query', generator:'search', gsrsearch:query,
+        gsrnamespace:'6', gsrlimit:String(pageSize), gsroffset:String((page - 1) * pageSize), prop:'imageinfo', iiprop:'url|mime|extmetadata',
+        iiurlwidth:'640', format:'json', formatversion:'2', origin:'*'});
+      try {
+        const data = await externalJson(`https://commons.wikimedia.org/w/api.php?${params}`);
+        const prefix = assetType === 'VIDEO' ? 'video/' : assetType === 'MEME' ? 'image/' : 'audio/';
+        for (const page of data.query?.pages || []) {
+          const info = page.imageinfo?.[0];
+          if (!info?.mime?.startsWith(prefix)) continue;
+          const meta = info.extmetadata || {};
+          const license = cleanExternalText(meta.LicenseShortName?.value || 'unknown');
+          if (/\b(?:NC|ND)\b/i.test(license)) continue;
+          candidates.push({provider:'WIKIMEDIA', sourceUrl: info.descriptionurl, previewUrl: info.thumburl || info.url, downloadUrl: info.url,
+            title: String(page.title || '未命名素材').replace(/^File:/, ''),
+            creator: cleanExternalText(meta.Artist?.value).slice(0, 120) || null, assetType,
+            licenseCode: license.slice(0, 40), licenseUrl: meta.LicenseUrl?.value || null,
+            attribution: cleanExternalText(meta.Credit?.value).slice(0, 500) || null, platformTags: []});
+        }
+      } catch (error) {
+        console.warn('[GameNarrator] 浏览器 Wikimedia 回退失败', error);
+      }
+    }
+    const valid = candidates.filter(item => item.sourceUrl?.startsWith('https://'));
+    if (!valid.length) throw new Error('浏览器也无法连接开放素材接口');
+    const registrations = await Promise.allSettled(valid.map(item => request('/api/assets/references', {
+      method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify({
+        ...item, title:String(item.title || '未命名素材').slice(0, 200),
+        creator:item.creator ? String(item.creator).slice(0, 120) : null,
+        previewUrl:item.previewUrl?.startsWith('https://') ? item.previewUrl : null,
+        downloadUrl:item.downloadUrl?.startsWith('https://') ? item.downloadUrl : null,
+        attribution:item.attribution ? String(item.attribution).slice(0, 500) : null
+      })
+    })));
+    const imported = registrations.filter(result => result.status === 'fulfilled').map(result => result.value);
+    if (!imported.length) throw new Error('开放素材已找到，但无法登记到本地素材库');
+    return imported;
+  }
+
+  function inferAssetType(query, selected) {
+    const text = String(query || '').toLowerCase();
+    if (/(表情包|图片|贴图|meme|image)/i.test(text)) return 'MEME';
+    if (/(音效|声音|sfx|sound effect)/i.test(text)) return 'SFX';
+    if (/(背景音乐|配乐|音乐|bgm|music)/i.test(text)) return 'BGM';
+    if (/(绿幕|视频|green screen|video)/i.test(text)) return 'VIDEO';
+    return selected;
+  }
+
+  function tagMarkup(tag) {
+    const source = tag.userAdded ? "用户" : (tag.sources || []).join("+") || "系统";
+    return `<span class="asset-tag ${tag.userAdded ? "user" : ""}" title="${escapeHtml(source)}">
+      ${escapeHtml(tag.name)}<small>${escapeHtml(source)}</small>
+      <button type="button" data-remove-tag="${escapeHtml(tag.name)}" aria-label="移除标签">×</button>
+    </span>`;
+  }
+
+  function formatDuration(durationMs) {
+    const totalSeconds = Math.round(Number(durationMs || 0) / 1000);
+    if (!totalSeconds) return '';
+    const hours = Math.floor(totalSeconds / 3600);
+    const minutes = Math.floor((totalSeconds % 3600) / 60);
+    const seconds = totalSeconds % 60;
+    return hours
+      ? `${hours}:${String(minutes).padStart(2, '0')}:${String(seconds).padStart(2, '0')}`
+      : `${minutes}:${String(seconds).padStart(2, '0')}`;
+  }
+
+  function mediaMarkup(asset) {
+    const localPreview = asset.importStatus === "DOWNLOADED" ? `/api/assets/${asset.id}/preview` : "";
+    const remoteThumbnail = !asset.previewUrl ? '' : asset.provider === 'BILIBILI'
+      ? `/api/assets/${asset.id}/thumbnail`
+      : asset.previewUrl;
+    const mediaUrl = localPreview || remoteThumbnail;
+    if (asset.assetType === "MEME") {
+      if (!mediaUrl) return "";
+      return `<img class="asset-preview-image" src="${escapeHtml(mediaUrl)}" alt="${escapeHtml(asset.title)}" loading="lazy" referrerpolicy="no-referrer">`;
+    }
+    if (asset.assetType === "VIDEO") {
+      const poster = remoteThumbnail;
+      return `<button type="button" class="asset-video-thumbnail" data-online-preview
+        data-preview-url="${escapeHtml(localPreview || asset.downloadUrl || '')}"
+        data-source-url="${escapeHtml(asset.landingUrl || '')}"
+        data-provider="${escapeHtml(asset.provider || '')}"
+        data-poster-url="${escapeHtml(poster)}"
+        aria-label="在线预览 ${escapeHtml(asset.title)}">
+        ${poster ? `<img src="${escapeHtml(poster)}" alt="${escapeHtml(asset.title)} 缩略图" loading="lazy" referrerpolicy="no-referrer">` : '<span>暂无缩略图</span>'}
+        <b>▶ 在线预览</b>
+      </button>`;
+    }
+    if (asset.provider === 'BILIBILI' && asset.importStatus === 'REFERENCE_ONLY') {
+      return `<div class="asset-video-thumbnail asset-platform-audio-candidate">
+        ${remoteThumbnail ? `<img src="${escapeHtml(remoteThumbnail)}" alt="${escapeHtml(asset.title)} 封面" loading="lazy" referrerpolicy="no-referrer">` : '<span>暂无封面</span>'}
+        <b>视频音轨候选</b>
+      </div>`;
+    }
+    const audioUrl = localPreview || `/api/assets/${asset.id}/remote-preview`;
+    return `<button type="button" class="asset-audio-thumbnail" data-online-preview data-media-kind="audio"
+      data-preview-url="${escapeHtml(audioUrl)}" aria-label="在线试听 ${escapeHtml(asset.localizedTitle || asset.title)}">
+      <span>♫</span><b>在线试听</b><small>点击后才加载音频</small>
+    </button>`;
+  }
+
+  function primaryAssetAction(asset) {
+    if (asset.importStatus === 'REFERENCE_ONLY' && ['BILIBILI','YOUTUBE','DOUYIN','TIKTOK'].includes(asset.provider)) {
+      return `<button type="button" data-platform-import data-source-url="${escapeHtml(asset.landingUrl)}">确认权利并下载</button>`;
+    }
+    const download = `<button type="button" data-download>${asset.importStatus === "DOWNLOADED" ? "已下载" : "下载到素材库"}</button>`;
+    if (asset.assetType !== 'VIDEO') return download;
+    return `${download}<button type="button" data-derive="FRAME">下载一个画面</button><button type="button" data-derive="AUDIO">仅下载声音</button>`;
+  }
+
+  function render(assets, append = false) {
+    if (!assets.length) {
+      if (!append) list.innerHTML = '<p class="empty compact">没有匹配素材，试试英文关键词。</p>';
+      return;
+    }
+    const existing = new Set([...list.querySelectorAll('.asset-card')].map(card => card.dataset.id));
+    const fresh = append ? assets.filter(asset => !existing.has(String(asset.id))) : assets;
+    const markup = fresh.map(asset => `
+      <article class="asset-card" data-id="${asset.id}">
+        ${mediaMarkup(asset)}
+        <div class="asset-card-body">
+          <div class="asset-card-head">
+            <div><small>${escapeHtml(asset.provider)} · ${escapeHtml(asset.assetType)}</small>
+              <h3>${escapeHtml(asset.localizedTitle || asset.title || "未命名素材")}</h3>
+              ${asset.localizedTitle && asset.localizedTitle !== asset.title ? `<small class="asset-original-title">原名：${escapeHtml(asset.title)}</small>` : ''}
+            </div>
+            <div class="asset-state-actions"><label title="选择此素材"><input type="checkbox" data-select-asset aria-label="选择 ${escapeHtml(asset.localizedTitle || asset.title || '素材')}"></label><button type="button" data-favorite title="收藏">${asset.favorite ? "★" : "☆"}</button><button type="button" data-archive>${asset.archived ? "恢复" : "归档"}</button><span>${escapeHtml(asset.licenseCode || "unknown")}</span></div>
+          </div>
+          <p>${escapeHtml(asset.creator || "未知作者")}${asset.durationMs ? ` · ${formatDuration(asset.durationMs)}` : ''}</p>
+          <div class="asset-tags">${(asset.tags || []).map(tagMarkup).join("")}</div>
+          <form class="asset-tag-form">
+            <input name="tag" maxlength="100" placeholder="添加用户标签">
+            <button type="submit">添加</button>
+          </form>
+          <div class="asset-actions">
+            <a href="${escapeHtml(asset.landingUrl)}" target="_blank" rel="noopener noreferrer">查看来源与许可</a>
+            <div>${primaryAssetAction(asset)}
+            <button type="button" data-similar>AI 找相似</button>
+            <button type="button" class="asset-delete" data-delete-asset>删除</button></div>
+          </div>
+          <small class="asset-attribution">${escapeHtml(asset.attribution || "使用前请在原页面确认署名要求")}</small>
+        </div>
+      </article>`).join("");
+    if (append) list.insertAdjacentHTML('beforeend', markup);
+    else list.innerHTML = markup;
+  }
+
+  let libraryLoadController;
+  let libraryLoadSequence = 0;
+  async function load(semantic = false) {
+    const sequence = ++libraryLoadSequence;
+    libraryLoadController?.abort();
+    libraryLoadController = new AbortController();
+    try {
+      const values = new FormData(filters);
+      const params = new URLSearchParams();
+      for (const name of ["query", "assetType", "provider", "importStatus", "sort"]) {
+        if (values.get(name)) params.set(name, values.get(name));
+      }
+      if (values.get("favorite") === "on") params.set("favorite", "true");
+      params.set("archived", values.get("archived") === "on" ? "true" : "false");
+      params.set("semantic", String(semantic));
+      params.set("limit", "9");
+      const response = await fetch(`/api/assets?${params}`, {signal:libraryLoadController.signal});
+      if (!response.ok) throw new Error((await response.json().catch(() => ({}))).message || `请求失败（${response.status}）`);
+      const assets = await response.json();
+      if (sequence === libraryLoadSequence) render(assets);
+    } catch (error) {
+      if (error.name === 'AbortError') return;
+      message.textContent = error.message;
+    }
+  }
+
+  async function loadFeatured() {
+    message.textContent = "正在加载开放素材推荐…";
+    try {
+      const assets = await request("/api/assets/discover/featured");
+      render(assets);
+      message.textContent = `已展示 ${assets.length} 项开放素材，可使用下方搜索和筛选快速查找。`;
+    } catch (error) {
+      message.textContent = '正在切换开放素材读取方式…';
+      try {
+        const attempts = await Promise.allSettled([
+          browserDiscover('funny reaction', 'MEME', 3), browserDiscover('green screen footage', 'VIDEO', 3),
+          browserDiscover('game sound effect', 'SFX', 3), browserDiscover('background music', 'BGM', 3)
+        ]);
+        const assets = attempts.filter(result => result.status === 'fulfilled').flatMap(result => result.value);
+        if (!assets.length) throw new Error('浏览器也无法连接开放素材接口');
+        render(assets);
+        message.textContent = `已展示 ${assets.length} 项开放素材。${translationNotice}`;
+      } catch (browserError) {
+        message.textContent = `在线来源均不可用，下面仅展示本地已有素材：${browserError.message}`;
+        await load();
+      }
+    }
+  }
+
+  function updatePagination(page, resultCount) {
+    if (pageIndicator) pageIndicator.textContent = `第 ${page} 页 · 每页 9 项`;
+    if (previousPage) {
+      previousPage.hidden = false;
+      previousPage.disabled = page <= 1 || discoveryState.loading;
+    }
+    if (loadMore) {
+      loadMore.hidden = false;
+      loadMore.disabled = resultCount < discoveryState.pageSize || discoveryState.loading;
+      loadMore.textContent = resultCount < discoveryState.pageSize ? '没有下一页' : '下一页';
+    }
+  }
+
+  async function discoverPublicAssets(page) {
+    if (discoveryState.loading) return;
+    discoveryState.loading = true;
+    let renderedCount = 0;
+    loadMore.disabled = true;
+    message.textContent = page === 1 ? '正在检索多个开放素材源并生成 AI 标签…' : `正在加载第 ${page} 页公共素材…`;
+    let bilibiliAssets = [];
+    let bilibiliExtensionError = '';
+    if (discoveryState.provider === 'BILIBILI') {
+      try {
+        message.textContent = `正在通过当前账号检索 Bilibili 第 ${page} 页…`;
+        bilibiliAssets = await searchBilibiliWithExtension(discoveryState.query, discoveryState.assetType, page);
+      } catch (extensionError) {
+        bilibiliExtensionError = extensionError.message;
+        console.info('[GameNarrator] 当前账号 Bilibili 搜索暂不可用：', extensionError.message);
+      }
+    }
+    try {
+      const remoteAssets = await request("/api/assets/discover", {
+        method: "POST",
+        headers: {"Content-Type": "application/json"},
+        body: JSON.stringify({
+          query: discoveryState.query,
+          assetType: discoveryState.assetType,
+          pageSize: discoveryState.pageSize,
+          page,
+          commercialUse: discoveryState.commercialUse,
+          allowModification: discoveryState.allowModification,
+          provider: discoveryState.provider || null,
+          sort: discoveryState.sort
+        })
+      });
+      const assets = [...new Map([...remoteAssets, ...bilibiliAssets].map(asset => [String(asset.id), asset])).values()]
+        .slice(0, discoveryState.pageSize);
+      render(assets, false);
+      renderedCount = assets.length;
+      discoveryState.page = page;
+      updatePagination(page, assets.length);
+      message.textContent = (assets.length ? `已加载第 ${page} 页，共返回 ${assets.length} 项公共素材。` : '没有更多公共素材了。') + translationNotice;
+    } catch (error) {
+      if (bilibiliAssets.length) {
+        const assets = bilibiliAssets.slice(0, discoveryState.pageSize);
+        render(assets, false);
+        renderedCount = assets.length;
+        discoveryState.page = page;
+        updatePagination(page, assets.length);
+        message.textContent = `已通过当前 Bilibili 账号加载第 ${page} 页，共 ${assets.length} 项搜索结果；其他公共源暂不可用。`;
+        return;
+      }
+      try {
+        const assets = await browserDiscover(discoveryState.query, discoveryState.assetType, discoveryState.pageSize, page, discoveryState.provider);
+        const pageAssets = assets.slice(0, discoveryState.pageSize);
+        render(pageAssets, false);
+        renderedCount = pageAssets.length;
+        discoveryState.page = page;
+        updatePagination(page, pageAssets.length);
+        message.textContent = `已通过浏览器直接加载第 ${page} 页，共 ${pageAssets.length} 项开放素材。${translationNotice}`;
+      } catch (browserError) {
+        if (page === 1) {
+          if (filters?.elements.query) filters.elements.query.value = discoveryState.query;
+          if (filters?.elements.assetType) filters.elements.assetType.value = discoveryState.assetType;
+          await load(false);
+        }
+        const extensionDetail = bilibiliExtensionError ? `；B站扩展搜索失败：${bilibiliExtensionError}` : '';
+        message.textContent = `${error.message}${extensionDetail}；开放接口浏览器回退也失败${page > 1 ? '。' : '，已显示库内匹配的缓存素材。'}`;
+      }
+    } finally {
+      discoveryState.loading = false;
+      updatePagination(discoveryState.page, renderedCount);
+    }
+  }
+
+  function searchBilibiliWithExtension(query, assetType, page) {
+    return new Promise((resolve, reject) => {
+      const desktopBridge = window.chrome?.webview;
+      if (!desktopBridge && document.documentElement.dataset.gamenarratorExtensionReady !== 'true') {
+        reject(new Error('请先登录 Bilibili；网页端还需连接浏览器助手'));
+        return;
+      }
+      const requestId = crypto.randomUUID();
+      const timeout = setTimeout(() => {
+        window.removeEventListener('gamenarrator-bilibili-search-response', receive);
+        desktopBridge?.removeEventListener('message', receiveDesktop);
+        reject(new Error('读取 Bilibili 搜索结果超时，请确认已登录'));
+      }, 35000);
+      function receive(event) {
+        if (event.detail?.requestId !== requestId) return;
+        clearTimeout(timeout);
+        window.removeEventListener('gamenarrator-bilibili-search-response', receive);
+        if (event.detail.error) reject(new Error(event.detail.error));
+        else resolve(event.detail.assets || []);
+      }
+      async function receiveDesktop(event) {
+        if (event.data?.type !== 'bilibiliAssetsResponse' || event.data?.requestId !== requestId) return;
+        clearTimeout(timeout); desktopBridge.removeEventListener('message', receiveDesktop);
+        if (event.data.error) { reject(new Error(event.data.error)); return; }
+        try { resolve(await registerBilibiliItems(event.data.items || [], assetType, query)); }
+        catch (error) { reject(error); }
+      }
+      if (desktopBridge) {
+        desktopBridge.addEventListener('message', receiveDesktop);
+        desktopBridge.postMessage({type:'bilibiliAssets', requestId, mode:'SEARCH', query, page});
+      } else {
+        window.addEventListener('gamenarrator-bilibili-search-response', receive);
+        window.dispatchEvent(new CustomEvent('gamenarrator-bilibili-search-request', {detail:{requestId, query, assetType, page}}));
+      }
+    });
+  }
+
+  async function registerBilibiliItems(items, assetType = 'VIDEO', query = '') {
+    const settled = await Promise.allSettled(items.map(item => request('/api/assets/references', {
+      method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify({
+        provider:'BILIBILI', sourceUrl:item.sourceUrl, previewUrl:item.previewUrl || null, downloadUrl:null,
+        title:String(item.title || item.bvid).slice(0,200), creator:item.creator ? String(item.creator).slice(0,120) : null,
+        assetType, licenseCode:'RIGHTS_REVIEW_REQUIRED', licenseUrl:null,
+        attribution:`当前账号 Bilibili ${query ? '搜索结果' : '首页推荐'}${item.metricsText ? `；页面指标：${item.metricsText}` : ''}；下载前必须确认权利`.slice(0,500),
+        platformTags:[query ? 'Bilibili账号搜索' : 'Bilibili账号推荐', ...(query ? [`搜索词:${String(query).slice(0,80)}`] : []), '待权利确认']
+      })
+    })));
+    return settled.filter(value => value.status === 'fulfilled').map(value => value.value);
+  }
+
+  form.addEventListener("submit", async event => {
+    event.preventDefault();
+    const values = new FormData(form);
+    const assetType = inferAssetType(values.get('query'), values.get('assetType'));
+    form.elements.assetType.value = assetType;
+    if (filters?.elements.query) filters.elements.query.value = values.get('query');
+    if (filters?.elements.assetType) filters.elements.assetType.value = assetType;
+    discoveryState = {query:String(values.get('query') || '').trim(), assetType,
+      provider:String(values.get('provider') || ''), sort:String(values.get('sort') || 'RELEVANCE'),
+      page:1, pageSize:9,
+      commercialUse:values.get('commercialUse') === 'on', allowModification:values.get('allowModification') === 'on', loading:false};
+    localStorage.setItem(searchPreferencesKey, JSON.stringify({...discoveryState, loading:undefined, page:undefined}));
+    loadMore.hidden = true;
+    await refreshTranslationNotice();
+    await discoverPublicAssets(1);
+  });
+
+  loadMore?.addEventListener('click', () => discoverPublicAssets(discoveryState.page + 1));
+  previousPage?.addEventListener('click', () => discoverPublicAssets(Math.max(1, discoveryState.page - 1)));
+
+  selectAll?.addEventListener('click', () => {
+    const boxes = [...list.querySelectorAll('[data-select-asset]')];
+    const shouldSelect = boxes.some(box => !box.checked);
+    boxes.forEach(box => { box.checked = shouldSelect; });
+    selectAll.textContent = shouldSelect ? '取消全选' : '全选当前结果';
+  });
+
+  favoriteSelected?.addEventListener('click', async () => {
+    const cards = [...list.querySelectorAll('.asset-card')]
+      .filter(card => card.querySelector('[data-select-asset]')?.checked);
+    if (!cards.length) {
+      message.textContent = '请先选择要收藏的公共素材。';
+      return;
+    }
+    favoriteSelected.disabled = true;
+    const results = await Promise.allSettled(cards.map(card => request(`/api/assets/${card.dataset.id}/state`, {
+      method:'PATCH', headers:{'Content-Type':'application/json'}, body:JSON.stringify({favorite:true})
+    })));
+    const succeeded = results.filter(result => result.status === 'fulfilled').length;
+    cards.forEach((card, index) => {
+      if (results[index].status === 'fulfilled') {
+        const star = card.querySelector('[data-favorite]');
+        if (star) star.textContent = '★';
+        card.querySelector('[data-select-asset]').checked = false;
+      }
+    });
+    favoriteSelected.disabled = false;
+    selectAll.textContent = '全选当前结果';
+    message.textContent = `已收藏 ${succeeded} 项素材${succeeded < cards.length ? `，${cards.length - succeeded} 项失败` : ''}。`;
+  });
+
+  try {
+    const saved = JSON.parse(localStorage.getItem(searchPreferencesKey) || '{}');
+    for (const name of ['query', 'assetType', 'provider', 'sort']) {
+      if (saved[name] !== undefined && form.elements[name]) form.elements[name].value = String(saved[name]);
+    }
+    if (form.elements.pageSize) form.elements.pageSize.value = '9';
+    for (const name of ['commercialUse', 'allowModification']) {
+      if (typeof saved[name] === 'boolean' && form.elements[name]) form.elements[name].checked = saved[name];
+    }
+  } catch (error) {
+    localStorage.removeItem(searchPreferencesKey);
+  }
+
+  list.addEventListener("submit", async event => {
+    if (!event.target.matches(".asset-tag-form")) return;
+    event.preventDefault();
+    const card = event.target.closest(".asset-card");
+    const input = event.target.elements.tag;
+    if (!input.value.trim()) return;
+    await updateTags(card.dataset.id, [input.value.trim()], []);
+  });
+
+  list.addEventListener("click", async event => {
+    const card = event.target.closest(".asset-card");
+    if (!card) return;
+    try {
+      if (event.target.matches("[data-remove-tag]")) {
+        await updateTags(card.dataset.id, [], [event.target.dataset.removeTag]);
+      } else if (event.target.closest("[data-online-preview]")) {
+        const trigger = event.target.closest('[data-online-preview]');
+        const previewUrl = trigger.dataset.previewUrl;
+        if (!previewUrl && trigger.dataset.sourceUrl) {
+          window.dispatchEvent(new CustomEvent('gamenarrator-platform-preview-request', {
+            detail:{sourceUrl:trigger.dataset.sourceUrl}
+          }));
+          document.querySelector('#media-resolve-form')?.scrollIntoView({behavior:'smooth', block:'center'});
+          message.textContent = `正在解析 ${trigger.dataset.provider || '平台'} 视频并生成在线预览…`;
+          return;
+        }
+        if (!previewUrl) throw new Error('该素材没有可用的在线预览地址');
+        const audio = trigger.dataset.mediaKind === 'audio';
+        closeOnlinePreview();
+        const overlay = document.createElement('div');
+        overlay.className = 'asset-online-preview';
+        overlay.innerHTML = `<div><button type="button" data-close-online-preview aria-label="关闭预览">×</button>
+          ${audio
+            ? `<audio controls autoplay preload="metadata" src="${escapeHtml(previewUrl)}"></audio>`
+            : `<video controls autoplay playsinline preload="metadata" poster="${escapeHtml(trigger.dataset.posterUrl || '')}" src="${escapeHtml(previewUrl)}"></video>`}
+          <small>${audio ? '在线流式试听' : '临时流式预览'} · 不保存到素材库 · 播放结束自动关闭</small></div>`;
+        document.body.appendChild(overlay);
+        overlay.querySelector('video,audio').addEventListener('ended', closeOnlinePreview, {once:true});
+      } else if (event.target.matches("[data-platform-import]")) {
+        if (!window.confirm('请确认这是本人作品、已获授权，或平台明确允许下载和再创作的内容。确认后将自动调用平台下载器。')) return;
+        const importForm = document.querySelector('#media-resolve-form');
+        const urlInput = importForm?.querySelector('[name="url"]');
+        if (!urlInput) throw new Error('未找到平台素材导入区');
+        window.dispatchEvent(new CustomEvent('gamenarrator-platform-download-request', {
+          detail:{sourceUrl:event.target.dataset.sourceUrl, autoDownload:true}
+        }));
+        importForm.scrollIntoView({behavior:'smooth', block:'center'});
+        message.textContent = '已确认权利，正在通过现有 Bilibili 下载器解析并下载。';
+      } else if (event.target.matches("[data-download]")) {
+        event.target.disabled = true;
+        event.target.textContent = "下载中…";
+        await request(`/api/assets/${card.dataset.id}/download`, {method: "POST"});
+        message.textContent = "素材已下载到本地素材库。";
+        await load();
+      } else if (event.target.matches("[data-derive]")) {
+        const mode = event.target.dataset.derive;
+        let timestampSeconds = 0;
+        if (mode === 'FRAME') {
+          const answer = window.prompt('输入要截取的时间（秒）', '0');
+          if (answer === null) return;
+          timestampSeconds = Number(answer);
+          if (!Number.isFinite(timestampSeconds) || timestampSeconds < 0) throw new Error('时间必须是大于等于 0 的秒数');
+        }
+        event.target.disabled = true;
+        event.target.textContent = mode === 'FRAME' ? '正在下载并截帧…' : '正在下载并提取声音…';
+        await request(`/api/assets/${card.dataset.id}/derive`, {method:'POST', headers:{'Content-Type':'application/json'},
+          body:JSON.stringify({mode, timestampSeconds})});
+        message.textContent = mode === 'FRAME' ? '画面已提取并同步到公共素材库。' : '音轨已提取并同步到公共素材库。';
+        await load();
+      } else if (event.target.matches("[data-delete-asset]")) {
+        if (!window.confirm("确定删除这项素材及其 data 文件吗？原文件、抠图文件和派生缓存都会永久删除。")) return;
+        event.target.disabled = true;
+        event.target.textContent = "删除中…";
+        await request(`/api/assets/${card.dataset.id}`, {method: "DELETE"});
+        card.remove();
+        message.textContent = "素材记录及 data 中的关联文件已删除。";
+      } else if (event.target.matches("[data-similar]")) {
+        event.target.disabled = true;
+        message.textContent = "BGE 正在查找语义相似素材…";
+        const assets = await request(`/api/assets/${card.dataset.id}/similar`);
+        render(assets);
+        message.textContent = assets.length ? `已找到 ${assets.length} 项语义相似素材。` : "没有找到足够相似的素材。";
+      } else if (event.target.matches("[data-favorite]")) {
+        await request(`/api/assets/${card.dataset.id}/state`, {method:"PATCH",
+          headers:{"Content-Type":"application/json"}, body:JSON.stringify({favorite:event.target.textContent !== "★"})});
+        await load();
+      } else if (event.target.matches("[data-archive]")) {
+        await request(`/api/assets/${card.dataset.id}/state`, {method:"PATCH",
+          headers:{"Content-Type":"application/json"}, body:JSON.stringify({archived:event.target.textContent !== "恢复"})});
+        await load();
+      }
+    } catch (error) {
+      message.textContent = error.message;
+      await load();
+    }
+  });
+
+  function closeOnlinePreview() {
+    const overlay = document.querySelector('.asset-online-preview');
+    const media = overlay?.querySelector('video,audio');
+    if (media) {
+      media.pause();
+      media.removeAttribute('src');
+      media.load();
+    }
+    overlay?.remove();
+  }
+
+  document.addEventListener('click', event => {
+    if (event.target.matches('[data-close-online-preview]') || event.target.matches('.asset-online-preview')) {
+      closeOnlinePreview();
+    }
+  });
+
+  async function updateTags(id, add, remove) {
+    await request(`/api/assets/${id}/tags`, {
+      method: "PUT",
+      headers: {"Content-Type": "application/json"},
+      body: JSON.stringify({add, remove})
+    });
+    message.textContent = "用户标签已保存，并覆盖默认分类结果。";
+    await load();
+  }
+
+  refresh?.addEventListener("click", loadFeatured);
+  let filterTimer;
+  filters?.addEventListener("input", () => {
+    clearTimeout(filterTimer);
+    filterTimer = setTimeout(() => load(false), 250);
+  });
+  filters?.addEventListener("change", () => {
+    clearTimeout(filterTimer);
+    load(false);
+  });
+  filters?.addEventListener("submit", event => {
+    event.preventDefault();
+    clearTimeout(filterTimer);
+    message.textContent = '正在进行 AI 语义排序…';
+    load(true);
+  });
+  document.addEventListener("asset-library-updated", () => load(false));
+  let initialized = false;
+  function initializeAssetLibrary() {
+    if (initialized) return;
+    initialized = true;
+    Promise.allSettled([loadDomesticSources(), refreshTranslationNotice(), load(false)]);
+    window.requestIdleCallback
+      ? window.requestIdleCallback(syncBilibiliRecommendations, {timeout: 3000})
+      : setTimeout(syncBilibiliRecommendations, 1200);
+  }
+  const assetSection = form.closest('section') || form;
+  if ('IntersectionObserver' in window) {
+    const observer = new IntersectionObserver(entries => {
+      if (!entries.some(entry => entry.isIntersecting)) return;
+      observer.disconnect();
+      initializeAssetLibrary();
+    }, {rootMargin:'400px 0px'});
+    observer.observe(assetSection);
+  } else {
+    initializeAssetLibrary();
+  }
+
+  function syncBilibiliRecommendations(force = false) {
+    const previous = Number(localStorage.getItem(recommendationSyncKey) || 0);
+    if (!force && Date.now() - previous < 10 * 60 * 1000) return;
+    const requestId = crypto.randomUUID();
+    const desktopBridge = window.chrome?.webview;
+    const receive = async event => {
+      if (event.detail?.requestId !== requestId) return;
+      window.removeEventListener('gamenarrator-bilibili-recommend-response', receive);
+      if (event.detail.error) {
+        console.info('[GameNarrator] Bilibili 推荐内容暂未同步：', event.detail.error);
+        return;
+      }
+      localStorage.setItem(recommendationSyncKey, String(Date.now()));
+      if (event.detail.count > 0) {
+        message.textContent = `已从当前 Bilibili 账号同步 ${event.detail.count} 项首页推荐记录（尚未下载）。`;
+        await load();
+      }
+    };
+    const receiveDesktop = async event => {
+      if (event.data?.type !== 'bilibiliAssetsResponse' || event.data?.requestId !== requestId) return;
+      desktopBridge.removeEventListener('message', receiveDesktop);
+      if (event.data.error) { console.info('[GameNarrator] Bilibili 推荐内容暂未同步：', event.data.error); return; }
+      const assets = await registerBilibiliItems(event.data.items || []);
+      localStorage.setItem(recommendationSyncKey, String(Date.now()));
+      if (assets.length) { message.textContent = `已从当前 Bilibili 账号同步 ${assets.length} 项首页推荐记录（尚未下载）。`; await load(); }
+    };
+    if (desktopBridge) {
+      desktopBridge.addEventListener('message', receiveDesktop);
+      desktopBridge.postMessage({type:'bilibiliAssets', requestId, mode:'RECOMMEND'});
+    } else {
+      window.addEventListener('gamenarrator-bilibili-recommend-response', receive);
+      window.dispatchEvent(new CustomEvent('gamenarrator-bilibili-recommend-request', {detail:{requestId}}));
+    }
+    setTimeout(() => window.removeEventListener('gamenarrator-bilibili-recommend-response', receive), 30000);
+  }
+  window.addEventListener('gamenarrator-browser-auth-ready', () => syncBilibiliRecommendations(false));
+  window.addEventListener('gamenarrator-bilibili-login-success', () => syncBilibiliRecommendations(true));
+})();
+``
+
+### FILE: src/main/resources/static/diagnostics.js
+
+``javascript
+(() => {
+  const dialog = document.querySelector('#diagnostics-dialog');
+  const output = document.querySelector('#diagnostics-log');
+  if (!dialog || !output) return;
+  async function refresh() {
+    output.textContent = '正在读取日志…';
+    try {
+      const response = await fetch('/api/debug/logs?lines=400', {cache:'no-store'});
+      if (!response.ok) throw new Error(`日志读取失败（HTTP ${response.status}）`);
+      output.textContent = await response.text() || '当前没有日志记录。';
+      output.scrollTop = output.scrollHeight;
+    } catch (error) { output.textContent = error.message; }
+  }
+  document.querySelector('#diagnostics-open')?.addEventListener('click', () => {
+    if (!dialog.open) dialog.showModal();
+    refresh();
+  });
+  document.querySelector('#diagnostics-close')?.addEventListener('click', () => dialog.close());
+  document.querySelector('#diagnostics-refresh')?.addEventListener('click', refresh);
+  dialog.addEventListener('click', event => { if (event.target === dialog) dialog.close(); });
+  const report = (level, message, context) => fetch('/api/debug/client-events', {
+    method:'POST', headers:{'Content-Type':'application/json'}, keepalive:true,
+    body:JSON.stringify({level, message:String(message || '未知错误').slice(0,1000), context})
+  }).catch(() => {});
+  window.addEventListener('error', event => report('ERROR', event.message, 'window.error'));
+  window.addEventListener('unhandledrejection', event => report('ERROR', event.reason?.message || event.reason, 'unhandledrejection'));
+  window.gameNarratorDiagnosticEvent = (message, context='frontend') => report('WARN', message, context);
+})();
+``
+
+### FILE: src/main/resources/static/export.js
+
+``javascript
+(() => {
+  const detail = document.querySelector('#detail-content');
+  if (!detail) return;
+
+  const observer = new MutationObserver(() => {
+    const actions = detail.querySelector('.render-actions');
+    if (!actions || actions.querySelector('.open-export')) return;
+    const preview = actions.querySelector('a[href*="/preview"]');
+    const match = preview?.getAttribute('href')?.match(/\/api\/tasks\/([^/]+)\/preview/);
+    if (!match) return;
+    const button = document.createElement('button');
+    button.type = 'button';
+    button.className = 'download-button open-export';
+    button.textContent = '导出设置';
+    button.dataset.taskId = match[1];
+    button.addEventListener('click', () => showPanel(actions, match[1]));
+    actions.append(button);
+    const effectButton = document.createElement('button');
+    effectButton.type = 'button';
+    effectButton.className = 'preview-button rerender-effects';
+    effectButton.textContent = '应用特效重新渲染';
+    effectButton.addEventListener('click', () => showEffectSettings(actions, match[1]));
+    actions.append(effectButton);
+  });
+  observer.observe(detail, {childList: true, subtree: true});
+
+  async function showPanel(actions, taskId) {
+    let panel = actions.parentElement.querySelector('.export-panel');
+    if (!panel) {
+      panel = document.createElement('div');
+      panel.className = 'export-panel';
+      actions.after(panel);
+    }
+    panel.innerHTML = '<p class="empty compact">正在读取导出预设…</p>';
+    try {
+      const [presets, jobs] = await Promise.all([
+        getJson('/api/export-presets'),
+        getJson(`/api/tasks/${taskId}/exports`)
+      ]);
+      panel.innerHTML = `
+        <div class="export-grid">
+          <label>导出预设<select data-field="preset">${presets.map(p =>
+            `<option value="${p.id}">${text(p.name)} · ${p.container}/${p.videoCodec}</option>`).join('')}</select></label>
+          <label>文件名称<input data-field="name" maxlength="120" value="GameNarrator-${taskId.slice(0, 8)}"></label>
+          <label>分辨率<select data-field="size"><option value="">跟随预设</option><option value="1280x720">1280×720</option><option value="1920x1080">1920×1080</option><option value="2560x1440">2560×1440</option><option value="3840x2160">3840×2160</option></select></label>
+          <label>帧率<select data-field="fps"><option value="">跟随预设/源视频</option><option value="24">24 FPS</option><option value="30">30 FPS</option><option value="60">60 FPS</option></select></label>
+          <label>视频质量<select data-field="quality"><option value="">跟随预设</option><option value="18">高质量</option><option value="23">平衡</option><option value="28">较小文件</option></select></label>
+          <label>字幕<select data-field="subtitle"><option value="">跟随预设</option><option value="SOFT">可开关字幕</option><option value="BURN_IN">烧录字幕</option><option value="NONE">不含字幕</option><option value="SEPARATE_SRT">单独字幕</option></select></label>
+        </div>
+        <div class="export-toolbar"><button type="button" class="submit-export">开始导出</button><span class="export-message"></span></div>
+        <div class="export-jobs">${jobsHtml(jobs)}</div>`;
+      panel.querySelector('.submit-export').addEventListener('click', () => submit(panel, taskId));
+    } catch (error) {
+      panel.innerHTML = `<div class="task-error">${text(error.message)}</div>`;
+    }
+  }
+
+  async function showEffectSettings(actions, taskId) {
+    let panel = actions.parentElement.querySelector('.effect-settings-panel');
+    if (panel) {
+      panel.hidden = !panel.hidden;
+      return;
+    }
+    panel = document.createElement('div');
+    panel.className = 'export-panel effect-settings-panel';
+    panel.innerHTML = '<p class="empty compact">正在读取特效预设…</p>';
+    actions.after(panel);
+    try {
+      const presets = await getJson('/api/effect-presets');
+      panel.innerHTML = `<div class="export-grid">
+        <label>创作风格<select data-effect="preset">${presets.map(item =>
+          `<option value="${item.code}">${text(item.name)} · ${text(item.description)}</option>`).join('')}</select></label>
+        <label>效果强度<input data-effect="intensity" type="range" min="0" max="1" step="0.05" value="0.78"><output>78%</output></label>
+        <label class="effect-toggle"><input data-effect="subtitles" type="checkbox" checked> 启用动态字幕</label>
+        <label class="effect-toggle"><input data-effect="sounds" type="checkbox"> 启用程序化音效轨道（冲击、掠过、喜剧提示）</label>
+      </div>
+      <p class="effect-note">预设会同时控制视觉特效、转场范围、字幕主题、单片段最大效果数和原声音量。</p>
+      <div class="export-toolbar"><button type="button" class="apply-effects">应用并重新渲染</button><span class="effect-message"></span></div>`;
+      const slider = panel.querySelector('[data-effect=intensity]');
+      slider.addEventListener('input', () => slider.nextElementSibling.textContent = `${Math.round(slider.value * 100)}%`);
+      panel.querySelector('.apply-effects').addEventListener('click',
+        event => rerenderEffects(event.currentTarget, panel, taskId));
+    } catch (error) {
+      panel.innerHTML = `<div class="task-error">${text(error.message)}</div>`;
+    }
+  }
+
+  async function rerenderEffects(button, panel, taskId) {
+    button.disabled = true;
+    const message = panel.querySelector('.effect-message');
+    message.textContent = '正在启动特效渲染…';
+    const payload = {
+      presetCode: panel.querySelector('[data-effect=preset]').value,
+      intensity: Number(panel.querySelector('[data-effect=intensity]').value),
+      dynamicSubtitles: panel.querySelector('[data-effect=subtitles]').checked,
+      soundEffects: panel.querySelector('[data-effect=sounds]').checked
+    };
+    try {
+      const response = await fetch(`/api/tasks/${taskId}/rerender-effects`, {
+        method: 'POST', headers: {'Content-Type': 'application/json'}, body: JSON.stringify(payload)
+      });
+      if (!response.ok) throw new Error((await response.json()).message || `HTTP ${response.status}`);
+      message.textContent = '后台渲染中，可在处理阶段查看进度。';
+      setTimeout(() => {
+        button.disabled = false;
+        message.textContent = '渲染完成后刷新任务即可查看。';
+      }, 8000);
+    } catch (error) {
+      button.disabled = false;
+      message.textContent = `启动失败：${error.message}`;
+    }
+  }
+
+  async function submit(panel, taskId) {
+    const size = panel.querySelector('[data-field=size]').value.split('x');
+    const value = field => panel.querySelector(`[data-field=${field}]`).value;
+    const payload = {
+      presetId: value('preset'),
+      exportName: value('name'),
+      width: size[0] ? Number(size[0]) : null,
+      height: size[1] ? Number(size[1]) : null,
+      frameRate: value('fps') ? Number(value('fps')) : null,
+      qualityValue: value('quality') ? Number(value('quality')) : null,
+      targetBitrateKbps: null,
+      subtitleMode: value('subtitle') || null
+    };
+    panel.querySelector('.export-message').textContent = '已提交，正在后台导出…';
+    try {
+      const response = await fetch(`/api/tasks/${taskId}/exports`, {
+        method: 'POST', headers: {'Content-Type': 'application/json'}, body: JSON.stringify(payload)
+      });
+      if (!response.ok) throw new Error((await response.json()).message || `HTTP ${response.status}`);
+      poll(panel, taskId);
+    } catch (error) {
+      panel.querySelector('.export-message').textContent = `导出失败：${error.message}`;
+    }
+  }
+
+  async function poll(panel, taskId) {
+    if (!panel.isConnected) return;
+    const jobs = await getJson(`/api/tasks/${taskId}/exports`);
+    panel.querySelector('.export-jobs').innerHTML = jobsHtml(jobs);
+    if (jobs.some(job => ['PENDING', 'RUNNING'].includes(job.status))) {
+      setTimeout(() => poll(panel, taskId), 2000);
+    } else {
+      panel.querySelector('.export-message').textContent = '导出任务已完成';
+    }
+  }
+
+  function jobsHtml(jobs) {
+    if (!jobs.length) return '<p class="empty compact">暂无导出记录</p>';
+    return jobs.map(job => `<article class="export-job ${job.status.toLowerCase()}">
+      <div><strong>${text(job.exportName)}.${job.container.toLowerCase()}</strong>
+      <small>${text(job.presetName)} · ${job.status} · ${job.progress}%${job.outputSizeBytes ? ` · ${(job.outputSizeBytes / 1048576).toFixed(1)} MB` : ''}</small></div>
+      ${job.status === 'COMPLETED' ? `<a class="download-button" href="/api/exports/${job.id}/download">下载</a>` : ''}
+      ${job.errorMessage ? `<span class="task-error">${text(job.errorMessage)}</span>` : ''}
+    </article>`).join('');
+  }
+
+  async function getJson(url) {
+    const response = await fetch(url);
+    if (!response.ok) throw new Error((await response.json()).message || `HTTP ${response.status}`);
+    return response.json();
+  }
+
+  function text(value) {
+    const node = document.createElement('div');
+    node.textContent = value ?? '';
+    return node.innerHTML;
+  }
+})();
+``
+
+### FILE: src/main/resources/static/extension-install.html
+
+``html
+<!doctype html>
+<html lang="zh-CN"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>安装 GameNarrator 登录助手</title><style>
+*{box-sizing:border-box}body{margin:0;background:#080d19;color:#e8efff;font:15px/1.7 system-ui,"Microsoft YaHei",sans-serif}
+main{max-width:820px;margin:40px auto;padding:32px}.hero,.card{padding:26px;border:1px solid #293552;border-radius:18px;background:#10182a}.hero h1{margin:0 0 8px;font-size:28px}.hero p,.muted{color:#9cabc6}
+.download{display:inline-block;margin-top:12px;padding:12px 20px;border-radius:10px;background:#536be8;color:white;text-decoration:none;font-weight:800}
+.card{margin-top:20px}.step{display:grid;grid-template-columns:38px 1fr;gap:12px;margin:18px 0}.step b{display:grid;place-items:center;width:34px;height:34px;border-radius:50%;background:#536be8}.step h2{margin:0;font-size:17px}.step p{margin:3px 0;color:#aebbd2}.address{display:flex;gap:8px;margin-top:8px}.address code{flex:1;padding:10px;border-radius:8px;background:#070c17;color:#7de4ef}.address button{border:0;border-radius:8px;padding:0 14px;cursor:pointer}.notice{color:#ffd27a}.done{color:#67e5ad}
+</style></head><body><main>
+<section class="hero"><small>GAME NARRATOR</small><h1>安装平台登录助手</h1><p>只需要安装和连接一次。以后粘贴视频网址时，系统会自动使用当前浏览器中的平台登录状态。</p>
+<p>Bilibili 扫码登录与账号密码登录均在 B站官方页面完成；GameNarrator 不接触或保存账号密码。</p>
+<a class="download" href="/downloads/gamenarrator-browser-extension.zip" download>① 下载扩展 ZIP</a></section>
+<section class="card"><div class="step"><b>2</b><div><h2>解压下载的 ZIP</h2><p>在下载文件上点击右键，选择“全部解压”。记住解压后的文件夹位置。不要直接双击 ZIP 内的文件。</p></div></div>
+<div class="step"><b>3</b><div><h2>打开扩展管理页面</h2><p id="browser-tip">把下面地址复制到浏览器地址栏并回车。</p><div class="address"><code id="extension-address">chrome://extensions</code><button id="copy-address">复制</button></div></div></div>
+<div class="step"><b>4</b><div><h2>加载扩展文件夹</h2><p>打开右上角“开发者模式” → 点击“加载已解压的扩展程序” → 选择刚才解压的文件夹。应当选择里面能直接看到 <code>manifest.json</code> 的那一层。</p></div></div>
+<div class="step"><b>5</b><div><h2>连接 GameNarrator</h2><p>回到 GameNarrator，点击浏览器右上角拼图图标 → GameNarrator 平台登录助手 → “连接当前网站”。看到“连接成功”即完成。</p></div></div>
+<p class="done">完成后无需再次安装，也不需要导出 cookies.txt。</p><p class="notice">浏览器安全规则要求首次安装必须由用户确认，网页无法代替点击。</p></section>
+</main><script>
+const edge=/Edg\//.test(navigator.userAgent);const address=document.querySelector('#extension-address');
+if(edge){address.textContent='edge://extensions';document.querySelector('#browser-tip').textContent='检测到 Edge，请把下面地址复制到 Edge 地址栏并回车。'}
+document.querySelector('#copy-address').onclick=async()=>{await navigator.clipboard.writeText(address.textContent);document.querySelector('#copy-address').textContent='已复制'};
+</script></body></html>
+``
+
+### FILE: src/main/resources/static/index.html
+
+``html
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>GameNarrator</title>
+  <link rel="stylesheet" href="/app.css?v=20260803-9">
+  <link rel="stylesheet" href="/media-importer.css?v=20260729-10">
+</head>
+<body>
+  <div class="aurora"></div>
+  <header class="topbar">
+    <a class="brand" href="/">GAME<span>NARRATOR</span></a>
+    <div class="topbar-actions"><button id="diagnostics-open" class="diagnostics-open" type="button">诊断日志</button><div class="system-state"><i></i> 本地推理工作台</div></div>
+  </header>
+
+  <main>
+    <section class="ai-settings-panel">
+      <div class="section-title"><div><small>AI RUNTIME</small><h2>AI 模型设置</h2></div><span class="step">AI</span></div>
+      <form id="ai-settings-form">
+        <div class="grid">
+          <label>运行方式<select name="mode"><option value="CLOUD">云端 API（默认）</option><option value="LOCAL">本地模型</option></select></label>
+          <label>云端服务<select name="provider"><option value="DASHSCOPE">阿里云百炼 / DashScope</option><option value="DEEPSEEK">DeepSeek</option><option value="OPENAI">OpenAI</option><option value="ANTHROPIC">Anthropic Claude</option><option value="GEMINI">Google Gemini</option><option value="OPENROUTER">OpenRouter</option><option value="SILICONFLOW">硅基流动 SiliconFlow</option><option value="MOONSHOT">月之暗面 Kimi</option><option value="ZHIPU">智谱 BigModel</option><option value="VOLCENGINE">火山方舟 Ark</option><option value="BAIDU">百度千帆</option><option value="TENCENT">腾讯混元</option><option value="MINIMAX">MiniMax</option><option value="XAI">xAI</option><option value="MISTRAL">Mistral</option><option value="GROQ">Groq</option><option value="TOGETHER">Together AI</option><option value="PERPLEXITY">Perplexity</option><option value="CEREBRAS">Cerebras</option><option value="OPENAI_COMPATIBLE">其他 OpenAI 兼容服务</option></select></label>
+        </div>
+        <div data-cloud-settings>
+          <label>API Key<input name="apiKey" type="password" autocomplete="off" placeholder="留空表示保留已保存的 Key"></label>
+          <label>接口地址<input name="baseUrl" type="url" value="https://dashscope.aliyuncs.com/compatible-mode/v1"></label>
+          <div class="grid"><label>视觉模型<input name="visionModel" value="qwen-vl-plus"></label><label>文案模型<input name="textModel" value="qwen-plus"></label></div>
+          <details class="ai-pricing"><summary>费用估算单价（美元 / 1M Token）</summary><div class="grid"><label>输入<input name="inputPricePerMillion" type="number" min="0" step="0.0001" value="0"></label><label>输出<input name="outputPricePerMillion" type="number" min="0" step="0.0001" value="0"></label><label>缓存输入<input name="cachedInputPricePerMillion" type="number" min="0" step="0.0001" value="0"></label></div></details>
+        </div>
+        <p id="ai-provider-hint">云端视觉和文案均使用当前服务。</p>
+        <p id="ai-key-state">正在读取配置…</p>
+        <button type="submit">保存并测试连接</button>
+      </form>
+      <section class="ai-usage" aria-live="polite"><div><span>本轮 输入</span><strong data-usage="turnInput">0</strong></div><div><span>输出</span><strong data-usage="turnOutput">0</strong></div><div><span>会话</span><strong data-usage="session">0</strong></div><div><span>缓存</span><strong><b data-usage="cached">0</b> <small>(<i data-usage="cachePercent">0%</i>)</small></strong></div><div><span>花费</span><strong data-usage="turnCost">$0.0000</strong></div><div><span>今日</span><strong data-usage="todayCost">$0.0000</strong></div><div class="ai-usage-model"><span>模型</span><strong data-usage="model">尚未调用</strong></div></section>
+    </section>
+    <section class="hero">
+      <p class="eyebrow">MULTIMODAL GAME COMMENTARY</p>
+      <h1>把游戏录像变成<br><span>完整动漫剧场式解说</span></h1>
+      <p class="lead">默认保留完整录像内容并生成连续叙事；AI 高光识别只用于强调关键事件、安排特效与解说节奏。</p>
+      <div class="metrics">
+        <div><strong>9</strong><span>处理阶段</span></div>
+        <div><strong>4</strong><span>模型能力</span></div>
+        <div><strong>LOCAL</strong><span>数据优先</span></div>
+      </div>
+    </section>
+
+    <section class="workspace">
+      <article class="create-panel">
+        <div class="section-title">
+          <div><small>NEW MISSION</small><h2>创建剪辑任务</h2></div>
+          <span class="step">01</span>
+        </div>
+        <form id="task-form">
+          <label>任务名称<input name="name" maxlength="120" required placeholder="例如：魂系 Boss 战逆转高光"></label>
+          <div class="grid">
+            <label>内容类别
+              <select name="gameCategory">
+                <option value="ACTION">动作竞技</option>
+                <option value="STORY">剧情向</option>
+                <option value="RPG">角色扮演</option>
+                <option value="ANIME_GAME">二次元游戏</option>
+              </select>
+            </label>
+            <label>解说风格
+              <select name="commentaryStyle">
+                <option value="ANIME_THEATER">动漫剧场</option>
+                <option value="PASSIONATE">热血高燃</option>
+                <option value="HUMOROUS">轻松吐槽</option>
+              </select>
+            </label>
+          </div>
+          <label>节奏参考时长（秒）<input name="targetDurationSeconds" type="number" min="15" max="3600" value="90"><small>不会据此截短视频，最终成片默认覆盖完整源视频。</small></label>
+          <label>创作要求<textarea name="taskBrief" maxlength="500" required placeholder="描述希望重点保留的玩法、节奏和表达方式"></textarea></label>
+          <label class="effect-toggle storyboard-review-option"><input name="storyboardReviewEnabled" type="checkbox" value="true" checked> AI 生成文案和分镜后暂停，等待我检查和修改</label>
+          <label class="effect-toggle"><input name="automaticGenerationEnabled" type="checkbox" value="true" checked> 启动自动剪辑流程</label>
+          <label class="effect-toggle"><input name="cloudVisionEnabled" type="checkbox" value="true" checked> 云端理解完整视频场景</label>
+          <label class="effect-toggle"><input name="aiScriptEnabled" type="checkbox" value="true" checked> AI 生成文案与字幕初稿</label>
+          <label class="effect-toggle"><input name="aiVoiceEnabled" type="checkbox" value="true" checked> AI 生成解说语音</label>
+          <label class="effect-toggle"><input name="autoAssetsEnabled" type="checkbox" value="true" checked> AI 自动选择补充素材</label>
+          <small class="storyboard-review-hint">四项 AI 能力可独立开关；关闭的环节使用空轨道或规则流程，手动剪辑始终可用。</small>
+          <label class="dropzone">选择游戏视频<input name="video" type="file" accept="video/*" required><span>MP4 / MOV / MKV / WEBM</span></label>
+          <button type="submit">建立分析任务 <b>→</b></button>
+          <p id="form-message"></p>
+        </form>
+      </article>
+
+      <article class="task-panel">
+        <div class="section-title">
+          <div><small>MISSION LOG</small><h2>最近任务</h2></div>
+          <button id="refresh" class="icon-button" type="button">↻</button>
+        </div>
+        <div id="task-list" class="task-list"><p class="empty">正在读取任务…</p></div>
+      </article>
+    </section>
+
+    <section class="segment-search-panel">
+      <div class="section-title">
+        <div><small>LOCAL VIDEO SEMANTIC SEARCH</small><h2>本地视频镜头搜索</h2></div>
+        <span class="step">BGE</span>
+      </div>
+      <p class="asset-library-note">使用已安装的 BGE-M3 在完成分析的视频中搜索镜头。可以直接输入中文，例如“激烈战斗”“搞笑失败”“角色获得胜利”。</p>
+      <form id="segment-search-form" class="segment-search-form">
+        <label>描述想找的画面<input name="query" required maxlength="200" placeholder="例如：主角在危急时刻反击"></label>
+        <label>结果数量<select name="limit"><option value="8">8 个</option><option value="12" selected>12 个</option><option value="20">20 个</option></select></label>
+        <button type="submit">搜索本地镜头</button>
+      </form>
+      <form id="segment-image-search-form" class="segment-image-search-form">
+        <label>或上传一张截图，在本地视频中寻找相似镜头<input name="image" type="file" accept="image/png,image/jpeg,image/webp" required></label>
+        <button type="submit">按截图找镜头</button>
+      </form>
+      <p id="segment-search-message" class="effect-message"></p>
+      <div id="segment-search-results" class="segment-search-results"></div>
+      <datalist id="segment-duration-options"><option value="10"><option value="20"><option value="30"><option value="40"><option value="50"><option value="60"></datalist>
+    </section>
+
+    <section class="media-importer">
+      <div class="section-title">
+        <div><small>AUTHORIZED MEDIA IMPORT</small><h2>平台素材导入</h2></div>
+        <span class="step">URL</span>
+      </div>
+      <p class="asset-library-note">粘贴 Bilibili、YouTube、抖音或 TikTok 链接，解析可用视频、音频与字幕。仅用于本人创作、已获授权或平台明确允许下载的内容。</p>
+      <form id="media-resolve-form" class="media-resolve-form">
+        <div class="auto-auth-state"><strong>自动浏览器认证</strong><small>安装并连接一次登录助手后，平台要求登录时会自动读取当前用户的浏览器登录状态。<a href="/extension-install.html" target="_blank">安装登录助手</a></small></div>
+        <section class="bilibili-login-panel" aria-label="Bilibili 账号连接">
+          <div><strong>Bilibili 账号连接</strong><small>登录在 B站官方页面完成；GameNarrator 不接触或保存账号密码。</small></div>
+          <button type="button" data-bilibili-login="QR">扫码登录</button>
+          <button type="button" data-bilibili-login="ACCOUNT">账号密码登录</button>
+          <span data-bilibili-login-state>尚未连接</span>
+          <div class="bilibili-article-extractor">
+            <label>B站专栏地址<input type="url" data-bilibili-article-url placeholder="https://www.bilibili.com/read/cv... 或 opus/..." /></label>
+            <button type="button" data-bilibili-article-extract>提取专栏图文</button>
+            <small>提取专栏标题、正文和图片候选；受限内容需要先登录 Bilibili。</small>
+            <div data-bilibili-article-result></div>
+          </div>
+        </section>
+        <label class="media-url-field">视频地址<input name="url" type="url" required placeholder="粘贴完整视频网址，例如：https://www.bilibili.com/video/BV..."></label>
+        <details class="cookie-fallback"><summary>登录受限视频的备用认证</summary>
+          <label>Cookie 文件<input name="cookieFile" type="file" accept=".txt,text/plain"><small>只有平台拒绝匿名访问时才需要。Netscape cookies.txt 仅保留当前平台域名，1 小时内自动删除。</small></label>
+        </details>
+        <label class="effect-toggle rights-confirm"><input name="rightsConfirmed" type="checkbox" required>我确认拥有下载和再创作所需权利</label>
+        <button type="submit">开始解析</button>
+      </form>
+      <p id="media-import-message" class="effect-message"></p>
+      <div id="media-resolve-result"></div>
+    </section>
+
+    <section class="asset-library">
+      <div class="section-title">
+        <div><small>UNIFIED ASSET LIBRARY</small><h2>统一素材库</h2></div>
+        <span class="step">LIB</span>
+      </div>
+      <p class="asset-library-note">统一展示开放许可素材与本人已授权的平台候选素材。平台公开可见内容会标注来源性质，但不自动视为开放许可；下载仍需通过上方平台导入区确认权利。</p>
+      <details class="asset-library-guide" open>
+        <summary>第一次使用？查看素材搜索引导</summary>
+        <ol>
+          <li>默认“全部开放来源”无需登录，只搜索 Openverse、Wikimedia，以及已配置 Key 的 Pexels/Pixabay。</li>
+          <li>需要 Bilibili 封面或视频候选时，主动选择“Bilibili 候选素材”；登录只用于读取账号可见内容，不会解锁开放素材。</li>
+          <li>先选择正确类型再输入具体词，例如“狗 表情包”“柴犬 搞笑”；结果不准时切换单一来源核对。</li>
+          <li>开放许可仍需查看许可页；Bilibili 等平台结果必须确认权利后才能下载或用于成片。</li>
+        </ol>
+        <p><strong>为什么某些来源没有结果？</strong> Pexels/Pixabay 需要各自 API Key；Openverse/Wikimedia 无需登录，但可能因网络连接失败暂时不可用。系统会明确提示回退状态，不再用 Bilibili 缓存冒充开放搜索结果。</p>
+      </details>
+      <div id="local-asset-dropzone" class="local-asset-dropzone" tabindex="0">
+        <strong>拖拽上传本地素材</strong>
+        <span>支持视频、图片、音频；绿幕/green screen 视频会自动抠出主体</span>
+        <input id="local-asset-input" type="file" accept="video/*,image/*,audio/*" multiple hidden>
+        <button id="local-asset-browse" type="button">选择文件</button>
+      </div>
+      <details class="domestic-source-directory">
+        <summary>素材站导航（国内优先）</summary>
+        <p>国内来源优先展示，海外视频与音效站随后展示。这里仅提供原站入口；下载前必须逐项确认会员、署名、商用和修改权限。</p>
+        <div id="domestic-source-list"><span>正在读取国内素材站…</span></div>
+      </details>
+      <form id="asset-search-form" class="asset-search-form">
+        <label>搜索词<input name="query" required placeholder="支持中文，例如：悬疑转场、搞笑表情包、战斗冲击音效"></label>
+        <label>素材类型
+          <select name="assetType">
+            <option value="VIDEO">视频 / 绿幕</option>
+            <option value="SFX">音效</option>
+            <option value="BGM">背景音乐</option>
+            <option value="MEME">Meme 图片</option>
+          </select>
+        </label>
+        <label>公共来源
+          <select name="provider">
+            <option value="">全部开放来源</option>
+            <option value="OPENVERSE">Openverse</option>
+            <option value="WIKIMEDIA">Wikimedia Commons</option>
+            <option value="BILIBILI">Bilibili 候选素材</option>
+          </select>
+        </label>
+        <label>每页数量
+          <select name="pageSize">
+            <option value="9">9 项</option>
+          </select>
+        </label>
+        <label>Bilibili 排序
+          <select name="sort">
+            <option value="RELEVANCE">综合相关度</option>
+            <option value="NEWEST">最新发布</option>
+            <option value="POPULAR">播放量优先</option>
+            <option value="DANMAKU">弹幕量优先</option>
+          </select>
+        </label>
+        <label class="effect-toggle"><input name="commercialUse" type="checkbox" checked>允许商业使用</label>
+        <label class="effect-toggle"><input name="allowModification" type="checkbox" checked>允许修改</label>
+        <button type="submit">搜索公共素材</button>
+      </form>
+      <div class="asset-library-toolbar">
+        <span id="asset-message">素材只从开放接口导入，不绕过视频平台下载限制。</span>
+        <div>
+          <button id="asset-select-all" class="icon-button" type="button">全选当前结果</button>
+          <button id="asset-favorite-selected" class="icon-button" type="button">收藏选中</button>
+          <button id="asset-refresh" class="icon-button" type="button">刷新</button>
+        </div>
+      </div>
+      <form id="asset-filter-form" class="asset-filter-form">
+        <label>库内搜索<input name="query" placeholder="标题、作者或标签"></label>
+        <label>类型<select name="assetType"><option value="">全部类型</option><option value="VIDEO">视频</option><option value="MEME">图片</option><option value="SFX">音效</option><option value="BGM">音乐</option></select></label>
+        <label>来源<select name="provider"><option value="">全部来源</option><option value="OPENVERSE">Openverse</option><option value="WIKIMEDIA">Wikimedia Commons</option><option value="BILIBILI">Bilibili</option><option value="PEXELS">Pexels（需 API Key）</option><option value="PIXABAY">Pixabay（需 API Key）</option><option value="YOUTUBE">YouTube</option><option value="DOUYIN">抖音</option><option value="TIKTOK">TikTok</option></select></label>
+        <label>状态<select name="importStatus"><option value="">全部状态</option><option value="DOWNLOADED">已下载</option><option value="REFERENCE_ONLY">仅引用</option><option value="DISCOVERED">已发现</option></select></label>
+        <label>排序<select name="sort"><option value="newest">最新优先</option><option value="oldest">最早优先</option><option value="title">标题排序</option></select></label>
+        <label class="effect-toggle"><input name="favorite" type="checkbox">只看收藏</label>
+        <label class="effect-toggle"><input name="archived" type="checkbox">查看归档</label>
+      </form>
+      <div id="asset-list" class="asset-list"><p class="empty compact">尚未导入素材</p></div>
+      <nav class="asset-pagination" aria-label="公共素材分页">
+        <button id="asset-previous-page" class="asset-load-more" type="button" hidden>上一页</button>
+        <span id="asset-page-indicator">第 1 页 · 每页 9 项</span>
+        <button id="asset-load-more" class="asset-load-more" type="button" hidden>下一页</button>
+      </nav>
+    </section>
+
+    <section class="roadmap">
+      <div class="section-title roadmap-title">
+        <div><small>PRODUCT ROADMAP</small><h2>未来版本规划</h2></div>
+        <span class="step">01—05</span>
+      </div>
+      <div class="roadmap-list">
+        <article><b>1.0</b><div><h3>自动剪辑与特效生成</h3><p>完成正常的视频剪辑、常见特效创作与成片导出，覆盖字幕、转场、贴图、音效和画面包装。</p></div></article>
+        <article><b>2.0</b><div><h3>AI 剧情与分镜工作台</h3><p>支持手动修改 AI 剧情和剪辑决策，提供完整分镜时间线页面，便于调整镜头、字幕、配音和特效。</p></div></article>
+        <article><b>3.0</b><div><h3>AI 动画剧场与 Meme</h3><p>使用 AI 绘图创作角色、场景和动画剧场画面，并生成符合网络传播语境的 Meme 与视频包装素材。</p></div></article>
+        <article><b>4.0</b><div><h3>多创作者风格一键生成</h3><p>建立多个 UP 主类型的创作风格模板，组合节奏、文案、配音、字幕和特效，实现一键生成。</p></div></article>
+        <article><b>5.0</b><div><h3>AI 创意助手</h3><p>面向游戏、动漫和生活片段生成多套脚本方案、画面需求与素材清单，并在合法授权范围内自动检索所需素材。</p></div></article>
+      </div>
+    </section>
+  </main>
+  <dialog id="task-detail-dialog" class="task-dialog">
+    <div class="dialog-shell">
+      <header class="dialog-header">
+        <div><small>MISSION DETAIL</small><h2 id="detail-title">任务详情</h2></div>
+        <button id="detail-close" class="dialog-close" type="button" aria-label="关闭">×</button>
+      </header>
+      <div id="detail-content" class="detail-content">
+        <p class="empty">正在读取任务详情…</p>
+      </div>
+    </div>
+  </dialog>
+  <dialog id="storyboard-dialog" class="storyboard-workspace-dialog">
+    <div class="storyboard-workspace-shell">
+      <header class="dialog-header"><div><small>LINEAR STORYBOARD WORKSPACE</small><h2>线性分镜工作台</h2></div><button id="storyboard-close" class="dialog-close" type="button" aria-label="关闭">×</button></header>
+      <main id="storyboard-workspace" class="storyboard-workspace"><p class="empty">正在读取分镜…</p></main>
+    </div>
+  </dialog>
+  <script src="/app.js?v=20260803-6"></script>
+  <script src="/export.js?v=20260728-4"></script>
+  <script src="/asset-library.js?v=20260803-2"></script>
+  <script src="/media-importer.js?v=20260803-4"></script>
+  <script defer src="/diagnostics.js?v=20260803-2"></script>
+  <dialog id="diagnostics-dialog" class="task-dialog diagnostics-dialog">
+    <div class="dialog-shell">
+      <header class="dialog-header"><div><small>SUPPORT &amp; TROUBLESHOOTING</small><h2>诊断日志</h2></div><button id="diagnostics-close" class="dialog-close" type="button">×</button></header>
+      <section class="diagnostics-content">
+        <p>显示最近的后端、任务和登录错误。Cookie、Token、密码与 API Key 会在读取和导出时自动隐藏。</p>
+        <div class="diagnostics-actions"><button id="diagnostics-refresh" type="button">刷新日志</button><a href="/api/debug/logs/export" download="GameNarrator-Diagnostics.zip">导出诊断包</a></div>
+        <pre id="diagnostics-log">正在读取日志…</pre>
+      </section>
+    </div>
+  </dialog>
+</body>
+</html>
+``
+
+### FILE: src/main/resources/static/media-importer.css
+
+``css
+.media-importer{margin-top:54px;padding:28px;border:1px solid rgba(155,140,255,.48);border-radius:20px;background:rgba(13,19,37,.82)}
+.media-resolve-form{display:grid;grid-template-columns:repeat(12,minmax(0,1fr));align-items:end;gap:14px;margin-top:20px}.auto-auth-state{grid-column:span 4}.media-url-field{grid-column:span 8}.media-url-field input{width:100%;min-height:48px;font-size:14px}.cookie-fallback{grid-column:span 4}.rights-confirm{grid-column:span 5}.media-resolve-form>button{grid-column:span 3;min-height:48px}
+.rights-confirm{min-height:43px}
+.auto-auth-state{display:grid;gap:5px;min-height:43px;padding:10px 12px;border:1px solid #303a55;border-radius:10px;background:#090f20}.auto-auth-state strong{font-size:12px}.auto-auth-state small{color:#7886a1;font-size:9px}
+.bilibili-login-panel{grid-column:1/-1;display:grid;grid-template-columns:minmax(240px,1fr) auto auto;align-items:center;gap:10px;padding:12px;border:1px solid #fb7299;border-radius:12px;background:linear-gradient(110deg,rgba(251,114,153,.13),rgba(9,15,32,.96))}.bilibili-login-panel>div{display:grid;gap:4px}.bilibili-login-panel strong{font-size:13px}.bilibili-login-panel small,.bilibili-login-panel span{color:#9aa8c3;font-size:10px}.bilibili-login-panel button{min-height:38px;padding:0 15px}.bilibili-login-panel span{grid-column:1/-1}
+.bilibili-article-extractor{grid-column:1/-1!important;display:grid!important;grid-template-columns:minmax(260px,1fr) auto;align-items:end;gap:9px;padding-top:10px;border-top:1px solid rgba(251,114,153,.24)}.bilibili-article-extractor small,.bilibili-article-extractor>div{grid-column:1/-1}.bilibili-article-result{padding:10px;border-radius:9px;background:#080e1d}.bilibili-article-result h4{margin:0 0 8px}.bilibili-article-result p{max-height:180px;overflow:auto;white-space:pre-wrap;color:#aebbd2;font-size:11px}.bilibili-article-images{display:flex;gap:8px;overflow:auto}.bilibili-article-images img{width:110px;height:80px;object-fit:cover;border-radius:7px}
+.resolved-media{display:grid;grid-template-columns:220px minmax(0,1fr);gap:20px;margin-top:18px;padding:18px;border:1px solid #2d3956;border-radius:14px;background:#091021}
+.media-cover{display:grid;place-items:center;width:100%;height:150px;overflow:hidden;border-radius:10px;background:linear-gradient(135deg,#17223a,#0b1222);color:#7f8da8;font-size:12px}.media-cover img{grid-area:1/1;width:100%;height:100%;object-fit:cover}.media-cover span{display:none;grid-area:1/1}.media-cover:not(:has(img)) span,.media-cover.cover-error span{display:block}.media-cover.cover-error img{display:none}
+.resolved-media h3{margin:5px 0}
+.resolved-media p,.resolved-media small{color:#8391ad}
+.resolved-media>div{display:grid;gap:10px}
+.media-preview-button{border:1px solid #53658d;background:#18233d}.media-online-preview{margin-top:16px;padding:14px;border:1px solid #2d3956;border-radius:14px;background:#050a14}.media-online-preview video{display:block;width:100%;max-height:560px;border-radius:10px;background:#000}.media-online-preview small{display:block;margin-top:9px;color:#8391ad}
+.media-download-progress{display:grid;gap:7px}.media-download-progress[hidden]{display:none}.media-download-progress progress{width:100%;height:12px;accent-color:#45d7ea}.media-download-progress span{color:#9fb0cd;font-size:11px}
+.media-preview-progress{display:grid;gap:7px}.media-preview-progress[hidden]{display:none}.media-preview-progress progress{width:100%;height:12px;accent-color:#9b8cff}.media-preview-progress span{color:#b9afea;font-size:11px}
+@media(max-width:1050px){.auto-auth-state,.media-url-field{grid-column:1/-1}.cookie-fallback{grid-column:span 5}.rights-confirm{grid-column:span 7}.media-resolve-form>button{grid-column:1/-1}}@media(max-width:750px){.media-resolve-form{grid-template-columns:1fr}.media-resolve-form>*{grid-column:1!important}.bilibili-login-panel{grid-template-columns:1fr}.bilibili-login-panel span{grid-column:1}.resolved-media{grid-template-columns:1fr}.media-importer{padding:18px}}
+.media-online-preview{position:relative}.media-preview-close{position:absolute;z-index:1;top:22px;right:22px;width:34px;height:34px;padding:0;border-radius:50%;background:rgba(5,10,20,.82);font-size:24px;line-height:1;color:#fff;box-shadow:0 3px 14px #000}
+``
+
+### FILE: src/main/resources/static/media-importer.js
+
+``javascript
+(() => {
+  const form = document.querySelector("#media-resolve-form");
+  const result = document.querySelector("#media-resolve-result");
+  const message = document.querySelector("#media-import-message");
+  const bilibiliLoginState = document.querySelector("[data-bilibili-login-state]");
+  if (!form || !result) return;
+  let resolvedUrl = "";
+  let cookieToken = "";
+  let resolvedMedia = null;
+  let autoDownloadRequested = false;
+  let autoPreviewRequested = false;
+  const authenticationPreferencesKey = 'gameNarrator.mediaAuthenticationPreferences';
+  const mediaPreferencesKey = 'gameNarrator.mediaImportPreferences';
+  const readJsonPreference = (key, fallback = {}) => {
+    try { return JSON.parse(localStorage.getItem(key) || '') || fallback; }
+    catch { return fallback; }
+  };
+  const sourcePlatform = sourceUrl => {
+    try { return new URL(sourceUrl).hostname.toLowerCase().replace(/^www\./, ''); }
+    catch { return ''; }
+  };
+  const remembersAuthentication = sourceUrl => Boolean(readJsonPreference(authenticationPreferencesKey)[sourcePlatform(sourceUrl)]);
+  const rememberAuthentication = sourceUrl => {
+    const platform = sourcePlatform(sourceUrl);
+    if (!platform) return;
+    localStorage.setItem(authenticationPreferencesKey, JSON.stringify({
+      ...readJsonPreference(authenticationPreferencesKey), [platform]:true
+    }));
+  };
+  const escapeHtml = value => String(value ?? "").replace(/[&<>"']/g, char => ({
+    "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;"
+  })[char]);
+  const size = bytes => bytes ? `${(bytes / 1024 / 1024).toFixed(1)} MB` : "大小未知";
+  const libraryTags = () => {
+    const tags = [...(resolvedMedia?.tags || [])];
+    if (resolvedMedia?.contentOriginLabel) tags.push(`来源判断:${resolvedMedia.contentOriginLabel}`);
+    return [...new Set(tags)].slice(0, 20);
+  };
+  async function request(url, body) {
+    const response = await fetch(url, {method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify(body)});
+    const data = await response.json().catch(() => ({}));
+    if (!response.ok) throw new Error(data.message || `请求失败（HTTP ${response.status}）`);
+    return data;
+  }
+  async function read(url) {
+    const response = await fetch(url);
+    const data = await response.json().catch(() => ({}));
+    if (!response.ok) throw new Error(data.message || `请求失败（HTTP ${response.status}）`);
+    return data;
+  }
+  const wait = milliseconds => new Promise(resolve => setTimeout(resolve, milliseconds));
+  async function uploadCookieFile(file, sourceUrl) {
+    const body = new FormData();
+    body.append("file", file);
+    body.append("url", sourceUrl);
+    const response = await fetch("/api/media-import/cookies", {method:"POST", body});
+    const data = await response.json().catch(() => ({}));
+    if (!response.ok) throw new Error(data.message || `Cookie 上传失败（HTTP ${response.status}）`);
+    return data.token;
+  }
+  const isAuthenticationError = error => /(登录|认证|cookie|http 40[123]|sign in|login|no video formats found)/i.test(error.message || "");
+  const resolveMedia = token => request("/api/media-import/resolve", {
+    url:resolvedUrl, rightsConfirmed:true, cookieToken:token || null
+  });
+  function requestBrowserAuthentication(sourceUrl) {
+    return new Promise((resolve, reject) => {
+      const requestId = crypto.randomUUID();
+      const timeout = setTimeout(() => {
+        window.removeEventListener("gamenarrator-browser-auth-response", receive);
+        reject(new Error("未检测到已连接的登录助手扩展"));
+      }, 12000);
+      function receive(event) {
+        if (event.detail?.requestId !== requestId) return;
+        clearTimeout(timeout);
+        window.removeEventListener("gamenarrator-browser-auth-response", receive);
+        if (event.detail.error) reject(new Error(event.detail.error));
+        else resolve(event.detail.token);
+      }
+      window.addEventListener("gamenarrator-browser-auth-response", receive);
+      window.dispatchEvent(new CustomEvent("gamenarrator-browser-auth-request", {
+        detail:{requestId, sourceUrl}
+      }));
+    });
+  }
+  function requestBilibiliLogin(mode) {
+    return new Promise((resolve, reject) => {
+      const requestId = crypto.randomUUID();
+      const desktopBridge = window.chrome?.webview;
+      const timeout = setTimeout(() => {
+        window.removeEventListener("gamenarrator-bilibili-login-response", receive);
+        desktopBridge?.removeEventListener("message", receiveDesktop);
+        reject(new Error("等待 Bilibili 登录超时，请重试"));
+      }, 190000);
+      function receive(event) {
+        if (event.detail?.requestId !== requestId) return;
+        clearTimeout(timeout);
+        window.removeEventListener("gamenarrator-bilibili-login-response", receive);
+        if (event.detail.error) reject(new Error(event.detail.error));
+        else resolve(event.detail.token);
+      }
+      function receiveDesktop(event) {
+        if (event.data?.type !== "bilibiliLoginResponse" || event.data?.requestId !== requestId) return;
+        clearTimeout(timeout);
+        desktopBridge.removeEventListener("message", receiveDesktop);
+        if (event.data.error) reject(new Error(event.data.error));
+        else resolve(event.data.token);
+      }
+      if (desktopBridge) {
+        desktopBridge.addEventListener("message", receiveDesktop);
+        desktopBridge.postMessage({type:"bilibiliLogin", requestId, mode});
+      } else {
+        window.addEventListener("gamenarrator-bilibili-login-response", receive);
+        window.dispatchEvent(new CustomEvent("gamenarrator-bilibili-login-request", {
+          detail:{requestId, mode}
+        }));
+      }
+    });
+  }
+  document.querySelectorAll("[data-bilibili-login]").forEach(button => button.addEventListener("click", async () => {
+    const buttons = [...document.querySelectorAll("[data-bilibili-login]")];
+    buttons.forEach(item => { item.disabled = true; });
+    const mode = button.dataset.bilibiliLogin;
+    bilibiliLoginState.textContent = mode === "QR"
+      ? "正在打开 B站官方页面，请扫码完成登录…"
+      : "正在打开 B站官方页面，请在官方页面输入账号密码…";
+    try {
+      cookieToken = await requestBilibiliLogin(mode);
+      rememberAuthentication("https://www.bilibili.com/");
+      bilibiliLoginState.textContent = "已连接 Bilibili，本次会话可直接解析登录内容";
+      window.dispatchEvent(new CustomEvent('gamenarrator-bilibili-login-success'));
+    } catch (error) {
+      bilibiliLoginState.textContent = error.message;
+      window.gameNarratorDiagnosticEvent?.(error.message, `bilibili-login-${mode.toLowerCase()}`);
+    } finally {
+      buttons.forEach(item => { item.disabled = false; });
+    }
+  }));
+  function requestBilibiliArticle(sourceUrl) {
+    return new Promise((resolve, reject) => {
+      const requestId = crypto.randomUUID();
+      const desktopBridge = window.chrome?.webview;
+      const timeout = setTimeout(() => finish(new Error("等待 Bilibili 专栏页面超时")), 90000);
+      const finish = (error, value) => {
+        clearTimeout(timeout);
+        desktopBridge?.removeEventListener("message", desktopReceive);
+        window.removeEventListener("gamenarrator-bilibili-article-response", browserReceive);
+        error ? reject(error) : resolve(value);
+      };
+      const desktopReceive = event => {
+        if (event.data?.type !== "bilibiliArticleResponse" || event.data?.requestId !== requestId) return;
+        finish(event.data.error ? new Error(event.data.error) : null, event.data.article);
+      };
+      const browserReceive = event => {
+        if (event.detail?.requestId !== requestId) return;
+        finish(event.detail.error ? new Error(event.detail.error) : null, event.detail.article);
+      };
+      if (desktopBridge) {
+        desktopBridge.addEventListener("message", desktopReceive);
+        desktopBridge.postMessage({type:"bilibiliArticle", requestId, sourceUrl});
+      } else {
+        window.addEventListener("gamenarrator-bilibili-article-response", browserReceive);
+        window.dispatchEvent(new CustomEvent("gamenarrator-bilibili-article-request", {detail:{requestId,sourceUrl}}));
+      }
+    });
+  }
+  document.querySelector("[data-bilibili-article-extract]")?.addEventListener("click", async event => {
+    const sourceUrl = document.querySelector("[data-bilibili-article-url]")?.value?.trim();
+    const box = document.querySelector("[data-bilibili-article-result]");
+    if (!/^https:\/\/(?:www\.)?bilibili\.com\/(?:read\/cv\d+|opus\/\d+)/i.test(sourceUrl || "")) {
+      box.textContent = "请输入有效的 Bilibili 专栏或动态文章地址"; return;
+    }
+    event.target.disabled = true; box.textContent = "正在打开 B站页面并提取图文…";
+    try {
+      const article = await requestBilibiliArticle(sourceUrl);
+      const images = [...new Set(article.images || [])].slice(0,30);
+      await Promise.allSettled(images.map((url,index) => request("/api/assets/references", {
+        provider:"BILIBILI", sourceUrl, previewUrl:url, downloadUrl:null,
+        title:`${article.title || "B站专栏"} · 图片 ${index+1}`, creator:article.author || null,
+        assetType:"MEME", licenseCode:"RIGHTS_REVIEW_REQUIRED", licenseUrl:null,
+        attribution:"Bilibili 专栏提取图片；使用前必须确认转载、修改与商用权限",
+        platformTags:["Bilibili专栏","专栏图片","待权利确认"]
+      })));
+      box.className = "bilibili-article-result";
+      box.innerHTML = `<h4>${escapeHtml(article.title || "未命名专栏")}</h4><small>${escapeHtml(article.author || "未知作者")} · 已提取 ${images.length} 张图片</small><p>${escapeHtml(article.text || "未提取到正文")}</p><div class="bilibili-article-images">${images.map(url => `<img src="${escapeHtml(url)}" loading="lazy" referrerpolicy="no-referrer">`).join("")}</div>`;
+      document.dispatchEvent(new CustomEvent("asset-library-updated"));
+    } catch (error) {
+      box.textContent = `${error.message}。如内容需要登录，请先完成上方 Bilibili 登录。`;
+      window.gameNarratorDiagnosticEvent?.(error.message,"bilibili-article");
+    } finally { event.target.disabled = false; }
+  });
+  function showResolvedMedia(media) {
+    resolvedMedia = media;
+    const preview = media.thumbnailPreviewUrl || media.thumbnail;
+    result.innerHTML = `<article class="resolved-media">
+      <div class="media-cover">${preview ? `<img src="${escapeHtml(preview)}" alt="${escapeHtml(media.title)} 封面" referrerpolicy="no-referrer">` : ""}<span>${preview ? "封面加载失败" : "该视频没有可用封面"}</span></div>
+      <div><small>${escapeHtml(media.platform)} · ${Math.round(media.durationSeconds||0)} 秒</small>
+      <h3>${escapeHtml(media.title)}</h3><p>${escapeHtml(media.creator||"未知创作者")}</p>
+      <div class="content-origin-assessment"><strong>${escapeHtml(media.contentOriginLabel || "来源性质未知")}</strong><span>置信度 ${Math.round((media.originConfidence || 0) * 100)}%</span><p>${escapeHtml(media.originReason || "公开元数据不足")}</p><small>AI 来源判断不代表版权许可；下载前仍须确认拥有所需权利。</small></div>
+      <label>下载格式<select id="media-format">${media.variants.map(item =>
+        `<option value="${escapeHtml(item.formatId)}">${escapeHtml(item.label)} · ${escapeHtml(item.extension)} · ${size(item.approximateBytes)}</option>`
+      ).join("")}</select></label>
+      <label class="effect-toggle"><input id="media-subtitles" type="checkbox" checked>同时保存可用字幕</label>
+      <label class="effect-toggle"><input id="media-add-library" type="checkbox" checked>同时加入开放素材库</label>
+      <button id="media-preview" class="media-preview-button" type="button">生成流畅预览（约 480p）</button>
+      <div class="media-preview-progress" hidden><progress max="100" value="0"></progress><span>等待开始</span></div>
+      <button id="media-download" type="button">自动下载所选格式</button>
+      <div class="media-download-progress" hidden><progress max="100" value="0"></progress><span>等待开始</span></div></div></article>`;
+    const coverImage = result.querySelector(".media-cover img");
+    if (coverImage) coverImage.addEventListener("error", () =>
+      coverImage.closest(".media-cover").classList.add("cover-error"), {once:true});
+    message.textContent = `解析成功：找到 ${media.variants.length} 种格式。`;
+    localStorage.setItem(mediaPreferencesKey, JSON.stringify({
+      rightsConfirmed:Boolean(form.elements.rightsConfirmed?.checked)
+    }));
+    if (autoDownloadRequested) {
+      autoDownloadRequested = false;
+      queueMicrotask(() => result.querySelector('#media-download')?.click());
+    } else if (autoPreviewRequested) {
+      autoPreviewRequested = false;
+      queueMicrotask(() => result.querySelector('#media-preview')?.click());
+    }
+  }
+  window.addEventListener('gamenarrator-platform-download-request', event => {
+    const sourceUrl = event.detail?.sourceUrl;
+    if (!sourceUrl) return;
+    form.elements.url.value = sourceUrl;
+    form.elements.rightsConfirmed.checked = true;
+    autoDownloadRequested = event.detail.autoDownload === true;
+    form.requestSubmit();
+  });
+  window.addEventListener('gamenarrator-platform-preview-request', event => {
+    const sourceUrl = event.detail?.sourceUrl;
+    if (!sourceUrl) return;
+    form.elements.url.value = sourceUrl;
+    form.elements.rightsConfirmed.checked = true;
+    autoDownloadRequested = false;
+    autoPreviewRequested = true;
+    form.requestSubmit();
+  });
+  form.addEventListener("submit", async event => {
+    event.preventDefault();
+    const data = new FormData(form);
+    resolvedUrl = data.get("url");
+    resolvedMedia = null;
+    const cookieFile = data.get("cookieFile");
+    cookieToken = "";
+    message.textContent = "正在读取视频信息和可用格式…";
+    result.innerHTML = "";
+    try {
+      if (cookieFile && cookieFile.size > 0) {
+        message.textContent = "正在安全导入当前平台的临时 Cookie…";
+        cookieToken = await uploadCookieFile(cookieFile, resolvedUrl);
+      } else if (remembersAuthentication(resolvedUrl)) {
+        message.textContent = "正在恢复此平台的浏览器登录状态…";
+        cookieToken = await requestBrowserAuthentication(resolvedUrl).catch(() => "");
+      }
+      showResolvedMedia(await resolveMedia(cookieToken));
+    } catch(error) {
+      if (!cookieToken && (!cookieFile || cookieFile.size === 0) && isAuthenticationError(error)) {
+        try {
+          message.textContent = "平台要求登录，正在通过浏览器扩展自动读取登录状态…";
+          cookieToken = await requestBrowserAuthentication(resolvedUrl);
+          rememberAuthentication(resolvedUrl);
+          showResolvedMedia(await resolveMedia(cookieToken));
+          return;
+        } catch(extensionError) {
+          message.textContent = `${error.message}；${extensionError.message}。请安装并连接 GameNarrator 登录助手。`;
+          return;
+        }
+      }
+      message.textContent = error.message;
+    }
+  });
+  const savedMediaPreferences = readJsonPreference(mediaPreferencesKey);
+  if (savedMediaPreferences.rightsConfirmed && form.elements.rightsConfirmed)
+    form.elements.rightsConfirmed.checked = true;
+  result.addEventListener("click", async event => {
+    if (event.target.matches(".media-preview-close")) {
+      const preview = event.target.closest(".media-online-preview");
+      const video = preview?.querySelector("video");
+      if (video) { video.pause(); video.removeAttribute("src"); video.load(); }
+      preview?.remove();
+      message.textContent = "在线预览已关闭。";
+      return;
+    }
+    if (event.target.id === "media-preview") {
+      event.target.disabled = true;
+      event.target.textContent = "正在准备预览…";
+      message.textContent = "正在生成节省空间的约 480p 预览版本。";
+      try {
+        const job = await request("/api/media-import/preview-jobs", {
+          url:resolvedUrl,formatId:"best",
+          subtitles:false,addToLibrary:false,rightsConfirmed:true,
+          cookieToken:cookieToken || null,title:resolvedMedia?.title || null,
+          creator:resolvedMedia?.creator || null,thumbnail:resolvedMedia?.thumbnail || null,
+          durationSeconds:resolvedMedia?.durationSeconds || null,tags:libraryTags()
+        });
+        const progressBox = result.querySelector(".media-preview-progress");
+        const progressBar = progressBox.querySelector("progress");
+        const progressText = progressBox.querySelector("span");
+        progressBox.hidden = false;
+        let status;
+        do {
+          await wait(700);
+          status = await read(`/api/media-import/preview-jobs/${job.id}`);
+          const progress = status.progress || {};
+          const percent = Math.max(0, Math.min(100, parseFloat(progress.percent) || 0));
+          progressBar.value = percent;
+          progressText.textContent = `${percent.toFixed(1)}% · ${progress.speed || "计算中"} · 剩余 ${progress.eta || "--"}`;
+          if (status.status === "FAILED") throw new Error(status.error || "预览生成失败");
+        } while (status.status !== "COMPLETED");
+        const output = status.result;
+        progressBar.value = 100;
+        progressText.textContent = `100% · 轻量预览完成 · ${size(output.sizeBytes)}`;
+        result.querySelector(".media-online-preview")?.remove();
+        result.querySelector(".resolved-media").insertAdjacentHTML("afterend",
+          `<div class="media-online-preview"><button type="button" class="media-preview-close" aria-label="关闭在线预览">×</button><video controls playsinline preload="metadata" src="${escapeHtml(output.downloadUrl)}"></video><small>约 480p 流畅预览 · ${size(output.sizeBytes)}</small></div>`);
+        message.textContent = "预览已准备完成，可以在线播放并拖动进度。";
+        event.target.textContent = "重新生成预览";
+      } catch(error) {
+        message.textContent = error.message;
+        event.target.textContent = "重试在线预览";
+      } finally {
+        event.target.disabled = false;
+      }
+      return;
+    }
+    if (event.target.id === "media-save-local") {
+      const url = event.target.dataset.url;
+      const fileName = event.target.dataset.filename || "video.mp4";
+      try {
+        if (window.showSaveFilePicker) {
+          const handle = await window.showSaveFilePicker({suggestedName:fileName});
+          const response = await fetch(url);
+          if (!response.ok || !response.body) throw new Error("无法读取下载文件");
+          const writable = await handle.createWritable();
+          await response.body.pipeTo(writable);
+          message.textContent = `已保存到你选择的位置：${fileName}`;
+        } else {
+          const link = document.createElement("a");
+          link.href = url; link.download = fileName; document.body.appendChild(link); link.click(); link.remove();
+          message.textContent = "已交给浏览器下载；保存位置由浏览器下载设置决定。";
+        }
+        event.target.disabled = true;
+      } catch(error) {
+        if (error.name !== "AbortError") message.textContent = error.message;
+      }
+      return;
+    }
+    if (event.target.id !== "media-download") return;
+    const selectedFormat = document.querySelector("#media-format")?.value || "best";
+    event.target.disabled = true; event.target.textContent = "下载中，请勿关闭页面…";
+    message.textContent = "正在下载和合并音视频，大文件可能需要较长时间。";
+    try {
+      const job = await request("/api/media-import/download-jobs", {
+        url:resolvedUrl,formatId:selectedFormat,
+        subtitles:document.querySelector("#media-subtitles").checked,
+        addToLibrary:document.querySelector("#media-add-library").checked,
+        rightsConfirmed:true,
+        cookieToken:cookieToken || null,
+        title:resolvedMedia?.title || null,
+        creator:resolvedMedia?.creator || null,
+        thumbnail:resolvedMedia?.thumbnail || null,
+        durationSeconds:resolvedMedia?.durationSeconds || null,
+        tags:libraryTags()
+      });
+      const progressBox = result.querySelector(".media-download-progress");
+      const progressBar = progressBox.querySelector("progress");
+      const progressText = progressBox.querySelector("span");
+      progressBox.hidden = false;
+      let status;
+      do {
+        await wait(700);
+        status = await read(`/api/media-import/download-jobs/${job.id}`);
+        const progress = status.progress || {};
+        const percent = Math.max(0, Math.min(100, parseFloat(progress.percent) || 0));
+        progressBar.value = percent;
+        progressText.textContent = `${percent.toFixed(1)}% · ${progress.speed || "计算中"} · 剩余 ${progress.eta || "--"}`;
+        if (status.status === "FAILED") throw new Error(status.error || "下载失败");
+      } while (status.status !== "COMPLETED");
+      const output = status.result;
+      progressBar.value = 100;
+      progressText.textContent = `100% · 下载和合并完成 · ${size(output.sizeBytes)}`;
+      message.textContent = `${output.assetId ? "下载完成并已加入开放素材库" : "下载完成"}（${size(output.sizeBytes)}）。可继续保存到自己的电脑。`;
+      if (output.assetId) document.dispatchEvent(new CustomEvent("asset-library-updated", {detail:{assetId:output.assetId}}));
+      event.target.textContent = "服务器下载完成";
+      event.target.insertAdjacentHTML("afterend", `<button id="media-save-local" type="button"
+        data-url="${escapeHtml(output.downloadUrl)}" data-filename="${escapeHtml(output.fileName)}">选择位置保存到电脑</button>`);
+    } catch(error) {
+      message.textContent = error.message; event.target.disabled = false; event.target.textContent = "重新下载";
+    }
+  });
+})();
+``
+
+### FILE: src/test/java/cn/longer233/gamenarrator/ai/AdaptiveAiChatClientTest.java
+
+``java
+package cn.longer233.gamenarrator.ai;
+
+import org.junit.jupiter.api.Test;
+import static org.assertj.core.api.Assertions.assertThat;
+
+class AdaptiveAiChatClientTest {
+    @Test
+    void recognizesDashScopeContentModerationResponses() {
+        assertThat(AdaptiveAiChatClient.isContentRejected("Input data may contain inappropriate content"))
+                .isTrue();
+        assertThat(AdaptiveAiChatClient.isContentRejected("{\"code\":\"inappropriate_content\"}"))
+                .isTrue();
+        assertThat(AdaptiveAiChatClient.isContentRejected("rate limit exceeded")).isFalse();
+    }
+
+    @Test
+    void minimizesRawTranscriptAndCredentialsBeforeDashScopeTextRequests() {
+        String minimized = AdaptiveAiChatClient.minimizeCloudInput("""
+                语音转写：这里是未经处理的长转写 Authorization: Bearer-secret
+                画面时间线：10秒：角色进入场景
+                """);
+        assertThat(minimized).contains("原始转写仅在本地保留", "10秒：角色进入场景")
+                .doesNotContain("未经处理的长转写", "Bearer-secret");
+    }
+}
+``
+
+### FILE: src/test/java/cn/longer233/gamenarrator/ai/AiUsageServiceTest.java
+
+``java
+package cn.longer233.gamenarrator.ai;
+
+import com.fasterxml.jackson.databind.ObjectMapper;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.io.TempDir;
+
+import java.nio.file.Path;
+
+import static org.junit.jupiter.api.Assertions.*;
+
+class AiUsageServiceTest {
+    @TempDir Path temporary;
+
+    @Test
+    void recordsTurnSessionCacheAndDailyCostWithoutSavingContent() throws Exception {
+        AiUsageService service=new AiUsageService(new ObjectMapper(),temporary.toString());
+        service.record("OPENAI","example-model",1_000_000,100_000,250_000,2,8,0.5);
+        AiUsageService.UsageSnapshot value=service.snapshot();
+        assertEquals(1_000_000,value.turnInput());
+        assertEquals(100_000,value.turnOutput());
+        assertEquals(250_000,value.sessionCached());
+        assertEquals(25d,value.cachePercent());
+        assertEquals(2.425d,value.turnCost(),0.000001);
+        assertEquals(value.turnCost(),value.todayCost(),0.000001);
+        String saved=java.nio.file.Files.readString(temporary.resolve("config/ai-usage.json"));
+        assertFalse(saved.contains("prompt"));
+        assertFalse(saved.contains("response"));
+    }
+}
+``
+
+### FILE: src/test/java/cn/longer233/gamenarrator/asset/AiAssetTaggerTest.java
+
+``java
+package cn.longer233.gamenarrator.asset;
+
+import com.fasterxml.jackson.databind.ObjectMapper;
+import cn.longer233.gamenarrator.ai.AdaptiveAiChatClient;
+import org.junit.jupiter.api.Test;
+
+import java.util.List;
+
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyBoolean;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
+
+class AiAssetTaggerTest {
+    @Test
+    void fallbackKeepsLocalizationAndAnalysisInChineseWhenModelIsUnavailable() {
+        AdaptiveAiChatClient client = mock(AdaptiveAiChatClient.class);
+        try {
+            when(client.chatJson(any(), any(), anyBoolean(), any())).thenThrow(new IllegalStateException("AI 未配置"));
+        } catch (Exception exception) {
+            throw new AssertionError(exception);
+        }
+        AiAssetTagger tagger = new AiAssetTagger(new ObjectMapper(), client);
+
+        List<AiAssetTagger.AssetAiAnalysis> result = tagger.analyzeBatch(List.of(
+                new AiAssetTagger.AssetAiInput("Funny green screen reaction", "VIDEO",
+                        List.of("funny", "green screen", "game"))));
+
+        assertThat(result).hasSize(1);
+        assertThat(result.getFirst().chineseTitle()).contains("绿幕");
+        assertThat(result.getFirst().translatedTags()).allMatch(this::containsChinese);
+        assertThat(result.getFirst().analysisTags()).allMatch(this::containsChinese);
+    }
+
+    @Test
+    void unknownEnglishTitleIsKeptWhenTranslationIsUnavailable() {
+        AdaptiveAiChatClient client = mock(AdaptiveAiChatClient.class);
+        try {
+            when(client.chatJson(any(), any(), anyBoolean(), any())).thenThrow(new IllegalStateException("AI 未配置"));
+        } catch (Exception exception) {
+            throw new AssertionError(exception);
+        }
+        AiAssetTagger tagger = new AiAssetTagger(new ObjectMapper(), client);
+        String title = "The Woman and Miss Sweetie Poo – an Ig Nobel Prize favorite moment.webm";
+        assertThat(tagger.analyzeBatch(List.of(new AiAssetTagger.AssetAiInput(title, "VIDEO", List.of())))
+                .getFirst().chineseTitle()).isEqualTo(title);
+    }
+
+    private boolean containsChinese(String value) {
+        return value.codePoints().anyMatch(codePoint ->
+                Character.UnicodeScript.of(codePoint) == Character.UnicodeScript.HAN);
+    }
+}
+``
+
+### FILE: src/test/java/cn/longer233/gamenarrator/asset/AssetCatalogServiceTest.java
+
+``java
+package cn.longer233.gamenarrator.asset;
+
+import org.junit.jupiter.api.Test;
+
+import static org.assertj.core.api.Assertions.assertThat;
+
+class AssetCatalogServiceTest {
+    @Test
+    void replacesBilibiliWatchLaterChromeTextWithStableVideoIdentity() {
+        String result = AssetCatalogService.cleanReferenceTitle("BILIBILI",
+                "添加至稍后再看28.5万52001:55", "https://www.bilibili.com/video/BV1Ab411c7De");
+
+        assertThat(result).isEqualTo("Bilibili 视频 BV1Ab411c7De");
+    }
+
+    @Test
+    void preservesRealBilibiliVideoTitle() {
+        String result = AssetCatalogService.cleanReferenceTitle("BILIBILI",
+                "高级弹幕制作教程", "https://www.bilibili.com/video/BV1Ab411c7De");
+
+        assertThat(result).isEqualTo("高级弹幕制作教程");
+    }
+}
+``
+
+### FILE: src/test/java/cn/longer233/gamenarrator/asset/BgeAssetSemanticSearchRankingTest.java
+
+``java
+package cn.longer233.gamenarrator.asset;
+
+import org.junit.jupiter.api.Test;
+import static org.assertj.core.api.Assertions.assertThat;
+
+class BgeAssetSemanticSearchRankingTest {
+    @Test
+    void partialChineseTermCoverageRanksBetterThanUnrelatedText() {
+        double matching = BgeAssetSemanticSearch.lexicalScore("搞笑猫咪表情包", "猫咪搞笑反应 meme 表情包");
+        double unrelated = BgeAssetSemanticSearch.lexicalScore("搞笑猫咪表情包", "宏大管弦乐战斗配乐");
+        assertThat(matching).isGreaterThan(unrelated).isGreaterThan(0);
+    }
+}
+``
+
+### FILE: src/test/java/cn/longer233/gamenarrator/asset/BilibiliAssetClientTest.java
+
+``java
+package cn.longer233.gamenarrator.asset;
+
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.sun.net.httpserver.HttpServer;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.Test;
+
+import java.net.InetSocketAddress;
+import java.nio.charset.StandardCharsets;
+import java.util.concurrent.atomic.AtomicReference;
+
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+
+class BilibiliAssetClientTest {
+    private HttpServer server;
+
+    @AfterEach
+    void stopServer() {
+        if (server != null) server.stop(0);
+    }
+
+    @Test
+    void normalizesSearchMetadataAndPagination() throws Exception {
+        AtomicReference<String> query = new AtomicReference<>();
+        server = HttpServer.create(new InetSocketAddress(0), 0);
+        server.createContext("/x/web-interface/search/type", exchange -> {
+            query.set(exchange.getRequestURI().getRawQuery());
+            byte[] body = """
+                    {"code":0,"data":{"result":[{"bvid":"BV1TEST","title":"<em>Boss</em> fight",
+                    "author":"UP主","pic":"//i.example/cover.jpg","duration":"01:23","typename":"游戏",
+                    "play":1234,"video_review":56,"tag":"动作,高能"}]}}
+                    """.getBytes(StandardCharsets.UTF_8);
+            exchange.getResponseHeaders().add("Content-Type", "application/json");
+            exchange.sendResponseHeaders(200, body.length);
+            exchange.getResponseBody().write(body);
+            exchange.close();
+        });
+        server.start();
+
+        BilibiliAssetClient client = client();
+        JsonNode item = client.search(new AssetSearchRequest("boss", "VIDEO", 12, 3,
+                true, true, "BILIBILI", "POPULAR")).path("results").get(0);
+
+        assertTrue(query.get().contains("page=3"));
+        assertTrue(query.get().contains("order=click"));
+        assertEquals("BV1TEST:VIDEO", item.path("id").asText());
+        assertEquals("Boss fight", item.path("title").asText());
+        assertEquals(83_000, item.path("duration").asLong());
+        assertEquals("游戏", item.path("tags").get(0).asText());
+        assertTrue(item.path("attribution").asText().contains("播放 1234，弹幕 56"));
+    }
+
+    @Test
+    void exposesVideoCoversAndAudioTracksAsRightsReviewCandidates() throws Exception {
+        server = HttpServer.create(new InetSocketAddress(0), 0);
+        server.createContext("/x/web-interface/search/type", exchange -> {
+            byte[] body = """
+                    {"code":0,"data":{"result":[{"bvid":"BV1MEDIA","title":"素材候选",
+                    "author":"UP主","pic":"//i.example/cover.jpg","duration":"00:09","typename":"生活",
+                    "play":12,"video_review":3,"tag":"搞笑"}]}}
+                    """.getBytes(StandardCharsets.UTF_8);
+            exchange.getResponseHeaders().add("Content-Type", "application/json");
+            exchange.sendResponseHeaders(200, body.length);
+            exchange.getResponseBody().write(body);
+            exchange.close();
+        });
+        server.start();
+
+        BilibiliAssetClient client = client();
+        assertTrue(client.supports("VIDEO"));
+        assertTrue(client.supports("MEME"));
+        assertTrue(client.supports("SFX"));
+        assertTrue(client.supports("BGM"));
+        JsonNode image = client.search(new AssetSearchRequest("funny", "MEME", 12, 1,
+                true, true, "BILIBILI", "RELEVANCE")).path("results").get(0);
+        JsonNode audio = client.search(new AssetSearchRequest("funny", "SFX", 12, 1,
+                true, true, "BILIBILI", "RELEVANCE")).path("results").get(0);
+
+        assertEquals("BV1MEDIA:MEME", image.path("id").asText());
+        assertEquals("视频封面候选", image.path("tags").get(0).asText());
+        assertEquals("BV1MEDIA:SFX", audio.path("id").asText());
+        assertEquals("视频音轨候选", audio.path("tags").get(0).asText());
+    }
+
+    @Test
+    void rejectsProviderErrorSoCatalogCanApplyCooldown() throws Exception {
+        server = HttpServer.create(new InetSocketAddress(0), 0);
+        server.createContext("/x/web-interface/search/type", exchange -> {
+            byte[] body = "{\"code\":-412,\"message\":\"request blocked\"}".getBytes(StandardCharsets.UTF_8);
+            exchange.getResponseHeaders().add("Content-Type", "application/json");
+            exchange.sendResponseHeaders(200, body.length);
+            exchange.getResponseBody().write(body);
+            exchange.close();
+        });
+        server.start();
+
+        IllegalStateException error = assertThrows(IllegalStateException.class,
+                () -> client().search(new AssetSearchRequest("boss", "VIDEO", 12, 1,
+                        true, true, "BILIBILI", "RELEVANCE")));
+        assertTrue(error.getMessage().contains("code=-412"));
+    }
+
+    @Test
+    void resolvesCanonicalVideoTitleCreatorAndTagsByBvid() throws Exception {
+        server = HttpServer.create(new InetSocketAddress(0), 0);
+        server.createContext("/x/web-interface/view", exchange -> respond(exchange, """
+                {"code":0,"data":{"title":"曹操玩笑记(三)","owner":{"name":"Rarondo9"},
+                "tname":"影视剪辑","duration":560,"pic":"//i.example/cover.jpg"}}
+                """));
+        server.createContext("/x/tag/archive/tags", exchange -> respond(exchange, """
+                {"code":0,"data":[{"tag_name":"曹操"},{"tag_name":"三国演义"}]}
+                """));
+        server.start();
+
+        BilibiliAssetClient.VideoMetadata metadata = client().metadata("BV17e356iEEA");
+
+        assertEquals("曹操玩笑记(三)", metadata.title());
+        assertEquals("Rarondo9", metadata.creator());
+        assertEquals(560_000, metadata.durationMs());
+        assertEquals(java.util.List.of("影视剪辑", "曹操", "三国演义"), metadata.tags());
+    }
+
+    private void respond(com.sun.net.httpserver.HttpExchange exchange, String json) throws java.io.IOException {
+        byte[] body = json.getBytes(StandardCharsets.UTF_8);
+        exchange.getResponseHeaders().add("Content-Type", "application/json");
+        exchange.sendResponseHeaders(200, body.length);
+        exchange.getResponseBody().write(body);
+        exchange.close();
+    }
+
+    private BilibiliAssetClient client() {
+        return new BilibiliAssetClient(new ObjectMapper(),
+                "http://127.0.0.1:" + server.getAddress().getPort(), true, 0, 2);
+    }
+}
+``
+
+### FILE: src/test/java/cn/longer233/gamenarrator/asset/ChineseAssetQueryExpanderTest.java
+
+``java
+package cn.longer233.gamenarrator.asset;
+
+import com.fasterxml.jackson.databind.ObjectMapper;
+import org.junit.jupiter.api.Test;
+
+import java.util.List;
+
+import static org.assertj.core.api.Assertions.assertThat;
+
+class ChineseAssetQueryExpanderTest {
+    @Test
+    void expandsConfiguredChineseIntentWithoutCallingAi() {
+        AssetLibraryProperties library = new AssetLibraryProperties();
+        AssetLibraryProperties.QueryExpansion properties = new AssetLibraryProperties.QueryExpansion();
+        AssetLibraryProperties.QueryExpansion.Synonym synonym = new AssetLibraryProperties.QueryExpansion.Synonym();
+        synonym.setIntent("欢快");
+        synonym.setTerms("happy upbeat cheerful");
+        properties.setSynonyms(List.of(synonym));
+        library.setQueryExpansion(properties);
+        ChineseAssetQueryExpander expander = new ChineseAssetQueryExpander(
+                new ObjectMapper(), "http://127.0.0.1:1", "unused", library);
+
+        AssetSearchExpansion result = expander.expand("欢快背景", "BGM");
+
+        assertThat(result.originalQuery()).isEqualTo("欢快背景");
+        assertThat(result.providerQuery()).isEqualTo("happy upbeat cheerful");
+        assertThat(result.chineseTags()).containsExactly("欢快");
+    }
+
+    @Test
+    void leavesEnglishQueryUntouched() {
+        AssetLibraryProperties library = new AssetLibraryProperties();
+        ChineseAssetQueryExpander expander = new ChineseAssetQueryExpander(
+                new ObjectMapper(), "http://127.0.0.1:1", "unused", library);
+
+        AssetSearchExpansion result = expander.expand("upbeat music", "BGM");
+
+        assertThat(result.providerQuery()).isEqualTo("upbeat music");
+        assertThat(result.chineseTags()).isEmpty();
+    }
+}
+``
+
+### FILE: src/test/java/cn/longer233/gamenarrator/asset/SafeRemoteHttpConnectorTest.java
+
+``java
+package cn.longer233.gamenarrator.asset;
+
+import org.junit.jupiter.api.Test;
+
+import java.net.URI;
+
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
+
+class SafeRemoteHttpConnectorTest {
+    private final SafeRemoteHttpConnector connector = new SafeRemoteHttpConnector();
+
+    @Test
+    void rejectsNonHttpsResource() {
+        assertThatThrownBy(() -> connector.validatePublicHttps(URI.create("http://example.com/audio.mp3")))
+                .isInstanceOf(IllegalArgumentException.class)
+                .hasMessageContaining("HTTPS");
+    }
+
+    @Test
+    void rejectsLoopbackResource() {
+        assertThatThrownBy(() -> connector.validatePublicHttps(URI.create("https://127.0.0.1/audio.mp3")))
+                .isInstanceOf(IllegalArgumentException.class)
+                .hasMessageContaining("内网");
+    }
+}
+``
+
+### FILE: src/test/java/cn/longer233/gamenarrator/audio/ProceduralSoundEffectLibraryTest.java
+
+``java
+package cn.longer233.gamenarrator.audio;
+
+import cn.longer233.gamenarrator.effect.EffectPlan;
+import cn.longer233.gamenarrator.effect.TransitionType;
+import cn.longer233.gamenarrator.effect.VisualEffectType;
+import cn.longer233.gamenarrator.timeline.TimelineSegment;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.io.TempDir;
+
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.util.List;
+
+import static org.assertj.core.api.Assertions.assertThat;
+
+class ProceduralSoundEffectLibraryTest {
+    @Test
+    void createsDeterministicImpactSound(@TempDir Path directory) throws Exception {
+        var segment = new TimelineSegment(1, 2, 6, 10, 14,
+                "反转", "反转", "冲击", "voice.wav", 1, false);
+        var plan = new EffectPlan(List.of(VisualEffectType.WHITE_FLASH),
+                TransitionType.ANIME_IMPACT, "test");
+
+        List<SoundCue> cues = new ProceduralSoundEffectLibrary()
+                .create(directory, List.of(segment), List.of(plan));
+
+        assertThat(cues).hasSize(1);
+        assertThat(cues.getFirst().type()).isEqualTo("IMPACT");
+        assertThat(Files.size(Path.of(cues.getFirst().audioPath()))).isGreaterThan(10_000);
+    }
+}
+``
+
+### FILE: src/test/java/cn/longer233/gamenarrator/common/AtomicArtifactWriterTest.java
+
+``java
+package cn.longer233.gamenarrator.common;
+
+import com.fasterxml.jackson.databind.ObjectMapper;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.io.TempDir;
+
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.util.Map;
+
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+
+class AtomicArtifactWriterTest {
+    @TempDir Path tempDirectory;
+
+    @Test
+    void replacesJsonAndLeavesNoTemporaryArtifact() throws Exception {
+        ObjectMapper mapper = new ObjectMapper();
+        Path target = tempDirectory.resolve("artifact.json");
+        AtomicArtifactWriter.writeJson(mapper, target, Map.of("version", 1));
+        AtomicArtifactWriter.writeJson(mapper, target, Map.of("version", 2));
+        assertEquals(2, mapper.readTree(target.toFile()).path("version").asInt());
+        try (var files = Files.list(tempDirectory)) {
+            assertFalse(files.anyMatch(path -> path.getFileName().toString().endsWith(".tmp")));
+        }
+    }
+}
+``
+
+### FILE: src/test/java/cn/longer233/gamenarrator/config/AsyncConfigTest.java
+
+``java
+package cn.longer233.gamenarrator.config;
+
+import org.junit.jupiter.api.Test;
+import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
+
+import java.util.concurrent.Executor;
+
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+
+class AsyncConfigTest {
+
+    @Test
+    void createsBoundedExecutorFromConfiguration() {
+        Executor configured = new AsyncConfig().taskExecutor(2, 4, 10);
+        ThreadPoolTaskExecutor executor = (ThreadPoolTaskExecutor) configured;
+        try {
+            assertEquals(2, executor.getCorePoolSize());
+            assertEquals(4, executor.getMaxPoolSize());
+            assertEquals(10, executor.getQueueCapacity());
+        } finally {
+            executor.shutdown();
+        }
+    }
+
+    @Test
+    void rejectsInvalidPoolSizesAtStartup() {
+        assertThrows(IllegalArgumentException.class,
+                () -> new AsyncConfig().taskExecutor(4, 2, 10));
+    }
+}
+``
+
+### FILE: src/test/java/cn/longer233/gamenarrator/diagnostics/DiagnosticLogServiceTest.java
+
+``java
+package cn.longer233.gamenarrator.diagnostics;
+
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.io.TempDir;
+
+import java.nio.file.Files;
+import java.nio.file.Path;
+
+import static org.assertj.core.api.Assertions.assertThat;
+
+class DiagnosticLogServiceTest {
+    @TempDir Path tempDir;
+
+    @Test
+    void tailsLogsAndRedactsCredentials() throws Exception {
+        Path log = tempDir.resolve("game-narrator.log");
+        Files.writeString(log, "normal line\nAuthorization: Bearer abc.def\napiKey=private-value\nCookie: SESSDATA=secret\n");
+        var service = new DiagnosticLogService(log.toString());
+
+        String recent = service.recent(100);
+
+        assertThat(recent).contains("normal line", "Authorization=***", "apiKey=***", "Cookie=***")
+                .doesNotContain("abc.def", "private-value", "SESSDATA=secret");
+        assertThat(service.export()).isNotEmpty();
+    }
+}
+``
+
+### FILE: src/test/java/cn/longer233/gamenarrator/effect/SemanticEffectPlannerTest.java
+
+``java
+package cn.longer233.gamenarrator.effect;
+
+import org.junit.jupiter.api.Test;
+
+import static org.assertj.core.api.Assertions.assertThat;
+
+class SemanticEffectPlannerTest {
+    private final SemanticEffectPlanner planner = new SemanticEffectPlanner();
+
+    @Test
+    void mapsHighEnergyCueToImpactEffects() {
+        EffectPlan plan = planner.plan("高燃冲击转场", "Boss 发起最后一击", 2);
+        assertThat(plan.effects()).contains(VisualEffectType.ZOOM_PUNCH, VisualEffectType.WHITE_FLASH);
+        assertThat(plan.transition()).isEqualTo(TransitionType.ANIME_IMPACT);
+    }
+
+    @Test
+    void givesFirstSegmentAStableOpeningEffect() {
+        EffectPlan plan = planner.plan("", "普通叙述", 1);
+        assertThat(plan.effects()).contains(VisualEffectType.TITLE_CARD);
+        assertThat(plan.transition()).isEqualTo(TransitionType.FADE);
+    }
+
+    @Test
+    void mapsPremiereStyleCuesToImplementedEffects() {
+        EffectPlan dream=planner.plan("梦境柔焦和冷色暗角","进入回忆",2);
+        assertThat(dream.effects()).contains(VisualEffectType.GAUSSIAN_BLUR,VisualEffectType.VIGNETTE,
+                VisualEffectType.COOL_TONE);
+        EffectPlan glitch=planner.plan("RGB 故障像素马赛克","信号中断",3);
+        assertThat(glitch.effects()).contains(VisualEffectType.RGB_SPLIT,VisualEffectType.PIXELATE);
+    }
+}
+``
+
+### FILE: src/test/java/cn/longer233/gamenarrator/export/FfmpegProgressParserTest.java
+
+``java
+package cn.longer233.gamenarrator.export;
+
+import org.junit.jupiter.api.Test;
+
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+
+class FfmpegProgressParserTest {
+    @Test
+    void mapsMicrosecondProgressIntoExportRange() {
+        FfmpegProgressParser parser = new FfmpegProgressParser(100);
+
+        assertEquals(10, parser.parsePercent("out_time_us=0").orElseThrow());
+        assertEquals(50, parser.parsePercent("out_time_ms=50000000").orElseThrow());
+        assertEquals(89, parser.parsePercent("out_time_us=120000000").orElseThrow());
+    }
+
+    @Test
+    void parsesClockAndIgnoresUnrelatedOrMalformedLines() {
+        FfmpegProgressParser parser = new FfmpegProgressParser(120);
+
+        assertEquals(50, parser.parsePercent("out_time=00:01:00.000000").orElseThrow());
+        assertTrue(parser.parsePercent("speed=1.2x").isEmpty());
+        assertTrue(parser.parsePercent("out_time_us=N/A").isEmpty());
+    }
+}
+``
+
+### FILE: src/test/java/cn/longer233/gamenarrator/highlight/RuleBasedHighlightSelectorTest.java
+
+``java
+package cn.longer233.gamenarrator.highlight;
+
+import cn.longer233.gamenarrator.vision.FrameUnderstanding;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.io.TempDir;
+
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.util.List;
+import java.util.Map;
+
+import static org.assertj.core.api.Assertions.assertThat;
+
+class RuleBasedHighlightSelectorTest {
+    @TempDir Path tempDir;
+
+    @Test
+    void keepsTheWholeVideoAndUsesBestFrameAsEachSegmentAnchor() throws Exception {
+        ObjectMapper mapper = new ObjectMapper();
+        Path input = tempDir.resolve("visual-analysis.json");
+        List<FrameUnderstanding> frames = List.of(
+                frame(1, 10, "探索", 70),
+                frame(2, 14, "战斗", 80),
+                frame(3, 50, "胜利", 75),
+                frame(4, 90, "其他", 20));
+        mapper.writeValue(input.toFile(), Map.of("frames", frames));
+
+        HighlightSelectionResult result = new RuleBasedHighlightSelector(mapper)
+                .select(input, 100, 24);
+
+        assertThat(result.clips()).hasSize(4);
+        assertThat(result.clips()).extracting(HighlightClip::sourceFrameIndex).containsExactly(2, 3, 4, 4);
+        assertThat(result.clips().getFirst().startSeconds()).isZero();
+        assertThat(result.clips().getLast().endSeconds()).isEqualTo(100);
+        assertThat(result.clips()).extracting(HighlightClip::durationSeconds).containsExactly(30.0, 30.0, 30.0, 10.0);
+        assertThat(Path.of(result.manifestPath())).exists();
+        assertThat(Files.readString(Path.of(result.manifestPath()))).contains("full-story-v1");
+    }
+
+    @Test
+    void stillSelectsCandidatesWhenAllVisionScoresAreZero() throws Exception {
+        ObjectMapper mapper = new ObjectMapper();
+        Path input = tempDir.resolve("visual-analysis.json");
+        mapper.writeValue(input.toFile(), Map.of("frames", List.of(
+                frame(1, 5, "其他", 0), frame(2, 30, "其他", 0))));
+
+        HighlightSelectionResult result = new RuleBasedHighlightSelector(mapper)
+                .select(input, 40, 12);
+
+        assertThat(result.clips()).hasSize(2);
+        assertThat(result.clips()).extracting(HighlightClip::durationSeconds).containsExactly(30.0, 10.0);
+    }
+
+    @Test
+    void aiContentHintCanPromoteSemanticallyImportantMoment() throws Exception {
+        ObjectMapper mapper = new ObjectMapper();
+        Path input = tempDir.resolve("visual-analysis.json");
+        mapper.writeValue(input.toFile(), Map.of(
+                "contentAnalysis", Map.of(
+                        "overview", "玩家完成关键解谜。",
+                        "highlightStrategy", "保留谜题揭晓时刻。",
+                        "highlightHints", List.of(Map.of(
+                                "timestampSeconds", 40, "reason", "谜题揭晓", "importance", 100))),
+                "frames", List.of(frame(1, 10, "其他", 60), frame(2, 40, "其他", 45))));
+
+        HighlightSelectionResult result = new RuleBasedHighlightSelector(mapper).select(input, 60, 12);
+
+        assertThat(result.clips()).extracting(HighlightClip::sourceFrameIndex).containsExactly(1, 2);
+        assertThat(Files.readString(Path.of(result.manifestPath()))).contains("ai-guided-full-story-v1", "谜题揭晓");
+    }
+
+    private FrameUnderstanding frame(int index, double time, String event, int score) {
+        return new FrameUnderstanding(index, time, "frame.jpg", "description", event, score, "{}");
+    }
+}
+``
+
+### FILE: src/test/java/cn/longer233/gamenarrator/importer/MediaImportControllerSessionTest.java
+
+``java
+package cn.longer233.gamenarrator.importer;
+
+import org.junit.jupiter.api.Test;
+import org.springframework.mock.web.MockHttpSession;
+import org.springframework.mock.web.MockMultipartFile;
+import org.junit.jupiter.api.io.TempDir;
+
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.util.List;
+import java.util.UUID;
+
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
+
+class MediaImportControllerSessionTest {
+    @TempDir
+    Path temporaryDirectory;
+
+    @Test
+    void rejectsCookieTokenUploadedByAnotherBrowserSession() {
+        YtDlpMediaImporter importer = mock(YtDlpMediaImporter.class);
+        String token = "d38e4bd7-bf8f-428d-9f7b-31b6169b179c";
+        when(importer.uploadCookies(any(), anyString())).thenReturn(token);
+        MediaImportController controller = new MediaImportController(importer, mock(RemoteThumbnailService.class),
+                mock(MediaDownloadJobService.class), mock(PlatformContentClassifier.class),
+                mock(cn.longer233.gamenarrator.asset.AssetCatalogService.class));
+        MockHttpSession owner = new MockHttpSession();
+        MockHttpSession otherUser = new MockHttpSession();
+        controller.uploadCookies(new MockMultipartFile("file", "cookies.txt", "text/plain",
+                        "cookie".getBytes()), "https://www.bilibili.com/video/example", owner);
+
+        assertThrows(IllegalStateException.class, () -> controller.resolve(
+                new MediaResolveRequest("https://www.bilibili.com/video/example", true, token), otherUser));
+    }
+
+    @Test
+    void previewFileIsOnlyVisibleToTheCreatingBrowserSession() throws Exception {
+        YtDlpMediaImporter importer = mock(YtDlpMediaImporter.class);
+        Path video = Files.write(temporaryDirectory.resolve("preview.mp4"), new byte[]{1, 2, 3});
+        when(importer.download(any())).thenReturn(new MediaDownloadResult(
+                "COMPLETED", video.toString(), "preview.mp4", 3, null, null));
+        MediaImportController controller = new MediaImportController(importer, mock(RemoteThumbnailService.class),
+                mock(MediaDownloadJobService.class), mock(PlatformContentClassifier.class),
+                mock(cn.longer233.gamenarrator.asset.AssetCatalogService.class));
+        MockHttpSession owner = new MockHttpSession();
+        MediaDownloadRequest request = new MediaDownloadRequest("https://example.com/video", "18",
+                false, false, true, null, "title", null, null, 1.0, List.of());
+
+        MediaPreviewResult created = controller.createPreview(request, owner);
+        UUID token = UUID.fromString(created.previewUrl().substring(created.previewUrl().lastIndexOf('/') + 1));
+
+        assertEquals(200, controller.preview(token, owner).getStatusCode().value());
+        assertEquals(404, controller.preview(token, new MockHttpSession()).getStatusCode().value());
+    }
+}
+``
+
+### FILE: src/test/java/cn/longer233/gamenarrator/importer/RemoteThumbnailServiceTest.java
+
+``java
+package cn.longer233.gamenarrator.importer;
+
+import org.junit.jupiter.api.Test;
+
+import java.net.URI;
+
+import static org.junit.jupiter.api.Assertions.assertEquals;
+
+class RemoteThumbnailServiceTest {
+    @Test
+    void upgradesPlatformHttpThumbnailToHttps() {
+        URI result = RemoteThumbnailService.upgradeToHttps(
+                URI.create("http://i.example.com/cover.jpg?x=1"));
+
+        assertEquals("https://i.example.com/cover.jpg?x=1", result.toString());
+    }
+}
+``
+
+### FILE: src/test/java/cn/longer233/gamenarrator/importer/YtDlpMediaImporterTest.java
+
+``java
+package cn.longer233.gamenarrator.importer;
+
+import com.fasterxml.jackson.databind.ObjectMapper;
+import org.junit.jupiter.api.Test;
+import cn.longer233.gamenarrator.asset.AssetCatalogService;
+import static org.mockito.Mockito.mock;
+
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+
+class YtDlpMediaImporterTest {
+
+    @Test
+    void buildsPlayableSelectorsForSeparatedVideoAndAudioStreams() {
+        assertEquals("bestvideo+bestaudio/best", YtDlpMediaImporter.playableFormatSelector("best"));
+        assertEquals("30064+bestaudio/30064/bestvideo+bestaudio/best",
+                YtDlpMediaImporter.playableFormatSelector("30064"));
+        assertEquals("30064+bestaudio/30064",
+                YtDlpMediaImporter.playableFormatSelector("30064+bestaudio/30064"));
+    }
+
+    private final YtDlpMediaImporter importer = new YtDlpMediaImporter(
+            new ObjectMapper(), new MediaImportProperties(), mock(AssetCatalogService.class),
+            "./target/importer-test");
+
+    @Test
+    void recognizesCurlTlsResetAsImpersonationTransportFailure() {
+        assertTrue(importer.isImpersonationFallbackFailure(new IllegalStateException(
+                "curl: (35) Recv failure: Connection was reset (caused by SSLError)")));
+    }
+
+    @Test
+    void doesNotTreatPlatformAuthenticationFailureAsTransportFailure() {
+        assertFalse(importer.isImpersonationFallbackFailure(new IllegalStateException(
+                "Bilibili rejected request with HTTP Error 412")));
+    }
+
+    @Test
+    void retriesWithoutImpersonationWhenBilibiliTemporarilyReturnsNoFormats() {
+        assertTrue(importer.isImpersonationFallbackFailure(new IllegalStateException(
+                "ERROR: [BiliBili] BV1pW3q6rEZL: No video formats found!")));
+    }
+}
+``
+
+### FILE: src/test/java/cn/longer233/gamenarrator/media/FfmpegMediaProbeTest.java
+
+``java
+package cn.longer233.gamenarrator.media;
+
+import org.junit.jupiter.api.Test;
+
+import static org.assertj.core.api.Assertions.assertThat;
+
+class FfmpegMediaProbeTest {
+
+    @Test
+    void parsesDurationVideoAndAudioStreams() {
+        String output = """
+                Input #0, mov,mp4,m4a,3gp,3g2,mj2, from 'demo.mp4':
+                  Duration: 00:12:34.56, start: 0.000000, bitrate: 12000 kb/s
+                  Stream #0:0: Video: h264 (High), yuv420p, 1920x1080, 60 fps, 60 tbr
+                  Stream #0:1: Audio: aac (LC), 48000 Hz, stereo, fltp
+                """;
+
+        FfmpegMediaProbe probe = new FfmpegMediaProbe("ffmpeg");
+        MediaMetadata metadata = probe.parse(output);
+
+        assertThat(metadata.durationSeconds()).isEqualTo(754.56);
+        assertThat(metadata.width()).isEqualTo(1920);
+        assertThat(metadata.height()).isEqualTo(1080);
+        assertThat(metadata.framesPerSecond()).isEqualTo(60);
+        assertThat(metadata.videoCodec()).isEqualTo("h264");
+        assertThat(metadata.audioCodec()).isEqualTo("aac");
+    }
+}
+``
+
+### FILE: src/test/java/cn/longer233/gamenarrator/render/FfmpegVideoRendererEffectTest.java
+
+``java
+package cn.longer233.gamenarrator.render;
+
+import cn.longer233.gamenarrator.effect.EffectPlan;
+import cn.longer233.gamenarrator.effect.SemanticEffectPlanner;
+import cn.longer233.gamenarrator.effect.TransitionType;
+import cn.longer233.gamenarrator.effect.VisualEffectType;
+import cn.longer233.gamenarrator.timeline.TimelineSegment;
+import cn.longer233.gamenarrator.subtitle.AssSubtitleBuilder;
+import cn.longer233.gamenarrator.audio.ProceduralSoundEffectLibrary;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import org.junit.jupiter.api.Test;
+
+import java.util.List;
+import java.nio.file.Path;
+
+import static org.assertj.core.api.Assertions.assertThat;
+
+class FfmpegVideoRendererEffectTest {
+    private final FfmpegVideoRenderer renderer = new FfmpegVideoRenderer(
+            new ObjectMapper(), new SemanticEffectPlanner(), new AssSubtitleBuilder(),
+            new ProceduralSoundEffectLibrary(), org.mockito.Mockito.mock(RenderAssetResolver.class),
+            "ffmpeg", "libx264");
+
+    @Test
+    void buildsStableFiltersForImpactAndCinemaEffects() {
+        TimelineSegment segment = new TimelineSegment(1, 0, 12, 3, 15,
+                "最后一击", "最后一击", "高燃冲击", "voice.wav", 2, false);
+        EffectPlan plan = new EffectPlan(List.of(
+                VisualEffectType.ZOOM_PUNCH,
+                VisualEffectType.WHITE_FLASH,
+                VisualEffectType.CINEMA_BARS), TransitionType.ANIME_IMPACT, "test");
+
+        String filter = renderer.buildVideoFilter(segment, plan);
+
+        assertThat(filter).contains("crop=1920:1080", "color=white", "drawbox", "format=yuv420p");
+    }
+
+    @Test
+    void buildsCutoutStoryboardOverlayAtRequestedPosition() {
+        TimelineSegment segment = new TimelineSegment(1, 0, 12, 3, 15,
+                "narration", "subtitle", "impact", "voice.wav", 2, false);
+        var asset = new RenderAssetResolver.RenderAsset(1, "VIDEO", "OVERLAY", "BOTTOM_RIGHT",
+                true, Path.of("overlay.webm"), "overlay");
+
+        String graph = renderer.buildStoryboardVideoFilter(segment,
+                new EffectPlan(List.of(), TransitionType.HARD_CUT, "test"), null, List.of(asset), 1);
+
+        assertThat(graph).contains("chromakey=0x00FF00", "overlay=W-w-40:H-h-40", "[vout]");
+    }
+
+    @Test
+    void buildsFiltersForCommonPremiereStyleEffects() {
+        TimelineSegment segment = new TimelineSegment(1, 0, 8, 0, 8,
+                "回忆故障", "回忆故障", "梦境故障", "voice.wav", 2, false);
+        EffectPlan plan = new EffectPlan(List.of(VisualEffectType.GAUSSIAN_BLUR,
+                VisualEffectType.VIGNETTE,VisualEffectType.COOL_TONE,VisualEffectType.RGB_SPLIT,
+                VisualEffectType.PIXELATE,VisualEffectType.LENS_DISTORTION),TransitionType.DISSOLVE,"test");
+        String filter=renderer.buildVideoFilter(segment,plan);
+        assertThat(filter).contains("gblur=","vignette=","colorbalance=","rgbashift=",
+                "flags=neighbor","lenscorrection=","fade=t=in");
+    }
+}
+``
+
+### FILE: src/test/java/cn/longer233/gamenarrator/script/OllamaScriptGeneratorTest.java
+
+``java
+package cn.longer233.gamenarrator.script;
+
+import cn.longer233.gamenarrator.highlight.HighlightClip;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import org.junit.jupiter.api.Test;
+
+import java.util.List;
+
+import static org.assertj.core.api.Assertions.assertThat;
+
+class OllamaScriptGeneratorTest {
+    @Test
+    void alignsModelOutputToEveryHighlightAndFillsMissingSegments() throws Exception {
+        ObjectMapper mapper = new ObjectMapper();
+        OllamaScriptGenerator generator = new OllamaScriptGenerator(mapper,
+                "http://localhost:11434", "test-model");
+        var generated = mapper.readTree("""
+                [{"narration":"第一段台词","subtitle":"第一幕","effectCue":"震动"}]
+                """);
+        List<HighlightClip> clips = List.of(
+                clip(1, 0, 12), clip(2, 20, 32));
+
+        List<ScriptSegment> result = generator.alignSegments(generated, clips);
+
+        assertThat(result).hasSize(2);
+        assertThat(result.getFirst().narration()).isEqualTo("第一段台词");
+        assertThat(result.getFirst().subtitle()).isEqualTo("第一幕");
+        assertThat(result.get(1).narration()).isNotBlank();
+        assertThat(result.get(1).subtitle()).isNotBlank();
+        assertThat(result.get(1).effectCue()).isNotBlank();
+        assertThat(result.get(1).startSeconds()).isEqualTo(20);
+    }
+
+    @Test
+    void keepsModelQualityReviewAndBoundsItsScore() throws Exception {
+        ObjectMapper mapper = new ObjectMapper();
+        OllamaScriptGenerator generator = new OllamaScriptGenerator(mapper,
+                "http://localhost:11434", "test-model");
+        var generated = mapper.readTree("""
+                {"qualityReview":{"score":120,"passed":true,"issues":["字幕略长"],"summary":"建议复核"}}
+                """);
+        var review = generator.qualityReview(generated,
+                List.of(new ScriptSegment(1, 0, 5, "解说", "字幕", "转场")));
+
+        assertThat(review).containsEntry("score", 100).containsEntry("summary", "建议复核");
+        assertThat(review.get("issues")).isEqualTo(List.of("字幕略长"));
+    }
+
+    private HighlightClip clip(int index, double start, double end) {
+        return new HighlightClip(index, start, end, start + 4, "战斗", "画面", 80, 90);
+    }
+}
+``
+
+### FILE: src/test/java/cn/longer233/gamenarrator/script/ScriptWorkspaceServiceTest.java
+
+``java
+package cn.longer233.gamenarrator.script;
+
+import cn.longer233.gamenarrator.task.domain.CommentaryStyle;
+import cn.longer233.gamenarrator.task.domain.ProcessingStageType;
+import cn.longer233.gamenarrator.task.domain.StageStatus;
+import cn.longer233.gamenarrator.task.domain.TaskStatus;
+import cn.longer233.gamenarrator.task.domain.VideoTask;
+import cn.longer233.gamenarrator.task.repository.VideoTaskRepository;
+import cn.longer233.gamenarrator.voice.VoiceGenerator;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.io.TempDir;
+
+import java.nio.file.Path;
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
+
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
+
+class ScriptWorkspaceServiceTest {
+    @TempDir
+    Path temporaryDirectory;
+
+    @Test
+    void editingOneSegmentPreservesOthersAndInvalidatesOnlyDownstreamStages() throws Exception {
+        ObjectMapper mapper = new ObjectMapper();
+        Path scriptPath = temporaryDirectory.resolve("generated-script.json");
+        List<ScriptSegment> segments = List.of(
+                new ScriptSegment(1, 0, 10, "first", "first subtitle", "cut"),
+                new ScriptSegment(2, 10, 20, "second", "second subtitle", "zoom"));
+        mapper.writeValue(scriptPath.toFile(), Map.of(
+                "model", "test-model",
+                "title", "title",
+                "synopsis", "synopsis",
+                "fullNarration", "first\nsecond",
+                "segments", segments));
+
+        VideoTask task = new VideoTask("demo", "ACTION", CommentaryStyle.ANIME_THEATER,
+                30, "brief", temporaryDirectory.resolve("source.mp4").toString());
+        task.completeScriptGeneration("title", "synopsis", "first\nsecond",
+                scriptPath.toString(), 2);
+        VideoTaskRepository repository = mock(VideoTaskRepository.class);
+        when(repository.findById(task.getId())).thenReturn(Optional.of(task));
+        ScriptWorkspaceService service = new ScriptWorkspaceService(
+                repository, mapper, mock(OllamaScriptGenerator.class), mock(VoiceGenerator.class));
+
+        ScriptDocumentView result = service.update(task.getId(), 2,
+                new UpdateScriptSegmentRequest("revised", "new subtitle", "shake"));
+
+        assertThat(result.segments()).extracting(ScriptSegment::narration)
+                .containsExactly("first", "revised");
+        assertThat(task.getGeneratedNarration()).isEqualTo("first\nrevised");
+        assertThat(task.getStatus()).isEqualTo(TaskStatus.READY);
+        assertThat(stage(task, ProcessingStageType.SCRIPT_GENERATION)).isEqualTo(StageStatus.COMPLETED);
+        assertThat(stage(task, ProcessingStageType.VOICE_GENERATION)).isEqualTo(StageStatus.PENDING);
+        assertThat(stage(task, ProcessingStageType.TIMELINE_PLANNING)).isEqualTo(StageStatus.PENDING);
+        assertThat(stage(task, ProcessingStageType.RENDERING)).isEqualTo(StageStatus.PENDING);
+        assertThat(mapper.readTree(scriptPath.toFile()).path("segments").get(1)
+                .path("narration").asText()).isEqualTo("revised");
+    }
+
+    private StageStatus stage(VideoTask task, ProcessingStageType type) {
+        return task.getStages().stream()
+                .filter(item -> item.getStageType() == type)
+                .findFirst().orElseThrow().getStatus();
+    }
+}
+``
+
+### FILE: src/test/java/cn/longer233/gamenarrator/subtitle/AssSubtitleBuilderTest.java
+
+``java
+package cn.longer233.gamenarrator.subtitle;
+
+import cn.longer233.gamenarrator.timeline.TimelineSegment;
+import org.junit.jupiter.api.Test;
+
+import java.util.List;
+
+import static org.assertj.core.api.Assertions.assertThat;
+
+class AssSubtitleBuilderTest {
+    @Test
+    void createsAnimatedSingleLineAssTimeline() {
+        var segment = new TimelineSegment(1, 0, 3.5, 10, 13.5,
+                "这是用于测试的较长中文解说字幕文本", "这是用于测试的较长中文解说字幕文本",
+                "高燃", "voice.wav", 2, false);
+
+        String ass = new AssSubtitleBuilder().build(List.of(segment), "IMPACT_RED");
+
+        assertThat(ass).contains("[V4+ Styles]", "Dialogue: 0,0:00:00.00,0:00:03.50",
+                "\\N", "\\t(0,140");
+    }
+}
+``
+
+### FILE: src/test/java/cn/longer233/gamenarrator/task/DatabaseMigrationTest.java
+
+``java
+package cn.longer233.gamenarrator.task;
+
+import org.flywaydb.core.Flyway;
+import org.junit.jupiter.api.Test;
+
+import java.sql.DriverManager;
+
+import static org.assertj.core.api.Assertions.assertThat;
+
+class DatabaseMigrationTest {
+
+    @Test
+    void v11RepairsBilibiliInterfaceTextAndRemovesDerivedTags() throws Exception {
+        String url = "jdbc:h2:mem:bilibili-title-repair;DB_CLOSE_DELAY=-1";
+        Flyway.configure().dataSource(url, "sa", "").target("10").load().migrate();
+        try (var connection = DriverManager.getConnection(url, "sa", "");
+             var statement = connection.createStatement()) {
+            statement.executeUpdate("""
+                    INSERT INTO external_asset(id,provider,external_id,asset_type,title,landing_url,license_code,
+                      import_status,metadata_json,discovered_at)
+                    VALUES(UUID '11111111-1111-1111-1111-111111111111','BILIBILI','dirty','VIDEO',
+                      '添加至稍后再看28.5万52001:55','https://www.bilibili.com/video/BV1Ab411c7De',
+                      'RIGHTS_REVIEW_REQUIRED','REFERENCE_ONLY','{}',CURRENT_TIMESTAMP)
+                    """);
+            statement.executeUpdate("""
+                    INSERT INTO asset_tag(id,normalized_name,display_name,created_at)
+                    VALUES(UUID '22222222-2222-2222-2222-222222222222','bad','动作：添加至稍后再看',CURRENT_TIMESTAMP)
+                    """);
+            statement.executeUpdate("""
+                    INSERT INTO asset_tag_assignment(id,asset_id,tag_id,tag_source,confidence,created_at)
+                    VALUES(UUID '33333333-3333-3333-3333-333333333333',
+                      UUID '11111111-1111-1111-1111-111111111111',UUID '22222222-2222-2222-2222-222222222222',
+                      'AI',0.65,CURRENT_TIMESTAMP)
+                    """);
+        }
+
+        Flyway.configure().dataSource(url, "sa", "").load().migrate();
+
+        try (var connection = DriverManager.getConnection(url, "sa", "");
+             var statement = connection.createStatement()) {
+            var title = statement.executeQuery("SELECT title,localized_title FROM external_asset WHERE external_id='dirty'");
+            assertThat(title.next()).isTrue();
+            assertThat(title.getString("title")).isEqualTo("Bilibili 视频 BV1Ab411c7De");
+            assertThat(title.getString("localized_title")).isNull();
+            var assignments = statement.executeQuery("SELECT COUNT(*) FROM asset_tag_assignment");
+            assertThat(assignments.next()).isTrue();
+            assertThat(assignments.getInt(1)).isZero();
+        }
+    }
+
+    @Test
+    void v10ReplacesLegacyTaskStatusConstraintWithStoryboardReviewAwareConstraint() throws Exception {
+        String url = "jdbc:h2:mem:legacy-task-status;DB_CLOSE_DELAY=-1";
+        Flyway.configure().dataSource(url, "sa", "").target("9").load().migrate();
+
+        try (var connection = DriverManager.getConnection(url, "sa", "");
+             var statement = connection.createStatement()) {
+            statement.executeUpdate("""
+                    ALTER TABLE video_tasks ADD CONSTRAINT CONSTRAINT_98
+                    CHECK (status IN ('DRAFT', 'READY', 'PROCESSING', 'COMPLETED', 'FAILED'))
+                    """);
+        }
+
+        Flyway.configure().dataSource(url, "sa", "").load().migrate();
+
+        try (var connection = DriverManager.getConnection(url, "sa", "");
+             var statement = connection.createStatement()) {
+            var constraints = statement.executeQuery("""
+                    SELECT constraint_name, check_clause
+                    FROM information_schema.check_constraints
+                    WHERE constraint_name IN ('CONSTRAINT_98', 'CK_VIDEO_TASKS_STATUS')
+                    ORDER BY constraint_name
+                    """);
+            assertThat(constraints.next()).isTrue();
+            assertThat(constraints.getString("constraint_name")).isEqualTo("CK_VIDEO_TASKS_STATUS");
+            assertThat(constraints.getString("check_clause")).contains("WAITING_REVIEW");
+            assertThat(constraints.next()).isFalse();
+        }
+    }
+}
+``
+
+### FILE: src/test/java/cn/longer233/gamenarrator/task/domain/VideoTaskTest.java
+
+``java
+package cn.longer233.gamenarrator.task.domain;
+
+import org.junit.jupiter.api.Test;
+import static org.assertj.core.api.Assertions.assertThat;
+
+class VideoTaskTest {
+
+    @Test
+    void newTaskCreatesTheCompleteNineStageWorkflow() {
+        VideoTask task = new VideoTask(
+                "Boss 战高光",
+                "ACTION",
+                CommentaryStyle.ANIME_THEATER,
+                90,
+                "突出极限闪避与反杀",
+                "storage/demo.mp4"
+        );
+
+        assertThat(task.getStatus()).isEqualTo(TaskStatus.READY);
+        assertThat(task.getStages()).hasSize(9);
+        assertThat(task.getStages().getFirst().getStageType())
+                .isEqualTo(ProcessingStageType.VIDEO_INGESTION);
+        assertThat(task.getStages().getLast().getStageType())
+                .isEqualTo(ProcessingStageType.RENDERING);
+    }
+
+    @Test
+    void retryKeepsCompletedStagesAndResetsOnlyTheFailedStage() {
+        VideoTask task = new VideoTask(
+                "Retry demo",
+                "ACTION",
+                CommentaryStyle.ANIME_THEATER,
+                90,
+                "Retry from the failed stage",
+                "storage/demo.mp4"
+        );
+        task.startIngestion();
+        task.completeIngestion(60, 1920, 1080, 30, "h264", "aac");
+        task.startSceneDetection();
+        task.failSceneDetection("ffmpeg failed");
+
+        task.prepareRetry();
+
+        assertThat(task.getStatus()).isEqualTo(TaskStatus.READY);
+        assertThat(task.getFailureReason()).isNull();
+        assertThat(task.getStages().get(0).getStatus()).isEqualTo(StageStatus.COMPLETED);
+        assertThat(task.getStages().get(1).getStatus()).isEqualTo(StageStatus.PENDING);
+        assertThat(task.getStages().get(1).getErrorMessage()).isNull();
+    }
+
+    @Test
+    void retryRejectsTasksThatHaveNotFailed() {
+        VideoTask task = new VideoTask(
+                "Ready demo",
+                "ACTION",
+                CommentaryStyle.ANIME_THEATER,
+                90,
+                "No retry needed",
+                "storage/demo.mp4"
+        );
+
+        org.assertj.core.api.Assertions.assertThatThrownBy(task::prepareRetry)
+                .isInstanceOf(IllegalStateException.class)
+                .hasMessage("Only a failed task can be retried");
+    }
+
+    @Test
+    void longToolErrorsAreTruncatedSoFailureStateCanAlwaysBePersisted() {
+        VideoTask task = new VideoTask("Failure", "ACTION", CommentaryStyle.ANIME_THEATER,
+                90, "brief", "storage/demo.mp4");
+        task.startSceneDetection();
+        task.failSceneDetection("FFmpeg error ".repeat(200));
+
+        assertThat(task.getStatus()).isEqualTo(TaskStatus.FAILED);
+        assertThat(task.getFailureReason()).hasSizeLessThanOrEqualTo(900).endsWith("...");
+        assertThat(task.getStages().get(1).getErrorMessage()).hasSizeLessThanOrEqualTo(900);
+    }
+
+    @Test
+    void renameTrimsAndValidatesTheDisplayName() {
+        VideoTask task = new VideoTask("Old", "ACTION", CommentaryStyle.ANIME_THEATER,
+                90, "brief", "storage/demo.mp4");
+
+        task.rename("  New name  ");
+
+        assertThat(task.getName()).isEqualTo("New name");
+        org.assertj.core.api.Assertions.assertThatThrownBy(() -> task.rename("   "))
+                .isInstanceOf(IllegalArgumentException.class);
+    }
+
+    @Test
+    void storyboardReviewPausesAfterScriptUntilExplicitApproval() {
+        VideoTask task = new VideoTask("Review", "ACTION", CommentaryStyle.ANIME_THEATER,
+                90, "brief", "storage/demo.mp4", true);
+        task.startScriptGeneration();
+        task.completeScriptGeneration("title", "synopsis", "narration", "script.json", 1);
+
+        task.awaitStoryboardReview();
+
+        assertThat(task.getStatus()).isEqualTo(TaskStatus.WAITING_REVIEW);
+        assertThat(task.isStoryboardApproved()).isFalse();
+        task.approveStoryboard();
+        assertThat(task.getStatus()).isEqualTo(TaskStatus.READY);
+        assertThat(task.isStoryboardApproved()).isTrue();
+    }
+}
+``
+
+### FILE: src/test/java/cn/longer233/gamenarrator/task/web/VideoTaskControllerTest.java
+
+``java
+package cn.longer233.gamenarrator.task.web;
+
+import org.junit.jupiter.api.Test;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
+import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.mock.web.MockMultipartFile;
+import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.test.web.servlet.MockMvc;
+import org.springframework.jdbc.core.JdbcTemplate;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import cn.longer233.gamenarrator.pipeline.VideoTaskEngine;
+import cn.longer233.gamenarrator.pipeline.PipelineRunTracker;
+import java.util.UUID;
+import java.nio.file.Files;
+import java.nio.file.Path;
+
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.multipart;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.patch;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
+
+@SpringBootTest(properties = {
+        "spring.datasource.url=jdbc:h2:mem:controller-test",
+        "game-narrator.storage-root=./target/test-storage"
+})
+@AutoConfigureMockMvc
+class VideoTaskControllerTest {
+
+    @Autowired
+    private MockMvc mockMvc;
+
+    @Autowired
+    private JdbcTemplate jdbc;
+
+    @Autowired
+    private ObjectMapper objectMapper;
+
+    @Autowired
+    private PipelineRunTracker pipelineRunTracker;
+
+    @MockBean
+    private VideoTaskEngine videoTaskEngine;
+
+    @Test
+    void emptyAssetCatalogCanBeListed() throws Exception {
+        mockMvc.perform(get("/api/assets").param("query", "悬疑"))
+                .andExpect(status().isOk())
+                .andExpect(content().json("[]"));
+    }
+
+    @Test
+    void publicAssetDiscoveryRejectsInvalidPageBeforeCallingProviders() throws Exception {
+        mockMvc.perform(post("/api/assets/discover")
+                        .contentType("application/json")
+                        .content("""
+                                {"query":"battle","assetType":"VIDEO","pageSize":12,"page":0,
+                                 "commercialUse":true,"allowModification":true}
+                                """))
+                .andExpect(status().isBadRequest());
+    }
+
+    @Test
+    void publicAssetDiscoveryRejectsUnknownProviderBeforeCallingProviders() throws Exception {
+        mockMvc.perform(post("/api/assets/discover")
+                        .contentType("application/json")
+                        .content("""
+                                {"query":"battle","assetType":"VIDEO","pageSize":12,"page":1,
+                                 "commercialUse":true,"allowModification":true,"provider":"UNKNOWN"}
+                                """))
+                .andExpect(status().isBadRequest());
+    }
+
+    @Test
+    void publicAssetDiscoveryRejectsUnknownSortBeforeCallingProviders() throws Exception {
+        mockMvc.perform(post("/api/assets/discover")
+                        .contentType("application/json")
+                        .content("""
+                                {"query":"battle","assetType":"VIDEO","pageSize":12,"page":1,
+                                 "commercialUse":true,"allowModification":true,"provider":"BILIBILI",
+                                 "sort":"RANDOM"}
+                                """))
+                .andExpect(status().isBadRequest());
+    }
+
+    @Test
+    void mediaImporterReportsInstalledRuntime() throws Exception {
+        mockMvc.perform(get("/api/media-import/status"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.available").value(true));
+    }
+
+    @Test
+    void browserStyleMultipartFormCreatesTask() throws Exception {
+        MockMultipartFile video = new MockMultipartFile(
+                "video",
+                "boss-fight.mp4",
+                "video/mp4",
+                "fake-video-for-controller-test".getBytes()
+        );
+
+        var result = mockMvc.perform(multipart("/api/tasks")
+                        .file(video)
+                        .characterEncoding("UTF-8")
+                        .param("name", "Boss 战高光")
+                        .param("gameCategory", "ACTION")
+                        .param("commentaryStyle", "ANIME_THEATER")
+                        .param("targetDurationSeconds", "90")
+                        .param("taskBrief", "突出闪避、反击和阶段转换"))
+                .andExpect(status().isCreated())
+                .andExpect(content().contentTypeCompatibleWith("application/json"))
+                .andExpect(jsonPath("$.name").value("Boss 战高光"))
+                .andExpect(jsonPath("$.status").value("READY"))
+                .andExpect(jsonPath("$.stages.length()").value(9))
+                .andReturn();
+
+        String taskId = objectMapper.readTree(result.getResponse().getContentAsString()).path("id").asText();
+        assertEquals(1, jdbc.queryForObject("SELECT COUNT(*) FROM video_project WHERE id=?",
+                Integer.class, UUID.fromString(taskId)));
+        assertEquals(1, jdbc.queryForObject("""
+                SELECT COUNT(*) FROM project_revision revision
+                JOIN video_project project ON project.current_revision_id=revision.id
+                WHERE project.id=? AND revision.project_id=project.id
+                """, Integer.class, UUID.fromString(taskId)));
+        mockMvc.perform(get("/api/tasks/{id}/source", taskId))
+                .andExpect(status().isOk())
+                .andExpect(header().string("Content-Disposition", "inline; filename=source-" + taskId))
+                .andExpect(content().bytes("fake-video-for-controller-test".getBytes()));
+    }
+
+    @Test
+    void invalidVideoReturnsReadableErrorAndTraceId() throws Exception {
+        MockMultipartFile invalidVideo = new MockMultipartFile(
+                "video",
+                "notes.txt",
+                "text/plain",
+                "not-a-video".getBytes()
+        );
+
+        mockMvc.perform(multipart("/api/tasks")
+                        .file(invalidVideo)
+                        .characterEncoding("UTF-8")
+                        .param("name", "错误样例")
+                        .param("gameCategory", "ACTION")
+                        .param("commentaryStyle", "ANIME_THEATER")
+                        .param("targetDurationSeconds", "90")
+                        .param("taskBrief", "验证错误输出"))
+                .andExpect(status().isBadRequest())
+                .andExpect(header().exists("X-Trace-Id"))
+                .andExpect(jsonPath("$.code").value("INVALID_REQUEST"))
+                .andExpect(jsonPath("$.message").value("仅支持 mp4、mov、mkv、webm 视频"))
+                .andExpect(jsonPath("$.suggestion").isNotEmpty())
+                .andExpect(jsonPath("$.traceId").isNotEmpty());
+    }
+
+    @Test
+    void existingTaskCanBeDeleted() throws Exception {
+        MockMultipartFile video = new MockMultipartFile("video", "delete-me.mp4", "video/mp4",
+                "temporary-video".getBytes());
+        var created = mockMvc.perform(multipart("/api/tasks").file(video)
+                        .param("name", "待删除任务").param("gameCategory", "ACTION")
+                        .param("commentaryStyle", "ANIME_THEATER")
+                        .param("targetDurationSeconds", "90").param("taskBrief", "删除测试"))
+                .andExpect(status().isCreated()).andReturn();
+        UUID id = UUID.fromString(objectMapper.readTree(
+                created.getResponse().getContentAsString()).path("id").asText());
+        Path taskDirectory = Path.of("target/test-storage/tasks").resolve(id.toString());
+        Files.createDirectories(taskDirectory.resolve("render-work"));
+        Files.writeString(taskDirectory.resolve("render-work/temporary.mp4"), "temporary");
+
+        mockMvc.perform(delete("/api/tasks/{id}", id)).andExpect(status().isNoContent());
+
+        assertEquals(0, jdbc.queryForObject("SELECT COUNT(*) FROM video_tasks WHERE id=?",
+                Integer.class, id));
+        assertEquals(0, jdbc.queryForObject("SELECT COUNT(*) FROM processing_stages WHERE task_id=?",
+                Integer.class, id));
+        assertEquals(false, Files.exists(taskDirectory));
+    }
+
+    @Test
+    void taskRenameAlsoUpdatesItsProjectName() throws Exception {
+        MockMultipartFile video = new MockMultipartFile("video", "rename.mp4", "video/mp4",
+                "temporary-video".getBytes());
+        var created = mockMvc.perform(multipart("/api/tasks").file(video)
+                        .param("name", "旧任务名").param("gameCategory", "ACTION")
+                        .param("commentaryStyle", "ANIME_THEATER")
+                        .param("targetDurationSeconds", "90").param("taskBrief", "重命名测试"))
+                .andExpect(status().isCreated()).andReturn();
+        UUID id = UUID.fromString(objectMapper.readTree(
+                created.getResponse().getContentAsString()).path("id").asText());
+
+        mockMvc.perform(patch("/api/tasks/{id}/name", id)
+                        .contentType("application/json").content("{\"name\":\" 新任务名 \"}"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.name").value("新任务名"));
+
+        assertEquals("新任务名", jdbc.queryForObject("SELECT name FROM video_project WHERE id=?",
+                String.class, id));
+    }
+
+    @Test
+    void pipelineStagesAreMirroredIntoVersionedRunTables() throws Exception {
+        MockMultipartFile video = new MockMultipartFile("video", "tracked.mp4", "video/mp4",
+                "tracked-video".getBytes());
+        var created = mockMvc.perform(multipart("/api/tasks").file(video)
+                        .param("name", "运行留痕").param("gameCategory", "ACTION")
+                        .param("commentaryStyle", "ANIME_THEATER")
+                        .param("targetDurationSeconds", "90").param("taskBrief", "阶段记录测试"))
+                .andExpect(status().isCreated()).andReturn();
+        UUID id = UUID.fromString(objectMapper.readTree(
+                created.getResponse().getContentAsString()).path("id").asText());
+
+        pipelineRunTracker.running(id, "VIDEO_INGESTION");
+        pipelineRunTracker.completed(id, "VIDEO_INGESTION", java.util.Map.of("durationSeconds", 12));
+
+        assertEquals(1, jdbc.queryForObject("SELECT COUNT(*) FROM generation_run WHERE project_id=?",
+                Integer.class, id));
+        assertEquals("COMPLETED", jdbc.queryForObject(
+                "SELECT status FROM stage_run WHERE generation_run_id=(SELECT latest_run_id FROM video_project WHERE id=?)",
+                String.class, id));
+    }
+
+    @Test
+    void taskStatusConstraintAllowsStoryboardReviewWaitingState() throws Exception {
+        MockMultipartFile video = new MockMultipartFile("video", "review.mp4", "video/mp4",
+                "review-video".getBytes());
+        var created = mockMvc.perform(multipart("/api/tasks").file(video)
+                        .param("name", "Storyboard review").param("gameCategory", "ACTION")
+                        .param("commentaryStyle", "ANIME_THEATER")
+                        .param("targetDurationSeconds", "90").param("taskBrief", "Review generated storyboard"))
+                .andExpect(status().isCreated()).andReturn();
+        UUID id = UUID.fromString(objectMapper.readTree(
+                created.getResponse().getContentAsString()).path("id").asText());
+
+        assertEquals(1, jdbc.update("UPDATE video_tasks SET status='WAITING_REVIEW' WHERE id=?", id));
+        assertEquals("WAITING_REVIEW", jdbc.queryForObject(
+                "SELECT status FROM video_tasks WHERE id=?", String.class, id));
+    }
+
+}
+``
+
+### FILE: src/test/java/cn/longer233/gamenarrator/timeline/TimelinePlannerTest.java
+
+``java
+package cn.longer233.gamenarrator.timeline;
+
+import cn.longer233.gamenarrator.highlight.HighlightClip;
+import cn.longer233.gamenarrator.script.ScriptSegment;
+import cn.longer233.gamenarrator.voice.VoiceSegment;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.io.TempDir;
+
+import javax.sound.sampled.AudioFileFormat;
+import javax.sound.sampled.AudioFormat;
+import javax.sound.sampled.AudioInputStream;
+import javax.sound.sampled.AudioSystem;
+import java.io.ByteArrayInputStream;
+import java.nio.file.Path;
+import java.util.List;
+import java.util.Map;
+
+import static org.assertj.core.api.Assertions.assertThat;
+
+class TimelinePlannerTest {
+    @TempDir Path tempDir;
+
+    @Test
+    void alignsSourceClipsScriptsAndVoiceOnOutputTimeline() throws Exception {
+        ObjectMapper mapper = new ObjectMapper();
+        Path highlights = tempDir.resolve("highlights.json");
+        Path scripts = tempDir.resolve("script.json");
+        Path voices = tempDir.resolve("voices.json");
+        Path wav = tempDir.resolve("voice.wav");
+        writeSilentWav(wav, 2);
+        mapper.writeValue(highlights.toFile(), Map.of("clips", List.of(
+                new HighlightClip(1, 10, 22, 14, "战斗", "画面", 80, 90))));
+        mapper.writeValue(scripts.toFile(), Map.of("segments", List.of(
+                new ScriptSegment(1, 10, 22, "台词", "字幕", "震动"))));
+        mapper.writeValue(voices.toFile(), Map.of("segments", List.of(
+                new VoiceSegment(1, wav.toString(), "台词"))));
+
+        TimelinePlanningResult result = new TimelinePlanner(mapper, new TimelineValidator())
+                .plan(highlights, scripts, voices);
+
+        assertThat(result.outputDurationSeconds()).isEqualTo(12);
+        assertThat(result.overflowCount()).isZero();
+        assertThat(result.segments().getFirst().voiceDurationSeconds()).isBetween(1.99, 2.01);
+        assertThat(Path.of(result.timelinePath())).exists();
+    }
+
+    private void writeSilentWav(Path output, int seconds) throws Exception {
+        AudioFormat format = new AudioFormat(16_000, 16, 1, true, false);
+        byte[] bytes = new byte[16_000 * 2 * seconds];
+        try (AudioInputStream stream = new AudioInputStream(
+                new ByteArrayInputStream(bytes), format, 16_000L * seconds)) {
+            AudioSystem.write(stream, AudioFileFormat.Type.WAVE, output.toFile());
+        }
+    }
+}
+``
+
+### FILE: src/test/java/cn/longer233/gamenarrator/timeline/TimelineValidatorTest.java
+
+``java
+package cn.longer233.gamenarrator.timeline;
+
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.io.TempDir;
+
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.util.List;
+
+import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+
+class TimelineValidatorTest {
+    @TempDir Path tempDirectory;
+    private final TimelineValidator validator = new TimelineValidator();
+
+    @Test
+    void acceptsContinuousTimelineWithExistingVoice() throws Exception {
+        Path voice = Files.write(tempDirectory.resolve("voice.wav"), new byte[]{1});
+        assertDoesNotThrow(() -> validator.validate(List.of(segment(1, 0, 2, voice)), 2));
+    }
+
+    @Test
+    void rejectsGapBetweenSegments() throws Exception {
+        Path voice = Files.write(tempDirectory.resolve("voice.wav"), new byte[]{1});
+        assertThrows(IllegalStateException.class, () -> validator.validate(List.of(
+                segment(1, 0, 2, voice), segment(2, 2.5, 3.5, voice)), 3.5));
+    }
+
+    @Test
+    void rejectsMissingVoiceArtifact() {
+        assertThrows(IllegalStateException.class, () -> validator.validate(List.of(
+                segment(1, 0, 2, tempDirectory.resolve("missing.wav"))), 2));
+    }
+
+    private TimelineSegment segment(int sequence, double start, double end, Path voice) {
+        return new TimelineSegment(sequence, start, end, start, end,
+                "解说", "字幕", "转场", voice.toString(), 1, false);
+    }
+}
+``
+
+### FILE: src/test/java/cn/longer233/gamenarrator/vision/ImagePerceptualHashTest.java
+
+``java
+package cn.longer233.gamenarrator.vision;
+
+import org.junit.jupiter.api.Test;
+
+import java.awt.Color;
+import java.awt.Graphics2D;
+import java.awt.image.BufferedImage;
+
+import static org.assertj.core.api.Assertions.assertThat;
+
+class ImagePerceptualHashTest {
+    @Test
+    void identicalAndDifferentCompositionsHaveExpectedSimilarity() {
+        BufferedImage leftBright = splitImage(true);
+        BufferedImage same = splitImage(true);
+        BufferedImage rightBright = splitImage(false);
+
+        long first = ImagePerceptualHash.differenceHash(leftBright);
+        assertThat(ImagePerceptualHash.similarity(first, ImagePerceptualHash.differenceHash(same))).isEqualTo(1.0);
+        assertThat(ImagePerceptualHash.similarity(first, ImagePerceptualHash.differenceHash(rightBright))).isLessThan(1.0);
+    }
+
+    private BufferedImage splitImage(boolean leftBright) {
+        BufferedImage image = new BufferedImage(180, 100, BufferedImage.TYPE_INT_RGB);
+        Graphics2D graphics = image.createGraphics();
+        graphics.setColor(leftBright ? Color.WHITE : Color.BLACK);
+        graphics.fillRect(0, 0, 90, 100);
+        graphics.setColor(leftBright ? Color.BLACK : Color.WHITE);
+        graphics.fillRect(90, 0, 90, 100);
+        graphics.dispose();
+        return image;
+    }
+}
+``
+
+### FILE: src/test/java/cn/longer233/gamenarrator/vision/VideoSegmentClipServiceTest.java
+
+``java
+package cn.longer233.gamenarrator.vision;
+
+import cn.longer233.gamenarrator.common.ExternalProcessRunner;
+import cn.longer233.gamenarrator.task.domain.CommentaryStyle;
+import cn.longer233.gamenarrator.task.domain.VideoTask;
+import cn.longer233.gamenarrator.task.repository.VideoTaskRepository;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.io.TempDir;
+
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.time.Duration;
+import java.util.List;
+import java.util.Optional;
+import java.util.UUID;
+
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
+
+class VideoSegmentClipServiceTest {
+    @TempDir Path temporaryDirectory;
+
+    @Test
+    void createsBrowserPlayableMutedClipWithFfmpeg() throws Exception {
+        Path source = temporaryDirectory.resolve("source.mp4");
+        var generated = ExternalProcessRunner.run(List.of("ffmpeg", "-y", "-hide_banner", "-loglevel", "error",
+                "-f", "lavfi", "-i", "testsrc2=size=320x180:rate=24:duration=2",
+                "-f", "lavfi", "-i", "sine=frequency=440:duration=2", "-shortest",
+                "-c:v", "libx264", "-pix_fmt", "yuv420p", "-c:a", "aac", source.toString()), Duration.ofSeconds(30));
+        assertTrue(generated.exitCode() == 0 && Files.size(source) > 0, generated.output());
+
+        UUID taskId = UUID.randomUUID();
+        VideoTask task = new VideoTask("clip test", "ACTION", CommentaryStyle.ANIME_THEATER,
+                30, "verify clipping", source.toString());
+        var repository = mock(VideoTaskRepository.class);
+        when(repository.findById(taskId)).thenReturn(Optional.of(task));
+        var service = new VideoSegmentClipService(repository, "ffmpeg", temporaryDirectory.toString());
+
+        Path clip = service.create(taskId, 0.4, 1, true);
+
+        assertTrue(Files.isRegularFile(clip));
+        assertTrue(Files.size(clip) > 1_000);
+        var probe = ExternalProcessRunner.run(List.of("ffmpeg", "-hide_banner", "-i", clip.toString()), Duration.ofSeconds(15));
+        assertTrue(probe.output().contains("Video: h264"), probe.output());
+        assertTrue(!probe.output().contains("Audio:"), probe.output());
+    }
+}
+``
+
+### FILE: src/test/java/cn/longer233/gamenarrator/vision/VideoSegmentSemanticIndexRankingTest.java
+
+``java
+package cn.longer233.gamenarrator.vision;
+
+import org.junit.jupiter.api.Test;
+import java.util.List;
+import java.util.UUID;
+import static org.assertj.core.api.Assertions.assertThat;
+
+class VideoSegmentSemanticIndexRankingTest {
+    @Test
+    void lexicalAndEventMatchesImproveOtherwiseEqualSemanticScores() {
+        double relevant = VideoSegmentSemanticIndex.hybridScore("激烈战斗", .55, "Boss 战", "BATTLE",
+                "角色正在激烈战斗并反击");
+        double generic = VideoSegmentSemanticIndex.hybridScore("激烈战斗", .55, "日常场景", "DIALOGUE",
+                "角色站在城镇中");
+        assertThat(relevant).isGreaterThan(generic);
+    }
+
+    @Test
+    void nearbyFramesAreDiversifiedBeforeFillingRemainingSlots() {
+        UUID task = UUID.randomUUID();
+        var first = result(task, 10, .9); var duplicate = result(task, 11, .85); var distant = result(task, 20, .8);
+        assertThat(VideoSegmentSemanticIndex.diversify(List.of(first, duplicate, distant), 2))
+                .containsExactly(first, distant);
+    }
+
+    private VideoSegmentSearchResult result(UUID task, double time, double score) {
+        return new VideoSegmentSearchResult(task, "task", (int) time, time, "BATTLE", "description", score);
+    }
+}
+``
+

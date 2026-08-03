@@ -1,0 +1,13 @@
+package cn.longer233.gamenarrator.task.domain;
+
+public enum ProcessingStageType {
+    VIDEO_INGESTION,
+    SCENE_DETECTION,
+    TRANSCRIPTION,
+    VIDEO_UNDERSTANDING,
+    HIGHLIGHT_SELECTION,
+    SCRIPT_GENERATION,
+    VOICE_GENERATION,
+    TIMELINE_PLANNING,
+    RENDERING
+}

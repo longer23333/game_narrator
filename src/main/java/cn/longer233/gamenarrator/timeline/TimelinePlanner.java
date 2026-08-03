@@ -1,0 +1,90 @@
+package cn.longer233.gamenarrator.timeline;
+
+import cn.longer233.gamenarrator.highlight.HighlightClip;
+import cn.longer233.gamenarrator.common.AtomicArtifactWriter;
+import cn.longer233.gamenarrator.script.ScriptSegment;
+import cn.longer233.gamenarrator.voice.VoiceSegment;
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.stereotype.Component;
+
+import javax.sound.sampled.AudioSystem;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.util.ArrayList;
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Map;
+
+@Component
+public class TimelinePlanner {
+    private static final Logger log = LoggerFactory.getLogger(TimelinePlanner.class);
+    private final ObjectMapper objectMapper;
+    private final TimelineValidator timelineValidator;
+
+    public TimelinePlanner(ObjectMapper objectMapper, TimelineValidator timelineValidator) {
+        this.objectMapper = objectMapper;
+        this.timelineValidator = timelineValidator;
+    }
+
+    public TimelinePlanningResult plan(Path highlightPath, Path scriptPath, Path voiceManifestPath) {
+        try {
+            List<HighlightClip> clips = readList(highlightPath, "clips", HighlightClip.class);
+            List<ScriptSegment> scripts = readList(scriptPath, "segments", ScriptSegment.class);
+            List<VoiceSegment> voices = readList(voiceManifestPath, "segments", VoiceSegment.class);
+            if (clips.isEmpty()) throw new IllegalStateException("高光清单为空，无法规划时间线");
+            if (clips.size() != scripts.size() || clips.size() != voices.size()) {
+                throw new IllegalStateException("高光、文案和配音的片段数量不一致");
+            }
+            log.info("TIMELINE_PLANNING_BEGIN segmentCount={}", clips.size());
+            List<TimelineSegment> timeline = new ArrayList<>();
+            double cursor = 0;
+            int overflowCount = 0;
+            for (int index = 0; index < clips.size(); index++) {
+                HighlightClip clip = clips.get(index);
+                ScriptSegment script = scripts.get(index);
+                VoiceSegment voice = voices.get(index);
+                double clipDuration = clip.endSeconds() - clip.startSeconds();
+                double voiceDuration = wavDuration(Path.of(voice.audioPath()));
+                boolean overflow = voiceDuration > clipDuration - 0.3;
+                if (overflow) overflowCount++;
+                timeline.add(new TimelineSegment(index + 1, cursor, cursor + clipDuration,
+                        clip.startSeconds(), clip.endSeconds(), script.narration(), script.subtitle(),
+                        script.effectCue(), voice.audioPath(), voiceDuration, overflow));
+                cursor += clipDuration;
+            }
+            Path output = highlightPath.getParent().resolve("timeline.json");
+            Map<String, Object> document = new LinkedHashMap<>();
+            document.put("version", 1);
+            document.put("outputDurationSeconds", cursor);
+            document.put("voiceOverflowCount", overflowCount);
+            document.put("segments", timeline);
+            timelineValidator.validate(timeline, cursor);
+            AtomicArtifactWriter.writeJson(objectMapper, output, document);
+            log.info("TIMELINE_PLANNING_SUCCESS segmentCount={} outputDuration={} overflowCount={} output={}",
+                    timeline.size(), cursor, overflowCount, output);
+            return new TimelinePlanningResult(output.toString(), cursor, overflowCount, timeline);
+        } catch (IllegalStateException exception) {
+            throw exception;
+        } catch (Exception exception) {
+            throw new IllegalStateException("时间线规划失败：" + exception.getMessage(), exception);
+        }
+    }
+
+    private <T> List<T> readList(Path path, String field, Class<T> type) throws Exception {
+        JsonNode root = objectMapper.readTree(path.toFile());
+        return objectMapper.readerForListOf(type).readValue(root.path(field));
+    }
+
+    private double wavDuration(Path path) throws Exception {
+        if (!Files.isRegularFile(path)) throw new IllegalStateException("配音文件不存在：" + path);
+        try (var stream = AudioSystem.getAudioInputStream(path.toFile())) {
+            long frames = stream.getFrameLength();
+            float rate = stream.getFormat().getFrameRate();
+            if (frames <= 0 || rate <= 0) throw new IllegalStateException("无法读取配音时长：" + path);
+            return frames / rate;
+        }
+    }
+}

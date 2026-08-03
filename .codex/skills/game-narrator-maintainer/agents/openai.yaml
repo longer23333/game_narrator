@@ -1,0 +1,4 @@
+interface:
+  display_name: "GameNarrator Maintainer"
+  short_description: "Maintain the GameNarrator AI video pipeline"
+  default_prompt: "Use $game-narrator-maintainer to inspect and safely improve the current GameNarrator project."

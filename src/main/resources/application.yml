@@ -1,0 +1,255 @@
+spring:
+  application:
+    name: game-narrator
+  datasource:
+    url: jdbc:h2:file:./data/game-narrator;AUTO_SERVER=TRUE
+    driver-class-name: org.h2.Driver
+    username: sa
+    password:
+  jpa:
+    hibernate:
+      ddl-auto: validate
+    open-in-view: false
+  flyway:
+    enabled: true
+    baseline-on-migrate: true
+    baseline-version: 0
+    locations: classpath:db/migration
+  servlet:
+    multipart:
+      max-file-size: 4GB
+      max-request-size: 4GB
+  web:
+    resources:
+      cache:
+        cachecontrol:
+          no-cache: true
+
+server:
+  port: ${SERVER_PORT:8081}
+  tomcat:
+    threads:
+      max: ${SERVER_MAX_THREADS:32}
+      min-spare: ${SERVER_MIN_SPARE_THREADS:2}
+  servlet:
+    session:
+      timeout: 1h
+      cookie:
+        http-only: true
+        same-site: strict
+  error:
+    include-message: always
+
+logging:
+  level:
+    root: INFO
+    cn.longer233.gamenarrator: ${GAME_NARRATOR_LOG_LEVEL:DEBUG}
+    org.springframework.web: INFO
+    org.hibernate.SQL: ${HIBERNATE_SQL_LOG_LEVEL:WARN}
+  file:
+    name: ./logs/game-narrator.log
+  pattern:
+    console: "%d{HH:mm:ss.SSS} %-5level [%thread] [trace=%X{traceId:-system}] %logger{36} - %msg%n"
+    file: "%d{yyyy-MM-dd HH:mm:ss.SSS} %-5level [%thread] [trace=%X{traceId:-system}] %logger{48} - %msg%n"
+
+game-narrator:
+  ai:
+    # DashScope 对原始游戏截图审核较严；默认本地优先，未安装本地视觉模型时使用规则降级，不上传图片。
+    cloud-image-policy: ${CLOUD_IMAGE_POLICY:CLOUD_ALLOWED}
+  storage-root: ./storage
+  media-preview:
+    thumbnail-max-bytes: ${THUMBNAIL_MAX_BYTES:5242880}
+    thumbnail-cache-entries: ${THUMBNAIL_CACHE_ENTRIES:128}
+    thumbnail-cache-minutes: ${THUMBNAIL_CACHE_MINUTES:10}
+  asset-library:
+    provider-priority: [BILIBILI, PEXELS, PIXABAY, DOUYIN, USER_REFERENCE, OPENVERSE, WIKIMEDIA, YOUTUBE, TIKTOK]
+    domestic-sources:
+      - { id: fabiaoqing, name: 发表情, url: "https://fabiaoqing.com/", search-url: "https://fabiaoqing.com/search/bqb/keyword/{query}", asset-types: "表情包·斗图·Meme", priority: 10 }
+      - { id: soogif, name: SOOGIF, url: "https://www.soogif.com/", search-url: "https://www.soogif.com/gif/{query}.html", asset-types: "GIF 动图·表情包·在线制作", priority: 20 }
+      - { id: chuangkit-meme, name: 创客贴表情包, url: "https://www.chuangkit.com/", search-url: "https://www.chuangkit.com/designtools/designindex?keyword={query}%20%E8%A1%A8%E6%83%85%E5%8C%85", asset-types: "表情包·Meme 模板·在线编辑", priority: 30 }
+      - { id: bilibili, name: Bilibili, url: "https://search.bilibili.com/", search-url: "https://search.bilibili.com/all?keyword={query}", asset-types: "视频·专栏图片（需授权）" }
+      - { id: newcger, name: 新CG儿, url: "https://www.newcger.com/", asset-types: "视频·AE模板·音频" }
+      - { id: aigei, name: 爱给网, url: "https://www.aigei.com/", asset-types: "音效·配乐·视频·模型" }
+      - { id: gaoding, name: 稿定设计, url: "https://www.gaoding.com/", asset-types: "图片·模板·视频" }
+      - { id: ibaotu, name: 包图网, url: "https://ibaotu.com/", asset-types: "视频·音效·配乐·模板" }
+      - { id: qiantu, name: 千图网, url: "https://www.58pic.com/", asset-types: "图片·模板·视频" }
+      - { id: chinaz, name: 站长素材, url: "https://sc.chinaz.com/", asset-types: "图片·音效·模板" }
+      - { id: photophoto, name: 图行天下, url: "https://www.photophoto.cn/", asset-types: "图片·设计素材" }
+      - { id: 16sucai, name: 16素材, url: "https://16sucai.com/", asset-types: "网页·图片素材" }
+      - { id: lanrentuku, name: 懒人图库, url: "https://www.lanrentuku.com/", asset-types: "图片·网页素材" }
+      - { id: psjia, name: PS家园网, url: "https://www.psjia.com/", asset-types: "PSD·图片" }
+      - { id: sj33, name: 设计之家, url: "https://www.sj33.cn/sc/", asset-types: "设计·图片素材" }
+      - { id: pexels, name: Pexels, url: "https://www.pexels.com/", search-url: "https://www.pexels.com/search/{query}/", asset-types: "图片·视频", region: INTERNATIONAL, priority: 200 }
+      - { id: pixabay, name: Pixabay, url: "https://pixabay.com/zh/", search-url: "https://pixabay.com/zh/images/search/{query}/", asset-types: "图片·视频·音乐·音效", region: INTERNATIONAL, priority: 190 }
+      - { id: clipseek, name: ClipSeek, url: "https://clipseek.ai/zh/", search-url: "https://clipseek.ai/zh/?q={query}", asset-types: "图片·视频·插画（原站检索）", region: INTERNATIONAL, priority: 195 }
+      - { id: mixkit, name: Mixkit, url: "https://mixkit.co/", asset-types: "视频·音乐·音效·模板", region: INTERNATIONAL, priority: 200 }
+      - { id: openfootage, name: OpenFootage, url: "https://www.openfootage.net/", asset-types: "视频·特效素材", region: INTERNATIONAL, priority: 200 }
+      - { id: coverr, name: Coverr, url: "https://coverr.co/", asset-types: "视频·音乐", region: INTERNATIONAL, priority: 200 }
+      - { id: looperman, name: Looperman, url: "https://www.looperman.com/", asset-types: "循环音乐·音效", region: INTERNATIONAL, priority: 210 }
+      - { id: bensound, name: Bensound, url: "https://www.bensound.com/", asset-types: "配乐", region: INTERNATIONAL, priority: 210 }
+      - { id: free-music-archive, name: Free Music Archive, url: "https://freemusicarchive.org/", asset-types: "音乐", region: INTERNATIONAL, priority: 210 }
+      - { id: freesound, name: Freesound, url: "https://freesound.org/", asset-types: "音效·环境声", region: INTERNATIONAL, priority: 210 }
+      - { id: musopen, name: Musopen, url: "https://musopen.org/", asset-types: "古典音乐·乐谱", region: INTERNATIONAL, priority: 210 }
+      - { id: soundgator, name: SoundGator, url: "https://www.soundgator.com/", asset-types: "音效", region: INTERNATIONAL, priority: 210 }
+      - { id: audionautix, name: Audionautix, url: "https://audionautix.com/", asset-types: "配乐", region: INTERNATIONAL, priority: 210 }
+    request-timeout-seconds: ${ASSET_LIBRARY_REQUEST_TIMEOUT_SECONDS:4}
+    featured-page-size: ${ASSET_FEATURED_PAGE_SIZE:3}
+    featured-searches:
+      - asset-type: MEME
+        query: funny reaction
+      - asset-type: VIDEO
+        query: green screen footage
+      - asset-type: SFX
+        query: game sound effect
+      - asset-type: BGM
+        query: background music
+    query-expansion:
+      ai-timeout-seconds: ${ASSET_QUERY_AI_TIMEOUT_SECONDS:2}
+      cache-hours: ${ASSET_QUERY_CACHE_HOURS:12}
+      cache-max-entries: ${ASSET_QUERY_CACHE_MAX_ENTRIES:256}
+      synonyms:
+        - intent: 欢快
+          terms: happy upbeat cheerful
+        - intent: 轻快
+          terms: light upbeat cheerful
+        - intent: 搞笑
+          terms: funny comedy cartoon
+        - intent: 表情包
+          terms: reaction meme funny
+        - intent: 绿幕
+          terms: green screen chroma key footage
+        - intent: 音效
+          terms: sound effect sfx
+        - intent: 背景音乐
+          terms: background music instrumental
+        - intent: 战斗
+          terms: battle fight combat
+        - intent: 冲击
+          terms: impact hit boom
+        - intent: 爆炸
+          terms: explosion blast boom
+        - intent: 转场
+          terms: whoosh swoosh transition
+        - intent: 悬疑
+          terms: suspense mystery tension
+        - intent: 恐怖
+          terms: horror scary dark
+        - intent: 胜利
+          terms: victory win triumph
+        - intent: 失败
+          terms: failure lose game over
+        - intent: 热血
+          terms: epic energetic heroic
+        - intent: 治愈
+          terms: healing calm gentle
+        - intent: 日常
+          terms: daily casual peaceful
+        - intent: 环境
+          terms: ambient atmosphere background
+        - intent: 电子
+          terms: electronic synth game
+        - intent: 钢琴
+          terms: piano emotional
+        - intent: 激励
+          terms: inspiring motivational uplifting
+        - intent: 悲伤
+          terms: sad emotional melancholy
+        - intent: 哭
+          terms: crying tears sad emotional
+        - intent: 流泪
+          terms: crying tears emotional
+        - intent: 紧张
+          terms: tense suspense dramatic
+        - intent: 浪漫
+          terms: romantic warm gentle
+    semantic-search:
+      enabled: ${ASSET_SEMANTIC_SEARCH_ENABLED:true}
+      model: ${ASSET_SEMANTIC_MODEL:bge-m3}
+      timeout-seconds: ${ASSET_SEMANTIC_TIMEOUT_SECONDS:8}
+      minimum-score: ${ASSET_SEMANTIC_MINIMUM_SCORE:0.28}
+      result-limit: ${ASSET_SEMANTIC_RESULT_LIMIT:60}
+    openverse:
+      enabled: ${OPENVERSE_ENABLED:true}
+      base-url: ${OPENVERSE_BASE_URL:https://api.openverse.org/v1}
+    wikimedia:
+      enabled: ${WIKIMEDIA_ENABLED:true}
+      base-url: ${WIKIMEDIA_BASE_URL:https://commons.wikimedia.org}
+      request-timeout-seconds: ${WIKIMEDIA_REQUEST_TIMEOUT_SECONDS:3}
+    bilibili:
+      # Search only public metadata. Every result remains a rights-review candidate.
+      enabled: ${BILIBILI_ASSET_SEARCH_ENABLED:true}
+      base-url: ${BILIBILI_ASSET_SEARCH_BASE_URL:https://api.bilibili.com}
+      min-request-interval-ms: ${BILIBILI_ASSET_SEARCH_MIN_INTERVAL_MS:800}
+    pexels:
+      enabled: ${PEXELS_ENABLED:true}
+      base-url: ${PEXELS_BASE_URL:https://api.pexels.com}
+      api-key: ${PEXELS_API_KEY:}
+    pixabay:
+      enabled: ${PIXABAY_ENABLED:true}
+      base-url: ${PIXABAY_BASE_URL:https://pixabay.com}
+      api-key: ${PIXABAY_API_KEY:}
+  async:
+    core-pool-size: ${ASYNC_CORE_POOL_SIZE:2}
+    max-pool-size: ${ASYNC_MAX_POOL_SIZE:4}
+    queue-capacity: ${ASYNC_QUEUE_CAPACITY:10}
+  pipeline:
+    waiting-retry-delay-ms: ${PIPELINE_WAITING_RETRY_DELAY_MS:30000}
+    waiting-retry-initial-delay-ms: ${PIPELINE_WAITING_RETRY_INITIAL_DELAY_MS:30000}
+  ffmpeg-command: "${FFMPEG_COMMAND:./tools/ffmpeg/bin/ffmpeg.exe}"
+  scene-threshold: ${SCENE_THRESHOLD:0.35}
+  scene-analysis-fps: ${SCENE_ANALYSIS_FPS:6}
+  maximum-scene-frames: ${MAXIMUM_SCENE_FRAMES:240}
+  scene-timeout-minutes: ${SCENE_TIMEOUT_MINUTES:20}
+  whisper:
+    executable: "${WHISPER_EXECUTABLE:./tools/whisper/Release/whisper-cli.exe}"
+    model: "${WHISPER_MODEL:./models/ggml-base.bin}"
+    language: ${WHISPER_LANGUAGE:auto}
+    threads: ${WHISPER_THREADS:8}
+  ollama:
+    base-url: ${OLLAMA_BASE_URL:http://localhost:11434}
+    vision-model: ${OLLAMA_VISION_MODEL:qwen2.5vl:3b}
+    script-model: ${OLLAMA_SCRIPT_MODEL:${OLLAMA_VISION_MODEL:qwen2.5vl:3b}}
+    # 0 = inspect every detected scene frame before highlight/script generation.
+    max-frames: ${OLLAMA_MAX_FRAMES:0}
+  media-import:
+    local-authentication-discovery: ${MEDIA_IMPORT_LOCAL_AUTH_DISCOVERY:false}
+    yt-dlp: "${YT_DLP_EXECUTABLE:./tools/yt-dlp/yt-dlp.exe}"
+    force-ipv4: ${MEDIA_IMPORT_FORCE_IPV4:true}
+    browser-priority:
+      - edge
+      - chrome
+      - firefox
+    cookie-search-paths:
+      - "${USERPROFILE}/Downloads"
+      - "${USERPROFILE}/Desktop"
+    platforms:
+      - id: BILIBILI
+        hosts: [bilibili.com, b23.tv]
+        cookie-domains: [bilibili.com]
+        referer: "https://www.bilibili.com/"
+      - id: YOUTUBE
+        hosts: [youtube.com, youtu.be]
+        cookie-domains: [youtube.com, google.com]
+        referer: "https://www.youtube.com/"
+      - id: DOUYIN
+        hosts: [douyin.com]
+        cookie-domains: [douyin.com]
+        referer: "https://www.douyin.com/"
+      - id: TIKTOK
+        hosts: [tiktok.com]
+        cookie-domains: [tiktok.com]
+        referer: "https://www.tiktok.com/"
+  piper:
+    executable: "${PIPER_EXECUTABLE:./tools/piper/piper/piper.exe}"
+    model: "${PIPER_MODEL:./models/piper/zh_CN-huayan-medium.onnx}"
+    length-scale: ${PIPER_LENGTH_SCALE:1.0}
+    default-voice: ${PIPER_DEFAULT_VOICE:huayan}
+    voices:
+      - id: huayan
+        name: 华妍中文女声
+        model: "${PIPER_MODEL:./models/piper/zh_CN-huayan-medium.onnx}"
+      - id: xiaoxiao
+        name: 晓晓中文女声（可选安装）
+        model: "${PIPER_XIAOXIAO_MODEL:./models/piper/zh_CN-xiaoxiao-medium.onnx}"
+  render:
+    video-encoder: ${VIDEO_ENCODER:h264_nvenc}

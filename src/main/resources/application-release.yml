@@ -1,0 +1,28 @@
+server:
+  address: 127.0.0.1
+  port: ${SERVER_PORT:18081}
+spring:
+  datasource:
+    url: "jdbc:h2:file:${GAME_NARRATOR_DATA_ROOT}/game-narrator;AUTO_SERVER=TRUE;CACHE_SIZE=16384"
+logging:
+  level:
+    cn.longer233.gamenarrator: INFO
+  file:
+    name: "${GAME_NARRATOR_DATA_ROOT}/logs/game-narrator.log"
+game-narrator:
+  storage-root: "${GAME_NARRATOR_DATA_ROOT}/storage"
+  ffmpeg-command: "${GAME_NARRATOR_APP_ROOT}/tools/ffmpeg/bin/ffmpeg.exe"
+  whisper:
+    executable: "${GAME_NARRATOR_APP_ROOT}/tools/whisper/Release/whisper-cli.exe"
+    model: "${GAME_NARRATOR_APP_ROOT}/models/whisper/ggml-base.bin"
+  media-import:
+    yt-dlp: "${GAME_NARRATOR_APP_ROOT}/tools/yt-dlp/yt-dlp.exe"
+  piper:
+    executable: "${GAME_NARRATOR_APP_ROOT}/tools/piper/piper/piper.exe"
+    model: "${GAME_NARRATOR_APP_ROOT}/models/piper/zh_CN-huayan-medium.onnx"
+    voices:
+      - id: huayan
+        name: 华妍中文女声
+        model: "${GAME_NARRATOR_APP_ROOT}/models/piper/zh_CN-huayan-medium.onnx"
+  ollama:
+    base-url: ${OLLAMA_BASE_URL:http://127.0.0.1:11434}
