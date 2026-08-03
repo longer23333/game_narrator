@@ -42,7 +42,7 @@ public class BilibiliAssetClient {
     }
 
     public boolean supports(String assetType) {
-        return enabled && java.util.Set.of("VIDEO", "MEME", "SFX", "BGM")
+        return enabled && java.util.Set.of("VIDEO", "SFX", "BGM")
                 .contains(String.valueOf(assetType).toUpperCase(java.util.Locale.ROOT));
     }
 
@@ -82,7 +82,6 @@ public class BilibiliAssetClient {
             item.put("attribution", candidateLabel(assetType) + "；播放 " + metric(source, "play")
                     + "，弹幕 " + metric(source, "video_review") + "；导入和再创作前必须由用户确认权利");
             ArrayNode tags = item.putArray("tags");
-            if ("MEME".equals(assetType)) tags.add("视频封面候选");
             if ("SFX".equals(assetType) || "BGM".equals(assetType)) tags.add("视频音轨候选");
             String category = clean(source.path("typename").asText());
             if (!category.isBlank()) tags.add(category);
@@ -183,7 +182,6 @@ public class BilibiliAssetClient {
 
     private String candidateLabel(String assetType) {
         return switch (assetType) {
-            case "MEME" -> "Bilibili 视频封面图片候选";
             case "SFX", "BGM" -> "Bilibili 视频音轨候选";
             default -> "Bilibili 公开视频候选素材";
         };

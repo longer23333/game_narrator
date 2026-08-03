@@ -184,7 +184,7 @@ public class VideoTaskEngine {
                 stateService.markHighlightSelectionRunning(taskId);
                 HighlightSelectionResult result = highlightSelector.select(
                         Path.of(context.visualAnalysisPath()), context.durationSeconds(),
-                        context.targetDurationSeconds());
+                        context.targetDurationSeconds(), context.editingScope());
                 stateService.markHighlightSelectionCompleted(taskId, result);
                 log.info("ENGINE_STAGE_COMPLETED taskId={} stage=HIGHLIGHT_SELECTION clipCount={}",
                         taskId, result.clips().size());

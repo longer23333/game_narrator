@@ -11,6 +11,7 @@ import java.nio.charset.StandardCharsets;
 import java.util.concurrent.atomic.AtomicReference;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
@@ -71,16 +72,12 @@ class BilibiliAssetClientTest {
 
         BilibiliAssetClient client = client();
         assertTrue(client.supports("VIDEO"));
-        assertTrue(client.supports("MEME"));
+        assertFalse(client.supports("MEME"));
         assertTrue(client.supports("SFX"));
         assertTrue(client.supports("BGM"));
-        JsonNode image = client.search(new AssetSearchRequest("funny", "MEME", 12, 1,
-                true, true, "BILIBILI", "RELEVANCE")).path("results").get(0);
         JsonNode audio = client.search(new AssetSearchRequest("funny", "SFX", 12, 1,
                 true, true, "BILIBILI", "RELEVANCE")).path("results").get(0);
 
-        assertEquals("BV1MEDIA:MEME", image.path("id").asText());
-        assertEquals("视频封面候选", image.path("tags").get(0).asText());
         assertEquals("BV1MEDIA:SFX", audio.path("id").asText());
         assertEquals("视频音轨候选", audio.path("tags").get(0).asText());
     }

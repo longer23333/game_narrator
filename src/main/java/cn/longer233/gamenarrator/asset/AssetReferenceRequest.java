@@ -13,7 +13,7 @@ public record AssetReferenceRequest(
         String downloadUrl,
         @NotBlank @Size(max = 200) String title,
         @Size(max = 120) String creator,
-        @NotBlank @Pattern(regexp = "SFX|BGM|MEME|VIDEO") String assetType,
+        @NotBlank @Pattern(regexp = "SFX|BGM|IMAGE|MEME|VIDEO") String assetType,
         @NotBlank @Size(max = 40) String licenseCode,
         String licenseUrl,
         @Size(max = 500) String attribution,

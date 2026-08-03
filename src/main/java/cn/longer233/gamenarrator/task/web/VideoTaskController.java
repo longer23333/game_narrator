@@ -2,6 +2,7 @@ package cn.longer233.gamenarrator.task.web;
 
 import cn.longer233.gamenarrator.task.application.*;
 import cn.longer233.gamenarrator.task.domain.CommentaryStyle;
+import cn.longer233.gamenarrator.task.domain.EditingScope;
 import cn.longer233.gamenarrator.effect.EffectSettingsRequest;
 import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
@@ -113,6 +114,7 @@ public class VideoTaskController {
             @RequestParam("gameCategory") String gameCategory,
             @RequestParam("commentaryStyle") CommentaryStyle commentaryStyle,
             @RequestParam("targetDurationSeconds") int targetDurationSeconds,
+            @RequestParam(value = "editingScope", defaultValue = "FULL_VIDEO") EditingScope editingScope,
             @RequestParam("taskBrief") String taskBrief,
             @RequestParam(value = "storyboardReviewEnabled", defaultValue = "false") boolean storyboardReviewEnabled,
             @RequestParam(value = "automaticGenerationEnabled", defaultValue = "true") boolean automaticGenerationEnabled,
@@ -127,6 +129,7 @@ public class VideoTaskController {
                 gameCategory,
                 commentaryStyle,
                 targetDurationSeconds,
+                editingScope,
                 taskBrief,
                 storyboardReviewEnabled,
                 automaticGenerationEnabled,

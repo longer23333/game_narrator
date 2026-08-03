@@ -22,6 +22,7 @@ public record EngineTaskContext(
         String timelinePath,
         Double durationSeconds,
         int targetDurationSeconds,
+        String editingScope,
         String gameCategory,
         String commentaryStyle,
         String taskBrief,

@@ -38,7 +38,7 @@ public class PexelsAssetClient {
     public boolean configured() { return enabled && !apiKey.isBlank(); }
 
     public boolean supports(String assetType) {
-        return configured() && ("VIDEO".equalsIgnoreCase(assetType) || "MEME".equalsIgnoreCase(assetType));
+        return configured() && ("VIDEO".equalsIgnoreCase(assetType) || "IMAGE".equalsIgnoreCase(assetType));
     }
 
     public JsonNode search(AssetSearchRequest request) {

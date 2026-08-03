@@ -53,6 +53,22 @@ class RuleBasedHighlightSelectorTest {
     }
 
     @Test
+    void canCreateARealHighlightsOnlyCutWithinTheRequestedBudget() throws Exception {
+        ObjectMapper mapper = new ObjectMapper();
+        Path input = tempDir.resolve("visual-analysis.json");
+        mapper.writeValue(input.toFile(), Map.of("frames", List.of(
+                frame(1, 10, "探索", 20), frame(2, 45, "战斗", 95), frame(3, 90, "胜利", 90))));
+
+        HighlightSelectionResult result = new RuleBasedHighlightSelector(mapper)
+                .select(input, 120, 40, "HIGHLIGHTS");
+
+        assertThat(result.clips()).hasSize(2);
+        assertThat(result.clips()).extracting(HighlightClip::sourceFrameIndex).containsExactlyInAnyOrder(2, 3);
+        assertThat(result.clips()).allMatch(clip -> clip.durationSeconds() <= 20);
+        assertThat(Files.readString(Path.of(result.manifestPath()))).contains("ranked-highlights-v1", "HIGHLIGHTS");
+    }
+
+    @Test
     void aiContentHintCanPromoteSemanticallyImportantMoment() throws Exception {
         ObjectMapper mapper = new ObjectMapper();
         Path input = tempDir.resolve("visual-analysis.json");

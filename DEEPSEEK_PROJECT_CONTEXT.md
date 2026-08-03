@@ -1,7 +1,7 @@
 # GameNarrator — DeepSeek 项目上下文包
 
-> 自动生成时间：2026-08-03 16:29:18 +08:00
-> 文件数量：224。本文件由 scripts/export-deepseek-context.ps1 生成，请勿手工维护生成区。
+> 自动生成时间：2026-08-03 16:44:30 +08:00
+> 文件数量：226。本文件由 scripts/export-deepseek-context.ps1 生成，请勿手工维护生成区。
 
 ## 给 DeepSeek 的强制工作规则
 
@@ -48,24 +48,24 @@
 - `src/main/java/cn/longer233/gamenarrator/ai/AiUsageService.java`（3835 bytes）
 - `src/main/java/cn/longer233/gamenarrator/asset/AiAssetTagger.java`（8162 bytes）
 - `src/main/java/cn/longer233/gamenarrator/asset/AssetCatalogController.java`（10684 bytes）
-- `src/main/java/cn/longer233/gamenarrator/asset/AssetCatalogService.java`（58938 bytes）
+- `src/main/java/cn/longer233/gamenarrator/asset/AssetCatalogService.java`（60694 bytes）
 - `src/main/java/cn/longer233/gamenarrator/asset/AssetDerivativeRequest.java`（294 bytes）
 - `src/main/java/cn/longer233/gamenarrator/asset/AssetLibraryProperties.java`（5166 bytes）
-- `src/main/java/cn/longer233/gamenarrator/asset/AssetReferenceRequest.java`（827 bytes）
+- `src/main/java/cn/longer233/gamenarrator/asset/AssetReferenceRequest.java`（833 bytes）
 - `src/main/java/cn/longer233/gamenarrator/asset/AssetSearchExpansion.java`（175 bytes）
 - `src/main/java/cn/longer233/gamenarrator/asset/AssetSearchRequest.java`（653 bytes）
 - `src/main/java/cn/longer233/gamenarrator/asset/AssetStateUpdateRequest.java`（120 bytes）
 - `src/main/java/cn/longer233/gamenarrator/asset/AssetTagUpdateRequest.java`（145 bytes）
 - `src/main/java/cn/longer233/gamenarrator/asset/AssetView.java`（742 bytes）
 - `src/main/java/cn/longer233/gamenarrator/asset/BgeAssetSemanticSearch.java`（9343 bytes）
-- `src/main/java/cn/longer233/gamenarrator/asset/BilibiliAssetClient.java`（10525 bytes）
+- `src/main/java/cn/longer233/gamenarrator/asset/BilibiliAssetClient.java`（10379 bytes）
 - `src/main/java/cn/longer233/gamenarrator/asset/ChineseAssetQueryExpander.java`（8243 bytes）
 - `src/main/java/cn/longer233/gamenarrator/asset/ImportedMediaAsset.java`（271 bytes）
-- `src/main/java/cn/longer233/gamenarrator/asset/OpenverseAssetClient.java`（2615 bytes）
-- `src/main/java/cn/longer233/gamenarrator/asset/PexelsAssetClient.java`（4926 bytes）
-- `src/main/java/cn/longer233/gamenarrator/asset/PixabayAssetClient.java`（4501 bytes）
+- `src/main/java/cn/longer233/gamenarrator/asset/OpenverseAssetClient.java`（2682 bytes）
+- `src/main/java/cn/longer233/gamenarrator/asset/PexelsAssetClient.java`（4927 bytes）
+- `src/main/java/cn/longer233/gamenarrator/asset/PixabayAssetClient.java`（4502 bytes）
 - `src/main/java/cn/longer233/gamenarrator/asset/SafeRemoteHttpConnector.java`（2332 bytes）
-- `src/main/java/cn/longer233/gamenarrator/asset/WikimediaAssetClient.java`（5241 bytes）
+- `src/main/java/cn/longer233/gamenarrator/asset/WikimediaAssetClient.java`（5250 bytes）
 - `src/main/java/cn/longer233/gamenarrator/audio/ProceduralSoundEffectLibrary.java`（4912 bytes）
 - `src/main/java/cn/longer233/gamenarrator/audio/SoundCue.java`（192 bytes）
 - `src/main/java/cn/longer233/gamenarrator/common/ApiExceptionHandler.java`（6515 bytes）
@@ -99,7 +99,7 @@
 - `src/main/java/cn/longer233/gamenarrator/GameNarratorApplication.java`（501 bytes）
 - `src/main/java/cn/longer233/gamenarrator/highlight/HighlightClip.java`（315 bytes）
 - `src/main/java/cn/longer233/gamenarrator/highlight/HighlightSelectionResult.java`（177 bytes）
-- `src/main/java/cn/longer233/gamenarrator/highlight/RuleBasedHighlightSelector.java`（5733 bytes）
+- `src/main/java/cn/longer233/gamenarrator/highlight/RuleBasedHighlightSelector.java`（8548 bytes）
 - `src/main/java/cn/longer233/gamenarrator/importer/ContentOriginAssessment.java`（148 bytes）
 - `src/main/java/cn/longer233/gamenarrator/importer/MediaDownloadJobService.java`（3029 bytes）
 - `src/main/java/cn/longer233/gamenarrator/importer/MediaDownloadJobView.java`（219 bytes）
@@ -120,12 +120,12 @@
 - `src/main/java/cn/longer233/gamenarrator/media/MediaMetadata.java`（233 bytes）
 - `src/main/java/cn/longer233/gamenarrator/media/MediaPreparationResult.java`（211 bytes）
 - `src/main/java/cn/longer233/gamenarrator/media/SceneFrame.java`（125 bytes）
-- `src/main/java/cn/longer233/gamenarrator/pipeline/EngineTaskContext.java`（1195 bytes）
+- `src/main/java/cn/longer233/gamenarrator/pipeline/EngineTaskContext.java`（1224 bytes）
 - `src/main/java/cn/longer233/gamenarrator/pipeline/FailedVisionTaskRepair.java`（2063 bytes）
 - `src/main/java/cn/longer233/gamenarrator/pipeline/PendingTaskRecovery.java`（1338 bytes）
 - `src/main/java/cn/longer233/gamenarrator/pipeline/PipelineRunTracker.java`（5104 bytes）
-- `src/main/java/cn/longer233/gamenarrator/pipeline/TaskWorkflowStateService.java`（11475 bytes）
-- `src/main/java/cn/longer233/gamenarrator/pipeline/VideoTaskEngine.java`（17334 bytes）
+- `src/main/java/cn/longer233/gamenarrator/pipeline/TaskWorkflowStateService.java`（11522 bytes）
+- `src/main/java/cn/longer233/gamenarrator/pipeline/VideoTaskEngine.java`（17358 bytes）
 - `src/main/java/cn/longer233/gamenarrator/pipeline/WaitingTaskRetryScheduler.java`（2399 bytes）
 - `src/main/java/cn/longer233/gamenarrator/render/FfmpegVideoRenderer.java`（27352 bytes）
 - `src/main/java/cn/longer233/gamenarrator/render/RenderAssetResolver.java`（2211 bytes）
@@ -149,22 +149,23 @@
 - `src/main/java/cn/longer233/gamenarrator/script/UpdateStoryboardSegmentRequest.java`（470 bytes）
 - `src/main/java/cn/longer233/gamenarrator/storage/VideoStorage.java`（2220 bytes）
 - `src/main/java/cn/longer233/gamenarrator/subtitle/AssSubtitleBuilder.java`（3839 bytes）
-- `src/main/java/cn/longer233/gamenarrator/task/application/CreateVideoTaskCommand.java`（682 bytes）
+- `src/main/java/cn/longer233/gamenarrator/task/application/CreateVideoTaskCommand.java`（785 bytes）
 - `src/main/java/cn/longer233/gamenarrator/task/application/ProjectHistoryService.java`（3967 bytes）
 - `src/main/java/cn/longer233/gamenarrator/task/application/RenameTaskRequest.java`（222 bytes）
 - `src/main/java/cn/longer233/gamenarrator/task/application/StageView.java`（767 bytes）
 - `src/main/java/cn/longer233/gamenarrator/task/application/TaskNotFoundException.java`（239 bytes）
-- `src/main/java/cn/longer233/gamenarrator/task/application/VideoTaskService.java`（10024 bytes）
-- `src/main/java/cn/longer233/gamenarrator/task/application/VideoTaskView.java`（4129 bytes）
+- `src/main/java/cn/longer233/gamenarrator/task/application/VideoTaskService.java`（10089 bytes）
+- `src/main/java/cn/longer233/gamenarrator/task/application/VideoTaskView.java`（4204 bytes）
 - `src/main/java/cn/longer233/gamenarrator/task/domain/CommentaryStyle.java`（128 bytes）
+- `src/main/java/cn/longer233/gamenarrator/task/domain/EditingScope.java`（108 bytes）
 - `src/main/java/cn/longer233/gamenarrator/task/domain/GameEvent.java`（692 bytes）
 - `src/main/java/cn/longer233/gamenarrator/task/domain/ProcessingStage.java`（2920 bytes）
 - `src/main/java/cn/longer233/gamenarrator/task/domain/ProcessingStageType.java`（277 bytes）
 - `src/main/java/cn/longer233/gamenarrator/task/domain/StageStatus.java`（116 bytes）
 - `src/main/java/cn/longer233/gamenarrator/task/domain/TaskStatus.java`（139 bytes）
-- `src/main/java/cn/longer233/gamenarrator/task/domain/VideoTask.java`（20706 bytes）
+- `src/main/java/cn/longer233/gamenarrator/task/domain/VideoTask.java`（21080 bytes）
 - `src/main/java/cn/longer233/gamenarrator/task/repository/VideoTaskRepository.java`（505 bytes）
-- `src/main/java/cn/longer233/gamenarrator/task/web/VideoTaskController.java`（5783 bytes）
+- `src/main/java/cn/longer233/gamenarrator/task/web/VideoTaskController.java`（5978 bytes）
 - `src/main/java/cn/longer233/gamenarrator/timeline/TimelinePlanner.java`（4657 bytes）
 - `src/main/java/cn/longer233/gamenarrator/timeline/TimelinePlanningResult.java`（246 bytes）
 - `src/main/java/cn/longer233/gamenarrator/timeline/TimelineSegment.java`（410 bytes）
@@ -198,6 +199,7 @@
 - `src/main/resources/db/migration/V13__remove_placeholder_asset_labels.sql`（575 bytes）
 - `src/main/resources/db/migration/V14__optional_ai_pipeline.sql`（396 bytes）
 - `src/main/resources/db/migration/V15__automatic_pipeline_mode.sql`（109 bytes）
+- `src/main/resources/db/migration/V16__editing_scope.sql`（92 bytes）
 - `src/main/resources/db/migration/V2__backfill_legacy_project_history.sql`（2646 bytes）
 - `src/main/resources/db/migration/V3__external_asset_catalog.sql`（2371 bytes）
 - `src/main/resources/db/migration/V4__asset_library_organization.sql`（270 bytes）
@@ -220,7 +222,7 @@
 - `src/test/java/cn/longer233/gamenarrator/asset/AiAssetTaggerTest.java`（2432 bytes）
 - `src/test/java/cn/longer233/gamenarrator/asset/AssetCatalogServiceTest.java`（808 bytes）
 - `src/test/java/cn/longer233/gamenarrator/asset/BgeAssetSemanticSearchRankingTest.java`（581 bytes）
-- `src/test/java/cn/longer233/gamenarrator/asset/BilibiliAssetClientTest.java`（6590 bytes）
+- `src/test/java/cn/longer233/gamenarrator/asset/BilibiliAssetClientTest.java`（6341 bytes）
 - `src/test/java/cn/longer233/gamenarrator/asset/ChineseAssetQueryExpanderTest.java`（1742 bytes）
 - `src/test/java/cn/longer233/gamenarrator/asset/SafeRemoteHttpConnectorTest.java`（834 bytes）
 - `src/test/java/cn/longer233/gamenarrator/audio/ProceduralSoundEffectLibraryTest.java`（1211 bytes）
@@ -229,7 +231,7 @@
 - `src/test/java/cn/longer233/gamenarrator/diagnostics/DiagnosticLogServiceTest.java`（906 bytes）
 - `src/test/java/cn/longer233/gamenarrator/effect/SemanticEffectPlannerTest.java`（1359 bytes）
 - `src/test/java/cn/longer233/gamenarrator/export/FfmpegProgressParserTest.java`（993 bytes）
-- `src/test/java/cn/longer233/gamenarrator/highlight/RuleBasedHighlightSelectorTest.java`（3524 bytes）
+- `src/test/java/cn/longer233/gamenarrator/highlight/RuleBasedHighlightSelectorTest.java`（4407 bytes）
 - `src/test/java/cn/longer233/gamenarrator/importer/MediaImportControllerSessionTest.java`（3112 bytes）
 - `src/test/java/cn/longer233/gamenarrator/importer/RemoteThumbnailServiceTest.java`（476 bytes）
 - `src/test/java/cn/longer233/gamenarrator/importer/YtDlpMediaImporterTest.java`（1876 bytes）
@@ -3314,6 +3316,10 @@ public class AssetCatalogService {
     }
 
     public List<AssetView> discover(AssetSearchRequest request) {
+        if ("BILIBILI".equalsIgnoreCase(request.provider())
+                && Set.of("MEME", "IMAGE").contains(request.assetType().toUpperCase(Locale.ROOT))) {
+            throw new IllegalStateException("Bilibili 搜索结果属于视频候选，不能冒充 Meme 或普通图片；请改选视频类型");
+        }
         AssetSearchExpansion expansion = queryExpander.expand(request.query(), request.assetType());
         AssetSearchRequest providerRequest = new AssetSearchRequest(expansion.providerQuery(),
                 request.assetType(), request.pageSize(), request.page(), request.commercialUse(),
@@ -3364,9 +3370,11 @@ public class AssetCatalogService {
                     : "公共素材源连接失败：" + String.join("、", failures));
         }
         scheduleChineseAi(ids);
-        return ids.stream().map(this::find)
+        Map<String, AssetView> unique = new LinkedHashMap<>();
+        ids.stream().map(this::find)
                 .sorted(java.util.Comparator.comparingInt(asset -> providerPriority(asset.provider())))
-                .toList();
+                .forEach(asset -> unique.putIfAbsent(assetDeduplicationKey(asset), asset));
+        return new ArrayList<>(unique.values());
     }
 
     private boolean providerSelected(String requestedProvider, String provider) {
@@ -3398,6 +3406,7 @@ public class AssetCatalogService {
         // never race across provider threads. Transaction context is intentionally not assumed here.
         synchronized (this) {
             for (JsonNode item : response.path("results")) {
+                if ("MEME".equalsIgnoreCase(request.assetType()) && !isMeme(item)) continue;
                 UUID id = upsert(item, request.assetType().toUpperCase(Locale.ROOT), provider);
                 ids.add(id);
                 List<String> sourceTags = new ArrayList<>();
@@ -3411,6 +3420,23 @@ public class AssetCatalogService {
                         "AI", 0.65, null);
             }
         }
+    }
+
+    private boolean isMeme(JsonNode item) {
+        StringBuilder text = new StringBuilder(item.path("title").asText()).append(' ');
+        item.path("tags").forEach(tag -> text.append(tag.isObject() ? tag.path("name").asText() : tag.asText()).append(' '));
+        String value = text.toString().toLowerCase(Locale.ROOT);
+        return java.util.regex.Pattern.compile("(^|\\W)(meme|reaction|sticker|emoji|emoticon|wojak|rage face|image macro)(\\W|$)")
+                .matcher(value).find()
+                || value.contains("表情包") || value.contains("梗图") || value.contains("斗图") || value.contains("表情图");
+    }
+
+    private String assetDeduplicationKey(AssetView asset) {
+        String landing = asset.landingUrl() == null ? "" : asset.landingUrl().replaceFirst("[?#].*$", "").toLowerCase(Locale.ROOT);
+        if (!landing.isBlank()) return "url:" + landing;
+        String title = asset.title() == null ? "" : asset.title().replaceAll("[^\\p{L}\\p{N}]", "").toLowerCase(Locale.ROOT);
+        String creator = asset.creator() == null ? "" : asset.creator().strip().toLowerCase(Locale.ROOT);
+        return "text:" + title + '|' + creator;
     }
 
     private int providerPriority(String provider) {
@@ -3740,7 +3766,7 @@ public class AssetCatalogService {
 
     private String localAssetType(String contentType, String extension) {
         if (contentType.startsWith("video/") || Set.of("mp4","mov","mkv","webm","avi").contains(extension)) return "VIDEO";
-        if (contentType.startsWith("image/") || Set.of("png","jpg","jpeg","gif","webp").contains(extension)) return "MEME";
+        if (contentType.startsWith("image/") || Set.of("png","jpg","jpeg","gif","webp").contains(extension)) return "IMAGE";
         if (contentType.startsWith("audio/") || Set.of("mp3","wav","ogg","m4a","flac","aac").contains(extension)) return "SFX";
         throw new IllegalArgumentException("仅支持视频、图片和音频素材");
     }
@@ -3914,7 +3940,7 @@ public class AssetCatalogService {
         }
         UUID derivedId = UUID.nameUUIDFromBytes((assetId + ":" + mode + ":" + timestamp)
                 .getBytes(StandardCharsets.UTF_8));
-        String derivedType = "FRAME".equals(mode) ? "MEME" : "SFX";
+        String derivedType = "FRAME".equals(mode) ? "IMAGE" : "SFX";
         String title = source.title() + ("FRAME".equals(mode) ? " · 单帧" : " · 音轨");
         jdbc.update("""
                 MERGE INTO external_asset(id,provider,external_id,asset_type,title,creator,landing_url,
@@ -4392,7 +4418,7 @@ public record AssetReferenceRequest(
         String downloadUrl,
         @NotBlank @Size(max = 200) String title,
         @Size(max = 120) String creator,
-        @NotBlank @Pattern(regexp = "SFX|BGM|MEME|VIDEO") String assetType,
+        @NotBlank @Pattern(regexp = "SFX|BGM|IMAGE|MEME|VIDEO") String assetType,
         @NotBlank @Size(max = 40) String licenseCode,
         String licenseUrl,
         @Size(max = 500) String attribution,
@@ -4721,7 +4747,7 @@ public class BilibiliAssetClient {
     }
 
     public boolean supports(String assetType) {
-        return enabled && java.util.Set.of("VIDEO", "MEME", "SFX", "BGM")
+        return enabled && java.util.Set.of("VIDEO", "SFX", "BGM")
                 .contains(String.valueOf(assetType).toUpperCase(java.util.Locale.ROOT));
     }
 
@@ -4761,7 +4787,6 @@ public class BilibiliAssetClient {
             item.put("attribution", candidateLabel(assetType) + "；播放 " + metric(source, "play")
                     + "，弹幕 " + metric(source, "video_review") + "；导入和再创作前必须由用户确认权利");
             ArrayNode tags = item.putArray("tags");
-            if ("MEME".equals(assetType)) tags.add("视频封面候选");
             if ("SFX".equals(assetType) || "BGM".equals(assetType)) tags.add("视频音轨候选");
             String category = clean(source.path("typename").asText());
             if (!category.isBlank()) tags.add(category);
@@ -4862,7 +4887,6 @@ public class BilibiliAssetClient {
 
     private String candidateLabel(String assetType) {
         return switch (assetType) {
-            case "MEME" -> "Bilibili 视频封面图片候选";
             case "SFX", "BGM" -> "Bilibili 视频音轨候选";
             default -> "Bilibili 公开视频候选素材";
         };
@@ -5100,7 +5124,8 @@ public class OpenverseAssetClient {
     }
 
     public JsonNode search(AssetSearchRequest request) {
-        String endpoint = "MEME".equalsIgnoreCase(request.assetType()) ? "/images/" : "/audio/";
+        String endpoint = ("MEME".equalsIgnoreCase(request.assetType()) || "IMAGE".equalsIgnoreCase(request.assetType()))
+                ? "/images/" : "/audio/";
         var uri = UriComponentsBuilder.fromPath(endpoint)
                 .queryParam("q", request.query())
                 .queryParam("page_size", request.pageSize() == null ? 20 : request.pageSize())
@@ -5164,7 +5189,7 @@ public class PexelsAssetClient {
     public boolean configured() { return enabled && !apiKey.isBlank(); }
 
     public boolean supports(String assetType) {
-        return configured() && ("VIDEO".equalsIgnoreCase(assetType) || "MEME".equalsIgnoreCase(assetType));
+        return configured() && ("VIDEO".equalsIgnoreCase(assetType) || "IMAGE".equalsIgnoreCase(assetType));
     }
 
     public JsonNode search(AssetSearchRequest request) {
@@ -5267,7 +5292,7 @@ public class PixabayAssetClient {
     public boolean configured() { return enabled && !apiKey.isBlank(); }
 
     public boolean supports(String assetType) {
-        return configured() && ("VIDEO".equalsIgnoreCase(assetType) || "MEME".equalsIgnoreCase(assetType));
+        return configured() && ("VIDEO".equalsIgnoreCase(assetType) || "IMAGE".equalsIgnoreCase(assetType));
     }
 
     public JsonNode search(AssetSearchRequest request) {
@@ -5464,7 +5489,7 @@ public class WikimediaAssetClient {
         if (mime == null) return false;
         return switch (assetType.toUpperCase(Locale.ROOT)) {
             case "VIDEO" -> mime.startsWith("video/");
-            case "MEME" -> mime.startsWith("image/");
+            case "MEME", "IMAGE" -> mime.startsWith("image/");
             case "SFX", "BGM" -> mime.startsWith("audio/");
             default -> false;
         };
@@ -7585,6 +7610,11 @@ public class RuleBasedHighlightSelector {
 
     public HighlightSelectionResult select(Path visualAnalysisPath, double videoDurationSeconds,
                                            int targetDurationSeconds) {
+        return select(visualAnalysisPath, videoDurationSeconds, targetDurationSeconds, "FULL_VIDEO");
+    }
+
+    public HighlightSelectionResult select(Path visualAnalysisPath, double videoDurationSeconds,
+                                           int targetDurationSeconds, String editingScope) {
         try {
             JsonNode document = objectMapper.readTree(visualAnalysisPath.toFile());
             List<FrameUnderstanding> frames = objectMapper.readerForListOf(FrameUnderstanding.class)
@@ -7594,13 +7624,20 @@ public class RuleBasedHighlightSelector {
                     ? objectMapper.readerForListOf(HighlightHint.class)
                             .readValue(document.path("contentAnalysis").path("highlightHints"))
                     : List.of();
-            List<HighlightClip> clips = buildContinuousStoryClips(frames, videoDurationSeconds, hints);
+            boolean highlightsOnly = "HIGHLIGHTS".equalsIgnoreCase(editingScope);
+            List<HighlightClip> clips = highlightsOnly
+                    ? buildHighlightClips(frames, videoDurationSeconds, targetDurationSeconds, hints)
+                    : buildContinuousStoryClips(frames, videoDurationSeconds, hints);
             double totalSeconds = clips.stream().mapToDouble(HighlightClip::durationSeconds).sum();
-            String summary = "已将完整源视频划分为 %d 个连续叙事片段，共 %.1f 秒；高光仅用于标注重点，不再裁掉普通内容"
-                    .formatted(clips.size(), totalSeconds);
+            String summary = highlightsOnly
+                    ? "已按精彩片段模式选出 %d 个片段，共 %.1f 秒".formatted(clips.size(), totalSeconds)
+                    : "已将完整源视频划分为 %d 个连续叙事片段，共 %.1f 秒；高光仅用于标注重点，不裁掉普通内容"
+                            .formatted(clips.size(), totalSeconds);
             Path output = visualAnalysisPath.getParent().resolve("highlights.json");
             Map<String, Object> result = new LinkedHashMap<>();
-            result.put("strategy", hints.isEmpty() ? "full-story-v1" : "ai-guided-full-story-v1");
+            result.put("strategy", highlightsOnly ? "ranked-highlights-v1"
+                    : (hints.isEmpty() ? "full-story-v1" : "ai-guided-full-story-v1"));
+            result.put("editingScope", highlightsOnly ? "HIGHLIGHTS" : "FULL_VIDEO");
             result.put("contentOverview", document.path("contentAnalysis").path("overview").asText(""));
             result.put("highlightStrategy", document.path("contentAnalysis").path("highlightStrategy").asText(""));
             result.put("aiHintCount", hints.size());
@@ -7617,6 +7654,34 @@ public class RuleBasedHighlightSelector {
         } catch (Exception exception) {
             throw new IllegalStateException("高光筛选失败：" + exception.getMessage(), exception);
         }
+    }
+
+    private List<HighlightClip> buildHighlightClips(List<FrameUnderstanding> frames, double duration,
+                                                     int targetDurationSeconds, List<HighlightHint> hints) {
+        if (!Double.isFinite(duration) || duration <= 0) throw new IllegalStateException("源视频时长无效");
+        double budget = Math.min(duration, Math.max(15, targetDurationSeconds));
+        double clipLength = Math.min(20.0, budget);
+        int wanted = Math.max(1, (int) Math.ceil(budget / clipLength));
+        List<FrameUnderstanding> ranked = frames.stream()
+                .sorted(Comparator.comparingInt((FrameUnderstanding frame) -> finalScore(frame, hints)).reversed())
+                .toList();
+        List<HighlightClip> selected = new ArrayList<>();
+        for (FrameUnderstanding frame : ranked) {
+            if (selected.size() >= wanted) break;
+            double start = Math.max(0, Math.min(duration - clipLength, frame.timestampSeconds() - clipLength / 2));
+            double end = Math.min(duration, start + Math.min(clipLength, budget - selected.size() * clipLength));
+            boolean overlaps = selected.stream().anyMatch(clip -> start < clip.endSeconds() && end > clip.startSeconds());
+            if (!overlaps && end > start) selected.add(new HighlightClip(frame.index(), start, end,
+                    frame.timestampSeconds(), frame.eventType(), frame.description(), frame.excitementScore(),
+                    finalScore(frame, hints)));
+        }
+        if (selected.isEmpty()) {
+            FrameUnderstanding frame = ranked.get(0);
+            double end = Math.min(duration, budget);
+            selected.add(new HighlightClip(frame.index(), 0, end, frame.timestampSeconds(), frame.eventType(),
+                    frame.description(), frame.excitementScore(), finalScore(frame, hints)));
+        }
+        return selected.stream().sorted(Comparator.comparingDouble(HighlightClip::startSeconds)).toList();
     }
 
     private List<HighlightClip> buildContinuousStoryClips(List<FrameUnderstanding> frames, double duration,
@@ -9397,6 +9462,7 @@ public record EngineTaskContext(
         String timelinePath,
         Double durationSeconds,
         int targetDurationSeconds,
+        String editingScope,
         String gameCategory,
         String commentaryStyle,
         String taskBrief,
@@ -9679,6 +9745,7 @@ public class TaskWorkflowStateService {
                 task.getTimelinePath(),
                 task.getDurationSeconds(),
                 task.getTargetDurationSeconds(),
+                task.getEditingScope().name(),
                 task.getGameCategory(),
                 task.getCommentaryStyle().name(),
                 task.getTaskBrief(),
@@ -10093,7 +10160,7 @@ public class VideoTaskEngine {
                 stateService.markHighlightSelectionRunning(taskId);
                 HighlightSelectionResult result = highlightSelector.select(
                         Path.of(context.visualAnalysisPath()), context.durationSeconds(),
-                        context.targetDurationSeconds());
+                        context.targetDurationSeconds(), context.editingScope());
                 stateService.markHighlightSelectionCompleted(taskId, result);
                 log.info("ENGINE_STAGE_COMPLETED taskId={} stage=HIGHLIGHT_SELECTION clipCount={}",
                         taskId, result.clips().size());
@@ -12125,6 +12192,7 @@ public class AssSubtitleBuilder {
 package cn.longer233.gamenarrator.task.application;
 
 import cn.longer233.gamenarrator.task.domain.CommentaryStyle;
+import cn.longer233.gamenarrator.task.domain.EditingScope;
 import jakarta.validation.constraints.*;
 
 public record CreateVideoTaskCommand(
@@ -12132,6 +12200,7 @@ public record CreateVideoTaskCommand(
         @NotBlank @Size(max = 40) String gameCategory,
         @NotNull CommentaryStyle commentaryStyle,
         @Min(15) @Max(3600) int targetDurationSeconds,
+        @NotNull EditingScope editingScope,
         @NotBlank @Size(max = 500) String taskBrief,
         boolean storyboardReviewEnabled,
         boolean automaticGenerationEnabled,
@@ -12363,6 +12432,7 @@ public class VideoTaskService {
                 command.storyboardReviewEnabled()
         );
         VideoTask savedTask = repository.saveAndFlush(task);
+        savedTask.configureEditingScope(command.editingScope());
         savedTask.configureAiOptions(command.automaticGenerationEnabled(), command.cloudVisionEnabled(), command.aiScriptEnabled(),
                 command.aiVoiceEnabled(), command.autoAssetsEnabled());
         repository.saveAndFlush(savedTask);
@@ -12542,6 +12612,7 @@ public record VideoTaskView(
         String gameCategory,
         CommentaryStyle commentaryStyle,
         int targetDurationSeconds,
+        EditingScope editingScope,
         String taskBrief,
         TaskStatus status,
         Double durationSeconds,
@@ -12594,6 +12665,7 @@ public record VideoTaskView(
                 task.getGameCategory(),
                 task.getCommentaryStyle(),
                 task.getTargetDurationSeconds(),
+                task.getEditingScope(),
                 task.getTaskBrief(),
                 task.getStatus(),
                 task.getDurationSeconds(),
@@ -12652,6 +12724,17 @@ public enum CommentaryStyle {
     PASSIONATE,
     HUMOROUS,
     ANIME_THEATER
+}
+``
+
+### FILE: src/main/java/cn/longer233/gamenarrator/task/domain/EditingScope.java
+
+``java
+package cn.longer233.gamenarrator.task.domain;
+
+public enum EditingScope {
+    FULL_VIDEO,
+    HIGHLIGHTS
 }
 ``
 
@@ -12867,6 +12950,10 @@ public class VideoTask {
     @Column(nullable = false)
     private int targetDurationSeconds;
 
+    @Enumerated(EnumType.STRING)
+    @Column(nullable = false, length = 24)
+    private EditingScope editingScope = EditingScope.FULL_VIDEO;
+
     @Column(nullable = false, length = 500)
     private String taskBrief;
 
@@ -13016,11 +13103,16 @@ public class VideoTask {
         this.autoAssetsEnabled = autoAssetsEnabled;
     }
 
+    public void configureEditingScope(EditingScope editingScope) {
+        this.editingScope = editingScope == null ? EditingScope.FULL_VIDEO : editingScope;
+    }
+
     public UUID getId() { return id; }
     public String getName() { return name; }
     public String getGameCategory() { return gameCategory; }
     public CommentaryStyle getCommentaryStyle() { return commentaryStyle; }
     public int getTargetDurationSeconds() { return targetDurationSeconds; }
+    public EditingScope getEditingScope() { return editingScope; }
     public String getTaskBrief() { return taskBrief; }
     public String getSourceVideoPath() { return sourceVideoPath; }
     public TaskStatus getStatus() { return status; }
@@ -13409,6 +13501,7 @@ package cn.longer233.gamenarrator.task.web;
 
 import cn.longer233.gamenarrator.task.application.*;
 import cn.longer233.gamenarrator.task.domain.CommentaryStyle;
+import cn.longer233.gamenarrator.task.domain.EditingScope;
 import cn.longer233.gamenarrator.effect.EffectSettingsRequest;
 import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
@@ -13520,6 +13613,7 @@ public class VideoTaskController {
             @RequestParam("gameCategory") String gameCategory,
             @RequestParam("commentaryStyle") CommentaryStyle commentaryStyle,
             @RequestParam("targetDurationSeconds") int targetDurationSeconds,
+            @RequestParam(value = "editingScope", defaultValue = "FULL_VIDEO") EditingScope editingScope,
             @RequestParam("taskBrief") String taskBrief,
             @RequestParam(value = "storyboardReviewEnabled", defaultValue = "false") boolean storyboardReviewEnabled,
             @RequestParam(value = "automaticGenerationEnabled", defaultValue = "true") boolean automaticGenerationEnabled,
@@ -13534,6 +13628,7 @@ public class VideoTaskController {
                 gameCategory,
                 commentaryStyle,
                 targetDurationSeconds,
+                editingScope,
                 taskBrief,
                 storyboardReviewEnabled,
                 automaticGenerationEnabled,
@@ -15740,6 +15835,12 @@ ALTER TABLE video_tasks ADD COLUMN IF NOT EXISTS auto_assets_enabled BOOLEAN NOT
 
 ``sql
 ALTER TABLE video_tasks ADD COLUMN IF NOT EXISTS automatic_generation_enabled BOOLEAN NOT NULL DEFAULT TRUE;
+``
+
+### FILE: src/main/resources/db/migration/V16__editing_scope.sql
+
+``sql
+ALTER TABLE video_tasks ADD COLUMN editing_scope VARCHAR(24) NOT NULL DEFAULT 'FULL_VIDEO';
 ``
 
 ### FILE: src/main/resources/db/migration/V2__backfill_legacy_project_history.sql
@@ -19027,6 +19128,7 @@ import java.nio.charset.StandardCharsets;
 import java.util.concurrent.atomic.AtomicReference;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
@@ -19087,16 +19189,12 @@ class BilibiliAssetClientTest {
 
         BilibiliAssetClient client = client();
         assertTrue(client.supports("VIDEO"));
-        assertTrue(client.supports("MEME"));
+        assertFalse(client.supports("MEME"));
         assertTrue(client.supports("SFX"));
         assertTrue(client.supports("BGM"));
-        JsonNode image = client.search(new AssetSearchRequest("funny", "MEME", 12, 1,
-                true, true, "BILIBILI", "RELEVANCE")).path("results").get(0);
         JsonNode audio = client.search(new AssetSearchRequest("funny", "SFX", 12, 1,
                 true, true, "BILIBILI", "RELEVANCE")).path("results").get(0);
 
-        assertEquals("BV1MEDIA:MEME", image.path("id").asText());
-        assertEquals("视频封面候选", image.path("tags").get(0).asText());
         assertEquals("BV1MEDIA:SFX", audio.path("id").asText());
         assertEquals("视频音轨候选", audio.path("tags").get(0).asText());
     }
@@ -19489,6 +19587,22 @@ class RuleBasedHighlightSelectorTest {
 
         assertThat(result.clips()).hasSize(2);
         assertThat(result.clips()).extracting(HighlightClip::durationSeconds).containsExactly(30.0, 10.0);
+    }
+
+    @Test
+    void canCreateARealHighlightsOnlyCutWithinTheRequestedBudget() throws Exception {
+        ObjectMapper mapper = new ObjectMapper();
+        Path input = tempDir.resolve("visual-analysis.json");
+        mapper.writeValue(input.toFile(), Map.of("frames", List.of(
+                frame(1, 10, "探索", 20), frame(2, 45, "战斗", 95), frame(3, 90, "胜利", 90))));
+
+        HighlightSelectionResult result = new RuleBasedHighlightSelector(mapper)
+                .select(input, 120, 40, "HIGHLIGHTS");
+
+        assertThat(result.clips()).hasSize(2);
+        assertThat(result.clips()).extracting(HighlightClip::sourceFrameIndex).containsExactlyInAnyOrder(2, 3);
+        assertThat(result.clips()).allMatch(clip -> clip.durationSeconds() <= 20);
+        assertThat(Files.readString(Path.of(result.manifestPath()))).contains("ranked-highlights-v1", "HIGHLIGHTS");
     }
 
     @Test

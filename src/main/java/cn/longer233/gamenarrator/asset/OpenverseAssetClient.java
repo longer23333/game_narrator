@@ -33,7 +33,8 @@ public class OpenverseAssetClient {
     }
 
     public JsonNode search(AssetSearchRequest request) {
-        String endpoint = "MEME".equalsIgnoreCase(request.assetType()) ? "/images/" : "/audio/";
+        String endpoint = ("MEME".equalsIgnoreCase(request.assetType()) || "IMAGE".equalsIgnoreCase(request.assetType()))
+                ? "/images/" : "/audio/";
         var uri = UriComponentsBuilder.fromPath(endpoint)
                 .queryParam("q", request.query())
                 .queryParam("page_size", request.pageSize() == null ? 20 : request.pageSize())

@@ -89,7 +89,7 @@ public class WikimediaAssetClient {
         if (mime == null) return false;
         return switch (assetType.toUpperCase(Locale.ROOT)) {
             case "VIDEO" -> mime.startsWith("video/");
-            case "MEME" -> mime.startsWith("image/");
+            case "MEME", "IMAGE" -> mime.startsWith("image/");
             case "SFX", "BGM" -> mime.startsWith("audio/");
             default -> false;
         };

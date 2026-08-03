@@ -53,6 +53,7 @@ public class TaskWorkflowStateService {
                 task.getTimelinePath(),
                 task.getDurationSeconds(),
                 task.getTargetDurationSeconds(),
+                task.getEditingScope().name(),
                 task.getGameCategory(),
                 task.getCommentaryStyle().name(),
                 task.getTaskBrief(),

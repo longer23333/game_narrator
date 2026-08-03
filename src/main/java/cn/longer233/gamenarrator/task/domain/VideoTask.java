@@ -26,6 +26,10 @@ public class VideoTask {
     @Column(nullable = false)
     private int targetDurationSeconds;
 
+    @Enumerated(EnumType.STRING)
+    @Column(nullable = false, length = 24)
+    private EditingScope editingScope = EditingScope.FULL_VIDEO;
+
     @Column(nullable = false, length = 500)
     private String taskBrief;
 
@@ -175,11 +179,16 @@ public class VideoTask {
         this.autoAssetsEnabled = autoAssetsEnabled;
     }
 
+    public void configureEditingScope(EditingScope editingScope) {
+        this.editingScope = editingScope == null ? EditingScope.FULL_VIDEO : editingScope;
+    }
+
     public UUID getId() { return id; }
     public String getName() { return name; }
     public String getGameCategory() { return gameCategory; }
     public CommentaryStyle getCommentaryStyle() { return commentaryStyle; }
     public int getTargetDurationSeconds() { return targetDurationSeconds; }
+    public EditingScope getEditingScope() { return editingScope; }
     public String getTaskBrief() { return taskBrief; }
     public String getSourceVideoPath() { return sourceVideoPath; }
     public TaskStatus getStatus() { return status; }

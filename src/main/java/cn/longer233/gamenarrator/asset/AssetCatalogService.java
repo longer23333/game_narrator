@@ -94,6 +94,10 @@ public class AssetCatalogService {
     }
 
     public List<AssetView> discover(AssetSearchRequest request) {
+        if ("BILIBILI".equalsIgnoreCase(request.provider())
+                && Set.of("MEME", "IMAGE").contains(request.assetType().toUpperCase(Locale.ROOT))) {
+            throw new IllegalStateException("Bilibili 搜索结果属于视频候选，不能冒充 Meme 或普通图片；请改选视频类型");
+        }
         AssetSearchExpansion expansion = queryExpander.expand(request.query(), request.assetType());
         AssetSearchRequest providerRequest = new AssetSearchRequest(expansion.providerQuery(),
                 request.assetType(), request.pageSize(), request.page(), request.commercialUse(),
@@ -144,9 +148,11 @@ public class AssetCatalogService {
                     : "公共素材源连接失败：" + String.join("、", failures));
         }
         scheduleChineseAi(ids);
-        return ids.stream().map(this::find)
+        Map<String, AssetView> unique = new LinkedHashMap<>();
+        ids.stream().map(this::find)
                 .sorted(java.util.Comparator.comparingInt(asset -> providerPriority(asset.provider())))
-                .toList();
+                .forEach(asset -> unique.putIfAbsent(assetDeduplicationKey(asset), asset));
+        return new ArrayList<>(unique.values());
     }
 
     private boolean providerSelected(String requestedProvider, String provider) {
@@ -178,6 +184,7 @@ public class AssetCatalogService {
         // never race across provider threads. Transaction context is intentionally not assumed here.
         synchronized (this) {
             for (JsonNode item : response.path("results")) {
+                if ("MEME".equalsIgnoreCase(request.assetType()) && !isMeme(item)) continue;
                 UUID id = upsert(item, request.assetType().toUpperCase(Locale.ROOT), provider);
                 ids.add(id);
                 List<String> sourceTags = new ArrayList<>();
@@ -191,6 +198,23 @@ public class AssetCatalogService {
                         "AI", 0.65, null);
             }
         }
+    }
+
+    private boolean isMeme(JsonNode item) {
+        StringBuilder text = new StringBuilder(item.path("title").asText()).append(' ');
+        item.path("tags").forEach(tag -> text.append(tag.isObject() ? tag.path("name").asText() : tag.asText()).append(' '));
+        String value = text.toString().toLowerCase(Locale.ROOT);
+        return java.util.regex.Pattern.compile("(^|\\W)(meme|reaction|sticker|emoji|emoticon|wojak|rage face|image macro)(\\W|$)")
+                .matcher(value).find()
+                || value.contains("表情包") || value.contains("梗图") || value.contains("斗图") || value.contains("表情图");
+    }
+
+    private String assetDeduplicationKey(AssetView asset) {
+        String landing = asset.landingUrl() == null ? "" : asset.landingUrl().replaceFirst("[?#].*$", "").toLowerCase(Locale.ROOT);
+        if (!landing.isBlank()) return "url:" + landing;
+        String title = asset.title() == null ? "" : asset.title().replaceAll("[^\\p{L}\\p{N}]", "").toLowerCase(Locale.ROOT);
+        String creator = asset.creator() == null ? "" : asset.creator().strip().toLowerCase(Locale.ROOT);
+        return "text:" + title + '|' + creator;
     }
 
     private int providerPriority(String provider) {
@@ -520,7 +544,7 @@ public class AssetCatalogService {
 
     private String localAssetType(String contentType, String extension) {
         if (contentType.startsWith("video/") || Set.of("mp4","mov","mkv","webm","avi").contains(extension)) return "VIDEO";
-        if (contentType.startsWith("image/") || Set.of("png","jpg","jpeg","gif","webp").contains(extension)) return "MEME";
+        if (contentType.startsWith("image/") || Set.of("png","jpg","jpeg","gif","webp").contains(extension)) return "IMAGE";
         if (contentType.startsWith("audio/") || Set.of("mp3","wav","ogg","m4a","flac","aac").contains(extension)) return "SFX";
         throw new IllegalArgumentException("仅支持视频、图片和音频素材");
     }
@@ -694,7 +718,7 @@ public class AssetCatalogService {
         }
         UUID derivedId = UUID.nameUUIDFromBytes((assetId + ":" + mode + ":" + timestamp)
                 .getBytes(StandardCharsets.UTF_8));
-        String derivedType = "FRAME".equals(mode) ? "MEME" : "SFX";
+        String derivedType = "FRAME".equals(mode) ? "IMAGE" : "SFX";
         String title = source.title() + ("FRAME".equals(mode) ? " · 单帧" : " · 音轨");
         jdbc.update("""
                 MERGE INTO external_asset(id,provider,external_id,asset_type,title,creator,landing_url,

@@ -66,6 +66,7 @@ public class VideoTaskService {
                 command.storyboardReviewEnabled()
         );
         VideoTask savedTask = repository.saveAndFlush(task);
+        savedTask.configureEditingScope(command.editingScope());
         savedTask.configureAiOptions(command.automaticGenerationEnabled(), command.cloudVisionEnabled(), command.aiScriptEnabled(),
                 command.aiVoiceEnabled(), command.autoAssetsEnabled());
         repository.saveAndFlush(savedTask);
