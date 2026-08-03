@@ -1,7 +1,7 @@
 # GameNarrator — DeepSeek 项目上下文包
 
-> 自动生成时间：2026-08-03 15:29:20 +08:00
-> 文件数量：223。本文件由 scripts/export-deepseek-context.ps1 生成，请勿手工维护生成区。
+> 自动生成时间：2026-08-03 16:22:05 +08:00
+> 文件数量：224。本文件由 scripts/export-deepseek-context.ps1 生成，请勿手工维护生成区。
 
 ## 给 DeepSeek 的强制工作规则
 
@@ -32,14 +32,15 @@
 - `docs/MANUAL_EDITOR_PARITY.md`（2553 bytes）
 - `docs/PERFORMANCE_PORTABILITY_AUDIT.md`（3962 bytes）
 - `docs/REQUIREMENTS.md`（21389 bytes）
-- `scripts/build-windows-release.ps1`（9044 bytes）
+- `scripts/build-windows-release.ps1`（11841 bytes）
 - `scripts/export-deepseek-context.ps1`（5568 bytes）
 - `scripts/generate-app-icon.ps1`（1832 bytes）
 - `scripts/setup-media-importer.ps1`（1038 bytes）
 - `scripts/setup-piper.ps1`（1322 bytes）
 - `scripts/setup-vision-model.ps1`（931 bytes）
 - `scripts/setup-whisper.ps1`（1323 bytes）
-- `scripts/test-windows-clean-install.ps1`（3045 bytes）
+- `scripts/test-windows-clean-install.ps1`（3068 bytes）
+- `scripts/verify-before-push.ps1`（1116 bytes）
 - `src/main/java/cn/longer233/gamenarrator/ai/AdaptiveAiChatClient.java`（12927 bytes）
 - `src/main/java/cn/longer233/gamenarrator/ai/AiContentRejectedException.java`（187 bytes）
 - `src/main/java/cn/longer233/gamenarrator/ai/AiSettingsController.java`（1967 bytes）
@@ -239,7 +240,7 @@
 - `src/test/java/cn/longer233/gamenarrator/subtitle/AssSubtitleBuilderTest.java`（771 bytes）
 - `src/test/java/cn/longer233/gamenarrator/task/DatabaseMigrationTest.java`（4131 bytes）
 - `src/test/java/cn/longer233/gamenarrator/task/domain/VideoTaskTest.java`（4026 bytes）
-- `src/test/java/cn/longer233/gamenarrator/task/web/VideoTaskControllerTest.java`（12065 bytes）
+- `src/test/java/cn/longer233/gamenarrator/task/web/VideoTaskControllerTest.java`（12121 bytes）
 - `src/test/java/cn/longer233/gamenarrator/timeline/TimelinePlannerTest.java`（2442 bytes）
 - `src/test/java/cn/longer233/gamenarrator/timeline/TimelineValidatorTest.java`（1515 bytes）
 - `src/test/java/cn/longer233/gamenarrator/vision/ImagePerceptualHashTest.java`（1287 bytes）
@@ -1830,9 +1831,11 @@ storage/tasks/{taskId}/
 ``powershell
 param(
   [switch]$InstallInnoSetup,
-  [switch]$SkipDownloads
+  [switch]$SkipDownloads,
+  [string]$LocalDependenciesRoot = $env:GAME_NARRATOR_BUILD_DEPS_ROOT
 )
 $ErrorActionPreference = 'Stop'
+$OutputEncoding = [Console]::OutputEncoding = [Text.UTF8Encoding]::new()
 $projectRoot = (Resolve-Path (Join-Path $PSScriptRoot '..')).Path
 $releaseRoot = Join-Path $projectRoot 'release'
 $staging = Join-Path $releaseRoot 'staging'
@@ -1848,6 +1851,13 @@ function Reset-OwnedDirectory([string]$Path, [string]$RequiredParent) {
 }
 function Download([string]$Url, [string]$Destination) {
   if (Test-Path -LiteralPath $Destination) { return }
+  if (-not [string]::IsNullOrWhiteSpace($LocalDependenciesRoot)) {
+    $externalCacheFile = Join-Path ([IO.Path]::GetFullPath($LocalDependenciesRoot)) (Join-Path 'release\cache' (Split-Path -Leaf $Destination))
+    if (Test-Path -LiteralPath $externalCacheFile -PathType Leaf) {
+      Copy-Item -LiteralPath $externalCacheFile -Destination $Destination
+      return
+    }
+  }
   if ($SkipDownloads) { throw "Missing cached dependency: $Destination" }
   Write-Host "Downloading $Url"
   $partial = "$Destination.part"
@@ -1860,6 +1870,13 @@ function Require-File([string]$Path, [string]$Hint) {
 }
 function Download-GitHubText([string]$Repository, [string]$RemotePath, [string]$Destination) {
   if (Test-Path -LiteralPath $Destination) { return }
+  if (-not [string]::IsNullOrWhiteSpace($LocalDependenciesRoot)) {
+    $externalCacheFile = Join-Path ([IO.Path]::GetFullPath($LocalDependenciesRoot)) (Join-Path 'release\cache' (Split-Path -Leaf $Destination))
+    if (Test-Path -LiteralPath $externalCacheFile -PathType Leaf) {
+      Copy-Item -LiteralPath $externalCacheFile -Destination $Destination
+      return
+    }
+  }
   if ($SkipDownloads) { throw "Missing cached license: $Destination" }
   $response = Invoke-RestMethod -Headers @{'User-Agent'='GameNarrator-ReleaseBuilder'} -Uri "https://api.github.com/repos/$Repository/contents/$RemotePath"
   [IO.File]::WriteAllBytes($Destination, [Convert]::FromBase64String(($response.content -replace '\s','')))
@@ -1869,6 +1886,32 @@ function Copy-Directory([string]$Source, [string]$Destination) {
   New-Item -ItemType Directory -Path $Destination -Force | Out-Null
   Copy-Item -Path (Join-Path $Source '*') -Destination $Destination -Recurse -Force
 }
+function Resolve-LocalDependency([string]$RelativePath) {
+  $projectPath = Join-Path $projectRoot $RelativePath
+  if (Test-Path -LiteralPath $projectPath) { return $projectPath }
+  if (-not [string]::IsNullOrWhiteSpace($LocalDependenciesRoot)) {
+    $externalPath = Join-Path ([IO.Path]::GetFullPath($LocalDependenciesRoot)) $RelativePath
+    if (Test-Path -LiteralPath $externalPath) { return $externalPath }
+  }
+  throw "Missing local dependency '$RelativePath'. Run the matching setup script or set GAME_NARRATOR_BUILD_DEPS_ROOT."
+}
+function Copy-WhisperRuntime([string]$Source, [string]$Destination) {
+  $releaseSource = Join-Path $Source 'Release'
+  $releaseDestination = Join-Path $Destination 'Release'
+  Require-File (Join-Path $releaseSource 'whisper-cli.exe') 'Whisper CLI is missing'
+  New-Item -ItemType Directory -Path $releaseDestination -Force | Out-Null
+  Copy-Item -LiteralPath (Join-Path $releaseSource 'whisper-cli.exe') -Destination $releaseDestination
+  Get-ChildItem -LiteralPath $releaseSource -Filter '*.dll' -File | Where-Object {
+    $_.Name -notin @('parakeet.dll', 'SDL2.dll')
+  } | Copy-Item -Destination $releaseDestination
+}
+
+if ([string]::IsNullOrWhiteSpace($LocalDependenciesRoot)) {
+  $siblingDependencies = Join-Path (Split-Path -Parent $projectRoot) 'game_narrator-local-20260803'
+  if (Test-Path -LiteralPath $siblingDependencies -PathType Container) {
+    $LocalDependenciesRoot = $siblingDependencies
+  }
+}
 
 New-Item -ItemType Directory -Path $cache -Force | Out-Null
 Reset-OwnedDirectory $staging $releaseRoot
@@ -1876,6 +1919,11 @@ if (-not (Test-Path -LiteralPath $dist)) { New-Item -ItemType Directory -Path $d
 
 Write-Host 'Building frontend and Spring Boot application...'
 $npm = (Get-Command npm.cmd -ErrorAction Stop).Source
+$frontendRoot = Join-Path $projectRoot 'frontend'
+Require-File (Join-Path $frontendRoot 'package-lock.json') 'Frontend lock file is required for reproducible builds'
+Write-Host 'Restoring locked frontend dependencies...'
+& $npm --prefix $frontendRoot ci --no-audit --no-fund
+if ($LASTEXITCODE -ne 0) { throw 'Frontend dependency restore failed' }
 & $npm --prefix (Join-Path $projectRoot 'frontend') run build
 if ($LASTEXITCODE -ne 0) { throw 'Frontend build failed' }
 & (Join-Path $projectRoot 'mvnw.cmd') -DskipTests package
@@ -1913,14 +1961,19 @@ if (-not $ffmpegExe) { throw 'Downloaded FFmpeg archive has no ffmpeg.exe' }
 Copy-Directory $ffmpegExe.Directory.FullName (Join-Path $staging 'tools\ffmpeg\bin')
 
 $ollamaVersion = 'v0.32.5'
+$whisperSource = Resolve-LocalDependency 'tools\whisper'
+$piperSource = Resolve-LocalDependency 'tools\piper'
+$ytDlpSource = Resolve-LocalDependency 'tools\yt-dlp\yt-dlp.exe'
+$whisperModelSource = Resolve-LocalDependency 'models\ggml-base.bin'
+$piperModelSource = Resolve-LocalDependency 'models\piper'
 
-Copy-Directory (Join-Path $projectRoot 'tools\whisper') (Join-Path $staging 'tools\whisper')
-Copy-Directory (Join-Path $projectRoot 'tools\piper') (Join-Path $staging 'tools\piper')
+Copy-WhisperRuntime $whisperSource (Join-Path $staging 'tools\whisper')
+Copy-Directory $piperSource (Join-Path $staging 'tools\piper')
 New-Item -ItemType Directory -Path (Join-Path $staging 'tools\yt-dlp') -Force | Out-Null
-Copy-Item -LiteralPath (Join-Path $projectRoot 'tools\yt-dlp\yt-dlp.exe') -Destination (Join-Path $staging 'tools\yt-dlp\yt-dlp.exe')
+Copy-Item -LiteralPath $ytDlpSource -Destination (Join-Path $staging 'tools\yt-dlp\yt-dlp.exe')
 New-Item -ItemType Directory -Path (Join-Path $staging 'models\whisper'),(Join-Path $staging 'models\piper') -Force | Out-Null
-Copy-Item -LiteralPath (Join-Path $projectRoot 'models\ggml-base.bin') -Destination (Join-Path $staging 'models\whisper\ggml-base.bin')
-Copy-Item -Path (Join-Path $projectRoot 'models\piper\*') -Destination (Join-Path $staging 'models\piper') -Force
+Copy-Item -LiteralPath $whisperModelSource -Destination (Join-Path $staging 'models\whisper\ggml-base.bin')
+Copy-Item -Path (Join-Path $piperModelSource '*') -Destination (Join-Path $staging 'models\piper') -Force
 
 $licenseDir = Join-Path $staging 'licenses'
 New-Item -ItemType Directory -Path $licenseDir | Out-Null
@@ -1938,9 +1991,9 @@ $lock = [ordered]@{
     @{name='ffmpeg'; source='BtbN/FFmpeg-Builds latest'; sha256=(Get-FileHash $ffmpegZip -Algorithm SHA256).Hash; archiveBytes=(Get-Item $ffmpegZip).Length},
     @{name='ollama'; version=$ollamaVersion; delivery='first-run-resumable-download'; sha256='7c941ae084569d298062d29f8139163a3187c76dbca0479c70d085e78fd8c7bb'},
     @{name='webview2-evergreen-bootstrapper'; source='Microsoft'; sha256=(Get-FileHash $webViewBootstrapper -Algorithm SHA256).Hash},
-    @{name='whisper-model-base'; sha256=(Get-FileHash (Join-Path $projectRoot 'models\ggml-base.bin') -Algorithm SHA256).Hash},
-    @{name='piper-huayan-medium'; sha256=(Get-FileHash (Join-Path $projectRoot 'models\piper\zh_CN-huayan-medium.onnx') -Algorithm SHA256).Hash},
-    @{name='yt-dlp'; sha256=(Get-FileHash (Join-Path $projectRoot 'tools\yt-dlp\yt-dlp.exe') -Algorithm SHA256).Hash}
+    @{name='whisper-model-base'; sha256=(Get-FileHash $whisperModelSource -Algorithm SHA256).Hash},
+    @{name='piper-huayan-medium'; sha256=(Get-FileHash (Join-Path $piperModelSource 'zh_CN-huayan-medium.onnx') -Algorithm SHA256).Hash},
+    @{name='yt-dlp'; sha256=(Get-FileHash $ytDlpSource -Algorithm SHA256).Hash}
   )
 }
 $lock | ConvertTo-Json -Depth 6 | Set-Content -LiteralPath (Join-Path $staging 'dependency-lock.json') -Encoding utf8
@@ -2262,6 +2315,7 @@ Write-Host "Model: $modelPath"
 param([string]$InstallRoot, [int]$Port = 18081, [switch]$BackendSmoke)
 $ErrorActionPreference='Stop'
 if (-not $InstallRoot) { $InstallRoot = Join-Path $env:LOCALAPPDATA 'Programs\GameNarrator' }
+$InstallRoot = [IO.Path]::GetFullPath($InstallRoot)
 $required = @(
   'GameNarrator.exe','runtime\bin\java.exe','app\game-narrator.jar','tools\ffmpeg\bin\ffmpeg.exe',
   'tools\whisper\Release\whisper-cli.exe','tools\piper\piper\piper.exe','tools\yt-dlp\yt-dlp.exe',
@@ -2285,22 +2339,20 @@ if ($BackendSmoke) {
   $env:OLLAMA_BASE_URL='http://127.0.0.1:19999'
   $env:SERVER_PORT=$Port.ToString()
   $stdout=Join-Path $smokeData 'stdout.log'; $stderr=Join-Path $smokeData 'stderr.log'
-  $startInfo=[Diagnostics.ProcessStartInfo]::new()
-  $startInfo.FileName=Join-Path $InstallRoot 'runtime\bin\java.exe'
-  $startInfo.WorkingDirectory=$InstallRoot
-  $startInfo.UseShellExecute=$false
-  $startInfo.CreateNoWindow=$true
   $jarPath=Join-Path $InstallRoot 'app\game-narrator.jar'
-  $startInfo.Arguments='-Dfile.encoding=UTF-8 -jar "' + $jarPath + '" --spring.profiles.active=release'
-  $backend=[Diagnostics.Process]::Start($startInfo)
+  $backend=Start-Process -FilePath (Join-Path $InstallRoot 'runtime\bin\java.exe') `
+    -ArgumentList @('-Dfile.encoding=UTF-8','-jar',$jarPath,'--spring.profiles.active=release') `
+    -WorkingDirectory $InstallRoot -RedirectStandardOutput $stdout -RedirectStandardError $stderr `
+    -PassThru -WindowStyle Hidden
   try {
     $health=$null
     for($attempt=0;$attempt -lt 120;$attempt++) {
+      if ($backend.HasExited) { break }
       try { $health=Invoke-RestMethod "http://127.0.0.1:$Port/api/debug/health" -TimeoutSec 2; break } catch { Start-Sleep -Milliseconds 500 }
     }
     if(-not $health) {
-      if(Test-Path $stdout){Get-Content $stdout -Tail 60}
-      if(Test-Path $stderr){Get-Content $stderr -Tail 60}
+      if(Test-Path $stdout){Get-Content $stdout -Tail 100}
+      if(Test-Path $stderr){Get-Content $stderr -Tail 100}
       throw 'Packaged backend health check timed out'
     }
     if(-not $health.ffmpegAvailable -or -not $health.whisperAvailable -or -not $health.mediaImporterAvailable) {
@@ -2313,6 +2365,39 @@ if ($BackendSmoke) {
 }
 Write-Host 'Launch GameNarrator.exe and verify the first-run model download, then run:'
 Write-Host "Invoke-RestMethod http://127.0.0.1:$Port/api/debug/health"
+``
+
+### FILE: scripts/verify-before-push.ps1
+
+``powershell
+$ErrorActionPreference = 'Stop'
+$OutputEncoding = [Console]::OutputEncoding = [Text.UTF8Encoding]::new()
+$projectRoot = (Resolve-Path (Join-Path $PSScriptRoot '..')).Path
+$npm = (Get-Command npm.cmd -ErrorAction Stop).Source
+$frontendRoot = Join-Path $projectRoot 'frontend'
+
+Write-Host 'Restoring exact frontend dependencies...'
+& $npm --prefix $frontendRoot ci --no-audit --no-fund
+if ($LASTEXITCODE -ne 0) { throw 'npm ci failed' }
+
+Write-Host 'Building frontend...'
+& $npm --prefix $frontendRoot run build
+if ($LASTEXITCODE -ne 0) { throw 'Frontend build failed' }
+
+Write-Host 'Checking browser JavaScript syntax...'
+$javascriptFiles = @(
+  'app.js', 'asset-library.js', 'diagnostics.js', 'export.js', 'media-importer.js'
+)
+foreach ($name in $javascriptFiles) {
+  & node --check (Join-Path $frontendRoot "public\$name")
+  if ($LASTEXITCODE -ne 0) { throw "JavaScript syntax check failed: $name" }
+}
+
+Write-Host 'Running backend tests...'
+& (Join-Path $projectRoot 'mvnw.cmd') test
+if ($LASTEXITCODE -ne 0) { throw 'Backend tests failed' }
+
+Write-Host 'VERIFY SUCCESS: this revision is ready to commit and push.'
 ``
 
 ### FILE: src/main/java/cn/longer233/gamenarrator/ai/AdaptiveAiChatClient.java
@@ -19941,7 +20026,8 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 
 @SpringBootTest(properties = {
         "spring.datasource.url=jdbc:h2:mem:controller-test",
-        "game-narrator.storage-root=./target/test-storage"
+        "game-narrator.storage-root=./target/test-storage",
+        "game-narrator.media-import.yt-dlp=./mvnw.cmd"
 })
 @AutoConfigureMockMvc
 class VideoTaskControllerTest {

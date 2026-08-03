@@ -1,8 +1,10 @@
 param(
   [switch]$InstallInnoSetup,
-  [switch]$SkipDownloads
+  [switch]$SkipDownloads,
+  [string]$LocalDependenciesRoot = $env:GAME_NARRATOR_BUILD_DEPS_ROOT
 )
 $ErrorActionPreference = 'Stop'
+$OutputEncoding = [Console]::OutputEncoding = [Text.UTF8Encoding]::new()
 $projectRoot = (Resolve-Path (Join-Path $PSScriptRoot '..')).Path
 $releaseRoot = Join-Path $projectRoot 'release'
 $staging = Join-Path $releaseRoot 'staging'
@@ -18,6 +20,13 @@ function Reset-OwnedDirectory([string]$Path, [string]$RequiredParent) {
 }
 function Download([string]$Url, [string]$Destination) {
   if (Test-Path -LiteralPath $Destination) { return }
+  if (-not [string]::IsNullOrWhiteSpace($LocalDependenciesRoot)) {
+    $externalCacheFile = Join-Path ([IO.Path]::GetFullPath($LocalDependenciesRoot)) (Join-Path 'release\cache' (Split-Path -Leaf $Destination))
+    if (Test-Path -LiteralPath $externalCacheFile -PathType Leaf) {
+      Copy-Item -LiteralPath $externalCacheFile -Destination $Destination
+      return
+    }
+  }
   if ($SkipDownloads) { throw "Missing cached dependency: $Destination" }
   Write-Host "Downloading $Url"
   $partial = "$Destination.part"
@@ -30,6 +39,13 @@ function Require-File([string]$Path, [string]$Hint) {
 }
 function Download-GitHubText([string]$Repository, [string]$RemotePath, [string]$Destination) {
   if (Test-Path -LiteralPath $Destination) { return }
+  if (-not [string]::IsNullOrWhiteSpace($LocalDependenciesRoot)) {
+    $externalCacheFile = Join-Path ([IO.Path]::GetFullPath($LocalDependenciesRoot)) (Join-Path 'release\cache' (Split-Path -Leaf $Destination))
+    if (Test-Path -LiteralPath $externalCacheFile -PathType Leaf) {
+      Copy-Item -LiteralPath $externalCacheFile -Destination $Destination
+      return
+    }
+  }
   if ($SkipDownloads) { throw "Missing cached license: $Destination" }
   $response = Invoke-RestMethod -Headers @{'User-Agent'='GameNarrator-ReleaseBuilder'} -Uri "https://api.github.com/repos/$Repository/contents/$RemotePath"
   [IO.File]::WriteAllBytes($Destination, [Convert]::FromBase64String(($response.content -replace '\s','')))
@@ -39,6 +55,32 @@ function Copy-Directory([string]$Source, [string]$Destination) {
   New-Item -ItemType Directory -Path $Destination -Force | Out-Null
   Copy-Item -Path (Join-Path $Source '*') -Destination $Destination -Recurse -Force
 }
+function Resolve-LocalDependency([string]$RelativePath) {
+  $projectPath = Join-Path $projectRoot $RelativePath
+  if (Test-Path -LiteralPath $projectPath) { return $projectPath }
+  if (-not [string]::IsNullOrWhiteSpace($LocalDependenciesRoot)) {
+    $externalPath = Join-Path ([IO.Path]::GetFullPath($LocalDependenciesRoot)) $RelativePath
+    if (Test-Path -LiteralPath $externalPath) { return $externalPath }
+  }
+  throw "Missing local dependency '$RelativePath'. Run the matching setup script or set GAME_NARRATOR_BUILD_DEPS_ROOT."
+}
+function Copy-WhisperRuntime([string]$Source, [string]$Destination) {
+  $releaseSource = Join-Path $Source 'Release'
+  $releaseDestination = Join-Path $Destination 'Release'
+  Require-File (Join-Path $releaseSource 'whisper-cli.exe') 'Whisper CLI is missing'
+  New-Item -ItemType Directory -Path $releaseDestination -Force | Out-Null
+  Copy-Item -LiteralPath (Join-Path $releaseSource 'whisper-cli.exe') -Destination $releaseDestination
+  Get-ChildItem -LiteralPath $releaseSource -Filter '*.dll' -File | Where-Object {
+    $_.Name -notin @('parakeet.dll', 'SDL2.dll')
+  } | Copy-Item -Destination $releaseDestination
+}
+
+if ([string]::IsNullOrWhiteSpace($LocalDependenciesRoot)) {
+  $siblingDependencies = Join-Path (Split-Path -Parent $projectRoot) 'game_narrator-local-20260803'
+  if (Test-Path -LiteralPath $siblingDependencies -PathType Container) {
+    $LocalDependenciesRoot = $siblingDependencies
+  }
+}
 
 New-Item -ItemType Directory -Path $cache -Force | Out-Null
 Reset-OwnedDirectory $staging $releaseRoot
@@ -46,6 +88,11 @@ if (-not (Test-Path -LiteralPath $dist)) { New-Item -ItemType Directory -Path $d
 
 Write-Host 'Building frontend and Spring Boot application...'
 $npm = (Get-Command npm.cmd -ErrorAction Stop).Source
+$frontendRoot = Join-Path $projectRoot 'frontend'
+Require-File (Join-Path $frontendRoot 'package-lock.json') 'Frontend lock file is required for reproducible builds'
+Write-Host 'Restoring locked frontend dependencies...'
+& $npm --prefix $frontendRoot ci --no-audit --no-fund
+if ($LASTEXITCODE -ne 0) { throw 'Frontend dependency restore failed' }
 & $npm --prefix (Join-Path $projectRoot 'frontend') run build
 if ($LASTEXITCODE -ne 0) { throw 'Frontend build failed' }
 & (Join-Path $projectRoot 'mvnw.cmd') -DskipTests package
@@ -83,14 +130,19 @@ if (-not $ffmpegExe) { throw 'Downloaded FFmpeg archive has no ffmpeg.exe' }
 Copy-Directory $ffmpegExe.Directory.FullName (Join-Path $staging 'tools\ffmpeg\bin')
 
 $ollamaVersion = 'v0.32.5'
+$whisperSource = Resolve-LocalDependency 'tools\whisper'
+$piperSource = Resolve-LocalDependency 'tools\piper'
+$ytDlpSource = Resolve-LocalDependency 'tools\yt-dlp\yt-dlp.exe'
+$whisperModelSource = Resolve-LocalDependency 'models\ggml-base.bin'
+$piperModelSource = Resolve-LocalDependency 'models\piper'
 
-Copy-Directory (Join-Path $projectRoot 'tools\whisper') (Join-Path $staging 'tools\whisper')
-Copy-Directory (Join-Path $projectRoot 'tools\piper') (Join-Path $staging 'tools\piper')
+Copy-WhisperRuntime $whisperSource (Join-Path $staging 'tools\whisper')
+Copy-Directory $piperSource (Join-Path $staging 'tools\piper')
 New-Item -ItemType Directory -Path (Join-Path $staging 'tools\yt-dlp') -Force | Out-Null
-Copy-Item -LiteralPath (Join-Path $projectRoot 'tools\yt-dlp\yt-dlp.exe') -Destination (Join-Path $staging 'tools\yt-dlp\yt-dlp.exe')
+Copy-Item -LiteralPath $ytDlpSource -Destination (Join-Path $staging 'tools\yt-dlp\yt-dlp.exe')
 New-Item -ItemType Directory -Path (Join-Path $staging 'models\whisper'),(Join-Path $staging 'models\piper') -Force | Out-Null
-Copy-Item -LiteralPath (Join-Path $projectRoot 'models\ggml-base.bin') -Destination (Join-Path $staging 'models\whisper\ggml-base.bin')
-Copy-Item -Path (Join-Path $projectRoot 'models\piper\*') -Destination (Join-Path $staging 'models\piper') -Force
+Copy-Item -LiteralPath $whisperModelSource -Destination (Join-Path $staging 'models\whisper\ggml-base.bin')
+Copy-Item -Path (Join-Path $piperModelSource '*') -Destination (Join-Path $staging 'models\piper') -Force
 
 $licenseDir = Join-Path $staging 'licenses'
 New-Item -ItemType Directory -Path $licenseDir | Out-Null
@@ -108,9 +160,9 @@ $lock = [ordered]@{
     @{name='ffmpeg'; source='BtbN/FFmpeg-Builds latest'; sha256=(Get-FileHash $ffmpegZip -Algorithm SHA256).Hash; archiveBytes=(Get-Item $ffmpegZip).Length},
     @{name='ollama'; version=$ollamaVersion; delivery='first-run-resumable-download'; sha256='7c941ae084569d298062d29f8139163a3187c76dbca0479c70d085e78fd8c7bb'},
     @{name='webview2-evergreen-bootstrapper'; source='Microsoft'; sha256=(Get-FileHash $webViewBootstrapper -Algorithm SHA256).Hash},
-    @{name='whisper-model-base'; sha256=(Get-FileHash (Join-Path $projectRoot 'models\ggml-base.bin') -Algorithm SHA256).Hash},
-    @{name='piper-huayan-medium'; sha256=(Get-FileHash (Join-Path $projectRoot 'models\piper\zh_CN-huayan-medium.onnx') -Algorithm SHA256).Hash},
-    @{name='yt-dlp'; sha256=(Get-FileHash (Join-Path $projectRoot 'tools\yt-dlp\yt-dlp.exe') -Algorithm SHA256).Hash}
+    @{name='whisper-model-base'; sha256=(Get-FileHash $whisperModelSource -Algorithm SHA256).Hash},
+    @{name='piper-huayan-medium'; sha256=(Get-FileHash (Join-Path $piperModelSource 'zh_CN-huayan-medium.onnx') -Algorithm SHA256).Hash},
+    @{name='yt-dlp'; sha256=(Get-FileHash $ytDlpSource -Algorithm SHA256).Hash}
   )
 }
 $lock | ConvertTo-Json -Depth 6 | Set-Content -LiteralPath (Join-Path $staging 'dependency-lock.json') -Encoding utf8

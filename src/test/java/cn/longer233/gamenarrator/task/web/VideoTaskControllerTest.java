@@ -25,7 +25,8 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 
 @SpringBootTest(properties = {
         "spring.datasource.url=jdbc:h2:mem:controller-test",
-        "game-narrator.storage-root=./target/test-storage"
+        "game-narrator.storage-root=./target/test-storage",
+        "game-narrator.media-import.yt-dlp=./mvnw.cmd"
 })
 @AutoConfigureMockMvc
 class VideoTaskControllerTest {

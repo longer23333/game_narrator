@@ -6,6 +6,20 @@
 .\scripts\build-windows-release.ps1 -InstallInnoSetup
 ```
 
+构建会先执行 `npm ci`，因此删除或移动 `frontend/node_modules` 后仍可重复构建。Whisper、
+Piper、yt-dlp 和模型默认可放在项目的忽略目录中；也可通过环境变量指向项目外依赖目录：
+
+```powershell
+$env:GAME_NARRATOR_BUILD_DEPS_ROOT = 'G:\shiping\game_narrator-local-20260803'
+.\scripts\build-windows-release.ps1 -SkipDownloads
+```
+
+每次提交前建议执行：
+
+```powershell
+.\scripts\verify-before-push.ps1
+```
+
 脚本构建前后端、精简 Java 运行时、自包含桌面启动器，下载并锁定 FFmpeg，复制
 Whisper、Piper、yt-dlp 及基础语音模型，最后生成 `dist/GameNarrator-Setup.exe`。
 

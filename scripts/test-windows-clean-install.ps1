@@ -1,6 +1,7 @@
 param([string]$InstallRoot, [int]$Port = 18081, [switch]$BackendSmoke)
 $ErrorActionPreference='Stop'
 if (-not $InstallRoot) { $InstallRoot = Join-Path $env:LOCALAPPDATA 'Programs\GameNarrator' }
+$InstallRoot = [IO.Path]::GetFullPath($InstallRoot)
 $required = @(
   'GameNarrator.exe','runtime\bin\java.exe','app\game-narrator.jar','tools\ffmpeg\bin\ffmpeg.exe',
   'tools\whisper\Release\whisper-cli.exe','tools\piper\piper\piper.exe','tools\yt-dlp\yt-dlp.exe',
@@ -24,22 +25,20 @@ if ($BackendSmoke) {
   $env:OLLAMA_BASE_URL='http://127.0.0.1:19999'
   $env:SERVER_PORT=$Port.ToString()
   $stdout=Join-Path $smokeData 'stdout.log'; $stderr=Join-Path $smokeData 'stderr.log'
-  $startInfo=[Diagnostics.ProcessStartInfo]::new()
-  $startInfo.FileName=Join-Path $InstallRoot 'runtime\bin\java.exe'
-  $startInfo.WorkingDirectory=$InstallRoot
-  $startInfo.UseShellExecute=$false
-  $startInfo.CreateNoWindow=$true
   $jarPath=Join-Path $InstallRoot 'app\game-narrator.jar'
-  $startInfo.Arguments='-Dfile.encoding=UTF-8 -jar "' + $jarPath + '" --spring.profiles.active=release'
-  $backend=[Diagnostics.Process]::Start($startInfo)
+  $backend=Start-Process -FilePath (Join-Path $InstallRoot 'runtime\bin\java.exe') `
+    -ArgumentList @('-Dfile.encoding=UTF-8','-jar',$jarPath,'--spring.profiles.active=release') `
+    -WorkingDirectory $InstallRoot -RedirectStandardOutput $stdout -RedirectStandardError $stderr `
+    -PassThru -WindowStyle Hidden
   try {
     $health=$null
     for($attempt=0;$attempt -lt 120;$attempt++) {
+      if ($backend.HasExited) { break }
       try { $health=Invoke-RestMethod "http://127.0.0.1:$Port/api/debug/health" -TimeoutSec 2; break } catch { Start-Sleep -Milliseconds 500 }
     }
     if(-not $health) {
-      if(Test-Path $stdout){Get-Content $stdout -Tail 60}
-      if(Test-Path $stderr){Get-Content $stderr -Tail 60}
+      if(Test-Path $stdout){Get-Content $stdout -Tail 100}
+      if(Test-Path $stderr){Get-Content $stderr -Tail 100}
       throw 'Packaged backend health check timed out'
     }
     if(-not $health.ffmpegAvailable -or -not $health.whisperAvailable -or -not $health.mediaImporterAvailable) {
