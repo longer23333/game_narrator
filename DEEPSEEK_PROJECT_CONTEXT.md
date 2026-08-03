@@ -1,6 +1,6 @@
 # GameNarrator — DeepSeek 项目上下文包
 
-> 自动生成时间：2026-08-03 16:44:30 +08:00
+> 自动生成时间：2026-08-03 16:50:11 +08:00
 > 文件数量：226。本文件由 scripts/export-deepseek-context.ps1 生成，请勿手工维护生成区。
 
 ## 给 DeepSeek 的强制工作规则
@@ -208,13 +208,13 @@
 - `src/main/resources/db/migration/V7__storyboard_review.sql`（207 bytes）
 - `src/main/resources/db/migration/V8__video_segment_semantic_index.sql`（634 bytes）
 - `src/main/resources/db/migration/V9__video_segment_image_hash.sql`（152 bytes）
-- `src/main/resources/static/app.css`（34493 bytes）
-- `src/main/resources/static/app.js`（67349 bytes）
-- `src/main/resources/static/asset-library.js`（39119 bytes）
+- `src/main/resources/static/app.css`（41878 bytes）
+- `src/main/resources/static/app.js`（69423 bytes）
+- `src/main/resources/static/asset-library.js`（39551 bytes）
 - `src/main/resources/static/diagnostics.js`（1673 bytes）
 - `src/main/resources/static/export.js`（9227 bytes）
 - `src/main/resources/static/extension-install.html`（3410 bytes）
-- `src/main/resources/static/index.html`（21825 bytes）
+- `src/main/resources/static/index.html`（22875 bytes）
 - `src/main/resources/static/media-importer.css`（4256 bytes）
 - `src/main/resources/static/media-importer.js`（22107 bytes）
 - `src/test/java/cn/longer233/gamenarrator/ai/AdaptiveAiChatClientTest.java`（1119 bytes）
@@ -16092,6 +16092,11 @@ CREATE INDEX idx_segment_embedding_image_hash ON video_segment_embedding(image_h
 .asset-audio-thumbnail{display:grid;width:100%;height:118px;place-items:center;padding:14px;border:0;border-radius:0;background:linear-gradient(135deg,#0b1830,#162849);color:#dce7f8}.asset-audio-thumbnail span{font-size:32px;color:#45d7ea}.asset-audio-thumbnail b{font-size:12px}.asset-audio-thumbnail small{color:#8290ad;font-size:9px}.asset-online-preview audio{display:block;width:100%;margin:38px 0 12px}
 .asset-video-thumbnail{position:relative;display:block;width:100%;height:180px;padding:0;overflow:hidden;border:0;border-radius:0;background:#050811;color:#fff}.asset-video-thumbnail img{width:100%;height:100%;object-fit:cover}.asset-video-thumbnail>span{display:grid;height:100%;place-items:center;color:#71809d}.asset-video-thumbnail b{position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);padding:9px 13px;border-radius:99px;background:rgba(5,10,20,.82);font-size:11px}.asset-online-preview{position:fixed;z-index:1000;inset:0;display:grid;place-items:center;padding:24px;background:rgba(2,5,13,.86)}.asset-online-preview>div{position:relative;width:min(900px,96vw);padding:16px;border:1px solid #35405e;border-radius:16px;background:#080e1c}.asset-online-preview video{display:block;width:100%;max-height:75vh;background:#000}.asset-online-preview button{position:absolute;z-index:1;right:24px;top:24px;width:36px;height:36px;padding:0;border-radius:50%;background:rgba(5,10,20,.86);font-size:24px}.asset-online-preview small{display:block;margin-top:10px;color:#91a1bd}
 .task-card-rename{padding:5px 9px;border:1px solid rgba(69,215,234,.35);border-radius:7px;background:rgba(31,88,112,.32);color:#73e4ee;font-size:10px}.voice-controls{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:10px}.voice-controls label{margin:0}.voice-controls output{color:#45d7ea;font-size:11px}@media(max-width:650px){.voice-controls{grid-template-columns:1fr}}
+.active-task{margin-top:22px;padding-top:18px;border-top:1px solid #293047}.active-task>small{display:block;margin-bottom:9px;color:#45d7ea;font-weight:800;letter-spacing:.14em}.active-task .empty{padding:14px}.active-task-card{display:grid;width:100%;gap:10px;text-align:left;background:#0a1020;border:1px solid #31405f}.active-task-card>span:first-child{display:flex;justify-content:space-between;gap:12px}.active-task-card i,.active-task-card em{font-style:normal;color:#8fa1c2;font-size:11px}.active-task-card b{font-size:12px}.active-progress{height:8px;overflow:hidden;border-radius:99px;background:#212b43}.active-progress i{display:block;height:100%;background:linear-gradient(90deg,#38e09d,#45d7ea);transition:width .3s ease}
+
+/* Memphis / neo-pop brutalist workspace */
+[hidden]{display:none!important}:root{--ink:#111;--paper:#fff8e8;--pink:#ff4fa3;--yellow:#ffe548;--blue:#36c9ff;--violet:#8b5cf6;--green:#71e66c}body{color:var(--ink);background-color:var(--paper);background-image:radial-gradient(var(--ink) 1.5px,transparent 1.5px);background-size:22px 22px}.aurora{opacity:1;background:linear-gradient(135deg,rgba(255,79,163,.14) 25%,transparent 25%) 0 0/54px 54px,linear-gradient(315deg,rgba(54,201,255,.14) 25%,transparent 25%) 0 0/54px 54px}.topbar{height:auto;min-height:86px;gap:20px;flex-wrap:wrap;padding:14px max(3vw,22px);color:var(--ink);background:var(--yellow);border:3px solid var(--ink);border-width:0 0 4px;box-shadow:0 7px 0 var(--pink);z-index:20}.brand{padding:9px 13px;color:var(--ink);background:#fff;border:3px solid var(--ink);box-shadow:5px 5px 0 var(--ink);transform:rotate(-1deg)}.brand span{color:var(--pink)}.primary-nav{display:flex;align-items:center;gap:8px;flex:1;justify-content:center;overflow:auto;padding:4px}.primary-nav a{white-space:nowrap;padding:9px 13px;color:var(--ink);background:#fff;text-decoration:none;font-size:13px;font-weight:900;border:3px solid var(--ink);box-shadow:3px 3px 0 var(--ink);transition:transform .12s,box-shadow .12s}.primary-nav a:nth-child(2n){background:var(--blue)}.primary-nav a:nth-child(3n){background:var(--pink)}.primary-nav a.active,.primary-nav a:hover{transform:translate(3px,3px) rotate(-1deg);box-shadow:0 0 0 var(--ink)}.topbar-actions{display:flex;gap:8px;align-items:center}.system-state{color:var(--ink);font-weight:800}.system-state i{background:var(--green);box-shadow:none;border:2px solid var(--ink)}main{max-width:1440px;padding:58px max(4vw,24px) 90px}.hero{max-width:none;position:relative;padding:clamp(28px,5vw,70px);background:var(--blue);border:4px solid var(--ink);box-shadow:12px 12px 0 var(--ink);overflow:hidden}.hero:before,.hero:after{content:"";position:absolute;border:4px solid var(--ink);pointer-events:none}.hero:before{width:100px;height:100px;border-radius:50%;right:7%;top:18%;background:var(--pink)}.hero:after{width:72px;height:72px;right:20%;bottom:-25px;background:var(--yellow);transform:rotate(24deg)}.hero h1{position:relative;z-index:1;max-width:900px;color:var(--ink);font-weight:1000;letter-spacing:-.045em;text-transform:uppercase}.hero h1 span{color:#fff;background:none;text-shadow:4px 4px 0 var(--ink)}.lead{position:relative;z-index:1;color:var(--ink);font-weight:700}.metrics div{color:var(--ink);background:#fff;border:3px solid var(--ink);border-radius:0;box-shadow:5px 5px 0 var(--ink)}.metrics div:nth-child(2){background:var(--yellow)}.metrics div:nth-child(3){background:var(--pink)}.metrics span{color:var(--ink)}.workspace{margin-top:38px}.create-panel,.task-panel,.ai-settings-panel,.segment-search-panel,.media-importer,.asset-library,.roadmap{position:relative;color:var(--ink);background:#fff;border:4px solid var(--ink);border-radius:0;box-shadow:10px 10px 0 var(--ink)}.create-panel{background:#fff}.task-panel{background:#ffd8ea}.ai-settings-panel,.segment-search-panel,.media-importer,.asset-library,.roadmap{margin-top:0;padding:clamp(22px,4vw,50px)}.ai-settings-panel{background:#dcd3ff}.segment-search-panel{background:#c9f3ff}.media-importer{background:#fff1a6}.asset-library{background:#fff}.roadmap{margin-top:38px;background:#cdf8c9}.section-title small,.eyebrow{color:var(--ink);font-weight:1000}.section-title h2{font-size:clamp(25px,3vw,42px);font-weight:1000;text-transform:uppercase}.step{color:var(--ink);background:var(--yellow);border:3px solid var(--ink);padding:2px 9px;box-shadow:4px 4px 0 var(--ink);transform:rotate(3deg)}label{color:var(--ink);font-weight:800}input,select,textarea{color:var(--ink);background:#fff;border:3px solid var(--ink);border-radius:0;box-shadow:3px 3px 0 var(--ink)}input:focus,select:focus,textarea:focus{border-color:var(--ink);box-shadow:5px 5px 0 var(--pink)}button,.diagnostics-open{color:var(--ink);background:var(--pink);border:3px solid var(--ink);border-radius:0;box-shadow:4px 4px 0 var(--ink);transition:transform .12s,box-shadow .12s}button:hover{transform:translate(3px,3px);box-shadow:1px 1px 0 var(--ink)}button:disabled{filter:grayscale(.6);transform:none}.icon-button{color:var(--ink);background:var(--yellow)}.dropzone,.effect-toggle,.auto-auth-state,.asset-library-note,.asset-library-guide,.domestic-source-directory,.local-asset-dropzone{color:var(--ink);background:#fff;border:3px solid var(--ink);border-radius:0}.task-list{max-height:720px}.task-card{color:var(--ink);background:#fff;border:3px solid var(--ink);border-radius:0;box-shadow:4px 4px 0 var(--ink)}.task-card:hover,.task-card:focus-visible{border-color:var(--ink);box-shadow:7px 7px 0 var(--blue);transform:translate(-2px,-2px)}.task-card p,.stage-caption,.media-meta,.empty{color:#333}.tags i{color:var(--ink);background:var(--yellow);border:2px solid var(--ink)}.active-task{border-top:4px solid var(--ink)}.active-task>small{color:var(--ink)}.active-task-card{color:var(--ink);background:var(--green);border:3px solid var(--ink)}.active-task-card i,.active-task-card em{color:var(--ink)}.active-progress{background:#fff;border:2px solid var(--ink)}.active-progress i{background:var(--violet)}.asset-list article,.segment-search-results article,.roadmap-list article{border:3px solid var(--ink)!important;border-radius:0!important;box-shadow:5px 5px 0 var(--ink);background:#fff!important;color:var(--ink)!important}.dialog-shell,.storyboard-workspace-shell{color:var(--ink);background:var(--paper);border:4px solid var(--ink);border-radius:0;box-shadow:12px 12px 0 var(--pink)}.dialog-header{background:var(--yellow);border-bottom:4px solid var(--ink)}.detail-block{background:#fff!important;color:var(--ink)!important;border:3px solid var(--ink)!important;border-radius:0!important;box-shadow:5px 5px 0 var(--ink)}pre{color:var(--ink)!important;background:#fff!important;border:3px solid var(--ink)!important}.storyboard-workspace-dialog{background:rgba(17,17,17,.75)}
+@media(max-width:1050px){.topbar{align-items:flex-start}.primary-nav{order:3;flex-basis:100%;justify-content:flex-start}.topbar-actions{margin-left:auto}.workspace{grid-template-columns:1fr}.hero:before{right:-35px}}@media(max-width:650px){main{padding:34px 14px 70px}.topbar{padding:12px}.brand{font-size:13px}.topbar-actions .system-state{display:none}.primary-nav a{padding:8px 10px}.hero{padding:25px 20px}.hero h1{font-size:38px}.hero:before,.hero:after{opacity:.45}.create-panel,.task-panel,.ai-settings-panel,.segment-search-panel,.media-importer,.asset-library,.roadmap{padding:20px;box-shadow:6px 6px 0 var(--ink)}}
 .content-origin-assessment{margin:10px 0;padding:11px;border:1px solid #33405f;border-radius:10px;background:#0c1428}.content-origin-assessment strong,.content-origin-assessment span{display:inline-block;margin-right:10px}.content-origin-assessment strong{color:#45d7ea}.content-origin-assessment span,.content-origin-assessment small{color:#8492ad;font-size:10px}.content-origin-assessment p{margin:7px 0;font-size:11px}
 .storyboard-review-option{margin-bottom:.35rem}.storyboard-review-hint{display:block;margin:-.2rem 0 1rem;color:var(--muted)}
 .storyboard-editor-head{display:flex;justify-content:space-between;gap:1rem;align-items:flex-start;margin-bottom:1rem}.storyboard-editor-head h3{margin:.2rem 0}.storyboard-editor-head p{margin:.25rem 0;color:var(--muted)}
@@ -16123,6 +16128,32 @@ CREATE INDEX idx_segment_embedding_image_hash ON video_segment_embedding(image_h
 
 ``javascript
 const taskList = document.querySelector('#task-list');
+const activeTaskPanel = document.querySelector('#active-task');
+const validViews = new Set(['studio', 'search', 'import', 'assets', 'settings']);
+
+function activateView(view, updateHistory = false) {
+  const selected = validViews.has(view) ? view : 'studio';
+  document.body.dataset.view = selected;
+  document.querySelectorAll('[data-page]').forEach(section => { section.hidden = section.dataset.page !== selected; });
+  document.querySelectorAll('[data-view-link]').forEach(link => {
+    const active = link.dataset.viewLink === selected;
+    link.classList.toggle('active', active);
+    if (active) link.setAttribute('aria-current', 'page'); else link.removeAttribute('aria-current');
+  });
+  const labels = {studio:'剪辑任务', search:'镜头搜索', import:'平台导入', assets:'素材库', settings:'AI 与系统设置'};
+  document.title = `${labels[selected]} · GameNarrator`;
+  if (updateHistory) history.pushState({view:selected}, '', `/?view=${selected}`);
+  window.scrollTo({top:0, behavior:'instant'});
+}
+
+activateView(new URLSearchParams(location.search).get('view'));
+document.querySelector('.primary-nav')?.addEventListener('click', event => {
+  const link = event.target.closest('[data-view-link]');
+  if (!link) return;
+  event.preventDefault();
+  activateView(link.dataset.viewLink, true);
+});
+window.addEventListener('popstate', () => activateView(new URLSearchParams(location.search).get('view')));
 const aiSettingsForm = document.querySelector('#ai-settings-form');
 const aiKeyState = document.querySelector('#ai-key-state');
 const aiProviderPresets = {
@@ -16253,11 +16284,8 @@ function scheduleTaskPoll(delayMs) {
 function taskCardHtml(task) {
   return `
       <div class="task-head"><strong>${escapeHtml(task.name)}</strong><div class="task-card-actions"><span>${task.status}</span><button type="button" class="task-card-rename" data-rename-list-task="${task.id}" data-task-name="${escapeHtml(task.name)}">重命名</button><button type="button" class="task-card-delete" data-delete-list-task="${task.id}" data-task-name="${escapeHtml(task.name)}" aria-label="删除任务 ${escapeHtml(task.name)}">删除</button></div></div>
-      <p>${escapeHtml(task.taskBrief)}</p>
-      <div class="tags"><i>${escapeHtml(task.gameCategory)}</i><i>${escapeHtml(task.commentaryStyle)}</i><i>${task.targetDurationSeconds}s</i></div>
-      <div class="media-meta"${task.durationSeconds ? '' : ' hidden'}>${task.durationSeconds ? escapeHtml(mediaMetadataText(task)) : ''}</div>
+      <div class="tags"><i>${escapeHtml(task.gameCategory)}</i><i>${task.editingScope === 'HIGHLIGHTS' ? '精彩片段' : '完整视频'}</i><i>${escapeHtml(formatDate(task.createdAt))}</i></div>
       ${task.failureReason ? `<div class="task-error">${escapeHtml(task.failureReason)}</div>` : ''}
-      ${task.transcriptText ? `<details class="transcript"><summary>查看语音转写</summary><p>${escapeHtml(task.transcriptText)}</p></details>` : ''}
       <div class="stage-line">${task.stages.map(stage =>
         `<span class="${stage.status.toLowerCase()}" title="${escapeHtml(stageTitle(stage))}"></span>`
       ).join('')}</div>
@@ -16276,18 +16304,21 @@ function createTaskCard(task) {
 }
 
 function reconcileTaskCards(tasks) {
-  if (!tasks.length) {
+  const active = tasks.find(task => !['COMPLETED', 'FAILED'].includes(task.status));
+  renderActiveTask(active);
+  const recentTasks = tasks.filter(task => task.id !== active?.id).slice(0, 6);
+  if (!recentTasks.length) {
     const empty = taskList.querySelector('.empty');
     if (empty && taskList.children.length === 1) empty.textContent = '还没有任务，上传一段游戏录像开始实验。';
     else taskList.innerHTML = '<p class="empty">还没有任务，上传一段游戏录像开始实验。</p>';
     return;
   }
   taskList.querySelector('.empty')?.remove();
-  const incomingIds = new Set(tasks.map(task => task.id));
+  const incomingIds = new Set(recentTasks.map(task => task.id));
   taskList.querySelectorAll('.task-card').forEach(card => {
     if (!incomingIds.has(card.dataset.taskId)) card.remove();
   });
-  tasks.forEach(task => {
+  recentTasks.forEach(task => {
     let card = Array.from(taskList.children).find(item => item.dataset?.taskId === task.id);
     if (card) updateTaskCard(card, task);
     else card = createTaskCard(task);
@@ -16295,38 +16326,42 @@ function reconcileTaskCards(tasks) {
   });
 }
 
+function renderActiveTask(task) {
+  if (!task) {
+    activeTaskPanel.innerHTML = '<p class="empty">当前没有正在进行的任务</p>';
+    return;
+  }
+  const running = task.stages.find(stage => stage.status === 'RUNNING');
+  const progress = running?.progress ?? (task.status === 'WAITING_REVIEW' ? 100 : 0);
+  activeTaskPanel.innerHTML = `<small>CURRENT TASK</small><button type="button" class="active-task-card" data-open-active-task="${task.id}">
+    <span><strong>${escapeHtml(task.name)}</strong><i>${escapeHtml(task.status)}</i></span>
+    <b>${escapeHtml(currentStageText(task))}</b>
+    <span class="active-progress"><i style="width:${Math.max(0, Math.min(100, progress))}%"></i></span>
+    ${running?.type === 'VOICE_GENERATION' ? `<em>${escapeHtml(voiceProgressText(task, running))}</em>` : ''}
+  </button>`;
+}
+
+function voiceProgressText(task, stage) {
+  const total = Math.max(1, task.generatedScriptSegmentCount || 1);
+  const completed = Math.min(total, Math.max(0, Math.floor((Math.max(10, stage.progress) - 10) / 85 * total)));
+  return `配音进度：约 ${completed} / ${total} 段 · ${stage.progress}%（逐段生成后自动进入合成）`;
+}
+
 function updateTaskCard(card, task) {
   card.setAttribute('aria-label', `查看任务 ${task.name} 的详情`);
   card.querySelector('.task-head strong').textContent = task.name;
   card.querySelectorAll('[data-task-name]').forEach(button => { button.dataset.taskName = task.name; });
   card.querySelector('.task-head span').textContent = task.status;
-  const metadata = card.querySelector('.media-meta');
-  metadata.hidden = !task.durationSeconds;
-  metadata.textContent = task.durationSeconds ? mediaMetadataText(task) : '';
-
   let error = card.querySelector('.task-error');
   if (task.failureReason) {
     if (!error) {
       error = document.createElement('div');
       error.className = 'task-error';
-      metadata.insertAdjacentElement('afterend', error);
+      card.querySelector('.tags').insertAdjacentElement('afterend', error);
     }
     error.textContent = task.failureReason;
   } else {
     error?.remove();
-  }
-
-  let transcript = card.querySelector('details.transcript');
-  if (!task.transcriptText) {
-    transcript?.remove();
-  } else if (transcript) {
-    transcript.querySelector('p').textContent = task.transcriptText;
-  } else {
-    transcript = document.createElement('details');
-    transcript.className = 'transcript';
-    transcript.innerHTML = '<summary>查看语音转写</summary><p></p>';
-    transcript.querySelector('p').textContent = task.transcriptText;
-    card.querySelector('.stage-line').insertAdjacentElement('beforebegin', transcript);
   }
 
   const stageLine = card.querySelector('.stage-line');
@@ -16497,6 +16532,11 @@ taskList.addEventListener('click', event => {
   }
   const card = event.target.closest('[data-task-id]');
   if (card) openTaskDetails(card.dataset.taskId);
+});
+
+activeTaskPanel.addEventListener('click', event => {
+  const card = event.target.closest('[data-open-active-task]');
+  if (card) openTaskDetails(card.dataset.openActiveTask);
 });
 
 async function renameTask(taskId, currentName) {
@@ -17083,6 +17123,7 @@ function currentStageText(task) {
   if (task.status === 'WAITING_REVIEW') return '等待检查 AI 分镜和文案，确认后继续生成';
   if (task.status === 'FAILED') return `处理失败：${task.failureReason || '请查看后端日志'}`;
   const running = task.stages.find(stage => stage.status === 'RUNNING');
+  if (running?.type === 'VOICE_GENERATION') return `正在配音：${running.progress}%`;
   if (running) return `正在执行：${stageNames[running.type]}（${running.progress}%）`;
   const pending = task.stages.find(stage => stage.status === 'PENDING');
   if (pending?.errorMessage) return pending.errorMessage;
@@ -17388,7 +17429,7 @@ document.addEventListener('visibilitychange', () => {
   async function browserDiscover(query, assetType, pageSize = 6, page = 1, provider = '') {
     const candidates = [];
     if ((!provider || provider === 'OPENVERSE') && assetType !== 'VIDEO') {
-      const endpoint = assetType === 'MEME' ? 'images' : 'audio';
+      const endpoint = ['MEME', 'IMAGE'].includes(assetType) ? 'images' : 'audio';
       const params = new URLSearchParams({q: query, page_size: String(pageSize), page: String(page), mature: 'false', license: 'cc0,pdm,by,by-sa'});
       try {
         const data = await externalJson(`https://api.openverse.org/v1/${endpoint}/?${params}`);
@@ -17409,7 +17450,7 @@ document.addEventListener('visibilitychange', () => {
         iiurlwidth:'640', format:'json', formatversion:'2', origin:'*'});
       try {
         const data = await externalJson(`https://commons.wikimedia.org/w/api.php?${params}`);
-        const prefix = assetType === 'VIDEO' ? 'video/' : assetType === 'MEME' ? 'image/' : 'audio/';
+        const prefix = assetType === 'VIDEO' ? 'video/' : ['MEME', 'IMAGE'].includes(assetType) ? 'image/' : 'audio/';
         for (const page of data.query?.pages || []) {
           const info = page.imageinfo?.[0];
           if (!info?.mime?.startsWith(prefix)) continue;
@@ -17444,7 +17485,8 @@ document.addEventListener('visibilitychange', () => {
 
   function inferAssetType(query, selected) {
     const text = String(query || '').toLowerCase();
-    if (/(表情包|图片|贴图|meme|image)/i.test(text)) return 'MEME';
+    if (/(表情包|梗图|斗图|meme|reaction|sticker)/i.test(text)) return 'MEME';
+    if (/(图片|照片|贴图|image|photo)/i.test(text)) return 'IMAGE';
     if (/(音效|声音|sfx|sound effect)/i.test(text)) return 'SFX';
     if (/(背景音乐|配乐|音乐|bgm|music)/i.test(text)) return 'BGM';
     if (/(绿幕|视频|green screen|video)/i.test(text)) return 'VIDEO';
@@ -17476,7 +17518,7 @@ document.addEventListener('visibilitychange', () => {
       ? `/api/assets/${asset.id}/thumbnail`
       : asset.previewUrl;
     const mediaUrl = localPreview || remoteThumbnail;
-    if (asset.assetType === "MEME") {
+    if (["MEME", "IMAGE"].includes(asset.assetType)) {
       if (!mediaUrl) return "";
       return `<img class="asset-preview-image" src="${escapeHtml(mediaUrl)}" alt="${escapeHtml(asset.title)}" loading="lazy" referrerpolicy="no-referrer">`;
     }
@@ -17616,6 +17658,10 @@ document.addEventListener('visibilitychange', () => {
 
   async function discoverPublicAssets(page) {
     if (discoveryState.loading) return;
+    if (discoveryState.provider === 'BILIBILI' && ['MEME', 'IMAGE'].includes(discoveryState.assetType)) {
+      message.textContent = 'Bilibili 返回的是视频候选，不能归类为 Meme 或普通图片；请选择“视频 / 绿幕”，或改用开放图片来源。';
+      return;
+    }
     discoveryState.loading = true;
     let renderedCount = 0;
     loadMore.disabled = true;
@@ -18246,18 +18292,25 @@ document.querySelector('#copy-address').onclick=async()=>{await navigator.clipbo
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>GameNarrator</title>
-  <link rel="stylesheet" href="/app.css?v=20260803-10">
   <link rel="stylesheet" href="/media-importer.css?v=20260729-10">
+  <link rel="stylesheet" href="/app.css?v=20260803-12">
 </head>
 <body>
   <div class="aurora"></div>
   <header class="topbar">
     <a class="brand" href="/">GAME<span>NARRATOR</span></a>
+    <nav class="primary-nav" aria-label="主要功能">
+      <a href="/?view=studio" data-view-link="studio">剪辑任务</a>
+      <a href="/?view=search" data-view-link="search">镜头搜索</a>
+      <a href="/?view=import" data-view-link="import">平台导入</a>
+      <a href="/?view=assets" data-view-link="assets">素材库</a>
+      <a href="/?view=settings" data-view-link="settings">设置</a>
+    </nav>
     <div class="topbar-actions"><button id="guide-open" class="diagnostics-open guide-open" type="button">使用引导</button><button id="diagnostics-open" class="diagnostics-open" type="button">诊断日志</button><div class="system-state"><i></i> 本地推理工作台</div></div>
   </header>
 
   <main>
-    <section class="ai-settings-panel">
+    <section class="ai-settings-panel" data-page="settings">
       <div class="section-title"><div><small>AI RUNTIME</small><h2>AI 模型设置</h2></div><span class="step">AI</span></div>
       <form id="ai-settings-form">
         <div class="grid">
@@ -18276,7 +18329,7 @@ document.querySelector('#copy-address').onclick=async()=>{await navigator.clipbo
       </form>
       <section class="ai-usage" aria-live="polite"><div><span>本轮 输入</span><strong data-usage="turnInput">0</strong></div><div><span>输出</span><strong data-usage="turnOutput">0</strong></div><div><span>会话</span><strong data-usage="session">0</strong></div><div><span>缓存</span><strong><b data-usage="cached">0</b> <small>(<i data-usage="cachePercent">0%</i>)</small></strong></div><div><span>花费</span><strong data-usage="turnCost">$0.0000</strong></div><div><span>今日</span><strong data-usage="todayCost">$0.0000</strong></div><div class="ai-usage-model"><span>模型</span><strong data-usage="model">尚未调用</strong></div></section>
     </section>
-    <section class="hero">
+    <section class="hero" data-page="studio">
       <p class="eyebrow">MULTIMODAL GAME COMMENTARY</p>
       <h1>把游戏录像变成<br><span>完整动漫剧场式解说</span></h1>
       <p class="lead">默认保留完整录像内容并生成连续叙事；AI 高光识别只用于强调关键事件、安排特效与解说节奏。</p>
@@ -18287,7 +18340,7 @@ document.querySelector('#copy-address').onclick=async()=>{await navigator.clipbo
       </div>
     </section>
 
-    <section class="workspace">
+    <section class="workspace" data-page="studio">
       <article class="create-panel">
         <div class="section-title">
           <div><small>NEW MISSION</small><h2>创建剪辑任务</h2></div>
@@ -18312,7 +18365,10 @@ document.querySelector('#copy-address').onclick=async()=>{await navigator.clipbo
               </select>
             </label>
           </div>
-          <label>节奏参考时长（秒）<input name="targetDurationSeconds" type="number" min="15" max="3600" value="90"><small>不会据此截短视频，最终成片默认覆盖完整源视频。</small></label>
+          <div class="grid">
+            <label>剪辑范围<select name="editingScope"><option value="FULL_VIDEO">完整视频（默认）</option><option value="HIGHLIGHTS">仅精彩片段</option></select><small>完整视频保留全部内容；精彩片段会按目标时长筛选。</small></label>
+            <label>目标时长（秒）<input name="targetDurationSeconds" type="number" min="15" max="3600" value="90"><small>仅“精彩片段”模式用于控制成片长度。</small></label>
+          </div>
           <label>创作要求<textarea name="taskBrief" maxlength="500" required placeholder="描述希望重点保留的玩法、节奏和表达方式"></textarea></label>
           <label class="effect-toggle storyboard-review-option"><input name="storyboardReviewEnabled" type="checkbox" value="true" checked> AI 生成文案和分镜后暂停，等待我检查和修改</label>
           <label class="effect-toggle"><input name="automaticGenerationEnabled" type="checkbox" value="true" checked> 启动自动剪辑流程</label>
@@ -18325,6 +18381,7 @@ document.querySelector('#copy-address').onclick=async()=>{await navigator.clipbo
           <button type="submit">建立分析任务 <b>→</b></button>
           <p id="form-message"></p>
         </form>
+        <section id="active-task" class="active-task" aria-live="polite"><p class="empty">当前没有正在进行的任务</p></section>
       </article>
 
       <article class="task-panel">
@@ -18336,7 +18393,7 @@ document.querySelector('#copy-address').onclick=async()=>{await navigator.clipbo
       </article>
     </section>
 
-    <section class="segment-search-panel">
+    <section class="segment-search-panel" data-page="search">
       <div class="section-title">
         <div><small>LOCAL VIDEO SEMANTIC SEARCH</small><h2>本地视频镜头搜索</h2></div>
         <span class="step">BGE</span>
@@ -18356,7 +18413,7 @@ document.querySelector('#copy-address').onclick=async()=>{await navigator.clipbo
       <datalist id="segment-duration-options"><option value="10"><option value="20"><option value="30"><option value="40"><option value="50"><option value="60"></datalist>
     </section>
 
-    <section class="media-importer">
+    <section class="media-importer" data-page="import">
       <div class="section-title">
         <div><small>AUTHORIZED MEDIA IMPORT</small><h2>平台素材导入</h2></div>
         <span class="step">URL</span>
@@ -18387,7 +18444,7 @@ document.querySelector('#copy-address').onclick=async()=>{await navigator.clipbo
       <div id="media-resolve-result"></div>
     </section>
 
-    <section class="asset-library">
+    <section class="asset-library" data-page="assets">
       <div class="section-title">
         <div><small>UNIFIED ASSET LIBRARY</small><h2>统一素材库</h2></div>
         <span class="step">LIB</span>
@@ -18421,6 +18478,7 @@ document.querySelector('#copy-address').onclick=async()=>{await navigator.clipbo
             <option value="VIDEO">视频 / 绿幕</option>
             <option value="SFX">音效</option>
             <option value="BGM">背景音乐</option>
+            <option value="IMAGE">普通图片</option>
             <option value="MEME">Meme 图片</option>
           </select>
         </label>
@@ -18474,7 +18532,7 @@ document.querySelector('#copy-address').onclick=async()=>{await navigator.clipbo
       </nav>
     </section>
 
-    <section class="roadmap">
+    <section class="roadmap" data-page="settings">
       <div class="section-title roadmap-title">
         <div><small>PRODUCT ROADMAP</small><h2>未来版本规划</h2></div>
         <span class="step">01—05</span>
@@ -18505,9 +18563,9 @@ document.querySelector('#copy-address').onclick=async()=>{await navigator.clipbo
       <main id="storyboard-workspace" class="storyboard-workspace"><p class="empty">正在读取分镜…</p></main>
     </div>
   </dialog>
-  <script src="/app.js?v=20260803-7"></script>
+  <script src="/app.js?v=20260803-9"></script>
   <script src="/export.js?v=20260728-4"></script>
-  <script src="/asset-library.js?v=20260803-2"></script>
+  <script src="/asset-library.js?v=20260803-3"></script>
   <script src="/media-importer.js?v=20260803-4"></script>
   <script defer src="/diagnostics.js?v=20260803-2"></script>
   <dialog id="diagnostics-dialog" class="task-dialog diagnostics-dialog">

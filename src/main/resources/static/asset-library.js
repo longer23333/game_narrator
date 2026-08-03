@@ -102,7 +102,7 @@
   async function browserDiscover(query, assetType, pageSize = 6, page = 1, provider = '') {
     const candidates = [];
     if ((!provider || provider === 'OPENVERSE') && assetType !== 'VIDEO') {
-      const endpoint = assetType === 'MEME' ? 'images' : 'audio';
+      const endpoint = ['MEME', 'IMAGE'].includes(assetType) ? 'images' : 'audio';
       const params = new URLSearchParams({q: query, page_size: String(pageSize), page: String(page), mature: 'false', license: 'cc0,pdm,by,by-sa'});
       try {
         const data = await externalJson(`https://api.openverse.org/v1/${endpoint}/?${params}`);
@@ -123,7 +123,7 @@
         iiurlwidth:'640', format:'json', formatversion:'2', origin:'*'});
       try {
         const data = await externalJson(`https://commons.wikimedia.org/w/api.php?${params}`);
-        const prefix = assetType === 'VIDEO' ? 'video/' : assetType === 'MEME' ? 'image/' : 'audio/';
+        const prefix = assetType === 'VIDEO' ? 'video/' : ['MEME', 'IMAGE'].includes(assetType) ? 'image/' : 'audio/';
         for (const page of data.query?.pages || []) {
           const info = page.imageinfo?.[0];
           if (!info?.mime?.startsWith(prefix)) continue;
@@ -158,7 +158,8 @@
 
   function inferAssetType(query, selected) {
     const text = String(query || '').toLowerCase();
-    if (/(表情包|图片|贴图|meme|image)/i.test(text)) return 'MEME';
+    if (/(表情包|梗图|斗图|meme|reaction|sticker)/i.test(text)) return 'MEME';
+    if (/(图片|照片|贴图|image|photo)/i.test(text)) return 'IMAGE';
     if (/(音效|声音|sfx|sound effect)/i.test(text)) return 'SFX';
     if (/(背景音乐|配乐|音乐|bgm|music)/i.test(text)) return 'BGM';
     if (/(绿幕|视频|green screen|video)/i.test(text)) return 'VIDEO';
@@ -190,7 +191,7 @@
       ? `/api/assets/${asset.id}/thumbnail`
       : asset.previewUrl;
     const mediaUrl = localPreview || remoteThumbnail;
-    if (asset.assetType === "MEME") {
+    if (["MEME", "IMAGE"].includes(asset.assetType)) {
       if (!mediaUrl) return "";
       return `<img class="asset-preview-image" src="${escapeHtml(mediaUrl)}" alt="${escapeHtml(asset.title)}" loading="lazy" referrerpolicy="no-referrer">`;
     }
@@ -330,6 +331,10 @@
 
   async function discoverPublicAssets(page) {
     if (discoveryState.loading) return;
+    if (discoveryState.provider === 'BILIBILI' && ['MEME', 'IMAGE'].includes(discoveryState.assetType)) {
+      message.textContent = 'Bilibili 返回的是视频候选，不能归类为 Meme 或普通图片；请选择“视频 / 绿幕”，或改用开放图片来源。';
+      return;
+    }
     discoveryState.loading = true;
     let renderedCount = 0;
     loadMore.disabled = true;

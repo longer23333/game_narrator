@@ -1,4 +1,30 @@
 const taskList = document.querySelector('#task-list');
+const activeTaskPanel = document.querySelector('#active-task');
+const validViews = new Set(['studio', 'search', 'import', 'assets', 'settings']);
+
+function activateView(view, updateHistory = false) {
+  const selected = validViews.has(view) ? view : 'studio';
+  document.body.dataset.view = selected;
+  document.querySelectorAll('[data-page]').forEach(section => { section.hidden = section.dataset.page !== selected; });
+  document.querySelectorAll('[data-view-link]').forEach(link => {
+    const active = link.dataset.viewLink === selected;
+    link.classList.toggle('active', active);
+    if (active) link.setAttribute('aria-current', 'page'); else link.removeAttribute('aria-current');
+  });
+  const labels = {studio:'剪辑任务', search:'镜头搜索', import:'平台导入', assets:'素材库', settings:'AI 与系统设置'};
+  document.title = `${labels[selected]} · GameNarrator`;
+  if (updateHistory) history.pushState({view:selected}, '', `/?view=${selected}`);
+  window.scrollTo({top:0, behavior:'instant'});
+}
+
+activateView(new URLSearchParams(location.search).get('view'));
+document.querySelector('.primary-nav')?.addEventListener('click', event => {
+  const link = event.target.closest('[data-view-link]');
+  if (!link) return;
+  event.preventDefault();
+  activateView(link.dataset.viewLink, true);
+});
+window.addEventListener('popstate', () => activateView(new URLSearchParams(location.search).get('view')));
 const aiSettingsForm = document.querySelector('#ai-settings-form');
 const aiKeyState = document.querySelector('#ai-key-state');
 const aiProviderPresets = {
@@ -129,11 +155,8 @@ function scheduleTaskPoll(delayMs) {
 function taskCardHtml(task) {
   return `
       <div class="task-head"><strong>${escapeHtml(task.name)}</strong><div class="task-card-actions"><span>${task.status}</span><button type="button" class="task-card-rename" data-rename-list-task="${task.id}" data-task-name="${escapeHtml(task.name)}">重命名</button><button type="button" class="task-card-delete" data-delete-list-task="${task.id}" data-task-name="${escapeHtml(task.name)}" aria-label="删除任务 ${escapeHtml(task.name)}">删除</button></div></div>
-      <p>${escapeHtml(task.taskBrief)}</p>
-      <div class="tags"><i>${escapeHtml(task.gameCategory)}</i><i>${escapeHtml(task.commentaryStyle)}</i><i>${task.targetDurationSeconds}s</i></div>
-      <div class="media-meta"${task.durationSeconds ? '' : ' hidden'}>${task.durationSeconds ? escapeHtml(mediaMetadataText(task)) : ''}</div>
+      <div class="tags"><i>${escapeHtml(task.gameCategory)}</i><i>${task.editingScope === 'HIGHLIGHTS' ? '精彩片段' : '完整视频'}</i><i>${escapeHtml(formatDate(task.createdAt))}</i></div>
       ${task.failureReason ? `<div class="task-error">${escapeHtml(task.failureReason)}</div>` : ''}
-      ${task.transcriptText ? `<details class="transcript"><summary>查看语音转写</summary><p>${escapeHtml(task.transcriptText)}</p></details>` : ''}
       <div class="stage-line">${task.stages.map(stage =>
         `<span class="${stage.status.toLowerCase()}" title="${escapeHtml(stageTitle(stage))}"></span>`
       ).join('')}</div>
@@ -152,18 +175,21 @@ function createTaskCard(task) {
 }
 
 function reconcileTaskCards(tasks) {
-  if (!tasks.length) {
+  const active = tasks.find(task => !['COMPLETED', 'FAILED'].includes(task.status));
+  renderActiveTask(active);
+  const recentTasks = tasks.filter(task => task.id !== active?.id).slice(0, 6);
+  if (!recentTasks.length) {
     const empty = taskList.querySelector('.empty');
     if (empty && taskList.children.length === 1) empty.textContent = '还没有任务，上传一段游戏录像开始实验。';
     else taskList.innerHTML = '<p class="empty">还没有任务，上传一段游戏录像开始实验。</p>';
     return;
   }
   taskList.querySelector('.empty')?.remove();
-  const incomingIds = new Set(tasks.map(task => task.id));
+  const incomingIds = new Set(recentTasks.map(task => task.id));
   taskList.querySelectorAll('.task-card').forEach(card => {
     if (!incomingIds.has(card.dataset.taskId)) card.remove();
   });
-  tasks.forEach(task => {
+  recentTasks.forEach(task => {
     let card = Array.from(taskList.children).find(item => item.dataset?.taskId === task.id);
     if (card) updateTaskCard(card, task);
     else card = createTaskCard(task);
@@ -171,38 +197,42 @@ function reconcileTaskCards(tasks) {
   });
 }
 
+function renderActiveTask(task) {
+  if (!task) {
+    activeTaskPanel.innerHTML = '<p class="empty">当前没有正在进行的任务</p>';
+    return;
+  }
+  const running = task.stages.find(stage => stage.status === 'RUNNING');
+  const progress = running?.progress ?? (task.status === 'WAITING_REVIEW' ? 100 : 0);
+  activeTaskPanel.innerHTML = `<small>CURRENT TASK</small><button type="button" class="active-task-card" data-open-active-task="${task.id}">
+    <span><strong>${escapeHtml(task.name)}</strong><i>${escapeHtml(task.status)}</i></span>
+    <b>${escapeHtml(currentStageText(task))}</b>
+    <span class="active-progress"><i style="width:${Math.max(0, Math.min(100, progress))}%"></i></span>
+    ${running?.type === 'VOICE_GENERATION' ? `<em>${escapeHtml(voiceProgressText(task, running))}</em>` : ''}
+  </button>`;
+}
+
+function voiceProgressText(task, stage) {
+  const total = Math.max(1, task.generatedScriptSegmentCount || 1);
+  const completed = Math.min(total, Math.max(0, Math.floor((Math.max(10, stage.progress) - 10) / 85 * total)));
+  return `配音进度：约 ${completed} / ${total} 段 · ${stage.progress}%（逐段生成后自动进入合成）`;
+}
+
 function updateTaskCard(card, task) {
   card.setAttribute('aria-label', `查看任务 ${task.name} 的详情`);
   card.querySelector('.task-head strong').textContent = task.name;
   card.querySelectorAll('[data-task-name]').forEach(button => { button.dataset.taskName = task.name; });
   card.querySelector('.task-head span').textContent = task.status;
-  const metadata = card.querySelector('.media-meta');
-  metadata.hidden = !task.durationSeconds;
-  metadata.textContent = task.durationSeconds ? mediaMetadataText(task) : '';
-
   let error = card.querySelector('.task-error');
   if (task.failureReason) {
     if (!error) {
       error = document.createElement('div');
       error.className = 'task-error';
-      metadata.insertAdjacentElement('afterend', error);
+      card.querySelector('.tags').insertAdjacentElement('afterend', error);
     }
     error.textContent = task.failureReason;
   } else {
     error?.remove();
-  }
-
-  let transcript = card.querySelector('details.transcript');
-  if (!task.transcriptText) {
-    transcript?.remove();
-  } else if (transcript) {
-    transcript.querySelector('p').textContent = task.transcriptText;
-  } else {
-    transcript = document.createElement('details');
-    transcript.className = 'transcript';
-    transcript.innerHTML = '<summary>查看语音转写</summary><p></p>';
-    transcript.querySelector('p').textContent = task.transcriptText;
-    card.querySelector('.stage-line').insertAdjacentElement('beforebegin', transcript);
   }
 
   const stageLine = card.querySelector('.stage-line');
@@ -373,6 +403,11 @@ taskList.addEventListener('click', event => {
   }
   const card = event.target.closest('[data-task-id]');
   if (card) openTaskDetails(card.dataset.taskId);
+});
+
+activeTaskPanel.addEventListener('click', event => {
+  const card = event.target.closest('[data-open-active-task]');
+  if (card) openTaskDetails(card.dataset.openActiveTask);
 });
 
 async function renameTask(taskId, currentName) {
@@ -959,6 +994,7 @@ function currentStageText(task) {
   if (task.status === 'WAITING_REVIEW') return '等待检查 AI 分镜和文案，确认后继续生成';
   if (task.status === 'FAILED') return `处理失败：${task.failureReason || '请查看后端日志'}`;
   const running = task.stages.find(stage => stage.status === 'RUNNING');
+  if (running?.type === 'VOICE_GENERATION') return `正在配音：${running.progress}%`;
   if (running) return `正在执行：${stageNames[running.type]}（${running.progress}%）`;
   const pending = task.stages.find(stage => stage.status === 'PENDING');
   if (pending?.errorMessage) return pending.errorMessage;

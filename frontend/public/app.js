@@ -1,5 +1,30 @@
 const taskList = document.querySelector('#task-list');
 const activeTaskPanel = document.querySelector('#active-task');
+const validViews = new Set(['studio', 'search', 'import', 'assets', 'settings']);
+
+function activateView(view, updateHistory = false) {
+  const selected = validViews.has(view) ? view : 'studio';
+  document.body.dataset.view = selected;
+  document.querySelectorAll('[data-page]').forEach(section => { section.hidden = section.dataset.page !== selected; });
+  document.querySelectorAll('[data-view-link]').forEach(link => {
+    const active = link.dataset.viewLink === selected;
+    link.classList.toggle('active', active);
+    if (active) link.setAttribute('aria-current', 'page'); else link.removeAttribute('aria-current');
+  });
+  const labels = {studio:'剪辑任务', search:'镜头搜索', import:'平台导入', assets:'素材库', settings:'AI 与系统设置'};
+  document.title = `${labels[selected]} · GameNarrator`;
+  if (updateHistory) history.pushState({view:selected}, '', `/?view=${selected}`);
+  window.scrollTo({top:0, behavior:'instant'});
+}
+
+activateView(new URLSearchParams(location.search).get('view'));
+document.querySelector('.primary-nav')?.addEventListener('click', event => {
+  const link = event.target.closest('[data-view-link]');
+  if (!link) return;
+  event.preventDefault();
+  activateView(link.dataset.viewLink, true);
+});
+window.addEventListener('popstate', () => activateView(new URLSearchParams(location.search).get('view')));
 const aiSettingsForm = document.querySelector('#ai-settings-form');
 const aiKeyState = document.querySelector('#ai-key-state');
 const aiProviderPresets = {

@@ -4,18 +4,25 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>GameNarrator</title>
-  <link rel="stylesheet" href="/app.css?v=20260803-10">
   <link rel="stylesheet" href="/media-importer.css?v=20260729-10">
+  <link rel="stylesheet" href="/app.css?v=20260803-12">
 </head>
 <body>
   <div class="aurora"></div>
   <header class="topbar">
     <a class="brand" href="/">GAME<span>NARRATOR</span></a>
+    <nav class="primary-nav" aria-label="主要功能">
+      <a href="/?view=studio" data-view-link="studio">剪辑任务</a>
+      <a href="/?view=search" data-view-link="search">镜头搜索</a>
+      <a href="/?view=import" data-view-link="import">平台导入</a>
+      <a href="/?view=assets" data-view-link="assets">素材库</a>
+      <a href="/?view=settings" data-view-link="settings">设置</a>
+    </nav>
     <div class="topbar-actions"><button id="guide-open" class="diagnostics-open guide-open" type="button">使用引导</button><button id="diagnostics-open" class="diagnostics-open" type="button">诊断日志</button><div class="system-state"><i></i> 本地推理工作台</div></div>
   </header>
 
   <main>
-    <section class="ai-settings-panel">
+    <section class="ai-settings-panel" data-page="settings">
       <div class="section-title"><div><small>AI RUNTIME</small><h2>AI 模型设置</h2></div><span class="step">AI</span></div>
       <form id="ai-settings-form">
         <div class="grid">
@@ -34,7 +41,7 @@
       </form>
       <section class="ai-usage" aria-live="polite"><div><span>本轮 输入</span><strong data-usage="turnInput">0</strong></div><div><span>输出</span><strong data-usage="turnOutput">0</strong></div><div><span>会话</span><strong data-usage="session">0</strong></div><div><span>缓存</span><strong><b data-usage="cached">0</b> <small>(<i data-usage="cachePercent">0%</i>)</small></strong></div><div><span>花费</span><strong data-usage="turnCost">$0.0000</strong></div><div><span>今日</span><strong data-usage="todayCost">$0.0000</strong></div><div class="ai-usage-model"><span>模型</span><strong data-usage="model">尚未调用</strong></div></section>
     </section>
-    <section class="hero">
+    <section class="hero" data-page="studio">
       <p class="eyebrow">MULTIMODAL GAME COMMENTARY</p>
       <h1>把游戏录像变成<br><span>完整动漫剧场式解说</span></h1>
       <p class="lead">默认保留完整录像内容并生成连续叙事；AI 高光识别只用于强调关键事件、安排特效与解说节奏。</p>
@@ -45,7 +52,7 @@
       </div>
     </section>
 
-    <section class="workspace">
+    <section class="workspace" data-page="studio">
       <article class="create-panel">
         <div class="section-title">
           <div><small>NEW MISSION</small><h2>创建剪辑任务</h2></div>
@@ -70,7 +77,10 @@
               </select>
             </label>
           </div>
-          <label>节奏参考时长（秒）<input name="targetDurationSeconds" type="number" min="15" max="3600" value="90"><small>不会据此截短视频，最终成片默认覆盖完整源视频。</small></label>
+          <div class="grid">
+            <label>剪辑范围<select name="editingScope"><option value="FULL_VIDEO">完整视频（默认）</option><option value="HIGHLIGHTS">仅精彩片段</option></select><small>完整视频保留全部内容；精彩片段会按目标时长筛选。</small></label>
+            <label>目标时长（秒）<input name="targetDurationSeconds" type="number" min="15" max="3600" value="90"><small>仅“精彩片段”模式用于控制成片长度。</small></label>
+          </div>
           <label>创作要求<textarea name="taskBrief" maxlength="500" required placeholder="描述希望重点保留的玩法、节奏和表达方式"></textarea></label>
           <label class="effect-toggle storyboard-review-option"><input name="storyboardReviewEnabled" type="checkbox" value="true" checked> AI 生成文案和分镜后暂停，等待我检查和修改</label>
           <label class="effect-toggle"><input name="automaticGenerationEnabled" type="checkbox" value="true" checked> 启动自动剪辑流程</label>
@@ -83,6 +93,7 @@
           <button type="submit">建立分析任务 <b>→</b></button>
           <p id="form-message"></p>
         </form>
+        <section id="active-task" class="active-task" aria-live="polite"><p class="empty">当前没有正在进行的任务</p></section>
       </article>
 
       <article class="task-panel">
@@ -94,7 +105,7 @@
       </article>
     </section>
 
-    <section class="segment-search-panel">
+    <section class="segment-search-panel" data-page="search">
       <div class="section-title">
         <div><small>LOCAL VIDEO SEMANTIC SEARCH</small><h2>本地视频镜头搜索</h2></div>
         <span class="step">BGE</span>
@@ -114,7 +125,7 @@
       <datalist id="segment-duration-options"><option value="10"><option value="20"><option value="30"><option value="40"><option value="50"><option value="60"></datalist>
     </section>
 
-    <section class="media-importer">
+    <section class="media-importer" data-page="import">
       <div class="section-title">
         <div><small>AUTHORIZED MEDIA IMPORT</small><h2>平台素材导入</h2></div>
         <span class="step">URL</span>
@@ -145,7 +156,7 @@
       <div id="media-resolve-result"></div>
     </section>
 
-    <section class="asset-library">
+    <section class="asset-library" data-page="assets">
       <div class="section-title">
         <div><small>UNIFIED ASSET LIBRARY</small><h2>统一素材库</h2></div>
         <span class="step">LIB</span>
@@ -179,6 +190,7 @@
             <option value="VIDEO">视频 / 绿幕</option>
             <option value="SFX">音效</option>
             <option value="BGM">背景音乐</option>
+            <option value="IMAGE">普通图片</option>
             <option value="MEME">Meme 图片</option>
           </select>
         </label>
@@ -232,7 +244,7 @@
       </nav>
     </section>
 
-    <section class="roadmap">
+    <section class="roadmap" data-page="settings">
       <div class="section-title roadmap-title">
         <div><small>PRODUCT ROADMAP</small><h2>未来版本规划</h2></div>
         <span class="step">01—05</span>
@@ -263,9 +275,9 @@
       <main id="storyboard-workspace" class="storyboard-workspace"><p class="empty">正在读取分镜…</p></main>
     </div>
   </dialog>
-  <script src="/app.js?v=20260803-7"></script>
+  <script src="/app.js?v=20260803-9"></script>
   <script src="/export.js?v=20260728-4"></script>
-  <script src="/asset-library.js?v=20260803-2"></script>
+  <script src="/asset-library.js?v=20260803-3"></script>
   <script src="/media-importer.js?v=20260803-4"></script>
   <script defer src="/diagnostics.js?v=20260803-2"></script>
   <dialog id="diagnostics-dialog" class="task-dialog diagnostics-dialog">
