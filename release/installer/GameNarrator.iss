@@ -1,16 +1,21 @@
 #define AppName "GameNarrator"
-#define AppVersion "0.1.0"
+#ifndef AppVersion
+  #define AppVersion "0.2.0"
+#endif
 
 [Setup]
 AppId={{9F083C75-7485-4BC2-A00E-39D3039E2B73}
 AppName={#AppName}
 AppVersion={#AppVersion}
+AppVerName={#AppName} {#AppVersion}
+VersionInfoVersion={#AppVersion}.0
 ArchitecturesAllowed=x64compatible
 ArchitecturesInstallIn64BitMode=x64compatible
 DefaultDirName={localappdata}\Programs\GameNarrator
+UsePreviousAppDir=yes
 DefaultGroupName=GameNarrator
 OutputDir=..\..\dist
-OutputBaseFilename=GameNarrator-Setup
+OutputBaseFilename=GameNarrator-Setup-{#AppVersion}
 Compression=lzma2/max
 SolidCompression=no
 PrivilegesRequired=lowest
@@ -22,6 +27,9 @@ ShowLanguageDialog=no
 SetupLogging=yes
 Uninstallable=yes
 CreateUninstallRegKey=yes
+CloseApplications=force
+RestartApplications=no
+UninstallDisplayName={#AppName} {#AppVersion}
 UninstallFilesDir={app}
 UninstallDisplayIcon={app}\GameNarrator.exe
 SetupIconFile=..\..\launcher\assets\GameNarrator.ico
@@ -55,8 +63,6 @@ Name: "desktopicon"; Description: "创建桌面快捷方式"; GroupDescription: 
 Filename: "{app}\prerequisites\MicrosoftEdgeWebview2Setup.exe"; Parameters: "/silent /install"; StatusMsg: "正在准备桌面应用运行环境..."; Flags: waituntilterminated skipifdoesntexist
 Filename: "{app}\GameNarrator.exe"; Description: "启动 GameNarrator"; Flags: nowait postinstall skipifsilent
 
-[UninstallDelete]
-Type: filesandordirs; Name: "{app}\data"
 
 [Code]
 var

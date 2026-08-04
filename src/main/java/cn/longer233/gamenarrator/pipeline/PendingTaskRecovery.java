@@ -32,13 +32,19 @@ public class PendingTaskRecovery implements ApplicationRunner {
                 java.util.List.of(TaskStatus.READY, TaskStatus.PROCESSING));
         log.info("ENGINE_RECOVERY_SCAN recoverableTaskCount={}", readyTasks.size());
         readyTasks.forEach(task -> {
-            var blockers = diagnostics.recoveryBlockers(task);
-            if (!blockers.isEmpty()) {
-                log.warn("ENGINE_RECOVERY_SKIPPED taskId={} missingTools={}", task.getId(), blockers);
-                return;
+            try {
+                var blockers = diagnostics.recoveryBlockers(task);
+                if (!blockers.isEmpty()) {
+                    log.warn("ENGINE_RECOVERY_SKIPPED taskId={} missingTools={}", task.getId(), blockers);
+                    return;
+                }
+                log.info("ENGINE_RECOVERY_SUBMIT taskId={} name={}", task.getId(), task.getName());
+                engine.start(task.getId());
+            } catch (RuntimeException exception) {
+                // A legacy or partially written task must not prevent the whole desktop app from starting.
+                log.error("ENGINE_RECOVERY_TASK_INVALID taskId={} reason={}",
+                        task.getId(), exception.getMessage(), exception);
             }
-            log.info("ENGINE_RECOVERY_SUBMIT taskId={} name={}", task.getId(), task.getName());
-            engine.start(task.getId());
         });
     }
 }

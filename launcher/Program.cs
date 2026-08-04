@@ -13,6 +13,7 @@ using Microsoft.Web.WebView2.WinForms;
 namespace GameNarrator.Launcher;
 
 internal static class Program {
+    private static readonly string AppVersion = Application.ProductVersion;
     private static int AppPort = 18081;
     private static int OllamaPort = 11434;
     private const string Model = "qwen2.5vl:3b";
@@ -51,13 +52,13 @@ internal static class Program {
         private bool bilibiliLoginRunning;
 
         internal StartupForm() {
-            Text="GameNarrator"; Width=520; Height=210; StartPosition=FormStartPosition.CenterScreen;
+            Text=$"GameNarrator {AppVersion}"; Width=520; Height=210; StartPosition=FormStartPosition.CenterScreen;
             MinimumSize=new Size(1024,720); FormBorderStyle=FormBorderStyle.FixedDialog; MaximizeBox=false;
             Controls.Add(webView); Controls.Add(retry); Controls.Add(progress); Controls.Add(status);
             var menu=new ContextMenuStrip(); menu.Items.Add("打开 GameNarrator",null,(_,_)=>ShowDesktopWindow()); menu.Items.Add("退出",null,(_,_)=>Close());
             var appIcon=Icon.ExtractAssociatedIcon(Application.ExecutablePath) ?? SystemIcons.Application;
             Icon=appIcon;
-            tray=new NotifyIcon{Icon=appIcon,Text="GameNarrator",ContextMenuStrip=menu,Visible=true}; tray.DoubleClick+=(_,_)=>ShowDesktopWindow();
+            tray=new NotifyIcon{Icon=appIcon,Text=$"GameNarrator {AppVersion}",ContextMenuStrip=menu,Visible=true}; tray.DoubleClick+=(_,_)=>ShowDesktopWindow();
             retry.Click += async (_, _) => await StartAsync();
             Shown += async (_, _) => await StartAsync();
         }
@@ -93,7 +94,7 @@ internal static class Program {
                 DesktopLog($"RUNTIME_PROFILE processors={processors} availableMemoryMb={availableMemoryMb} javaHeapMb={javaHeapMb} whisperThreads={Math.Clamp(processors-1,1,8)}");
                 File.WriteAllText(Path.Combine(data,"runtime","app-port"),AppPort.ToString());
                 File.WriteAllText(Path.Combine(data,"config","runtime.json"),JsonSerializer.Serialize(new {
-                    appRoot=root,dataRoot=data,storageRoot=Path.Combine(data,"storage"),appPort=AppPort,ollamaPort=OllamaPort
+                    version=AppVersion,appRoot=root,dataRoot=data,storageRoot=Path.Combine(data,"storage"),appPort=AppPort,ollamaPort=OllamaPort
                 },new JsonSerializerOptions{WriteIndented=true}));
                 status.Text="首次运行：正在安装本地 AI 引擎（支持断点续传）…";
                 status.Text = WantsLocalAi(data) ? "正在准备本地 AI…" : "正在使用云端 AI 启动…";

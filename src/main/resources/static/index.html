@@ -3,14 +3,14 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>GameNarrator</title>
+  <title>GameNarrator 0.2.0</title>
   <link rel="stylesheet" href="/media-importer.css?v=20260729-10">
   <link rel="stylesheet" href="/app.css?v=20260803-13">
 </head>
 <body>
   <div class="aurora"></div>
   <header class="topbar">
-    <a class="brand" href="/">GAME<span>NARRATOR</span></a>
+    <a class="brand" href="/">GAME<span>NARRATOR</span><small class="app-version">v0.2.0</small></a>
     <nav class="primary-nav" aria-label="主要功能">
       <a href="/?view=studio" data-view-link="studio">剪辑任务</a>
       <a href="/?view=search" data-view-link="search">镜头搜索</a>
@@ -94,12 +94,19 @@
           <button type="submit">建立分析任务 <b>→</b></button>
           <p id="form-message"></p>
         </form>
-        <section id="active-task" class="active-task" aria-live="polite"><p class="empty">当前没有正在进行的任务</p></section>
       </article>
 
       <article class="task-panel">
         <div class="section-title">
-          <div><small>MISSION LOG</small><h2>最近任务</h2></div>
+          <div><small>LIVE MISSION</small><h2>运行中任务</h2></div>
+          <span class="step">LIVE</span>
+        </div>
+        <section id="active-task" class="active-task" aria-live="polite"><p class="empty">当前没有正在进行的任务</p></section>
+      </article>
+
+      <article class="history-panel">
+        <div class="section-title">
+          <div><small>MISSION HISTORY</small><h2>最近完成</h2></div>
           <button id="refresh" class="icon-button" type="button">↻</button>
         </div>
         <div id="task-list" class="task-list"><p class="empty">正在读取任务…</p></div>

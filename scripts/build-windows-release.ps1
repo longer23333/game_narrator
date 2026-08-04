@@ -1,6 +1,7 @@
 param(
   [switch]$InstallInnoSetup,
   [switch]$SkipDownloads,
+  [switch]$SkipFrontendRestore,
   [string]$LocalDependenciesRoot = $env:GAME_NARRATOR_BUILD_DEPS_ROOT
 )
 $ErrorActionPreference = 'Stop'
@@ -10,6 +11,9 @@ $releaseRoot = Join-Path $projectRoot 'release'
 $staging = Join-Path $releaseRoot 'staging'
 $cache = Join-Path $releaseRoot 'cache'
 $dist = Join-Path $projectRoot 'dist'
+$pom = [xml](Get-Content -LiteralPath (Join-Path $projectRoot 'pom.xml') -Raw)
+$appVersion = [string]$pom.project.version
+if ([string]::IsNullOrWhiteSpace($appVersion)) { throw 'Application version is missing from pom.xml' }
 
 function Reset-OwnedDirectory([string]$Path, [string]$RequiredParent) {
   $full = [IO.Path]::GetFullPath($Path)
@@ -91,8 +95,12 @@ $npm = (Get-Command npm.cmd -ErrorAction Stop).Source
 $frontendRoot = Join-Path $projectRoot 'frontend'
 Require-File (Join-Path $frontendRoot 'package-lock.json') 'Frontend lock file is required for reproducible builds'
 Write-Host 'Restoring locked frontend dependencies...'
-& $npm --prefix $frontendRoot ci --no-audit --no-fund
-if ($LASTEXITCODE -ne 0) { throw 'Frontend dependency restore failed' }
+if (-not $SkipFrontendRestore) {
+  & $npm --prefix $frontendRoot ci --no-audit --no-fund
+  if ($LASTEXITCODE -ne 0) { throw 'Frontend dependency restore failed. Close any running Vite process or retry with -SkipFrontendRestore when the locked dependencies are already installed.' }
+} elseif (-not (Test-Path -LiteralPath (Join-Path $frontendRoot 'node_modules\vite\bin\vite.js') -PathType Leaf)) {
+  throw '-SkipFrontendRestore requires the locked frontend dependencies to already be installed.'
+}
 & $npm --prefix (Join-Path $projectRoot 'frontend') run build
 if ($LASTEXITCODE -ne 0) { throw 'Frontend build failed' }
 & (Join-Path $projectRoot 'mvnw.cmd') -DskipTests package
@@ -108,7 +116,7 @@ $jlink = (Get-Command jlink -ErrorAction Stop).Source
 if ($LASTEXITCODE -ne 0) { throw 'jlink failed' }
 
 Write-Host 'Publishing self-contained Windows launcher...'
-& dotnet publish (Join-Path $projectRoot 'launcher\GameNarrator.Launcher.csproj') -c Release -r win-x64 --self-contained true -p:PublishSingleFile=true -p:IncludeNativeLibrariesForSelfExtract=true -o (Join-Path $staging 'launcher-build')
+& dotnet publish (Join-Path $projectRoot 'launcher\GameNarrator.Launcher.csproj') -c Release -r win-x64 --self-contained true -p:Version=$appVersion -p:AssemblyVersion="$appVersion.0" -p:FileVersion="$appVersion.0" -p:InformationalVersion=$appVersion -p:PublishSingleFile=true -p:IncludeNativeLibrariesForSelfExtract=true -o (Join-Path $staging 'launcher-build')
 if ($LASTEXITCODE -ne 0) { throw 'Launcher publish failed' }
 Copy-Item -LiteralPath (Join-Path $staging 'launcher-build\GameNarrator.exe') -Destination (Join-Path $staging 'GameNarrator.exe')
 Remove-Item -LiteralPath (Join-Path $staging 'launcher-build') -Recurse -Force
@@ -187,8 +195,8 @@ if (-not $iscc) {
 if (-not $iscc) { throw 'Inno Setup 6 is required. Re-run with -InstallInnoSetup.' }
 Write-Host 'Compiling GameNarrator-Setup.exe...'
 $isccPath = if ($iscc -is [IO.FileInfo]) { $iscc.FullName } else { $iscc.Source }
-& $isccPath (Join-Path $releaseRoot 'installer\GameNarrator.iss')
+& $isccPath "/DAppVersion=$appVersion" (Join-Path $releaseRoot 'installer\GameNarrator.iss')
 if ($LASTEXITCODE -ne 0) { throw 'Installer compilation failed' }
-$setup = Join-Path $dist 'GameNarrator-Setup.exe'
+$setup = Join-Path $dist "GameNarrator-Setup-$appVersion.exe"
 Require-File $setup 'Installer was not generated'
 Write-Host "SUCCESS: $setup"

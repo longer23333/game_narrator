@@ -1,6 +1,6 @@
 # GameNarrator — DeepSeek 项目上下文包
 
-> 自动生成时间：2026-08-04 10:28:56 +08:00
+> 自动生成时间：2026-08-04 10:59:00 +08:00
 > 文件数量：260。本文件由 scripts/export-deepseek-context.ps1 生成，请勿手工维护生成区。
 
 ## 给 DeepSeek 的强制工作规则
@@ -33,7 +33,7 @@
 - `docs/MANUAL_EDITOR_PARITY.md`（2553 bytes）
 - `docs/PERFORMANCE_PORTABILITY_AUDIT.md`（8090 bytes）
 - `docs/REQUIREMENTS.md`（21389 bytes）
-- `scripts/build-windows-release.ps1`（11841 bytes）
+- `scripts/build-windows-release.ps1`（12634 bytes）
 - `scripts/export-deepseek-context.ps1`（5568 bytes）
 - `scripts/generate-app-icon.ps1`（1832 bytes）
 - `scripts/setup-media-importer.ps1`（1038 bytes）
@@ -133,7 +133,7 @@
 - `src/main/java/cn/longer233/gamenarrator/media/SceneFrame.java`（125 bytes）
 - `src/main/java/cn/longer233/gamenarrator/pipeline/EngineTaskContext.java`（1224 bytes）
 - `src/main/java/cn/longer233/gamenarrator/pipeline/FailedVisionTaskRepair.java`（2063 bytes）
-- `src/main/java/cn/longer233/gamenarrator/pipeline/PendingTaskRecovery.java`（1817 bytes）
+- `src/main/java/cn/longer233/gamenarrator/pipeline/PendingTaskRecovery.java`（2188 bytes）
 - `src/main/java/cn/longer233/gamenarrator/pipeline/PipelineRunTracker.java`（5680 bytes）
 - `src/main/java/cn/longer233/gamenarrator/pipeline/ProjectArtifactRegistry.java`（5346 bytes）
 - `src/main/java/cn/longer233/gamenarrator/pipeline/TaskWorkflowStateService.java`（13728 bytes）
@@ -232,13 +232,13 @@
 - `src/main/resources/db/migration/V7__storyboard_review.sql`（207 bytes）
 - `src/main/resources/db/migration/V8__video_segment_semantic_index.sql`（634 bytes）
 - `src/main/resources/db/migration/V9__video_segment_image_hash.sql`（152 bytes）
-- `src/main/resources/static/app.css`（51550 bytes）
-- `src/main/resources/static/app.js`（75030 bytes）
+- `src/main/resources/static/app.css`（55118 bytes）
+- `src/main/resources/static/app.js`（77281 bytes）
 - `src/main/resources/static/asset-library.js`（39551 bytes）
 - `src/main/resources/static/diagnostics.js`（1673 bytes）
 - `src/main/resources/static/export.js`（9227 bytes）
 - `src/main/resources/static/extension-install.html`（3410 bytes）
-- `src/main/resources/static/index.html`（23154 bytes）
+- `src/main/resources/static/index.html`（23426 bytes）
 - `src/main/resources/static/media-importer.css`（4474 bytes）
 - `src/main/resources/static/media-importer.js`（23963 bytes）
 - `src/test/java/cn/longer233/gamenarrator/ai/AdaptiveAiChatClientTest.java`（1725 bytes）
@@ -264,7 +264,7 @@
 - `src/test/java/cn/longer233/gamenarrator/importer/RemoteThumbnailServiceTest.java`（476 bytes）
 - `src/test/java/cn/longer233/gamenarrator/importer/YtDlpMediaImporterTest.java`（1957 bytes）
 - `src/test/java/cn/longer233/gamenarrator/media/FfmpegMediaProbeTest.java`（1064 bytes）
-- `src/test/java/cn/longer233/gamenarrator/pipeline/PendingTaskRecoveryTest.java`（2050 bytes）
+- `src/test/java/cn/longer233/gamenarrator/pipeline/PendingTaskRecoveryTest.java`（3156 bytes）
 - `src/test/java/cn/longer233/gamenarrator/pipeline/VideoPipelineEndToEndTest.java`（3001 bytes）
 - `src/test/java/cn/longer233/gamenarrator/render/FfmpegVideoRendererEffectTest.java`（2999 bytes）
 - `src/test/java/cn/longer233/gamenarrator/script/OllamaScriptGeneratorTest.java`（2300 bytes）
@@ -302,7 +302,7 @@
 
     <groupId>cn.longer233.graduation</groupId>
     <artifactId>game-narrator</artifactId>
-    <version>0.1.0</version>
+    <version>0.2.0</version>
     <name>GameNarrator</name>
     <description>多模态游戏视频智能解说与自动剪辑系统</description>
 
@@ -1936,6 +1936,7 @@ storage/tasks/{taskId}/
 param(
   [switch]$InstallInnoSetup,
   [switch]$SkipDownloads,
+  [switch]$SkipFrontendRestore,
   [string]$LocalDependenciesRoot = $env:GAME_NARRATOR_BUILD_DEPS_ROOT
 )
 $ErrorActionPreference = 'Stop'
@@ -1945,6 +1946,9 @@ $releaseRoot = Join-Path $projectRoot 'release'
 $staging = Join-Path $releaseRoot 'staging'
 $cache = Join-Path $releaseRoot 'cache'
 $dist = Join-Path $projectRoot 'dist'
+$pom = [xml](Get-Content -LiteralPath (Join-Path $projectRoot 'pom.xml') -Raw)
+$appVersion = [string]$pom.project.version
+if ([string]::IsNullOrWhiteSpace($appVersion)) { throw 'Application version is missing from pom.xml' }
 
 function Reset-OwnedDirectory([string]$Path, [string]$RequiredParent) {
   $full = [IO.Path]::GetFullPath($Path)
@@ -2026,8 +2030,12 @@ $npm = (Get-Command npm.cmd -ErrorAction Stop).Source
 $frontendRoot = Join-Path $projectRoot 'frontend'
 Require-File (Join-Path $frontendRoot 'package-lock.json') 'Frontend lock file is required for reproducible builds'
 Write-Host 'Restoring locked frontend dependencies...'
-& $npm --prefix $frontendRoot ci --no-audit --no-fund
-if ($LASTEXITCODE -ne 0) { throw 'Frontend dependency restore failed' }
+if (-not $SkipFrontendRestore) {
+  & $npm --prefix $frontendRoot ci --no-audit --no-fund
+  if ($LASTEXITCODE -ne 0) { throw 'Frontend dependency restore failed. Close any running Vite process or retry with -SkipFrontendRestore when the locked dependencies are already installed.' }
+} elseif (-not (Test-Path -LiteralPath (Join-Path $frontendRoot 'node_modules\vite\bin\vite.js') -PathType Leaf)) {
+  throw '-SkipFrontendRestore requires the locked frontend dependencies to already be installed.'
+}
 & $npm --prefix (Join-Path $projectRoot 'frontend') run build
 if ($LASTEXITCODE -ne 0) { throw 'Frontend build failed' }
 & (Join-Path $projectRoot 'mvnw.cmd') -DskipTests package
@@ -2043,7 +2051,7 @@ $jlink = (Get-Command jlink -ErrorAction Stop).Source
 if ($LASTEXITCODE -ne 0) { throw 'jlink failed' }
 
 Write-Host 'Publishing self-contained Windows launcher...'
-& dotnet publish (Join-Path $projectRoot 'launcher\GameNarrator.Launcher.csproj') -c Release -r win-x64 --self-contained true -p:PublishSingleFile=true -p:IncludeNativeLibrariesForSelfExtract=true -o (Join-Path $staging 'launcher-build')
+& dotnet publish (Join-Path $projectRoot 'launcher\GameNarrator.Launcher.csproj') -c Release -r win-x64 --self-contained true -p:Version=$appVersion -p:AssemblyVersion="$appVersion.0" -p:FileVersion="$appVersion.0" -p:InformationalVersion=$appVersion -p:PublishSingleFile=true -p:IncludeNativeLibrariesForSelfExtract=true -o (Join-Path $staging 'launcher-build')
 if ($LASTEXITCODE -ne 0) { throw 'Launcher publish failed' }
 Copy-Item -LiteralPath (Join-Path $staging 'launcher-build\GameNarrator.exe') -Destination (Join-Path $staging 'GameNarrator.exe')
 Remove-Item -LiteralPath (Join-Path $staging 'launcher-build') -Recurse -Force
@@ -2122,9 +2130,9 @@ if (-not $iscc) {
 if (-not $iscc) { throw 'Inno Setup 6 is required. Re-run with -InstallInnoSetup.' }
 Write-Host 'Compiling GameNarrator-Setup.exe...'
 $isccPath = if ($iscc -is [IO.FileInfo]) { $iscc.FullName } else { $iscc.Source }
-& $isccPath (Join-Path $releaseRoot 'installer\GameNarrator.iss')
+& $isccPath "/DAppVersion=$appVersion" (Join-Path $releaseRoot 'installer\GameNarrator.iss')
 if ($LASTEXITCODE -ne 0) { throw 'Installer compilation failed' }
-$setup = Join-Path $dist 'GameNarrator-Setup.exe'
+$setup = Join-Path $dist "GameNarrator-Setup-$appVersion.exe"
 Require-File $setup 'Installer was not generated'
 Write-Host "SUCCESS: $setup"
 ``
@@ -10624,13 +10632,19 @@ public class PendingTaskRecovery implements ApplicationRunner {
                 java.util.List.of(TaskStatus.READY, TaskStatus.PROCESSING));
         log.info("ENGINE_RECOVERY_SCAN recoverableTaskCount={}", readyTasks.size());
         readyTasks.forEach(task -> {
-            var blockers = diagnostics.recoveryBlockers(task);
-            if (!blockers.isEmpty()) {
-                log.warn("ENGINE_RECOVERY_SKIPPED taskId={} missingTools={}", task.getId(), blockers);
-                return;
+            try {
+                var blockers = diagnostics.recoveryBlockers(task);
+                if (!blockers.isEmpty()) {
+                    log.warn("ENGINE_RECOVERY_SKIPPED taskId={} missingTools={}", task.getId(), blockers);
+                    return;
+                }
+                log.info("ENGINE_RECOVERY_SUBMIT taskId={} name={}", task.getId(), task.getName());
+                engine.start(task.getId());
+            } catch (RuntimeException exception) {
+                // A legacy or partially written task must not prevent the whole desktop app from starting.
+                log.error("ENGINE_RECOVERY_TASK_INVALID taskId={} reason={}",
+                        task.getId(), exception.getMessage(), exception);
             }
-            log.info("ENGINE_RECOVERY_SUBMIT taskId={} name={}", task.getId(), task.getName());
-            engine.start(task.getId());
         });
     }
 }
@@ -17976,7 +17990,7 @@ CREATE INDEX idx_segment_embedding_image_hash ON video_segment_embedding(image_h
 .asset-audio-thumbnail{display:grid;width:100%;height:118px;place-items:center;padding:14px;border:0;border-radius:0;background:linear-gradient(135deg,#0b1830,#162849);color:#dce7f8}.asset-audio-thumbnail span{font-size:32px;color:#45d7ea}.asset-audio-thumbnail b{font-size:12px}.asset-audio-thumbnail small{color:#8290ad;font-size:9px}.asset-online-preview audio{display:block;width:100%;margin:38px 0 12px}
 .asset-video-thumbnail{position:relative;display:block;width:100%;height:180px;padding:0;overflow:hidden;border:0;border-radius:0;background:#050811;color:#fff}.asset-video-thumbnail img{width:100%;height:100%;object-fit:cover}.asset-video-thumbnail>span{display:grid;height:100%;place-items:center;color:#71809d}.asset-video-thumbnail b{position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);padding:9px 13px;border-radius:99px;background:rgba(5,10,20,.82);font-size:11px}.asset-online-preview{position:fixed;z-index:1000;inset:0;display:grid;place-items:center;padding:24px;background:rgba(2,5,13,.86)}.asset-online-preview>div{position:relative;width:min(900px,96vw);padding:16px;border:1px solid #35405e;border-radius:16px;background:#080e1c}.asset-online-preview video{display:block;width:100%;max-height:75vh;background:#000}.asset-online-preview button{position:absolute;z-index:1;right:24px;top:24px;width:36px;height:36px;padding:0;border-radius:50%;background:rgba(5,10,20,.86);font-size:24px}.asset-online-preview small{display:block;margin-top:10px;color:#91a1bd}
 .task-card-rename{padding:5px 9px;border:1px solid rgba(69,215,234,.35);border-radius:7px;background:rgba(31,88,112,.32);color:#73e4ee;font-size:10px}.voice-controls{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:10px}.voice-controls label{margin:0}.voice-controls output{color:#45d7ea;font-size:11px}@media(max-width:650px){.voice-controls{grid-template-columns:1fr}}
-.active-task{margin-top:22px;padding-top:18px;border-top:1px solid #293047}.active-task>small{display:block;margin-bottom:9px;color:#45d7ea;font-weight:800;letter-spacing:.14em}.active-task .empty{padding:14px}.active-task-card{display:grid;width:100%;gap:10px;text-align:left;background:#0a1020;border:1px solid #31405f}.active-task-card>span:first-child{display:flex;justify-content:space-between;gap:12px}.active-task-card i,.active-task-card em{font-style:normal;color:#8fa1c2;font-size:11px}.active-task-card b{font-size:12px}.active-progress{height:8px;overflow:hidden;border-radius:99px;background:#212b43}.active-progress i{display:block;height:100%;background:linear-gradient(90deg,#38e09d,#45d7ea);transition:width .3s ease}
+.active-task{margin-top:22px;padding-top:18px;border-top:1px solid #293047}.active-task>small{display:block;margin-bottom:9px;color:#45d7ea;font-weight:800;letter-spacing:.14em}.active-task .empty{padding:14px}.active-task-card{display:grid;width:100%;gap:10px;text-align:left;background:#0a1020;border:1px solid #31405f}.active-task-card>span:first-child{display:flex;justify-content:space-between;gap:12px}.active-task-card i,.active-task-card em{font-style:normal;color:#8fa1c2;font-size:11px}.active-task-card b{font-size:12px}.active-progress{height:8px;overflow:hidden;border-radius:99px;background:#212b43}.active-progress i{display:block;height:100%;background:linear-gradient(90deg,#38e09d,#45d7ea);transition:width .3s ease}.active-task-meta{display:flex;gap:5px;flex-wrap:wrap}.active-task-meta i{padding:3px 6px;color:#111!important;background:#fff;border:2px solid #111}.active-stage-line{display:grid;grid-template-columns:repeat(9,1fr);gap:3px}.active-stage-line i{height:6px;background:#c5cad2;border:1px solid #111}.active-stage-line i.completed{background:#20b86c}.active-stage-line i.running{background:#36c9ff}.active-stage-line i.failed{background:#ff5577}
 .task-cancel{margin-top:10px;width:100%;background:#ff6b6b!important}
 .script-quality{display:grid;gap:7px;padding:14px;border:3px solid var(--ink,#111);background:#fff}.script-quality.passed{background:#c9f8c5}.script-quality.needs-work{background:#fff1a6}.script-quality ul{margin:0;padding-left:20px}
 
@@ -18133,6 +18147,42 @@ button:disabled{color:#4b4b4b;background:#d5d5d5;opacity:1}
 .artifact-list code,.transcript-text,.rendered-video>code{color:#111;background:#f0f3f7;border:2px solid #111;border-radius:0}
 .download-button,.preview-button{color:#111;background:var(--blue);border:3px solid #111;border-radius:0;box-shadow:3px 3px 0 #111}
 .rendered-video-head span{color:#075b36;background:#d8f7e7;border:2px solid #075b36}
+.app-version{margin-left:8px;padding:2px 5px;color:#111;background:var(--yellow);border:2px solid #111;font-size:9px;letter-spacing:0;vertical-align:middle}
+.history-panel{grid-area:history;padding:20px;color:#111;background:#fff;border:4px solid #111;box-shadow:8px 8px 0 #111}
+.create-panel{grid-area:create}.task-panel{grid-area:active}
+.workspace{grid-template-areas:"create active" "history active"}
+.history-panel .section-title{align-items:center;margin-bottom:14px}.history-panel .section-title h2{margin:3px 0;font-size:24px}.history-panel .section-title small{font-size:9px}
+.history-panel .task-list{grid-template-columns:repeat(2,minmax(0,1fr));max-height:none;overflow:visible}
+.history-panel .task-card{padding:11px;box-shadow:3px 3px 0 #111}
+.task-panel .active-task{display:grid;gap:12px;margin:0;padding:0;border:0}.task-panel .active-task>small{color:#111}.active-task-item{display:grid;gap:8px}
+.task-panel .active-task-card{color:#111;background:var(--green);border:3px solid #111;box-shadow:4px 4px 0 #111}
+.task-panel .active-task-card i,.task-panel .active-task-card em{color:#25352b}
+.task-panel .active-progress{background:#fff;border:2px solid #111}.task-panel .active-progress i{background:var(--violet)}
+@media(max-width:860px){.workspace{grid-template-areas:"create" "active" "history"}.history-panel .task-list{grid-template-columns:1fr}.task-panel{position:static;max-height:none}}
+
+/* Page-level contrast normalization for every primary navigation view. */
+.hero h1 span{display:inline-block;padding:0 .08em;color:#fff;background:#111;-webkit-text-stroke:0}
+.brand span{color:#a60050}
+.task-head span{color:#075b36}
+.ai-settings-panel{color:#111;background:#dcd3ff}
+.segment-search-panel{color:#111;background:#c9f3ff;border-color:#111}
+.segment-search-panel :where(h2,h3,label,strong,p,small,span){color:#111}
+.segment-search-card{color:#111;background:#fff;border:3px solid #111}
+.segment-search-card small,.segment-clip-controls label{color:#46505c}
+.media-importer{color:#111;background:#fff1a6}
+.media-importer :where(h2,h3,h4,label,strong,p){color:#111}
+.media-importer :where(small,span,.resolved-media p,.resolved-media small){color:#46505c}
+.asset-library{color:#111;background:#fff}
+.local-asset-dropzone,.asset-library-note,.asset-library-guide,.domestic-source-directory{color:#111;background:#fff;border:3px solid #111}
+.local-asset-dropzone :where(strong,span),.asset-library-note,.asset-library-guide,.domestic-source-directory :where(p,small,span){color:#46505c}
+.local-asset-dropzone strong{color:#111}
+.asset-library-pagination,.asset-library-pagination span,.asset-library-toolbar p{color:#46505c}
+.roadmap-list p{color:#46505c}
+.bilibili-login-panel{color:#111;background:#fff;border:3px solid #111}
+.bilibili-login-panel strong{color:#111}.bilibili-login-panel small,.bilibili-login-panel span{color:#46505c}
+.domestic-source-directory summary,.domestic-source-directory section>strong{color:#111}
+.domestic-source-directory a{color:#111;background:#fff;border:2px solid #111}
+.domestic-source-directory a small{color:#46505c}.domestic-source-directory a b{color:#8b174f}
 ``
 
 ### FILE: src/main/resources/static/app.js
@@ -18333,9 +18383,9 @@ function createTaskCard(task) {
 }
 
 function reconcileTaskCards(tasks) {
-  const active = tasks.find(task => !['COMPLETED', 'FAILED', 'CANCELLED'].includes(task.status));
-  renderActiveTask(active);
-  const recentTasks = tasks.filter(task => task.id !== active?.id).slice(0, 6);
+  const activeTasks = tasks.filter(task => !['COMPLETED', 'FAILED', 'CANCELLED'].includes(task.status));
+  renderActiveTask(activeTasks);
+  const recentTasks = tasks.filter(task => ['COMPLETED', 'FAILED', 'CANCELLED'].includes(task.status)).slice(0, 8);
   if (!recentTasks.length) {
     const empty = taskList.querySelector('.empty');
     if (empty && taskList.children.length === 1) empty.textContent = '还没有任务，上传一段游戏录像开始实验。';
@@ -18355,19 +18405,24 @@ function reconcileTaskCards(tasks) {
   });
 }
 
-function renderActiveTask(task) {
-  if (!task) {
+function renderActiveTask(activeTasks) {
+  if (!activeTasks.length) {
     activeTaskPanel.innerHTML = '<p class="empty">当前没有正在进行的任务</p>';
     return;
   }
-  const running = task.stages.find(stage => stage.status === 'RUNNING');
-  const progress = running?.progress ?? (task.status === 'WAITING_REVIEW' ? 100 : 0);
-  activeTaskPanel.innerHTML = `<small>CURRENT TASK</small><button type="button" class="active-task-card" data-open-active-task="${task.id}">
+  activeTaskPanel.innerHTML = `<small>ACTIVE QUEUE · ${activeTasks.length}</small>${activeTasks.map(task => {
+    const running = task.stages.find(stage => stage.status === 'RUNNING');
+    const progress = running?.progress ?? (task.status === 'WAITING_REVIEW' ? 100 : 0);
+    const completedStages = task.stages.filter(stage => stage.status === 'COMPLETED').length;
+    return `<div class="active-task-item"><button type="button" class="active-task-card" data-open-active-task="${task.id}">
     <span><strong>${escapeHtml(task.name)}</strong><i>${escapeHtml(task.status)}</i></span>
+    <span class="active-task-meta"><i>${escapeHtml(task.gameCategory)}</i><i>${task.editingScope === 'HIGHLIGHTS' ? '精彩片段' : '完整视频'}</i><i>${completedStages} / ${task.stages.length} 阶段</i></span>
     <b>${escapeHtml(currentStageText(task))}</b>
     <span class="active-progress"><i style="width:${Math.max(0, Math.min(100, progress))}%"></i></span>
+    <span class="active-stage-line">${task.stages.map(stage => `<i class="${stage.status.toLowerCase()}" title="${escapeHtml(stageTitle(stage))}"></i>`).join('')}</span>
     ${running?.type === 'VOICE_GENERATION' ? `<em>${escapeHtml(voiceProgressText(task, running))}</em>` : ''}
-  </button>${task.status === 'PROCESSING' ? `<button type="button" class="task-cancel" data-cancel-task="${task.id}">取消当前任务</button>` : ''}`;
+  </button>${task.status === 'PROCESSING' ? `<button type="button" class="task-cancel" data-cancel-task="${task.id}">取消当前任务</button>` : ''}</div>`;
+  }).join('')}`;
 }
 
 function voiceProgressText(task, stage) {
@@ -19310,10 +19365,15 @@ loadTasks().catch(error => {
 }).finally(connectTaskStream);
 
 const guideSteps = [
-  {selector: '.hero', title: '目标：从录像得到可下载成片', text: '核心闭环只有 4 步：上传录像 → 等待完整分析 → 检查并修改分镜 → 下载 MP4。AI、素材搜索和平台导入都是可选增强，不会阻止普通剪辑。'},
-  {selector: '.create-panel', title: '第 1 步：上传并开始', text: '选择本地视频，填写名称后创建任务即可。想先快速跑通流程，可以关闭 AI 文案、AI 语音和自动素材；以后随时再开启。'},
-  {selector: '#active-task', title: '第 2 步：看当前任务做到哪里', text: '创建后这里会持续显示当前阶段、百分比和下一步。视频会先完整扫描，再进行高光、文案等后续处理；运行中也可以取消。'},
-  {selector: '.task-panel', title: '第 3、4 步：检查分镜并导出', text: '任务提示“等待检查”时，点击任务进入线性分镜工作台，修改后点“保存全部修改并执行下一步”。完成后仍在任务详情中预览并点击“导出 MP4”，这就跑通了一个完整结果。'}
+  {selector: '.hero', title: '先认识完整工作流', text: '从录像到成片依次经过素材读取、镜头检测、字幕或 Whisper 转写、画面理解、分镜、高光与文案、配音、时间轴和渲染。平台字幕存在时会优先使用，AI 与自动素材都可以独立关闭。'},
+  {selector: '.create-panel', title: '第 1 步：创建剪辑任务', text: '填写任务名称、游戏类型、解说风格和创作要求，选择完整视频或精彩片段，再上传本地视频。首次测试建议保留“分镜后暂停”，便于在渲染前检查文案、字幕和镜头。'},
+  {selector: '.effect-toggle', title: '第 2 步：按需组合 AI 能力', text: '自动流程、云端视觉、AI 文案、AI 配音和自动素材互不绑定。关闭某项不会阻止手动编辑；使用云端服务前请先到“设置”填写 API Key，本地模型则复用已安装的 Ollama、Whisper 与 Piper。'},
+  {selector: '.dropzone', title: '第 3 步：上传并开始处理', text: '支持 MP4、MOV、MKV 和 WEBM。创建后请勿关闭正在运行的桌面应用；任务进度会通过实时事件推送，不需要反复刷新页面。'},
+  {selector: '.task-panel', title: '第 4 步：右侧跟踪运行任务', text: '运行中的任务固定显示在右侧，包括当前阶段、阶段完成数、处理范围、百分比和九阶段轨迹。点击绿色任务卡可以随时打开详情；任务结束后会自动离开右侧。'},
+  {selector: '.history-panel', title: '第 5 步：从左侧历史继续', text: '完成、失败或取消的任务会进入左侧“最近完成”列表。点击条目可查看诊断原因、生成文件、AI 分析、分镜、文案、时间线和最终视频，也可以重命名或删除。'},
+  {selector: '.storyboard-review-option', title: '第 6 步：检查分镜再继续', text: '开启分镜检查后，流程会在文案与分镜生成后暂停。进入线性分镜工作台可调整顺序、起止时间、字幕、解说、素材和特效；保存全部修改后再继续配音与渲染。'},
+  {selector: '.primary-nav', title: '更多工具入口', text: '“镜头搜索”使用本地语义模型寻找片段；“平台导入”负责下载并创建项目；“素材库”管理授权素材；“设置”管理云端或本地 AI。遇到问题可点击右上角“诊断日志”。'},
+  {selector: '.topbar-actions', title: '完成、诊断与再次查看', text: '任务完成后在详情中预览并导出 MP4。任何阶段失败时先查看任务详情和诊断日志；本引导可以随时从“使用引导”重新打开。当前版本为 v0.2.0。'}
 ];
 let guideIndex = 0;
 let guideTarget = null;
@@ -19321,8 +19381,8 @@ let guideRoot = null;
 
 function guideStorage(action, value) {
   try {
-    if (action === 'get') return localStorage.getItem('game-narrator-guide-v3');
-    localStorage.setItem('game-narrator-guide-v3', value);
+    if (action === 'get') return localStorage.getItem('game-narrator-guide-v4');
+    localStorage.setItem('game-narrator-guide-v4', value);
   } catch (_) { return null; }
 }
 
@@ -20397,14 +20457,14 @@ document.querySelector('#copy-address').onclick=async()=>{await navigator.clipbo
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>GameNarrator</title>
+  <title>GameNarrator 0.2.0</title>
   <link rel="stylesheet" href="/media-importer.css?v=20260729-10">
   <link rel="stylesheet" href="/app.css?v=20260803-13">
 </head>
 <body>
   <div class="aurora"></div>
   <header class="topbar">
-    <a class="brand" href="/">GAME<span>NARRATOR</span></a>
+    <a class="brand" href="/">GAME<span>NARRATOR</span><small class="app-version">v0.2.0</small></a>
     <nav class="primary-nav" aria-label="主要功能">
       <a href="/?view=studio" data-view-link="studio">剪辑任务</a>
       <a href="/?view=search" data-view-link="search">镜头搜索</a>
@@ -20488,12 +20548,19 @@ document.querySelector('#copy-address').onclick=async()=>{await navigator.clipbo
           <button type="submit">建立分析任务 <b>→</b></button>
           <p id="form-message"></p>
         </form>
-        <section id="active-task" class="active-task" aria-live="polite"><p class="empty">当前没有正在进行的任务</p></section>
       </article>
 
       <article class="task-panel">
         <div class="section-title">
-          <div><small>MISSION LOG</small><h2>最近任务</h2></div>
+          <div><small>LIVE MISSION</small><h2>运行中任务</h2></div>
+          <span class="step">LIVE</span>
+        </div>
+        <section id="active-task" class="active-task" aria-live="polite"><p class="empty">当前没有正在进行的任务</p></section>
+      </article>
+
+      <article class="history-panel">
+        <div class="section-title">
+          <div><small>MISSION HISTORY</small><h2>最近完成</h2></div>
           <button id="refresh" class="icon-button" type="button">↻</button>
         </div>
         <div id="task-list" class="task-list"><p class="empty">正在读取任务…</p></div>
@@ -22218,6 +22285,26 @@ class PendingTaskRecoveryTest {
                 .run(new DefaultApplicationArguments(new String[0]));
 
         verifyNoInteractions(engine);
+    }
+
+    @Test
+    void invalidLegacyTaskDoesNotAbortApplicationRecovery() {
+        VideoTaskRepository repository = mock(VideoTaskRepository.class);
+        VideoTaskEngine engine = mock(VideoTaskEngine.class);
+        SystemDiagnosticsService diagnostics = mock(SystemDiagnosticsService.class);
+        VideoTask invalid = new VideoTask("legacy", "ACTION", CommentaryStyle.ANIME_THEATER,
+                30, "legacy task", "legacy.mp4", false);
+        VideoTask valid = new VideoTask("recover", "ACTION", CommentaryStyle.ANIME_THEATER,
+                30, "recover task", "source.mp4", false);
+        when(repository.findByStatusIn(anyList())).thenReturn(List.of(invalid, valid));
+        when(diagnostics.recoveryBlockers(invalid)).thenThrow(new IllegalStateException("missing stage"));
+        when(diagnostics.recoveryBlockers(valid)).thenReturn(List.of());
+
+        new PendingTaskRecovery(repository, engine, diagnostics)
+                .run(new DefaultApplicationArguments(new String[0]));
+
+        verify(engine).start(valid.getId());
+        verify(engine, never()).start(invalid.getId());
     }
 }
 ``

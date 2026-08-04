@@ -193,9 +193,9 @@ function createTaskCard(task) {
 }
 
 function reconcileTaskCards(tasks) {
-  const active = tasks.find(task => !['COMPLETED', 'FAILED', 'CANCELLED'].includes(task.status));
-  renderActiveTask(active);
-  const recentTasks = tasks.filter(task => task.id !== active?.id).slice(0, 6);
+  const activeTasks = tasks.filter(task => !['COMPLETED', 'FAILED', 'CANCELLED'].includes(task.status));
+  renderActiveTask(activeTasks);
+  const recentTasks = tasks.filter(task => ['COMPLETED', 'FAILED', 'CANCELLED'].includes(task.status)).slice(0, 8);
   if (!recentTasks.length) {
     const empty = taskList.querySelector('.empty');
     if (empty && taskList.children.length === 1) empty.textContent = '还没有任务，上传一段游戏录像开始实验。';
@@ -215,19 +215,24 @@ function reconcileTaskCards(tasks) {
   });
 }
 
-function renderActiveTask(task) {
-  if (!task) {
+function renderActiveTask(activeTasks) {
+  if (!activeTasks.length) {
     activeTaskPanel.innerHTML = '<p class="empty">当前没有正在进行的任务</p>';
     return;
   }
-  const running = task.stages.find(stage => stage.status === 'RUNNING');
-  const progress = running?.progress ?? (task.status === 'WAITING_REVIEW' ? 100 : 0);
-  activeTaskPanel.innerHTML = `<small>CURRENT TASK</small><button type="button" class="active-task-card" data-open-active-task="${task.id}">
+  activeTaskPanel.innerHTML = `<small>ACTIVE QUEUE · ${activeTasks.length}</small>${activeTasks.map(task => {
+    const running = task.stages.find(stage => stage.status === 'RUNNING');
+    const progress = running?.progress ?? (task.status === 'WAITING_REVIEW' ? 100 : 0);
+    const completedStages = task.stages.filter(stage => stage.status === 'COMPLETED').length;
+    return `<div class="active-task-item"><button type="button" class="active-task-card" data-open-active-task="${task.id}">
     <span><strong>${escapeHtml(task.name)}</strong><i>${escapeHtml(task.status)}</i></span>
+    <span class="active-task-meta"><i>${escapeHtml(task.gameCategory)}</i><i>${task.editingScope === 'HIGHLIGHTS' ? '精彩片段' : '完整视频'}</i><i>${completedStages} / ${task.stages.length} 阶段</i></span>
     <b>${escapeHtml(currentStageText(task))}</b>
     <span class="active-progress"><i style="width:${Math.max(0, Math.min(100, progress))}%"></i></span>
+    <span class="active-stage-line">${task.stages.map(stage => `<i class="${stage.status.toLowerCase()}" title="${escapeHtml(stageTitle(stage))}"></i>`).join('')}</span>
     ${running?.type === 'VOICE_GENERATION' ? `<em>${escapeHtml(voiceProgressText(task, running))}</em>` : ''}
-  </button>${task.status === 'PROCESSING' ? `<button type="button" class="task-cancel" data-cancel-task="${task.id}">取消当前任务</button>` : ''}`;
+  </button>${task.status === 'PROCESSING' ? `<button type="button" class="task-cancel" data-cancel-task="${task.id}">取消当前任务</button>` : ''}</div>`;
+  }).join('')}`;
 }
 
 function voiceProgressText(task, stage) {
@@ -1170,10 +1175,15 @@ loadTasks().catch(error => {
 }).finally(connectTaskStream);
 
 const guideSteps = [
-  {selector: '.hero', title: '目标：从录像得到可下载成片', text: '核心闭环只有 4 步：上传录像 → 等待完整分析 → 检查并修改分镜 → 下载 MP4。AI、素材搜索和平台导入都是可选增强，不会阻止普通剪辑。'},
-  {selector: '.create-panel', title: '第 1 步：上传并开始', text: '选择本地视频，填写名称后创建任务即可。想先快速跑通流程，可以关闭 AI 文案、AI 语音和自动素材；以后随时再开启。'},
-  {selector: '#active-task', title: '第 2 步：看当前任务做到哪里', text: '创建后这里会持续显示当前阶段、百分比和下一步。视频会先完整扫描，再进行高光、文案等后续处理；运行中也可以取消。'},
-  {selector: '.task-panel', title: '第 3、4 步：检查分镜并导出', text: '任务提示“等待检查”时，点击任务进入线性分镜工作台，修改后点“保存全部修改并执行下一步”。完成后仍在任务详情中预览并点击“导出 MP4”，这就跑通了一个完整结果。'}
+  {selector: '.hero', title: '先认识完整工作流', text: '从录像到成片依次经过素材读取、镜头检测、字幕或 Whisper 转写、画面理解、分镜、高光与文案、配音、时间轴和渲染。平台字幕存在时会优先使用，AI 与自动素材都可以独立关闭。'},
+  {selector: '.create-panel', title: '第 1 步：创建剪辑任务', text: '填写任务名称、游戏类型、解说风格和创作要求，选择完整视频或精彩片段，再上传本地视频。首次测试建议保留“分镜后暂停”，便于在渲染前检查文案、字幕和镜头。'},
+  {selector: '.effect-toggle', title: '第 2 步：按需组合 AI 能力', text: '自动流程、云端视觉、AI 文案、AI 配音和自动素材互不绑定。关闭某项不会阻止手动编辑；使用云端服务前请先到“设置”填写 API Key，本地模型则复用已安装的 Ollama、Whisper 与 Piper。'},
+  {selector: '.dropzone', title: '第 3 步：上传并开始处理', text: '支持 MP4、MOV、MKV 和 WEBM。创建后请勿关闭正在运行的桌面应用；任务进度会通过实时事件推送，不需要反复刷新页面。'},
+  {selector: '.task-panel', title: '第 4 步：右侧跟踪运行任务', text: '运行中的任务固定显示在右侧，包括当前阶段、阶段完成数、处理范围、百分比和九阶段轨迹。点击绿色任务卡可以随时打开详情；任务结束后会自动离开右侧。'},
+  {selector: '.history-panel', title: '第 5 步：从左侧历史继续', text: '完成、失败或取消的任务会进入左侧“最近完成”列表。点击条目可查看诊断原因、生成文件、AI 分析、分镜、文案、时间线和最终视频，也可以重命名或删除。'},
+  {selector: '.storyboard-review-option', title: '第 6 步：检查分镜再继续', text: '开启分镜检查后，流程会在文案与分镜生成后暂停。进入线性分镜工作台可调整顺序、起止时间、字幕、解说、素材和特效；保存全部修改后再继续配音与渲染。'},
+  {selector: '.primary-nav', title: '更多工具入口', text: '“镜头搜索”使用本地语义模型寻找片段；“平台导入”负责下载并创建项目；“素材库”管理授权素材；“设置”管理云端或本地 AI。遇到问题可点击右上角“诊断日志”。'},
+  {selector: '.topbar-actions', title: '完成、诊断与再次查看', text: '任务完成后在详情中预览并导出 MP4。任何阶段失败时先查看任务详情和诊断日志；本引导可以随时从“使用引导”重新打开。当前版本为 v0.2.0。'}
 ];
 let guideIndex = 0;
 let guideTarget = null;
@@ -1181,8 +1191,8 @@ let guideRoot = null;
 
 function guideStorage(action, value) {
   try {
-    if (action === 'get') return localStorage.getItem('game-narrator-guide-v3');
-    localStorage.setItem('game-narrator-guide-v3', value);
+    if (action === 'get') return localStorage.getItem('game-narrator-guide-v4');
+    localStorage.setItem('game-narrator-guide-v4', value);
   } catch (_) { return null; }
 }
 

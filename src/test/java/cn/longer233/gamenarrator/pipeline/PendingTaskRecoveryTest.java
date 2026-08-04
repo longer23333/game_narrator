@@ -43,4 +43,24 @@ class PendingTaskRecoveryTest {
 
         verifyNoInteractions(engine);
     }
+
+    @Test
+    void invalidLegacyTaskDoesNotAbortApplicationRecovery() {
+        VideoTaskRepository repository = mock(VideoTaskRepository.class);
+        VideoTaskEngine engine = mock(VideoTaskEngine.class);
+        SystemDiagnosticsService diagnostics = mock(SystemDiagnosticsService.class);
+        VideoTask invalid = new VideoTask("legacy", "ACTION", CommentaryStyle.ANIME_THEATER,
+                30, "legacy task", "legacy.mp4", false);
+        VideoTask valid = new VideoTask("recover", "ACTION", CommentaryStyle.ANIME_THEATER,
+                30, "recover task", "source.mp4", false);
+        when(repository.findByStatusIn(anyList())).thenReturn(List.of(invalid, valid));
+        when(diagnostics.recoveryBlockers(invalid)).thenThrow(new IllegalStateException("missing stage"));
+        when(diagnostics.recoveryBlockers(valid)).thenReturn(List.of());
+
+        new PendingTaskRecovery(repository, engine, diagnostics)
+                .run(new DefaultApplicationArguments(new String[0]));
+
+        verify(engine).start(valid.getId());
+        verify(engine, never()).start(invalid.getId());
+    }
 }
