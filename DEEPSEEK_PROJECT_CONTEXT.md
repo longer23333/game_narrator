@@ -1,7 +1,7 @@
 # GameNarrator — DeepSeek 项目上下文包
 
-> 自动生成时间：2026-08-04 15:36:50 +08:00
-> 文件数量：273。本文件由 scripts/export-deepseek-context.ps1 生成，请勿手工维护生成区。
+> 自动生成时间：2026-08-04 16:06:04 +08:00
+> 文件数量：275。本文件由 scripts/export-deepseek-context.ps1 生成，请勿手工维护生成区。
 
 ## 给 DeepSeek 的强制工作规则
 
@@ -33,7 +33,7 @@
 - `docs/MANUAL_EDITOR_PARITY.md`（2680 bytes）
 - `docs/OBSERVABILITY.md`（1109 bytes）
 - `docs/PERFORMANCE_PORTABILITY_AUDIT.md`（9090 bytes）
-- `docs/REQUIREMENTS.md`（21502 bytes）
+- `docs/REQUIREMENTS.md`（21565 bytes）
 - `docs/STYLE_TEMPLATE_STORE.md`（1190 bytes）
 - `docs/VERSIONING.md`（687 bytes）
 - `scripts/build-windows-release.ps1`（12634 bytes）
@@ -109,7 +109,7 @@
 - `src/main/java/cn/longer233/gamenarrator/export/ExportService.java`（7505 bytes）
 - `src/main/java/cn/longer233/gamenarrator/export/ExportWorker.java`（12280 bytes）
 - `src/main/java/cn/longer233/gamenarrator/export/FfmpegProgressParser.java`（1554 bytes）
-- `src/main/java/cn/longer233/gamenarrator/GameNarratorApplication.java`（501 bytes）
+- `src/main/java/cn/longer233/gamenarrator/GameNarratorApplication.java`（630 bytes）
 - `src/main/java/cn/longer233/gamenarrator/highlight/HighlightClip.java`（722 bytes）
 - `src/main/java/cn/longer233/gamenarrator/highlight/HighlightSelectionResult.java`（177 bytes）
 - `src/main/java/cn/longer233/gamenarrator/highlight/RuleBasedHighlightSelector.java`（12826 bytes）
@@ -130,6 +130,7 @@
 - `src/main/java/cn/longer233/gamenarrator/importer/RemoteThumbnailService.java`（6298 bytes）
 - `src/main/java/cn/longer233/gamenarrator/importer/ResolvedMedia.java`（934 bytes）
 - `src/main/java/cn/longer233/gamenarrator/importer/YtDlpMediaImporter.java`（30642 bytes）
+- `src/main/java/cn/longer233/gamenarrator/LocalOnlyServerBindingGuard.java`（1831 bytes）
 - `src/main/java/cn/longer233/gamenarrator/media/FfmpegMediaPreprocessor.java`（8811 bytes）
 - `src/main/java/cn/longer233/gamenarrator/media/FfmpegMediaProbe.java`（3405 bytes）
 - `src/main/java/cn/longer233/gamenarrator/media/MediaMetadata.java`（233 bytes）
@@ -217,8 +218,8 @@
 - `src/main/java/cn/longer233/gamenarrator/voice/VoiceOption.java`（137 bytes）
 - `src/main/java/cn/longer233/gamenarrator/voice/VoiceRegenerationRequest.java`（419 bytes）
 - `src/main/java/cn/longer233/gamenarrator/voice/VoiceSegment.java`（296 bytes）
-- `src/main/resources/application.yml`（14016 bytes）
-- `src/main/resources/application-release.yml`（1055 bytes）
+- `src/main/resources/application.yml`（14132 bytes）
+- `src/main/resources/application-release.yml`（1153 bytes）
 - `src/main/resources/db/migration/V1__database_v2_foundation.sql`（17535 bytes）
 - `src/main/resources/db/migration/V10__allow_storyboard_review_task_status.sql`（528 bytes）
 - `src/main/resources/db/migration/V11__repair_bilibili_scraped_titles_and_tags.sql`（691 bytes）
@@ -273,6 +274,7 @@
 - `src/test/java/cn/longer233/gamenarrator/importer/MediaImportControllerSessionTest.java`（3224 bytes）
 - `src/test/java/cn/longer233/gamenarrator/importer/RemoteThumbnailServiceTest.java`（476 bytes）
 - `src/test/java/cn/longer233/gamenarrator/importer/YtDlpMediaImporterTest.java`（1957 bytes）
+- `src/test/java/cn/longer233/gamenarrator/LocalOnlyServerBindingGuardTest.java`（976 bytes）
 - `src/test/java/cn/longer233/gamenarrator/media/FfmpegMediaProbeTest.java`（1064 bytes）
 - `src/test/java/cn/longer233/gamenarrator/observability/PrometheusEndpointTest.java`（1491 bytes）
 - `src/test/java/cn/longer233/gamenarrator/observability/StorageCapacityGuardTest.java`（1278 bytes）
@@ -315,7 +317,7 @@
 
     <groupId>cn.longer233.graduation</groupId>
     <artifactId>game-narrator</artifactId>
-    <version>1.5.0</version>
+    <version>1.5.1</version>
     <name>GameNarrator</name>
     <description>多模态游戏视频智能解说与自动剪辑系统</description>
 
@@ -1798,7 +1800,7 @@ GameNarrator 是一个面向游戏和动漫内容创作者的本地智能视频�
 - 上传文件扩展名、大小和媒体有效性必须校验。
 - API 不允许通过用户输入读取任务目录外的任意路径。
 - 日志不得记录密钥、完整模型请求或用户隐私数据。
-- 默认只监听本机地址；若开放局域网访问，必须增加认证和权限控制。
+- 只允许监听回环地址；启动时会拒绝 `0.0.0.0`、`::` 和局域网 IP。若未来开放局域网访问，必须先增加认证和权限控制。
 - 删除操作必须确认任务目录位于配置的存储根目录内。
 
 ### 9.4 可维护性
@@ -8851,7 +8853,9 @@ import org.springframework.scheduling.annotation.EnableScheduling;
 public class GameNarratorApplication {
 
     public static void main(String[] args) {
-        SpringApplication.run(GameNarratorApplication.class, args);
+        SpringApplication application = new SpringApplication(GameNarratorApplication.class);
+        application.addInitializers(new LocalOnlyServerBindingGuard());
+        application.run(args);
     }
 }
 ``
@@ -10647,6 +10651,52 @@ public class YtDlpMediaImporter {
     private void requireAvailable() {
         if (!available()) throw new IllegalStateException(
                 "媒体导入工具未安装，请运行 .\\scripts\\setup-media-importer.ps1");
+    }
+}
+``
+
+### FILE: src/main/java/cn/longer233/gamenarrator/LocalOnlyServerBindingGuard.java
+
+``java
+package cn.longer233.gamenarrator;
+
+import org.springframework.context.ApplicationContextInitializer;
+import org.springframework.context.ConfigurableApplicationContext;
+
+import java.net.InetAddress;
+import java.net.UnknownHostException;
+
+/** Prevents an unauthenticated GameNarrator instance from being exposed outside this computer. */
+final class LocalOnlyServerBindingGuard implements ApplicationContextInitializer<ConfigurableApplicationContext> {
+
+    @Override
+    public void initialize(ConfigurableApplicationContext context) {
+        validate(context.getEnvironment().getProperty("server.address", "127.0.0.1"));
+    }
+
+    static void validate(String configuredAddress) {
+        String address = configuredAddress == null ? "" : configuredAddress.trim();
+        if (address.startsWith("[") && address.endsWith("]")) {
+            address = address.substring(1, address.length() - 1);
+        }
+        if (address.isBlank()) {
+            throw rejected(configuredAddress);
+        }
+        try {
+            InetAddress[] resolved = InetAddress.getAllByName(address);
+            if (resolved.length == 0) throw rejected(configuredAddress);
+            for (InetAddress candidate : resolved) {
+                if (!candidate.isLoopbackAddress()) throw rejected(configuredAddress);
+            }
+        } catch (UnknownHostException exception) {
+            throw new IllegalStateException("无法解析服务监听地址：" + address, exception);
+        }
+    }
+
+    private static IllegalStateException rejected(String address) {
+        return new IllegalStateException("安全策略拒绝非本机监听地址：" + address
+                + "。当前版本没有 API 身份认证，只允许 127.0.0.1、::1 或 localhost；"
+                + "开放局域网前必须先实现认证与授权。");
     }
 }
 ``
@@ -17723,6 +17773,7 @@ spring:
           no-cache: true
 
 server:
+  # Security invariant: the application refuses to start on a non-loopback address until API authentication exists.
   address: ${SERVER_ADDRESS:127.0.0.1}
   port: ${SERVER_PORT:8081}
   tomcat:
@@ -18005,6 +18056,7 @@ game-narrator:
 
 ``yaml
 server:
+  # Deliberately not configurable in release builds: the current API has no authentication layer.
   address: 127.0.0.1
   port: ${SERVER_PORT:18081}
 spring:
@@ -20397,7 +20449,7 @@ const guideSteps = [
   {selector: '.history-panel', title: '第 5 步：从最左侧历史继续', text: '只有真正生成完成的任务才会进入页面最左侧“最近完成”列表。处理中、等待检查、失败或取消的任务都留在右侧，避免被误认为已经完成。点击已完成条目可查看生成文件、分镜、文案、时间线和最终视频。'},
   {selector: '.storyboard-review-option', title: '第 6 步：检查分镜再继续', text: '开启分镜检查后，流程会在文案与分镜生成后暂停。进入线性分镜工作台可调整顺序、起止时间、字幕、解说、素材和特效；保存全部修改后再继续配音与渲染。'},
   {selector: '.primary-nav', title: '更多工具入口', text: '“镜头搜索”使用本地语义模型寻找片段；“平台导入”负责下载并创建项目；“素材库”管理授权素材；“设置”管理云端或本地 AI。遇到问题可点击右上角“诊断日志”。'},
-  {selector: '.topbar-actions', title: '完成、诊断与再次查看', text: '任务完成后在详情中预览并导出 MP4。任何阶段失败时先查看任务详情和诊断日志；本引导可以随时从“使用引导”重新打开。当前版本为 v1.5.0。'}
+  {selector: '.topbar-actions', title: '完成、诊断与再次查看', text: '任务完成后在详情中预览并导出 MP4。任何阶段失败时先查看任务详情和诊断日志；本引导可以随时从“使用引导”重新打开。当前版本为 v1.5.1。'}
 ];
 let guideIndex = 0;
 let guideTarget = null;
@@ -21494,14 +21546,14 @@ document.querySelector('#copy-address').onclick=async()=>{await navigator.clipbo
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>GameNarrator 1.5.0</title>
+  <title>GameNarrator 1.5.1</title>
   <link rel="stylesheet" href="/media-importer.css?v=20260729-10">
   <link rel="stylesheet" href="/app.css?v=20260803-13">
 </head>
 <body>
   <div class="aurora"></div>
   <header class="topbar">
-    <a class="brand" href="/">GAME<span>NARRATOR</span><small class="app-version">v1.5.0</small></a>
+    <a class="brand" href="/">GAME<span>NARRATOR</span><small class="app-version">v1.5.1</small></a>
     <nav class="primary-nav" aria-label="主要功能">
       <a href="/?view=studio" data-view-link="studio">剪辑任务</a>
       <a href="/?view=search" data-view-link="search">镜头搜索</a>
@@ -23339,6 +23391,41 @@ class YtDlpMediaImporterTest {
     void retriesWithoutImpersonationWhenBilibiliTemporarilyReturnsNoFormats() {
         assertTrue(importer.isImpersonationFallbackFailure(new IllegalStateException(
                 "ERROR: [BiliBili] BV1pW3q6rEZL: No video formats found!")));
+    }
+}
+``
+
+### FILE: src/test/java/cn/longer233/gamenarrator/LocalOnlyServerBindingGuardTest.java
+
+``java
+package cn.longer233.gamenarrator;
+
+import org.junit.jupiter.api.Test;
+
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
+
+class LocalOnlyServerBindingGuardTest {
+
+    @Test
+    void acceptsIpv4Ipv6AndLocalhostLoopbackAddresses() {
+        LocalOnlyServerBindingGuard.validate("127.0.0.1");
+        LocalOnlyServerBindingGuard.validate("::1");
+        LocalOnlyServerBindingGuard.validate("[::1]");
+        LocalOnlyServerBindingGuard.validate("localhost");
+    }
+
+    @Test
+    void rejectsWildcardLanAndMissingAddressesBeforeServerStarts() {
+        assertRejected("0.0.0.0");
+        assertRejected("::");
+        assertRejected("192.168.1.20");
+        assertRejected(" ");
+    }
+
+    private void assertRejected(String address) {
+        assertThatThrownBy(() -> LocalOnlyServerBindingGuard.validate(address))
+                .isInstanceOf(IllegalStateException.class)
+                .hasMessageContaining("当前版本没有 API 身份认证");
     }
 }
 ``

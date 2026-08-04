@@ -1,4 +1,5 @@
 server:
+  # Deliberately not configurable in release builds: the current API has no authentication layer.
   address: 127.0.0.1
   port: ${SERVER_PORT:18081}
 spring:

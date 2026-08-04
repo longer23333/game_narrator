@@ -11,6 +11,8 @@ import org.springframework.scheduling.annotation.EnableScheduling;
 public class GameNarratorApplication {
 
     public static void main(String[] args) {
-        SpringApplication.run(GameNarratorApplication.class, args);
+        SpringApplication application = new SpringApplication(GameNarratorApplication.class);
+        application.addInitializers(new LocalOnlyServerBindingGuard());
+        application.run(args);
     }
 }
