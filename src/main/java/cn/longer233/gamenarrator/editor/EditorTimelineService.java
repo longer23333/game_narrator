@@ -35,7 +35,11 @@ public class EditorTimelineService {
     }
 
     @Transactional
-    public JsonNode timeline(UUID taskId) { return timelineFrom(currentManifest(taskId), taskId); }
+    public JsonNode timeline(UUID taskId) {
+        ObjectNode result = timelineFrom(currentManifest(taskId), taskId);
+        attachHistory(result, taskId);
+        return result;
+    }
 
     @Transactional
     public JsonNode command(UUID taskId, EditorCommandRequest request) {
@@ -58,8 +62,11 @@ public class EditorTimelineService {
             case "COLOR_SET" -> color(timeline, text(values, "clipId"), values);
             default -> throw new IllegalArgumentException("不支持的剪辑命令：" + type);
         }
+        if ("MOVE".equals(type) || "TRIM".equals(type)) normalizeClipOrder(timeline);
+        if ("MOVE".equals(type) || "TRIM".equals(type)) syncRenderableStoryboard(taskId, timeline);
         manifest.set("editorTimeline", timeline);
         saveRevision(taskId, manifest, type, "手动剪辑：" + type);
+        attachHistory(timeline, taskId);
         return timeline;
     }
 
@@ -111,11 +118,10 @@ public class EditorTimelineService {
         addTrack(tracks, "audio-1", "AUDIO", "原声/配音", 2);
         addTrack(tracks, "subtitle-1", "SUBTITLE", "字幕", 3);
         ArrayNode clips = timeline.putArray("clips"); double cursor = 0;
-        List<StoryboardSegmentView> segments;
-        try {
+        VideoTask sourceTask = requireTask(taskId);
+        List<StoryboardSegmentView> segments = List.of();
+        if (sourceTask.getGeneratedScriptPath() != null && sourceTask.getHighlightManifestPath() != null) {
             segments = workspace.storyboard(taskId).segments();
-        } catch (RuntimeException unavailable) {
-            segments = List.of();
         }
         for (StoryboardSegmentView segment : segments) {
             ObjectNode clip = clips.addObject();
@@ -127,9 +133,8 @@ public class EditorTimelineService {
             clip.putArray("keyframes"); cursor += segment.endSeconds() - segment.startSeconds();
         }
         if (clips.isEmpty()) {
-            VideoTask task = requireTask(taskId);
-            double duration = task.getDurationSeconds() == null
-                    ? task.getTargetDurationSeconds() : task.getDurationSeconds();
+            double duration = sourceTask.getDurationSeconds() == null
+                    ? sourceTask.getTargetDurationSeconds() : sourceTask.getDurationSeconds();
             ObjectNode clip = clips.addObject();
             clip.put("id", "source-video"); clip.put("trackId", "video-1");
             clip.put("sourceStartSeconds", 0); clip.put("sourceEndSeconds", duration);
@@ -206,13 +211,49 @@ public class EditorTimelineService {
     private JsonNode undo(UUID id) {
         UUID current = currentRevision(id); UUID parent = jdbc.queryForObject("SELECT parent_revision_id FROM project_revision WHERE id=?", UUID.class, current);
         if (parent != null) jdbc.update("UPDATE video_project SET current_revision_id=?,updated_at=CURRENT_TIMESTAMP WHERE id=?", parent, id);
-        return timeline(id);
+        ObjectNode result = timelineFrom(currentManifest(id), id);
+        syncRenderableStoryboard(id, result);
+        attachHistory(result, id);
+        return result;
     }
     private JsonNode redo(UUID id) {
         UUID current = currentRevision(id);
         List<UUID> children = jdbc.query("SELECT id FROM project_revision WHERE project_id=? AND parent_revision_id=? ORDER BY revision_no DESC", (rs,n)->rs.getObject(1,UUID.class), id,current);
         if (!children.isEmpty()) jdbc.update("UPDATE video_project SET current_revision_id=?,updated_at=CURRENT_TIMESTAMP WHERE id=?", children.getFirst(), id);
-        return timeline(id);
+        ObjectNode result = timelineFrom(currentManifest(id), id);
+        syncRenderableStoryboard(id, result);
+        attachHistory(result, id);
+        return result;
+    }
+
+    private void normalizeClipOrder(ObjectNode timeline) {
+        List<ObjectNode> ordered = new ArrayList<>();
+        timeline.withArray("clips").forEach(item -> ordered.add((ObjectNode) item));
+        ordered.sort(Comparator.comparingDouble(item -> item.path("timelineStartSeconds").asDouble()));
+        ArrayNode normalized = mapper.createArrayNode();
+        double cursor = 0;
+        for (ObjectNode item : ordered) {
+            item.put("timelineStartSeconds", cursor);
+            cursor += item.path("durationSeconds").asDouble();
+            normalized.add(item);
+        }
+        timeline.set("clips", normalized);
+        timeline.put("durationSeconds", cursor);
+    }
+
+    private void attachHistory(ObjectNode timeline, UUID id) {
+        UUID current = currentRevision(id);
+        Integer count = jdbc.queryForObject("SELECT COUNT(*) FROM project_revision WHERE project_id=?", Integer.class, id);
+        UUID parent = jdbc.queryForObject("SELECT parent_revision_id FROM project_revision WHERE id=?", UUID.class, current);
+        Integer children = jdbc.queryForObject("SELECT COUNT(*) FROM project_revision WHERE project_id=? AND parent_revision_id=?", Integer.class, id, current);
+        timeline.putObject("history").put("revisionCount", count == null ? 0 : count)
+                .put("canUndo", parent != null).put("canRedo", children != null && children > 0);
+    }
+
+    private void syncRenderableStoryboard(UUID id, ObjectNode timeline) {
+        boolean storyboardClips = !timeline.path("clips").isEmpty();
+        for (JsonNode clip : timeline.path("clips")) storyboardClips &= clip.path("id").asText().startsWith("clip-");
+        if (storyboardClips) workspace.applyEditorTimeline(id, timeline);
     }
 
     private ObjectNode currentManifest(UUID id) { requireTask(id); try { return (ObjectNode) mapper.readTree(jdbc.queryForObject("SELECT manifest_json FROM project_revision WHERE id=?", String.class, currentRevision(id))); } catch(Exception e){throw new IllegalStateException("工程清单无法读取",e);} }

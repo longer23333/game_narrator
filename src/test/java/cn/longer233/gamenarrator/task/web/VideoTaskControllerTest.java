@@ -255,4 +255,27 @@ class VideoTaskControllerTest {
                 "SELECT status FROM video_tasks WHERE id=?", String.class, id));
     }
 
+    @Test
+    void editorHistoryKeepsMoreThanFiftyPersistentUndoSteps() throws Exception {
+        MockMultipartFile video = new MockMultipartFile("video", "history.mp4", "video/mp4", "history-video".getBytes());
+        var created = mockMvc.perform(multipart("/api/tasks").file(video)
+                        .param("name", "五十步历史").param("gameCategory", "ACTION")
+                        .param("commentaryStyle", "ANIME_THEATER")
+                        .param("targetDurationSeconds", "90").param("taskBrief", "验证持久化撤销树"))
+                .andExpect(status().isCreated()).andReturn();
+        UUID id = UUID.fromString(objectMapper.readTree(created.getResponse().getContentAsString()).path("id").asText());
+
+        for (int index = 0; index < 55; index++) {
+            mockMvc.perform(post("/api/tasks/{id}/editor/commands", id).contentType("application/json")
+                            .content("{\"type\":\"TRACK_STATE\",\"payload\":{\"trackId\":\"audio-1\",\"muted\":" + (index % 2 == 0) + ",\"solo\":false}}"))
+                    .andExpect(status().isOk());
+        }
+        mockMvc.perform(get("/api/tasks/{id}/editor", id)).andExpect(status().isOk())
+                .andExpect(jsonPath("$.history.revisionCount").value(56))
+                .andExpect(jsonPath("$.history.canUndo").value(true));
+        mockMvc.perform(post("/api/tasks/{id}/editor/commands", id).contentType("application/json")
+                        .content("{\"type\":\"UNDO\",\"payload\":{}}"))
+                .andExpect(status().isOk()).andExpect(jsonPath("$.history.canRedo").value(true));
+    }
+
 }

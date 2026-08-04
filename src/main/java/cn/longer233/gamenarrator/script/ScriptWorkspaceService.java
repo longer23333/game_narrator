@@ -182,6 +182,50 @@ public class ScriptWorkspaceService {
         return storyboard(taskId);
     }
 
+    /** Applies the visual editor's ordered source ranges to the renderable storyboard artifacts. */
+    @Transactional
+    public void applyEditorTimeline(UUID taskId, JsonNode timeline) {
+        VideoTask task = requireTask(taskId);
+        ScriptDocumentView document = readDocument(task);
+        List<HighlightClip> currentClips = readHighlightClips(task);
+        List<JsonNode> ordered = new ArrayList<>();
+        timeline.path("clips").forEach(ordered::add);
+        ordered.sort(java.util.Comparator.comparingDouble(item -> item.path("timelineStartSeconds").asDouble()));
+        if (ordered.size() != document.segments().size()) throw new IllegalArgumentException("可视时间线片段数量必须与分镜一致");
+        List<ScriptSegment> scripts = new ArrayList<>();
+        List<HighlightClip> highlights = new ArrayList<>();
+        for (int position = 0; position < ordered.size(); position++) {
+            JsonNode editorClip = ordered.get(position);
+            String id = editorClip.path("id").asText();
+            int sourcePosition = id.startsWith("clip-") ? Integer.parseInt(id.substring(5)) - 1 : position;
+            if (sourcePosition < 0 || sourcePosition >= document.segments().size()) throw new IllegalArgumentException("可视时间线包含无效片段");
+            double start = editorClip.path("sourceStartSeconds").asDouble();
+            double end = editorClip.path("sourceEndSeconds").asDouble();
+            if (end <= start + .04 || start < 0 || (task.getDurationSeconds() != null && end > task.getDurationSeconds() + .001)) {
+                throw new IllegalArgumentException("可视时间线入点或出点无效");
+            }
+            ScriptSegment text = document.segments().get(sourcePosition);
+            scripts.add(new ScriptSegment(position + 1, start, end, text.narration(), text.subtitle(), text.effectCue()));
+            HighlightClip clip = currentClips.get(sourcePosition);
+            highlights.add(new HighlightClip(clip.sourceFrameIndex(), start, end,
+                    Math.max(start, Math.min(end, clip.anchorSeconds())), clip.eventType(), clip.description(),
+                    clip.sourceScore(), clip.finalScore(), clip.locked(), clip.excluded()));
+            ((com.fasterxml.jackson.databind.node.ObjectNode) editorClip).put("id", "clip-" + (position + 1));
+        }
+        String narration = String.join("\n", scripts.stream().map(ScriptSegment::narration).toList());
+        Path scriptPath = requireScriptPath(task);
+        Map<String, Object> scriptOutput = objectMapper.convertValue(readJson(scriptPath),
+                new com.fasterxml.jackson.core.type.TypeReference<LinkedHashMap<String, Object>>() {});
+        scriptOutput.put("fullNarration", narration); scriptOutput.put("segments", scripts);
+        Path highlightPath = requireHighlightPath(task);
+        Map<String, Object> highlightOutput = objectMapper.convertValue(readJson(highlightPath),
+                new com.fasterxml.jackson.core.type.TypeReference<LinkedHashMap<String, Object>>() {});
+        highlightOutput.put("clips", highlights);
+        highlightOutput.put("selectedDurationSeconds", highlights.stream().mapToDouble(HighlightClip::durationSeconds).sum());
+        writeAtomically(highlightPath, highlightOutput); writeAtomically(scriptPath, scriptOutput);
+        task.applyScriptRevision(document.title(), document.synopsis(), narration, scriptPath.toString(), scripts.size());
+    }
+
     @Transactional
     public Path storyboardThumbnail(UUID taskId, int clipIndex) {
         VideoTask task = requireTask(taskId);

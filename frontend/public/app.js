@@ -874,17 +874,24 @@ async function loadStoryboardEditor(taskId) {
   clearInterval(storyboardProgressTimer);
   if (!storyboardDialog.open) storyboardDialog.showModal();
   storyboardWorkspace.innerHTML = '<p class="empty">正在读取完整分镜时间线…</p>';
-  const [storyboard, localAssets, placements] = await Promise.all([
+  const [storyboard, localAssets, placements, editorTimeline, waveform] = await Promise.all([
     requestJson(`/api/tasks/${taskId}/storyboard`),
     requestJson('/api/assets?importStatus=DOWNLOADED&limit=100'),
-    requestJson(`/api/tasks/${taskId}/storyboard/assets`)
+    requestJson(`/api/tasks/${taskId}/storyboard/assets`),
+    requestJson(`/api/tasks/${taskId}/editor`),
+    requestJson(`/api/tasks/${taskId}/editor/waveform?points=320`)
   ]);
   const totalDuration = storyboard.segments.reduce((sum, item) => sum + item.endSeconds - item.startSeconds, 0);
   storyboardWorkspace.innerHTML = `
-    <section class="detail-block storyboard-editor" data-review-enabled="${storyboard.reviewEnabled}" data-approved="${storyboard.approved}">
+    <section class="detail-block storyboard-editor" data-task-id="${taskId}" data-review-enabled="${storyboard.reviewEnabled}" data-approved="${storyboard.approved}">
       <header class="storyboard-editor-head"><div><small>AI STORYBOARD</small><h3>${escapeHtml(storyboard.title || 'AI 分镜与文案')}</h3><p>${escapeHtml(storyboard.synopsis || '')}</p></div>
       <div class="storyboard-head-actions"><button type="button" data-storyboard-action="auto-assets" data-task-id="${taskId}">自动匹配并下载素材</button>${storyboard.approved ? '<span class="storyboard-approved">已确认 / 自动模式</span>' : '<span class="storyboard-review-pending">修改后请使用底部主按钮保存并继续</span>'}</div></header>
-      <div class="storyboard-stats"><span>${storyboard.segments.length} 个分镜</span><span>预计素材时长 ${formatDuration(totalDuration)}</span><span>拖动替代：使用上移/下移精确排序</span></div>
+      <div class="storyboard-stats"><span>${storyboard.segments.length} 个分镜</span><span>预计素材时长 ${formatDuration(totalDuration)}</span><span>支持拖拽排序与入点/出点修剪</span></div>
+      <section class="storyboard-visual-timeline" data-visual-timeline>
+        <header><div><strong>可视化分镜轨道</strong><small>拖动片段排序，拖动左右把手调整入点/出点</small></div><div class="timeline-toolbar"><button type="button" data-editor-history="UNDO">撤销</button><button type="button" data-editor-history="REDO">重做</button><label>缩放 <input type="range" min="24" max="120" value="54" data-timeline-zoom></label><b data-history-count></b></div></header>
+        <div class="storyboard-waveform" data-storyboard-waveform></div>
+        <div class="storyboard-track-scroll"><div class="storyboard-track" data-storyboard-track></div></div>
+      </section>
       <section class="storyboard-pipeline-progress" data-storyboard-progress><p>正在读取处理进度…</p></section>
       <p class="bilibili-asset-login-hint">自动接取 Bilibili 视频和专栏素材前必须先完成上方 Bilibili 登录；未登录时只会使用本地素材与开放许可素材源。</p>
       <p class="effect-note">修改镜头起止时间会直接改变最终成片使用的源视频范围；保存文案后，后续配音、字幕和渲染会使用最新内容。</p>
@@ -914,10 +921,101 @@ async function loadStoryboardEditor(taskId) {
         </article>`).join('')}</div>
       <footer class="storyboard-continue-bar"><div><strong>修改完成了吗？</strong><small>点击后会先保存全部分镜，再明确启动配音、时间线规划和视频渲染。</small></div><button type="button" data-storyboard-action="save-all-continue" data-task-id="${taskId}">保存全部修改并执行下一步 →</button></footer>
     </section>`;
+  mountStoryboardTimeline(taskId, editorTimeline, waveform);
   storyboardWorkspace.scrollTo({top:0, behavior:'smooth'});
   await updateStoryboardProgress(taskId);
   if (!taskStreamConnected) storyboardProgressTimer = setInterval(() => updateStoryboardProgress(taskId), 2000);
 }
+
+function mountStoryboardTimeline(taskId, timeline, waveform) {
+  const panel = storyboardWorkspace.querySelector('[data-visual-timeline]');
+  if (!panel) return;
+  panel._timeline = timeline;
+  panel._waveform = waveform;
+  const zoom = panel.querySelector('[data-timeline-zoom]');
+  const draw = () => drawStoryboardTimeline(panel, taskId, Number(zoom.value));
+  zoom.addEventListener('input', draw);
+  panel.querySelectorAll('[data-editor-history]').forEach(button => button.addEventListener('click', async () => {
+    button.disabled = true;
+    try {
+      await editorTimelineCommand(taskId, button.dataset.editorHistory, {});
+      await loadStoryboardEditor(taskId);
+    } catch (error) { button.title = error.message; button.disabled = false; }
+  }));
+  draw();
+}
+
+function drawStoryboardTimeline(panel, taskId, pixelsPerSecond) {
+  const timeline = panel._timeline;
+  const track = panel.querySelector('[data-storyboard-track]');
+  const duration = Math.max(1, timeline.durationSeconds || 1);
+  track.style.width = `${Math.max(720, duration * pixelsPerSecond)}px`;
+  track.innerHTML = timeline.clips.map((clip, index) => `<article class="storyboard-track-clip" draggable="true" data-editor-clip="${clip.id}" style="left:${clip.timelineStartSeconds * pixelsPerSecond}px;width:${Math.max(42, clip.durationSeconds * pixelsPerSecond)}px">
+    <button type="button" class="trim-handle trim-in" data-trim-edge="IN" aria-label="调整片段 ${index + 1} 入点"></button>
+    <img src="/api/tasks/${taskId}/storyboard/segments/${index + 1}/thumbnail" alt="片段 ${index + 1}"><span><b>${index + 1}</b><small>${clip.sourceStartSeconds.toFixed(1)}–${clip.sourceEndSeconds.toFixed(1)}s</small></span>
+    <button type="button" class="trim-handle trim-out" data-trim-edge="OUT" aria-label="调整片段 ${index + 1} 出点"></button>
+  </article>`).join('');
+  const history = timeline.history || {};
+  panel.querySelector('[data-history-count]').textContent = `${history.revisionCount || 0} 个持久化版本`;
+  panel.querySelector('[data-editor-history="UNDO"]').disabled = !history.canUndo;
+  panel.querySelector('[data-editor-history="REDO"]').disabled = !history.canRedo;
+  const waveform = panel.querySelector('[data-storyboard-waveform]');
+  waveform.style.width = track.style.width;
+  waveform.innerHTML = panel._waveform?.available ? panel._waveform.points.map(value => `<i style="height:${Math.max(2, value * 42)}px"></i>`).join('') : '<small>当前素材没有可用音频波形</small>';
+
+  let draggedId = null;
+  track.querySelectorAll('[data-editor-clip]').forEach(clip => {
+    clip.addEventListener('dragstart', event => { draggedId = clip.dataset.editorClip; event.dataTransfer.effectAllowed = 'move'; });
+  });
+  track.addEventListener('dragover', event => { event.preventDefault(); event.dataTransfer.dropEffect = 'move'; });
+  track.addEventListener('drop', async event => {
+    event.preventDefault();
+    if (!draggedId) return;
+    const start = Math.max(0, (event.clientX - track.getBoundingClientRect().left) / pixelsPerSecond);
+    track.classList.add('saving');
+    try {
+      await editorTimelineCommand(taskId, 'MOVE', {clipId:draggedId, trackId:'video-1', timelineStartSeconds:start, snap:true});
+      await loadStoryboardEditor(taskId);
+    } catch (error) { track.title = error.message; track.classList.remove('saving'); }
+  });
+  track.querySelectorAll('[data-trim-edge]').forEach(handle => handle.addEventListener('pointerdown', event => {
+    event.preventDefault(); event.stopPropagation();
+    const clipElement = handle.closest('[data-editor-clip]');
+    const clip = timeline.clips.find(item => item.id === clipElement.dataset.editorClip);
+    const originX = event.clientX, originStart = clip.sourceStartSeconds, originEnd = clip.sourceEndSeconds;
+    handle.setPointerCapture(event.pointerId);
+    const move = current => {
+      const delta = (current.clientX - originX) / pixelsPerSecond;
+      const start = handle.dataset.trimEdge === 'IN' ? Math.min(originEnd - .05, Math.max(0, originStart + delta)) : originStart;
+      const end = handle.dataset.trimEdge === 'OUT' ? Math.max(originStart + .05, originEnd + delta) : originEnd;
+      clipElement.querySelector('small').textContent = `${start.toFixed(1)}–${end.toFixed(1)}s`;
+      clipElement.style.width = `${Math.max(42, (end - start) * pixelsPerSecond)}px`;
+    };
+    const finish = async current => {
+      handle.removeEventListener('pointermove', move); handle.removeEventListener('pointerup', finish);
+      const delta = (current.clientX - originX) / pixelsPerSecond;
+      const sourceStartSeconds = handle.dataset.trimEdge === 'IN' ? Math.min(originEnd - .05, Math.max(0, originStart + delta)) : originStart;
+      const sourceEndSeconds = handle.dataset.trimEdge === 'OUT' ? Math.max(originStart + .05, originEnd + delta) : originEnd;
+      try {
+        await editorTimelineCommand(taskId, 'TRIM', {clipId:clip.id, sourceStartSeconds, sourceEndSeconds});
+        await loadStoryboardEditor(taskId);
+      } catch (error) { clipElement.title = error.message; }
+    };
+    handle.addEventListener('pointermove', move); handle.addEventListener('pointerup', finish);
+  }));
+}
+
+function editorTimelineCommand(taskId, type, payload) {
+  return requestJson(`/api/tasks/${taskId}/editor/commands`, {method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify({type, payload})});
+}
+
+document.addEventListener('keydown', event => {
+  if (!storyboardDialog?.open || !(event.ctrlKey || event.metaKey)) return;
+  const type = event.key.toLowerCase() === 'z' && event.shiftKey ? 'REDO' : event.key.toLowerCase() === 'z' ? 'UNDO' : event.key.toLowerCase() === 'y' ? 'REDO' : null;
+  if (!type) return;
+  event.preventDefault();
+  storyboardWorkspace.querySelector(`[data-editor-history="${type}"]:not(:disabled)`)?.click();
+});
 
 document.querySelector('#storyboard-close')?.addEventListener('click', () => { clearInterval(storyboardProgressTimer); storyboardDialog.close(); });
 storyboardDialog?.addEventListener('click', event => { if (event.target === storyboardDialog) { clearInterval(storyboardProgressTimer); storyboardDialog.close(); } });
@@ -1244,7 +1342,7 @@ const guideSteps = [
   {selector: '.history-panel', title: '第 5 步：从最左侧历史继续', text: '只有真正生成完成的任务才会进入页面最左侧“最近完成”列表。处理中、等待检查、失败或取消的任务都留在右侧，避免被误认为已经完成。点击已完成条目可查看生成文件、分镜、文案、时间线和最终视频。'},
   {selector: '.storyboard-review-option', title: '第 6 步：检查分镜再继续', text: '开启分镜检查后，流程会在文案与分镜生成后暂停。进入线性分镜工作台可调整顺序、起止时间、字幕、解说、素材和特效；保存全部修改后再继续配音与渲染。'},
   {selector: '.primary-nav', title: '更多工具入口', text: '“镜头搜索”使用本地语义模型寻找片段；“平台导入”负责下载并创建项目；“素材库”管理授权素材；“设置”管理云端或本地 AI。遇到问题可点击右上角“诊断日志”。'},
-  {selector: '.topbar-actions', title: '完成、诊断与再次查看', text: '任务完成后在详情中预览并导出 MP4。任何阶段失败时先查看任务详情和诊断日志；本引导可以随时从“使用引导”重新打开。当前版本为 v1.3.0。'}
+  {selector: '.topbar-actions', title: '完成、诊断与再次查看', text: '任务完成后在详情中预览并导出 MP4。任何阶段失败时先查看任务详情和诊断日志；本引导可以随时从“使用引导”重新打开。当前版本为 v1.4.0。'}
 ];
 let guideIndex = 0;
 let guideTarget = null;

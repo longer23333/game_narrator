@@ -1,6 +1,6 @@
 # GameNarrator — DeepSeek 项目上下文包
 
-> 自动生成时间：2026-08-04 15:06:43 +08:00
+> 自动生成时间：2026-08-04 15:22:14 +08:00
 > 文件数量：271。本文件由 scripts/export-deepseek-context.ps1 生成，请勿手工维护生成区。
 
 ## 给 DeepSeek 的强制工作规则
@@ -30,7 +30,7 @@
 - `docs/CLIP_COMPILATIONS.md`（702 bytes）
 - `docs/DATABASE_DESIGN.md`（28565 bytes）
 - `docs/FRONTEND_DEVELOPMENT.md`（1853 bytes）
-- `docs/MANUAL_EDITOR_PARITY.md`（2553 bytes）
+- `docs/MANUAL_EDITOR_PARITY.md`（2680 bytes）
 - `docs/OBSERVABILITY.md`（1109 bytes）
 - `docs/PERFORMANCE_PORTABILITY_AUDIT.md`（9090 bytes）
 - `docs/REQUIREMENTS.md`（21551 bytes）
@@ -91,7 +91,7 @@
 - `src/main/java/cn/longer233/gamenarrator/diagnostics/SystemDiagnosticsService.java`（6625 bytes）
 - `src/main/java/cn/longer233/gamenarrator/editor/EditorCommandRequest.java`（294 bytes）
 - `src/main/java/cn/longer233/gamenarrator/editor/EditorTimelineController.java`（931 bytes）
-- `src/main/java/cn/longer233/gamenarrator/editor/EditorTimelineService.java`（15876 bytes）
+- `src/main/java/cn/longer233/gamenarrator/editor/EditorTimelineService.java`（18256 bytes）
 - `src/main/java/cn/longer233/gamenarrator/effect/EffectController.java`（579 bytes）
 - `src/main/java/cn/longer233/gamenarrator/effect/EffectPlan.java`（196 bytes）
 - `src/main/java/cn/longer233/gamenarrator/effect/EffectPreset.java`（438 bytes）
@@ -160,7 +160,7 @@
 - `src/main/java/cn/longer233/gamenarrator/script/ScriptQualityReview.java`（318 bytes）
 - `src/main/java/cn/longer233/gamenarrator/script/ScriptSegment.java`（233 bytes）
 - `src/main/java/cn/longer233/gamenarrator/script/ScriptWorkspaceController.java`（5598 bytes）
-- `src/main/java/cn/longer233/gamenarrator/script/ScriptWorkspaceService.java`（19106 bytes）
+- `src/main/java/cn/longer233/gamenarrator/script/ScriptWorkspaceService.java`（22569 bytes）
 - `src/main/java/cn/longer233/gamenarrator/script/StoryboardAssetPlacementService.java`（13671 bytes）
 - `src/main/java/cn/longer233/gamenarrator/script/StoryboardAssetPlacementView.java`（330 bytes）
 - `src/main/java/cn/longer233/gamenarrator/script/StoryboardSegmentView.java`（305 bytes）
@@ -239,8 +239,8 @@
 - `src/main/resources/db/migration/V7__storyboard_review.sql`（207 bytes）
 - `src/main/resources/db/migration/V8__video_segment_semantic_index.sql`（634 bytes）
 - `src/main/resources/db/migration/V9__video_segment_image_hash.sql`（152 bytes）
-- `src/main/resources/static/app.css`（56525 bytes）
-- `src/main/resources/static/app.js`（81456 bytes）
+- `src/main/resources/static/app.css`（58603 bytes）
+- `src/main/resources/static/app.js`（88232 bytes）
 - `src/main/resources/static/asset-library.js`（39551 bytes）
 - `src/main/resources/static/diagnostics.js`（1673 bytes）
 - `src/main/resources/static/export.js`（10391 bytes）
@@ -284,7 +284,7 @@
 - `src/test/java/cn/longer233/gamenarrator/subtitle/AssSubtitleBuilderTest.java`（771 bytes）
 - `src/test/java/cn/longer233/gamenarrator/task/DatabaseMigrationTest.java`（4843 bytes）
 - `src/test/java/cn/longer233/gamenarrator/task/domain/VideoTaskTest.java`（4664 bytes）
-- `src/test/java/cn/longer233/gamenarrator/task/web/VideoTaskControllerTest.java`（12856 bytes）
+- `src/test/java/cn/longer233/gamenarrator/task/web/VideoTaskControllerTest.java`（14473 bytes）
 - `src/test/java/cn/longer233/gamenarrator/timeline/TimelinePlannerTest.java`（2442 bytes）
 - `src/test/java/cn/longer233/gamenarrator/timeline/TimelineValidatorTest.java`（1515 bytes）
 - `src/test/java/cn/longer233/gamenarrator/transcription/PlatformSubtitleReaderTest.java`（953 bytes）
@@ -313,7 +313,7 @@
 
     <groupId>cn.longer233.graduation</groupId>
     <artifactId>game-narrator</artifactId>
-    <version>1.3.0</version>
+    <version>1.4.0</version>
     <name>GameNarrator</name>
     <description>多模态游戏视频智能解说与自动剪辑系统</description>
 
@@ -1398,8 +1398,8 @@ GameNarrator 在禁用或未配置 AI 时，仍应能完成导入、粗剪、精
 | 领域 | 当前 | 下一阶段 |
 |---|---|---|
 | 源监视器 | 已实现原片播放、片段定位、前后跳镜 | 入点/出点标记、逐帧步进、J/K/L 播放 |
-| 时间线 | 已实现视频/叠加/音频/字幕四轨、缩放、拖拽移动、磁吸、拖拽修剪和刀片分割 | 轨道增删、组合片段、嵌套序列 |
-| 历史 | 每条剪辑命令写入不可变 `project_revision`，支持持久化撤销/重做 | 历史树可视化和版本命名 |
+| 时间线 | 已实现视频/叠加/音频/字幕四轨、缩放、波形、拖拽移动、磁吸、拖拽修剪和刀片分割；分镜工作台中的排序与修剪会同步到实际渲染产物 | 轨道增删、组合片段、嵌套序列 |
+| 历史 | 每条剪辑命令写入不可变 `project_revision`，支持持久化撤销/重做；自动化测试覆盖 55 次连续操作 | 历史树分支可视化和版本命名 |
 | 音频 | 已有原声、配音、SFX、BGM 混合，轨道静音/独奏和真实 WAV 峰值波形 | 淡入淡出和峰值告警 |
 | 画面 | 已有裁切适配、贴图、抠图、18 种效果，变换/透明度/音量关键帧和亮度/对比度/饱和度/色温面板 | 曲线编辑器、调色轮和 LUT 导入 |
 | 字幕 | 已有 SRT/ASS 和多种动态风格 | 时间线字幕块、批量样式、逐字编辑 |
@@ -7497,7 +7497,11 @@ public class EditorTimelineService {
     }
 
     @Transactional
-    public JsonNode timeline(UUID taskId) { return timelineFrom(currentManifest(taskId), taskId); }
+    public JsonNode timeline(UUID taskId) {
+        ObjectNode result = timelineFrom(currentManifest(taskId), taskId);
+        attachHistory(result, taskId);
+        return result;
+    }
 
     @Transactional
     public JsonNode command(UUID taskId, EditorCommandRequest request) {
@@ -7520,8 +7524,11 @@ public class EditorTimelineService {
             case "COLOR_SET" -> color(timeline, text(values, "clipId"), values);
             default -> throw new IllegalArgumentException("不支持的剪辑命令：" + type);
         }
+        if ("MOVE".equals(type) || "TRIM".equals(type)) normalizeClipOrder(timeline);
+        if ("MOVE".equals(type) || "TRIM".equals(type)) syncRenderableStoryboard(taskId, timeline);
         manifest.set("editorTimeline", timeline);
         saveRevision(taskId, manifest, type, "手动剪辑：" + type);
+        attachHistory(timeline, taskId);
         return timeline;
     }
 
@@ -7573,11 +7580,10 @@ public class EditorTimelineService {
         addTrack(tracks, "audio-1", "AUDIO", "原声/配音", 2);
         addTrack(tracks, "subtitle-1", "SUBTITLE", "字幕", 3);
         ArrayNode clips = timeline.putArray("clips"); double cursor = 0;
-        List<StoryboardSegmentView> segments;
-        try {
+        VideoTask sourceTask = requireTask(taskId);
+        List<StoryboardSegmentView> segments = List.of();
+        if (sourceTask.getGeneratedScriptPath() != null && sourceTask.getHighlightManifestPath() != null) {
             segments = workspace.storyboard(taskId).segments();
-        } catch (RuntimeException unavailable) {
-            segments = List.of();
         }
         for (StoryboardSegmentView segment : segments) {
             ObjectNode clip = clips.addObject();
@@ -7589,9 +7595,8 @@ public class EditorTimelineService {
             clip.putArray("keyframes"); cursor += segment.endSeconds() - segment.startSeconds();
         }
         if (clips.isEmpty()) {
-            VideoTask task = requireTask(taskId);
-            double duration = task.getDurationSeconds() == null
-                    ? task.getTargetDurationSeconds() : task.getDurationSeconds();
+            double duration = sourceTask.getDurationSeconds() == null
+                    ? sourceTask.getTargetDurationSeconds() : sourceTask.getDurationSeconds();
             ObjectNode clip = clips.addObject();
             clip.put("id", "source-video"); clip.put("trackId", "video-1");
             clip.put("sourceStartSeconds", 0); clip.put("sourceEndSeconds", duration);
@@ -7668,13 +7673,49 @@ public class EditorTimelineService {
     private JsonNode undo(UUID id) {
         UUID current = currentRevision(id); UUID parent = jdbc.queryForObject("SELECT parent_revision_id FROM project_revision WHERE id=?", UUID.class, current);
         if (parent != null) jdbc.update("UPDATE video_project SET current_revision_id=?,updated_at=CURRENT_TIMESTAMP WHERE id=?", parent, id);
-        return timeline(id);
+        ObjectNode result = timelineFrom(currentManifest(id), id);
+        syncRenderableStoryboard(id, result);
+        attachHistory(result, id);
+        return result;
     }
     private JsonNode redo(UUID id) {
         UUID current = currentRevision(id);
         List<UUID> children = jdbc.query("SELECT id FROM project_revision WHERE project_id=? AND parent_revision_id=? ORDER BY revision_no DESC", (rs,n)->rs.getObject(1,UUID.class), id,current);
         if (!children.isEmpty()) jdbc.update("UPDATE video_project SET current_revision_id=?,updated_at=CURRENT_TIMESTAMP WHERE id=?", children.getFirst(), id);
-        return timeline(id);
+        ObjectNode result = timelineFrom(currentManifest(id), id);
+        syncRenderableStoryboard(id, result);
+        attachHistory(result, id);
+        return result;
+    }
+
+    private void normalizeClipOrder(ObjectNode timeline) {
+        List<ObjectNode> ordered = new ArrayList<>();
+        timeline.withArray("clips").forEach(item -> ordered.add((ObjectNode) item));
+        ordered.sort(Comparator.comparingDouble(item -> item.path("timelineStartSeconds").asDouble()));
+        ArrayNode normalized = mapper.createArrayNode();
+        double cursor = 0;
+        for (ObjectNode item : ordered) {
+            item.put("timelineStartSeconds", cursor);
+            cursor += item.path("durationSeconds").asDouble();
+            normalized.add(item);
+        }
+        timeline.set("clips", normalized);
+        timeline.put("durationSeconds", cursor);
+    }
+
+    private void attachHistory(ObjectNode timeline, UUID id) {
+        UUID current = currentRevision(id);
+        Integer count = jdbc.queryForObject("SELECT COUNT(*) FROM project_revision WHERE project_id=?", Integer.class, id);
+        UUID parent = jdbc.queryForObject("SELECT parent_revision_id FROM project_revision WHERE id=?", UUID.class, current);
+        Integer children = jdbc.queryForObject("SELECT COUNT(*) FROM project_revision WHERE project_id=? AND parent_revision_id=?", Integer.class, id, current);
+        timeline.putObject("history").put("revisionCount", count == null ? 0 : count)
+                .put("canUndo", parent != null).put("canRedo", children != null && children > 0);
+    }
+
+    private void syncRenderableStoryboard(UUID id, ObjectNode timeline) {
+        boolean storyboardClips = !timeline.path("clips").isEmpty();
+        for (JsonNode clip : timeline.path("clips")) storyboardClips &= clip.path("id").asText().startsWith("clip-");
+        if (storyboardClips) workspace.applyEditorTimeline(id, timeline);
     }
 
     private ObjectNode currentManifest(UUID id) { requireTask(id); try { return (ObjectNode) mapper.readTree(jdbc.queryForObject("SELECT manifest_json FROM project_revision WHERE id=?", String.class, currentRevision(id))); } catch(Exception e){throw new IllegalStateException("工程清单无法读取",e);} }
@@ -13435,6 +13476,50 @@ public class ScriptWorkspaceService {
         return storyboard(taskId);
     }
 
+    /** Applies the visual editor's ordered source ranges to the renderable storyboard artifacts. */
+    @Transactional
+    public void applyEditorTimeline(UUID taskId, JsonNode timeline) {
+        VideoTask task = requireTask(taskId);
+        ScriptDocumentView document = readDocument(task);
+        List<HighlightClip> currentClips = readHighlightClips(task);
+        List<JsonNode> ordered = new ArrayList<>();
+        timeline.path("clips").forEach(ordered::add);
+        ordered.sort(java.util.Comparator.comparingDouble(item -> item.path("timelineStartSeconds").asDouble()));
+        if (ordered.size() != document.segments().size()) throw new IllegalArgumentException("可视时间线片段数量必须与分镜一致");
+        List<ScriptSegment> scripts = new ArrayList<>();
+        List<HighlightClip> highlights = new ArrayList<>();
+        for (int position = 0; position < ordered.size(); position++) {
+            JsonNode editorClip = ordered.get(position);
+            String id = editorClip.path("id").asText();
+            int sourcePosition = id.startsWith("clip-") ? Integer.parseInt(id.substring(5)) - 1 : position;
+            if (sourcePosition < 0 || sourcePosition >= document.segments().size()) throw new IllegalArgumentException("可视时间线包含无效片段");
+            double start = editorClip.path("sourceStartSeconds").asDouble();
+            double end = editorClip.path("sourceEndSeconds").asDouble();
+            if (end <= start + .04 || start < 0 || (task.getDurationSeconds() != null && end > task.getDurationSeconds() + .001)) {
+                throw new IllegalArgumentException("可视时间线入点或出点无效");
+            }
+            ScriptSegment text = document.segments().get(sourcePosition);
+            scripts.add(new ScriptSegment(position + 1, start, end, text.narration(), text.subtitle(), text.effectCue()));
+            HighlightClip clip = currentClips.get(sourcePosition);
+            highlights.add(new HighlightClip(clip.sourceFrameIndex(), start, end,
+                    Math.max(start, Math.min(end, clip.anchorSeconds())), clip.eventType(), clip.description(),
+                    clip.sourceScore(), clip.finalScore(), clip.locked(), clip.excluded()));
+            ((com.fasterxml.jackson.databind.node.ObjectNode) editorClip).put("id", "clip-" + (position + 1));
+        }
+        String narration = String.join("\n", scripts.stream().map(ScriptSegment::narration).toList());
+        Path scriptPath = requireScriptPath(task);
+        Map<String, Object> scriptOutput = objectMapper.convertValue(readJson(scriptPath),
+                new com.fasterxml.jackson.core.type.TypeReference<LinkedHashMap<String, Object>>() {});
+        scriptOutput.put("fullNarration", narration); scriptOutput.put("segments", scripts);
+        Path highlightPath = requireHighlightPath(task);
+        Map<String, Object> highlightOutput = objectMapper.convertValue(readJson(highlightPath),
+                new com.fasterxml.jackson.core.type.TypeReference<LinkedHashMap<String, Object>>() {});
+        highlightOutput.put("clips", highlights);
+        highlightOutput.put("selectedDurationSeconds", highlights.stream().mapToDouble(HighlightClip::durationSeconds).sum());
+        writeAtomically(highlightPath, highlightOutput); writeAtomically(scriptPath, scriptOutput);
+        task.applyScriptRevision(document.title(), document.synopsis(), narration, scriptPath.toString(), scripts.size());
+    }
+
     @Transactional
     public Path storyboardThumbnail(UUID taskId, int clipIndex) {
         VideoTask task = requireTask(taskId);
@@ -18599,6 +18684,7 @@ CREATE INDEX idx_segment_embedding_image_hash ON video_segment_embedding(image_h
 .storyboard-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:1rem}.storyboard-card{padding:1rem;border:1px solid rgba(255,255,255,.12);border-radius:14px;background:rgba(7,12,24,.65)}
 .storyboard-card>img{width:100%;aspect-ratio:16/9;object-fit:cover;border-radius:10px;background:#101522}.storyboard-card>header{display:flex;justify-content:space-between;gap:.5rem;margin:.75rem 0}.storyboard-card>header span,.storyboard-description{color:var(--muted);font-size:.85rem}.storyboard-time{display:grid;grid-template-columns:1fr 1fr;gap:.65rem}.storyboard-card label{display:block;margin:.55rem 0}.storyboard-card input,.storyboard-card textarea{width:100%}.storyboard-card textarea{min-height:90px}.storyboard-approve{white-space:nowrap}.storyboard-approved{color:#75e6a4}
 .storyboard-stats,.storyboard-order,.storyboard-actions{display:flex;flex-wrap:wrap;gap:.55rem}.storyboard-stats{margin:.7rem 0 1rem}.storyboard-stats span{padding:.35rem .65rem;border-radius:999px;background:rgba(117,230,164,.1);color:#9cf0bd;font-size:.82rem}.storyboard-order{margin-bottom:.5rem}.storyboard-order button{padding:.35rem .65rem}.storyboard-actions button{flex:1}
+.storyboard-visual-timeline{margin:16px 0;padding:14px;border:3px solid #111;background:#fff}.storyboard-visual-timeline>header{display:flex;align-items:center;justify-content:space-between;gap:12px}.storyboard-visual-timeline header strong,.storyboard-visual-timeline header small{display:block}.storyboard-visual-timeline header small{margin-top:3px;color:#46505c}.timeline-toolbar{display:flex;align-items:center;gap:8px;flex-wrap:wrap}.timeline-toolbar button{padding:7px 10px}.timeline-toolbar label{display:flex;align-items:center;gap:6px}.timeline-toolbar input{width:120px;padding:0;box-shadow:none}.timeline-toolbar b{font-size:10px}.storyboard-track-scroll{position:relative;overflow-x:auto;padding:0 0 10px}.storyboard-track{position:relative;height:126px;min-width:100%;background:repeating-linear-gradient(90deg,#f1f3f7 0,#f1f3f7 53px,#d9dee7 54px);border:2px solid #111}.storyboard-track.saving{opacity:.55;pointer-events:none}.storyboard-track-clip{position:absolute;top:12px;height:100px;min-width:42px;overflow:hidden;border:3px solid #111;background:#36c9ff;box-shadow:4px 4px 0 #111;cursor:grab}.storyboard-track-clip:active{cursor:grabbing}.storyboard-track-clip img{width:100%;height:68px;object-fit:cover;pointer-events:none}.storyboard-track-clip span{position:absolute;left:7px;right:7px;bottom:4px;display:flex;justify-content:space-between;gap:4px;font-size:9px}.storyboard-track-clip span b{font-size:11px}.trim-handle{position:absolute;z-index:2;top:0;bottom:0;width:10px;padding:0;border:0;border-radius:0;background:#ffe548;box-shadow:none;cursor:ew-resize}.trim-handle:hover{transform:none;box-shadow:none;background:#ff4fa3}.trim-in{left:0}.trim-out{right:0}.storyboard-waveform{display:flex;align-items:center;gap:1px;height:48px;overflow:hidden;margin-top:12px;padding:3px;background:#111}.storyboard-waveform i{flex:1;min-width:1px;background:#71e66c}.storyboard-waveform small{padding:10px;color:#fff}@media(max-width:760px){.storyboard-visual-timeline>header{align-items:flex-start;flex-direction:column}.timeline-toolbar input{width:90px}}
 @media (max-width:700px){.storyboard-editor-head{display:block}.storyboard-approve{width:100%;margin-top:.75rem}}
 .local-asset-dropzone{display:grid;grid-template-columns:1fr auto;gap:.35rem 1rem;align-items:center;margin:1rem 0;padding:1rem 1.2rem;border:1px dashed #465b7f;border-radius:14px;background:#0a1020}.local-asset-dropzone strong,.local-asset-dropzone span{grid-column:1}.local-asset-dropzone span{color:#8492ad;font-size:.78rem}.local-asset-dropzone button{grid-column:2;grid-row:1/3}.local-asset-dropzone.dragging{border-color:#45d7ea;background:rgba(69,215,234,.08)}.local-asset-dropzone.uploading{opacity:.65;pointer-events:none}
 .storyboard-assets{margin:.8rem 0;padding:.75rem;border:1px solid rgba(69,215,234,.25);border-radius:10px;background:rgba(10,22,40,.7)}.storyboard-asset-picker{display:grid;grid-template-columns:1fr 1.4fr auto auto;gap:.45rem;margin-top:.5rem}.storyboard-asset-picker button{padding:.55rem;font-size:.72rem}.storyboard-placement-list{display:flex;flex-wrap:wrap;gap:.4rem;margin-top:.55rem}.storyboard-placement-list span{display:flex;align-items:center;gap:.35rem;padding:.3rem .5rem;border-radius:999px;background:#172842;color:#b9d9ea;font-size:.72rem}.storyboard-placement-list button{padding:0;background:transparent;color:#ff8098}@media(max-width:900px){.storyboard-asset-picker{grid-template-columns:1fr}}
@@ -19662,17 +19748,24 @@ async function loadStoryboardEditor(taskId) {
   clearInterval(storyboardProgressTimer);
   if (!storyboardDialog.open) storyboardDialog.showModal();
   storyboardWorkspace.innerHTML = '<p class="empty">正在读取完整分镜时间线…</p>';
-  const [storyboard, localAssets, placements] = await Promise.all([
+  const [storyboard, localAssets, placements, editorTimeline, waveform] = await Promise.all([
     requestJson(`/api/tasks/${taskId}/storyboard`),
     requestJson('/api/assets?importStatus=DOWNLOADED&limit=100'),
-    requestJson(`/api/tasks/${taskId}/storyboard/assets`)
+    requestJson(`/api/tasks/${taskId}/storyboard/assets`),
+    requestJson(`/api/tasks/${taskId}/editor`),
+    requestJson(`/api/tasks/${taskId}/editor/waveform?points=320`)
   ]);
   const totalDuration = storyboard.segments.reduce((sum, item) => sum + item.endSeconds - item.startSeconds, 0);
   storyboardWorkspace.innerHTML = `
-    <section class="detail-block storyboard-editor" data-review-enabled="${storyboard.reviewEnabled}" data-approved="${storyboard.approved}">
+    <section class="detail-block storyboard-editor" data-task-id="${taskId}" data-review-enabled="${storyboard.reviewEnabled}" data-approved="${storyboard.approved}">
       <header class="storyboard-editor-head"><div><small>AI STORYBOARD</small><h3>${escapeHtml(storyboard.title || 'AI 分镜与文案')}</h3><p>${escapeHtml(storyboard.synopsis || '')}</p></div>
       <div class="storyboard-head-actions"><button type="button" data-storyboard-action="auto-assets" data-task-id="${taskId}">自动匹配并下载素材</button>${storyboard.approved ? '<span class="storyboard-approved">已确认 / 自动模式</span>' : '<span class="storyboard-review-pending">修改后请使用底部主按钮保存并继续</span>'}</div></header>
-      <div class="storyboard-stats"><span>${storyboard.segments.length} 个分镜</span><span>预计素材时长 ${formatDuration(totalDuration)}</span><span>拖动替代：使用上移/下移精确排序</span></div>
+      <div class="storyboard-stats"><span>${storyboard.segments.length} 个分镜</span><span>预计素材时长 ${formatDuration(totalDuration)}</span><span>支持拖拽排序与入点/出点修剪</span></div>
+      <section class="storyboard-visual-timeline" data-visual-timeline>
+        <header><div><strong>可视化分镜轨道</strong><small>拖动片段排序，拖动左右把手调整入点/出点</small></div><div class="timeline-toolbar"><button type="button" data-editor-history="UNDO">撤销</button><button type="button" data-editor-history="REDO">重做</button><label>缩放 <input type="range" min="24" max="120" value="54" data-timeline-zoom></label><b data-history-count></b></div></header>
+        <div class="storyboard-waveform" data-storyboard-waveform></div>
+        <div class="storyboard-track-scroll"><div class="storyboard-track" data-storyboard-track></div></div>
+      </section>
       <section class="storyboard-pipeline-progress" data-storyboard-progress><p>正在读取处理进度…</p></section>
       <p class="bilibili-asset-login-hint">自动接取 Bilibili 视频和专栏素材前必须先完成上方 Bilibili 登录；未登录时只会使用本地素材与开放许可素材源。</p>
       <p class="effect-note">修改镜头起止时间会直接改变最终成片使用的源视频范围；保存文案后，后续配音、字幕和渲染会使用最新内容。</p>
@@ -19702,10 +19795,101 @@ async function loadStoryboardEditor(taskId) {
         </article>`).join('')}</div>
       <footer class="storyboard-continue-bar"><div><strong>修改完成了吗？</strong><small>点击后会先保存全部分镜，再明确启动配音、时间线规划和视频渲染。</small></div><button type="button" data-storyboard-action="save-all-continue" data-task-id="${taskId}">保存全部修改并执行下一步 →</button></footer>
     </section>`;
+  mountStoryboardTimeline(taskId, editorTimeline, waveform);
   storyboardWorkspace.scrollTo({top:0, behavior:'smooth'});
   await updateStoryboardProgress(taskId);
   if (!taskStreamConnected) storyboardProgressTimer = setInterval(() => updateStoryboardProgress(taskId), 2000);
 }
+
+function mountStoryboardTimeline(taskId, timeline, waveform) {
+  const panel = storyboardWorkspace.querySelector('[data-visual-timeline]');
+  if (!panel) return;
+  panel._timeline = timeline;
+  panel._waveform = waveform;
+  const zoom = panel.querySelector('[data-timeline-zoom]');
+  const draw = () => drawStoryboardTimeline(panel, taskId, Number(zoom.value));
+  zoom.addEventListener('input', draw);
+  panel.querySelectorAll('[data-editor-history]').forEach(button => button.addEventListener('click', async () => {
+    button.disabled = true;
+    try {
+      await editorTimelineCommand(taskId, button.dataset.editorHistory, {});
+      await loadStoryboardEditor(taskId);
+    } catch (error) { button.title = error.message; button.disabled = false; }
+  }));
+  draw();
+}
+
+function drawStoryboardTimeline(panel, taskId, pixelsPerSecond) {
+  const timeline = panel._timeline;
+  const track = panel.querySelector('[data-storyboard-track]');
+  const duration = Math.max(1, timeline.durationSeconds || 1);
+  track.style.width = `${Math.max(720, duration * pixelsPerSecond)}px`;
+  track.innerHTML = timeline.clips.map((clip, index) => `<article class="storyboard-track-clip" draggable="true" data-editor-clip="${clip.id}" style="left:${clip.timelineStartSeconds * pixelsPerSecond}px;width:${Math.max(42, clip.durationSeconds * pixelsPerSecond)}px">
+    <button type="button" class="trim-handle trim-in" data-trim-edge="IN" aria-label="调整片段 ${index + 1} 入点"></button>
+    <img src="/api/tasks/${taskId}/storyboard/segments/${index + 1}/thumbnail" alt="片段 ${index + 1}"><span><b>${index + 1}</b><small>${clip.sourceStartSeconds.toFixed(1)}–${clip.sourceEndSeconds.toFixed(1)}s</small></span>
+    <button type="button" class="trim-handle trim-out" data-trim-edge="OUT" aria-label="调整片段 ${index + 1} 出点"></button>
+  </article>`).join('');
+  const history = timeline.history || {};
+  panel.querySelector('[data-history-count]').textContent = `${history.revisionCount || 0} 个持久化版本`;
+  panel.querySelector('[data-editor-history="UNDO"]').disabled = !history.canUndo;
+  panel.querySelector('[data-editor-history="REDO"]').disabled = !history.canRedo;
+  const waveform = panel.querySelector('[data-storyboard-waveform]');
+  waveform.style.width = track.style.width;
+  waveform.innerHTML = panel._waveform?.available ? panel._waveform.points.map(value => `<i style="height:${Math.max(2, value * 42)}px"></i>`).join('') : '<small>当前素材没有可用音频波形</small>';
+
+  let draggedId = null;
+  track.querySelectorAll('[data-editor-clip]').forEach(clip => {
+    clip.addEventListener('dragstart', event => { draggedId = clip.dataset.editorClip; event.dataTransfer.effectAllowed = 'move'; });
+  });
+  track.addEventListener('dragover', event => { event.preventDefault(); event.dataTransfer.dropEffect = 'move'; });
+  track.addEventListener('drop', async event => {
+    event.preventDefault();
+    if (!draggedId) return;
+    const start = Math.max(0, (event.clientX - track.getBoundingClientRect().left) / pixelsPerSecond);
+    track.classList.add('saving');
+    try {
+      await editorTimelineCommand(taskId, 'MOVE', {clipId:draggedId, trackId:'video-1', timelineStartSeconds:start, snap:true});
+      await loadStoryboardEditor(taskId);
+    } catch (error) { track.title = error.message; track.classList.remove('saving'); }
+  });
+  track.querySelectorAll('[data-trim-edge]').forEach(handle => handle.addEventListener('pointerdown', event => {
+    event.preventDefault(); event.stopPropagation();
+    const clipElement = handle.closest('[data-editor-clip]');
+    const clip = timeline.clips.find(item => item.id === clipElement.dataset.editorClip);
+    const originX = event.clientX, originStart = clip.sourceStartSeconds, originEnd = clip.sourceEndSeconds;
+    handle.setPointerCapture(event.pointerId);
+    const move = current => {
+      const delta = (current.clientX - originX) / pixelsPerSecond;
+      const start = handle.dataset.trimEdge === 'IN' ? Math.min(originEnd - .05, Math.max(0, originStart + delta)) : originStart;
+      const end = handle.dataset.trimEdge === 'OUT' ? Math.max(originStart + .05, originEnd + delta) : originEnd;
+      clipElement.querySelector('small').textContent = `${start.toFixed(1)}–${end.toFixed(1)}s`;
+      clipElement.style.width = `${Math.max(42, (end - start) * pixelsPerSecond)}px`;
+    };
+    const finish = async current => {
+      handle.removeEventListener('pointermove', move); handle.removeEventListener('pointerup', finish);
+      const delta = (current.clientX - originX) / pixelsPerSecond;
+      const sourceStartSeconds = handle.dataset.trimEdge === 'IN' ? Math.min(originEnd - .05, Math.max(0, originStart + delta)) : originStart;
+      const sourceEndSeconds = handle.dataset.trimEdge === 'OUT' ? Math.max(originStart + .05, originEnd + delta) : originEnd;
+      try {
+        await editorTimelineCommand(taskId, 'TRIM', {clipId:clip.id, sourceStartSeconds, sourceEndSeconds});
+        await loadStoryboardEditor(taskId);
+      } catch (error) { clipElement.title = error.message; }
+    };
+    handle.addEventListener('pointermove', move); handle.addEventListener('pointerup', finish);
+  }));
+}
+
+function editorTimelineCommand(taskId, type, payload) {
+  return requestJson(`/api/tasks/${taskId}/editor/commands`, {method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify({type, payload})});
+}
+
+document.addEventListener('keydown', event => {
+  if (!storyboardDialog?.open || !(event.ctrlKey || event.metaKey)) return;
+  const type = event.key.toLowerCase() === 'z' && event.shiftKey ? 'REDO' : event.key.toLowerCase() === 'z' ? 'UNDO' : event.key.toLowerCase() === 'y' ? 'REDO' : null;
+  if (!type) return;
+  event.preventDefault();
+  storyboardWorkspace.querySelector(`[data-editor-history="${type}"]:not(:disabled)`)?.click();
+});
 
 document.querySelector('#storyboard-close')?.addEventListener('click', () => { clearInterval(storyboardProgressTimer); storyboardDialog.close(); });
 storyboardDialog?.addEventListener('click', event => { if (event.target === storyboardDialog) { clearInterval(storyboardProgressTimer); storyboardDialog.close(); } });
@@ -20032,7 +20216,7 @@ const guideSteps = [
   {selector: '.history-panel', title: '第 5 步：从最左侧历史继续', text: '只有真正生成完成的任务才会进入页面最左侧“最近完成”列表。处理中、等待检查、失败或取消的任务都留在右侧，避免被误认为已经完成。点击已完成条目可查看生成文件、分镜、文案、时间线和最终视频。'},
   {selector: '.storyboard-review-option', title: '第 6 步：检查分镜再继续', text: '开启分镜检查后，流程会在文案与分镜生成后暂停。进入线性分镜工作台可调整顺序、起止时间、字幕、解说、素材和特效；保存全部修改后再继续配音与渲染。'},
   {selector: '.primary-nav', title: '更多工具入口', text: '“镜头搜索”使用本地语义模型寻找片段；“平台导入”负责下载并创建项目；“素材库”管理授权素材；“设置”管理云端或本地 AI。遇到问题可点击右上角“诊断日志”。'},
-  {selector: '.topbar-actions', title: '完成、诊断与再次查看', text: '任务完成后在详情中预览并导出 MP4。任何阶段失败时先查看任务详情和诊断日志；本引导可以随时从“使用引导”重新打开。当前版本为 v1.3.0。'}
+  {selector: '.topbar-actions', title: '完成、诊断与再次查看', text: '任务完成后在详情中预览并导出 MP4。任何阶段失败时先查看任务详情和诊断日志；本引导可以随时从“使用引导”重新打开。当前版本为 v1.4.0。'}
 ];
 let guideIndex = 0;
 let guideTarget = null;
@@ -21129,14 +21313,14 @@ document.querySelector('#copy-address').onclick=async()=>{await navigator.clipbo
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>GameNarrator 1.3.0</title>
+  <title>GameNarrator 1.4.0</title>
   <link rel="stylesheet" href="/media-importer.css?v=20260729-10">
   <link rel="stylesheet" href="/app.css?v=20260803-13">
 </head>
 <body>
   <div class="aurora"></div>
   <header class="topbar">
-    <a class="brand" href="/">GAME<span>NARRATOR</span><small class="app-version">v1.3.0</small></a>
+    <a class="brand" href="/">GAME<span>NARRATOR</span><small class="app-version">v1.4.0</small></a>
     <nav class="primary-nav" aria-label="主要功能">
       <a href="/?view=studio" data-view-link="studio">剪辑任务</a>
       <a href="/?view=search" data-view-link="search">镜头搜索</a>
@@ -24008,6 +24192,29 @@ class VideoTaskControllerTest {
         assertEquals(1, jdbc.update("UPDATE video_tasks SET status='WAITING_REVIEW' WHERE id=?", id));
         assertEquals("WAITING_REVIEW", jdbc.queryForObject(
                 "SELECT status FROM video_tasks WHERE id=?", String.class, id));
+    }
+
+    @Test
+    void editorHistoryKeepsMoreThanFiftyPersistentUndoSteps() throws Exception {
+        MockMultipartFile video = new MockMultipartFile("video", "history.mp4", "video/mp4", "history-video".getBytes());
+        var created = mockMvc.perform(multipart("/api/tasks").file(video)
+                        .param("name", "五十步历史").param("gameCategory", "ACTION")
+                        .param("commentaryStyle", "ANIME_THEATER")
+                        .param("targetDurationSeconds", "90").param("taskBrief", "验证持久化撤销树"))
+                .andExpect(status().isCreated()).andReturn();
+        UUID id = UUID.fromString(objectMapper.readTree(created.getResponse().getContentAsString()).path("id").asText());
+
+        for (int index = 0; index < 55; index++) {
+            mockMvc.perform(post("/api/tasks/{id}/editor/commands", id).contentType("application/json")
+                            .content("{\"type\":\"TRACK_STATE\",\"payload\":{\"trackId\":\"audio-1\",\"muted\":" + (index % 2 == 0) + ",\"solo\":false}}"))
+                    .andExpect(status().isOk());
+        }
+        mockMvc.perform(get("/api/tasks/{id}/editor", id)).andExpect(status().isOk())
+                .andExpect(jsonPath("$.history.revisionCount").value(56))
+                .andExpect(jsonPath("$.history.canUndo").value(true));
+        mockMvc.perform(post("/api/tasks/{id}/editor/commands", id).contentType("application/json")
+                        .content("{\"type\":\"UNDO\",\"payload\":{}}"))
+                .andExpect(status().isOk()).andExpect(jsonPath("$.history.canRedo").value(true));
     }
 
 }
