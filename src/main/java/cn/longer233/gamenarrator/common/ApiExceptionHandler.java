@@ -113,6 +113,13 @@ public class ApiExceptionHandler {
                 "刷新任务后重新提交本次修改");
     }
 
+    @ExceptionHandler(cn.longer233.gamenarrator.observability.InsufficientStorageException.class)
+    @ResponseStatus(HttpStatus.INSUFFICIENT_STORAGE)
+    public ApiError insufficientStorage(cn.longer233.gamenarrator.observability.InsufficientStorageException exception) {
+        log.error("API_ERROR code=INSUFFICIENT_STORAGE message={}", exception.getMessage());
+        return error("INSUFFICIENT_STORAGE", exception.getMessage(), "删除不再需要的任务或扩展磁盘容量后重试");
+    }
+
     @ExceptionHandler(Exception.class)
     @ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
     public ApiError unexpected(Exception exception) {

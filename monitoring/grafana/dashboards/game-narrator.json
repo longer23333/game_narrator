@@ -1,0 +1,17 @@
+{
+  "annotations": {"list": []},
+  "editable": true,
+  "panels": [
+    {"type":"stat","title":"是否接收任务","targets":[{"expr":"game_narrator_accepting_tasks"}],"gridPos":{"h":8,"w":6,"x":0,"y":0}},
+    {"type":"timeseries","title":"异步队列与工作线程","targets":[{"expr":"game_narrator_task_queue_size","legendFormat":"排队"},{"expr":"game_narrator_task_executor_active","legendFormat":"运行"}],"gridPos":{"h":8,"w":9,"x":6,"y":0}},
+    {"type":"timeseries","title":"JVM 堆内存","targets":[{"expr":"sum(jvm_memory_used_bytes{area=\"heap\"})","legendFormat":"已用"},{"expr":"sum(jvm_memory_max_bytes{area=\"heap\"})","legendFormat":"上限"}],"gridPos":{"h":8,"w":9,"x":15,"y":0}},
+    {"type":"timeseries","title":"存储空间","targets":[{"expr":"game_narrator_storage_usable_bytes","legendFormat":"可用"},{"expr":"game_narrator_storage_total_bytes","legendFormat":"总量"}],"gridPos":{"h":8,"w":12,"x":0,"y":8}},
+    {"type":"timeseries","title":"GPU 显存","targets":[{"expr":"game_narrator_gpu_memory_used_bytes","legendFormat":"已用"},{"expr":"game_narrator_gpu_memory_total_bytes","legendFormat":"总量"}],"gridPos":{"h":8,"w":12,"x":12,"y":8}}
+  ],
+  "schemaVersion": 39,
+  "tags": ["game-narrator"],
+  "templating": {"list": []},
+  "time": {"from":"now-6h","to":"now"},
+  "title": "GameNarrator 运行监控",
+  "uid": "game-narrator"
+}

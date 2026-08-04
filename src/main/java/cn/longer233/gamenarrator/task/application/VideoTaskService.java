@@ -31,6 +31,7 @@ public class VideoTaskService {
     private final ProjectHistoryService projectHistoryService;
     private final Path storageRoot;
     private final cn.longer233.gamenarrator.common.StorageCleanupService storageCleanup;
+    private final cn.longer233.gamenarrator.observability.StorageCapacityGuard capacityGuard;
 
     public VideoTaskService(
             VideoTaskRepository repository,
@@ -39,7 +40,8 @@ public class VideoTaskService {
             EffectRerenderWorker effectRerenderWorker,
             ProjectHistoryService projectHistoryService,
             cn.longer233.gamenarrator.common.StorageCleanupService storageCleanup,
-            @org.springframework.beans.factory.annotation.Value("${game-narrator.storage-root}") String storageRoot
+            @org.springframework.beans.factory.annotation.Value("${game-narrator.storage-root}") String storageRoot,
+            cn.longer233.gamenarrator.observability.StorageCapacityGuard capacityGuard
     ) {
         this.repository = repository;
         this.storage = storage;
@@ -48,6 +50,7 @@ public class VideoTaskService {
         this.projectHistoryService = projectHistoryService;
         this.storageCleanup = storageCleanup;
         this.storageRoot = Path.of(storageRoot).toAbsolutePath().normalize();
+        this.capacityGuard = capacityGuard;
     }
 
     @Transactional
@@ -58,6 +61,7 @@ public class VideoTaskService {
                 command.gameCategory(),
                 command.commentaryStyle(),
                 command.targetDurationSeconds());
+        capacityGuard.requireTaskCapacity(video == null ? 0 : video.getSize());
         String videoPath = storage.save(video);
         VideoTask task = new VideoTask(
                 command.name(),
@@ -86,6 +90,7 @@ public class VideoTaskService {
 
     @Transactional
     public VideoTaskView createPendingRemote(CreateVideoTaskCommand command, String pendingVideoPath) {
+        capacityGuard.requireTaskCapacity(0);
         VideoTask task = new VideoTask(command.name(), command.gameCategory(), command.commentaryStyle(),
                 command.targetDurationSeconds(), command.taskBrief(), pendingVideoPath,
                 command.storyboardReviewEnabled());

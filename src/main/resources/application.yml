@@ -53,6 +53,22 @@ logging:
     console: "%d{HH:mm:ss.SSS} %-5level [%thread] [trace=%X{traceId:-system}] %logger{36} - %msg%n"
     file: "%d{yyyy-MM-dd HH:mm:ss.SSS} %-5level [%thread] [trace=%X{traceId:-system}] %logger{48} - %msg%n"
 
+management:
+  prometheus:
+    metrics:
+      export:
+        enabled: true
+  endpoints:
+    web:
+      exposure:
+        include: health,info,prometheus
+  endpoint:
+    health:
+      show-details: when_authorized
+  metrics:
+    tags:
+      application: ${spring.application.name}
+
 game-narrator:
   retry:
     download-attempts: ${DOWNLOAD_RETRY_ATTEMPTS:3}
@@ -220,6 +236,9 @@ game-narrator:
   cleanup:
     retention-hours: ${CLEANUP_RETENTION_HOURS:24}
     interval-ms: ${CLEANUP_INTERVAL_MS:3600000}
+  capacity:
+    minimum-free-bytes: ${MINIMUM_FREE_STORAGE_BYTES:5368709120}
+    minimum-free-percent: ${MINIMUM_FREE_STORAGE_PERCENT:5}
   task-stream:
     refresh-ms: ${TASK_STREAM_REFRESH_MS:1000}
   pipeline:

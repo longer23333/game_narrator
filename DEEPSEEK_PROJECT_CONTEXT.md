@@ -1,7 +1,7 @@
 # GameNarrator — DeepSeek 项目上下文包
 
-> 自动生成时间：2026-08-04 14:31:41 +08:00
-> 文件数量：263。本文件由 scripts/export-deepseek-context.ps1 生成，请勿手工维护生成区。
+> 自动生成时间：2026-08-04 14:53:42 +08:00
+> 文件数量：269。本文件由 scripts/export-deepseek-context.ps1 生成，请勿手工维护生成区。
 
 ## 给 DeepSeek 的强制工作规则
 
@@ -22,7 +22,7 @@
 
 ## 当前文件清单
 
-- `pom.xml`（2304 bytes）
+- `pom.xml`（2625 bytes）
 - `README.md`（4934 bytes）
 - `.gitignore`（277 bytes）
 - `docs/ARCHITECTURE.md`（2049 bytes）
@@ -31,6 +31,7 @@
 - `docs/DATABASE_DESIGN.md`（28565 bytes）
 - `docs/FRONTEND_DEVELOPMENT.md`（1853 bytes）
 - `docs/MANUAL_EDITOR_PARITY.md`（2553 bytes）
+- `docs/OBSERVABILITY.md`（1109 bytes）
 - `docs/PERFORMANCE_PORTABILITY_AUDIT.md`（8566 bytes）
 - `docs/REQUIREMENTS.md`（21551 bytes）
 - `docs/VERSIONING.md`（687 bytes）
@@ -41,7 +42,7 @@
 - `scripts/setup-piper.ps1`（1322 bytes）
 - `scripts/setup-vision-model.ps1`（931 bytes）
 - `scripts/setup-whisper.ps1`（2003 bytes）
-- `scripts/sync-remotes.ps1`（1786 bytes）
+- `scripts/sync-remotes.ps1`（1785 bytes）
 - `scripts/test-windows-clean-install.ps1`（4098 bytes）
 - `scripts/verify-before-push.ps1`（1116 bytes）
 - `src/main/java/cn/longer233/gamenarrator/ai/AdaptiveAiChatClient.java`（14601 bytes）
@@ -72,7 +73,7 @@
 - `src/main/java/cn/longer233/gamenarrator/audio/AudioAnalysisService.java`（5357 bytes）
 - `src/main/java/cn/longer233/gamenarrator/audio/ProceduralSoundEffectLibrary.java`（4912 bytes）
 - `src/main/java/cn/longer233/gamenarrator/audio/SoundCue.java`（192 bytes）
-- `src/main/java/cn/longer233/gamenarrator/common/ApiExceptionHandler.java`（7008 bytes）
+- `src/main/java/cn/longer233/gamenarrator/common/ApiExceptionHandler.java`（7512 bytes）
 - `src/main/java/cn/longer233/gamenarrator/common/AtomicArtifactWriter.java`（2074 bytes）
 - `src/main/java/cn/longer233/gamenarrator/common/ExternalProcessRunner.java`（7919 bytes）
 - `src/main/java/cn/longer233/gamenarrator/common/PhaseRetryExecutor.java`（3901 bytes）
@@ -133,6 +134,9 @@
 - `src/main/java/cn/longer233/gamenarrator/media/MediaMetadata.java`（233 bytes）
 - `src/main/java/cn/longer233/gamenarrator/media/MediaPreparationResult.java`（211 bytes）
 - `src/main/java/cn/longer233/gamenarrator/media/SceneFrame.java`（125 bytes）
+- `src/main/java/cn/longer233/gamenarrator/observability/GameNarratorMetrics.java`（3490 bytes）
+- `src/main/java/cn/longer233/gamenarrator/observability/InsufficientStorageException.java`（202 bytes）
+- `src/main/java/cn/longer233/gamenarrator/observability/StorageCapacityGuard.java`（1973 bytes）
 - `src/main/java/cn/longer233/gamenarrator/pipeline/EngineTaskContext.java`（1224 bytes）
 - `src/main/java/cn/longer233/gamenarrator/pipeline/FailedVisionTaskRepair.java`（2063 bytes）
 - `src/main/java/cn/longer233/gamenarrator/pipeline/PendingTaskRecovery.java`（2188 bytes）
@@ -170,7 +174,7 @@
 - `src/main/java/cn/longer233/gamenarrator/task/application/RenameTaskRequest.java`（222 bytes）
 - `src/main/java/cn/longer233/gamenarrator/task/application/StageView.java`（767 bytes）
 - `src/main/java/cn/longer233/gamenarrator/task/application/TaskNotFoundException.java`（239 bytes）
-- `src/main/java/cn/longer233/gamenarrator/task/application/VideoTaskService.java`（11613 bytes）
+- `src/main/java/cn/longer233/gamenarrator/task/application/VideoTaskService.java`（11965 bytes）
 - `src/main/java/cn/longer233/gamenarrator/task/application/VideoTaskView.java`（4287 bytes）
 - `src/main/java/cn/longer233/gamenarrator/task/domain/CommentaryStyle.java`（128 bytes）
 - `src/main/java/cn/longer233/gamenarrator/task/domain/EditingScope.java`（108 bytes）
@@ -180,7 +184,7 @@
 - `src/main/java/cn/longer233/gamenarrator/task/domain/StageStatus.java`（116 bytes）
 - `src/main/java/cn/longer233/gamenarrator/task/domain/TaskStatus.java`（150 bytes）
 - `src/main/java/cn/longer233/gamenarrator/task/domain/VideoTask.java`（22301 bytes）
-- `src/main/java/cn/longer233/gamenarrator/task/repository/VideoTaskRepository.java`（505 bytes）
+- `src/main/java/cn/longer233/gamenarrator/task/repository/VideoTaskRepository.java`（548 bytes）
 - `src/main/java/cn/longer233/gamenarrator/task/web/TaskEventStreamService.java`（1895 bytes）
 - `src/main/java/cn/longer233/gamenarrator/task/web/VideoTaskController.java`（6659 bytes）
 - `src/main/java/cn/longer233/gamenarrator/timeline/TimelinePlanner.java`（4735 bytes）
@@ -211,7 +215,7 @@
 - `src/main/java/cn/longer233/gamenarrator/voice/VoiceOption.java`（137 bytes）
 - `src/main/java/cn/longer233/gamenarrator/voice/VoiceRegenerationRequest.java`（419 bytes）
 - `src/main/java/cn/longer233/gamenarrator/voice/VoiceSegment.java`（296 bytes）
-- `src/main/resources/application.yml`（13598 bytes）
+- `src/main/resources/application.yml`（14016 bytes）
 - `src/main/resources/application-release.yml`（1055 bytes）
 - `src/main/resources/db/migration/V1__database_v2_foundation.sql`（17535 bytes）
 - `src/main/resources/db/migration/V10__allow_storyboard_review_task_status.sql`（528 bytes）
@@ -267,6 +271,8 @@
 - `src/test/java/cn/longer233/gamenarrator/importer/RemoteThumbnailServiceTest.java`（476 bytes）
 - `src/test/java/cn/longer233/gamenarrator/importer/YtDlpMediaImporterTest.java`（1957 bytes）
 - `src/test/java/cn/longer233/gamenarrator/media/FfmpegMediaProbeTest.java`（1064 bytes）
+- `src/test/java/cn/longer233/gamenarrator/observability/PrometheusEndpointTest.java`（1491 bytes）
+- `src/test/java/cn/longer233/gamenarrator/observability/StorageCapacityGuardTest.java`（1278 bytes）
 - `src/test/java/cn/longer233/gamenarrator/pipeline/PendingTaskRecoveryTest.java`（3156 bytes）
 - `src/test/java/cn/longer233/gamenarrator/pipeline/VideoPipelineEndToEndTest.java`（3211 bytes）
 - `src/test/java/cn/longer233/gamenarrator/render/FfmpegVideoRendererEffectTest.java`（2999 bytes）
@@ -305,7 +311,7 @@
 
     <groupId>cn.longer233.graduation</groupId>
     <artifactId>game-narrator</artifactId>
-    <version>1.1.0</version>
+    <version>1.2.0</version>
     <name>GameNarrator</name>
     <description>多模态游戏视频智能解说与自动剪辑系统</description>
 
@@ -328,6 +334,14 @@
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-validation</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-actuator</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>io.micrometer</groupId>
+            <artifactId>micrometer-registry-prometheus</artifactId>
         </dependency>
         <dependency>
             <groupId>com.h2database</groupId>
@@ -1395,6 +1409,27 @@ GameNarrator 在禁用或未配置 AI 时，仍应能完成导入、粗剪、精
 2. 预览可以使用代理媒体，最终导出仍从原素材渲染。
 3. 编辑命令与渲染参数必须可序列化、可验证、可迁移。
 4. 优先使用现有 Java/FFmpeg 边界，不因对标而盲目引入重型框架或不兼容许可证代码。
+``
+
+### FILE: docs/OBSERVABILITY.md
+
+``text
+# 可观测性与容量保护
+
+应用通过 `/actuator/prometheus` 暴露 JVM、HTTP、任务队列、任务状态、外部进程、磁盘容量和 NVIDIA GPU 显存指标。
+
+## 启动 Prometheus
+
+`monitoring/prometheus.yml` 默认抓取宿主机 `8081` 端口，适用于容器中的 Prometheus。若启动器为应用分配了其他端口，请同步修改 `targets`。告警规则位于 `monitoring/alerts.yml`，包括磁盘不足、队列积压、JVM 堆内存和显存压力。
+
+Grafana 数据源和仪表盘配置位于 `monitoring/grafana`。将 `provisioning` 挂载到 Grafana 的 `/etc/grafana/provisioning`，将 `dashboards` 挂载到 `/var/lib/grafana/dashboards`，即可自动连接名为 `prometheus` 的 Prometheus 服务并加载中文运行监控仪表盘。
+
+## 磁盘保护
+
+默认要求素材存储目录至少保留 5 GiB 且保留 5% 可用空间。创建本地或远程任务前，系统会先执行一次安全缓存清理；仍不足时返回 HTTP 507，不再接收新任务。可通过以下环境变量调整：
+
+- `MINIMUM_FREE_STORAGE_BYTES`
+- `MINIMUM_FREE_STORAGE_PERCENT`
 ``
 
 ### FILE: docs/PERFORMANCE_PORTABILITY_AUDIT.md
@@ -2467,7 +2502,7 @@ param(
 
 $ErrorActionPreference = "Stop"
 $repositoryRoot = (Resolve-Path (Join-Path $PSScriptRoot "..")).Path
-$safeDirectoryArgument = "safe.directory=$($repositoryRoot.Replace('\\', '/'))"
+$safeDirectoryArgument = "safe.directory=$($repositoryRoot.Replace('\', '/'))"
 if ([string]::IsNullOrWhiteSpace($Branch)) {
     $Branch = git -c $safeDirectoryArgument -C $repositoryRoot branch --show-current
 }
@@ -6129,6 +6164,13 @@ public class ApiExceptionHandler {
         log.warn("API_ERROR code=CONCURRENT_MODIFICATION");
         return error("CONCURRENT_MODIFICATION", "任务已被后台流程或另一个编辑操作更新",
                 "刷新任务后重新提交本次修改");
+    }
+
+    @ExceptionHandler(cn.longer233.gamenarrator.observability.InsufficientStorageException.class)
+    @ResponseStatus(HttpStatus.INSUFFICIENT_STORAGE)
+    public ApiError insufficientStorage(cn.longer233.gamenarrator.observability.InsufficientStorageException exception) {
+        log.error("API_ERROR code=INSUFFICIENT_STORAGE message={}", exception.getMessage());
+        return error("INSUFFICIENT_STORAGE", exception.getMessage(), "删除不再需要的任务或扩展磁盘容量后重试");
     }
 
     @ExceptionHandler(Exception.class)
@@ -10721,6 +10763,129 @@ public record SceneFrame(int index, double timestampSeconds, String imagePath) {
 }
 ``
 
+### FILE: src/main/java/cn/longer233/gamenarrator/observability/GameNarratorMetrics.java
+
+``java
+package cn.longer233.gamenarrator.observability;
+
+import cn.longer233.gamenarrator.common.ExternalProcessRunner;
+import cn.longer233.gamenarrator.task.domain.TaskStatus;
+import cn.longer233.gamenarrator.task.repository.VideoTaskRepository;
+import io.micrometer.core.instrument.Gauge;
+import io.micrometer.core.instrument.MeterRegistry;
+import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.scheduling.annotation.Scheduled;
+import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
+import org.springframework.stereotype.Component;
+
+import java.time.Duration;
+import java.util.List;
+import java.util.concurrent.Executor;
+import java.util.concurrent.atomic.AtomicLong;
+
+@Component
+public class GameNarratorMetrics {
+    private final AtomicLong gpuMemoryUsedBytes = new AtomicLong(-1);
+    private final AtomicLong gpuMemoryTotalBytes = new AtomicLong(-1);
+
+    public GameNarratorMetrics(MeterRegistry registry, VideoTaskRepository tasks,
+            StorageCapacityGuard capacity, @Qualifier("taskExecutor") Executor executor) {
+        ThreadPoolTaskExecutor pool = (ThreadPoolTaskExecutor) executor;
+        Gauge.builder("game_narrator_task_queue_size", pool, item -> item.getThreadPoolExecutor().getQueue().size())
+                .description("Queued asynchronous work items").register(registry);
+        Gauge.builder("game_narrator_task_executor_active", pool, ThreadPoolTaskExecutor::getActiveCount)
+                .description("Active asynchronous task workers").register(registry);
+        for (TaskStatus status : TaskStatus.values()) Gauge.builder("game_narrator_tasks", tasks,
+                repository -> repository.countByStatus(status))
+                .tag("status", status.name()).register(registry);
+        Gauge.builder("game_narrator_storage_usable_bytes", capacity, StorageCapacityGuard::usableBytes).register(registry);
+        Gauge.builder("game_narrator_storage_total_bytes", capacity, StorageCapacityGuard::totalBytes).register(registry);
+        Gauge.builder("game_narrator_accepting_tasks", capacity, value -> value.acceptingTasks() ? 1 : 0).register(registry);
+        Gauge.builder("game_narrator_gpu_memory_used_bytes", gpuMemoryUsedBytes, AtomicLong::get).register(registry);
+        Gauge.builder("game_narrator_gpu_memory_total_bytes", gpuMemoryTotalBytes, AtomicLong::get).register(registry);
+        ExternalProcessRunner.activeCounts().forEach((type, ignored) -> Gauge.builder(
+                "game_narrator_external_processes_active", type,
+                key -> ExternalProcessRunner.activeCounts().getOrDefault(key, 0)).tag("type", type).register(registry));
+    }
+
+    @Scheduled(fixedDelayString = "${game-narrator.observability.gpu-refresh-ms:15000}")
+    public void refreshGpu() {
+        try {
+            var result = ExternalProcessRunner.run(List.of("nvidia-smi", "--query-gpu=memory.used,memory.total",
+                    "--format=csv,noheader,nounits"), Duration.ofSeconds(3));
+            String line = result.output().lines().findFirst().orElse("");
+            if (result.exitCode() == 0 && !line.isBlank()) {
+                String[] values = line.split(",");
+                gpuMemoryUsedBytes.set(Long.parseLong(values[0].trim()) * 1024 * 1024);
+                gpuMemoryTotalBytes.set(Long.parseLong(values[1].trim()) * 1024 * 1024);
+            }
+        } catch (Exception ignored) {
+            gpuMemoryUsedBytes.set(-1); gpuMemoryTotalBytes.set(-1);
+        }
+    }
+}
+``
+
+### FILE: src/main/java/cn/longer233/gamenarrator/observability/InsufficientStorageException.java
+
+``java
+package cn.longer233.gamenarrator.observability;
+
+public class InsufficientStorageException extends IllegalStateException {
+    public InsufficientStorageException(String message) { super(message); }
+}
+``
+
+### FILE: src/main/java/cn/longer233/gamenarrator/observability/StorageCapacityGuard.java
+
+``java
+package cn.longer233.gamenarrator.observability;
+
+import cn.longer233.gamenarrator.common.StorageCleanupService;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.stereotype.Component;
+
+import java.nio.file.Files;
+import java.nio.file.Path;
+
+@Component
+public class StorageCapacityGuard {
+    private final Path root;
+    private final long minimumFreeBytes;
+    private final int minimumFreePercent;
+    private final StorageCleanupService cleanup;
+
+    public StorageCapacityGuard(@Value("${game-narrator.storage-root}") String root,
+            @Value("${game-narrator.capacity.minimum-free-bytes:5368709120}") long minimumFreeBytes,
+            @Value("${game-narrator.capacity.minimum-free-percent:5}") int minimumFreePercent,
+            StorageCleanupService cleanup) {
+        this.root = Path.of(root).toAbsolutePath().normalize();
+        this.minimumFreeBytes = Math.max(0, minimumFreeBytes);
+        this.minimumFreePercent = Math.max(0, Math.min(50, minimumFreePercent));
+        this.cleanup = cleanup;
+    }
+
+    public void requireTaskCapacity(long incomingBytes) {
+        if (hasCapacity(incomingBytes)) return;
+        cleanup.cleanup();
+        if (hasCapacity(incomingBytes)) return;
+        throw new InsufficientStorageException("磁盘可用空间不足，已暂停接收新任务；请清理存储目录或调整容量阈值");
+    }
+
+    public boolean acceptingTasks() { return hasCapacity(0); }
+    public long usableBytes() { return root.toFile().getUsableSpace(); }
+    public long totalBytes() { return root.toFile().getTotalSpace(); }
+
+    private boolean hasCapacity(long incomingBytes) {
+        try { Files.createDirectories(root); }
+        catch (Exception exception) { return false; }
+        long total = totalBytes();
+        long reserved = Math.max(minimumFreeBytes, Math.round(total * minimumFreePercent / 100.0));
+        return usableBytes() - Math.max(0, incomingBytes) >= reserved;
+    }
+}
+``
+
 ### FILE: src/main/java/cn/longer233/gamenarrator/pipeline/EngineTaskContext.java
 
 ``java
@@ -14022,6 +14187,7 @@ public class VideoTaskService {
     private final ProjectHistoryService projectHistoryService;
     private final Path storageRoot;
     private final cn.longer233.gamenarrator.common.StorageCleanupService storageCleanup;
+    private final cn.longer233.gamenarrator.observability.StorageCapacityGuard capacityGuard;
 
     public VideoTaskService(
             VideoTaskRepository repository,
@@ -14030,7 +14196,8 @@ public class VideoTaskService {
             EffectRerenderWorker effectRerenderWorker,
             ProjectHistoryService projectHistoryService,
             cn.longer233.gamenarrator.common.StorageCleanupService storageCleanup,
-            @org.springframework.beans.factory.annotation.Value("${game-narrator.storage-root}") String storageRoot
+            @org.springframework.beans.factory.annotation.Value("${game-narrator.storage-root}") String storageRoot,
+            cn.longer233.gamenarrator.observability.StorageCapacityGuard capacityGuard
     ) {
         this.repository = repository;
         this.storage = storage;
@@ -14039,6 +14206,7 @@ public class VideoTaskService {
         this.projectHistoryService = projectHistoryService;
         this.storageCleanup = storageCleanup;
         this.storageRoot = Path.of(storageRoot).toAbsolutePath().normalize();
+        this.capacityGuard = capacityGuard;
     }
 
     @Transactional
@@ -14049,6 +14217,7 @@ public class VideoTaskService {
                 command.gameCategory(),
                 command.commentaryStyle(),
                 command.targetDurationSeconds());
+        capacityGuard.requireTaskCapacity(video == null ? 0 : video.getSize());
         String videoPath = storage.save(video);
         VideoTask task = new VideoTask(
                 command.name(),
@@ -14077,6 +14246,7 @@ public class VideoTaskService {
 
     @Transactional
     public VideoTaskView createPendingRemote(CreateVideoTaskCommand command, String pendingVideoPath) {
+        capacityGuard.requireTaskCapacity(0);
         VideoTask task = new VideoTask(command.name(), command.gameCategory(), command.commentaryStyle(),
                 command.targetDurationSeconds(), command.taskBrief(), pendingVideoPath,
                 command.storyboardReviewEnabled());
@@ -15179,6 +15349,7 @@ import java.util.UUID;
 public interface VideoTaskRepository extends JpaRepository<VideoTask, UUID> {
     List<VideoTask> findByStatus(TaskStatus status);
     List<VideoTask> findByStatusIn(Collection<TaskStatus> statuses);
+    long countByStatus(TaskStatus status);
 }
 ``
 
@@ -17205,6 +17376,22 @@ logging:
     console: "%d{HH:mm:ss.SSS} %-5level [%thread] [trace=%X{traceId:-system}] %logger{36} - %msg%n"
     file: "%d{yyyy-MM-dd HH:mm:ss.SSS} %-5level [%thread] [trace=%X{traceId:-system}] %logger{48} - %msg%n"
 
+management:
+  prometheus:
+    metrics:
+      export:
+        enabled: true
+  endpoints:
+    web:
+      exposure:
+        include: health,info,prometheus
+  endpoint:
+    health:
+      show-details: when_authorized
+  metrics:
+    tags:
+      application: ${spring.application.name}
+
 game-narrator:
   retry:
     download-attempts: ${DOWNLOAD_RETRY_ATTEMPTS:3}
@@ -17372,6 +17559,9 @@ game-narrator:
   cleanup:
     retention-hours: ${CLEANUP_RETENTION_HOURS:24}
     interval-ms: ${CLEANUP_INTERVAL_MS:3600000}
+  capacity:
+    minimum-free-bytes: ${MINIMUM_FREE_STORAGE_BYTES:5368709120}
+    minimum-free-percent: ${MINIMUM_FREE_STORAGE_PERCENT:5}
   task-stream:
     refresh-ms: ${TASK_STREAM_REFRESH_MS:1000}
   pipeline:
@@ -19660,7 +19850,7 @@ const guideSteps = [
   {selector: '.history-panel', title: '第 5 步：从最左侧历史继续', text: '只有真正生成完成的任务才会进入页面最左侧“最近完成”列表。处理中、等待检查、失败或取消的任务都留在右侧，避免被误认为已经完成。点击已完成条目可查看生成文件、分镜、文案、时间线和最终视频。'},
   {selector: '.storyboard-review-option', title: '第 6 步：检查分镜再继续', text: '开启分镜检查后，流程会在文案与分镜生成后暂停。进入线性分镜工作台可调整顺序、起止时间、字幕、解说、素材和特效；保存全部修改后再继续配音与渲染。'},
   {selector: '.primary-nav', title: '更多工具入口', text: '“镜头搜索”使用本地语义模型寻找片段；“平台导入”负责下载并创建项目；“素材库”管理授权素材；“设置”管理云端或本地 AI。遇到问题可点击右上角“诊断日志”。'},
-  {selector: '.topbar-actions', title: '完成、诊断与再次查看', text: '任务完成后在详情中预览并导出 MP4。任何阶段失败时先查看任务详情和诊断日志；本引导可以随时从“使用引导”重新打开。当前版本为 v1.1.0。'}
+  {selector: '.topbar-actions', title: '完成、诊断与再次查看', text: '任务完成后在详情中预览并导出 MP4。任何阶段失败时先查看任务详情和诊断日志；本引导可以随时从“使用引导”重新打开。当前版本为 v1.2.0。'}
 ];
 let guideIndex = 0;
 let guideTarget = null;
@@ -20757,14 +20947,14 @@ document.querySelector('#copy-address').onclick=async()=>{await navigator.clipbo
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>GameNarrator 1.1.0</title>
+  <title>GameNarrator 1.2.0</title>
   <link rel="stylesheet" href="/media-importer.css?v=20260729-10">
   <link rel="stylesheet" href="/app.css?v=20260803-13">
 </head>
 <body>
   <div class="aurora"></div>
   <header class="topbar">
-    <a class="brand" href="/">GAME<span>NARRATOR</span><small class="app-version">v1.1.0</small></a>
+    <a class="brand" href="/">GAME<span>NARRATOR</span><small class="app-version">v1.2.0</small></a>
     <nav class="primary-nav" aria-label="主要功能">
       <a href="/?view=studio" data-view-link="studio">剪辑任务</a>
       <a href="/?view=search" data-view-link="search">镜头搜索</a>
@@ -22585,6 +22775,80 @@ class FfmpegMediaProbeTest {
         assertThat(metadata.framesPerSecond()).isEqualTo(60);
         assertThat(metadata.videoCodec()).isEqualTo("h264");
         assertThat(metadata.audioCodec()).isEqualTo("aac");
+    }
+}
+``
+
+### FILE: src/test/java/cn/longer233/gamenarrator/observability/PrometheusEndpointTest.java
+
+``java
+package cn.longer233.gamenarrator.observability;
+
+import org.junit.jupiter.api.Test;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
+import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.test.web.servlet.MockMvc;
+
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
+
+@SpringBootTest(properties = {
+        "spring.datasource.url=jdbc:h2:mem:prometheus-test",
+        "game-narrator.storage-root=./target/prometheus-test-storage",
+        "game-narrator.capacity.minimum-free-bytes=0",
+        "game-narrator.capacity.minimum-free-percent=0"
+})
+@AutoConfigureMockMvc
+class PrometheusEndpointTest {
+    @Autowired MockMvc mvc;
+
+    @Test
+    void exposesApplicationAndJvmMetrics() throws Exception {
+        mvc.perform(get("/actuator/prometheus"))
+                .andExpect(status().isOk())
+                .andExpect(content().string(org.hamcrest.Matchers.containsString("jvm_memory_used_bytes")))
+                .andExpect(content().string(org.hamcrest.Matchers.containsString("game_narrator_task_queue_size")))
+                .andExpect(content().string(org.hamcrest.Matchers.containsString("game_narrator_storage_usable_bytes")));
+    }
+}
+``
+
+### FILE: src/test/java/cn/longer233/gamenarrator/observability/StorageCapacityGuardTest.java
+
+``java
+package cn.longer233.gamenarrator.observability;
+
+import cn.longer233.gamenarrator.common.StorageCleanupService;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.io.TempDir;
+
+import java.nio.file.Path;
+
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.verify;
+
+class StorageCapacityGuardTest {
+    @TempDir Path temporary;
+
+    @Test
+    void acceptsTasksWhenConfiguredReserveIsAvailable() {
+        StorageCapacityGuard guard = new StorageCapacityGuard(temporary.toString(), 0, 0,
+                mock(StorageCleanupService.class));
+        assertThat(guard.acceptingTasks()).isTrue();
+        guard.requireTaskCapacity(1024);
+    }
+
+    @Test
+    void cleansThenRejectsWhenReserveCannotBeSatisfied() {
+        StorageCleanupService cleanup = mock(StorageCleanupService.class);
+        StorageCapacityGuard guard = new StorageCapacityGuard(temporary.toString(), Long.MAX_VALUE, 0, cleanup);
+        assertThatThrownBy(() -> guard.requireTaskCapacity(1))
+                .isInstanceOf(InsufficientStorageException.class).hasMessageContaining("磁盘可用空间不足");
+        verify(cleanup).cleanup();
     }
 }
 ``
