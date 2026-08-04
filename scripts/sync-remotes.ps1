@@ -6,7 +6,7 @@ param(
 
 $ErrorActionPreference = "Stop"
 $repositoryRoot = (Resolve-Path (Join-Path $PSScriptRoot "..")).Path
-$safeDirectoryArgument = "safe.directory=$($repositoryRoot.Replace('\\', '/'))"
+$safeDirectoryArgument = "safe.directory=$($repositoryRoot.Replace('\', '/'))"
 if ([string]::IsNullOrWhiteSpace($Branch)) {
     $Branch = git -c $safeDirectoryArgument -C $repositoryRoot branch --show-current
 }
