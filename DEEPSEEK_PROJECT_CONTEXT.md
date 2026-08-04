@@ -1,6 +1,6 @@
 # GameNarrator — DeepSeek 项目上下文包
 
-> 自动生成时间：2026-08-04 10:22:19 +08:00
+> 自动生成时间：2026-08-04 10:28:56 +08:00
 > 文件数量：260。本文件由 scripts/export-deepseek-context.ps1 生成，请勿手工维护生成区。
 
 ## 给 DeepSeek 的强制工作规则
@@ -232,7 +232,7 @@
 - `src/main/resources/db/migration/V7__storyboard_review.sql`（207 bytes）
 - `src/main/resources/db/migration/V8__video_segment_semantic_index.sql`（634 bytes）
 - `src/main/resources/db/migration/V9__video_segment_image_hash.sql`（152 bytes）
-- `src/main/resources/static/app.css`（47194 bytes）
+- `src/main/resources/static/app.css`（51550 bytes）
 - `src/main/resources/static/app.js`（75030 bytes）
 - `src/main/resources/static/asset-library.js`（39551 bytes）
 - `src/main/resources/static/diagnostics.js`（1673 bytes）
@@ -18056,6 +18056,83 @@ input::placeholder,textarea::placeholder{color:#555f6d;opacity:1;text-shadow:non
   .task-card .task-error{max-height:38px;margin-top:6px;padding:5px;overflow:hidden;font-size:9px}
   .task-list .empty{padding:24px 6px;font-size:12px}
 }
+
+/* High-contrast controls: remove the remaining dark-theme assumptions. */
+:root{font-family:"Segoe UI Variable Text","Segoe UI","Microsoft YaHei UI","Microsoft YaHei",sans-serif;color-scheme:light}
+button,input,select,textarea{font:inherit}
+select{
+  appearance:none;
+  padding-right:42px;
+  color:#111;
+  background-color:#fff;
+  background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='14' height='9' viewBox='0 0 14 9'%3E%3Cpath d='M2 2l5 5 5-5' fill='none' stroke='%23111' stroke-width='2.5' stroke-linecap='square'/%3E%3C/svg%3E");
+  background-repeat:no-repeat;
+  background-position:right 14px center;
+}
+select option{color:#111;background:#fff;font-weight:650}
+input[type="checkbox"]{
+  appearance:none;
+  display:inline-grid;
+  place-content:center;
+  flex:0 0 22px;
+  width:22px!important;
+  height:22px;
+  margin:0;
+  padding:0;
+  color:#111;
+  background:#fff;
+  border:3px solid #111;
+  box-shadow:2px 2px 0 #111;
+}
+input[type="checkbox"]:checked{background-color:var(--blue);background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 16 16'%3E%3Cpath d='M3 8l3 3 7-7' fill='none' stroke='%23111' stroke-width='3' stroke-linecap='square' stroke-linejoin='miter'/%3E%3C/svg%3E");background-position:center;background-repeat:no-repeat}
+input[type="checkbox"]:focus-visible,select:focus-visible,button:focus-visible{outline:4px solid #fff;outline-offset:2px;box-shadow:0 0 0 7px var(--violet)}
+button:disabled{color:#4b4b4b;background:#d5d5d5;opacity:1}
+.dialog-header,.storyboard-workspace-shell>.dialog-header{color:#111;background:var(--yellow);border-bottom:4px solid #111}
+.dialog-header small,.dialog-header h2{color:#111}
+.dialog-close,.media-preview-close{
+  display:grid;
+  place-items:center;
+  width:42px;
+  height:42px;
+  padding:0;
+  color:#fff;
+  background:#111;
+  border:3px solid #fff;
+  border-radius:0;
+  box-shadow:4px 4px 0 var(--pink);
+  font-family:"Segoe UI Symbol","Arial Unicode MS",sans-serif;
+  font-size:28px;
+  font-weight:900;
+  line-height:1;
+}
+.dialog-close:hover,.media-preview-close:hover{color:#111;background:var(--yellow);border-color:#111;box-shadow:2px 2px 0 var(--pink)}
+.icon-button{color:#111;background:var(--yellow);font-family:"Segoe UI Symbol","Segoe UI",sans-serif;font-weight:900}
+.storyboard-linear .storyboard-card{color:#111;background:#fff;border-color:#111}
+.storyboard-linear .storyboard-card :where(h3,strong,label,span,p,small){color:#111}
+.storyboard-linear .storyboard-description,.storyboard-editor-head p,.storyboard-review-hint,.storyboard-launch small{color:var(--muted)}
+.storyboard-pipeline-progress{color:#111;background:#fff;border:3px solid #111;backdrop-filter:none}
+.storyboard-stage-strip span{color:#333;background:#fff;border-color:#555}
+.storyboard-pipeline-progress header small,.storyboard-pipeline-progress>p,.storyboard-continue-bar small{color:var(--muted)}
+.task-dialog{color:#111;background:var(--paper);border:4px solid #111}
+.detail-content{color:#111;background:var(--paper)}
+.task-operations small{color:var(--muted)}
+.task-delete-operation button{color:#fff;background:#111}
+.task-delete-operation button:hover{color:#111;background:#ff6b83}
+.detail-summary>div{color:#111;background:#fff;border:3px solid #111;border-radius:0}
+.detail-summary>div:nth-child(2){background:#d9f5ff}
+.detail-summary>div:nth-child(3){background:#fff0a8}
+.detail-summary>div:nth-child(4){background:#ffd7e9}
+.detail-summary span{color:#46505c}
+.detail-summary strong{color:#111}
+.detail-status.completed{color:#075b36}.detail-status.failed{color:#9b1734}
+.detail-grid>div,.stage-row{color:#111;background:#fff;border:2px solid #111;border-radius:0}
+.detail-grid dt,.stage-index,.stage-info small,.stage-row>b{color:#46505c}
+.detail-grid dd,.stage-info strong{color:#111}
+.stage-progress{background:#d4d8df;border:1px solid #111}
+.artifact-list span,.detail-brief,.visual-summary,.transcript,.effect-note,.rendered-video-head p{color:#46505c}
+.artifact-list code,.transcript-text,.rendered-video>code{color:#111;background:#f0f3f7;border:2px solid #111;border-radius:0}
+.download-button,.preview-button{color:#111;background:var(--blue);border:3px solid #111;border-radius:0;box-shadow:3px 3px 0 #111}
+.rendered-video-head span{color:#075b36;background:#d8f7e7;border:2px solid #075b36}
 ``
 
 ### FILE: src/main/resources/static/app.js
@@ -20632,7 +20709,7 @@ document.querySelector('#copy-address').onclick=async()=>{await navigator.clipbo
 @media(max-width:1050px){.auto-auth-state,.media-url-field{grid-column:1/-1}.cookie-fallback{grid-column:span 5}.rights-confirm{grid-column:span 7}.media-resolve-form>button{grid-column:1/-1}}@media(max-width:750px){.media-resolve-form{grid-template-columns:1fr}.media-resolve-form>*{grid-column:1!important}.bilibili-login-panel{grid-template-columns:1fr}.bilibili-login-panel span{grid-column:1}.resolved-media{grid-template-columns:1fr}.media-importer{padding:18px}}
 .media-online-preview{position:relative}.media-preview-close{position:absolute;z-index:1;top:22px;right:22px;width:34px;height:34px;padding:0;border-radius:50%;background:rgba(5,10,20,.82);font-size:24px;line-height:1;color:#fff;box-shadow:0 3px 14px #000}
 .media-importer :where(p,small,label,span){text-shadow:none}
-.media-importer :where(.resolved-media p,.resolved-media small,.auto-auth-state small,.bilibili-login-panel small,.bilibili-login-panel span){color:#c2cde0}
+.media-importer :where(.resolved-media p,.resolved-media small,.auto-auth-state small,.bilibili-login-panel small,.bilibili-login-panel span){color:#46505c}
 ``
 
 ### FILE: src/main/resources/static/media-importer.js
