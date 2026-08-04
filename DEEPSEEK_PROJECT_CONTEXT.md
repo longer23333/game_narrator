@@ -1,6 +1,6 @@
 # GameNarrator — DeepSeek 项目上下文包
 
-> 自动生成时间：2026-08-04 10:16:28 +08:00
+> 自动生成时间：2026-08-04 10:22:19 +08:00
 > 文件数量：260。本文件由 scripts/export-deepseek-context.ps1 生成，请勿手工维护生成区。
 
 ## 给 DeepSeek 的强制工作规则
@@ -232,7 +232,7 @@
 - `src/main/resources/db/migration/V7__storyboard_review.sql`（207 bytes）
 - `src/main/resources/db/migration/V8__video_segment_semantic_index.sql`（634 bytes）
 - `src/main/resources/db/migration/V9__video_segment_image_hash.sql`（152 bytes）
-- `src/main/resources/static/app.css`（45571 bytes）
+- `src/main/resources/static/app.css`（47194 bytes）
 - `src/main/resources/static/app.js`（75030 bytes）
 - `src/main/resources/static/asset-library.js`（39551 bytes）
 - `src/main/resources/static/diagnostics.js`（1673 bytes）
@@ -18032,6 +18032,30 @@ CREATE INDEX idx_segment_embedding_image_hash ON video_segment_embedding(image_h
 input::placeholder,textarea::placeholder{color:#555f6d;opacity:1;text-shadow:none}
 .script-segment-card.quality-warning{border-color:#ffb347;box-shadow:inset 4px 0 0 #ffb347}.script-segment-card.manual-approved{border-color:#38e09d;box-shadow:inset 4px 0 0 #38e09d}.script-segment-card.manual-needs-changes{border-color:#ff5577;box-shadow:inset 4px 0 0 #ff5577}.segment-quality-issues{margin:8px 0;padding:9px 11px;border:1px solid #ffb347;background:rgba(255,179,71,.12);color:#ffe1ad}.segment-quality-issues ul{margin:6px 0 0;padding-left:18px}
 @media(max-width:650px){.guided-tour-card{box-shadow:7px 7px 0 var(--pink),11px 11px 0 var(--ink);transform:none}.guided-tour-target{box-shadow:0 0 0 4px var(--yellow),0 0 0 7px var(--ink),0 0 0 9999px rgba(17,17,17,.28)!important}}
+
+/* Recent tasks are a compact navigation rail; full information belongs in the detail dialog. */
+@media(min-width:861px){
+  .workspace{grid-template-columns:minmax(0,1fr) 320px;align-items:start;gap:22px}
+  .task-panel{position:sticky;top:112px;max-height:calc(100vh - 136px);padding:16px;overflow:hidden;box-shadow:6px 6px 0 var(--ink)}
+  .task-panel .section-title{align-items:center;margin-bottom:12px}
+  .task-panel .section-title small{font-size:9px;letter-spacing:.12em}
+  .task-panel .section-title h2{margin:3px 0 0;font-size:22px}
+  .task-panel .icon-button{padding:6px 9px;font-size:15px;box-shadow:2px 2px 0 var(--ink)}
+  .task-list{gap:7px;max-height:calc(100vh - 225px);padding:2px 5px 8px 2px}
+  .task-card{padding:10px 11px;box-shadow:3px 3px 0 var(--ink)}
+  .task-card:hover,.task-card:focus-visible{box-shadow:4px 4px 0 var(--blue);transform:translate(-1px,-1px)}
+  .task-head{align-items:center;gap:7px}
+  .task-head>strong{min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-size:13px}
+  .task-card-actions{flex:0 0 auto;gap:3px}
+  .task-card-actions>span{max-width:72px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-size:9px}
+  .task-card-actions>button{display:none}
+  .task-card .tags{display:none}
+  .task-card .stage-line{gap:2px;margin-top:8px}
+  .task-card .stage-line span{height:3px}
+  .task-card .stage-caption{margin-top:5px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-size:9px}
+  .task-card .task-error{max-height:38px;margin-top:6px;padding:5px;overflow:hidden;font-size:9px}
+  .task-list .empty{padding:24px 6px;font-size:12px}
+}
 ``
 
 ### FILE: src/main/resources/static/app.js
