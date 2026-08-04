@@ -1,7 +1,7 @@
 # GameNarrator — DeepSeek 项目上下文包
 
-> 自动生成时间：2026-08-04 11:19:40 +08:00
-> 文件数量：260。本文件由 scripts/export-deepseek-context.ps1 生成，请勿手工维护生成区。
+> 自动生成时间：2026-08-04 11:36:40 +08:00
+> 文件数量：261。本文件由 scripts/export-deepseek-context.ps1 生成，请勿手工维护生成区。
 
 ## 给 DeepSeek 的强制工作规则
 
@@ -33,6 +33,7 @@
 - `docs/MANUAL_EDITOR_PARITY.md`（2553 bytes）
 - `docs/PERFORMANCE_PORTABILITY_AUDIT.md`（8090 bytes）
 - `docs/REQUIREMENTS.md`（21389 bytes）
+- `docs/VERSIONING.md`（687 bytes）
 - `scripts/build-windows-release.ps1`（12634 bytes）
 - `scripts/export-deepseek-context.ps1`（5568 bytes）
 - `scripts/generate-app-icon.ps1`（1832 bytes）
@@ -302,7 +303,7 @@
 
     <groupId>cn.longer233.graduation</groupId>
     <artifactId>game-narrator</artifactId>
-    <version>0.2.0</version>
+    <version>1.0.0</version>
     <name>GameNarrator</name>
     <description>多模态游戏视频智能解说与自动剪辑系统</description>
 
@@ -1928,6 +1929,21 @@ storage/tasks/{taskId}/
 - 相关单元测试或集成测试通过。
 - 使用文档和配置说明已更新。
 - 不引入未经授权的素材、模型或声音。
+``
+
+### FILE: docs/VERSIONING.md
+
+``text
+# GameNarrator 版本规则
+
+GameNarrator 使用 `主版本.功能版本.修复版本` 三段式版本号。
+
+- `1.0.0`：达到首个正式发布标准。
+- 只修复缺陷、不增加新功能时，递增第三位，例如 `1.0.0` → `1.0.1`。
+- 增加向后兼容的新功能、但未达到下一代产品标准时，递增第二位并将第三位归零，例如 `1.0.1` → `1.1.0`。
+- 发生不兼容变更或达到下一代产品标准时，递增第一位并将后两位归零，例如 `1.9.3` → `2.0.0`。
+
+每次发布必须同步更新 Maven、前端包、网站、Windows 启动器和安装程序版本。安装程序文件名使用 `GameNarrator-Setup-版本号.exe`。
 ``
 
 ### FILE: scripts/build-windows-release.ps1
@@ -19412,7 +19428,7 @@ const guideSteps = [
   {selector: '.history-panel', title: '第 5 步：从最左侧历史继续', text: '只有真正生成完成的任务才会进入页面最左侧“最近完成”列表。处理中、等待检查、失败或取消的任务都留在右侧，避免被误认为已经完成。点击已完成条目可查看生成文件、分镜、文案、时间线和最终视频。'},
   {selector: '.storyboard-review-option', title: '第 6 步：检查分镜再继续', text: '开启分镜检查后，流程会在文案与分镜生成后暂停。进入线性分镜工作台可调整顺序、起止时间、字幕、解说、素材和特效；保存全部修改后再继续配音与渲染。'},
   {selector: '.primary-nav', title: '更多工具入口', text: '“镜头搜索”使用本地语义模型寻找片段；“平台导入”负责下载并创建项目；“素材库”管理授权素材；“设置”管理云端或本地 AI。遇到问题可点击右上角“诊断日志”。'},
-  {selector: '.topbar-actions', title: '完成、诊断与再次查看', text: '任务完成后在详情中预览并导出 MP4。任何阶段失败时先查看任务详情和诊断日志；本引导可以随时从“使用引导”重新打开。当前版本为 v0.2.0。'}
+  {selector: '.topbar-actions', title: '完成、诊断与再次查看', text: '任务完成后在详情中预览并导出 MP4。任何阶段失败时先查看任务详情和诊断日志；本引导可以随时从“使用引导”重新打开。当前版本为 v1.0.0。'}
 ];
 let guideIndex = 0;
 let guideTarget = null;
@@ -20496,14 +20512,14 @@ document.querySelector('#copy-address').onclick=async()=>{await navigator.clipbo
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>GameNarrator 0.2.0</title>
+  <title>GameNarrator 1.0.0</title>
   <link rel="stylesheet" href="/media-importer.css?v=20260729-10">
   <link rel="stylesheet" href="/app.css?v=20260803-13">
 </head>
 <body>
   <div class="aurora"></div>
   <header class="topbar">
-    <a class="brand" href="/">GAME<span>NARRATOR</span><small class="app-version">v0.2.0</small></a>
+    <a class="brand" href="/">GAME<span>NARRATOR</span><small class="app-version">v1.0.0</small></a>
     <nav class="primary-nav" aria-label="主要功能">
       <a href="/?view=studio" data-view-link="studio">剪辑任务</a>
       <a href="/?view=search" data-view-link="search">镜头搜索</a>
