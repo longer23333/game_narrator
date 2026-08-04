@@ -1,6 +1,6 @@
 # GameNarrator — DeepSeek 项目上下文包
 
-> 自动生成时间：2026-08-04 11:06:50 +08:00
+> 自动生成时间：2026-08-04 11:19:40 +08:00
 > 文件数量：260。本文件由 scripts/export-deepseek-context.ps1 生成，请勿手工维护生成区。
 
 ## 给 DeepSeek 的强制工作规则
@@ -41,7 +41,7 @@
 - `scripts/setup-vision-model.ps1`（931 bytes）
 - `scripts/setup-whisper.ps1`（2003 bytes）
 - `scripts/sync-remotes.ps1`（1786 bytes）
-- `scripts/test-windows-clean-install.ps1`（3068 bytes）
+- `scripts/test-windows-clean-install.ps1`（4098 bytes）
 - `scripts/verify-before-push.ps1`（1116 bytes）
 - `src/main/java/cn/longer233/gamenarrator/ai/AdaptiveAiChatClient.java`（14601 bytes）
 - `src/main/java/cn/longer233/gamenarrator/ai/AiContentRejectedException.java`（187 bytes）
@@ -232,8 +232,8 @@
 - `src/main/resources/db/migration/V7__storyboard_review.sql`（207 bytes）
 - `src/main/resources/db/migration/V8__video_segment_semantic_index.sql`（634 bytes）
 - `src/main/resources/db/migration/V9__video_segment_image_hash.sql`（152 bytes）
-- `src/main/resources/static/app.css`（55413 bytes）
-- `src/main/resources/static/app.js`（77754 bytes）
+- `src/main/resources/static/app.css`（55584 bytes）
+- `src/main/resources/static/app.js`（78908 bytes）
 - `src/main/resources/static/asset-library.js`（39551 bytes）
 - `src/main/resources/static/diagnostics.js`（1673 bytes）
 - `src/main/resources/static/export.js`（9227 bytes）
@@ -258,7 +258,7 @@
 - `src/test/java/cn/longer233/gamenarrator/config/AsyncConfigTest.java`（991 bytes）
 - `src/test/java/cn/longer233/gamenarrator/diagnostics/DiagnosticLogServiceTest.java`（906 bytes）
 - `src/test/java/cn/longer233/gamenarrator/effect/SemanticEffectPlannerTest.java`（1359 bytes）
-- `src/test/java/cn/longer233/gamenarrator/export/FfmpegProgressParserTest.java`（993 bytes）
+- `src/test/java/cn/longer233/gamenarrator/export/FfmpegProgressParserTest.java`（1550 bytes）
 - `src/test/java/cn/longer233/gamenarrator/highlight/RuleBasedHighlightSelectorTest.java`（4407 bytes）
 - `src/test/java/cn/longer233/gamenarrator/importer/MediaImportControllerSessionTest.java`（3224 bytes）
 - `src/test/java/cn/longer233/gamenarrator/importer/RemoteThumbnailServiceTest.java`（476 bytes）
@@ -268,7 +268,7 @@
 - `src/test/java/cn/longer233/gamenarrator/pipeline/VideoPipelineEndToEndTest.java`（3001 bytes）
 - `src/test/java/cn/longer233/gamenarrator/render/FfmpegVideoRendererEffectTest.java`（2999 bytes）
 - `src/test/java/cn/longer233/gamenarrator/script/OllamaScriptGeneratorTest.java`（2300 bytes）
-- `src/test/java/cn/longer233/gamenarrator/script/ScriptWorkspaceServiceTest.java`（5023 bytes）
+- `src/test/java/cn/longer233/gamenarrator/script/ScriptWorkspaceServiceTest.java`（6442 bytes）
 - `src/test/java/cn/longer233/gamenarrator/script/StoryboardAssetPlacementServiceTest.java`（918 bytes）
 - `src/test/java/cn/longer233/gamenarrator/subtitle/AssSubtitleBuilderTest.java`（771 bytes）
 - `src/test/java/cn/longer233/gamenarrator/task/DatabaseMigrationTest.java`（4843 bytes）
@@ -2489,7 +2489,21 @@ if ($DryRun) {
 ``powershell
 param([string]$InstallRoot, [int]$Port = 18081, [switch]$BackendSmoke)
 $ErrorActionPreference='Stop'
-if (-not $InstallRoot) { $InstallRoot = Join-Path $env:LOCALAPPDATA 'Programs\GameNarrator' }
+if (-not $InstallRoot) {
+  $InstallRoot = Join-Path $env:LOCALAPPDATA 'Programs\GameNarrator'
+  if (-not (Test-Path -LiteralPath (Join-Path $InstallRoot 'GameNarrator.exe') -PathType Leaf)) {
+    $projectRoot = (Resolve-Path (Join-Path $PSScriptRoot '..')).Path
+    $setup = Get-ChildItem -LiteralPath (Join-Path $projectRoot 'dist') -Filter 'GameNarrator-Setup-*.exe' -File `
+      -ErrorAction SilentlyContinue | Sort-Object LastWriteTime -Descending | Select-Object -First 1
+    if (-not $setup) { throw 'GameNarrator is not installed and no setup executable exists under dist. Build it first.' }
+    $InstallRoot = Join-Path $projectRoot ('target\clean-install-smoke-' + (Get-Date -Format 'yyyyMMdd-HHmmss'))
+    Write-Host "No existing installation found. Installing $($setup.Name) into isolated smoke root: $InstallRoot"
+    $installer = Start-Process -FilePath $setup.FullName `
+      -ArgumentList @('/VERYSILENT','/SUPPRESSMSGBOXES','/NORESTART',('/DIR="'+$InstallRoot+'"')) `
+      -Wait -PassThru -WindowStyle Hidden
+    if ($installer.ExitCode -ne 0) { throw "Installer failed with exit code $($installer.ExitCode)" }
+  }
+}
 $InstallRoot = [IO.Path]::GetFullPath($InstallRoot)
 $required = @(
   'GameNarrator.exe','runtime\bin\java.exe','app\game-narrator.jar','tools\ffmpeg\bin\ffmpeg.exe',
@@ -2538,7 +2552,7 @@ if ($BackendSmoke) {
     if(-not $backend.HasExited) { Stop-Process -Id $backend.Id -Force; $backend.WaitForExit() }
   }
 }
-Write-Host 'Launch GameNarrator.exe and verify the first-run model download, then run:'
+Write-Host 'Launch GameNarrator.exe and verify the first-run UI, then run:'
 Write-Host "Invoke-RestMethod http://127.0.0.1:$Port/api/debug/health"
 ``
 
@@ -18157,6 +18171,7 @@ button:disabled{color:#4b4b4b;background:#d5d5d5;opacity:1}
 .task-panel .active-task{display:grid;gap:12px;margin:0;padding:0;border:0}.task-panel .active-task>small{color:#111}.active-task-item{display:grid;gap:8px}
 .task-panel .active-task-card{color:#111;background:var(--green);border:3px solid #111;box-shadow:4px 4px 0 #111}
 .task-panel .active-task-card i,.task-panel .active-task-card em{color:#25352b}
+.task-panel .tool-guidance{display:block;margin-top:8px;padding:8px;color:#111!important;background:var(--yellow);border:2px solid #111;font-style:normal;line-height:1.5}
 .task-panel .active-progress{background:#fff;border:2px solid #111}.task-panel .active-progress i{background:var(--violet)}
 @media(max-width:1150px){.workspace{grid-template-columns:minmax(0,1fr) 320px;grid-template-areas:"create active" "history active"}.history-panel .task-list{grid-template-columns:repeat(2,minmax(0,1fr));max-height:none;overflow:visible}}
 @media(max-width:860px){.workspace{grid-template-columns:1fr;grid-template-areas:"create" "active" "history"}.history-panel .task-list{grid-template-columns:1fr}.task-panel{position:static;max-height:none}}
@@ -18422,6 +18437,8 @@ function renderActiveTask(activeTasks) {
     <span class="active-progress"><i style="width:${Math.max(0, Math.min(100, progress))}%"></i></span>
     <span class="active-stage-line">${task.stages.map(stage => `<i class="${stage.status.toLowerCase()}" title="${escapeHtml(stageTitle(stage))}"></i>`).join('')}</span>
     ${running?.type === 'VOICE_GENERATION' ? `<em>${escapeHtml(voiceProgressText(task, running))}</em>` : ''}
+    ${running?.type === 'RENDERING' ? `<em>${escapeHtml(renderingProgressText(task, running))}</em>` : ''}
+    ${missingToolGuidance(task) ? `<em class="tool-guidance">${escapeHtml(missingToolGuidance(task))}</em>` : ''}
   </button>${task.status === 'PROCESSING' ? `<button type="button" class="task-cancel" data-cancel-task="${task.id}">取消当前任务</button>` : ''}</div>`;
   }).join('')}`;
 }
@@ -18430,6 +18447,22 @@ function voiceProgressText(task, stage) {
   const total = Math.max(1, task.generatedScriptSegmentCount || 1);
   const completed = Math.min(total, Math.max(0, Math.floor((Math.max(10, stage.progress) - 10) / 85 * total)));
   return `配音进度：约 ${completed} / ${total} 段 · ${stage.progress}%（逐段生成后自动进入合成）`;
+}
+
+function renderingProgressText(task, stage) {
+  const total = Math.max(1, task.generatedScriptSegmentCount || task.selectedHighlightCount || 1);
+  const encodedFraction = Math.max(0, Math.min(1, (stage.progress - 10) / 65));
+  const current = Math.min(total, Math.max(1, Math.floor(encodedFraction * total) + 1));
+  return stage.progress >= 75
+    ? `片段 ${total}/${total} 已编码 · 正在合成成片 · ${stage.progress}%`
+    : `正在编码片段 ${current}/${total} · ${stage.progress}%`;
+}
+
+function missingToolGuidance(task) {
+  const reason = task.stages.find(stage => stage.status === 'PENDING' && stage.errorMessage)?.errorMessage || '';
+  if (/whisper/i.test(reason)) return '缺少 Whisper：请运行 .\\scripts\\setup-whisper.ps1，完成后任务会自动重试。';
+  if (/piper/i.test(reason)) return '缺少 Piper：请运行 .\\scripts\\setup-piper.ps1，完成后任务会自动重试。';
+  return '';
 }
 
 function updateTaskCard(card, task) {
@@ -21976,6 +22009,17 @@ class FfmpegProgressParserTest {
         assertTrue(parser.parsePercent("speed=1.2x").isEmpty());
         assertTrue(parser.parsePercent("out_time_us=N/A").isEmpty());
     }
+
+    @Test
+    void clampsNegativeAndOverflowProgressAndRejectsInvalidDuration() {
+        FfmpegProgressParser parser = new FfmpegProgressParser(10);
+
+        assertEquals(10, parser.parsePercent("out_time_us=-1000000").orElseThrow());
+        assertEquals(89, parser.parsePercent("out_time=99:00:00.000000").orElseThrow());
+        assertTrue(new FfmpegProgressParser(0).parsePercent("out_time_us=1000").isEmpty());
+        assertTrue(parser.parsePercent(null).isEmpty());
+        assertTrue(parser.parsePercent("out_time=00:broken:01").isEmpty());
+    }
 }
 ``
 
@@ -22536,6 +22580,7 @@ import java.util.Optional;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 class ScriptWorkspaceServiceTest {
     @TempDir
@@ -22599,6 +22644,27 @@ class ScriptWorkspaceServiceTest {
 
         assertThat(service.reviews(task.getId()).toString()).contains("NEEDS_CHANGES", "角色名称不准确");
         assertThat(mapper.readTree(scriptPath.toFile()).path("qualityReview").path("score").asInt()).isEqualTo(60);
+    }
+
+    @Test
+    void rejectsManualReviewForUnknownSegmentWithoutChangingDocument() throws Exception {
+        ObjectMapper mapper = new ObjectMapper();
+        Path scriptPath = temporaryDirectory.resolve("missing-segment-review.json");
+        mapper.writeValue(scriptPath.toFile(), Map.of("title", "title", "synopsis", "synopsis",
+                "fullNarration", "text", "segments",
+                List.of(new ScriptSegment(1, 0, 8, "text", "subtitle", "cut"))));
+        VideoTask task = new VideoTask("demo", "ACTION", CommentaryStyle.ANIME_THEATER,
+                30, "brief", temporaryDirectory.resolve("source.mp4").toString());
+        task.completeScriptGeneration("title", "synopsis", "text", scriptPath.toString(), 1);
+        VideoTaskRepository repository = mock(VideoTaskRepository.class);
+        when(repository.findById(task.getId())).thenReturn(Optional.of(task));
+        ScriptWorkspaceService service = new ScriptWorkspaceService(repository, mapper,
+                mock(OllamaScriptGenerator.class), mock(VoiceGenerator.class));
+
+        assertThatThrownBy(() -> service.review(task.getId(), 99,
+                new ManualScriptReviewRequest("APPROVED", "not present")))
+                .isInstanceOf(IllegalArgumentException.class);
+        assertThat(mapper.readTree(scriptPath.toFile()).has("manualReviews")).isFalse();
     }
 
     private StageStatus stage(VideoTask task, ProcessingStageType type) {

@@ -1,6 +1,20 @@
 param([string]$InstallRoot, [int]$Port = 18081, [switch]$BackendSmoke)
 $ErrorActionPreference='Stop'
-if (-not $InstallRoot) { $InstallRoot = Join-Path $env:LOCALAPPDATA 'Programs\GameNarrator' }
+if (-not $InstallRoot) {
+  $InstallRoot = Join-Path $env:LOCALAPPDATA 'Programs\GameNarrator'
+  if (-not (Test-Path -LiteralPath (Join-Path $InstallRoot 'GameNarrator.exe') -PathType Leaf)) {
+    $projectRoot = (Resolve-Path (Join-Path $PSScriptRoot '..')).Path
+    $setup = Get-ChildItem -LiteralPath (Join-Path $projectRoot 'dist') -Filter 'GameNarrator-Setup-*.exe' -File `
+      -ErrorAction SilentlyContinue | Sort-Object LastWriteTime -Descending | Select-Object -First 1
+    if (-not $setup) { throw 'GameNarrator is not installed and no setup executable exists under dist. Build it first.' }
+    $InstallRoot = Join-Path $projectRoot ('target\clean-install-smoke-' + (Get-Date -Format 'yyyyMMdd-HHmmss'))
+    Write-Host "No existing installation found. Installing $($setup.Name) into isolated smoke root: $InstallRoot"
+    $installer = Start-Process -FilePath $setup.FullName `
+      -ArgumentList @('/VERYSILENT','/SUPPRESSMSGBOXES','/NORESTART',('/DIR="'+$InstallRoot+'"')) `
+      -Wait -PassThru -WindowStyle Hidden
+    if ($installer.ExitCode -ne 0) { throw "Installer failed with exit code $($installer.ExitCode)" }
+  }
+}
 $InstallRoot = [IO.Path]::GetFullPath($InstallRoot)
 $required = @(
   'GameNarrator.exe','runtime\bin\java.exe','app\game-narrator.jar','tools\ffmpeg\bin\ffmpeg.exe',
@@ -49,5 +63,5 @@ if ($BackendSmoke) {
     if(-not $backend.HasExited) { Stop-Process -Id $backend.Id -Force; $backend.WaitForExit() }
   }
 }
-Write-Host 'Launch GameNarrator.exe and verify the first-run model download, then run:'
+Write-Host 'Launch GameNarrator.exe and verify the first-run UI, then run:'
 Write-Host "Invoke-RestMethod http://127.0.0.1:$Port/api/debug/health"

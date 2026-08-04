@@ -231,6 +231,8 @@ function renderActiveTask(activeTasks) {
     <span class="active-progress"><i style="width:${Math.max(0, Math.min(100, progress))}%"></i></span>
     <span class="active-stage-line">${task.stages.map(stage => `<i class="${stage.status.toLowerCase()}" title="${escapeHtml(stageTitle(stage))}"></i>`).join('')}</span>
     ${running?.type === 'VOICE_GENERATION' ? `<em>${escapeHtml(voiceProgressText(task, running))}</em>` : ''}
+    ${running?.type === 'RENDERING' ? `<em>${escapeHtml(renderingProgressText(task, running))}</em>` : ''}
+    ${missingToolGuidance(task) ? `<em class="tool-guidance">${escapeHtml(missingToolGuidance(task))}</em>` : ''}
   </button>${task.status === 'PROCESSING' ? `<button type="button" class="task-cancel" data-cancel-task="${task.id}">取消当前任务</button>` : ''}</div>`;
   }).join('')}`;
 }
@@ -239,6 +241,22 @@ function voiceProgressText(task, stage) {
   const total = Math.max(1, task.generatedScriptSegmentCount || 1);
   const completed = Math.min(total, Math.max(0, Math.floor((Math.max(10, stage.progress) - 10) / 85 * total)));
   return `配音进度：约 ${completed} / ${total} 段 · ${stage.progress}%（逐段生成后自动进入合成）`;
+}
+
+function renderingProgressText(task, stage) {
+  const total = Math.max(1, task.generatedScriptSegmentCount || task.selectedHighlightCount || 1);
+  const encodedFraction = Math.max(0, Math.min(1, (stage.progress - 10) / 65));
+  const current = Math.min(total, Math.max(1, Math.floor(encodedFraction * total) + 1));
+  return stage.progress >= 75
+    ? `片段 ${total}/${total} 已编码 · 正在合成成片 · ${stage.progress}%`
+    : `正在编码片段 ${current}/${total} · ${stage.progress}%`;
+}
+
+function missingToolGuidance(task) {
+  const reason = task.stages.find(stage => stage.status === 'PENDING' && stage.errorMessage)?.errorMessage || '';
+  if (/whisper/i.test(reason)) return '缺少 Whisper：请运行 .\\scripts\\setup-whisper.ps1，完成后任务会自动重试。';
+  if (/piper/i.test(reason)) return '缺少 Piper：请运行 .\\scripts\\setup-piper.ps1，完成后任务会自动重试。';
+  return '';
 }
 
 function updateTaskCard(card, task) {

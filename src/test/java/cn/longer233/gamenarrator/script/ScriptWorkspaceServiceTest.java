@@ -19,6 +19,7 @@ import java.util.Optional;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 class ScriptWorkspaceServiceTest {
     @TempDir
@@ -82,6 +83,27 @@ class ScriptWorkspaceServiceTest {
 
         assertThat(service.reviews(task.getId()).toString()).contains("NEEDS_CHANGES", "角色名称不准确");
         assertThat(mapper.readTree(scriptPath.toFile()).path("qualityReview").path("score").asInt()).isEqualTo(60);
+    }
+
+    @Test
+    void rejectsManualReviewForUnknownSegmentWithoutChangingDocument() throws Exception {
+        ObjectMapper mapper = new ObjectMapper();
+        Path scriptPath = temporaryDirectory.resolve("missing-segment-review.json");
+        mapper.writeValue(scriptPath.toFile(), Map.of("title", "title", "synopsis", "synopsis",
+                "fullNarration", "text", "segments",
+                List.of(new ScriptSegment(1, 0, 8, "text", "subtitle", "cut"))));
+        VideoTask task = new VideoTask("demo", "ACTION", CommentaryStyle.ANIME_THEATER,
+                30, "brief", temporaryDirectory.resolve("source.mp4").toString());
+        task.completeScriptGeneration("title", "synopsis", "text", scriptPath.toString(), 1);
+        VideoTaskRepository repository = mock(VideoTaskRepository.class);
+        when(repository.findById(task.getId())).thenReturn(Optional.of(task));
+        ScriptWorkspaceService service = new ScriptWorkspaceService(repository, mapper,
+                mock(OllamaScriptGenerator.class), mock(VoiceGenerator.class));
+
+        assertThatThrownBy(() -> service.review(task.getId(), 99,
+                new ManualScriptReviewRequest("APPROVED", "not present")))
+                .isInstanceOf(IllegalArgumentException.class);
+        assertThat(mapper.readTree(scriptPath.toFile()).has("manualReviews")).isFalse();
     }
 
     private StageStatus stage(VideoTask task, ProcessingStageType type) {

@@ -23,4 +23,15 @@ class FfmpegProgressParserTest {
         assertTrue(parser.parsePercent("speed=1.2x").isEmpty());
         assertTrue(parser.parsePercent("out_time_us=N/A").isEmpty());
     }
+
+    @Test
+    void clampsNegativeAndOverflowProgressAndRejectsInvalidDuration() {
+        FfmpegProgressParser parser = new FfmpegProgressParser(10);
+
+        assertEquals(10, parser.parsePercent("out_time_us=-1000000").orElseThrow());
+        assertEquals(89, parser.parsePercent("out_time=99:00:00.000000").orElseThrow());
+        assertTrue(new FfmpegProgressParser(0).parsePercent("out_time_us=1000").isEmpty());
+        assertTrue(parser.parsePercent(null).isEmpty());
+        assertTrue(parser.parsePercent("out_time=00:broken:01").isEmpty());
+    }
 }
