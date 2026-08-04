@@ -2,6 +2,8 @@ package cn.longer233.gamenarrator.vision;
 
 import org.junit.jupiter.api.Test;
 import java.util.List;
+import java.util.Comparator;
+import java.util.PriorityQueue;
 import java.util.UUID;
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -21,6 +23,17 @@ class VideoSegmentSemanticIndexRankingTest {
         var first = result(task, 10, .9); var duplicate = result(task, 11, .85); var distant = result(task, 20, .8);
         assertThat(VideoSegmentSemanticIndex.diversify(List.of(first, duplicate, distant), 2))
                 .containsExactly(first, distant);
+    }
+
+    @Test
+    void boundedCandidateQueueRetainsOnlyHighestScores() {
+        PriorityQueue<Double> candidates = new PriorityQueue<>(Comparator.naturalOrder());
+
+        for (double score : List.of(.1, .9, .4, .8, .2)) {
+            VideoSegmentSemanticIndex.offerBounded(candidates, score, 3);
+        }
+
+        assertThat(candidates).containsExactlyInAnyOrder(.4, .8, .9);
     }
 
     private VideoSegmentSearchResult result(UUID task, double time, double score) {

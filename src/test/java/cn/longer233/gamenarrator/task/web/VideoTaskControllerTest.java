@@ -95,6 +95,16 @@ class VideoTaskControllerTest {
     }
 
     @Test
+    void oversizedSegmentSearchImageIsRejectedBeforeHeapCopy() throws Exception {
+        MockMultipartFile image = new MockMultipartFile("image", "huge.png", "image/png",
+                new byte[10 * 1024 * 1024 + 1]);
+
+        mockMvc.perform(multipart("/api/video-segments/search-image").file(image))
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.code").value("INVALID_REQUEST"));
+    }
+
+    @Test
     void browserStyleMultipartFormCreatesTask() throws Exception {
         MockMultipartFile video = new MockMultipartFile(
                 "video",

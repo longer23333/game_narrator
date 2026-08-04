@@ -78,3 +78,8 @@
 - FFmpeg clip encoding emits `-progress pipe:1`; normalized encoding time updates both the task stage and stage-run record and reaches the browser over SSE.
 - Task state polling was removed from the frontend. EventSource heartbeat and bounded exponential reconnect are the sole task-update transport.
 - Asset/media service extraction, effect filter strategies, authenticated multi-user isolation, revision rollback UI, and user-owned export-preset CRUD remain separate schema/security refactors and are not represented as complete in this pass.
+# 1.0.1 内存优化记录
+
+- 截图镜头搜索在调用 `MultipartFile.getBytes()` 前检查可配置大小上限，避免超大上传产生第二份堆内存副本。
+- 语义镜头搜索只保留最多 120 个最高分候选，图片镜头搜索只保留请求数量的最高分候选；候选内存不再随历史镜头总数线性增长。
+- `VIDEO_SEARCH_MAXIMUM_IMAGE_BYTES` 可调整截图搜索上限，默认 10 MiB，服务端强制限制在 128 KiB 至 20 MiB。

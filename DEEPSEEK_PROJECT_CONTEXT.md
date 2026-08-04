@@ -1,6 +1,6 @@
 # GameNarrator — DeepSeek 项目上下文包
 
-> 自动生成时间：2026-08-04 11:36:40 +08:00
+> 自动生成时间：2026-08-04 12:38:29 +08:00
 > 文件数量：261。本文件由 scripts/export-deepseek-context.ps1 生成，请勿手工维护生成区。
 
 ## 给 DeepSeek 的强制工作规则
@@ -31,7 +31,7 @@
 - `docs/DATABASE_DESIGN.md`（28565 bytes）
 - `docs/FRONTEND_DEVELOPMENT.md`（1853 bytes）
 - `docs/MANUAL_EDITOR_PARITY.md`（2553 bytes）
-- `docs/PERFORMANCE_PORTABILITY_AUDIT.md`（8090 bytes）
+- `docs/PERFORMANCE_PORTABILITY_AUDIT.md`（8566 bytes）
 - `docs/REQUIREMENTS.md`（21389 bytes）
 - `docs/VERSIONING.md`（687 bytes）
 - `scripts/build-windows-release.ps1`（12634 bytes）
@@ -198,9 +198,9 @@
 - `src/main/java/cn/longer233/gamenarrator/vision/OllamaVisionClient.java`（14187 bytes）
 - `src/main/java/cn/longer233/gamenarrator/vision/VideoContentAnalysis.java`（293 bytes）
 - `src/main/java/cn/longer233/gamenarrator/vision/VideoSegmentClipService.java`（3911 bytes）
-- `src/main/java/cn/longer233/gamenarrator/vision/VideoSegmentSearchController.java`（3162 bytes）
+- `src/main/java/cn/longer233/gamenarrator/vision/VideoSegmentSearchController.java`（3764 bytes）
 - `src/main/java/cn/longer233/gamenarrator/vision/VideoSegmentSearchResult.java`（256 bytes）
-- `src/main/java/cn/longer233/gamenarrator/vision/VideoSegmentSemanticIndex.java`（14208 bytes）
+- `src/main/java/cn/longer233/gamenarrator/vision/VideoSegmentSemanticIndex.java`（15114 bytes）
 - `src/main/java/cn/longer233/gamenarrator/vision/VideoUnderstandingResult.java`（206 bytes）
 - `src/main/java/cn/longer233/gamenarrator/voice/PiperProperties.java`（1758 bytes）
 - `src/main/java/cn/longer233/gamenarrator/voice/PiperVoiceGenerator.java`（9894 bytes）
@@ -210,7 +210,7 @@
 - `src/main/java/cn/longer233/gamenarrator/voice/VoiceOption.java`（137 bytes）
 - `src/main/java/cn/longer233/gamenarrator/voice/VoiceRegenerationRequest.java`（419 bytes）
 - `src/main/java/cn/longer233/gamenarrator/voice/VoiceSegment.java`（296 bytes）
-- `src/main/resources/application.yml`（13413 bytes）
+- `src/main/resources/application.yml`（13499 bytes）
 - `src/main/resources/application-release.yml`（1055 bytes）
 - `src/main/resources/db/migration/V1__database_v2_foundation.sql`（17535 bytes）
 - `src/main/resources/db/migration/V10__allow_storyboard_review_task_status.sql`（528 bytes）
@@ -274,7 +274,7 @@
 - `src/test/java/cn/longer233/gamenarrator/subtitle/AssSubtitleBuilderTest.java`（771 bytes）
 - `src/test/java/cn/longer233/gamenarrator/task/DatabaseMigrationTest.java`（4843 bytes）
 - `src/test/java/cn/longer233/gamenarrator/task/domain/VideoTaskTest.java`（4664 bytes）
-- `src/test/java/cn/longer233/gamenarrator/task/web/VideoTaskControllerTest.java`（12409 bytes）
+- `src/test/java/cn/longer233/gamenarrator/task/web/VideoTaskControllerTest.java`（12856 bytes）
 - `src/test/java/cn/longer233/gamenarrator/timeline/TimelinePlannerTest.java`（2442 bytes）
 - `src/test/java/cn/longer233/gamenarrator/timeline/TimelineValidatorTest.java`（1515 bytes）
 - `src/test/java/cn/longer233/gamenarrator/transcription/PlatformSubtitleReaderTest.java`（953 bytes）
@@ -282,7 +282,7 @@
 - `src/test/java/cn/longer233/gamenarrator/transcription/WhisperCppTranscriberTest.java`（774 bytes）
 - `src/test/java/cn/longer233/gamenarrator/vision/ImagePerceptualHashTest.java`（1287 bytes）
 - `src/test/java/cn/longer233/gamenarrator/vision/VideoSegmentClipServiceTest.java`（2242 bytes）
-- `src/test/java/cn/longer233/gamenarrator/vision/VideoSegmentSemanticIndexRankingTest.java`（1270 bytes）
+- `src/test/java/cn/longer233/gamenarrator/vision/VideoSegmentSemanticIndexRankingTest.java`（1713 bytes）
 
 ## 当前项目原文
 
@@ -303,7 +303,7 @@
 
     <groupId>cn.longer233.graduation</groupId>
     <artifactId>game-narrator</artifactId>
-    <version>1.0.0</version>
+    <version>1.0.1</version>
     <name>GameNarrator</name>
     <description>多模态游戏视频智能解说与自动剪辑系统</description>
 
@@ -1478,6 +1478,11 @@ GameNarrator 在禁用或未配置 AI 时，仍应能完成导入、粗剪、精
 - FFmpeg clip encoding emits `-progress pipe:1`; normalized encoding time updates both the task stage and stage-run record and reaches the browser over SSE.
 - Task state polling was removed from the frontend. EventSource heartbeat and bounded exponential reconnect are the sole task-update transport.
 - Asset/media service extraction, effect filter strategies, authenticated multi-user isolation, revision rollback UI, and user-owned export-preset CRUD remain separate schema/security refactors and are not represented as complete in this pass.
+# 1.0.1 内存优化记录
+
+- 截图镜头搜索在调用 `MultipartFile.getBytes()` 前检查可配置大小上限，避免超大上传产生第二份堆内存副本。
+- 语义镜头搜索只保留最多 120 个最高分候选，图片镜头搜索只保留请求数量的最高分候选；候选内存不再随历史镜头总数线性增长。
+- `VIDEO_SEARCH_MAXIMUM_IMAGE_BYTES` 可调整截图搜索上限，默认 10 MiB，服务端强制限制在 128 KiB 至 20 MiB。
 ``
 
 ### FILE: docs/REQUIREMENTS.md
@@ -16233,15 +16238,19 @@ import org.springframework.web.multipart.MultipartFile;
 import java.util.List;
 import java.util.UUID;
 import org.springframework.http.HttpHeaders;
+import org.springframework.beans.factory.annotation.Value;
 
 @RestController
 @RequestMapping("/api/video-segments")
 public class VideoSegmentSearchController {
     private final VideoSegmentSemanticIndex index;
     private final VideoSegmentClipService clipService;
-    public VideoSegmentSearchController(VideoSegmentSemanticIndex index, VideoSegmentClipService clipService) {
+    private final long maximumSearchImageBytes;
+    public VideoSegmentSearchController(VideoSegmentSemanticIndex index, VideoSegmentClipService clipService,
+            @Value("${game-narrator.video-search.maximum-image-bytes:10485760}") long maximumSearchImageBytes) {
         this.index = index;
         this.clipService = clipService;
+        this.maximumSearchImageBytes = Math.max(128 * 1024, Math.min(20 * 1024 * 1024, maximumSearchImageBytes));
     }
 
     @GetMapping("/search")
@@ -16253,6 +16262,10 @@ public class VideoSegmentSearchController {
     @PostMapping(value = "/search-image", consumes = "multipart/form-data")
     public List<VideoSegmentSearchResult> searchImage(@RequestPart("image") MultipartFile image,
                                                        @RequestParam(defaultValue = "12") int limit) throws Exception {
+        if (image.isEmpty()) throw new IllegalArgumentException("请选择截图");
+        if (image.getSize() > maximumSearchImageBytes) {
+            throw new IllegalArgumentException("截图不能超过 " + maximumSearchImageBytes / 1024 / 1024 + " MB");
+        }
         return index.searchByImage(image.getBytes(), limit);
     }
 
@@ -16371,20 +16384,26 @@ public class VideoSegmentSemanticIndex {
             backfillMissingTasks();
             String normalizedQuery = query.trim();
             double[] queryVector = embeddings.embedTexts(List.of(expandSearchQuery(normalizedQuery))).getFirst();
-            List<Scored> scored = jdbc.query("""
+            int retainedCandidates = Math.min(120, Math.max(40, limit * 4));
+            PriorityQueue<Scored> scored = jdbc.query("""
                     SELECT e.task_id,t.name,e.frame_index,e.timestamp_seconds,e.event_type,
                     e.description,e.vector_json FROM video_segment_embedding e
                     JOIN video_tasks t ON t.id=e.task_id WHERE e.model=?
-                    """, (rs, row) -> {
-                double[] vector = parseVector(rs.getString("vector_json"));
-                double semantic = embeddings.similarity(queryVector, vector);
-                String eventType = rs.getString("event_type");
-                String description = rs.getString("description");
-                String taskName = rs.getString("name");
-                double hybrid = hybridScore(normalizedQuery, semantic, taskName, eventType, description);
-                return new Scored(new VideoSegmentSearchResult(
-                        rs.getObject("task_id", UUID.class), rs.getString("name"), rs.getInt("frame_index"),
-                        rs.getDouble("timestamp_seconds"), eventType, description, hybrid));
+                    """, rs -> {
+                PriorityQueue<Scored> candidates = new PriorityQueue<>(Comparator.comparingDouble(
+                        item -> item.result.similarity()));
+                while (rs.next()) {
+                    double[] vector = parseVector(rs.getString("vector_json"));
+                    double semantic = embeddings.similarity(queryVector, vector);
+                    String eventType = rs.getString("event_type");
+                    String description = rs.getString("description");
+                    String taskName = rs.getString("name");
+                    double hybrid = hybridScore(normalizedQuery, semantic, taskName, eventType, description);
+                    offerBounded(candidates, new Scored(new VideoSegmentSearchResult(
+                            rs.getObject("task_id", UUID.class), taskName, rs.getInt("frame_index"),
+                            rs.getDouble("timestamp_seconds"), eventType, description, hybrid)), retainedCandidates);
+                }
+                return candidates;
             }, embeddings.model());
             List<VideoSegmentSearchResult> ordered = scored.stream()
                     .sorted(Comparator.comparingDouble((Scored item) -> item.result.similarity()).reversed())
@@ -16408,21 +16427,31 @@ public class VideoSegmentSemanticIndex {
             backfillImageHashes();
             long queryHash = ImagePerceptualHash.differenceHash(image);
             int limit = Math.max(1, Math.min(30, requestedLimit));
-            return jdbc.query("""
+            PriorityQueue<VideoSegmentSearchResult> matches = jdbc.query("""
                     SELECT e.task_id,t.name,e.frame_index,e.timestamp_seconds,e.event_type,
                     e.description,e.image_hash FROM video_segment_embedding e
                     JOIN video_tasks t ON t.id=e.task_id WHERE e.image_hash IS NOT NULL
-                    """, (rs, row) -> new VideoSegmentSearchResult(
-                    rs.getObject("task_id", UUID.class), rs.getString("name"), rs.getInt("frame_index"),
-                    rs.getDouble("timestamp_seconds"), rs.getString("event_type"), rs.getString("description"),
-                    ImagePerceptualHash.similarity(queryHash, rs.getLong("image_hash"))))
-                    .stream().sorted(Comparator.comparingDouble(VideoSegmentSearchResult::similarity).reversed())
-                    .limit(limit).toList();
+                    """, rs -> {
+                PriorityQueue<VideoSegmentSearchResult> candidates = new PriorityQueue<>(
+                        Comparator.comparingDouble(VideoSegmentSearchResult::similarity));
+                while (rs.next()) offerBounded(candidates, new VideoSegmentSearchResult(
+                        rs.getObject("task_id", UUID.class), rs.getString("name"), rs.getInt("frame_index"),
+                        rs.getDouble("timestamp_seconds"), rs.getString("event_type"), rs.getString("description"),
+                        ImagePerceptualHash.similarity(queryHash, rs.getLong("image_hash"))), limit);
+                return candidates;
+            });
+            return matches.stream().sorted(Comparator.comparingDouble(
+                    VideoSegmentSearchResult::similarity).reversed()).toList();
         } catch (IllegalArgumentException exception) {
             throw exception;
         } catch (Exception exception) {
             throw new IllegalStateException("截图镜头搜索失败：" + exception.getMessage(), exception);
         }
+    }
+
+    static <T> void offerBounded(PriorityQueue<T> queue, T value, int maximumSize) {
+        queue.offer(value);
+        if (queue.size() > maximumSize) queue.poll();
     }
 
     private void backfillMissingTasks() {
@@ -17000,6 +17029,8 @@ game-narrator:
     thumbnail-max-bytes: ${THUMBNAIL_MAX_BYTES:1572864}
     thumbnail-cache-entries: ${THUMBNAIL_CACHE_ENTRIES:32}
     thumbnail-cache-minutes: ${THUMBNAIL_CACHE_MINUTES:30}
+  video-search:
+    maximum-image-bytes: ${VIDEO_SEARCH_MAXIMUM_IMAGE_BYTES:10485760}
   asset-library:
     provider-priority: [BILIBILI, PEXELS, PIXABAY, DOUYIN, USER_REFERENCE, OPENVERSE, WIKIMEDIA, YOUTUBE, TIKTOK]
     domestic-sources:
@@ -19428,7 +19459,7 @@ const guideSteps = [
   {selector: '.history-panel', title: '第 5 步：从最左侧历史继续', text: '只有真正生成完成的任务才会进入页面最左侧“最近完成”列表。处理中、等待检查、失败或取消的任务都留在右侧，避免被误认为已经完成。点击已完成条目可查看生成文件、分镜、文案、时间线和最终视频。'},
   {selector: '.storyboard-review-option', title: '第 6 步：检查分镜再继续', text: '开启分镜检查后，流程会在文案与分镜生成后暂停。进入线性分镜工作台可调整顺序、起止时间、字幕、解说、素材和特效；保存全部修改后再继续配音与渲染。'},
   {selector: '.primary-nav', title: '更多工具入口', text: '“镜头搜索”使用本地语义模型寻找片段；“平台导入”负责下载并创建项目；“素材库”管理授权素材；“设置”管理云端或本地 AI。遇到问题可点击右上角“诊断日志”。'},
-  {selector: '.topbar-actions', title: '完成、诊断与再次查看', text: '任务完成后在详情中预览并导出 MP4。任何阶段失败时先查看任务详情和诊断日志；本引导可以随时从“使用引导”重新打开。当前版本为 v1.0.0。'}
+  {selector: '.topbar-actions', title: '完成、诊断与再次查看', text: '任务完成后在详情中预览并导出 MP4。任何阶段失败时先查看任务详情和诊断日志；本引导可以随时从“使用引导”重新打开。当前版本为 v1.0.1。'}
 ];
 let guideIndex = 0;
 let guideTarget = null;
@@ -20512,14 +20543,14 @@ document.querySelector('#copy-address').onclick=async()=>{await navigator.clipbo
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>GameNarrator 1.0.0</title>
+  <title>GameNarrator 1.0.1</title>
   <link rel="stylesheet" href="/media-importer.css?v=20260729-10">
   <link rel="stylesheet" href="/app.css?v=20260803-13">
 </head>
 <body>
   <div class="aurora"></div>
   <header class="topbar">
-    <a class="brand" href="/">GAME<span>NARRATOR</span><small class="app-version">v1.0.0</small></a>
+    <a class="brand" href="/">GAME<span>NARRATOR</span><small class="app-version">v1.0.1</small></a>
     <nav class="primary-nav" aria-label="主要功能">
       <a href="/?view=studio" data-view-link="studio">剪辑任务</a>
       <a href="/?view=search" data-view-link="search">镜头搜索</a>
@@ -23071,6 +23102,16 @@ class VideoTaskControllerTest {
     }
 
     @Test
+    void oversizedSegmentSearchImageIsRejectedBeforeHeapCopy() throws Exception {
+        MockMultipartFile image = new MockMultipartFile("image", "huge.png", "image/png",
+                new byte[10 * 1024 * 1024 + 1]);
+
+        mockMvc.perform(multipart("/api/video-segments/search-image").file(image))
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.code").value("INVALID_REQUEST"));
+    }
+
+    @Test
     void browserStyleMultipartFormCreatesTask() throws Exception {
         MockMultipartFile video = new MockMultipartFile(
                 "video",
@@ -23529,6 +23570,8 @@ package cn.longer233.gamenarrator.vision;
 
 import org.junit.jupiter.api.Test;
 import java.util.List;
+import java.util.Comparator;
+import java.util.PriorityQueue;
 import java.util.UUID;
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -23548,6 +23591,17 @@ class VideoSegmentSemanticIndexRankingTest {
         var first = result(task, 10, .9); var duplicate = result(task, 11, .85); var distant = result(task, 20, .8);
         assertThat(VideoSegmentSemanticIndex.diversify(List.of(first, duplicate, distant), 2))
                 .containsExactly(first, distant);
+    }
+
+    @Test
+    void boundedCandidateQueueRetainsOnlyHighestScores() {
+        PriorityQueue<Double> candidates = new PriorityQueue<>(Comparator.naturalOrder());
+
+        for (double score : List.of(.1, .9, .4, .8, .2)) {
+            VideoSegmentSemanticIndex.offerBounded(candidates, score, 3);
+        }
+
+        assertThat(candidates).containsExactlyInAnyOrder(.4, .8, .9);
     }
 
     private VideoSegmentSearchResult result(UUID task, double time, double score) {

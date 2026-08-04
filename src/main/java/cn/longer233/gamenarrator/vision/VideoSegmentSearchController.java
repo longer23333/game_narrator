@@ -10,15 +10,19 @@ import org.springframework.web.multipart.MultipartFile;
 import java.util.List;
 import java.util.UUID;
 import org.springframework.http.HttpHeaders;
+import org.springframework.beans.factory.annotation.Value;
 
 @RestController
 @RequestMapping("/api/video-segments")
 public class VideoSegmentSearchController {
     private final VideoSegmentSemanticIndex index;
     private final VideoSegmentClipService clipService;
-    public VideoSegmentSearchController(VideoSegmentSemanticIndex index, VideoSegmentClipService clipService) {
+    private final long maximumSearchImageBytes;
+    public VideoSegmentSearchController(VideoSegmentSemanticIndex index, VideoSegmentClipService clipService,
+            @Value("${game-narrator.video-search.maximum-image-bytes:10485760}") long maximumSearchImageBytes) {
         this.index = index;
         this.clipService = clipService;
+        this.maximumSearchImageBytes = Math.max(128 * 1024, Math.min(20 * 1024 * 1024, maximumSearchImageBytes));
     }
 
     @GetMapping("/search")
@@ -30,6 +34,10 @@ public class VideoSegmentSearchController {
     @PostMapping(value = "/search-image", consumes = "multipart/form-data")
     public List<VideoSegmentSearchResult> searchImage(@RequestPart("image") MultipartFile image,
                                                        @RequestParam(defaultValue = "12") int limit) throws Exception {
+        if (image.isEmpty()) throw new IllegalArgumentException("请选择截图");
+        if (image.getSize() > maximumSearchImageBytes) {
+            throw new IllegalArgumentException("截图不能超过 " + maximumSearchImageBytes / 1024 / 1024 + " MB");
+        }
         return index.searchByImage(image.getBytes(), limit);
     }
 

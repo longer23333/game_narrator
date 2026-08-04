@@ -67,20 +67,26 @@ public class VideoSegmentSemanticIndex {
             backfillMissingTasks();
             String normalizedQuery = query.trim();
             double[] queryVector = embeddings.embedTexts(List.of(expandSearchQuery(normalizedQuery))).getFirst();
-            List<Scored> scored = jdbc.query("""
+            int retainedCandidates = Math.min(120, Math.max(40, limit * 4));
+            PriorityQueue<Scored> scored = jdbc.query("""
                     SELECT e.task_id,t.name,e.frame_index,e.timestamp_seconds,e.event_type,
                     e.description,e.vector_json FROM video_segment_embedding e
                     JOIN video_tasks t ON t.id=e.task_id WHERE e.model=?
-                    """, (rs, row) -> {
-                double[] vector = parseVector(rs.getString("vector_json"));
-                double semantic = embeddings.similarity(queryVector, vector);
-                String eventType = rs.getString("event_type");
-                String description = rs.getString("description");
-                String taskName = rs.getString("name");
-                double hybrid = hybridScore(normalizedQuery, semantic, taskName, eventType, description);
-                return new Scored(new VideoSegmentSearchResult(
-                        rs.getObject("task_id", UUID.class), rs.getString("name"), rs.getInt("frame_index"),
-                        rs.getDouble("timestamp_seconds"), eventType, description, hybrid));
+                    """, rs -> {
+                PriorityQueue<Scored> candidates = new PriorityQueue<>(Comparator.comparingDouble(
+                        item -> item.result.similarity()));
+                while (rs.next()) {
+                    double[] vector = parseVector(rs.getString("vector_json"));
+                    double semantic = embeddings.similarity(queryVector, vector);
+                    String eventType = rs.getString("event_type");
+                    String description = rs.getString("description");
+                    String taskName = rs.getString("name");
+                    double hybrid = hybridScore(normalizedQuery, semantic, taskName, eventType, description);
+                    offerBounded(candidates, new Scored(new VideoSegmentSearchResult(
+                            rs.getObject("task_id", UUID.class), taskName, rs.getInt("frame_index"),
+                            rs.getDouble("timestamp_seconds"), eventType, description, hybrid)), retainedCandidates);
+                }
+                return candidates;
             }, embeddings.model());
             List<VideoSegmentSearchResult> ordered = scored.stream()
                     .sorted(Comparator.comparingDouble((Scored item) -> item.result.similarity()).reversed())
@@ -104,21 +110,31 @@ public class VideoSegmentSemanticIndex {
             backfillImageHashes();
             long queryHash = ImagePerceptualHash.differenceHash(image);
             int limit = Math.max(1, Math.min(30, requestedLimit));
-            return jdbc.query("""
+            PriorityQueue<VideoSegmentSearchResult> matches = jdbc.query("""
                     SELECT e.task_id,t.name,e.frame_index,e.timestamp_seconds,e.event_type,
                     e.description,e.image_hash FROM video_segment_embedding e
                     JOIN video_tasks t ON t.id=e.task_id WHERE e.image_hash IS NOT NULL
-                    """, (rs, row) -> new VideoSegmentSearchResult(
-                    rs.getObject("task_id", UUID.class), rs.getString("name"), rs.getInt("frame_index"),
-                    rs.getDouble("timestamp_seconds"), rs.getString("event_type"), rs.getString("description"),
-                    ImagePerceptualHash.similarity(queryHash, rs.getLong("image_hash"))))
-                    .stream().sorted(Comparator.comparingDouble(VideoSegmentSearchResult::similarity).reversed())
-                    .limit(limit).toList();
+                    """, rs -> {
+                PriorityQueue<VideoSegmentSearchResult> candidates = new PriorityQueue<>(
+                        Comparator.comparingDouble(VideoSegmentSearchResult::similarity));
+                while (rs.next()) offerBounded(candidates, new VideoSegmentSearchResult(
+                        rs.getObject("task_id", UUID.class), rs.getString("name"), rs.getInt("frame_index"),
+                        rs.getDouble("timestamp_seconds"), rs.getString("event_type"), rs.getString("description"),
+                        ImagePerceptualHash.similarity(queryHash, rs.getLong("image_hash"))), limit);
+                return candidates;
+            });
+            return matches.stream().sorted(Comparator.comparingDouble(
+                    VideoSegmentSearchResult::similarity).reversed()).toList();
         } catch (IllegalArgumentException exception) {
             throw exception;
         } catch (Exception exception) {
             throw new IllegalStateException("截图镜头搜索失败：" + exception.getMessage(), exception);
         }
+    }
+
+    static <T> void offerBounded(PriorityQueue<T> queue, T value, int maximumSize) {
+        queue.offer(value);
+        if (queue.size() > maximumSize) queue.poll();
     }
 
     private void backfillMissingTasks() {
