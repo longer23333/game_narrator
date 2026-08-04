@@ -105,8 +105,10 @@ public class ExportWorker {
         Integer quality = request.qualityValue() != null ? request.qualityValue() : preset.qualityValue();
         Integer bitrate = request.targetBitrateKbps() != null ? request.targetBitrateKbps() : preset.targetBitrateKbps();
         if (bitrate != null) command.addAll(List.of("-b:v", bitrate + "k"));
-        else if (quality != null && encoder.contains("nvenc")) command.addAll(List.of("-cq", String.valueOf(quality), "-preset", "p4"));
-        else if (quality != null) command.addAll(List.of("-crf", String.valueOf(quality)));
+        else if (quality != null && encoder.contains("nvenc")) command.addAll(List.of("-cq", String.valueOf(quality),
+                "-preset", nvencPreset(request.performanceMode())));
+        else if (quality != null) command.addAll(List.of("-crf", String.valueOf(quality),
+                "-preset", softwarePreset(request.performanceMode())));
         if ("PRORES".equalsIgnoreCase(preset.videoCodec())) command.addAll(List.of("-profile:v", "2"));
         command.addAll(List.of("-map", "0:v:0", "-map", "0:a:0?"));
         if ("SOFT".equalsIgnoreCase(subtitleMode)) {
@@ -139,6 +141,18 @@ public class ExportWorker {
             case "PCM" -> "pcm_s16le";
             default -> "aac";
         };
+    }
+
+    private String nvencPreset(String mode) {
+        if ("SPEED".equalsIgnoreCase(mode)) return "p1";
+        if ("QUALITY".equalsIgnoreCase(mode)) return "p7";
+        return "p4";
+    }
+
+    private String softwarePreset(String mode) {
+        if ("SPEED".equalsIgnoreCase(mode)) return "veryfast";
+        if ("QUALITY".equalsIgnoreCase(mode)) return "slow";
+        return "medium";
     }
 
     private void registerArtifact(UUID jobId, Path output) throws Exception {

@@ -62,7 +62,8 @@ game-narrator:
   subtitle:
     chunk-characters: ${SUBTITLE_CHUNK_CHARACTERS:4000}
   ocr:
-    enabled: ${OCR_ENABLED:false}
+    # The configured vision model supplies OCR by default; Tesseract is an optional local fallback.
+    enabled: ${OCR_ENABLED:true}
     executable: ${TESSERACT_EXECUTABLE:tesseract}
     languages: ${TESSERACT_LANGUAGES:chi_sim+eng}
   ai:

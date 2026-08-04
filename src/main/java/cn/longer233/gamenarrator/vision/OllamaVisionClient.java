@@ -90,6 +90,7 @@ public class OllamaVisionClient {
             document.put("contentModel", contentModel);
             document.put("summary", summary);
             document.put("contentAnalysis", contentAnalysis);
+            document.put("transcriptText", transcriptText == null ? "" : transcriptText);
             document.put("frames", analyses);
             AtomicArtifactWriter.writeJson(objectMapper, output, document);
             log.info("VIDEO_UNDERSTANDING_SUCCESS analyzedFrames={} output={}", analyses.size(), output);
@@ -111,7 +112,8 @@ public class OllamaVisionClient {
             String summary = formatSummary(content);
             Path output = manifestPath.getParent().resolve("visual-analysis.json");
             AtomicArtifactWriter.writeJson(objectMapper, output, Map.of(
-                    "model", "RULE_BASED", "summary", summary, "contentAnalysis", content, "frames", analyses));
+                    "model", "RULE_BASED", "summary", summary, "contentAnalysis", content,
+                    "transcriptText", transcriptText == null ? "" : transcriptText, "frames", analyses));
             return new VideoUnderstandingResult(summary, output.toString(), analyses);
         } catch (Exception exception) {
             throw new IllegalStateException("非 AI 场景分析失败：" + exception.getMessage(), exception);
@@ -135,6 +137,7 @@ public class OllamaVisionClient {
         String image = Base64.getEncoder().encodeToString(Files.readAllBytes(Path.of(frame.imagePath())));
         String transcriptHint = abbreviate(transcriptText, 500);
         String prompt = """
+                JSON 必须额外包含 ocrText 字段：填写截图中实际可见的界面文字，没有文字时返回空字符串。
                 你是视频剪辑分析器。分析截图，严格返回 JSON 对象，不要 Markdown。
                 字段：description（简体中文画面描述）、eventType（从探索/战斗/剧情/菜单/胜利/失败/其他选择）、
                 excitementScore（0到100整数，代表适合作为高光片段的程度）。
@@ -145,7 +148,8 @@ public class OllamaVisionClient {
         return new FrameUnderstanding(frame.index(), frame.timestampSeconds(), frame.imagePath(),
                 analysis.path("description").asText("未识别出明确画面内容"),
                 analysis.path("eventType").asText("其他"),
-                Math.max(0, Math.min(100, analysis.path("excitementScore").asInt(0))), raw);
+                Math.max(0, Math.min(100, analysis.path("excitementScore").asInt(0))),
+                analysis.path("ocrText").asText(""), raw);
     }
 
     private FrameUnderstanding fallbackFrame(SceneFrame frame, String transcriptText) {

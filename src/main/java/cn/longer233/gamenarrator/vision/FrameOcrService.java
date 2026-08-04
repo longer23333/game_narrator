@@ -17,7 +17,7 @@ public class FrameOcrService {
     private final String executable;
     private final String languages;
 
-    public FrameOcrService(@Value("${game-narrator.ocr.enabled:false}") boolean enabled,
+    public FrameOcrService(@Value("${game-narrator.ocr.enabled:true}") boolean enabled,
                            @Value("${game-narrator.ocr.executable:tesseract}") String executable,
                            @Value("${game-narrator.ocr.languages:chi_sim+eng}") String languages) {
         this.enabled = enabled;
@@ -26,7 +26,9 @@ public class FrameOcrService {
     }
 
     public FrameUnderstanding enrich(FrameUnderstanding frame) {
-        if (!enabled) return frame;
+        // The vision model is the default OCR engine. Tesseract only fills frames for which
+        // the model did not return visible text, so a missing optional executable is harmless.
+        if (!enabled || (frame.ocrText() != null && !frame.ocrText().isBlank())) return frame;
         try {
             var result = ExternalProcessRunner.run(List.of(executable, Path.of(frame.imagePath()).toString(),
                     "stdout", "-l", languages, "--psm", "6"), Duration.ofSeconds(20));
@@ -35,7 +37,7 @@ public class FrameOcrService {
             if (text.length() > 500) text = text.substring(0, 500);
             return new FrameUnderstanding(frame.index(), frame.timestampSeconds(), frame.imagePath(),
                     frame.description() + "；界面文字：" + text, frame.eventType(),
-                    Math.min(100, frame.excitementScore() + keywordBonus(text)), frame.rawJson());
+                    Math.min(100, frame.excitementScore() + keywordBonus(text)), text, frame.rawJson());
         } catch (Exception exception) {
             log.debug("FRAME_OCR_SKIPPED frame={} reason={}", frame.index(), exception.getMessage());
             return frame;

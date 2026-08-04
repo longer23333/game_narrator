@@ -1,7 +1,7 @@
 # GameNarrator — DeepSeek 项目上下文包
 
-> 自动生成时间：2026-08-04 12:38:29 +08:00
-> 文件数量：261。本文件由 scripts/export-deepseek-context.ps1 生成，请勿手工维护生成区。
+> 自动生成时间：2026-08-04 14:31:41 +08:00
+> 文件数量：263。本文件由 scripts/export-deepseek-context.ps1 生成，请勿手工维护生成区。
 
 ## 给 DeepSeek 的强制工作规则
 
@@ -32,7 +32,7 @@
 - `docs/FRONTEND_DEVELOPMENT.md`（1853 bytes）
 - `docs/MANUAL_EDITOR_PARITY.md`（2553 bytes）
 - `docs/PERFORMANCE_PORTABILITY_AUDIT.md`（8566 bytes）
-- `docs/REQUIREMENTS.md`（21389 bytes）
+- `docs/REQUIREMENTS.md`（21551 bytes）
 - `docs/VERSIONING.md`（687 bytes）
 - `scripts/build-windows-release.ps1`（12634 bytes）
 - `scripts/export-deepseek-context.ps1`（5568 bytes）
@@ -69,6 +69,7 @@
 - `src/main/java/cn/longer233/gamenarrator/asset/PixabayAssetClient.java`（4502 bytes）
 - `src/main/java/cn/longer233/gamenarrator/asset/SafeRemoteHttpConnector.java`（2332 bytes）
 - `src/main/java/cn/longer233/gamenarrator/asset/WikimediaAssetClient.java`（5250 bytes）
+- `src/main/java/cn/longer233/gamenarrator/audio/AudioAnalysisService.java`（5357 bytes）
 - `src/main/java/cn/longer233/gamenarrator/audio/ProceduralSoundEffectLibrary.java`（4912 bytes）
 - `src/main/java/cn/longer233/gamenarrator/audio/SoundCue.java`（192 bytes）
 - `src/main/java/cn/longer233/gamenarrator/common/ApiExceptionHandler.java`（7008 bytes）
@@ -99,17 +100,17 @@
 - `src/main/java/cn/longer233/gamenarrator/effect/SemanticEffectPlanner.java`（5208 bytes）
 - `src/main/java/cn/longer233/gamenarrator/effect/TransitionType.java`（139 bytes）
 - `src/main/java/cn/longer233/gamenarrator/effect/VisualEffectType.java`（386 bytes）
-- `src/main/java/cn/longer233/gamenarrator/export/CreateExportRequest.java`（439 bytes）
+- `src/main/java/cn/longer233/gamenarrator/export/CreateExportRequest.java`（471 bytes）
 - `src/main/java/cn/longer233/gamenarrator/export/ExportController.java`（1876 bytes）
 - `src/main/java/cn/longer233/gamenarrator/export/ExportJobView.java`（510 bytes）
 - `src/main/java/cn/longer233/gamenarrator/export/ExportPresetView.java`（544 bytes）
 - `src/main/java/cn/longer233/gamenarrator/export/ExportService.java`（7505 bytes）
-- `src/main/java/cn/longer233/gamenarrator/export/ExportWorker.java`（11765 bytes）
+- `src/main/java/cn/longer233/gamenarrator/export/ExportWorker.java`（12280 bytes）
 - `src/main/java/cn/longer233/gamenarrator/export/FfmpegProgressParser.java`（1554 bytes）
 - `src/main/java/cn/longer233/gamenarrator/GameNarratorApplication.java`（501 bytes）
 - `src/main/java/cn/longer233/gamenarrator/highlight/HighlightClip.java`（722 bytes）
 - `src/main/java/cn/longer233/gamenarrator/highlight/HighlightSelectionResult.java`（177 bytes）
-- `src/main/java/cn/longer233/gamenarrator/highlight/RuleBasedHighlightSelector.java`（8548 bytes）
+- `src/main/java/cn/longer233/gamenarrator/highlight/RuleBasedHighlightSelector.java`（12826 bytes）
 - `src/main/java/cn/longer233/gamenarrator/importer/ContentOriginAssessment.java`（148 bytes）
 - `src/main/java/cn/longer233/gamenarrator/importer/MediaDownloadJobService.java`（3029 bytes）
 - `src/main/java/cn/longer233/gamenarrator/importer/MediaDownloadJobView.java`（219 bytes）
@@ -127,7 +128,7 @@
 - `src/main/java/cn/longer233/gamenarrator/importer/RemoteThumbnailService.java`（6298 bytes）
 - `src/main/java/cn/longer233/gamenarrator/importer/ResolvedMedia.java`（934 bytes）
 - `src/main/java/cn/longer233/gamenarrator/importer/YtDlpMediaImporter.java`（30642 bytes）
-- `src/main/java/cn/longer233/gamenarrator/media/FfmpegMediaPreprocessor.java`（8553 bytes）
+- `src/main/java/cn/longer233/gamenarrator/media/FfmpegMediaPreprocessor.java`（8811 bytes）
 - `src/main/java/cn/longer233/gamenarrator/media/FfmpegMediaProbe.java`（3405 bytes）
 - `src/main/java/cn/longer233/gamenarrator/media/MediaMetadata.java`（233 bytes）
 - `src/main/java/cn/longer233/gamenarrator/media/MediaPreparationResult.java`（211 bytes）
@@ -191,11 +192,11 @@
 - `src/main/java/cn/longer233/gamenarrator/transcription/TerminologyCorrector.java`（2256 bytes）
 - `src/main/java/cn/longer233/gamenarrator/transcription/TranscriptionResult.java`（196 bytes）
 - `src/main/java/cn/longer233/gamenarrator/transcription/WhisperCppTranscriber.java`（5595 bytes）
-- `src/main/java/cn/longer233/gamenarrator/vision/FrameOcrService.java`（2246 bytes）
-- `src/main/java/cn/longer233/gamenarrator/vision/FrameUnderstanding.java`（267 bytes）
+- `src/main/java/cn/longer233/gamenarrator/vision/FrameOcrService.java`（2499 bytes）
+- `src/main/java/cn/longer233/gamenarrator/vision/FrameUnderstanding.java`（592 bytes）
 - `src/main/java/cn/longer233/gamenarrator/vision/HighlightHint.java`（131 bytes）
 - `src/main/java/cn/longer233/gamenarrator/vision/ImagePerceptualHash.java`（1256 bytes）
-- `src/main/java/cn/longer233/gamenarrator/vision/OllamaVisionClient.java`（14187 bytes）
+- `src/main/java/cn/longer233/gamenarrator/vision/OllamaVisionClient.java`（14553 bytes）
 - `src/main/java/cn/longer233/gamenarrator/vision/VideoContentAnalysis.java`（293 bytes）
 - `src/main/java/cn/longer233/gamenarrator/vision/VideoSegmentClipService.java`（3911 bytes）
 - `src/main/java/cn/longer233/gamenarrator/vision/VideoSegmentSearchController.java`（3764 bytes）
@@ -210,7 +211,7 @@
 - `src/main/java/cn/longer233/gamenarrator/voice/VoiceOption.java`（137 bytes）
 - `src/main/java/cn/longer233/gamenarrator/voice/VoiceRegenerationRequest.java`（419 bytes）
 - `src/main/java/cn/longer233/gamenarrator/voice/VoiceSegment.java`（296 bytes）
-- `src/main/resources/application.yml`（13499 bytes）
+- `src/main/resources/application.yml`（13598 bytes）
 - `src/main/resources/application-release.yml`（1055 bytes）
 - `src/main/resources/db/migration/V1__database_v2_foundation.sql`（17535 bytes）
 - `src/main/resources/db/migration/V10__allow_storyboard_review_task_status.sql`（528 bytes）
@@ -237,7 +238,7 @@
 - `src/main/resources/static/app.js`（78908 bytes）
 - `src/main/resources/static/asset-library.js`（39551 bytes）
 - `src/main/resources/static/diagnostics.js`（1673 bytes）
-- `src/main/resources/static/export.js`（9227 bytes）
+- `src/main/resources/static/export.js`（10391 bytes）
 - `src/main/resources/static/extension-install.html`（3410 bytes）
 - `src/main/resources/static/index.html`（23426 bytes）
 - `src/main/resources/static/media-importer.css`（4474 bytes）
@@ -250,6 +251,7 @@
 - `src/test/java/cn/longer233/gamenarrator/asset/BilibiliAssetClientTest.java`（6341 bytes）
 - `src/test/java/cn/longer233/gamenarrator/asset/ChineseAssetQueryExpanderTest.java`（1742 bytes）
 - `src/test/java/cn/longer233/gamenarrator/asset/SafeRemoteHttpConnectorTest.java`（834 bytes）
+- `src/test/java/cn/longer233/gamenarrator/audio/AudioAnalysisServiceTest.java`（449 bytes）
 - `src/test/java/cn/longer233/gamenarrator/audio/ProceduralSoundEffectLibraryTest.java`（1211 bytes）
 - `src/test/java/cn/longer233/gamenarrator/common/AtomicArtifactWriterTest.java`（1040 bytes）
 - `src/test/java/cn/longer233/gamenarrator/common/ExternalProcessRunnerTest.java`（1623 bytes）
@@ -260,13 +262,13 @@
 - `src/test/java/cn/longer233/gamenarrator/diagnostics/DiagnosticLogServiceTest.java`（906 bytes）
 - `src/test/java/cn/longer233/gamenarrator/effect/SemanticEffectPlannerTest.java`（1359 bytes）
 - `src/test/java/cn/longer233/gamenarrator/export/FfmpegProgressParserTest.java`（1550 bytes）
-- `src/test/java/cn/longer233/gamenarrator/highlight/RuleBasedHighlightSelectorTest.java`（4407 bytes）
+- `src/test/java/cn/longer233/gamenarrator/highlight/RuleBasedHighlightSelectorTest.java`（5608 bytes）
 - `src/test/java/cn/longer233/gamenarrator/importer/MediaImportControllerSessionTest.java`（3224 bytes）
 - `src/test/java/cn/longer233/gamenarrator/importer/RemoteThumbnailServiceTest.java`（476 bytes）
 - `src/test/java/cn/longer233/gamenarrator/importer/YtDlpMediaImporterTest.java`（1957 bytes）
 - `src/test/java/cn/longer233/gamenarrator/media/FfmpegMediaProbeTest.java`（1064 bytes）
 - `src/test/java/cn/longer233/gamenarrator/pipeline/PendingTaskRecoveryTest.java`（3156 bytes）
-- `src/test/java/cn/longer233/gamenarrator/pipeline/VideoPipelineEndToEndTest.java`（3001 bytes）
+- `src/test/java/cn/longer233/gamenarrator/pipeline/VideoPipelineEndToEndTest.java`（3211 bytes）
 - `src/test/java/cn/longer233/gamenarrator/render/FfmpegVideoRendererEffectTest.java`（2999 bytes）
 - `src/test/java/cn/longer233/gamenarrator/script/OllamaScriptGeneratorTest.java`（2300 bytes）
 - `src/test/java/cn/longer233/gamenarrator/script/ScriptWorkspaceServiceTest.java`（6442 bytes）
@@ -303,7 +305,7 @@
 
     <groupId>cn.longer233.graduation</groupId>
     <artifactId>game-narrator</artifactId>
-    <version>1.0.1</version>
+    <version>1.1.0</version>
     <name>GameNarrator</name>
     <description>多模态游戏视频智能解说与自动剪辑系统</description>
 
@@ -1572,7 +1574,7 @@ GameNarrator 是一个面向游戏和动漫内容创作者的本地智能视频�
 - 视觉理解目前最多抽取少量代表帧，对短暂击杀、弹反等事件容易漏检。
 - 语音识别结果缺少更完善的游戏术语纠错和说话人处理。
 - 文案质量受视觉结果与识别文本质量影响，缺少重新生成和人工修改入口。
-- 当前高光筛选为规则算法，尚未融合音频能量、OCR、操作事件等特征。
+- 当前高光筛选采用可解释的多模态加权算法，融合视觉、事件、音频能量、OCR 和字幕关键词。
 - 当前字幕为可开关软字幕，缺少动态花字和烧录字幕模板。
 - 特效提示会写入时间线并由 FFmpeg 渲染为视觉特效；完成项目可调整预设、强度、动态字幕和程序化音效后重新渲染。
 - 当前任务阶段只有起止进度，缺少逐帧、逐片段的精细实时进度。
@@ -1625,8 +1627,8 @@ GameNarrator 是一个面向游戏和动漫内容创作者的本地智能视频�
 | FR-101 | P0 | 读取媒体元数据 | 已实现 | 展示时长、分辨率、帧率、视频和音频编码 |
 | FR-102 | P0 | 自动检测镜头变化 | 已实现 | 生成包含时间戳和截图路径的镜头清单 |
 | FR-103 | P0 | 提取语音音轨 | 已实现 | 有音轨时生成 16 kHz 单声道 WAV，无音轨时正常跳过 |
-| FR-104 | P1 | 音频能量分析 | 未实现 | 输出欢呼、爆音、静音和峰值区间，为高光评分提供特征 |
-| FR-105 | P1 | OCR 识别 | 未实现 | 识别击杀、胜利、失败、Boss 血条等关键界面文字 |
+| FR-104 | P1 | 音频能量分析 | 已实现 | 输出每秒能量、峰值、静音和爆音区间，为高光评分提供特征 |
+| FR-105 | P1 | OCR 识别 | 已实现 | 视觉模型默认识别界面文字，Tesseract 可作为本地补充引擎 |
 | FR-106 | P1 | 自适应抽帧 | 未实现 | 根据镜头密度和视频时长控制采样，避免只分析固定 8 帧 |
 
 ### 7.3 语音与画面理解
@@ -1646,7 +1648,7 @@ GameNarrator 是一个面向游戏和动漫内容创作者的本地智能视频�
 | FR-301 | P0 | 候选片段排序 | 已实现 | 综合视觉评分和事件权重输出排序结果 |
 | FR-302 | P0 | 重复镜头去除 | 已实现 | 时间过近的候选不得重复入选 |
 | FR-303 | P0 | 目标时长控制 | 已实现 | 片段总时长接近用户目标，且不超过原视频边界 |
-| FR-304 | P1 | 多模态高光评分 | 未实现 | 融合视觉、音频、转写关键词、OCR 和镜头运动特征 |
+| FR-304 | P1 | 多模态高光评分 | 已实现 | 融合视觉、事件、音频、转写关键词和 OCR；镜头运动继续沿用视觉事件评分 |
 | FR-305 | P1 | 手动保留与排除 | 未实现 | 用户可锁定或排除候选片段并重新规划 |
 
 ### 7.5 文案生成
@@ -1657,7 +1659,7 @@ GameNarrator 是一个面向游戏和动漫内容创作者的本地智能视频�
 | FR-402 | P0 | 支持三种通用风格 | 已实现 | 动漫剧场、热血高燃和轻松吐槽之间有可辨识差异 |
 | FR-403 | P0 | 原创性约束 | 已实现 | 提示词禁止照抄识别文本和模仿具体创作者独特表达 |
 | FR-404 | P1 | 重新生成文案 | 未实现 | 可只重生成指定片段，不影响其他阶段数据 |
-| FR-405 | P1 | 文案编辑 | 未实现 | 用户修改后保存版本，并使后续配音和渲染失效待重建 |
+| FR-405 | P1 | 文案编辑 | 1.0 基础完成 | 已支持分段编辑及下游失效；完整版本树与历史可视化属于 2.0 |
 | FR-406 | P1 | 文案质量评分 | 未实现 | 检测过短、重复、空字段、事实冲突和明显识别乱码 |
 
 ### 7.6 AI 配音
@@ -1666,7 +1668,7 @@ GameNarrator 是一个面向游戏和动漫内容创作者的本地智能视频�
 |---|---|---|---|---|
 | FR-501 | P0 | 本地中文配音 | 已实现 | Piper 为每段文案生成可播放 WAV |
 | FR-502 | P0 | 配音清单 | 已实现 | 清单记录片段编号、文本和音频路径 |
-| FR-503 | P1 | 音色选择 | 未实现 | 至少提供两种合法开源中文音色并可试听 |
+| FR-503 | P1 | 多音色选择 | 规划中 | 当前 Piper 单音色满足基本生成；多音色与试听属于明确的新功能 |
 | FR-504 | P1 | 语速和情感参数 | 待完善 | 可配置语速；后续接入支持情感控制的本地模型 |
 | FR-505 | P1 | 单段重新配音 | 未实现 | 修改单段后只重生成对应 WAV |
 
@@ -1694,8 +1696,8 @@ GameNarrator 是一个面向游戏和动漫内容创作者的本地智能视频�
 | FR-703 | P0 | 导出 MP4 | 已实现 | 输出 H.264、AAC、MP4，普通播放器可正常播放 |
 | FR-704 | P0 | 网站在线播放 | 已实现 | 任务详情内播放器可以读取时长、拖动和播放 |
 | FR-705 | P0 | 导出按钮 | 已实现 | 点击“导出 MP4”触发浏览器下载，接口支持 Range |
-| FR-706 | P1 | 清晰度选择 | 未实现 | 支持 720p、1080p 和保持原分辨率 |
-| FR-707 | P1 | 渲染参数预设 | 未实现 | 可选择质量优先、速度优先和文件大小优先 |
+| FR-706 | P1 | 清晰度选择 | 已实现 | 导出界面支持 720p、1080p 和保持原分辨率 |
+| FR-707 | P1 | 渲染参数预设 | 已实现 | 导出界面支持质量优先、平衡、速度优先和文件大小优先 |
 | FR-708 | P1 | 中间文件清理 | 未实现 | 成片成功后可清理 render-work，失败时保留诊断所需文件 |
 
 ## 8. 页面需求
@@ -5771,6 +5773,108 @@ public class WikimediaAssetClient {
 }
 ``
 
+### FILE: src/main/java/cn/longer233/gamenarrator/audio/AudioAnalysisService.java
+
+``java
+package cn.longer233.gamenarrator.audio;
+
+import cn.longer233.gamenarrator.common.AtomicArtifactWriter;
+import cn.longer233.gamenarrator.common.ExternalProcessRunner;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.stereotype.Component;
+
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.time.Duration;
+import java.util.ArrayList;
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.concurrent.atomic.AtomicReference;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+
+/** Extracts bounded, one-second audio features for highlight ranking. */
+@Component
+public class AudioAnalysisService {
+    private static final Logger log = LoggerFactory.getLogger(AudioAnalysisService.class);
+    private static final Pattern TIME = Pattern.compile("pts_time:([0-9]+(?:\\.[0-9]+)?)");
+    private static final Pattern SILENCE_START = Pattern.compile("silence_start: ([0-9]+(?:\\.[0-9]+)?)");
+    private static final Pattern SILENCE_END = Pattern.compile("silence_end: ([0-9]+(?:\\.[0-9]+)?)");
+    private static final Pattern VALUE = Pattern.compile("lavfi\\.astats\\.Overall\\.(RMS_level|Peak_level)=(-?inf|-?[0-9]+(?:\\.[0-9]+)?)");
+    private final String ffmpeg;
+    private final ObjectMapper mapper;
+
+    public AudioAnalysisService(@Value("${game-narrator.ffmpeg-command}") String ffmpeg, ObjectMapper mapper) {
+        this.ffmpeg = ffmpeg;
+        this.mapper = mapper;
+    }
+
+    public Path analyze(Path audio) {
+        if (audio == null || !Files.isRegularFile(audio)) return null;
+        Path output = audio.resolveSibling("audio-analysis.json");
+        List<Map<String, Object>> windows = new ArrayList<>();
+        List<Map<String, Object>> silence = new ArrayList<>();
+        AtomicReference<Double> time = new AtomicReference<>(0.0);
+        AtomicReference<Double> rms = new AtomicReference<>();
+        AtomicReference<Double> silenceStart = new AtomicReference<>();
+        try {
+            String filter = "silencedetect=n=-45dB:d=0.6,asetnsamples=n=16000:p=1,astats=metadata=1:reset=1,ametadata=print";
+            var result = ExternalProcessRunner.run(List.of(ffmpeg, "-nostdin", "-hide_banner", "-i", audio.toString(),
+                    "-af", filter, "-f", "null", "-"), Duration.ofMinutes(30), null, line -> {
+                Matcher timestamp = TIME.matcher(line);
+                if (timestamp.find()) time.set(Double.parseDouble(timestamp.group(1)));
+                Matcher start = SILENCE_START.matcher(line);
+                if (start.find()) silenceStart.set(Double.parseDouble(start.group(1)));
+                Matcher end = SILENCE_END.matcher(line);
+                if (end.find() && silenceStart.get() != null)
+                    silence.add(interval(silenceStart.getAndSet(null), Double.parseDouble(end.group(1)), "SILENCE"));
+                Matcher value = VALUE.matcher(line);
+                if (value.find()) {
+                    double number = "-inf".equals(value.group(2)) ? -100.0 : Double.parseDouble(value.group(2));
+                    if ("RMS_level".equals(value.group(1))) rms.set(number);
+                    else if (rms.get() != null) {
+                        double peak = number;
+                        Map<String, Object> window = new LinkedHashMap<>();
+                        window.put("startSeconds", Math.max(0, time.get()));
+                        window.put("endSeconds", Math.max(0, time.get()) + 1.0);
+                        window.put("rmsDb", rms.getAndSet(null));
+                        window.put("peakDb", peak);
+                        window.put("energyScore", energyScore((Double) window.get("rmsDb")));
+                        window.put("peak", peak >= -6.0);
+                        window.put("clipping", peak >= -1.0);
+                        windows.add(window);
+                    }
+                }
+            });
+            if (result.exitCode() != 0) throw new IllegalStateException("FFmpeg exit " + result.exitCode());
+            List<Map<String, Object>> peaks = windows.stream().filter(item -> Boolean.TRUE.equals(item.get("peak"))).toList();
+            List<Map<String, Object>> clipping = windows.stream().filter(item -> Boolean.TRUE.equals(item.get("clipping"))).toList();
+            AtomicArtifactWriter.writeJson(mapper, output, Map.of("schemaVersion", 1, "windowSeconds", 1,
+                    "windows", windows, "silenceIntervals", silence, "peakIntervals", peaks,
+                    "clippingIntervals", clipping));
+            log.info("AUDIO_ANALYSIS_SUCCESS windows={} silence={} peaks={} clipping={} output={}",
+                    windows.size(), silence.size(), peaks.size(), clipping.size(), output);
+            return output;
+        } catch (Exception exception) {
+            log.warn("AUDIO_ANALYSIS_SKIPPED audio={} reason={}", audio, exception.getMessage());
+            return null;
+        }
+    }
+
+    private static Map<String, Object> interval(double start, double end, String type) {
+        return Map.of("startSeconds", start, "endSeconds", end, "type", type);
+    }
+
+    static int energyScore(double rmsDb) {
+        return (int) Math.round(Math.max(0, Math.min(100, (rmsDb + 55.0) * 2.0)));
+    }
+}
+``
+
 ### FILE: src/main/java/cn/longer233/gamenarrator/audio/ProceduralSoundEffectLibrary.java
 
 ``java
@@ -7941,7 +8045,8 @@ public record CreateExportRequest(
         Double frameRate,
         Integer qualityValue,
         Integer targetBitrateKbps,
-        String subtitleMode
+        String subtitleMode,
+        String performanceMode
 ) {
 }
 ``
@@ -8312,8 +8417,10 @@ public class ExportWorker {
         Integer quality = request.qualityValue() != null ? request.qualityValue() : preset.qualityValue();
         Integer bitrate = request.targetBitrateKbps() != null ? request.targetBitrateKbps() : preset.targetBitrateKbps();
         if (bitrate != null) command.addAll(List.of("-b:v", bitrate + "k"));
-        else if (quality != null && encoder.contains("nvenc")) command.addAll(List.of("-cq", String.valueOf(quality), "-preset", "p4"));
-        else if (quality != null) command.addAll(List.of("-crf", String.valueOf(quality)));
+        else if (quality != null && encoder.contains("nvenc")) command.addAll(List.of("-cq", String.valueOf(quality),
+                "-preset", nvencPreset(request.performanceMode())));
+        else if (quality != null) command.addAll(List.of("-crf", String.valueOf(quality),
+                "-preset", softwarePreset(request.performanceMode())));
         if ("PRORES".equalsIgnoreCase(preset.videoCodec())) command.addAll(List.of("-profile:v", "2"));
         command.addAll(List.of("-map", "0:v:0", "-map", "0:a:0?"));
         if ("SOFT".equalsIgnoreCase(subtitleMode)) {
@@ -8346,6 +8453,18 @@ public class ExportWorker {
             case "PCM" -> "pcm_s16le";
             default -> "aac";
         };
+    }
+
+    private String nvencPreset(String mode) {
+        if ("SPEED".equalsIgnoreCase(mode)) return "p1";
+        if ("QUALITY".equalsIgnoreCase(mode)) return "p7";
+        return "p4";
+    }
+
+    private String softwarePreset(String mode) {
+        if ("SPEED".equalsIgnoreCase(mode)) return "veryfast";
+        if ("QUALITY".equalsIgnoreCase(mode)) return "slow";
+        return "medium";
     }
 
     private void registerArtifact(UUID jobId, Path output) throws Exception {
@@ -8537,6 +8656,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
 
 import java.nio.file.Path;
+import java.nio.file.Files;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.LinkedHashMap;
@@ -8567,10 +8687,11 @@ public class RuleBasedHighlightSelector {
                     ? objectMapper.readerForListOf(HighlightHint.class)
                             .readValue(document.path("contentAnalysis").path("highlightHints"))
                     : List.of();
+            FeatureContext features = loadFeatures(visualAnalysisPath, document.path("transcriptText").asText(""));
             boolean highlightsOnly = "HIGHLIGHTS".equalsIgnoreCase(editingScope);
             List<HighlightClip> clips = highlightsOnly
-                    ? buildHighlightClips(frames, videoDurationSeconds, targetDurationSeconds, hints)
-                    : buildContinuousStoryClips(frames, videoDurationSeconds, hints);
+                    ? buildHighlightClips(frames, videoDurationSeconds, targetDurationSeconds, hints, features)
+                    : buildContinuousStoryClips(frames, videoDurationSeconds, hints, features);
             double totalSeconds = clips.stream().mapToDouble(HighlightClip::durationSeconds).sum();
             String summary = highlightsOnly
                     ? "已按精彩片段模式选出 %d 个片段，共 %.1f 秒".formatted(clips.size(), totalSeconds)
@@ -8584,6 +8705,9 @@ public class RuleBasedHighlightSelector {
             result.put("contentOverview", document.path("contentAnalysis").path("overview").asText(""));
             result.put("highlightStrategy", document.path("contentAnalysis").path("highlightStrategy").asText(""));
             result.put("aiHintCount", hints.size());
+            result.put("scoringStrategy", "multimodal-v2");
+            result.put("featureWeights", Map.of("visual", 55, "event", 15, "audio", 15, "ocr", 10, "transcript", 5));
+            result.put("audioFeatureAvailable", !features.audioWindows().isEmpty());
             result.put("summary", summary);
             result.put("requestedTargetDurationSeconds", targetDurationSeconds);
             result.put("selectedDurationSeconds", totalSeconds);
@@ -8600,13 +8724,14 @@ public class RuleBasedHighlightSelector {
     }
 
     private List<HighlightClip> buildHighlightClips(List<FrameUnderstanding> frames, double duration,
-                                                     int targetDurationSeconds, List<HighlightHint> hints) {
+                                                     int targetDurationSeconds, List<HighlightHint> hints,
+                                                     FeatureContext features) {
         if (!Double.isFinite(duration) || duration <= 0) throw new IllegalStateException("源视频时长无效");
         double budget = Math.min(duration, Math.max(15, targetDurationSeconds));
         double clipLength = Math.min(20.0, budget);
         int wanted = Math.max(1, (int) Math.ceil(budget / clipLength));
         List<FrameUnderstanding> ranked = frames.stream()
-                .sorted(Comparator.comparingInt((FrameUnderstanding frame) -> finalScore(frame, hints)).reversed())
+                .sorted(Comparator.comparingInt((FrameUnderstanding frame) -> finalScore(frame, hints, features)).reversed())
                 .toList();
         List<HighlightClip> selected = new ArrayList<>();
         for (FrameUnderstanding frame : ranked) {
@@ -8616,19 +8741,19 @@ public class RuleBasedHighlightSelector {
             boolean overlaps = selected.stream().anyMatch(clip -> start < clip.endSeconds() && end > clip.startSeconds());
             if (!overlaps && end > start) selected.add(new HighlightClip(frame.index(), start, end,
                     frame.timestampSeconds(), frame.eventType(), frame.description(), frame.excitementScore(),
-                    finalScore(frame, hints)));
+                    finalScore(frame, hints, features)));
         }
         if (selected.isEmpty()) {
             FrameUnderstanding frame = ranked.get(0);
             double end = Math.min(duration, budget);
             selected.add(new HighlightClip(frame.index(), 0, end, frame.timestampSeconds(), frame.eventType(),
-                    frame.description(), frame.excitementScore(), finalScore(frame, hints)));
+                    frame.description(), frame.excitementScore(), finalScore(frame, hints, features)));
         }
         return selected.stream().sorted(Comparator.comparingDouble(HighlightClip::startSeconds)).toList();
     }
 
     private List<HighlightClip> buildContinuousStoryClips(List<FrameUnderstanding> frames, double duration,
-                                                           List<HighlightHint> hints) {
+                                                           List<HighlightHint> hints, FeatureContext features) {
         if (!Double.isFinite(duration) || duration <= 0) throw new IllegalStateException("源视频时长无效");
         List<HighlightClip> clips = new ArrayList<>();
         for (double start = 0; start < duration; start += STORY_SEGMENT_SECONDS) {
@@ -8637,17 +8762,75 @@ public class RuleBasedHighlightSelector {
             double segmentEnd = end;
             FrameUnderstanding anchor = frames.stream()
                     .filter(frame -> frame.timestampSeconds() >= segmentStart && frame.timestampSeconds() < segmentEnd)
-                    .max(Comparator.comparingInt((FrameUnderstanding frame) -> finalScore(frame, hints)))
+                    .max(Comparator.comparingInt((FrameUnderstanding frame) -> finalScore(frame, hints, features)))
                     .orElseGet(() -> frames.stream().min(Comparator.comparingDouble(frame ->
                             Math.abs(frame.timestampSeconds() - ((segmentStart + segmentEnd) / 2.0)))).orElseThrow());
             clips.add(new HighlightClip(anchor.index(), segmentStart, segmentEnd, anchor.timestampSeconds(),
-                    anchor.eventType(), anchor.description(), anchor.excitementScore(), finalScore(anchor, hints)));
+                    anchor.eventType(), anchor.description(), anchor.excitementScore(), finalScore(anchor, hints, features)));
         }
         return clips;
     }
 
-    private int finalScore(FrameUnderstanding frame, List<HighlightHint> hints) {
-        return Math.min(100, frame.excitementScore() + eventBonus(frame.eventType()) + hintBonus(frame, hints));
+    private int finalScore(FrameUnderstanding frame, List<HighlightHint> hints, FeatureContext features) {
+        int visual = Math.min(100, frame.excitementScore() + hintBonus(frame, hints));
+        int event = Math.min(100, eventBonus(frame.eventType()) * 6);
+        int audio = features.audioScore(frame.timestampSeconds());
+        int ocr = keywordScore(frame.ocrText());
+        int transcript = features.transcriptScore(frame.timestampSeconds(), this::keywordScore);
+        return Math.min(100, (int) Math.round(visual * .55 + event * .15 + audio * .15 + ocr * .10 + transcript * .05));
+    }
+
+    private int keywordScore(String text) {
+        if (text == null || text.isBlank()) return 0;
+        String value = text.toLowerCase();
+        return List.of("胜利", "失败", "击杀", "连杀", "得分", "boss", "victory", "defeat", "kill", "win")
+                .stream().anyMatch(value::contains) ? 100 : 25;
+    }
+
+    private FeatureContext loadFeatures(Path visualAnalysisPath, String transcriptText) {
+        Path audio = visualAnalysisPath.resolveSibling("audio-analysis.json");
+        List<TranscriptWindow> transcriptWindows = loadTranscriptWindows(visualAnalysisPath.resolveSibling("transcript.json"));
+        if (!Files.isRegularFile(audio)) return new FeatureContext(List.of(), transcriptWindows, transcriptText);
+        try {
+            JsonNode root = objectMapper.readTree(audio.toFile());
+            List<AudioWindow> windows = new ArrayList<>();
+            for (JsonNode item : root.path("windows")) windows.add(new AudioWindow(item.path("startSeconds").asDouble(),
+                    item.path("endSeconds").asDouble(), item.path("energyScore").asInt(), item.path("clipping").asBoolean()));
+            return new FeatureContext(windows, transcriptWindows, transcriptText);
+        } catch (Exception exception) {
+            log.warn("HIGHLIGHT_AUDIO_FEATURES_SKIPPED path={} reason={}", audio, exception.getMessage());
+            return new FeatureContext(List.of(), transcriptWindows, transcriptText);
+        }
+    }
+
+    private List<TranscriptWindow> loadTranscriptWindows(Path transcriptPath) {
+        if (!Files.isRegularFile(transcriptPath)) return List.of();
+        try {
+            List<TranscriptWindow> result = new ArrayList<>();
+            for (JsonNode item : objectMapper.readTree(transcriptPath.toFile()).path("transcription")) {
+                double start = item.path("offsets").path("from").asDouble() / 1000.0;
+                double end = item.path("offsets").path("to").asDouble() / 1000.0;
+                result.add(new TranscriptWindow(start, Math.max(start, end), item.path("text").asText("")));
+            }
+            return result;
+        } catch (Exception exception) {
+            log.debug("HIGHLIGHT_TRANSCRIPT_FEATURES_SKIPPED path={} reason={}", transcriptPath, exception.getMessage());
+            return List.of();
+        }
+    }
+
+    private record AudioWindow(double start, double end, int energy, boolean clipping) { }
+    private record TranscriptWindow(double start, double end, String text) { }
+    private record FeatureContext(List<AudioWindow> audioWindows, List<TranscriptWindow> transcriptWindows,
+                                  String transcriptText) {
+        int audioScore(double timestamp) {
+            return audioWindows.stream().filter(item -> timestamp >= item.start() && timestamp < item.end())
+                    .mapToInt(item -> item.clipping() ? Math.max(0, item.energy() - 25) : item.energy()).max().orElse(0);
+        }
+        int transcriptScore(double timestamp, java.util.function.ToIntFunction<String> scorer) {
+            return transcriptWindows.stream().filter(item -> timestamp >= item.start() && timestamp <= item.end())
+                    .mapToInt(item -> scorer.applyAsInt(item.text())).max().orElseGet(() -> scorer.applyAsInt(transcriptText));
+        }
     }
 
     private int hintBonus(FrameUnderstanding frame, List<HighlightHint> hints) {
@@ -10231,6 +10414,8 @@ public class YtDlpMediaImporter {
 ``java
 package cn.longer233.gamenarrator.media;
 
+import cn.longer233.gamenarrator.audio.AudioAnalysisService;
+
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -10263,6 +10448,7 @@ public class FfmpegMediaPreprocessor {
     private final int sceneAnalysisFps;
     private final int maximumSceneFrames;
     private final Duration sceneTimeout;
+    private final AudioAnalysisService audioAnalysis;
 
     public FfmpegMediaPreprocessor(
             @Value("${game-narrator.ffmpeg-command}") String ffmpegCommand,
@@ -10271,7 +10457,8 @@ public class FfmpegMediaPreprocessor {
             @Value("${game-narrator.scene-analysis-fps:6}") int sceneAnalysisFps,
             @Value("${game-narrator.maximum-scene-frames:240}") int maximumSceneFrames,
             @Value("${game-narrator.scene-timeout-minutes:20}") int sceneTimeoutMinutes,
-            ObjectMapper objectMapper
+            ObjectMapper objectMapper,
+            AudioAnalysisService audioAnalysis
     ) {
         this.ffmpegCommand = ffmpegCommand;
         this.storageRoot = Path.of(storageRoot).toAbsolutePath().normalize();
@@ -10280,6 +10467,7 @@ public class FfmpegMediaPreprocessor {
         this.maximumSceneFrames = Math.max(10, Math.min(1000, maximumSceneFrames));
         this.sceneTimeout = Duration.ofMinutes(Math.max(2, Math.min(120, sceneTimeoutMinutes)));
         this.objectMapper = objectMapper;
+        this.audioAnalysis = audioAnalysis;
     }
 
     public MediaPreparationResult prepare(
@@ -10295,6 +10483,7 @@ public class FfmpegMediaPreprocessor {
             Files.createDirectories(sceneDirectory);
             if (hasAudio) {
                 extractAudio(sourceVideo, audioPath);
+                audioAnalysis.analyze(audioPath);
             }
             List<SceneFrame> scenes = detectScenes(sourceVideo, sceneDirectory);
             cn.longer233.gamenarrator.common.AtomicArtifactWriter.writeJson(objectMapper, manifestPath, scenes);
@@ -15784,7 +15973,7 @@ public class FrameOcrService {
     private final String executable;
     private final String languages;
 
-    public FrameOcrService(@Value("${game-narrator.ocr.enabled:false}") boolean enabled,
+    public FrameOcrService(@Value("${game-narrator.ocr.enabled:true}") boolean enabled,
                            @Value("${game-narrator.ocr.executable:tesseract}") String executable,
                            @Value("${game-narrator.ocr.languages:chi_sim+eng}") String languages) {
         this.enabled = enabled;
@@ -15793,7 +15982,9 @@ public class FrameOcrService {
     }
 
     public FrameUnderstanding enrich(FrameUnderstanding frame) {
-        if (!enabled) return frame;
+        // The vision model is the default OCR engine. Tesseract only fills frames for which
+        // the model did not return visible text, so a missing optional executable is harmless.
+        if (!enabled || (frame.ocrText() != null && !frame.ocrText().isBlank())) return frame;
         try {
             var result = ExternalProcessRunner.run(List.of(executable, Path.of(frame.imagePath()).toString(),
                     "stdout", "-l", languages, "--psm", "6"), Duration.ofSeconds(20));
@@ -15802,7 +15993,7 @@ public class FrameOcrService {
             if (text.length() > 500) text = text.substring(0, 500);
             return new FrameUnderstanding(frame.index(), frame.timestampSeconds(), frame.imagePath(),
                     frame.description() + "；界面文字：" + text, frame.eventType(),
-                    Math.min(100, frame.excitementScore() + keywordBonus(text)), frame.rawJson());
+                    Math.min(100, frame.excitementScore() + keywordBonus(text)), text, frame.rawJson());
         } catch (Exception exception) {
             log.debug("FRAME_OCR_SKIPPED frame={} reason={}", frame.index(), exception.getMessage());
             return frame;
@@ -15829,8 +16020,13 @@ public record FrameUnderstanding(
         String description,
         String eventType,
         int excitementScore,
+        String ocrText,
         String rawJson
 ) {
+    public FrameUnderstanding(int index, double timestampSeconds, String imagePath, String description,
+                              String eventType, int excitementScore, String rawJson) {
+        this(index, timestampSeconds, imagePath, description, eventType, excitementScore, "", rawJson);
+    }
 }
 ``
 
@@ -15979,6 +16175,7 @@ public class OllamaVisionClient {
             document.put("contentModel", contentModel);
             document.put("summary", summary);
             document.put("contentAnalysis", contentAnalysis);
+            document.put("transcriptText", transcriptText == null ? "" : transcriptText);
             document.put("frames", analyses);
             AtomicArtifactWriter.writeJson(objectMapper, output, document);
             log.info("VIDEO_UNDERSTANDING_SUCCESS analyzedFrames={} output={}", analyses.size(), output);
@@ -16000,7 +16197,8 @@ public class OllamaVisionClient {
             String summary = formatSummary(content);
             Path output = manifestPath.getParent().resolve("visual-analysis.json");
             AtomicArtifactWriter.writeJson(objectMapper, output, Map.of(
-                    "model", "RULE_BASED", "summary", summary, "contentAnalysis", content, "frames", analyses));
+                    "model", "RULE_BASED", "summary", summary, "contentAnalysis", content,
+                    "transcriptText", transcriptText == null ? "" : transcriptText, "frames", analyses));
             return new VideoUnderstandingResult(summary, output.toString(), analyses);
         } catch (Exception exception) {
             throw new IllegalStateException("非 AI 场景分析失败：" + exception.getMessage(), exception);
@@ -16024,6 +16222,7 @@ public class OllamaVisionClient {
         String image = Base64.getEncoder().encodeToString(Files.readAllBytes(Path.of(frame.imagePath())));
         String transcriptHint = abbreviate(transcriptText, 500);
         String prompt = """
+                JSON 必须额外包含 ocrText 字段：填写截图中实际可见的界面文字，没有文字时返回空字符串。
                 你是视频剪辑分析器。分析截图，严格返回 JSON 对象，不要 Markdown。
                 字段：description（简体中文画面描述）、eventType（从探索/战斗/剧情/菜单/胜利/失败/其他选择）、
                 excitementScore（0到100整数，代表适合作为高光片段的程度）。
@@ -16034,7 +16233,8 @@ public class OllamaVisionClient {
         return new FrameUnderstanding(frame.index(), frame.timestampSeconds(), frame.imagePath(),
                 analysis.path("description").asText("未识别出明确画面内容"),
                 analysis.path("eventType").asText("其他"),
-                Math.max(0, Math.min(100, analysis.path("excitementScore").asInt(0))), raw);
+                Math.max(0, Math.min(100, analysis.path("excitementScore").asInt(0))),
+                analysis.path("ocrText").asText(""), raw);
     }
 
     private FrameUnderstanding fallbackFrame(SceneFrame frame, String transcriptText) {
@@ -17014,7 +17214,8 @@ game-narrator:
   subtitle:
     chunk-characters: ${SUBTITLE_CHUNK_CHARACTERS:4000}
   ocr:
-    enabled: ${OCR_ENABLED:false}
+    # The configured vision model supplies OCR by default; Tesseract is an optional local fallback.
+    enabled: ${OCR_ENABLED:true}
     executable: ${TESSERACT_EXECUTABLE:tesseract}
     languages: ${TESSERACT_LANGUAGES:chi_sim+eng}
   ai:
@@ -19459,7 +19660,7 @@ const guideSteps = [
   {selector: '.history-panel', title: '第 5 步：从最左侧历史继续', text: '只有真正生成完成的任务才会进入页面最左侧“最近完成”列表。处理中、等待检查、失败或取消的任务都留在右侧，避免被误认为已经完成。点击已完成条目可查看生成文件、分镜、文案、时间线和最终视频。'},
   {selector: '.storyboard-review-option', title: '第 6 步：检查分镜再继续', text: '开启分镜检查后，流程会在文案与分镜生成后暂停。进入线性分镜工作台可调整顺序、起止时间、字幕、解说、素材和特效；保存全部修改后再继续配音与渲染。'},
   {selector: '.primary-nav', title: '更多工具入口', text: '“镜头搜索”使用本地语义模型寻找片段；“平台导入”负责下载并创建项目；“素材库”管理授权素材；“设置”管理云端或本地 AI。遇到问题可点击右上角“诊断日志”。'},
-  {selector: '.topbar-actions', title: '完成、诊断与再次查看', text: '任务完成后在详情中预览并导出 MP4。任何阶段失败时先查看任务详情和诊断日志；本引导可以随时从“使用引导”重新打开。当前版本为 v1.0.1。'}
+  {selector: '.topbar-actions', title: '完成、诊断与再次查看', text: '任务完成后在详情中预览并导出 MP4。任何阶段失败时先查看任务详情和诊断日志；本引导可以随时从“使用引导”重新打开。当前版本为 v1.1.0。'}
 ];
 let guideIndex = 0;
 let guideTarget = null;
@@ -20376,6 +20577,14 @@ document.addEventListener('visibilitychange', () => {
         getJson(`/api/tasks/${taskId}/exports`)
       ]);
       panel.innerHTML = `
+        <section class="export-guided-options">
+          <h3>快速导出选择</h3>
+          <div class="export-grid">
+            <label>清晰度<select data-field="guided-size"><option value="">保持原分辨率</option><option value="1280x720">720p（体积较小）</option><option value="1920x1080">1080p（推荐）</option></select></label>
+            <label>输出倾向<select data-field="performance"><option value="BALANCED">质量与速度平衡</option><option value="QUALITY">质量优先（更慢）</option><option value="SPEED">速度优先（文件可能更大）</option><option value="SIZE">文件大小优先</option></select></label>
+          </div>
+          <p class="effect-note">高级预设仍会控制编码格式、字幕和音频；这里用于快速选择最常用的清晰度、质量和速度。</p>
+        </section>
         <div class="export-grid">
           <label>导出预设<select data-field="preset">${presets.map(p =>
             `<option value="${p.id}">${text(p.name)} · ${p.container}/${p.videoCodec}</option>`).join('')}</select></label>
@@ -20388,6 +20597,9 @@ document.addEventListener('visibilitychange', () => {
         <div class="export-toolbar"><button type="button" class="submit-export">开始导出</button><span class="export-message"></span></div>
         <div class="export-jobs">${jobsHtml(jobs)}</div>`;
       panel.querySelector('.submit-export').addEventListener('click', () => submit(panel, taskId));
+      const legacy = panel.querySelectorAll(':scope > .export-grid > label');
+      if (legacy[2]) legacy[2].hidden = true;
+      if (legacy[4]) legacy[4].hidden = true;
     } catch (error) {
       panel.innerHTML = `<div class="task-error">${text(error.message)}</div>`;
     }
@@ -20450,17 +20662,19 @@ document.addEventListener('visibilitychange', () => {
   }
 
   async function submit(panel, taskId) {
-    const size = panel.querySelector('[data-field=size]').value.split('x');
+    const size = panel.querySelector('[data-field=guided-size]').value.split('x');
     const value = field => panel.querySelector(`[data-field=${field}]`).value;
+    const performance = value('performance');
     const payload = {
       presetId: value('preset'),
       exportName: value('name'),
       width: size[0] ? Number(size[0]) : null,
       height: size[1] ? Number(size[1]) : null,
       frameRate: value('fps') ? Number(value('fps')) : null,
-      qualityValue: value('quality') ? Number(value('quality')) : null,
+      qualityValue: performance === 'QUALITY' ? 18 : performance === 'SIZE' ? 28 : performance === 'SPEED' ? 25 : 23,
       targetBitrateKbps: null,
-      subtitleMode: value('subtitle') || null
+      subtitleMode: value('subtitle') || null,
+      performanceMode: performance
     };
     panel.querySelector('.export-message').textContent = '已提交，正在后台导出…';
     try {
@@ -20543,14 +20757,14 @@ document.querySelector('#copy-address').onclick=async()=>{await navigator.clipbo
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>GameNarrator 1.0.1</title>
+  <title>GameNarrator 1.1.0</title>
   <link rel="stylesheet" href="/media-importer.css?v=20260729-10">
   <link rel="stylesheet" href="/app.css?v=20260803-13">
 </head>
 <body>
   <div class="aurora"></div>
   <header class="topbar">
-    <a class="brand" href="/">GAME<span>NARRATOR</span><small class="app-version">v1.0.1</small></a>
+    <a class="brand" href="/">GAME<span>NARRATOR</span><small class="app-version">v1.1.0</small></a>
     <nav class="primary-nav" aria-label="主要功能">
       <a href="/?view=studio" data-view-link="studio">剪辑任务</a>
       <a href="/?view=search" data-view-link="search">镜头搜索</a>
@@ -21686,6 +21900,25 @@ class SafeRemoteHttpConnectorTest {
 }
 ``
 
+### FILE: src/test/java/cn/longer233/gamenarrator/audio/AudioAnalysisServiceTest.java
+
+``java
+package cn.longer233.gamenarrator.audio;
+
+import org.junit.jupiter.api.Test;
+
+import static org.assertj.core.api.Assertions.assertThat;
+
+class AudioAnalysisServiceTest {
+    @Test
+    void convertsRmsDbToBoundedEnergyScore() {
+        assertThat(AudioAnalysisService.energyScore(-100)).isZero();
+        assertThat(AudioAnalysisService.energyScore(-30)).isEqualTo(50);
+        assertThat(AudioAnalysisService.energyScore(0)).isEqualTo(100);
+    }
+}
+``
+
 ### FILE: src/test/java/cn/longer233/gamenarrator/audio/ProceduralSoundEffectLibraryTest.java
 
 ``java
@@ -22161,6 +22394,23 @@ class RuleBasedHighlightSelectorTest {
         assertThat(Files.readString(Path.of(result.manifestPath()))).contains("ai-guided-full-story-v1", "谜题揭晓");
     }
 
+    @Test
+    void multimodalAudioAndOcrFeaturesPromoteTheRelevantMoment() throws Exception {
+        ObjectMapper mapper = new ObjectMapper();
+        Path input = tempDir.resolve("visual-analysis.json");
+        FrameUnderstanding ordinary = new FrameUnderstanding(1, 10, "one.jpg", "普通画面", "其他", 50, "", "{}");
+        FrameUnderstanding victory = new FrameUnderstanding(2, 50, "two.jpg", "结算画面", "胜利", 50, "胜利", "{}");
+        mapper.writeValue(input.toFile(), Map.of("frames", List.of(ordinary, victory)));
+        mapper.writeValue(tempDir.resolve("audio-analysis.json").toFile(), Map.of("windows", List.of(
+                Map.of("startSeconds", 9, "endSeconds", 11, "energyScore", 10, "clipping", false),
+                Map.of("startSeconds", 49, "endSeconds", 51, "energyScore", 95, "clipping", false))));
+
+        HighlightSelectionResult result = new RuleBasedHighlightSelector(mapper).select(input, 80, 15, "HIGHLIGHTS");
+
+        assertThat(result.clips()).singleElement().extracting(HighlightClip::sourceFrameIndex).isEqualTo(2);
+        assertThat(Files.readString(Path.of(result.manifestPath()))).contains("multimodal-v2", "audioFeatureAvailable");
+    }
+
     private FrameUnderstanding frame(int index, double time, String event, int score) {
         return new FrameUnderstanding(index, time, "frame.jpg", "description", event, score, "{}");
     }
@@ -22453,7 +22703,8 @@ class VideoPipelineEndToEndTest {
         Path source = temporary.resolve("five-seconds.mp4");
         var generated = ExternalProcessRunner.run(List.of("ffmpeg",
                 "-y", "-hide_banner", "-loglevel", "error", "-f", "lavfi",
-                "-i", "color=c=blue:s=320x180:d=5", "-c:v", "libx264", "-pix_fmt", "yuv420p",
+                "-i", "color=c=blue:s=320x180:d=5", "-f", "lavfi", "-i", "sine=frequency=880:duration=5",
+                "-shortest", "-c:v", "libx264", "-pix_fmt", "yuv420p", "-c:a", "aac",
                 source.toString()), Duration.ofSeconds(30));
         assertThat(generated.exitCode()).isZero();
 
@@ -22475,6 +22726,7 @@ class VideoPipelineEndToEndTest {
         assertThat(current.status()).isEqualTo(TaskStatus.COMPLETED);
         assertThat(current.stages()).hasSize(9).allMatch(stage -> stage.status() == StageStatus.COMPLETED);
         assertThat(Path.of(current.renderedVideoPath())).isRegularFile();
+        assertThat(Path.of(current.sceneManifestPath()).resolveSibling("audio-analysis.json")).isRegularFile();
     }
 }
 ``

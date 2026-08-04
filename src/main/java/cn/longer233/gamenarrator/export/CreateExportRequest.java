@@ -13,6 +13,7 @@ public record CreateExportRequest(
         Double frameRate,
         Integer qualityValue,
         Integer targetBitrateKbps,
-        String subtitleMode
+        String subtitleMode,
+        String performanceMode
 ) {
 }

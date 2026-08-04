@@ -86,6 +86,23 @@ class RuleBasedHighlightSelectorTest {
         assertThat(Files.readString(Path.of(result.manifestPath()))).contains("ai-guided-full-story-v1", "谜题揭晓");
     }
 
+    @Test
+    void multimodalAudioAndOcrFeaturesPromoteTheRelevantMoment() throws Exception {
+        ObjectMapper mapper = new ObjectMapper();
+        Path input = tempDir.resolve("visual-analysis.json");
+        FrameUnderstanding ordinary = new FrameUnderstanding(1, 10, "one.jpg", "普通画面", "其他", 50, "", "{}");
+        FrameUnderstanding victory = new FrameUnderstanding(2, 50, "two.jpg", "结算画面", "胜利", 50, "胜利", "{}");
+        mapper.writeValue(input.toFile(), Map.of("frames", List.of(ordinary, victory)));
+        mapper.writeValue(tempDir.resolve("audio-analysis.json").toFile(), Map.of("windows", List.of(
+                Map.of("startSeconds", 9, "endSeconds", 11, "energyScore", 10, "clipping", false),
+                Map.of("startSeconds", 49, "endSeconds", 51, "energyScore", 95, "clipping", false))));
+
+        HighlightSelectionResult result = new RuleBasedHighlightSelector(mapper).select(input, 80, 15, "HIGHLIGHTS");
+
+        assertThat(result.clips()).singleElement().extracting(HighlightClip::sourceFrameIndex).isEqualTo(2);
+        assertThat(Files.readString(Path.of(result.manifestPath()))).contains("multimodal-v2", "audioFeatureAvailable");
+    }
+
     private FrameUnderstanding frame(int index, double time, String event, int score) {
         return new FrameUnderstanding(index, time, "frame.jpg", "description", event, score, "{}");
     }

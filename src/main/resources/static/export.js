@@ -38,6 +38,14 @@
         getJson(`/api/tasks/${taskId}/exports`)
       ]);
       panel.innerHTML = `
+        <section class="export-guided-options">
+          <h3>快速导出选择</h3>
+          <div class="export-grid">
+            <label>清晰度<select data-field="guided-size"><option value="">保持原分辨率</option><option value="1280x720">720p（体积较小）</option><option value="1920x1080">1080p（推荐）</option></select></label>
+            <label>输出倾向<select data-field="performance"><option value="BALANCED">质量与速度平衡</option><option value="QUALITY">质量优先（更慢）</option><option value="SPEED">速度优先（文件可能更大）</option><option value="SIZE">文件大小优先</option></select></label>
+          </div>
+          <p class="effect-note">高级预设仍会控制编码格式、字幕和音频；这里用于快速选择最常用的清晰度、质量和速度。</p>
+        </section>
         <div class="export-grid">
           <label>导出预设<select data-field="preset">${presets.map(p =>
             `<option value="${p.id}">${text(p.name)} · ${p.container}/${p.videoCodec}</option>`).join('')}</select></label>
@@ -50,6 +58,9 @@
         <div class="export-toolbar"><button type="button" class="submit-export">开始导出</button><span class="export-message"></span></div>
         <div class="export-jobs">${jobsHtml(jobs)}</div>`;
       panel.querySelector('.submit-export').addEventListener('click', () => submit(panel, taskId));
+      const legacy = panel.querySelectorAll(':scope > .export-grid > label');
+      if (legacy[2]) legacy[2].hidden = true;
+      if (legacy[4]) legacy[4].hidden = true;
     } catch (error) {
       panel.innerHTML = `<div class="task-error">${text(error.message)}</div>`;
     }
@@ -112,17 +123,19 @@
   }
 
   async function submit(panel, taskId) {
-    const size = panel.querySelector('[data-field=size]').value.split('x');
+    const size = panel.querySelector('[data-field=guided-size]').value.split('x');
     const value = field => panel.querySelector(`[data-field=${field}]`).value;
+    const performance = value('performance');
     const payload = {
       presetId: value('preset'),
       exportName: value('name'),
       width: size[0] ? Number(size[0]) : null,
       height: size[1] ? Number(size[1]) : null,
       frameRate: value('fps') ? Number(value('fps')) : null,
-      qualityValue: value('quality') ? Number(value('quality')) : null,
+      qualityValue: performance === 'QUALITY' ? 18 : performance === 'SIZE' ? 28 : performance === 'SPEED' ? 25 : 23,
       targetBitrateKbps: null,
-      subtitleMode: value('subtitle') || null
+      subtitleMode: value('subtitle') || null,
+      performanceMode: performance
     };
     panel.querySelector('.export-message').textContent = '已提交，正在后台导出…';
     try {

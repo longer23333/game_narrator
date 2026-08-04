@@ -38,7 +38,8 @@ class VideoPipelineEndToEndTest {
         Path source = temporary.resolve("five-seconds.mp4");
         var generated = ExternalProcessRunner.run(List.of("ffmpeg",
                 "-y", "-hide_banner", "-loglevel", "error", "-f", "lavfi",
-                "-i", "color=c=blue:s=320x180:d=5", "-c:v", "libx264", "-pix_fmt", "yuv420p",
+                "-i", "color=c=blue:s=320x180:d=5", "-f", "lavfi", "-i", "sine=frequency=880:duration=5",
+                "-shortest", "-c:v", "libx264", "-pix_fmt", "yuv420p", "-c:a", "aac",
                 source.toString()), Duration.ofSeconds(30));
         assertThat(generated.exitCode()).isZero();
 
@@ -60,5 +61,6 @@ class VideoPipelineEndToEndTest {
         assertThat(current.status()).isEqualTo(TaskStatus.COMPLETED);
         assertThat(current.stages()).hasSize(9).allMatch(stage -> stage.status() == StageStatus.COMPLETED);
         assertThat(Path.of(current.renderedVideoPath())).isRegularFile();
+        assertThat(Path.of(current.sceneManifestPath()).resolveSibling("audio-analysis.json")).isRegularFile();
     }
 }

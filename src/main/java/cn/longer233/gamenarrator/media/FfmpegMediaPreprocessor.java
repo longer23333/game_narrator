@@ -1,5 +1,7 @@
 package cn.longer233.gamenarrator.media;
 
+import cn.longer233.gamenarrator.audio.AudioAnalysisService;
+
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -32,6 +34,7 @@ public class FfmpegMediaPreprocessor {
     private final int sceneAnalysisFps;
     private final int maximumSceneFrames;
     private final Duration sceneTimeout;
+    private final AudioAnalysisService audioAnalysis;
 
     public FfmpegMediaPreprocessor(
             @Value("${game-narrator.ffmpeg-command}") String ffmpegCommand,
@@ -40,7 +43,8 @@ public class FfmpegMediaPreprocessor {
             @Value("${game-narrator.scene-analysis-fps:6}") int sceneAnalysisFps,
             @Value("${game-narrator.maximum-scene-frames:240}") int maximumSceneFrames,
             @Value("${game-narrator.scene-timeout-minutes:20}") int sceneTimeoutMinutes,
-            ObjectMapper objectMapper
+            ObjectMapper objectMapper,
+            AudioAnalysisService audioAnalysis
     ) {
         this.ffmpegCommand = ffmpegCommand;
         this.storageRoot = Path.of(storageRoot).toAbsolutePath().normalize();
@@ -49,6 +53,7 @@ public class FfmpegMediaPreprocessor {
         this.maximumSceneFrames = Math.max(10, Math.min(1000, maximumSceneFrames));
         this.sceneTimeout = Duration.ofMinutes(Math.max(2, Math.min(120, sceneTimeoutMinutes)));
         this.objectMapper = objectMapper;
+        this.audioAnalysis = audioAnalysis;
     }
 
     public MediaPreparationResult prepare(
@@ -64,6 +69,7 @@ public class FfmpegMediaPreprocessor {
             Files.createDirectories(sceneDirectory);
             if (hasAudio) {
                 extractAudio(sourceVideo, audioPath);
+                audioAnalysis.analyze(audioPath);
             }
             List<SceneFrame> scenes = detectScenes(sourceVideo, sceneDirectory);
             cn.longer233.gamenarrator.common.AtomicArtifactWriter.writeJson(objectMapper, manifestPath, scenes);
