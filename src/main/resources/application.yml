@@ -26,6 +26,7 @@ spring:
           no-cache: true
 
 server:
+  address: ${SERVER_ADDRESS:127.0.0.1}
   port: ${SERVER_PORT:8081}
   tomcat:
     threads:
@@ -38,7 +39,7 @@ server:
         http-only: true
         same-site: strict
   error:
-    include-message: always
+    include-message: never
 
 logging:
   level:

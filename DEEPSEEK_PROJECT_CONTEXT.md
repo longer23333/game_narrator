@@ -1,7 +1,7 @@
 # GameNarrator — DeepSeek 项目上下文包
 
-> 自动生成时间：2026-08-03 20:18:37 +08:00
-> 文件数量：234。本文件由 scripts/export-deepseek-context.ps1 生成，请勿手工维护生成区。
+> 自动生成时间：2026-08-04 08:46:24 +08:00
+> 文件数量：235。本文件由 scripts/export-deepseek-context.ps1 生成，请勿手工维护生成区。
 
 ## 给 DeepSeek 的强制工作规则
 
@@ -39,6 +39,7 @@
 - `scripts/setup-piper.ps1`（1322 bytes）
 - `scripts/setup-vision-model.ps1`（931 bytes）
 - `scripts/setup-whisper.ps1`（1323 bytes）
+- `scripts/sync-remotes.ps1`（935 bytes）
 - `scripts/test-windows-clean-install.ps1`（3068 bytes）
 - `scripts/verify-before-push.ps1`（1116 bytes）
 - `src/main/java/cn/longer233/gamenarrator/ai/AdaptiveAiChatClient.java`（12927 bytes）
@@ -48,7 +49,7 @@
 - `src/main/java/cn/longer233/gamenarrator/ai/AiUsageService.java`（3835 bytes）
 - `src/main/java/cn/longer233/gamenarrator/asset/AiAssetTagger.java`（8162 bytes）
 - `src/main/java/cn/longer233/gamenarrator/asset/AssetCatalogController.java`（10684 bytes）
-- `src/main/java/cn/longer233/gamenarrator/asset/AssetCatalogService.java`（60694 bytes）
+- `src/main/java/cn/longer233/gamenarrator/asset/AssetCatalogService.java`（60844 bytes）
 - `src/main/java/cn/longer233/gamenarrator/asset/AssetDerivativeRequest.java`（294 bytes）
 - `src/main/java/cn/longer233/gamenarrator/asset/AssetLibraryProperties.java`（5166 bytes）
 - `src/main/java/cn/longer233/gamenarrator/asset/AssetReferenceRequest.java`（833 bytes）
@@ -195,7 +196,7 @@
 - `src/main/java/cn/longer233/gamenarrator/voice/VoiceOption.java`（137 bytes）
 - `src/main/java/cn/longer233/gamenarrator/voice/VoiceRegenerationRequest.java`（419 bytes）
 - `src/main/java/cn/longer233/gamenarrator/voice/VoiceSegment.java`（296 bytes）
-- `src/main/resources/application.yml`（12532 bytes）
+- `src/main/resources/application.yml`（12570 bytes）
 - `src/main/resources/application-release.yml`（1055 bytes）
 - `src/main/resources/db/migration/V1__database_v2_foundation.sql`（17535 bytes）
 - `src/main/resources/db/migration/V10__allow_storyboard_review_task_status.sql`（528 bytes）
@@ -2319,6 +2320,41 @@ Write-Host "Executable: $executable"
 Write-Host "Model: $modelPath"
 ``
 
+### FILE: scripts/sync-remotes.ps1
+
+``powershell
+param(
+    [string]$Branch = ""
+)
+
+$ErrorActionPreference = "Stop"
+$repositoryRoot = (Resolve-Path (Join-Path $PSScriptRoot "..")).Path
+if ([string]::IsNullOrWhiteSpace($Branch)) {
+    $Branch = git -C $repositoryRoot branch --show-current
+}
+if ([string]::IsNullOrWhiteSpace($Branch)) {
+    throw "Cannot synchronize a detached HEAD. Pass -Branch explicitly."
+}
+
+$requiredRemotes = @("github", "gitee")
+$configuredRemotes = @(git -C $repositoryRoot remote)
+foreach ($remote in $requiredRemotes) {
+    if ($configuredRemotes -notcontains $remote) {
+        throw "Required remote '$remote' is not configured."
+    }
+}
+
+foreach ($remote in $requiredRemotes) {
+    Write-Host "Pushing $Branch to $remote..."
+    git -C $repositoryRoot push $remote "HEAD:refs/heads/$Branch"
+    if ($LASTEXITCODE -ne 0) {
+        throw "Push to '$remote' failed; synchronization stopped."
+    }
+}
+
+Write-Host "Synchronized '$Branch' to GitHub and Gitee."
+``
+
 ### FILE: scripts/test-windows-clean-install.ps1
 
 ``powershell
@@ -3342,31 +3378,35 @@ public class AssetCatalogService {
                 && bilibili.supports(request.assetType())) {
             attemptedProviders++;
             searches.add(CompletableFuture.runAsync(() -> discoverFrom("BILIBILI",
-                    () -> bilibili.search(request), request, expansion, ids, failures)));
+                    () -> bilibili.search(request), request, expansion, ids, failures), taskExecutor));
         }
         if (providerSelected(request.provider(), "OPENVERSE")
                 && openverse.supports(request.assetType())) {
             attemptedProviders++;
             searches.add(CompletableFuture.runAsync(() ->
-                    discoverFrom("OPENVERSE", () -> openverse.search(providerRequest), request, expansion, ids, failures)));
+                    discoverFrom("OPENVERSE", () -> openverse.search(providerRequest), request, expansion, ids, failures),
+                    taskExecutor));
         }
         if (providerSelected(request.provider(), "WIKIMEDIA")
                 && wikimedia.supports(request.assetType())) {
             attemptedProviders++;
             searches.add(CompletableFuture.runAsync(() ->
-                    discoverFrom("WIKIMEDIA", () -> wikimedia.search(providerRequest), request, expansion, ids, failures)));
+                    discoverFrom("WIKIMEDIA", () -> wikimedia.search(providerRequest), request, expansion, ids, failures),
+                    taskExecutor));
         }
         if (providerSelected(request.provider(), "PEXELS")
                 && pexels.supports(request.assetType())) {
             attemptedProviders++;
             searches.add(CompletableFuture.runAsync(() ->
-                    discoverFrom("PEXELS", () -> pexels.search(providerRequest), request, expansion, ids, failures)));
+                    discoverFrom("PEXELS", () -> pexels.search(providerRequest), request, expansion, ids, failures),
+                    taskExecutor));
         }
         if (providerSelected(request.provider(), "PIXABAY")
                 && pixabay.supports(request.assetType())) {
             attemptedProviders++;
             searches.add(CompletableFuture.runAsync(() ->
-                    discoverFrom("PIXABAY", () -> pixabay.search(providerRequest), request, expansion, ids, failures)));
+                    discoverFrom("PIXABAY", () -> pixabay.search(providerRequest), request, expansion, ids, failures),
+                    taskExecutor));
         }
         requireConfiguredProvider(request);
         CompletableFuture.allOf(searches.toArray(CompletableFuture[]::new)).join();
@@ -15594,6 +15634,7 @@ spring:
           no-cache: true
 
 server:
+  address: ${SERVER_ADDRESS:127.0.0.1}
   port: ${SERVER_PORT:8081}
   tomcat:
     threads:
@@ -15606,7 +15647,7 @@ server:
         http-only: true
         same-site: strict
   error:
-    include-message: always
+    include-message: never
 
 logging:
   level:

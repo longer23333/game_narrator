@@ -112,31 +112,35 @@ public class AssetCatalogService {
                 && bilibili.supports(request.assetType())) {
             attemptedProviders++;
             searches.add(CompletableFuture.runAsync(() -> discoverFrom("BILIBILI",
-                    () -> bilibili.search(request), request, expansion, ids, failures)));
+                    () -> bilibili.search(request), request, expansion, ids, failures), taskExecutor));
         }
         if (providerSelected(request.provider(), "OPENVERSE")
                 && openverse.supports(request.assetType())) {
             attemptedProviders++;
             searches.add(CompletableFuture.runAsync(() ->
-                    discoverFrom("OPENVERSE", () -> openverse.search(providerRequest), request, expansion, ids, failures)));
+                    discoverFrom("OPENVERSE", () -> openverse.search(providerRequest), request, expansion, ids, failures),
+                    taskExecutor));
         }
         if (providerSelected(request.provider(), "WIKIMEDIA")
                 && wikimedia.supports(request.assetType())) {
             attemptedProviders++;
             searches.add(CompletableFuture.runAsync(() ->
-                    discoverFrom("WIKIMEDIA", () -> wikimedia.search(providerRequest), request, expansion, ids, failures)));
+                    discoverFrom("WIKIMEDIA", () -> wikimedia.search(providerRequest), request, expansion, ids, failures),
+                    taskExecutor));
         }
         if (providerSelected(request.provider(), "PEXELS")
                 && pexels.supports(request.assetType())) {
             attemptedProviders++;
             searches.add(CompletableFuture.runAsync(() ->
-                    discoverFrom("PEXELS", () -> pexels.search(providerRequest), request, expansion, ids, failures)));
+                    discoverFrom("PEXELS", () -> pexels.search(providerRequest), request, expansion, ids, failures),
+                    taskExecutor));
         }
         if (providerSelected(request.provider(), "PIXABAY")
                 && pixabay.supports(request.assetType())) {
             attemptedProviders++;
             searches.add(CompletableFuture.runAsync(() ->
-                    discoverFrom("PIXABAY", () -> pixabay.search(providerRequest), request, expansion, ids, failures)));
+                    discoverFrom("PIXABAY", () -> pixabay.search(providerRequest), request, expansion, ids, failures),
+                    taskExecutor));
         }
         requireConfiguredProvider(request);
         CompletableFuture.allOf(searches.toArray(CompletableFuture[]::new)).join();

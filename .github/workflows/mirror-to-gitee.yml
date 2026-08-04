@@ -1,0 +1,28 @@
+name: Mirror to Gitee
+
+on:
+  push:
+    branches: ['**']
+    tags: ['**']
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  mirror:
+    if: github.repository == 'longer23333/game_narrator'
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out all refs
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - name: Push branches and tags to Gitee
+        env:
+          GITEE_TOKEN: ${{ secrets.GITEE_TOKEN }}
+        run: |
+          test -n "$GITEE_TOKEN"
+          git remote add gitee "https://no-longer233:${GITEE_TOKEN}@gitee.com/no-longer233/game_narrator.git"
+          git push gitee --all
+          git push gitee --tags
