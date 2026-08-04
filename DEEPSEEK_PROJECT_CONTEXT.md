@@ -1,7 +1,7 @@
 # GameNarrator — DeepSeek 项目上下文包
 
-> 自动生成时间：2026-08-04 16:24:06 +08:00
-> 文件数量：281。本文件由 scripts/export-deepseek-context.ps1 生成，请勿手工维护生成区。
+> 自动生成时间：2026-08-04 16:39:16 +08:00
+> 文件数量：283。本文件由 scripts/export-deepseek-context.ps1 生成，请勿手工维护生成区。
 
 ## 给 DeepSeek 的强制工作规则
 
@@ -33,7 +33,7 @@
 - `docs/MANUAL_EDITOR_PARITY.md`（2680 bytes）
 - `docs/OBSERVABILITY.md`（1109 bytes）
 - `docs/PERFORMANCE_PORTABILITY_AUDIT.md`（9090 bytes）
-- `docs/REQUIREMENTS.md`（21679 bytes）
+- `docs/REQUIREMENTS.md`（21935 bytes）
 - `docs/STYLE_TEMPLATE_STORE.md`（1190 bytes）
 - `docs/VERSIONING.md`（687 bytes）
 - `scripts/build-windows-release.ps1`（12634 bytes）
@@ -269,6 +269,7 @@
 - `src/test/java/cn/longer233/gamenarrator/common/ProcessSleeper.java`（229 bytes）
 - `src/test/java/cn/longer233/gamenarrator/common/SecurePathGuardTest.java`（1373 bytes）
 - `src/test/java/cn/longer233/gamenarrator/common/StorageCleanupServiceTest.java`（2694 bytes）
+- `src/test/java/cn/longer233/gamenarrator/common/TaskProcessRegistryIntegrationTest.java`（1671 bytes）
 - `src/test/java/cn/longer233/gamenarrator/config/AsyncConfigTest.java`（991 bytes）
 - `src/test/java/cn/longer233/gamenarrator/diagnostics/DiagnosticLogServiceTest.java`（906 bytes）
 - `src/test/java/cn/longer233/gamenarrator/effect/EffectPresetCatalogTest.java`（2318 bytes）
@@ -294,6 +295,7 @@
 - `src/test/java/cn/longer233/gamenarrator/subtitle/AssSubtitleBuilderTest.java`（771 bytes）
 - `src/test/java/cn/longer233/gamenarrator/task/DatabaseMigrationTest.java`（4843 bytes）
 - `src/test/java/cn/longer233/gamenarrator/task/domain/VideoTaskTest.java`（4664 bytes）
+- `src/test/java/cn/longer233/gamenarrator/task/TaskLifecycleIntegrationTest.java`（3749 bytes）
 - `src/test/java/cn/longer233/gamenarrator/task/web/VideoTaskControllerTest.java`（14473 bytes）
 - `src/test/java/cn/longer233/gamenarrator/timeline/TimelinePlannerTest.java`（2442 bytes）
 - `src/test/java/cn/longer233/gamenarrator/timeline/TimelineValidatorTest.java`（1515 bytes）
@@ -323,7 +325,7 @@
 
     <groupId>cn.longer233.graduation</groupId>
     <artifactId>game-narrator</artifactId>
-    <version>1.5.3</version>
+    <version>1.5.4</version>
     <name>GameNarrator</name>
     <description>多模态游戏视频智能解说与自动剪辑系统</description>
 
@@ -1671,7 +1673,7 @@ GameNarrator 是一个面向游戏和动漫内容创作者的本地智能视频�
 | FR-003 | P0 | 查看任务列表和详情 | 已实现 | 可查看状态、九阶段进度、媒体参数和产物路径 |
 | FR-004 | P0 | 失败任务重试 | 待完善 | 用户可从失败阶段重试，不重复执行已完成阶段 |
 | FR-005 | P1 | 删除任务 | 未实现 | 二次确认后删除数据库记录和该任务生成文件，不影响其他任务 |
-| FR-006 | P1 | 取消运行任务 | 未实现 | 能终止外部进程并将任务标记为已取消 |
+| FR-006 | P1 | 取消运行任务 | 已实现 | 取消时终止已注册的外部进程树，确认进程退出后标记任务；取消与恢复路径有集成测试覆盖 |
 | FR-007 | P1 | 任务重命名 | 未实现 | 修改后列表、详情和导出文件名保持一致 |
 
 ### 7.2 素材分析
@@ -1952,6 +1954,8 @@ storage/tasks/{taskId}/
 - 在处理中关闭应用。
 - 重新启动后任务自动恢复。
 - 已完成阶段不重复执行，最终可以导出。
+- 真实数据库集成测试确认只恢复 `READY` 和 `PROCESSING`，已取消任务不会重新提交。
+- 乐观锁集成测试确认旧版本更新不能覆盖后台新状态。
 
 ## 14. 毕业设计评价指标
 
@@ -20641,7 +20645,7 @@ const guideSteps = [
   {selector: '.history-panel', title: '第 5 步：从最左侧历史继续', text: '只有真正生成完成的任务才会进入页面最左侧“最近完成”列表。处理中、等待检查、失败或取消的任务都留在右侧，避免被误认为已经完成。点击已完成条目可查看生成文件、分镜、文案、时间线和最终视频。'},
   {selector: '.storyboard-review-option', title: '第 6 步：检查分镜再继续', text: '开启分镜检查后，流程会在文案与分镜生成后暂停。进入线性分镜工作台可调整顺序、起止时间、字幕、解说、素材和特效；保存全部修改后再继续配音与渲染。'},
   {selector: '.primary-nav', title: '更多工具入口', text: '“镜头搜索”使用本地语义模型寻找片段；“平台导入”负责下载并创建项目；“素材库”管理授权素材；“设置”管理云端或本地 AI。遇到问题可点击右上角“诊断日志”。'},
-  {selector: '.topbar-actions', title: '完成、诊断与再次查看', text: '任务完成后在详情中预览并导出 MP4。任何阶段失败时先查看任务详情和诊断日志；本引导可以随时从“使用引导”重新打开。当前版本为 v1.5.3。'}
+  {selector: '.topbar-actions', title: '完成、诊断与再次查看', text: '任务完成后在详情中预览并导出 MP4。任何阶段失败时先查看任务详情和诊断日志；本引导可以随时从“使用引导”重新打开。当前版本为 v1.5.4。'}
 ];
 let guideIndex = 0;
 let guideTarget = null;
@@ -21738,14 +21742,14 @@ document.querySelector('#copy-address').onclick=async()=>{await navigator.clipbo
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>GameNarrator 1.5.3</title>
+  <title>GameNarrator 1.5.4</title>
   <link rel="stylesheet" href="/media-importer.css?v=20260729-10">
   <link rel="stylesheet" href="/app.css?v=20260803-13">
 </head>
 <body>
   <div class="aurora"></div>
   <header class="topbar">
-    <a class="brand" href="/">GAME<span>NARRATOR</span><small class="app-version">v1.5.3</small></a>
+    <a class="brand" href="/">GAME<span>NARRATOR</span><small class="app-version">v1.5.4</small></a>
     <nav class="primary-nav" aria-label="主要功能">
       <a href="/?view=studio" data-view-link="studio">剪辑任务</a>
       <a href="/?view=search" data-view-link="search">镜头搜索</a>
@@ -23179,6 +23183,54 @@ class StorageCleanupServiceTest {
 }
 ``
 
+### FILE: src/test/java/cn/longer233/gamenarrator/common/TaskProcessRegistryIntegrationTest.java
+
+``java
+package cn.longer233.gamenarrator.common;
+
+import org.junit.jupiter.api.Test;
+
+import java.nio.file.Path;
+import java.time.Duration;
+import java.util.UUID;
+import java.util.concurrent.CancellationException;
+
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
+
+class TaskProcessRegistryIntegrationTest {
+
+    @Test
+    void cancellationTerminatesRegisteredChildProcessBeforeReportingSuccess() throws Exception {
+        UUID taskId = UUID.randomUUID();
+        String java = Path.of(System.getProperty("java.home"), "bin", executable("java")).toString();
+        Process child = new ProcessBuilder(java, "-cp", System.getProperty("java.class.path"),
+                Sleeper.class.getName()).start();
+        try (var ignored = TaskProcessRegistry.open(taskId)) {
+            TaskProcessRegistry.register(child);
+            assertThat(child.isAlive()).isTrue();
+
+            assertThat(TaskProcessRegistry.cancelAndAwait(taskId, Duration.ofSeconds(3))).isTrue();
+            assertThat(child.isAlive()).isFalse();
+            assertThatThrownBy(() -> TaskProcessRegistry.throwIfCancelled(taskId))
+                    .isInstanceOf(CancellationException.class);
+        } finally {
+            if (child.isAlive()) ExternalProcessRunner.terminateTree(child);
+        }
+    }
+
+    private String executable(String name) {
+        return System.getProperty("os.name").toLowerCase().contains("win") ? name + ".exe" : name;
+    }
+
+    public static final class Sleeper {
+        public static void main(String[] args) throws Exception {
+            Thread.sleep(Duration.ofMinutes(5));
+        }
+    }
+}
+``
+
 ### FILE: src/test/java/cn/longer233/gamenarrator/config/AsyncConfigTest.java
 
 ``java
@@ -24549,6 +24601,97 @@ class VideoTaskTest {
         task.approveStoryboard();
         assertThat(task.getStatus()).isEqualTo(TaskStatus.READY);
         assertThat(task.isStoryboardApproved()).isTrue();
+    }
+}
+``
+
+### FILE: src/test/java/cn/longer233/gamenarrator/task/TaskLifecycleIntegrationTest.java
+
+``java
+package cn.longer233.gamenarrator.task;
+
+import cn.longer233.gamenarrator.diagnostics.SystemDiagnosticsService;
+import cn.longer233.gamenarrator.pipeline.PendingTaskRecovery;
+import cn.longer233.gamenarrator.pipeline.VideoTaskEngine;
+import cn.longer233.gamenarrator.task.domain.CommentaryStyle;
+import cn.longer233.gamenarrator.task.domain.VideoTask;
+import cn.longer233.gamenarrator.task.repository.VideoTaskRepository;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.Test;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.DefaultApplicationArguments;
+import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.orm.ObjectOptimisticLockingFailureException;
+import org.springframework.transaction.PlatformTransactionManager;
+import org.springframework.transaction.support.TransactionTemplate;
+
+import java.util.List;
+
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.*;
+
+@SpringBootTest(properties = {
+        "spring.datasource.url=jdbc:h2:mem:task-lifecycle-integration",
+        "spring.task.scheduling.enabled=false",
+        "game-narrator.storage-root=./target/task-lifecycle-integration",
+        "game-narrator.media-import.yt-dlp=./mvnw.cmd"
+})
+class TaskLifecycleIntegrationTest {
+    @Autowired private VideoTaskRepository repository;
+    @Autowired private PlatformTransactionManager transactionManager;
+    @MockBean private VideoTaskEngine engine;
+    @MockBean private SystemDiagnosticsService diagnostics;
+
+    @AfterEach
+    void cleanDatabase() {
+        repository.deleteAll();
+        reset(engine, diagnostics);
+    }
+
+    @Test
+    void staleTaskUpdateIsRejectedByDatabaseOptimisticLock() {
+        VideoTask saved = repository.saveAndFlush(task("optimistic"));
+        TransactionTemplate transactions = new TransactionTemplate(transactionManager);
+        VideoTask stale = transactions.execute(status -> repository.findById(saved.getId()).orElseThrow());
+
+        transactions.executeWithoutResult(status -> {
+            VideoTask current = repository.findById(saved.getId()).orElseThrow();
+            current.rename("background-update");
+            repository.saveAndFlush(current);
+        });
+        stale.rename("stale-editor-update");
+
+        assertThatThrownBy(() -> transactions.executeWithoutResult(status -> repository.saveAndFlush(stale)))
+                .isInstanceOf(ObjectOptimisticLockingFailureException.class);
+    }
+
+    @Test
+    void startupRecoverySubmitsReadyAndProcessingTasksButNotCancelledTasks() throws Exception {
+        VideoTask ready = repository.saveAndFlush(task("ready"));
+        VideoTask processing = task("processing");
+        processing.startIngestion();
+        repository.saveAndFlush(processing);
+        VideoTask cancelled = task("cancelled");
+        cancelled.startIngestion();
+        cancelled.cancel("集成测试取消");
+        repository.saveAndFlush(cancelled);
+        when(diagnostics.recoveryBlockers(any(VideoTask.class))).thenReturn(List.of());
+        reset(engine);
+
+        new PendingTaskRecovery(repository, engine, diagnostics)
+                .run(new DefaultApplicationArguments(new String[0]));
+
+        verify(engine).start(ready.getId());
+        verify(engine).start(processing.getId());
+        verify(engine, never()).start(cancelled.getId());
+        verifyNoMoreInteractions(engine);
+    }
+
+    private VideoTask task(String name) {
+        return new VideoTask(name, "ACTION", CommentaryStyle.ANIME_THEATER,
+                30, name + " integration test", name + ".mp4", false);
     }
 }
 ``
