@@ -15,12 +15,22 @@ import java.util.List;
 import java.util.UUID;
 import java.nio.file.Path;
 import java.net.HttpURLConnection;
+import java.nio.charset.StandardCharsets;
 import cn.longer233.gamenarrator.importer.RemoteThumbnailService;
 import org.springframework.web.multipart.MultipartFile;
 
 @RestController
 @RequestMapping("/api/assets")
 public class AssetCatalogController {
+    private static final byte[] THUMBNAIL_PLACEHOLDER = ("""
+            <svg xmlns="http://www.w3.org/2000/svg" width="640" height="360" viewBox="0 0 640 360">
+              <rect width="640" height="360" fill="#10182b"/>
+              <path d="M246 112h148a18 18 0 0 1 18 18v100a18 18 0 0 1-18 18H246a18 18 0 0 1-18-18V130a18 18 0 0 1 18-18Z" fill="#202e49" stroke="#61718f" stroke-width="4"/>
+              <path d="m250 224 43-48 31 31 24-25 42 42Z" fill="#61718f"/>
+              <circle cx="367" cy="151" r="15" fill="#91a1bd"/>
+              <text x="320" y="292" text-anchor="middle" fill="#91a1bd" font-family="sans-serif" font-size="18">远程封面暂不可用</text>
+            </svg>
+            """).getBytes(StandardCharsets.UTF_8);
     private final AssetCatalogService service;
     private final AssetLibraryProperties properties;
     private final SafeRemoteHttpConnector remoteConnector;
@@ -73,13 +83,26 @@ public class AssetCatalogController {
     @GetMapping("/{id}/thumbnail")
     public ResponseEntity<byte[]> thumbnail(@PathVariable UUID id) {
         AssetCatalogService.RemoteThumbnailSource source = service.remoteThumbnail(id);
-        RemoteThumbnailService.ThumbnailContent content;
         try {
-            content = thumbnailService.fetch(source.url(), source.referer());
+            return thumbnailResponse(thumbnailService.fetch(source.url(), source.referer()));
         } catch (RuntimeException primaryFailure) {
-            if (source.fallbackUrl() == null || source.fallbackUrl().equals(source.url())) throw primaryFailure;
-            content = thumbnailService.fetch(source.fallbackUrl(), source.referer());
+            if (source.fallbackUrl() != null && !source.fallbackUrl().equals(source.url())) {
+                try {
+                    return thumbnailResponse(thumbnailService.fetch(source.fallbackUrl(), source.referer()));
+                } catch (RuntimeException ignored) {
+                    // The local placeholder below keeps the asset grid usable while both remote sources are unavailable.
+                }
+            }
+            return ResponseEntity.ok()
+                    .contentType(MediaType.valueOf("image/svg+xml"))
+                    .contentLength(THUMBNAIL_PLACEHOLDER.length)
+                    .header(HttpHeaders.CACHE_CONTROL, "private, max-age=60")
+                    .header("X-GameNarrator-Thumbnail-Fallback", "true")
+                    .body(THUMBNAIL_PLACEHOLDER);
         }
+    }
+
+    private ResponseEntity<byte[]> thumbnailResponse(RemoteThumbnailService.ThumbnailContent content) {
         return ResponseEntity.ok()
                 .contentType(MediaType.parseMediaType(content.contentType()))
                 .contentLength(content.bytes().length)

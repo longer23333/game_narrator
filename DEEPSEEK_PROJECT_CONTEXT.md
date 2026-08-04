@@ -1,7 +1,7 @@
 # GameNarrator — DeepSeek 项目上下文包
 
-> 自动生成时间：2026-08-04 16:06:04 +08:00
-> 文件数量：275。本文件由 scripts/export-deepseek-context.ps1 生成，请勿手工维护生成区。
+> 自动生成时间：2026-08-04 16:15:22 +08:00
+> 文件数量：278。本文件由 scripts/export-deepseek-context.ps1 生成，请勿手工维护生成区。
 
 ## 给 DeepSeek 的强制工作规则
 
@@ -33,7 +33,7 @@
 - `docs/MANUAL_EDITOR_PARITY.md`（2680 bytes）
 - `docs/OBSERVABILITY.md`（1109 bytes）
 - `docs/PERFORMANCE_PORTABILITY_AUDIT.md`（9090 bytes）
-- `docs/REQUIREMENTS.md`（21565 bytes）
+- `docs/REQUIREMENTS.md`（21679 bytes）
 - `docs/STYLE_TEMPLATE_STORE.md`（1190 bytes）
 - `docs/VERSIONING.md`（687 bytes）
 - `scripts/build-windows-release.ps1`（12634 bytes）
@@ -52,7 +52,7 @@
 - `src/main/java/cn/longer233/gamenarrator/ai/AiSettingsService.java`（5376 bytes）
 - `src/main/java/cn/longer233/gamenarrator/ai/AiUsageService.java`（3835 bytes）
 - `src/main/java/cn/longer233/gamenarrator/asset/AiAssetTagger.java`（8162 bytes）
-- `src/main/java/cn/longer233/gamenarrator/asset/AssetCatalogController.java`（10684 bytes）
+- `src/main/java/cn/longer233/gamenarrator/asset/AssetCatalogController.java`（12153 bytes）
 - `src/main/java/cn/longer233/gamenarrator/asset/AssetCatalogService.java`（61393 bytes）
 - `src/main/java/cn/longer233/gamenarrator/asset/AssetDerivativeRequest.java`（294 bytes）
 - `src/main/java/cn/longer233/gamenarrator/asset/AssetLibraryProperties.java`（5166 bytes）
@@ -127,7 +127,8 @@
 - `src/main/java/cn/longer233/gamenarrator/importer/PlatformContentClassifier.java`（4630 bytes）
 - `src/main/java/cn/longer233/gamenarrator/importer/RemoteProjectImportRequest.java`（919 bytes）
 - `src/main/java/cn/longer233/gamenarrator/importer/RemoteProjectImportService.java`（3711 bytes）
-- `src/main/java/cn/longer233/gamenarrator/importer/RemoteThumbnailService.java`（6298 bytes）
+- `src/main/java/cn/longer233/gamenarrator/importer/RemoteThumbnailFetchPolicy.java`（3464 bytes）
+- `src/main/java/cn/longer233/gamenarrator/importer/RemoteThumbnailService.java`（7640 bytes）
 - `src/main/java/cn/longer233/gamenarrator/importer/ResolvedMedia.java`（934 bytes）
 - `src/main/java/cn/longer233/gamenarrator/importer/YtDlpMediaImporter.java`（30642 bytes）
 - `src/main/java/cn/longer233/gamenarrator/LocalOnlyServerBindingGuard.java`（1831 bytes）
@@ -218,7 +219,7 @@
 - `src/main/java/cn/longer233/gamenarrator/voice/VoiceOption.java`（137 bytes）
 - `src/main/java/cn/longer233/gamenarrator/voice/VoiceRegenerationRequest.java`（419 bytes）
 - `src/main/java/cn/longer233/gamenarrator/voice/VoiceSegment.java`（296 bytes）
-- `src/main/resources/application.yml`（14132 bytes）
+- `src/main/resources/application.yml`（14337 bytes）
 - `src/main/resources/application-release.yml`（1153 bytes）
 - `src/main/resources/db/migration/V1__database_v2_foundation.sql`（17535 bytes）
 - `src/main/resources/db/migration/V10__allow_storyboard_review_task_status.sql`（528 bytes）
@@ -253,6 +254,7 @@
 - `src/test/java/cn/longer233/gamenarrator/ai/AdaptiveAiChatClientTest.java`（1725 bytes）
 - `src/test/java/cn/longer233/gamenarrator/ai/AiUsageServiceTest.java`（1164 bytes）
 - `src/test/java/cn/longer233/gamenarrator/asset/AiAssetTaggerTest.java`（2432 bytes）
+- `src/test/java/cn/longer233/gamenarrator/asset/AssetCatalogControllerThumbnailTest.java`（1712 bytes）
 - `src/test/java/cn/longer233/gamenarrator/asset/AssetCatalogServiceTest.java`（808 bytes）
 - `src/test/java/cn/longer233/gamenarrator/asset/BgeAssetSemanticSearchRankingTest.java`（581 bytes）
 - `src/test/java/cn/longer233/gamenarrator/asset/BilibiliAssetClientTest.java`（6341 bytes）
@@ -272,6 +274,7 @@
 - `src/test/java/cn/longer233/gamenarrator/export/FfmpegProgressParserTest.java`（1550 bytes）
 - `src/test/java/cn/longer233/gamenarrator/highlight/RuleBasedHighlightSelectorTest.java`（5608 bytes）
 - `src/test/java/cn/longer233/gamenarrator/importer/MediaImportControllerSessionTest.java`（3224 bytes）
+- `src/test/java/cn/longer233/gamenarrator/importer/RemoteThumbnailFetchPolicyTest.java`（1502 bytes）
 - `src/test/java/cn/longer233/gamenarrator/importer/RemoteThumbnailServiceTest.java`（476 bytes）
 - `src/test/java/cn/longer233/gamenarrator/importer/YtDlpMediaImporterTest.java`（1957 bytes）
 - `src/test/java/cn/longer233/gamenarrator/LocalOnlyServerBindingGuardTest.java`（976 bytes）
@@ -317,7 +320,7 @@
 
     <groupId>cn.longer233.graduation</groupId>
     <artifactId>game-narrator</artifactId>
-    <version>1.5.1</version>
+    <version>1.5.2</version>
     <name>GameNarrator</name>
     <description>多模态游戏视频智能解说与自动剪辑系统</description>
 
@@ -1909,7 +1912,7 @@ storage/tasks/{taskId}/
 - 用户选择方案后自动创建剪辑任务。
 - 在合法来源中搜索素材并保留来源记录，下载前需要用户确认。
 - 本地镜头搜索结果支持直接在线预览，并按匹配时间点快速剪切 1–600 秒高清视频；提供 10、20、30、40、50、60 秒快捷时长以及静音输出，片尾不足指定时长时自动以实际剩余时长结束。
-- 素材库首屏采用每页 9 项的九宫格分页、250ms 输入防抖和可取消请求；公共搜索使用上一页、下一页切换，不把后续结果继续追加到当前页。默认先返回快速关键词结果，AI 语义排序仅在明确提交时执行。远程缩略图在内存中缓存 30 分钟，减少重复网络加载。
+- 素材库首屏采用每页 9 项的九宫格分页、250ms 输入防抖和可取消请求；公共搜索使用上一页、下一页切换，不把后续结果继续追加到当前页。默认先返回快速关键词结果，AI 语义排序仅在明确提交时执行。远程缩略图成功结果在内存中缓存 30 分钟，失败结果默认缓存 90 秒，最多并发请求 4 个；远程端不可用时返回本地 SVG 占位图而不显示破图。
 
 ## 13. 1.0 验收场景
 
@@ -3337,12 +3340,22 @@ import java.util.List;
 import java.util.UUID;
 import java.nio.file.Path;
 import java.net.HttpURLConnection;
+import java.nio.charset.StandardCharsets;
 import cn.longer233.gamenarrator.importer.RemoteThumbnailService;
 import org.springframework.web.multipart.MultipartFile;
 
 @RestController
 @RequestMapping("/api/assets")
 public class AssetCatalogController {
+    private static final byte[] THUMBNAIL_PLACEHOLDER = ("""
+            <svg xmlns="http://www.w3.org/2000/svg" width="640" height="360" viewBox="0 0 640 360">
+              <rect width="640" height="360" fill="#10182b"/>
+              <path d="M246 112h148a18 18 0 0 1 18 18v100a18 18 0 0 1-18 18H246a18 18 0 0 1-18-18V130a18 18 0 0 1 18-18Z" fill="#202e49" stroke="#61718f" stroke-width="4"/>
+              <path d="m250 224 43-48 31 31 24-25 42 42Z" fill="#61718f"/>
+              <circle cx="367" cy="151" r="15" fill="#91a1bd"/>
+              <text x="320" y="292" text-anchor="middle" fill="#91a1bd" font-family="sans-serif" font-size="18">远程封面暂不可用</text>
+            </svg>
+            """).getBytes(StandardCharsets.UTF_8);
     private final AssetCatalogService service;
     private final AssetLibraryProperties properties;
     private final SafeRemoteHttpConnector remoteConnector;
@@ -3395,13 +3408,26 @@ public class AssetCatalogController {
     @GetMapping("/{id}/thumbnail")
     public ResponseEntity<byte[]> thumbnail(@PathVariable UUID id) {
         AssetCatalogService.RemoteThumbnailSource source = service.remoteThumbnail(id);
-        RemoteThumbnailService.ThumbnailContent content;
         try {
-            content = thumbnailService.fetch(source.url(), source.referer());
+            return thumbnailResponse(thumbnailService.fetch(source.url(), source.referer()));
         } catch (RuntimeException primaryFailure) {
-            if (source.fallbackUrl() == null || source.fallbackUrl().equals(source.url())) throw primaryFailure;
-            content = thumbnailService.fetch(source.fallbackUrl(), source.referer());
+            if (source.fallbackUrl() != null && !source.fallbackUrl().equals(source.url())) {
+                try {
+                    return thumbnailResponse(thumbnailService.fetch(source.fallbackUrl(), source.referer()));
+                } catch (RuntimeException ignored) {
+                    // The local placeholder below keeps the asset grid usable while both remote sources are unavailable.
+                }
+            }
+            return ResponseEntity.ok()
+                    .contentType(MediaType.valueOf("image/svg+xml"))
+                    .contentLength(THUMBNAIL_PLACEHOLDER.length)
+                    .header(HttpHeaders.CACHE_CONTROL, "private, max-age=60")
+                    .header("X-GameNarrator-Thumbnail-Fallback", "true")
+                    .body(THUMBNAIL_PLACEHOLDER);
         }
+    }
+
+    private ResponseEntity<byte[]> thumbnailResponse(RemoteThumbnailService.ThumbnailContent content) {
         return ResponseEntity.ok()
                 .contentType(MediaType.parseMediaType(content.contentType()))
                 .contentLength(content.bytes().length)
@@ -9900,6 +9926,103 @@ public class RemoteProjectImportService {
 }
 ``
 
+### FILE: src/main/java/cn/longer233/gamenarrator/importer/RemoteThumbnailFetchPolicy.java
+
+``java
+package cn.longer233.gamenarrator.importer;
+
+import java.time.Clock;
+import java.time.Duration;
+import java.time.Instant;
+import java.util.LinkedHashMap;
+import java.util.Map;
+import java.util.concurrent.Semaphore;
+import java.util.concurrent.TimeUnit;
+
+final class RemoteThumbnailFetchPolicy {
+    private final Semaphore permits;
+    private final long acquireTimeoutMs;
+    private final Duration failureTtl;
+    private final Clock clock;
+    private final Map<String, Failure> failures;
+
+    RemoteThumbnailFetchPolicy(int maximumConcurrent, long acquireTimeoutMs,
+                               int maximumFailures, Duration failureTtl) {
+        this(maximumConcurrent, acquireTimeoutMs, maximumFailures, failureTtl, Clock.systemUTC());
+    }
+
+    RemoteThumbnailFetchPolicy(int maximumConcurrent, long acquireTimeoutMs,
+                               int maximumFailures, Duration failureTtl, Clock clock) {
+        int concurrency = Math.max(1, Math.min(16, maximumConcurrent));
+        this.permits = new Semaphore(concurrency, true);
+        this.acquireTimeoutMs = Math.max(50, Math.min(5_000, acquireTimeoutMs));
+        this.failureTtl = failureTtl.compareTo(Duration.ofSeconds(5)) < 0
+                ? Duration.ofSeconds(5) : failureTtl;
+        this.clock = clock;
+        int capacity = Math.max(8, Math.min(512, maximumFailures));
+        this.failures = java.util.Collections.synchronizedMap(new LinkedHashMap<>(capacity, 0.75f, true) {
+            @Override protected boolean removeEldestEntry(Map.Entry<String, Failure> eldest) {
+                return size() > capacity;
+            }
+        });
+    }
+
+    Permit acquire(String key) {
+        rejectCachedFailure(key);
+        try {
+            if (!permits.tryAcquire(acquireTimeoutMs, TimeUnit.MILLISECONDS)) {
+                throw new IllegalStateException("封面请求较多，已使用本地占位图");
+            }
+        } catch (InterruptedException exception) {
+            Thread.currentThread().interrupt();
+            throw new IllegalStateException("封面请求已中断", exception);
+        }
+        try {
+            rejectCachedFailure(key);
+            return new Permit(permits);
+        } catch (RuntimeException exception) {
+            permits.release();
+            throw exception;
+        }
+    }
+
+    void failed(String key, RuntimeException exception) {
+        String message = exception.getMessage() == null ? exception.getClass().getSimpleName() : exception.getMessage();
+        failures.put(key, new Failure(message, clock.instant().plus(failureTtl)));
+    }
+
+    void succeeded(String key) {
+        failures.remove(key);
+    }
+
+    private void rejectCachedFailure(String key) {
+        Failure failure = failures.get(key);
+        if (failure == null) return;
+        if (!failure.expiresAt().isAfter(clock.instant())) {
+            failures.remove(key);
+            return;
+        }
+        throw new IllegalStateException("封面源暂时不可用（失败缓存）：" + failure.message());
+    }
+
+    static final class Permit implements AutoCloseable {
+        private final Semaphore semaphore;
+        private boolean closed;
+
+        private Permit(Semaphore semaphore) { this.semaphore = semaphore; }
+
+        @Override public void close() {
+            if (!closed) {
+                closed = true;
+                semaphore.release();
+            }
+        }
+    }
+
+    private record Failure(String message, Instant expiresAt) { }
+}
+``
+
 ### FILE: src/main/java/cn/longer233/gamenarrator/importer/RemoteThumbnailService.java
 
 ``java
@@ -9927,11 +10050,15 @@ public class RemoteThumbnailService {
     private final Duration cacheTtl;
     private final Map<String, CachedThumbnail> cache;
     private final HttpClient client;
+    private final RemoteThumbnailFetchPolicy fetchPolicy;
 
     public RemoteThumbnailService(
             @Value("${game-narrator.media-preview.thumbnail-max-bytes:1572864}") int maxBytes,
             @Value("${game-narrator.media-preview.thumbnail-cache-entries:24}") int maxCacheEntries,
-            @Value("${game-narrator.media-preview.thumbnail-cache-minutes:10}") int cacheMinutes) {
+            @Value("${game-narrator.media-preview.thumbnail-cache-minutes:10}") int cacheMinutes,
+            @Value("${game-narrator.media-preview.thumbnail-max-concurrent:4}") int maxConcurrent,
+            @Value("${game-narrator.media-preview.thumbnail-acquire-timeout-ms:500}") long acquireTimeoutMs,
+            @Value("${game-narrator.media-preview.thumbnail-failure-cache-seconds:90}") int failureCacheSeconds) {
         this.maxBytes = Math.max(128 * 1024, Math.min(5 * 1024 * 1024, maxBytes));
         this.maxCacheEntries = Math.max(4, Math.min(128, maxCacheEntries));
         this.cacheTtl = Duration.ofMinutes(Math.max(1, Math.min(60, cacheMinutes)));
@@ -9945,6 +10072,8 @@ public class RemoteThumbnailService {
                 .connectTimeout(Duration.ofSeconds(8))
                 .followRedirects(HttpClient.Redirect.NEVER)
                 .build();
+        this.fetchPolicy = new RemoteThumbnailFetchPolicy(maxConcurrent, acquireTimeoutMs,
+                this.maxCacheEntries * 4, Duration.ofSeconds(Math.max(5, Math.min(600, failureCacheSeconds))));
     }
 
     public ThumbnailContent fetch(String thumbnailUrl, String sourceUrl) {
@@ -9954,23 +10083,35 @@ public class RemoteThumbnailService {
             CachedThumbnail cached = cache.get(cacheKey);
             if (cached != null && cached.expiresAt().isAfter(Instant.now())) return cached.content();
             if (cached != null) cache.remove(cacheKey);
-            HttpResponse<InputStream> response = fetchFollowingRedirects(uri, sourceUrl);
-            if (response.statusCode() < 200 || response.statusCode() >= 300) {
-                response.body().close();
-                throw new IllegalStateException("封面源返回 HTTP " + response.statusCode());
-            }
-            String contentType = response.headers().firstValue("Content-Type")
-                    .orElse("application/octet-stream").split(";", 2)[0].trim().toLowerCase(Locale.ROOT);
-            if (!contentType.startsWith("image/")) {
-                response.body().close();
-                throw new IllegalStateException("封面源返回的不是图片");
-            }
-            try (InputStream input = response.body()) {
-                byte[] bytes = input.readNBytes(maxBytes + 1);
-                if (bytes.length > maxBytes) throw new IllegalStateException("封面图片超过缓存大小限制");
-                ThumbnailContent content = new ThumbnailContent(contentType, bytes);
-                cache.put(cacheKey, new CachedThumbnail(content, Instant.now().plus(cacheTtl)));
-                return content;
+            try (var ignored = fetchPolicy.acquire(cacheKey)) {
+                try {
+                    HttpResponse<InputStream> response = fetchFollowingRedirects(uri, sourceUrl);
+                    if (response.statusCode() < 200 || response.statusCode() >= 300) {
+                        response.body().close();
+                        throw new IllegalStateException("封面源返回 HTTP " + response.statusCode());
+                    }
+                    String contentType = response.headers().firstValue("Content-Type")
+                            .orElse("application/octet-stream").split(";", 2)[0].trim().toLowerCase(Locale.ROOT);
+                    if (!contentType.startsWith("image/")) {
+                        response.body().close();
+                        throw new IllegalStateException("封面源返回的不是图片");
+                    }
+                    try (InputStream input = response.body()) {
+                        byte[] bytes = input.readNBytes(maxBytes + 1);
+                        if (bytes.length > maxBytes) throw new IllegalStateException("封面图片超过缓存大小限制");
+                        ThumbnailContent content = new ThumbnailContent(contentType, bytes);
+                        cache.put(cacheKey, new CachedThumbnail(content, Instant.now().plus(cacheTtl)));
+                        fetchPolicy.succeeded(cacheKey);
+                        return content;
+                    }
+                } catch (RuntimeException exception) {
+                    fetchPolicy.failed(cacheKey, exception);
+                    throw exception;
+                } catch (Exception exception) {
+                    IllegalStateException wrapped = new IllegalStateException("无法读取视频封面：" + exception.getMessage(), exception);
+                    fetchPolicy.failed(cacheKey, wrapped);
+                    throw wrapped;
+                }
             }
         } catch (IllegalArgumentException | IllegalStateException exception) {
             throw exception;
@@ -17842,6 +17983,9 @@ game-narrator:
     thumbnail-max-bytes: ${THUMBNAIL_MAX_BYTES:1572864}
     thumbnail-cache-entries: ${THUMBNAIL_CACHE_ENTRIES:32}
     thumbnail-cache-minutes: ${THUMBNAIL_CACHE_MINUTES:30}
+    thumbnail-max-concurrent: ${THUMBNAIL_MAX_CONCURRENT:4}
+    thumbnail-acquire-timeout-ms: ${THUMBNAIL_ACQUIRE_TIMEOUT_MS:500}
+    thumbnail-failure-cache-seconds: ${THUMBNAIL_FAILURE_CACHE_SECONDS:90}
   video-search:
     maximum-image-bytes: ${VIDEO_SEARCH_MAXIMUM_IMAGE_BYTES:10485760}
   asset-library:
@@ -20449,7 +20593,7 @@ const guideSteps = [
   {selector: '.history-panel', title: '第 5 步：从最左侧历史继续', text: '只有真正生成完成的任务才会进入页面最左侧“最近完成”列表。处理中、等待检查、失败或取消的任务都留在右侧，避免被误认为已经完成。点击已完成条目可查看生成文件、分镜、文案、时间线和最终视频。'},
   {selector: '.storyboard-review-option', title: '第 6 步：检查分镜再继续', text: '开启分镜检查后，流程会在文案与分镜生成后暂停。进入线性分镜工作台可调整顺序、起止时间、字幕、解说、素材和特效；保存全部修改后再继续配音与渲染。'},
   {selector: '.primary-nav', title: '更多工具入口', text: '“镜头搜索”使用本地语义模型寻找片段；“平台导入”负责下载并创建项目；“素材库”管理授权素材；“设置”管理云端或本地 AI。遇到问题可点击右上角“诊断日志”。'},
-  {selector: '.topbar-actions', title: '完成、诊断与再次查看', text: '任务完成后在详情中预览并导出 MP4。任何阶段失败时先查看任务详情和诊断日志；本引导可以随时从“使用引导”重新打开。当前版本为 v1.5.1。'}
+  {selector: '.topbar-actions', title: '完成、诊断与再次查看', text: '任务完成后在详情中预览并导出 MP4。任何阶段失败时先查看任务详情和诊断日志；本引导可以随时从“使用引导”重新打开。当前版本为 v1.5.2。'}
 ];
 let guideIndex = 0;
 let guideTarget = null;
@@ -21546,14 +21690,14 @@ document.querySelector('#copy-address').onclick=async()=>{await navigator.clipbo
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>GameNarrator 1.5.1</title>
+  <title>GameNarrator 1.5.2</title>
   <link rel="stylesheet" href="/media-importer.css?v=20260729-10">
   <link rel="stylesheet" href="/app.css?v=20260803-13">
 </head>
 <body>
   <div class="aurora"></div>
   <header class="topbar">
-    <a class="brand" href="/">GAME<span>NARRATOR</span><small class="app-version">v1.5.1</small></a>
+    <a class="brand" href="/">GAME<span>NARRATOR</span><small class="app-version">v1.5.2</small></a>
     <nav class="primary-nav" aria-label="主要功能">
       <a href="/?view=studio" data-view-link="studio">剪辑任务</a>
       <a href="/?view=search" data-view-link="search">镜头搜索</a>
@@ -22423,6 +22567,47 @@ class AiAssetTaggerTest {
     private boolean containsChinese(String value) {
         return value.codePoints().anyMatch(codePoint ->
                 Character.UnicodeScript.of(codePoint) == Character.UnicodeScript.HAN);
+    }
+}
+``
+
+### FILE: src/test/java/cn/longer233/gamenarrator/asset/AssetCatalogControllerThumbnailTest.java
+
+``java
+package cn.longer233.gamenarrator.asset;
+
+import cn.longer233.gamenarrator.importer.RemoteThumbnailService;
+import org.junit.jupiter.api.Test;
+import org.springframework.http.HttpStatus;
+
+import java.util.UUID;
+
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
+
+class AssetCatalogControllerThumbnailTest {
+
+    @Test
+    void returnsLocalSvgPlaceholderWhenPrimaryAndFallbackSourcesFail() {
+        AssetCatalogService service = mock(AssetCatalogService.class);
+        RemoteThumbnailService thumbnails = mock(RemoteThumbnailService.class);
+        UUID id = UUID.randomUUID();
+        when(service.remoteThumbnail(id)).thenReturn(new AssetCatalogService.RemoteThumbnailSource(
+                "https://i.example/cover.jpg", "https://i.example/fallback.jpg", "https://example/video"));
+        when(thumbnails.fetch(anyString(), anyString()))
+                .thenThrow(new IllegalStateException("HTTP connect timed out"));
+        var controller = new AssetCatalogController(service, mock(AssetLibraryProperties.class),
+                mock(SafeRemoteHttpConnector.class), thumbnails);
+
+        var response = controller.thumbnail(id);
+
+        assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
+        assertThat(response.getHeaders().getContentType().toString()).isEqualTo("image/svg+xml");
+        assertThat(response.getHeaders().getFirst("X-GameNarrator-Thumbnail-Fallback")).isEqualTo("true");
+        assertThat(new String(response.getBody(), java.nio.charset.StandardCharsets.UTF_8))
+                .contains("远程封面暂不可用");
     }
 }
 ``
@@ -23319,6 +23504,54 @@ class MediaImportControllerSessionTest {
 
         assertEquals(200, controller.preview(token, owner).getStatusCode().value());
         assertEquals(404, controller.preview(token, new MockHttpSession()).getStatusCode().value());
+    }
+}
+``
+
+### FILE: src/test/java/cn/longer233/gamenarrator/importer/RemoteThumbnailFetchPolicyTest.java
+
+``java
+package cn.longer233.gamenarrator.importer;
+
+import org.junit.jupiter.api.Test;
+
+import java.time.Clock;
+import java.time.Duration;
+import java.time.Instant;
+import java.time.ZoneOffset;
+
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
+
+class RemoteThumbnailFetchPolicyTest {
+
+    @Test
+    void rejectsRepeatedFailureWithoutStartingAnotherRemoteRequest() {
+        var policy = policy(2, 100);
+        policy.failed("cover", new IllegalStateException("HTTP connect timed out"));
+
+        assertThatThrownBy(() -> policy.acquire("cover"))
+                .isInstanceOf(IllegalStateException.class)
+                .hasMessageContaining("失败缓存")
+                .hasMessageContaining("connect timed out");
+    }
+
+    @Test
+    void limitsConcurrentRemoteRequestsAndReleasesPermit() throws Exception {
+        var policy = policy(1, 50);
+        var first = policy.acquire("first");
+        assertThatThrownBy(() -> policy.acquire("second"))
+                .isInstanceOf(IllegalStateException.class)
+                .hasMessageContaining("封面请求较多");
+
+        first.close();
+        try (var ignored = policy.acquire("second")) {
+            // The released permit can be reused.
+        }
+    }
+
+    private RemoteThumbnailFetchPolicy policy(int concurrency, long timeoutMs) {
+        return new RemoteThumbnailFetchPolicy(concurrency, timeoutMs, 8, Duration.ofSeconds(90),
+                Clock.fixed(Instant.parse("2026-08-04T08:00:00Z"), ZoneOffset.UTC));
     }
 }
 ``
