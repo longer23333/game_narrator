@@ -1,7 +1,7 @@
 # GameNarrator — DeepSeek 项目上下文包
 
-> 自动生成时间：2026-08-04 15:22:14 +08:00
-> 文件数量：271。本文件由 scripts/export-deepseek-context.ps1 生成，请勿手工维护生成区。
+> 自动生成时间：2026-08-04 15:36:50 +08:00
+> 文件数量：273。本文件由 scripts/export-deepseek-context.ps1 生成，请勿手工维护生成区。
 
 ## 给 DeepSeek 的强制工作规则
 
@@ -33,7 +33,8 @@
 - `docs/MANUAL_EDITOR_PARITY.md`（2680 bytes）
 - `docs/OBSERVABILITY.md`（1109 bytes）
 - `docs/PERFORMANCE_PORTABILITY_AUDIT.md`（9090 bytes）
-- `docs/REQUIREMENTS.md`（21551 bytes）
+- `docs/REQUIREMENTS.md`（21502 bytes）
+- `docs/STYLE_TEMPLATE_STORE.md`（1190 bytes）
 - `docs/VERSIONING.md`（687 bytes）
 - `scripts/build-windows-release.ps1`（12634 bytes）
 - `scripts/export-deepseek-context.ps1`（5568 bytes）
@@ -92,10 +93,10 @@
 - `src/main/java/cn/longer233/gamenarrator/editor/EditorCommandRequest.java`（294 bytes）
 - `src/main/java/cn/longer233/gamenarrator/editor/EditorTimelineController.java`（931 bytes）
 - `src/main/java/cn/longer233/gamenarrator/editor/EditorTimelineService.java`（18256 bytes）
-- `src/main/java/cn/longer233/gamenarrator/effect/EffectController.java`（579 bytes）
+- `src/main/java/cn/longer233/gamenarrator/effect/EffectController.java`（1399 bytes）
 - `src/main/java/cn/longer233/gamenarrator/effect/EffectPlan.java`（196 bytes）
 - `src/main/java/cn/longer233/gamenarrator/effect/EffectPreset.java`（438 bytes）
-- `src/main/java/cn/longer233/gamenarrator/effect/EffectPresetCatalog.java`（5270 bytes）
+- `src/main/java/cn/longer233/gamenarrator/effect/EffectPresetCatalog.java`（12206 bytes）
 - `src/main/java/cn/longer233/gamenarrator/effect/EffectRerenderWorker.java`（2292 bytes）
 - `src/main/java/cn/longer233/gamenarrator/effect/EffectSettingsRequest.java`（536 bytes）
 - `src/main/java/cn/longer233/gamenarrator/effect/SemanticEffectPlanner.java`（5208 bytes）
@@ -239,8 +240,8 @@
 - `src/main/resources/db/migration/V7__storyboard_review.sql`（207 bytes）
 - `src/main/resources/db/migration/V8__video_segment_semantic_index.sql`（634 bytes）
 - `src/main/resources/db/migration/V9__video_segment_image_hash.sql`（152 bytes）
-- `src/main/resources/static/app.css`（58603 bytes）
-- `src/main/resources/static/app.js`（88232 bytes）
+- `src/main/resources/static/app.css`（60326 bytes）
+- `src/main/resources/static/app.js`（90915 bytes）
 - `src/main/resources/static/asset-library.js`（39551 bytes）
 - `src/main/resources/static/diagnostics.js`（1673 bytes）
 - `src/main/resources/static/export.js`（10391 bytes）
@@ -265,6 +266,7 @@
 - `src/test/java/cn/longer233/gamenarrator/common/StorageCleanupServiceTest.java`（2694 bytes）
 - `src/test/java/cn/longer233/gamenarrator/config/AsyncConfigTest.java`（991 bytes）
 - `src/test/java/cn/longer233/gamenarrator/diagnostics/DiagnosticLogServiceTest.java`（906 bytes）
+- `src/test/java/cn/longer233/gamenarrator/effect/EffectPresetCatalogTest.java`（2318 bytes）
 - `src/test/java/cn/longer233/gamenarrator/effect/SemanticEffectPlannerTest.java`（1359 bytes）
 - `src/test/java/cn/longer233/gamenarrator/export/FfmpegProgressParserTest.java`（1550 bytes）
 - `src/test/java/cn/longer233/gamenarrator/highlight/RuleBasedHighlightSelectorTest.java`（5608 bytes）
@@ -313,7 +315,7 @@
 
     <groupId>cn.longer233.graduation</groupId>
     <artifactId>game-narrator</artifactId>
-    <version>1.4.0</version>
+    <version>1.5.0</version>
     <name>GameNarrator</name>
     <description>多模态游戏视频智能解说与自动剪辑系统</description>
 
@@ -1725,7 +1727,7 @@ GameNarrator 是一个面向游戏和动漫内容创作者的本地智能视频�
 | FR-601 | P0 | 生成统一时间线 | 已实现 | 原视频、成片、文案、字幕、配音的时间信息一致 |
 | FR-602 | P0 | 配音溢出检测 | 已实现 | 配音超过镜头可用时长时产生明确标记 |
 | FR-603 | P0 | 基础字幕 | 已实现 | MP4 包含可开关中文软字幕轨，并单独输出 SRT |
-| FR-604 | P0 | 基础剧场特效模板 | 已实现 | 已实现 10 套预设、18 种视觉特效；包含参考 Premiere 常见分类的模糊、暗角、黑白、冷暖色、高对比、RGB 分离、翻转、像素化和镜头畸变，并支持语义选效、动态字幕、程序化提示音、强度调节和成片重渲染 |
+| FR-604 | P0 | 基础剧场特效模板 | 已实现 | 已实现 13 套内置预设、18 种视觉特效，新增“吃鸡风格”“魂系风格”“二次元萌系风格”；支持本地模板商店一键套用、自定义 JSON 导入/导出、持久化及内置模板保护 |
 | FR-605 | P0 | 基础转场模板 | 基础实现 | 已实现硬切、淡入淡出、叠化、推拉和动漫冲击的规则选择与 FFmpeg 基础表现 |
 | FR-606 | P1 | 动态字幕模板 | 基础实现 | 已支持 ASS 描边、淡入、弹跳、冲击、打字机风格和智能单行换行；逐字高亮与角色对话仍待加入 |
 | FR-607 | P1 | 音效素材库 | 基础实现 | 已提供无需外部素材授权的程序化冲击、掠过和喜剧提示音，并生成独立音效清单；外部授权素材管理仍待加入 |
@@ -1980,6 +1982,32 @@ storage/tasks/{taskId}/
 - 相关单元测试或集成测试通过。
 - 使用文档和配置说明已更新。
 - 不引入未经授权的素材、模型或声音。
+``
+
+### FILE: docs/STYLE_TEMPLATE_STORE.md
+
+``text
+# 风格模板商店
+
+GameNarrator 1.5.0 提供本地风格模板商店，可以一键套用 13 套内置预设，并通过 JSON 文件导入、导出和分享自定义模板。自定义模板保存在 `storage-root/style-templates/custom-templates.json`，服务重启后仍可用。
+
+## 使用方式
+
+1. 在任务详情的特效设置中展开“风格模板商店”。
+2. 点击“一键套用”将模板设为当前任务的特效预设。
+3. 点击“导出 JSON”下载单个模板；使用“导入 JSON”加入其他人分享的模板。
+
+## JSON 约束
+
+- `code` 必须是 3–40 位大写字母、数字或下划线，且以字母开头。
+- 强度、原声音量为 0–1；最大特效数为 1–6；转场时长为 0–3 秒。
+- 特效候选最多 10 个，转场候选最多 6 个。
+- 自定义模板不能覆盖内置模板代码；同代码的自定义模板再次导入时会更新。
+- 页面端限制导入文件不超过 64 KB，服务端会再次校验字段范围。
+
+## 能力边界
+
+当前“商店”是单机本地目录，JSON 文件由用户自行分享。在线账号、云端发布、搜索排名、内容审核和作者版权管理仍属后续版本。
 ``
 
 ### FILE: docs/VERSIONING.md
@@ -7745,6 +7773,9 @@ public class EditorTimelineService {
 package cn.longer233.gamenarrator.effect;
 
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -7762,6 +7793,20 @@ public class EffectController {
     @GetMapping
     public List<EffectPreset> list() {
         return catalog.all();
+    }
+
+    @PostMapping("/import")
+    public EffectPreset importTemplate(@RequestBody EffectPreset template) {
+        return catalog.importTemplate(template);
+    }
+
+    @GetMapping("/{code}/export")
+    public org.springframework.http.ResponseEntity<EffectPreset> export(@PathVariable String code) {
+        EffectPreset template = catalog.require(code);
+        return org.springframework.http.ResponseEntity.ok()
+                .header(org.springframework.http.HttpHeaders.CONTENT_DISPOSITION,
+                        "attachment; filename=style-template-" + template.code().toLowerCase() + ".json")
+                .body(template);
     }
 }
 ``
@@ -7808,13 +7853,27 @@ public record EffectPreset(
 ``java
 package cn.longer233.gamenarrator.effect;
 
+import cn.longer233.gamenarrator.common.AtomicArtifactWriter;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.util.ArrayList;
+import java.util.Comparator;
+import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Locale;
+import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 
 @Component
 public class EffectPresetCatalog {
-    private final List<EffectPreset> presets = List.of(
+    private static final Logger log = LoggerFactory.getLogger(EffectPresetCatalog.class);
+    private final List<EffectPreset> builtIn = List.of(
             new EffectPreset("ANIME_THEATER", "动漫剧场",
                     "强调登场、反转和画面冲击，适合剧情向游戏与动漫解说。",
                     0.78, 3, 0.28, "ANIME_OUTLINE", 0.18,
@@ -7874,16 +7933,103 @@ public class EffectPresetCatalog {
                     0.48, 3, 0.48, "ANIME_OUTLINE", 0.12,
                     List.of(VisualEffectType.GAUSSIAN_BLUR, VisualEffectType.COOL_TONE,
                             VisualEffectType.VIGNETTE, VisualEffectType.SLOW_MOTION),
-                    List.of(TransitionType.DISSOLVE, TransitionType.FADE))
+                    List.of(TransitionType.DISSOLVE, TransitionType.FADE)),
+            new EffectPreset("BATTLE_ROYALE", "吃鸡风格",
+                    "快速搜点、交火和决赛圈冲击，突出击倒、转点与胜利时刻。",
+                    0.86, 3, 0.16, "IMPACT_RED", 0.14,
+                    List.of(VisualEffectType.ZOOM_PUNCH, VisualEffectType.SPEED_LINES,
+                            VisualEffectType.HIGH_CONTRAST, VisualEffectType.WHITE_FLASH),
+                    List.of(TransitionType.HARD_CUT, TransitionType.PUSH, TransitionType.ANIME_IMPACT)),
+            new EffectPreset("SOULS_LIKE", "魂系风格",
+                    "低饱和、暗角与电影黑边强化压迫感，适合 Boss 战与克制叙事。",
+                    0.68, 3, 0.42, "TYPEWRITER_DARK", 0.12,
+                    List.of(VisualEffectType.VIGNETTE, VisualEffectType.CINEMA_BARS,
+                            VisualEffectType.HIGH_CONTRAST, VisualEffectType.SLOW_MOTION),
+                    List.of(TransitionType.HARD_CUT, TransitionType.FADE, TransitionType.DISSOLVE)),
+            new EffectPreset("MOE_ANIME", "二次元萌系风格",
+                    "明快色彩、弹跳字幕与轻量定格，适合可爱角色和轻松日常内容。",
+                    0.64, 2, 0.24, "COMEDY_POP", 0.18,
+                    List.of(VisualEffectType.TITLE_CARD, VisualEffectType.FREEZE_ACCENT,
+                            VisualEffectType.WARM_TONE, VisualEffectType.ZOOM_PUNCH),
+                    List.of(TransitionType.FADE, TransitionType.PUSH, TransitionType.HARD_CUT))
     );
 
+    private final Map<String, EffectPreset> custom = new ConcurrentHashMap<>();
+    private final ObjectMapper objectMapper;
+    private final Path customManifest;
+
+    public EffectPresetCatalog(ObjectMapper objectMapper, @Value("${game-narrator.storage-root}") String storageRoot) {
+        this.objectMapper = objectMapper;
+        this.customManifest = Path.of(storageRoot).toAbsolutePath().normalize()
+                .resolve("style-templates").resolve("custom-templates.json");
+        loadCustom();
+    }
+
     public List<EffectPreset> all() {
-        return presets;
+        List<EffectPreset> result = new ArrayList<>(builtIn);
+        custom.values().stream().sorted(Comparator.comparing(EffectPreset::name)).forEach(result::add);
+        return List.copyOf(result);
     }
 
     public EffectPreset require(String code) {
-        return presets.stream().filter(item -> item.code().equalsIgnoreCase(code))
+        return all().stream().filter(item -> item.code().equalsIgnoreCase(code))
                 .findFirst().orElseThrow(() -> new IllegalArgumentException("未知特效预设：" + code));
+    }
+
+    public synchronized EffectPreset importTemplate(EffectPreset value) {
+        EffectPreset normalized = validate(value);
+        if (builtIn.stream().anyMatch(item -> item.code().equals(normalized.code()))) {
+            throw new IllegalArgumentException("不能覆盖内置风格模板：" + normalized.code());
+        }
+        EffectPreset previous = custom.put(normalized.code(), normalized);
+        try { persist(); }
+        catch (RuntimeException exception) {
+            if (previous == null) custom.remove(normalized.code()); else custom.put(normalized.code(), previous);
+            throw exception;
+        }
+        return normalized;
+    }
+
+    private EffectPreset validate(EffectPreset value) {
+        if (value == null) throw new IllegalArgumentException("模板 JSON 不能为空");
+        String code = value.code() == null ? "" : value.code().trim().toUpperCase(Locale.ROOT);
+        String name = value.name() == null ? "" : value.name().trim();
+        String description = value.description() == null ? "" : value.description().trim();
+        if (!code.matches("[A-Z][A-Z0-9_]{2,39}")) throw new IllegalArgumentException("模板 code 必须为 3-40 位大写字母、数字或下划线");
+        if (name.isBlank() || name.length() > 60) throw new IllegalArgumentException("模板名称长度必须为 1-60 个字符");
+        if (description.isBlank() || description.length() > 300) throw new IllegalArgumentException("模板说明长度必须为 1-300 个字符");
+        if (value.defaultIntensity() < 0 || value.defaultIntensity() > 1) throw new IllegalArgumentException("默认强度必须在 0-1 之间");
+        if (value.maxEffectsPerClip() < 1 || value.maxEffectsPerClip() > 6) throw new IllegalArgumentException("每片段特效数量必须在 1-6 之间");
+        if (value.transitionDurationSeconds() < 0 || value.transitionDurationSeconds() > 3) throw new IllegalArgumentException("转场时长必须在 0-3 秒之间");
+        if (value.sourceAudioVolume() < 0 || value.sourceAudioVolume() > 1) throw new IllegalArgumentException("原声音量必须在 0-1 之间");
+        if (value.subtitleTheme() == null || value.subtitleTheme().isBlank() || value.subtitleTheme().length() > 40) throw new IllegalArgumentException("字幕主题不能为空");
+        if (value.preferredEffects() == null || value.preferredEffects().isEmpty() || value.preferredEffects().size() > 10) throw new IllegalArgumentException("模板必须包含 1-10 个视觉特效");
+        if (value.allowedTransitions() == null || value.allowedTransitions().isEmpty() || value.allowedTransitions().size() > 6) throw new IllegalArgumentException("模板必须包含 1-6 个转场");
+        return new EffectPreset(code, name, description, value.defaultIntensity(), value.maxEffectsPerClip(),
+                value.transitionDurationSeconds(), value.subtitleTheme().trim(), value.sourceAudioVolume(),
+                List.copyOf(value.preferredEffects()), List.copyOf(value.allowedTransitions()));
+    }
+
+    private void loadCustom() {
+        if (!Files.isRegularFile(customManifest)) return;
+        try {
+            var root = objectMapper.readTree(customManifest.toFile());
+            List<EffectPreset> values = objectMapper.readerForListOf(EffectPreset.class).readValue(root.path("templates"));
+            values.forEach(value -> { EffectPreset normalized = validate(value); custom.put(normalized.code(), normalized); });
+        } catch (Exception exception) {
+            log.warn("STYLE_TEMPLATE_LOAD_FAILED path={} message={}", customManifest, exception.getMessage());
+        }
+    }
+
+    private void persist() {
+        try {
+            List<EffectPreset> values = custom.values().stream().sorted(Comparator.comparing(EffectPreset::code)).toList();
+            Map<String, Object> document = new LinkedHashMap<>();
+            document.put("version", 1); document.put("templates", values);
+            AtomicArtifactWriter.writeJson(objectMapper, customManifest, document);
+        } catch (java.io.IOException exception) {
+            throw new IllegalStateException("无法保存自定义风格模板", exception);
+        }
     }
 }
 ``
@@ -18658,6 +18804,7 @@ CREATE INDEX idx_segment_embedding_image_hash ON video_segment_embedding(image_h
 .roadmap{margin-top:54px;padding:28px;border:1px solid #293047;border-radius:20px;background:rgba(13,19,37,.76)}.roadmap-title{align-items:center}.roadmap-title .step{font-size:24px}.roadmap-list{display:grid;grid-template-columns:repeat(5,1fr);gap:12px}.roadmap-list article{min-width:0;padding:18px;border:1px solid #2a334c;border-radius:14px;background:#0a1020;transition:transform .18s ease,border-color .18s ease}.roadmap-list article:hover{transform:translateY(-3px);border-color:#45d7ea}.roadmap-list b{display:inline-block;margin-bottom:15px;color:#45d7ea;font-size:20px}.roadmap-list h3{margin:0 0 9px;font-size:14px}.roadmap-list p{margin:0;color:#8492ad;font-size:11px;line-height:1.7}@media(max-width:1050px){.roadmap-list{grid-template-columns:repeat(2,1fr)}}@media(max-width:600px){.roadmap-list{grid-template-columns:1fr}}
 .export-panel{width:100%;margin:14px 0;padding:16px;border:1px solid #33405f;border-radius:12px;background:#090f20}.export-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:12px}.export-toolbar{display:flex;align-items:center;gap:14px;margin:15px 0}.export-message{font-size:12px;color:#45d7ea}.export-jobs{display:grid;gap:8px}.export-job{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:11px;border-radius:9px;background:#111a30}.export-job>div{min-width:0}.export-job strong,.export-job small{display:block}.export-job strong{font-size:12px}.export-job small{margin-top:5px;color:#8190ad;font-size:10px}.export-job.running{border-left:3px solid #45d7ea}.export-job.completed{border-left:3px solid #38e09d}.export-job.failed{border-left:3px solid #ff5577}.empty.compact{padding:12px}.open-export{float:none}@media(max-width:680px){.export-grid{grid-template-columns:1fr}.export-job{align-items:flex-start;flex-direction:column}}
 .effect-settings-panel{border-color:rgba(155,140,255,.55)}.effect-settings-panel output{color:#45d7ea;font-size:12px}.effect-toggle{display:flex;grid-template-columns:auto 1fr;align-items:center;gap:9px;padding:12px;border-radius:10px;background:#111a30}.effect-toggle input{width:auto}.effect-note{color:#8492ad;font-size:11px;line-height:1.7}.effect-message{font-size:12px;color:#45d7ea}
+.style-template-market{margin:10px 0;padding:12px;border:3px solid #111;background:#fff}.style-template-market>summary{cursor:pointer;font-weight:900}.style-template-toolbar{display:flex;align-items:end;justify-content:space-between;gap:12px;margin:14px 0}.style-template-toolbar strong,.style-template-toolbar small{display:block}.style-template-toolbar small{margin-top:4px;color:#46505c}.style-template-toolbar label{max-width:240px}.style-template-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px;max-height:460px;overflow:auto;padding:3px}.style-template-grid article{display:flex;flex-direction:column;padding:12px;border:3px solid #111;background:#fff8e8;box-shadow:3px 3px 0 #111}.style-template-grid article:nth-child(3n+2){background:#d8f5ff}.style-template-grid article:nth-child(3n){background:#ffd8ea}.style-template-grid article header,.style-template-grid article footer{display:flex;align-items:center;justify-content:space-between;gap:8px}.style-template-grid article header i{font-style:normal;font-size:10px}.style-template-grid article p{flex:1;margin:8px 0;color:#333;font-size:10px;line-height:1.55}.style-template-grid article>div{display:flex;gap:4px;flex-wrap:wrap;margin-bottom:10px}.style-template-grid article>div span{padding:3px 5px;border:1px solid #111;background:#fff;font-size:8px}.style-template-grid article footer button{padding:6px 8px;font-size:10px}.style-template-grid article footer a{color:#111;font-size:9px;font-weight:800}@media(max-width:900px){.style-template-grid{grid-template-columns:repeat(2,minmax(0,1fr))}}@media(max-width:620px){.style-template-toolbar{align-items:stretch;flex-direction:column}.style-template-grid{grid-template-columns:1fr}}
 .effect-preset-details{padding:12px;border:1px solid #33405f;border-radius:10px;background:#0a1020}.effect-preset-details p{margin:0 0 9px;color:#a9b6ce;font-size:11px}.effect-preset-details div{display:flex;flex-wrap:wrap;gap:6px}.effect-preset-details span{padding:4px 7px;border-radius:99px;background:#182842;color:#72dce8;font-size:10px}.effect-preset-details small{display:block;margin-top:9px;color:#71809e}
 .asset-library{margin-top:54px;padding:28px;border:1px solid #293047;border-radius:20px;background:rgba(13,19,37,.82)}.asset-library-note{color:#91a1bd;line-height:1.7}.asset-search-form{display:grid;grid-template-columns:2fr 1fr 1fr 1fr auto;align-items:end;margin:22px 0}.asset-library-toolbar{display:flex;justify-content:space-between;align-items:center;gap:12px;margin-bottom:16px;color:#45d7ea;font-size:12px}.asset-list{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:14px}.asset-card{min-width:0;overflow:hidden;border:1px solid #2b3652;border-radius:14px;background:#0a1020}.asset-card-body{padding:15px}.asset-preview-image{display:block;width:100%;height:180px;object-fit:cover;background:#050811}.asset-preview-audio{width:calc(100% - 24px);margin:14px 12px 0}.asset-card-head{display:flex;justify-content:space-between;gap:12px}.asset-card-head small{color:#45d7ea;font-size:9px}.asset-card-head h3{margin:5px 0;font-size:14px}.asset-card-head>span{height:max-content;padding:5px 7px;border-radius:99px;background:#19233c;color:#9bcbff;font-size:9px}.asset-card-body>p{margin:5px 0 12px;color:#8290ad;font-size:11px}.asset-tags{display:flex;flex-wrap:wrap;gap:6px;min-height:28px}.asset-tag{display:inline-flex;align-items:center;gap:5px;padding:4px 7px;border-radius:99px;background:#18223a;color:#c1cee2;font-size:10px}.asset-tag.user{outline:1px solid #45d7ea}.asset-tag small{color:#65738f;font-size:8px}.asset-tag button{padding:0;background:transparent;color:#ff8098;font-size:13px}.asset-tag-form{display:grid;grid-template-columns:1fr auto;gap:7px;margin-top:12px}.asset-tag-form input,.asset-tag-form button{padding:8px 10px;font-size:10px}.asset-actions{display:flex;justify-content:space-between;align-items:center;gap:8px;margin-top:12px}.asset-actions a{color:#65ddeb;font-size:10px}.asset-actions button{padding:8px 10px;font-size:10px}.asset-attribution{display:block;margin-top:10px;color:#697793;font-size:9px;line-height:1.5}@media(max-width:1050px){.asset-search-form{grid-template-columns:1fr 1fr}.asset-list{grid-template-columns:repeat(2,minmax(0,1fr))}}@media(max-width:650px){.asset-search-form,.asset-list{grid-template-columns:1fr}.asset-library{padding:18px}.asset-library-toolbar{align-items:flex-start;flex-direction:column}}
 .asset-load-more{display:block;min-width:260px;margin:20px auto 0}.asset-load-more[hidden]{display:none}
@@ -19656,6 +19803,12 @@ function effectSettingsSection(task) {
         </label>
       </div>
       <div class="effect-preset-details" data-effect-preset-details>${effectPresetDetails(defaultPreset)}</div>
+      <details class="style-template-market">
+        <summary>打开风格模板商店 · ${effectPresets.length} 套</summary>
+        <div class="style-template-toolbar"><div><strong>本地风格模板</strong><small>内置模板和导入模板均可一键套用；导出 JSON 后可分享给其他项目。</small></div><label>导入模板 JSON<input type="file" accept="application/json,.json" data-style-template-import></label></div>
+        <div class="style-template-grid">${effectPresets.map(item => `<article data-template-code="${escapeHtml(item.code)}"><header><b>${escapeHtml(item.name)}</b><i>${Math.round(item.defaultIntensity * 100)}%</i></header><p>${escapeHtml(item.description)}</p><div>${item.preferredEffects.slice(0,4).map(effect => `<span>${escapeHtml(visualEffectLabels[effect] || effect)}</span>`).join('')}</div><footer><button type="button" data-apply-style-template="${escapeHtml(item.code)}">一键套用</button><a href="/api/effect-presets/${encodeURIComponent(item.code)}/export" download>导出 JSON</a></footer></article>`).join('')}</div>
+        <p class="effect-message" data-template-message aria-live="polite"></p>
+      </details>
       <label class="effect-toggle"><input name="dynamicSubtitles" type="checkbox" checked>启用动态 ASS 字幕主题</label>
       <label class="effect-toggle"><input name="soundEffects" type="checkbox">加入冲击、转场和喜剧提示音</label>
       <p class="effect-note">参考 Premiere 常见的运动、模糊、颜色、风格化和转场效果；系统只显示当前 FFmpeg 渲染器能够实际输出的类型。</p>
@@ -19672,6 +19825,14 @@ function effectPresetDetails(preset){
 }
 
 detailContent.addEventListener('click', async event => {
+  const styleButton = event.target.closest('[data-apply-style-template]');
+  if (styleButton) {
+    const form = styleButton.closest('[data-effect-settings]');
+    const select = form?.querySelector('[name="presetCode"]');
+    if (select) { select.value = styleButton.dataset.applyStyleTemplate; select.dispatchEvent(new Event('change', {bubbles:true})); }
+    form?.querySelector('.style-template-market')?.removeAttribute('open');
+    return;
+  }
   const cancelButton = event.target.closest('[data-cancel-task]');
   if (cancelButton) { await cancelTask(cancelButton); return; }
   const renameButton = event.target.closest('[data-rename-task]');
@@ -19694,6 +19855,26 @@ detailContent.addEventListener('click', async event => {
     button.disabled = false;
     button.textContent = '删除任务';
     button.title = error.message;
+  }
+});
+
+detailContent.addEventListener('change', async event => {
+  if (!event.target.matches('[data-style-template-import]')) return;
+  const input = event.target;
+  const message = input.closest('.style-template-market').querySelector('[data-template-message]');
+  try {
+    const file = input.files?.[0];
+    if (!file) return;
+    if (file.size > 64 * 1024) throw new Error('模板 JSON 不能超过 64 KB');
+    const template = JSON.parse(await file.text());
+    const imported = await requestJson('/api/effect-presets/import', {method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify(template)});
+    const existing = effectPresets.findIndex(item => item.code === imported.code);
+    if (existing >= 0) effectPresets[existing] = imported; else effectPresets.push(imported);
+    message.textContent = `已导入“${imported.name}”，正在刷新模板商店…`;
+    if (activeTaskId) await refreshTaskDetails(activeTaskId);
+  } catch (error) {
+    message.textContent = `导入失败：${error.message}`;
+    input.value = '';
   }
 });
 
@@ -20216,7 +20397,7 @@ const guideSteps = [
   {selector: '.history-panel', title: '第 5 步：从最左侧历史继续', text: '只有真正生成完成的任务才会进入页面最左侧“最近完成”列表。处理中、等待检查、失败或取消的任务都留在右侧，避免被误认为已经完成。点击已完成条目可查看生成文件、分镜、文案、时间线和最终视频。'},
   {selector: '.storyboard-review-option', title: '第 6 步：检查分镜再继续', text: '开启分镜检查后，流程会在文案与分镜生成后暂停。进入线性分镜工作台可调整顺序、起止时间、字幕、解说、素材和特效；保存全部修改后再继续配音与渲染。'},
   {selector: '.primary-nav', title: '更多工具入口', text: '“镜头搜索”使用本地语义模型寻找片段；“平台导入”负责下载并创建项目；“素材库”管理授权素材；“设置”管理云端或本地 AI。遇到问题可点击右上角“诊断日志”。'},
-  {selector: '.topbar-actions', title: '完成、诊断与再次查看', text: '任务完成后在详情中预览并导出 MP4。任何阶段失败时先查看任务详情和诊断日志；本引导可以随时从“使用引导”重新打开。当前版本为 v1.4.0。'}
+  {selector: '.topbar-actions', title: '完成、诊断与再次查看', text: '任务完成后在详情中预览并导出 MP4。任何阶段失败时先查看任务详情和诊断日志；本引导可以随时从“使用引导”重新打开。当前版本为 v1.5.0。'}
 ];
 let guideIndex = 0;
 let guideTarget = null;
@@ -21313,14 +21494,14 @@ document.querySelector('#copy-address').onclick=async()=>{await navigator.clipbo
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>GameNarrator 1.4.0</title>
+  <title>GameNarrator 1.5.0</title>
   <link rel="stylesheet" href="/media-importer.css?v=20260729-10">
   <link rel="stylesheet" href="/app.css?v=20260803-13">
 </head>
 <body>
   <div class="aurora"></div>
   <header class="topbar">
-    <a class="brand" href="/">GAME<span>NARRATOR</span><small class="app-version">v1.4.0</small></a>
+    <a class="brand" href="/">GAME<span>NARRATOR</span><small class="app-version">v1.5.0</small></a>
     <nav class="primary-nav" aria-label="主要功能">
       <a href="/?view=studio" data-view-link="studio">剪辑任务</a>
       <a href="/?view=search" data-view-link="search">镜头搜索</a>
@@ -22776,6 +22957,56 @@ class DiagnosticLogServiceTest {
         assertThat(recent).contains("normal line", "Authorization=***", "apiKey=***", "Cookie=***")
                 .doesNotContain("abc.def", "private-value", "SESSDATA=secret");
         assertThat(service.export()).isNotEmpty();
+    }
+}
+``
+
+### FILE: src/test/java/cn/longer233/gamenarrator/effect/EffectPresetCatalogTest.java
+
+``java
+package cn.longer233.gamenarrator.effect;
+
+import com.fasterxml.jackson.databind.ObjectMapper;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.io.TempDir;
+
+import java.nio.file.Path;
+import java.util.List;
+
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
+
+class EffectPresetCatalogTest {
+    @TempDir Path storageRoot;
+
+    @Test
+    void customTemplatePersistsAndReloads() {
+        EffectPresetCatalog catalog = new EffectPresetCatalog(new ObjectMapper(), storageRoot.toString());
+        EffectPreset custom = new EffectPreset("CUSTOM_MY_STYLE", "我的风格", "用于分享的本地自定义模板。",
+                .72, 3, .3, "CLEAN_WHITE", .2,
+                List.of(VisualEffectType.WARM_TONE, VisualEffectType.TITLE_CARD),
+                List.of(TransitionType.FADE, TransitionType.HARD_CUT));
+
+        assertThat(catalog.all()).hasSize(13);
+        catalog.importTemplate(custom);
+        assertThat(catalog.require("custom_my_style").name()).isEqualTo("我的风格");
+
+        EffectPresetCatalog reloaded = new EffectPresetCatalog(new ObjectMapper(), storageRoot.toString());
+        assertThat(reloaded.all()).hasSize(14);
+        assertThat(reloaded.require("CUSTOM_MY_STYLE").preferredEffects()).contains(VisualEffectType.WARM_TONE);
+    }
+
+    @Test
+    void builtInTemplateCannotBeOverwrittenAndRangesAreValidated() {
+        EffectPresetCatalog catalog = new EffectPresetCatalog(new ObjectMapper(), storageRoot.toString());
+        EffectPreset overwrite = new EffectPreset("ANIME_THEATER", "覆盖", "不允许覆盖内置模板。",
+                .5, 2, .2, "CLEAN_WHITE", .2, List.of(VisualEffectType.TITLE_CARD), List.of(TransitionType.FADE));
+        assertThatThrownBy(() -> catalog.importTemplate(overwrite)).isInstanceOf(IllegalArgumentException.class)
+                .hasMessageContaining("不能覆盖");
+        EffectPreset invalid = new EffectPreset("CUSTOM_INVALID", "越界", "参数超出允许范围。",
+                2, 20, 5, "", 2, List.of(VisualEffectType.TITLE_CARD), List.of(TransitionType.FADE));
+        assertThatThrownBy(() -> catalog.importTemplate(invalid)).isInstanceOf(IllegalArgumentException.class)
+                .hasMessageContaining("默认强度");
     }
 }
 ``

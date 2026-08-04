@@ -782,6 +782,12 @@ function effectSettingsSection(task) {
         </label>
       </div>
       <div class="effect-preset-details" data-effect-preset-details>${effectPresetDetails(defaultPreset)}</div>
+      <details class="style-template-market">
+        <summary>打开风格模板商店 · ${effectPresets.length} 套</summary>
+        <div class="style-template-toolbar"><div><strong>本地风格模板</strong><small>内置模板和导入模板均可一键套用；导出 JSON 后可分享给其他项目。</small></div><label>导入模板 JSON<input type="file" accept="application/json,.json" data-style-template-import></label></div>
+        <div class="style-template-grid">${effectPresets.map(item => `<article data-template-code="${escapeHtml(item.code)}"><header><b>${escapeHtml(item.name)}</b><i>${Math.round(item.defaultIntensity * 100)}%</i></header><p>${escapeHtml(item.description)}</p><div>${item.preferredEffects.slice(0,4).map(effect => `<span>${escapeHtml(visualEffectLabels[effect] || effect)}</span>`).join('')}</div><footer><button type="button" data-apply-style-template="${escapeHtml(item.code)}">一键套用</button><a href="/api/effect-presets/${encodeURIComponent(item.code)}/export" download>导出 JSON</a></footer></article>`).join('')}</div>
+        <p class="effect-message" data-template-message aria-live="polite"></p>
+      </details>
       <label class="effect-toggle"><input name="dynamicSubtitles" type="checkbox" checked>启用动态 ASS 字幕主题</label>
       <label class="effect-toggle"><input name="soundEffects" type="checkbox">加入冲击、转场和喜剧提示音</label>
       <p class="effect-note">参考 Premiere 常见的运动、模糊、颜色、风格化和转场效果；系统只显示当前 FFmpeg 渲染器能够实际输出的类型。</p>
@@ -798,6 +804,14 @@ function effectPresetDetails(preset){
 }
 
 detailContent.addEventListener('click', async event => {
+  const styleButton = event.target.closest('[data-apply-style-template]');
+  if (styleButton) {
+    const form = styleButton.closest('[data-effect-settings]');
+    const select = form?.querySelector('[name="presetCode"]');
+    if (select) { select.value = styleButton.dataset.applyStyleTemplate; select.dispatchEvent(new Event('change', {bubbles:true})); }
+    form?.querySelector('.style-template-market')?.removeAttribute('open');
+    return;
+  }
   const cancelButton = event.target.closest('[data-cancel-task]');
   if (cancelButton) { await cancelTask(cancelButton); return; }
   const renameButton = event.target.closest('[data-rename-task]');
@@ -820,6 +834,26 @@ detailContent.addEventListener('click', async event => {
     button.disabled = false;
     button.textContent = '删除任务';
     button.title = error.message;
+  }
+});
+
+detailContent.addEventListener('change', async event => {
+  if (!event.target.matches('[data-style-template-import]')) return;
+  const input = event.target;
+  const message = input.closest('.style-template-market').querySelector('[data-template-message]');
+  try {
+    const file = input.files?.[0];
+    if (!file) return;
+    if (file.size > 64 * 1024) throw new Error('模板 JSON 不能超过 64 KB');
+    const template = JSON.parse(await file.text());
+    const imported = await requestJson('/api/effect-presets/import', {method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify(template)});
+    const existing = effectPresets.findIndex(item => item.code === imported.code);
+    if (existing >= 0) effectPresets[existing] = imported; else effectPresets.push(imported);
+    message.textContent = `已导入“${imported.name}”，正在刷新模板商店…`;
+    if (activeTaskId) await refreshTaskDetails(activeTaskId);
+  } catch (error) {
+    message.textContent = `导入失败：${error.message}`;
+    input.value = '';
   }
 });
 
@@ -1342,7 +1376,7 @@ const guideSteps = [
   {selector: '.history-panel', title: '第 5 步：从最左侧历史继续', text: '只有真正生成完成的任务才会进入页面最左侧“最近完成”列表。处理中、等待检查、失败或取消的任务都留在右侧，避免被误认为已经完成。点击已完成条目可查看生成文件、分镜、文案、时间线和最终视频。'},
   {selector: '.storyboard-review-option', title: '第 6 步：检查分镜再继续', text: '开启分镜检查后，流程会在文案与分镜生成后暂停。进入线性分镜工作台可调整顺序、起止时间、字幕、解说、素材和特效；保存全部修改后再继续配音与渲染。'},
   {selector: '.primary-nav', title: '更多工具入口', text: '“镜头搜索”使用本地语义模型寻找片段；“平台导入”负责下载并创建项目；“素材库”管理授权素材；“设置”管理云端或本地 AI。遇到问题可点击右上角“诊断日志”。'},
-  {selector: '.topbar-actions', title: '完成、诊断与再次查看', text: '任务完成后在详情中预览并导出 MP4。任何阶段失败时先查看任务详情和诊断日志；本引导可以随时从“使用引导”重新打开。当前版本为 v1.4.0。'}
+  {selector: '.topbar-actions', title: '完成、诊断与再次查看', text: '任务完成后在详情中预览并导出 MP4。任何阶段失败时先查看任务详情和诊断日志；本引导可以随时从“使用引导”重新打开。当前版本为 v1.5.0。'}
 ];
 let guideIndex = 0;
 let guideTarget = null;
