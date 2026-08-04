@@ -12,14 +12,25 @@ import java.nio.file.StandardCopyOption;
 public class AiSettingsService {
     private final ObjectMapper mapper;
     private final Path file;
+    private final String apiKeyOverride;
 
     public AiSettingsService(ObjectMapper mapper,
-            @Value("${game-narrator.data-root:${GAME_NARRATOR_DATA_ROOT:./data}}") String dataRoot) {
+            @Value("${game-narrator.data-root:${GAME_NARRATOR_DATA_ROOT:./data}}") String dataRoot,
+            @Value("${GAME_NARRATOR_AI_API_KEY:}") String apiKeyOverride) {
         this.mapper = mapper;
         this.file = Path.of(dataRoot).toAbsolutePath().normalize().resolve("config").resolve("ai-settings.json");
+        this.apiKeyOverride = apiKeyOverride == null ? "" : apiKeyOverride.trim();
     }
 
     public synchronized Settings current() {
+        Settings stored = stored();
+        if (apiKeyOverride.isBlank()) return stored;
+        return new Settings(stored.mode(), stored.provider(), apiKeyOverride, stored.baseUrl(),
+                stored.visionModel(), stored.textModel(), stored.inputPricePerMillion(),
+                stored.outputPricePerMillion(), stored.cachedInputPricePerMillion());
+    }
+
+    private Settings stored() {
         try {
             if (Files.isRegularFile(file)) return normalize(mapper.readValue(file.toFile(), Settings.class));
         } catch (Exception ignored) { }
@@ -28,7 +39,7 @@ public class AiSettingsService {
 
     public synchronized Settings save(Settings requested) {
         try {
-            Settings existing = current();
+            Settings existing = stored();
             String key = requested.apiKey() == null || requested.apiKey().isBlank()
                     ? existing.apiKey() : requested.apiKey().trim();
             Settings value = normalize(new Settings(requested.mode(), requested.provider(), key,
@@ -42,7 +53,9 @@ public class AiSettingsService {
             } catch (Exception unsupported) {
                 Files.move(temporary, file, StandardCopyOption.REPLACE_EXISTING);
             }
-            return value;
+            return apiKeyOverride.isBlank() ? value : new Settings(value.mode(), value.provider(),
+                    apiKeyOverride, value.baseUrl(), value.visionModel(), value.textModel(),
+                    value.inputPricePerMillion(), value.outputPricePerMillion(), value.cachedInputPricePerMillion());
         } catch (Exception exception) {
             throw new IllegalStateException("无法保存 AI 设置：" + exception.getMessage(), exception);
         }

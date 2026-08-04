@@ -13,6 +13,10 @@ public class VideoTask {
     @Id
     private UUID id;
 
+    @Version
+    @Column(nullable = false)
+    private long version;
+
     @Column(nullable = false, length = 120)
     private String name;
 

@@ -245,14 +245,6 @@ public class VideoTaskService {
     }
 
     private boolean safeOwnedPath(Path candidate, Path allowedRoot) {
-        Path path = candidate.toAbsolutePath().normalize();
-        Path root = allowedRoot.toAbsolutePath().normalize();
-        if (!path.startsWith(root) || path.equals(root)) return false;
-        Path current = root;
-        for (Path segment : root.relativize(path)) {
-            current = current.resolve(segment);
-            if (Files.isSymbolicLink(current)) return false;
-        }
-        return true;
+        return cn.longer233.gamenarrator.common.SecurePathGuard.isOwned(candidate, allowedRoot);
     }
 }

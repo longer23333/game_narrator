@@ -39,3 +39,15 @@
 - Release H2 page cache is capped at 16 MB and embedded Tomcat worker threads are bounded.
 - Automatic storyboard assignment is idempotent for existing segment/type placements, prefers the best matching downloaded local asset, and bounds automatic additions to eight visual assets, four sound effects, and one background track per project.
 - Selected video, image, green-screen, sound-effect, and background-music assets are consumed by the existing FFmpeg render graph: duration trimming/looping, scaling/cropping, chroma-key overlay, timed SFX mixing, and ducked full-program BGM are applied automatically.
+
+## 2026-08-04 reliability and resource isolation pass
+
+- FFmpeg, Whisper, and other native processes now have separate global concurrency limits. Limits are configurable with `FFMPEG_MAX_CONCURRENT`, `WHISPER_MAX_CONCURRENT`, and `OTHER_PROCESS_MAX_CONCURRENT`.
+- Startup recovery checks only the tools required by each task's unfinished stages and leaves tasks pending when a dependency is unavailable.
+- Cloud AI requests retry transient timeouts, HTTP 408/429, and 5xx responses with bounded exponential backoff.
+- Managed storage rejects symbolic-link path segments both when uploading and when deleting task artifacts.
+- A real five-second FFmpeg video now exercises the complete nine-stage pipeline in the integration test suite without requiring cloud credentials.
+- Video tasks use an optimistic-lock version column so editor and engine updates cannot silently overwrite one another.
+- `GAME_NARRATOR_AI_API_KEY` can supply the API key without persisting it in `ai-settings.json`.
+- Diagnostics include active external-process counts. Full Micrometer percentiles remain deferred until a supported monitoring surface is selected.
+- SSE replacement, provider-strategy extraction, and splitting the two large media/catalog services remain architectural follow-ups rather than being mixed into this risk-focused patch.

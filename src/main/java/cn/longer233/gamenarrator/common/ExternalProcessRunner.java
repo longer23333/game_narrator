@@ -12,12 +12,21 @@ import java.util.concurrent.TimeUnit;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.function.Consumer;
+import java.nio.file.Path;
+import java.util.Locale;
+import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.Semaphore;
+import java.util.concurrent.atomic.AtomicInteger;
 
 /** Runs tools with concurrent output draining, a real timeout, and process-tree termination. */
 public final class ExternalProcessRunner {
     private static final int MAX_OUTPUT_CHARS = 64 * 1024;
     private static final ExecutorService OUTPUT_DRAINER = Executors.newThreadPerTaskExecutor(
             Thread.ofVirtual().name("external-output-", 0).factory());
+    private static final Map<ProcessType, Semaphore> LIMITS = new ConcurrentHashMap<>();
+    private static final Map<ProcessType, AtomicInteger> ACTIVE = new ConcurrentHashMap<>();
+    static { configureLimits(1, 1, 2); }
     private ExternalProcessRunner() { }
 
     public static Result run(List<String> command, Duration timeout) throws IOException, InterruptedException {
@@ -32,7 +41,24 @@ public final class ExternalProcessRunner {
     public static Result run(List<String> command, Duration timeout, String standardInput,
                              Consumer<String> outputLine)
             throws IOException, InterruptedException {
-        Process process = new ProcessBuilder(command).redirectErrorStream(true).start();
+        if (command == null || command.isEmpty()) throw new IllegalArgumentException("Command must not be empty");
+        ProcessType type = classify(command.getFirst());
+        Semaphore limit = LIMITS.get(type);
+        acquire(limit, type);
+        ACTIVE.get(type).incrementAndGet();
+        Process process = null;
+        try {
+            process = new ProcessBuilder(command).redirectErrorStream(true).start();
+            return runStarted(process, timeout, standardInput, outputLine);
+        } finally {
+            ACTIVE.get(type).decrementAndGet();
+            limit.release();
+        }
+    }
+
+    private static Result runStarted(Process process, Duration timeout, String standardInput,
+                                     Consumer<String> outputLine)
+            throws IOException, InterruptedException {
         TaskProcessRegistry.register(process);
         CompletableFuture<String> output = drain(process, outputLine);
         try {
@@ -59,6 +85,45 @@ public final class ExternalProcessRunner {
             TaskProcessRegistry.unregister(process);
         }
     }
+
+    public static synchronized void configureLimits(int ffmpeg, int whisper, int other) {
+        if (ffmpeg < 1 || whisper < 1 || other < 1) {
+            throw new IllegalArgumentException("External process limits must be at least 1");
+        }
+        if (ACTIVE.values().stream().anyMatch(value -> value.get() > 0)) {
+            throw new IllegalStateException("Cannot reconfigure external process limits while processes are active");
+        }
+        LIMITS.put(ProcessType.FFMPEG, new Semaphore(ffmpeg, true));
+        LIMITS.put(ProcessType.WHISPER, new Semaphore(whisper, true));
+        LIMITS.put(ProcessType.OTHER, new Semaphore(other, true));
+        for (ProcessType type : ProcessType.values()) ACTIVE.putIfAbsent(type, new AtomicInteger());
+    }
+
+    public static Map<String, Integer> activeCounts() {
+        return Map.of("ffmpeg", ACTIVE.get(ProcessType.FFMPEG).get(),
+                "whisper", ACTIVE.get(ProcessType.WHISPER).get(),
+                "other", ACTIVE.get(ProcessType.OTHER).get());
+    }
+
+    private static void acquire(Semaphore limit, ProcessType type) throws InterruptedException {
+        while (!limit.tryAcquire(500, TimeUnit.MILLISECONDS)) {
+            if (TaskProcessRegistry.currentTaskCancelled()) {
+                throw new java.util.concurrent.CancellationException(
+                        "Task cancelled while waiting for " + type.name().toLowerCase(Locale.ROOT));
+            }
+        }
+    }
+
+    private static ProcessType classify(String executable) {
+        String name;
+        try { name = Path.of(executable).getFileName().toString().toLowerCase(Locale.ROOT); }
+        catch (Exception ignored) { name = executable.toLowerCase(Locale.ROOT); }
+        if (name.contains("ffmpeg") || name.contains("ffprobe")) return ProcessType.FFMPEG;
+        if (name.contains("whisper")) return ProcessType.WHISPER;
+        return ProcessType.OTHER;
+    }
+
+    private enum ProcessType { FFMPEG, WHISPER, OTHER }
 
     public static void terminateTree(Process process) {
         List<ProcessHandle> descendants = process.toHandle().descendants().toList();

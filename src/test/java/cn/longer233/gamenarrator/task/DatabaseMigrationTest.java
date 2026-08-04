@@ -8,6 +8,20 @@ import java.sql.DriverManager;
 import static org.assertj.core.api.Assertions.assertThat;
 
 class DatabaseMigrationTest {
+    @Test
+    void latestMigrationAddsVideoTaskOptimisticLockVersion() throws Exception {
+        String url = "jdbc:h2:mem:task-version;DB_CLOSE_DELAY=-1";
+        Flyway.configure().dataSource(url, "sa", "").load().migrate();
+        try (var connection = DriverManager.getConnection(url, "sa", "");
+             var statement = connection.createStatement();
+             var columns = statement.executeQuery("""
+                     SELECT COUNT(*) FROM information_schema.columns
+                     WHERE table_name='VIDEO_TASKS' AND column_name='VERSION'
+                     """)) {
+            assertThat(columns.next()).isTrue();
+            assertThat(columns.getInt(1)).isEqualTo(1);
+        }
+    }
 
     @Test
     void v11RepairsBilibiliInterfaceTextAndRemovesDerivedTags() throws Exception {

@@ -1,7 +1,7 @@
 # GameNarrator — DeepSeek 项目上下文包
 
-> 自动生成时间：2026-08-04 08:46:24 +08:00
-> 文件数量：235。本文件由 scripts/export-deepseek-context.ps1 生成，请勿手工维护生成区。
+> 自动生成时间：2026-08-04 09:02:35 +08:00
+> 文件数量：243。本文件由 scripts/export-deepseek-context.ps1 生成，请勿手工维护生成区。
 
 ## 给 DeepSeek 的强制工作规则
 
@@ -30,7 +30,7 @@
 - `docs/DATABASE_DESIGN.md`（27795 bytes）
 - `docs/FRONTEND_DEVELOPMENT.md`（1853 bytes）
 - `docs/MANUAL_EDITOR_PARITY.md`（2553 bytes）
-- `docs/PERFORMANCE_PORTABILITY_AUDIT.md`（3962 bytes）
+- `docs/PERFORMANCE_PORTABILITY_AUDIT.md`（5286 bytes）
 - `docs/REQUIREMENTS.md`（21389 bytes）
 - `scripts/build-windows-release.ps1`（11841 bytes）
 - `scripts/export-deepseek-context.ps1`（5568 bytes）
@@ -39,13 +39,13 @@
 - `scripts/setup-piper.ps1`（1322 bytes）
 - `scripts/setup-vision-model.ps1`（931 bytes）
 - `scripts/setup-whisper.ps1`（1323 bytes）
-- `scripts/sync-remotes.ps1`（935 bytes）
+- `scripts/sync-remotes.ps1`（1448 bytes）
 - `scripts/test-windows-clean-install.ps1`（3068 bytes）
 - `scripts/verify-before-push.ps1`（1116 bytes）
-- `src/main/java/cn/longer233/gamenarrator/ai/AdaptiveAiChatClient.java`（12927 bytes）
+- `src/main/java/cn/longer233/gamenarrator/ai/AdaptiveAiChatClient.java`（14270 bytes）
 - `src/main/java/cn/longer233/gamenarrator/ai/AiContentRejectedException.java`（187 bytes）
 - `src/main/java/cn/longer233/gamenarrator/ai/AiSettingsController.java`（1967 bytes）
-- `src/main/java/cn/longer233/gamenarrator/ai/AiSettingsService.java`（4496 bytes）
+- `src/main/java/cn/longer233/gamenarrator/ai/AiSettingsService.java`（5376 bytes）
 - `src/main/java/cn/longer233/gamenarrator/ai/AiUsageService.java`（3835 bytes）
 - `src/main/java/cn/longer233/gamenarrator/asset/AiAssetTagger.java`（8162 bytes）
 - `src/main/java/cn/longer233/gamenarrator/asset/AssetCatalogController.java`（10684 bytes）
@@ -69,16 +69,18 @@
 - `src/main/java/cn/longer233/gamenarrator/asset/WikimediaAssetClient.java`（5250 bytes）
 - `src/main/java/cn/longer233/gamenarrator/audio/ProceduralSoundEffectLibrary.java`（4912 bytes）
 - `src/main/java/cn/longer233/gamenarrator/audio/SoundCue.java`（192 bytes）
-- `src/main/java/cn/longer233/gamenarrator/common/ApiExceptionHandler.java`（6515 bytes）
+- `src/main/java/cn/longer233/gamenarrator/common/ApiExceptionHandler.java`（7008 bytes）
 - `src/main/java/cn/longer233/gamenarrator/common/AtomicArtifactWriter.java`（2074 bytes）
-- `src/main/java/cn/longer233/gamenarrator/common/ExternalProcessRunner.java`（4782 bytes）
+- `src/main/java/cn/longer233/gamenarrator/common/ExternalProcessRunner.java`（7919 bytes）
 - `src/main/java/cn/longer233/gamenarrator/common/RequestTraceFilter.java`（1908 bytes）
+- `src/main/java/cn/longer233/gamenarrator/common/SecurePathGuard.java`（1894 bytes）
 - `src/main/java/cn/longer233/gamenarrator/common/TaskProcessRegistry.java`（2646 bytes）
 - `src/main/java/cn/longer233/gamenarrator/config/AsyncConfig.java`（1465 bytes）
+- `src/main/java/cn/longer233/gamenarrator/config/ExternalProcessConfig.java`（670 bytes）
 - `src/main/java/cn/longer233/gamenarrator/diagnostics/DiagnosticLogService.java`（4016 bytes）
 - `src/main/java/cn/longer233/gamenarrator/diagnostics/DiagnosticsController.java`（2339 bytes）
 - `src/main/java/cn/longer233/gamenarrator/diagnostics/StartupDiagnostics.java`（563 bytes）
-- `src/main/java/cn/longer233/gamenarrator/diagnostics/SystemDiagnosticsService.java`（5350 bytes）
+- `src/main/java/cn/longer233/gamenarrator/diagnostics/SystemDiagnosticsService.java`（6625 bytes）
 - `src/main/java/cn/longer233/gamenarrator/editor/EditorCommandRequest.java`（294 bytes）
 - `src/main/java/cn/longer233/gamenarrator/editor/EditorTimelineController.java`（931 bytes）
 - `src/main/java/cn/longer233/gamenarrator/editor/EditorTimelineService.java`（15876 bytes）
@@ -124,7 +126,7 @@
 - `src/main/java/cn/longer233/gamenarrator/media/SceneFrame.java`（125 bytes）
 - `src/main/java/cn/longer233/gamenarrator/pipeline/EngineTaskContext.java`（1224 bytes）
 - `src/main/java/cn/longer233/gamenarrator/pipeline/FailedVisionTaskRepair.java`（2063 bytes）
-- `src/main/java/cn/longer233/gamenarrator/pipeline/PendingTaskRecovery.java`（1338 bytes）
+- `src/main/java/cn/longer233/gamenarrator/pipeline/PendingTaskRecovery.java`（1817 bytes）
 - `src/main/java/cn/longer233/gamenarrator/pipeline/PipelineRunTracker.java`（5283 bytes）
 - `src/main/java/cn/longer233/gamenarrator/pipeline/ProjectArtifactRegistry.java`（5346 bytes）
 - `src/main/java/cn/longer233/gamenarrator/pipeline/TaskWorkflowStateService.java`（13663 bytes）
@@ -151,14 +153,14 @@
 - `src/main/java/cn/longer233/gamenarrator/script/UpdateScriptSegmentRequest.java`（321 bytes）
 - `src/main/java/cn/longer233/gamenarrator/script/UpdateStoryboardAssetRequest.java`（380 bytes）
 - `src/main/java/cn/longer233/gamenarrator/script/UpdateStoryboardSegmentRequest.java`（520 bytes）
-- `src/main/java/cn/longer233/gamenarrator/storage/VideoStorage.java`（2220 bytes）
+- `src/main/java/cn/longer233/gamenarrator/storage/VideoStorage.java`（2534 bytes）
 - `src/main/java/cn/longer233/gamenarrator/subtitle/AssSubtitleBuilder.java`（3839 bytes）
 - `src/main/java/cn/longer233/gamenarrator/task/application/CreateVideoTaskCommand.java`（839 bytes）
 - `src/main/java/cn/longer233/gamenarrator/task/application/ProjectHistoryService.java`（3967 bytes）
 - `src/main/java/cn/longer233/gamenarrator/task/application/RenameTaskRequest.java`（222 bytes）
 - `src/main/java/cn/longer233/gamenarrator/task/application/StageView.java`（767 bytes）
 - `src/main/java/cn/longer233/gamenarrator/task/application/TaskNotFoundException.java`（239 bytes）
-- `src/main/java/cn/longer233/gamenarrator/task/application/VideoTaskService.java`（11262 bytes）
+- `src/main/java/cn/longer233/gamenarrator/task/application/VideoTaskService.java`（10944 bytes）
 - `src/main/java/cn/longer233/gamenarrator/task/application/VideoTaskView.java`（4287 bytes）
 - `src/main/java/cn/longer233/gamenarrator/task/domain/CommentaryStyle.java`（128 bytes）
 - `src/main/java/cn/longer233/gamenarrator/task/domain/EditingScope.java`（108 bytes）
@@ -167,7 +169,7 @@
 - `src/main/java/cn/longer233/gamenarrator/task/domain/ProcessingStageType.java`（277 bytes）
 - `src/main/java/cn/longer233/gamenarrator/task/domain/StageStatus.java`（116 bytes）
 - `src/main/java/cn/longer233/gamenarrator/task/domain/TaskStatus.java`（150 bytes）
-- `src/main/java/cn/longer233/gamenarrator/task/domain/VideoTask.java`（22231 bytes）
+- `src/main/java/cn/longer233/gamenarrator/task/domain/VideoTask.java`（22301 bytes）
 - `src/main/java/cn/longer233/gamenarrator/task/repository/VideoTaskRepository.java`（505 bytes）
 - `src/main/java/cn/longer233/gamenarrator/task/web/VideoTaskController.java`（6292 bytes）
 - `src/main/java/cn/longer233/gamenarrator/timeline/TimelinePlanner.java`（4735 bytes）
@@ -196,7 +198,7 @@
 - `src/main/java/cn/longer233/gamenarrator/voice/VoiceOption.java`（137 bytes）
 - `src/main/java/cn/longer233/gamenarrator/voice/VoiceRegenerationRequest.java`（419 bytes）
 - `src/main/java/cn/longer233/gamenarrator/voice/VoiceSegment.java`（296 bytes）
-- `src/main/resources/application.yml`（12570 bytes）
+- `src/main/resources/application.yml`（12950 bytes）
 - `src/main/resources/application-release.yml`（1055 bytes）
 - `src/main/resources/db/migration/V1__database_v2_foundation.sql`（17535 bytes）
 - `src/main/resources/db/migration/V10__allow_storyboard_review_task_status.sql`（528 bytes）
@@ -210,6 +212,7 @@
 - `src/main/resources/db/migration/V18__full_pipeline_failures.sql`（117 bytes）
 - `src/main/resources/db/migration/V19__task_glossary.sql`（71 bytes）
 - `src/main/resources/db/migration/V2__backfill_legacy_project_history.sql`（2646 bytes）
+- `src/main/resources/db/migration/V20__video_task_optimistic_lock.sql`（70 bytes）
 - `src/main/resources/db/migration/V3__external_asset_catalog.sql`（2371 bytes）
 - `src/main/resources/db/migration/V4__asset_library_organization.sql`（270 bytes）
 - `src/main/resources/db/migration/V5__asset_semantic_embeddings.sql`（430 bytes）
@@ -226,7 +229,7 @@
 - `src/main/resources/static/index.html`（23154 bytes）
 - `src/main/resources/static/media-importer.css`（4256 bytes）
 - `src/main/resources/static/media-importer.js`（22107 bytes）
-- `src/test/java/cn/longer233/gamenarrator/ai/AdaptiveAiChatClientTest.java`（1119 bytes）
+- `src/test/java/cn/longer233/gamenarrator/ai/AdaptiveAiChatClientTest.java`（1725 bytes）
 - `src/test/java/cn/longer233/gamenarrator/ai/AiUsageServiceTest.java`（1164 bytes）
 - `src/test/java/cn/longer233/gamenarrator/asset/AiAssetTaggerTest.java`（2432 bytes）
 - `src/test/java/cn/longer233/gamenarrator/asset/AssetCatalogServiceTest.java`（808 bytes）
@@ -236,6 +239,9 @@
 - `src/test/java/cn/longer233/gamenarrator/asset/SafeRemoteHttpConnectorTest.java`（834 bytes）
 - `src/test/java/cn/longer233/gamenarrator/audio/ProceduralSoundEffectLibraryTest.java`（1211 bytes）
 - `src/test/java/cn/longer233/gamenarrator/common/AtomicArtifactWriterTest.java`（1040 bytes）
+- `src/test/java/cn/longer233/gamenarrator/common/ExternalProcessRunnerTest.java`（1623 bytes）
+- `src/test/java/cn/longer233/gamenarrator/common/ProcessSleeper.java`（229 bytes）
+- `src/test/java/cn/longer233/gamenarrator/common/SecurePathGuardTest.java`（1373 bytes）
 - `src/test/java/cn/longer233/gamenarrator/config/AsyncConfigTest.java`（991 bytes）
 - `src/test/java/cn/longer233/gamenarrator/diagnostics/DiagnosticLogServiceTest.java`（906 bytes）
 - `src/test/java/cn/longer233/gamenarrator/effect/SemanticEffectPlannerTest.java`（1359 bytes）
@@ -245,11 +251,13 @@
 - `src/test/java/cn/longer233/gamenarrator/importer/RemoteThumbnailServiceTest.java`（476 bytes）
 - `src/test/java/cn/longer233/gamenarrator/importer/YtDlpMediaImporterTest.java`（1876 bytes）
 - `src/test/java/cn/longer233/gamenarrator/media/FfmpegMediaProbeTest.java`（1064 bytes）
+- `src/test/java/cn/longer233/gamenarrator/pipeline/PendingTaskRecoveryTest.java`（2050 bytes）
+- `src/test/java/cn/longer233/gamenarrator/pipeline/VideoPipelineEndToEndTest.java`（3001 bytes）
 - `src/test/java/cn/longer233/gamenarrator/render/FfmpegVideoRendererEffectTest.java`（2999 bytes）
 - `src/test/java/cn/longer233/gamenarrator/script/OllamaScriptGeneratorTest.java`（2300 bytes）
 - `src/test/java/cn/longer233/gamenarrator/script/ScriptWorkspaceServiceTest.java`（3458 bytes）
 - `src/test/java/cn/longer233/gamenarrator/subtitle/AssSubtitleBuilderTest.java`（771 bytes）
-- `src/test/java/cn/longer233/gamenarrator/task/DatabaseMigrationTest.java`（4131 bytes）
+- `src/test/java/cn/longer233/gamenarrator/task/DatabaseMigrationTest.java`（4843 bytes）
 - `src/test/java/cn/longer233/gamenarrator/task/domain/VideoTaskTest.java`（4664 bytes）
 - `src/test/java/cn/longer233/gamenarrator/task/web/VideoTaskControllerTest.java`（12121 bytes）
 - `src/test/java/cn/longer233/gamenarrator/timeline/TimelinePlannerTest.java`（2442 bytes）
@@ -1384,6 +1392,18 @@ GameNarrator 在禁用或未配置 AI 时，仍应能完成导入、粗剪、精
 - Release H2 page cache is capped at 16 MB and embedded Tomcat worker threads are bounded.
 - Automatic storyboard assignment is idempotent for existing segment/type placements, prefers the best matching downloaded local asset, and bounds automatic additions to eight visual assets, four sound effects, and one background track per project.
 - Selected video, image, green-screen, sound-effect, and background-music assets are consumed by the existing FFmpeg render graph: duration trimming/looping, scaling/cropping, chroma-key overlay, timed SFX mixing, and ducked full-program BGM are applied automatically.
+
+## 2026-08-04 reliability and resource isolation pass
+
+- FFmpeg, Whisper, and other native processes now have separate global concurrency limits. Limits are configurable with `FFMPEG_MAX_CONCURRENT`, `WHISPER_MAX_CONCURRENT`, and `OTHER_PROCESS_MAX_CONCURRENT`.
+- Startup recovery checks only the tools required by each task's unfinished stages and leaves tasks pending when a dependency is unavailable.
+- Cloud AI requests retry transient timeouts, HTTP 408/429, and 5xx responses with bounded exponential backoff.
+- Managed storage rejects symbolic-link path segments both when uploading and when deleting task artifacts.
+- A real five-second FFmpeg video now exercises the complete nine-stage pipeline in the integration test suite without requiring cloud credentials.
+- Video tasks use an optimistic-lock version column so editor and engine updates cannot silently overwrite one another.
+- `GAME_NARRATOR_AI_API_KEY` can supply the API key without persisting it in `ai-settings.json`.
+- Diagnostics include active external-process counts. Full Micrometer percentiles remain deferred until a supported monitoring surface is selected.
+- SSE replacement, provider-strategy extraction, and splitting the two large media/catalog services remain architectural follow-ups rather than being mixed into this risk-focused patch.
 ``
 
 ### FILE: docs/REQUIREMENTS.md
@@ -2324,20 +2344,26 @@ Write-Host "Model: $modelPath"
 
 ``powershell
 param(
-    [string]$Branch = ""
+    [string]$Branch = "",
+    [string[]]$Remotes = @()
 )
 
 $ErrorActionPreference = "Stop"
 $repositoryRoot = (Resolve-Path (Join-Path $PSScriptRoot "..")).Path
+$safeDirectoryArgument = "safe.directory=$($repositoryRoot.Replace('\\', '/'))"
 if ([string]::IsNullOrWhiteSpace($Branch)) {
-    $Branch = git -C $repositoryRoot branch --show-current
+    $Branch = git -c $safeDirectoryArgument -C $repositoryRoot branch --show-current
 }
 if ([string]::IsNullOrWhiteSpace($Branch)) {
     throw "Cannot synchronize a detached HEAD. Pass -Branch explicitly."
 }
 
-$requiredRemotes = @("github", "gitee")
-$configuredRemotes = @(git -C $repositoryRoot remote)
+if ($Remotes.Count -eq 0 -and -not [string]::IsNullOrWhiteSpace($env:GAME_NARRATOR_SYNC_REMOTES)) {
+    $Remotes = @($env:GAME_NARRATOR_SYNC_REMOTES -split ',' | ForEach-Object { $_.Trim() } |
+        Where-Object { -not [string]::IsNullOrWhiteSpace($_) })
+}
+$requiredRemotes = if ($Remotes.Count -gt 0) { @($Remotes) } else { @("github", "gitee") }
+$configuredRemotes = @(git -c $safeDirectoryArgument -C $repositoryRoot remote)
 foreach ($remote in $requiredRemotes) {
     if ($configuredRemotes -notcontains $remote) {
         throw "Required remote '$remote' is not configured."
@@ -2346,13 +2372,13 @@ foreach ($remote in $requiredRemotes) {
 
 foreach ($remote in $requiredRemotes) {
     Write-Host "Pushing $Branch to $remote..."
-    git -C $repositoryRoot push $remote "HEAD:refs/heads/$Branch"
+    git -c $safeDirectoryArgument -C $repositoryRoot push $remote "HEAD:refs/heads/$Branch"
     if ($LASTEXITCODE -ne 0) {
         throw "Push to '$remote' failed; synchronization stopped."
     }
 }
 
-Write-Host "Synchronized '$Branch' to GitHub and Gitee."
+Write-Host "Synchronized '$Branch' to: $($requiredRemotes -join ', ')."
 ``
 
 ### FILE: scripts/test-windows-clean-install.ps1
@@ -2472,6 +2498,8 @@ public class AdaptiveAiChatClient {
     private final String localVision;
     private final String localText;
     private final String cloudImagePolicy;
+    private final int cloudMaxAttempts;
+    private final Duration cloudInitialBackoff;
     private volatile long localVisionCheckedAt;
     private volatile boolean localVisionAvailable;
 
@@ -2479,10 +2507,14 @@ public class AdaptiveAiChatClient {
             @Value("${game-narrator.ollama.base-url:http://localhost:11434}") String ollama,
             @Value("${game-narrator.ollama.vision-model:qwen2.5vl:3b}") String localVision,
             @Value("${game-narrator.ollama.script-model:qwen2.5vl:3b}") String localText,
-            @Value("${game-narrator.ai.cloud-image-policy:LOCAL_FIRST}") String cloudImagePolicy) {
+            @Value("${game-narrator.ai.cloud-image-policy:LOCAL_FIRST}") String cloudImagePolicy,
+            @Value("${game-narrator.ai.retry.max-attempts:3}") int cloudMaxAttempts,
+            @Value("${game-narrator.ai.retry.initial-backoff-ms:250}") long cloudInitialBackoffMs) {
         this.mapper=mapper; this.settings=settings; this.usage=usage; this.ollama=URI.create(ollama);
         this.localVision=localVision; this.localText=localText;
         this.cloudImagePolicy=cloudImagePolicy == null ? "LOCAL_FIRST" : cloudImagePolicy.trim().toUpperCase(Locale.ROOT);
+        this.cloudMaxAttempts=Math.max(1, cloudMaxAttempts);
+        this.cloudInitialBackoff=Duration.ofMillis(Math.max(0, cloudInitialBackoffMs));
     }
 
     public JsonNode chatJson(String prompt, List<String> images, boolean vision, Duration timeout) throws Exception {
@@ -2536,7 +2568,7 @@ public class AdaptiveAiChatClient {
         HttpRequest request=HttpRequest.newBuilder(URI.create(endpoint)).timeout(timeout)
                 .header("Authorization","Bearer "+value.apiKey()).header("Content-Type","application/json")
                 .POST(HttpRequest.BodyPublishers.ofByteArray(body)).build();
-        HttpResponse<String> response=http.send(request,HttpResponse.BodyHandlers.ofString(StandardCharsets.UTF_8));
+        HttpResponse<String> response=sendCloud(request);
         if(response.statusCode()/100!=2) {
             JsonNode error=mapper.readTree(response.body()).path("error");
             String detail=error.path("message").asText("").trim();
@@ -2563,7 +2595,7 @@ public class AdaptiveAiChatClient {
         HttpRequest request=HttpRequest.newBuilder(URI.create(endpoint)).timeout(timeout).header("x-api-key",value.apiKey())
                 .header("anthropic-version","2023-06-01").header("Content-Type","application/json")
                 .POST(HttpRequest.BodyPublishers.ofByteArray(body)).build();
-        HttpResponse<String> response=http.send(request,HttpResponse.BodyHandlers.ofString(StandardCharsets.UTF_8));
+        HttpResponse<String> response=sendCloud(request);
         JsonNode root=mapper.readTree(response.body());
         if(response.statusCode()/100!=2) throw providerError("Anthropic",response.statusCode(),root);
         JsonNode tokens=root.path("usage");
@@ -2596,6 +2628,27 @@ public class AdaptiveAiChatClient {
         int query=value.indexOf('?');
         if(query<0) return value.replaceAll("/+$","")+"/chat/completions";
         return value.substring(0,query).replaceAll("/+$","")+"/chat/completions"+value.substring(query);
+    }
+
+    private HttpResponse<String> sendCloud(HttpRequest request) throws Exception {
+        Exception lastFailure = null;
+        for (int attempt = 1; attempt <= cloudMaxAttempts; attempt++) {
+            try {
+                HttpResponse<String> response = http.send(request,
+                        HttpResponse.BodyHandlers.ofString(StandardCharsets.UTF_8));
+                if (!retryableStatus(response.statusCode()) || attempt == cloudMaxAttempts) return response;
+            } catch (java.io.IOException exception) {
+                lastFailure = exception;
+                if (attempt == cloudMaxAttempts) throw exception;
+            }
+            long delay = Math.min(5_000L, cloudInitialBackoff.toMillis() << Math.min(20, attempt - 1));
+            if (delay > 0) Thread.sleep(delay);
+        }
+        throw lastFailure == null ? new IllegalStateException("Cloud AI request failed") : lastFailure;
+    }
+
+    static boolean retryableStatus(int status) {
+        return status == 408 || status == 429 || status >= 500;
     }
 
     private IllegalStateException providerError(String provider,int status,JsonNode root) {
@@ -2728,14 +2781,25 @@ import java.nio.file.StandardCopyOption;
 public class AiSettingsService {
     private final ObjectMapper mapper;
     private final Path file;
+    private final String apiKeyOverride;
 
     public AiSettingsService(ObjectMapper mapper,
-            @Value("${game-narrator.data-root:${GAME_NARRATOR_DATA_ROOT:./data}}") String dataRoot) {
+            @Value("${game-narrator.data-root:${GAME_NARRATOR_DATA_ROOT:./data}}") String dataRoot,
+            @Value("${GAME_NARRATOR_AI_API_KEY:}") String apiKeyOverride) {
         this.mapper = mapper;
         this.file = Path.of(dataRoot).toAbsolutePath().normalize().resolve("config").resolve("ai-settings.json");
+        this.apiKeyOverride = apiKeyOverride == null ? "" : apiKeyOverride.trim();
     }
 
     public synchronized Settings current() {
+        Settings stored = stored();
+        if (apiKeyOverride.isBlank()) return stored;
+        return new Settings(stored.mode(), stored.provider(), apiKeyOverride, stored.baseUrl(),
+                stored.visionModel(), stored.textModel(), stored.inputPricePerMillion(),
+                stored.outputPricePerMillion(), stored.cachedInputPricePerMillion());
+    }
+
+    private Settings stored() {
         try {
             if (Files.isRegularFile(file)) return normalize(mapper.readValue(file.toFile(), Settings.class));
         } catch (Exception ignored) { }
@@ -2744,7 +2808,7 @@ public class AiSettingsService {
 
     public synchronized Settings save(Settings requested) {
         try {
-            Settings existing = current();
+            Settings existing = stored();
             String key = requested.apiKey() == null || requested.apiKey().isBlank()
                     ? existing.apiKey() : requested.apiKey().trim();
             Settings value = normalize(new Settings(requested.mode(), requested.provider(), key,
@@ -2758,7 +2822,9 @@ public class AiSettingsService {
             } catch (Exception unsupported) {
                 Files.move(temporary, file, StandardCopyOption.REPLACE_EXISTING);
             }
-            return value;
+            return apiKeyOverride.isBlank() ? value : new Settings(value.mode(), value.provider(),
+                    apiKeyOverride, value.baseUrl(), value.visionModel(), value.textModel(),
+                    value.inputPricePerMillion(), value.outputPricePerMillion(), value.cachedInputPricePerMillion());
         } catch (Exception exception) {
             throw new IllegalStateException("无法保存 AI 设置：" + exception.getMessage(), exception);
         }
@@ -5706,6 +5772,7 @@ import org.springframework.web.method.annotation.MethodArgumentTypeMismatchExcep
 import org.springframework.web.multipart.MaxUploadSizeExceededException;
 import org.springframework.web.client.ResourceAccessException;
 import org.springframework.web.servlet.resource.NoResourceFoundException;
+import org.springframework.dao.OptimisticLockingFailureException;
 
 import java.time.Instant;
 
@@ -5795,6 +5862,14 @@ public class ApiExceptionHandler {
         log.warn("API_ERROR code=OPERATION_UNAVAILABLE message={}", exception.getMessage());
         return error("OPERATION_UNAVAILABLE", exception.getMessage(),
                 "检查依赖工具、内容授权和当前是否已有下载任务");
+    }
+
+    @ExceptionHandler(OptimisticLockingFailureException.class)
+    @ResponseStatus(HttpStatus.CONFLICT)
+    public ApiError concurrentModification(OptimisticLockingFailureException exception) {
+        log.warn("API_ERROR code=CONCURRENT_MODIFICATION");
+        return error("CONCURRENT_MODIFICATION", "任务已被后台流程或另一个编辑操作更新",
+                "刷新任务后重新提交本次修改");
     }
 
     @ExceptionHandler(Exception.class)
@@ -5903,12 +5978,21 @@ import java.util.concurrent.TimeUnit;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.function.Consumer;
+import java.nio.file.Path;
+import java.util.Locale;
+import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.Semaphore;
+import java.util.concurrent.atomic.AtomicInteger;
 
 /** Runs tools with concurrent output draining, a real timeout, and process-tree termination. */
 public final class ExternalProcessRunner {
     private static final int MAX_OUTPUT_CHARS = 64 * 1024;
     private static final ExecutorService OUTPUT_DRAINER = Executors.newThreadPerTaskExecutor(
             Thread.ofVirtual().name("external-output-", 0).factory());
+    private static final Map<ProcessType, Semaphore> LIMITS = new ConcurrentHashMap<>();
+    private static final Map<ProcessType, AtomicInteger> ACTIVE = new ConcurrentHashMap<>();
+    static { configureLimits(1, 1, 2); }
     private ExternalProcessRunner() { }
 
     public static Result run(List<String> command, Duration timeout) throws IOException, InterruptedException {
@@ -5923,7 +6007,24 @@ public final class ExternalProcessRunner {
     public static Result run(List<String> command, Duration timeout, String standardInput,
                              Consumer<String> outputLine)
             throws IOException, InterruptedException {
-        Process process = new ProcessBuilder(command).redirectErrorStream(true).start();
+        if (command == null || command.isEmpty()) throw new IllegalArgumentException("Command must not be empty");
+        ProcessType type = classify(command.getFirst());
+        Semaphore limit = LIMITS.get(type);
+        acquire(limit, type);
+        ACTIVE.get(type).incrementAndGet();
+        Process process = null;
+        try {
+            process = new ProcessBuilder(command).redirectErrorStream(true).start();
+            return runStarted(process, timeout, standardInput, outputLine);
+        } finally {
+            ACTIVE.get(type).decrementAndGet();
+            limit.release();
+        }
+    }
+
+    private static Result runStarted(Process process, Duration timeout, String standardInput,
+                                     Consumer<String> outputLine)
+            throws IOException, InterruptedException {
         TaskProcessRegistry.register(process);
         CompletableFuture<String> output = drain(process, outputLine);
         try {
@@ -5950,6 +6051,45 @@ public final class ExternalProcessRunner {
             TaskProcessRegistry.unregister(process);
         }
     }
+
+    public static synchronized void configureLimits(int ffmpeg, int whisper, int other) {
+        if (ffmpeg < 1 || whisper < 1 || other < 1) {
+            throw new IllegalArgumentException("External process limits must be at least 1");
+        }
+        if (ACTIVE.values().stream().anyMatch(value -> value.get() > 0)) {
+            throw new IllegalStateException("Cannot reconfigure external process limits while processes are active");
+        }
+        LIMITS.put(ProcessType.FFMPEG, new Semaphore(ffmpeg, true));
+        LIMITS.put(ProcessType.WHISPER, new Semaphore(whisper, true));
+        LIMITS.put(ProcessType.OTHER, new Semaphore(other, true));
+        for (ProcessType type : ProcessType.values()) ACTIVE.putIfAbsent(type, new AtomicInteger());
+    }
+
+    public static Map<String, Integer> activeCounts() {
+        return Map.of("ffmpeg", ACTIVE.get(ProcessType.FFMPEG).get(),
+                "whisper", ACTIVE.get(ProcessType.WHISPER).get(),
+                "other", ACTIVE.get(ProcessType.OTHER).get());
+    }
+
+    private static void acquire(Semaphore limit, ProcessType type) throws InterruptedException {
+        while (!limit.tryAcquire(500, TimeUnit.MILLISECONDS)) {
+            if (TaskProcessRegistry.currentTaskCancelled()) {
+                throw new java.util.concurrent.CancellationException(
+                        "Task cancelled while waiting for " + type.name().toLowerCase(Locale.ROOT));
+            }
+        }
+    }
+
+    private static ProcessType classify(String executable) {
+        String name;
+        try { name = Path.of(executable).getFileName().toString().toLowerCase(Locale.ROOT); }
+        catch (Exception ignored) { name = executable.toLowerCase(Locale.ROOT); }
+        if (name.contains("ffmpeg") || name.contains("ffprobe")) return ProcessType.FFMPEG;
+        if (name.contains("whisper")) return ProcessType.WHISPER;
+        return ProcessType.OTHER;
+    }
+
+    private enum ProcessType { FFMPEG, WHISPER, OTHER }
 
     public static void terminateTree(Process process) {
         List<ProcessHandle> descendants = process.toHandle().descendants().toList();
@@ -6048,6 +6188,58 @@ public class RequestTraceFilter extends OncePerRequestFilter {
                     response.getStatus(),
                     elapsedMs);
             MDC.remove(TRACE_ID);
+        }
+    }
+}
+``
+
+### FILE: src/main/java/cn/longer233/gamenarrator/common/SecurePathGuard.java
+
+``java
+package cn.longer233.gamenarrator.common;
+
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.LinkOption;
+import java.nio.file.Path;
+
+public final class SecurePathGuard {
+    private SecurePathGuard() { }
+
+    public static Path prepareRoot(Path configuredRoot) throws IOException {
+        Path root = configuredRoot.toAbsolutePath().normalize();
+        Files.createDirectories(root);
+        rejectLinks(root);
+        return root.toRealPath();
+    }
+
+    public static boolean isOwned(Path candidate, Path configuredRoot) {
+        try {
+            Path root = configuredRoot.toAbsolutePath().normalize();
+            if (!Files.isDirectory(root, LinkOption.NOFOLLOW_LINKS)) return false;
+            rejectLinks(root);
+            Path realRoot = root.toRealPath();
+            Path path = candidate.toAbsolutePath().normalize();
+            if (!path.startsWith(root) || path.equals(root)) return false;
+            Path current = root;
+            for (Path segment : root.relativize(path)) {
+                current = current.resolve(segment);
+                if (Files.exists(current, LinkOption.NOFOLLOW_LINKS) && Files.isSymbolicLink(current)) return false;
+            }
+            Path parent = path.getParent();
+            return parent != null && parent.toRealPath().startsWith(realRoot);
+        } catch (IOException | SecurityException exception) {
+            return false;
+        }
+    }
+
+    private static void rejectLinks(Path path) throws IOException {
+        Path current = path.getRoot();
+        for (Path segment : path) {
+            current = current == null ? segment : current.resolve(segment);
+            if (Files.exists(current, LinkOption.NOFOLLOW_LINKS) && Files.isSymbolicLink(current)) {
+                throw new IOException("Symbolic links are not allowed in managed storage: " + current);
+            }
         }
     }
 }
@@ -6163,6 +6355,26 @@ public class AsyncConfig {
         executor.setRejectedExecutionHandler(new ThreadPoolExecutor.CallerRunsPolicy());
         executor.initialize();
         return executor;
+    }
+}
+``
+
+### FILE: src/main/java/cn/longer233/gamenarrator/config/ExternalProcessConfig.java
+
+``java
+package cn.longer233.gamenarrator.config;
+
+import cn.longer233.gamenarrator.common.ExternalProcessRunner;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.context.annotation.Configuration;
+
+@Configuration
+public class ExternalProcessConfig {
+    public ExternalProcessConfig(
+            @Value("${game-narrator.external-process.ffmpeg-max-concurrent:1}") int ffmpeg,
+            @Value("${game-narrator.external-process.whisper-max-concurrent:1}") int whisper,
+            @Value("${game-narrator.external-process.other-max-concurrent:2}") int other) {
+        ExternalProcessRunner.configureLimits(ffmpeg, whisper, other);
     }
 }
 ``
@@ -6367,6 +6579,10 @@ import java.time.Duration;
 import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
+import java.util.ArrayList;
+import java.util.List;
+import cn.longer233.gamenarrator.task.domain.ProcessingStageType;
+import cn.longer233.gamenarrator.task.domain.VideoTask;
 
 @Service
 public class SystemDiagnosticsService {
@@ -6401,6 +6617,8 @@ public class SystemDiagnosticsService {
         report.put("javaVersion", Runtime.version().toString());
         report.put("availableProcessors", Runtime.getRuntime().availableProcessors());
         report.put("maxMemoryMb", Runtime.getRuntime().maxMemory() / 1024 / 1024);
+        report.put("externalProcessesActive",
+                cn.longer233.gamenarrator.common.ExternalProcessRunner.activeCounts());
         report.put("storagePath", storageRoot.toString());
         report.put("storageWritable", storageWritable());
         report.put("ffmpegCommand", ffmpegCommand);
@@ -6442,6 +6660,21 @@ public class SystemDiagnosticsService {
             log.warn("SYSTEM_REQUIREMENT_MISSING component=media_importer executable={} "
                     + "impact=platform_media_import_unavailable", mediaImporter.executable());
         }
+    }
+
+    public List<String> recoveryBlockers(VideoTask task) {
+        List<String> blockers = new ArrayList<>();
+        boolean needsFfmpeg = !task.isStageCompleted(ProcessingStageType.SCENE_DETECTION)
+                || !task.isStageCompleted(ProcessingStageType.RENDERING);
+        if (needsFfmpeg && !commandAvailable(ffmpegCommand, "-version")) blockers.add("ffmpeg");
+        boolean needsWhisper = task.isAutomaticGenerationEnabled()
+                && task.getExtractedAudioPath() != null
+                && !task.isStageCompleted(ProcessingStageType.TRANSCRIPTION);
+        if (needsWhisper && !transcriber.runtimeAvailable()) blockers.add("whisper");
+        boolean needsVision = task.isAutomaticGenerationEnabled() && task.isCloudVisionEnabled()
+                && !task.isStageCompleted(ProcessingStageType.VIDEO_UNDERSTANDING);
+        if (needsVision && !visionClient.available()) blockers.add("vision-model");
+        return List.copyOf(blockers);
     }
 
     private boolean storageWritable() {
@@ -9694,6 +9927,7 @@ import org.springframework.boot.ApplicationArguments;
 import org.springframework.boot.ApplicationRunner;
 import org.springframework.core.annotation.Order;
 import org.springframework.stereotype.Component;
+import cn.longer233.gamenarrator.diagnostics.SystemDiagnosticsService;
 
 @Component
 @Order(20)
@@ -9702,10 +9936,13 @@ public class PendingTaskRecovery implements ApplicationRunner {
     private static final Logger log = LoggerFactory.getLogger(PendingTaskRecovery.class);
     private final VideoTaskRepository repository;
     private final VideoTaskEngine engine;
+    private final SystemDiagnosticsService diagnostics;
 
-    public PendingTaskRecovery(VideoTaskRepository repository, VideoTaskEngine engine) {
+    public PendingTaskRecovery(VideoTaskRepository repository, VideoTaskEngine engine,
+                               SystemDiagnosticsService diagnostics) {
         this.repository = repository;
         this.engine = engine;
+        this.diagnostics = diagnostics;
     }
 
     @Override
@@ -9714,6 +9951,11 @@ public class PendingTaskRecovery implements ApplicationRunner {
                 java.util.List.of(TaskStatus.READY, TaskStatus.PROCESSING));
         log.info("ENGINE_RECOVERY_SCAN recoverableTaskCount={}", readyTasks.size());
         readyTasks.forEach(task -> {
+            var blockers = diagnostics.recoveryBlockers(task);
+            if (!blockers.isEmpty()) {
+                log.warn("ENGINE_RECOVERY_SKIPPED taskId={} missingTools={}", task.getId(), blockers);
+                return;
+            }
             log.info("ENGINE_RECOVERY_SUBMIT taskId={} name={}", task.getId(), task.getName());
             engine.start(task.getId());
         });
@@ -12392,6 +12634,7 @@ import java.io.IOException;
 import java.nio.file.*;
 import java.util.Set;
 import java.util.UUID;
+import cn.longer233.gamenarrator.common.SecurePathGuard;
 
 @Component
 public class VideoStorage {
@@ -12420,12 +12663,16 @@ public class VideoStorage {
             log.warn("VIDEO_REJECTED reason=empty_file originalName={}", originalName);
             throw new IllegalArgumentException("上传的视频文件为空");
         }
-        Files.createDirectories(root);
+        Path safeRoot = SecurePathGuard.prepareRoot(root);
         Path target = root.resolve(UUID.randomUUID() + "." + extension).normalize();
-        if (!target.startsWith(root)) {
+        if (!SecurePathGuard.isOwned(target, safeRoot)) {
             throw new IllegalArgumentException("非法文件路径");
         }
         video.transferTo(target);
+        if (Files.isSymbolicLink(target) || !SecurePathGuard.isOwned(target, safeRoot)) {
+            Files.deleteIfExists(target);
+            throw new IOException("Uploaded video escaped managed storage");
+        }
         log.info("VIDEO_STORED path={} size={}", target, Files.size(target));
         return target.toString();
     }
@@ -12952,15 +13199,7 @@ public class VideoTaskService {
     }
 
     private boolean safeOwnedPath(Path candidate, Path allowedRoot) {
-        Path path = candidate.toAbsolutePath().normalize();
-        Path root = allowedRoot.toAbsolutePath().normalize();
-        if (!path.startsWith(root) || path.equals(root)) return false;
-        Path current = root;
-        for (Path segment : root.relativize(path)) {
-            current = current.resolve(segment);
-            if (Files.isSymbolicLink(current)) return false;
-        }
-        return true;
+        return cn.longer233.gamenarrator.common.SecurePathGuard.isOwned(candidate, allowedRoot);
     }
 }
 ``
@@ -13315,6 +13554,10 @@ public class VideoTask {
 
     @Id
     private UUID id;
+
+    @Version
+    @Column(nullable = false)
+    private long version;
 
     @Column(nullable = false, length = 120)
     private String name;
@@ -15669,6 +15912,9 @@ game-narrator:
   ai:
     # DashScope 对原始游戏截图审核较严；默认本地优先，未安装本地视觉模型时使用规则降级，不上传图片。
     cloud-image-policy: ${CLOUD_IMAGE_POLICY:CLOUD_ALLOWED}
+    retry:
+      max-attempts: ${AI_RETRY_MAX_ATTEMPTS:3}
+      initial-backoff-ms: ${AI_RETRY_INITIAL_BACKOFF_MS:250}
   storage-root: ./storage
   media-preview:
     # Keep the in-heap preview cache bounded (default worst case is about 48 MiB).
@@ -15807,6 +16053,11 @@ game-narrator:
     # Video/vision jobs are memory-heavy; two concurrent jobs avoid multiplying frame/model peaks.
     max-pool-size: ${ASYNC_MAX_POOL_SIZE:2}
     queue-capacity: ${ASYNC_QUEUE_CAPACITY:10}
+  external-process:
+    # Memory-heavy native tools are globally bounded across all tasks.
+    ffmpeg-max-concurrent: ${FFMPEG_MAX_CONCURRENT:1}
+    whisper-max-concurrent: ${WHISPER_MAX_CONCURRENT:1}
+    other-max-concurrent: ${OTHER_PROCESS_MAX_CONCURRENT:2}
   pipeline:
     waiting-retry-delay-ms: ${PIPELINE_WAITING_RETRY_DELAY_MS:30000}
     waiting-retry-initial-delay-ms: ${PIPELINE_WAITING_RETRY_INITIAL_DELAY_MS:30000}
@@ -16486,6 +16737,12 @@ WHERE NOT EXISTS (
       AND record.direction = 'INPUT'
       AND record.interaction_type = 'FORM'
 );
+``
+
+### FILE: src/main/resources/db/migration/V20__video_task_optimistic_lock.sql
+
+``sql
+ALTER TABLE video_tasks ADD COLUMN version BIGINT NOT NULL DEFAULT 0;
 ``
 
 ### FILE: src/main/resources/db/migration/V3__external_asset_catalog.sql
@@ -19626,6 +19883,14 @@ import org.junit.jupiter.api.Test;
 import static org.assertj.core.api.Assertions.assertThat;
 
 class AdaptiveAiChatClientTest {
+    @org.junit.jupiter.api.Test
+    void retriesOnlyTransientHttpStatuses() {
+        org.assertj.core.api.Assertions.assertThat(AdaptiveAiChatClient.retryableStatus(408)).isTrue();
+        org.assertj.core.api.Assertions.assertThat(AdaptiveAiChatClient.retryableStatus(429)).isTrue();
+        org.assertj.core.api.Assertions.assertThat(AdaptiveAiChatClient.retryableStatus(503)).isTrue();
+        org.assertj.core.api.Assertions.assertThat(AdaptiveAiChatClient.retryableStatus(400)).isFalse();
+        org.assertj.core.api.Assertions.assertThat(AdaptiveAiChatClient.retryableStatus(401)).isFalse();
+    }
     @Test
     void recognizesDashScopeContentModerationResponses() {
         assertThat(AdaptiveAiChatClient.isContentRejected("Input data may contain inappropriate content"))
@@ -20071,6 +20336,105 @@ class AtomicArtifactWriterTest {
 }
 ``
 
+### FILE: src/test/java/cn/longer233/gamenarrator/common/ExternalProcessRunnerTest.java
+
+``java
+package cn.longer233.gamenarrator.common;
+
+import org.junit.jupiter.api.Test;
+
+import java.io.File;
+import java.nio.file.Path;
+import java.time.Duration;
+import java.util.List;
+import java.util.concurrent.CompletableFuture;
+
+import static org.assertj.core.api.Assertions.assertThat;
+
+class ExternalProcessRunnerTest {
+    @Test
+    void serializesProcessesWithinTheConfiguredTypeLimit() {
+        ExternalProcessRunner.configureLimits(1, 1, 1);
+        try {
+            String java = Path.of(System.getProperty("java.home"), "bin", "java").toString();
+            String classpath = Path.of("target", "test-classes") + File.pathSeparator
+                    + Path.of("target", "classes");
+            List<String> command = List.of(java, "-cp", classpath,
+                    ProcessSleeper.class.getName(), "400");
+            long started = System.nanoTime();
+            CompletableFuture.allOf(
+                    CompletableFuture.runAsync(() -> run(command)),
+                    CompletableFuture.runAsync(() -> run(command))
+            ).join();
+            assertThat(Duration.ofNanos(System.nanoTime() - started)).isGreaterThan(Duration.ofMillis(650));
+            assertThat(ExternalProcessRunner.activeCounts()).containsEntry("other", 0);
+        } finally {
+            ExternalProcessRunner.configureLimits(1, 1, 2);
+        }
+    }
+
+    private void run(List<String> command) {
+        try {
+            assertThat(ExternalProcessRunner.run(command, Duration.ofSeconds(5)).exitCode()).isZero();
+        } catch (Exception exception) {
+            throw new RuntimeException(exception);
+        }
+    }
+}
+``
+
+### FILE: src/test/java/cn/longer233/gamenarrator/common/ProcessSleeper.java
+
+``java
+package cn.longer233.gamenarrator.common;
+
+public final class ProcessSleeper {
+    private ProcessSleeper() { }
+    public static void main(String[] args) throws Exception {
+        Thread.sleep(Long.parseLong(args[0]));
+    }
+}
+``
+
+### FILE: src/test/java/cn/longer233/gamenarrator/common/SecurePathGuardTest.java
+
+``java
+package cn.longer233.gamenarrator.common;
+
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.io.TempDir;
+
+import java.nio.file.Files;
+import java.nio.file.Path;
+
+import static org.assertj.core.api.Assertions.assertThat;
+
+class SecurePathGuardTest {
+    @TempDir Path temporary;
+
+    @Test
+    void acceptsOnlyDescendantsInsideTheManagedRoot() throws Exception {
+        Path root = SecurePathGuard.prepareRoot(temporary.resolve("storage"));
+        assertThat(SecurePathGuard.isOwned(root.resolve("video.mp4"), root)).isTrue();
+        assertThat(SecurePathGuard.isOwned(root, root)).isFalse();
+        assertThat(SecurePathGuard.isOwned(temporary.resolve("outside.mp4"), root)).isFalse();
+    }
+
+    @Test
+    void rejectsSymbolicLinkSegmentsWhenSupported() throws Exception {
+        Path root = SecurePathGuard.prepareRoot(temporary.resolve("storage"));
+        Path outside = Files.createDirectories(temporary.resolve("outside"));
+        Path link = root.resolve("linked");
+        try {
+            Files.createSymbolicLink(link, outside);
+        } catch (UnsupportedOperationException | java.nio.file.FileSystemException exception) {
+            org.junit.jupiter.api.Assumptions.abort("Symbolic links are unavailable for this test account");
+        }
+        assertThat(SecurePathGuard.isOwned(link.resolve("escaped.mp4"), root)).isFalse();
+    }
+}
+``
+
 ### FILE: src/test/java/cn/longer233/gamenarrator/config/AsyncConfigTest.java
 
 ``java
@@ -20472,6 +20836,126 @@ class FfmpegMediaProbeTest {
 }
 ``
 
+### FILE: src/test/java/cn/longer233/gamenarrator/pipeline/PendingTaskRecoveryTest.java
+
+``java
+package cn.longer233.gamenarrator.pipeline;
+
+import cn.longer233.gamenarrator.diagnostics.SystemDiagnosticsService;
+import cn.longer233.gamenarrator.task.domain.CommentaryStyle;
+import cn.longer233.gamenarrator.task.domain.VideoTask;
+import cn.longer233.gamenarrator.task.repository.VideoTaskRepository;
+import org.junit.jupiter.api.Test;
+import org.springframework.boot.DefaultApplicationArguments;
+
+import java.util.List;
+
+import static org.mockito.Mockito.*;
+
+class PendingTaskRecoveryTest {
+    @Test
+    void startsOnlyTasksWhoseRequiredToolsAreAvailable() {
+        VideoTaskRepository repository = mock(VideoTaskRepository.class);
+        VideoTaskEngine engine = mock(VideoTaskEngine.class);
+        SystemDiagnosticsService diagnostics = mock(SystemDiagnosticsService.class);
+        VideoTask task = new VideoTask("recover", "ACTION", CommentaryStyle.ANIME_THEATER,
+                30, "recover task", "source.mp4", false);
+        when(repository.findByStatusIn(anyList())).thenReturn(List.of(task));
+        when(diagnostics.recoveryBlockers(task)).thenReturn(List.of());
+
+        new PendingTaskRecovery(repository, engine, diagnostics)
+                .run(new DefaultApplicationArguments(new String[0]));
+
+        verify(engine).start(task.getId());
+    }
+
+    @Test
+    void leavesTaskPendingWhenRuntimeToolsAreMissing() {
+        VideoTaskRepository repository = mock(VideoTaskRepository.class);
+        VideoTaskEngine engine = mock(VideoTaskEngine.class);
+        SystemDiagnosticsService diagnostics = mock(SystemDiagnosticsService.class);
+        VideoTask task = new VideoTask("recover", "ACTION", CommentaryStyle.ANIME_THEATER,
+                30, "recover task", "source.mp4", false);
+        when(repository.findByStatusIn(anyList())).thenReturn(List.of(task));
+        when(diagnostics.recoveryBlockers(task)).thenReturn(List.of("ffmpeg"));
+
+        new PendingTaskRecovery(repository, engine, diagnostics)
+                .run(new DefaultApplicationArguments(new String[0]));
+
+        verifyNoInteractions(engine);
+    }
+}
+``
+
+### FILE: src/test/java/cn/longer233/gamenarrator/pipeline/VideoPipelineEndToEndTest.java
+
+``java
+package cn.longer233.gamenarrator.pipeline;
+
+import cn.longer233.gamenarrator.common.ExternalProcessRunner;
+import cn.longer233.gamenarrator.task.application.CreateVideoTaskCommand;
+import cn.longer233.gamenarrator.task.application.VideoTaskService;
+import cn.longer233.gamenarrator.task.domain.CommentaryStyle;
+import cn.longer233.gamenarrator.task.domain.EditingScope;
+import cn.longer233.gamenarrator.task.domain.TaskStatus;
+import cn.longer233.gamenarrator.task.domain.StageStatus;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.io.TempDir;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.mock.web.MockMultipartFile;
+
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.time.Duration;
+import java.util.List;
+
+import static org.assertj.core.api.Assertions.assertThat;
+
+@SpringBootTest(properties = {
+        "spring.datasource.url=jdbc:h2:mem:pipeline-e2e",
+        "game-narrator.storage-root=./target/pipeline-e2e-storage",
+        "game-narrator.ffmpeg-command=ffmpeg",
+        "game-narrator.render.video-encoder=libx264",
+        "game-narrator.media-import.yt-dlp=./mvnw.cmd",
+        "game-narrator.scene-analysis-fps=1",
+        "game-narrator.maximum-scene-frames=10"
+})
+class VideoPipelineEndToEndTest {
+    @Autowired VideoTaskService tasks;
+    @TempDir Path temporary;
+
+    @Test
+    void processesFiveSecondVideoThroughAllNineStagesUsingRealFfmpeg() throws Exception {
+        Path source = temporary.resolve("five-seconds.mp4");
+        var generated = ExternalProcessRunner.run(List.of("ffmpeg",
+                "-y", "-hide_banner", "-loglevel", "error", "-f", "lavfi",
+                "-i", "color=c=blue:s=320x180:d=5", "-c:v", "libx264", "-pix_fmt", "yuv420p",
+                source.toString()), Duration.ofSeconds(30));
+        assertThat(generated.exitCode()).isZero();
+
+        var command = new CreateVideoTaskCommand("pipeline e2e", "ACTION",
+                CommentaryStyle.ANIME_THEATER, 15, EditingScope.FULL_VIDEO,
+                "exercise every stage", "", false, true, false, false, false, false);
+        var created = tasks.create(command, new MockMultipartFile("video", "five-seconds.mp4",
+                "video/mp4", Files.readAllBytes(source)));
+
+        long deadline = System.nanoTime() + Duration.ofMinutes(2).toNanos();
+        var current = tasks.find(created.id());
+        while (current.status() != TaskStatus.COMPLETED && current.status() != TaskStatus.FAILED
+                && System.nanoTime() < deadline) {
+            Thread.sleep(250);
+            current = tasks.find(created.id());
+        }
+
+        assertThat(current.failureReason()).isNull();
+        assertThat(current.status()).isEqualTo(TaskStatus.COMPLETED);
+        assertThat(current.stages()).hasSize(9).allMatch(stage -> stage.status() == StageStatus.COMPLETED);
+        assertThat(Path.of(current.renderedVideoPath())).isRegularFile();
+    }
+}
+``
+
 ### FILE: src/test/java/cn/longer233/gamenarrator/render/FfmpegVideoRendererEffectTest.java
 
 ``java
@@ -20711,6 +21195,20 @@ import java.sql.DriverManager;
 import static org.assertj.core.api.Assertions.assertThat;
 
 class DatabaseMigrationTest {
+    @Test
+    void latestMigrationAddsVideoTaskOptimisticLockVersion() throws Exception {
+        String url = "jdbc:h2:mem:task-version;DB_CLOSE_DELAY=-1";
+        Flyway.configure().dataSource(url, "sa", "").load().migrate();
+        try (var connection = DriverManager.getConnection(url, "sa", "");
+             var statement = connection.createStatement();
+             var columns = statement.executeQuery("""
+                     SELECT COUNT(*) FROM information_schema.columns
+                     WHERE table_name='VIDEO_TASKS' AND column_name='VERSION'
+                     """)) {
+            assertThat(columns.next()).isTrue();
+            assertThat(columns.getInt(1)).isEqualTo(1);
+        }
+    }
 
     @Test
     void v11RepairsBilibiliInterfaceTextAndRemovesDerivedTags() throws Exception {

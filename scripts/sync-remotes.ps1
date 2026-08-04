@@ -1,5 +1,6 @@
 param(
-    [string]$Branch = ""
+    [string]$Branch = "",
+    [string[]]$Remotes = @()
 )
 
 $ErrorActionPreference = "Stop"
@@ -12,7 +13,11 @@ if ([string]::IsNullOrWhiteSpace($Branch)) {
     throw "Cannot synchronize a detached HEAD. Pass -Branch explicitly."
 }
 
-$requiredRemotes = @("github", "gitee")
+if ($Remotes.Count -eq 0 -and -not [string]::IsNullOrWhiteSpace($env:GAME_NARRATOR_SYNC_REMOTES)) {
+    $Remotes = @($env:GAME_NARRATOR_SYNC_REMOTES -split ',' | ForEach-Object { $_.Trim() } |
+        Where-Object { -not [string]::IsNullOrWhiteSpace($_) })
+}
+$requiredRemotes = if ($Remotes.Count -gt 0) { @($Remotes) } else { @("github", "gitee") }
 $configuredRemotes = @(git -c $safeDirectoryArgument -C $repositoryRoot remote)
 foreach ($remote in $requiredRemotes) {
     if ($configuredRemotes -notcontains $remote) {
@@ -28,4 +33,4 @@ foreach ($remote in $requiredRemotes) {
     }
 }
 
-Write-Host "Synchronized '$Branch' to GitHub and Gitee."
+Write-Host "Synchronized '$Branch' to: $($requiredRemotes -join ', ')."

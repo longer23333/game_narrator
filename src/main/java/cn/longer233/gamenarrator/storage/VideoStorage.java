@@ -9,6 +9,7 @@ import java.io.IOException;
 import java.nio.file.*;
 import java.util.Set;
 import java.util.UUID;
+import cn.longer233.gamenarrator.common.SecurePathGuard;
 
 @Component
 public class VideoStorage {
@@ -37,12 +38,16 @@ public class VideoStorage {
             log.warn("VIDEO_REJECTED reason=empty_file originalName={}", originalName);
             throw new IllegalArgumentException("上传的视频文件为空");
         }
-        Files.createDirectories(root);
+        Path safeRoot = SecurePathGuard.prepareRoot(root);
         Path target = root.resolve(UUID.randomUUID() + "." + extension).normalize();
-        if (!target.startsWith(root)) {
+        if (!SecurePathGuard.isOwned(target, safeRoot)) {
             throw new IllegalArgumentException("非法文件路径");
         }
         video.transferTo(target);
+        if (Files.isSymbolicLink(target) || !SecurePathGuard.isOwned(target, safeRoot)) {
+            Files.deleteIfExists(target);
+            throw new IOException("Uploaded video escaped managed storage");
+        }
         log.info("VIDEO_STORED path={} size={}", target, Files.size(target));
         return target.toString();
     }

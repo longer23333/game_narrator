@@ -4,6 +4,14 @@ import org.junit.jupiter.api.Test;
 import static org.assertj.core.api.Assertions.assertThat;
 
 class AdaptiveAiChatClientTest {
+    @org.junit.jupiter.api.Test
+    void retriesOnlyTransientHttpStatuses() {
+        org.assertj.core.api.Assertions.assertThat(AdaptiveAiChatClient.retryableStatus(408)).isTrue();
+        org.assertj.core.api.Assertions.assertThat(AdaptiveAiChatClient.retryableStatus(429)).isTrue();
+        org.assertj.core.api.Assertions.assertThat(AdaptiveAiChatClient.retryableStatus(503)).isTrue();
+        org.assertj.core.api.Assertions.assertThat(AdaptiveAiChatClient.retryableStatus(400)).isFalse();
+        org.assertj.core.api.Assertions.assertThat(AdaptiveAiChatClient.retryableStatus(401)).isFalse();
+    }
     @Test
     void recognizesDashScopeContentModerationResponses() {
         assertThat(AdaptiveAiChatClient.isContentRejected("Input data may contain inappropriate content"))

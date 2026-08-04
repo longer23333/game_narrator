@@ -21,6 +21,8 @@ public class AdaptiveAiChatClient {
     private final String localVision;
     private final String localText;
     private final String cloudImagePolicy;
+    private final int cloudMaxAttempts;
+    private final Duration cloudInitialBackoff;
     private volatile long localVisionCheckedAt;
     private volatile boolean localVisionAvailable;
 
@@ -28,10 +30,14 @@ public class AdaptiveAiChatClient {
             @Value("${game-narrator.ollama.base-url:http://localhost:11434}") String ollama,
             @Value("${game-narrator.ollama.vision-model:qwen2.5vl:3b}") String localVision,
             @Value("${game-narrator.ollama.script-model:qwen2.5vl:3b}") String localText,
-            @Value("${game-narrator.ai.cloud-image-policy:LOCAL_FIRST}") String cloudImagePolicy) {
+            @Value("${game-narrator.ai.cloud-image-policy:LOCAL_FIRST}") String cloudImagePolicy,
+            @Value("${game-narrator.ai.retry.max-attempts:3}") int cloudMaxAttempts,
+            @Value("${game-narrator.ai.retry.initial-backoff-ms:250}") long cloudInitialBackoffMs) {
         this.mapper=mapper; this.settings=settings; this.usage=usage; this.ollama=URI.create(ollama);
         this.localVision=localVision; this.localText=localText;
         this.cloudImagePolicy=cloudImagePolicy == null ? "LOCAL_FIRST" : cloudImagePolicy.trim().toUpperCase(Locale.ROOT);
+        this.cloudMaxAttempts=Math.max(1, cloudMaxAttempts);
+        this.cloudInitialBackoff=Duration.ofMillis(Math.max(0, cloudInitialBackoffMs));
     }
 
     public JsonNode chatJson(String prompt, List<String> images, boolean vision, Duration timeout) throws Exception {
@@ -85,7 +91,7 @@ public class AdaptiveAiChatClient {
         HttpRequest request=HttpRequest.newBuilder(URI.create(endpoint)).timeout(timeout)
                 .header("Authorization","Bearer "+value.apiKey()).header("Content-Type","application/json")
                 .POST(HttpRequest.BodyPublishers.ofByteArray(body)).build();
-        HttpResponse<String> response=http.send(request,HttpResponse.BodyHandlers.ofString(StandardCharsets.UTF_8));
+        HttpResponse<String> response=sendCloud(request);
         if(response.statusCode()/100!=2) {
             JsonNode error=mapper.readTree(response.body()).path("error");
             String detail=error.path("message").asText("").trim();
@@ -112,7 +118,7 @@ public class AdaptiveAiChatClient {
         HttpRequest request=HttpRequest.newBuilder(URI.create(endpoint)).timeout(timeout).header("x-api-key",value.apiKey())
                 .header("anthropic-version","2023-06-01").header("Content-Type","application/json")
                 .POST(HttpRequest.BodyPublishers.ofByteArray(body)).build();
-        HttpResponse<String> response=http.send(request,HttpResponse.BodyHandlers.ofString(StandardCharsets.UTF_8));
+        HttpResponse<String> response=sendCloud(request);
         JsonNode root=mapper.readTree(response.body());
         if(response.statusCode()/100!=2) throw providerError("Anthropic",response.statusCode(),root);
         JsonNode tokens=root.path("usage");
@@ -145,6 +151,27 @@ public class AdaptiveAiChatClient {
         int query=value.indexOf('?');
         if(query<0) return value.replaceAll("/+$","")+"/chat/completions";
         return value.substring(0,query).replaceAll("/+$","")+"/chat/completions"+value.substring(query);
+    }
+
+    private HttpResponse<String> sendCloud(HttpRequest request) throws Exception {
+        Exception lastFailure = null;
+        for (int attempt = 1; attempt <= cloudMaxAttempts; attempt++) {
+            try {
+                HttpResponse<String> response = http.send(request,
+                        HttpResponse.BodyHandlers.ofString(StandardCharsets.UTF_8));
+                if (!retryableStatus(response.statusCode()) || attempt == cloudMaxAttempts) return response;
+            } catch (java.io.IOException exception) {
+                lastFailure = exception;
+                if (attempt == cloudMaxAttempts) throw exception;
+            }
+            long delay = Math.min(5_000L, cloudInitialBackoff.toMillis() << Math.min(20, attempt - 1));
+            if (delay > 0) Thread.sleep(delay);
+        }
+        throw lastFailure == null ? new IllegalStateException("Cloud AI request failed") : lastFailure;
+    }
+
+    static boolean retryableStatus(int status) {
+        return status == 408 || status == 429 || status >= 500;
     }
 
     private IllegalStateException providerError(String provider,int status,JsonNode root) {

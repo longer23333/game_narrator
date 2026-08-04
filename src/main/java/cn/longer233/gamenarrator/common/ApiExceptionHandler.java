@@ -13,6 +13,7 @@ import org.springframework.web.method.annotation.MethodArgumentTypeMismatchExcep
 import org.springframework.web.multipart.MaxUploadSizeExceededException;
 import org.springframework.web.client.ResourceAccessException;
 import org.springframework.web.servlet.resource.NoResourceFoundException;
+import org.springframework.dao.OptimisticLockingFailureException;
 
 import java.time.Instant;
 
@@ -102,6 +103,14 @@ public class ApiExceptionHandler {
         log.warn("API_ERROR code=OPERATION_UNAVAILABLE message={}", exception.getMessage());
         return error("OPERATION_UNAVAILABLE", exception.getMessage(),
                 "检查依赖工具、内容授权和当前是否已有下载任务");
+    }
+
+    @ExceptionHandler(OptimisticLockingFailureException.class)
+    @ResponseStatus(HttpStatus.CONFLICT)
+    public ApiError concurrentModification(OptimisticLockingFailureException exception) {
+        log.warn("API_ERROR code=CONCURRENT_MODIFICATION");
+        return error("CONCURRENT_MODIFICATION", "任务已被后台流程或另一个编辑操作更新",
+                "刷新任务后重新提交本次修改");
     }
 
     @ExceptionHandler(Exception.class)

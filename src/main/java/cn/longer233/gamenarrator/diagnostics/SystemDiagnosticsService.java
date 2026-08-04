@@ -15,6 +15,10 @@ import java.time.Duration;
 import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
+import java.util.ArrayList;
+import java.util.List;
+import cn.longer233.gamenarrator.task.domain.ProcessingStageType;
+import cn.longer233.gamenarrator.task.domain.VideoTask;
 
 @Service
 public class SystemDiagnosticsService {
@@ -49,6 +53,8 @@ public class SystemDiagnosticsService {
         report.put("javaVersion", Runtime.version().toString());
         report.put("availableProcessors", Runtime.getRuntime().availableProcessors());
         report.put("maxMemoryMb", Runtime.getRuntime().maxMemory() / 1024 / 1024);
+        report.put("externalProcessesActive",
+                cn.longer233.gamenarrator.common.ExternalProcessRunner.activeCounts());
         report.put("storagePath", storageRoot.toString());
         report.put("storageWritable", storageWritable());
         report.put("ffmpegCommand", ffmpegCommand);
@@ -90,6 +96,21 @@ public class SystemDiagnosticsService {
             log.warn("SYSTEM_REQUIREMENT_MISSING component=media_importer executable={} "
                     + "impact=platform_media_import_unavailable", mediaImporter.executable());
         }
+    }
+
+    public List<String> recoveryBlockers(VideoTask task) {
+        List<String> blockers = new ArrayList<>();
+        boolean needsFfmpeg = !task.isStageCompleted(ProcessingStageType.SCENE_DETECTION)
+                || !task.isStageCompleted(ProcessingStageType.RENDERING);
+        if (needsFfmpeg && !commandAvailable(ffmpegCommand, "-version")) blockers.add("ffmpeg");
+        boolean needsWhisper = task.isAutomaticGenerationEnabled()
+                && task.getExtractedAudioPath() != null
+                && !task.isStageCompleted(ProcessingStageType.TRANSCRIPTION);
+        if (needsWhisper && !transcriber.runtimeAvailable()) blockers.add("whisper");
+        boolean needsVision = task.isAutomaticGenerationEnabled() && task.isCloudVisionEnabled()
+                && !task.isStageCompleted(ProcessingStageType.VIDEO_UNDERSTANDING);
+        if (needsVision && !visionClient.available()) blockers.add("vision-model");
+        return List.copyOf(blockers);
     }
 
     private boolean storageWritable() {
