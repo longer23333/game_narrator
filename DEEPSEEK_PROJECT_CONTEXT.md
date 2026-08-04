@@ -1,7 +1,7 @@
 # GameNarrator — DeepSeek 项目上下文包
 
-> 自动生成时间：2026-08-04 14:53:42 +08:00
-> 文件数量：269。本文件由 scripts/export-deepseek-context.ps1 生成，请勿手工维护生成区。
+> 自动生成时间：2026-08-04 15:06:43 +08:00
+> 文件数量：271。本文件由 scripts/export-deepseek-context.ps1 生成，请勿手工维护生成区。
 
 ## 给 DeepSeek 的强制工作规则
 
@@ -32,7 +32,7 @@
 - `docs/FRONTEND_DEVELOPMENT.md`（1853 bytes）
 - `docs/MANUAL_EDITOR_PARITY.md`（2553 bytes）
 - `docs/OBSERVABILITY.md`（1109 bytes）
-- `docs/PERFORMANCE_PORTABILITY_AUDIT.md`（8566 bytes）
+- `docs/PERFORMANCE_PORTABILITY_AUDIT.md`（9090 bytes）
 - `docs/REQUIREMENTS.md`（21551 bytes）
 - `docs/VERSIONING.md`（687 bytes）
 - `scripts/build-windows-release.ps1`（12634 bytes）
@@ -79,7 +79,7 @@
 - `src/main/java/cn/longer233/gamenarrator/common/PhaseRetryExecutor.java`（3901 bytes）
 - `src/main/java/cn/longer233/gamenarrator/common/RequestTraceFilter.java`（1908 bytes）
 - `src/main/java/cn/longer233/gamenarrator/common/SecurePathGuard.java`（1894 bytes）
-- `src/main/java/cn/longer233/gamenarrator/common/StorageCleanupService.java`（8247 bytes）
+- `src/main/java/cn/longer233/gamenarrator/common/StorageCleanupService.java`（8500 bytes）
 - `src/main/java/cn/longer233/gamenarrator/common/TaskProcessRegistry.java`（3454 bytes）
 - `src/main/java/cn/longer233/gamenarrator/compilation/ClipCompilationController.java`（1836 bytes）
 - `src/main/java/cn/longer233/gamenarrator/compilation/ClipCompilationService.java`（4099 bytes）
@@ -145,8 +145,9 @@
 - `src/main/java/cn/longer233/gamenarrator/pipeline/TaskWorkflowStateService.java`（13728 bytes）
 - `src/main/java/cn/longer233/gamenarrator/pipeline/VideoTaskEngine.java`（20683 bytes）
 - `src/main/java/cn/longer233/gamenarrator/pipeline/WaitingTaskRetryScheduler.java`（2399 bytes）
-- `src/main/java/cn/longer233/gamenarrator/render/FfmpegVideoRenderer.java`（28915 bytes）
+- `src/main/java/cn/longer233/gamenarrator/render/FfmpegVideoRenderer.java`（31292 bytes）
 - `src/main/java/cn/longer233/gamenarrator/render/RenderAssetResolver.java`（2211 bytes）
+- `src/main/java/cn/longer233/gamenarrator/render/RenderPreviewService.java`（3182 bytes）
 - `src/main/java/cn/longer233/gamenarrator/render/RenderResult.java`（133 bytes）
 - `src/main/java/cn/longer233/gamenarrator/script/AutoAssetAssignmentView.java`（246 bytes）
 - `src/main/java/cn/longer233/gamenarrator/script/GeneratedScript.java`（245 bytes）
@@ -186,7 +187,7 @@
 - `src/main/java/cn/longer233/gamenarrator/task/domain/VideoTask.java`（22301 bytes）
 - `src/main/java/cn/longer233/gamenarrator/task/repository/VideoTaskRepository.java`（548 bytes）
 - `src/main/java/cn/longer233/gamenarrator/task/web/TaskEventStreamService.java`（1895 bytes）
-- `src/main/java/cn/longer233/gamenarrator/task/web/VideoTaskController.java`（6659 bytes）
+- `src/main/java/cn/longer233/gamenarrator/task/web/VideoTaskController.java`（7603 bytes）
 - `src/main/java/cn/longer233/gamenarrator/timeline/TimelinePlanner.java`（4735 bytes）
 - `src/main/java/cn/longer233/gamenarrator/timeline/TimelinePlanningResult.java`（246 bytes）
 - `src/main/java/cn/longer233/gamenarrator/timeline/TimelineSegment.java`（410 bytes）
@@ -238,8 +239,8 @@
 - `src/main/resources/db/migration/V7__storyboard_review.sql`（207 bytes）
 - `src/main/resources/db/migration/V8__video_segment_semantic_index.sql`（634 bytes）
 - `src/main/resources/db/migration/V9__video_segment_image_hash.sql`（152 bytes）
-- `src/main/resources/static/app.css`（55584 bytes）
-- `src/main/resources/static/app.js`（78908 bytes）
+- `src/main/resources/static/app.css`（56525 bytes）
+- `src/main/resources/static/app.js`（81456 bytes）
 - `src/main/resources/static/asset-library.js`（39551 bytes）
 - `src/main/resources/static/diagnostics.js`（1673 bytes）
 - `src/main/resources/static/export.js`（10391 bytes）
@@ -276,6 +277,7 @@
 - `src/test/java/cn/longer233/gamenarrator/pipeline/PendingTaskRecoveryTest.java`（3156 bytes）
 - `src/test/java/cn/longer233/gamenarrator/pipeline/VideoPipelineEndToEndTest.java`（3211 bytes）
 - `src/test/java/cn/longer233/gamenarrator/render/FfmpegVideoRendererEffectTest.java`（2999 bytes）
+- `src/test/java/cn/longer233/gamenarrator/render/RenderPreviewServiceTest.java`（2115 bytes）
 - `src/test/java/cn/longer233/gamenarrator/script/OllamaScriptGeneratorTest.java`（2300 bytes）
 - `src/test/java/cn/longer233/gamenarrator/script/ScriptWorkspaceServiceTest.java`（6442 bytes）
 - `src/test/java/cn/longer233/gamenarrator/script/StoryboardAssetPlacementServiceTest.java`（918 bytes）
@@ -311,7 +313,7 @@
 
     <groupId>cn.longer233.graduation</groupId>
     <artifactId>game-narrator</artifactId>
-    <version>1.2.0</version>
+    <version>1.3.0</version>
     <name>GameNarrator</name>
     <description>多模态游戏视频智能解说与自动剪辑系统</description>
 
@@ -1513,6 +1515,13 @@ Grafana 数据源和仪表盘配置位于 `monitoring/grafana`。将 `provisioni
 - Task-owned segment clips, pending import files, task directories, and explicitly registered `PROJECT` assets are removed; unrelated shared library assets are retained.
 - Script segments support persisted manual `APPROVED` / `NEEDS_CHANGES` reviews and notes without overwriting the AI quality review. The editor highlights segment-specific AI issues and likely narration-duration overflow.
 - FFmpeg clip encoding emits `-progress pipe:1`; normalized encoding time updates both the task stage and stage-run record and reaches the browser over SSE.
+
+## 2026-08-04 incremental render preview pass
+
+- Each completed render clip produces one 320-pixel JPEG preview frame and atomically extends a versioned manifest.
+- The task detail view incrementally appends new frames from SSE-driven updates, preserving horizontal scroll and other dialog interactions.
+- Preview paths are constrained to the configured storage root, and deleting a task removes its retained preview directory.
+- This is a low-resolution rhythm preview, not a playable proxy of the unfinished final video.
 - Task state polling was removed from the frontend. EventSource heartbeat and bounded exponential reconnect are the sole task-update transport.
 - Asset/media service extraction, effect filter strategies, authenticated multi-user isolation, revision rollback UI, and user-owned export-preset CRUD remain separate schema/security refactors and are not represented as complete in this pass.
 # 1.0.1 内存优化记录
@@ -6695,7 +6704,11 @@ public class StorageCleanupService implements ApplicationRunner {
             if (knownArtifacts != null) {
                 for (String value : knownArtifacts) {
                     if (value == null || value.isBlank()) continue;
-                    deleteOwned(Path.of(value).toAbsolutePath().normalize(), root);
+                    Path artifact = Path.of(value).toAbsolutePath().normalize();
+                    if ("timeline.json".equals(String.valueOf(artifact.getFileName()))) {
+                        deleteOwnedTree(artifact.getParent().resolve("render-preview"), root);
+                    }
+                    deleteOwned(artifact, root);
                 }
             }
             cleanupTaskNamedFiles(root.resolve("segment-clips"), root, taskId + "-");
@@ -12095,6 +12108,9 @@ public class FfmpegVideoRenderer {
             if (segments.isEmpty()) throw new IllegalStateException("剪辑时间线为空");
             Path taskDirectory = timelinePath.getParent();
             Files.createDirectories(workDirectory);
+            Path previewDirectory = taskDirectory.resolve("render-preview");
+            preparePreviewDirectory(previewDirectory);
+            List<java.util.Map<String, Object>> previewFrames = new ArrayList<>();
             List<RenderAssetResolver.RenderAsset> storyboardAssets = renderAssetResolver.resolve(timelinePath);
             log.info("RENDERING_BEGIN segments={} source={} preferredEncoder={}",
                     segments.size(), sourceVideo, preferredEncoder);
@@ -12126,6 +12142,7 @@ public class FfmpegVideoRenderer {
                     }
                 }
                 clips.add(clip);
+                createPreviewFrame(clip, previewDirectory, segment, index, previewFrames);
                 effectManifest.add(java.util.Map.of(
                         "sequence", segment.sequence(),
                         "effectCue", segment.effectCue() == null ? "" : segment.effectCue(),
@@ -12232,6 +12249,42 @@ public class FfmpegVideoRenderer {
     private List<RenderAssetResolver.RenderAsset> visualAssets(List<RenderAssetResolver.RenderAsset> assets,
                                                                 int sequence) {
         return assets.stream().filter(asset -> !asset.audio() && asset.clipIndex() == sequence).limit(2).toList();
+    }
+
+    private void preparePreviewDirectory(Path previewDirectory) throws java.io.IOException {
+        Files.createDirectories(previewDirectory);
+        try (var files = Files.list(previewDirectory)) {
+            files.filter(Files::isRegularFile).forEach(path -> {
+                String name = path.getFileName().toString();
+                if (name.equals("manifest.json") || name.matches("frame-\\d{3}\\.jpg")) {
+                    try { Files.deleteIfExists(path); }
+                    catch (java.io.IOException exception) {
+                        log.warn("RENDER_PREVIEW_CLEANUP_FAILED path={} message={}", path, exception.getMessage());
+                    }
+                }
+            });
+        }
+    }
+
+    private void createPreviewFrame(Path clip, Path previewDirectory, TimelineSegment segment, int index,
+                                    List<java.util.Map<String, Object>> previewFrames) {
+        Path output = previewDirectory.resolve("frame-%03d.jpg".formatted(index + 1));
+        try {
+            run(List.of(ffmpegCommand, "-y", "-hide_banner", "-loglevel", "error", "-ss", "0.200",
+                    "-i", clip.toString(), "-frames:v", "1", "-vf", "scale=320:-2", "-q:v", "4",
+                    output.toString()), Duration.ofMinutes(2), "渲染预览帧生成");
+            previewFrames.add(java.util.Map.of(
+                    "index", index + 1,
+                    "sequence", segment.sequence(),
+                    "outputStartSeconds", segment.outputStartSeconds(),
+                    "outputEndSeconds", segment.outputEndSeconds(),
+                    "fileName", output.getFileName().toString()));
+            cn.longer233.gamenarrator.common.AtomicArtifactWriter.writeJson(objectMapper,
+                    previewDirectory.resolve("manifest.json"),
+                    java.util.Map.of("version", 1, "frames", List.copyOf(previewFrames)));
+        } catch (Exception exception) {
+            log.warn("RENDER_PREVIEW_FRAME_FAILED sequence={} message={}", segment.sequence(), exception.getMessage());
+        }
     }
 
     String buildStoryboardVideoFilter(TimelineSegment segment, EffectPlan plan, EffectPreset preset,
@@ -12557,6 +12610,77 @@ public class RenderAssetResolver {
                               boolean cutoutApplied, Path path, String title) {
         public boolean audio() { return "SFX".equals(assetType) || "BGM".equals(assetType); }
     }
+}
+``
+
+### FILE: src/main/java/cn/longer233/gamenarrator/render/RenderPreviewService.java
+
+``java
+package cn.longer233.gamenarrator.render;
+
+import cn.longer233.gamenarrator.task.application.TaskNotFoundException;
+import cn.longer233.gamenarrator.task.repository.VideoTaskRepository;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.stereotype.Service;
+
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.util.List;
+import java.util.UUID;
+
+@Service
+public class RenderPreviewService {
+    private final VideoTaskRepository tasks;
+    private final ObjectMapper objectMapper;
+    private final Path storageRoot;
+
+    public RenderPreviewService(VideoTaskRepository tasks, ObjectMapper objectMapper,
+            @Value("${game-narrator.storage-root}") String storageRoot) {
+        this.tasks = tasks;
+        this.objectMapper = objectMapper;
+        this.storageRoot = Path.of(storageRoot).toAbsolutePath().normalize();
+    }
+
+    public List<PreviewFrame> frames(UUID taskId) {
+        Path directory = previewDirectory(taskId);
+        Path manifest = directory.resolve("manifest.json");
+        if (!Files.isRegularFile(manifest)) return List.of();
+        try {
+            var root = objectMapper.readTree(manifest.toFile());
+            return objectMapper.readerForListOf(ManifestFrame.class).<List<ManifestFrame>>readValue(root.path("frames"))
+                    .stream().map(frame -> new PreviewFrame(frame.index(), frame.sequence(),
+                            frame.outputStartSeconds(), frame.outputEndSeconds(),
+                            "/api/tasks/" + taskId + "/render-preview/" + frame.index())).toList();
+        } catch (java.io.IOException exception) {
+            throw new IllegalStateException("无法读取渲染预览清单", exception);
+        }
+    }
+
+    public Path frame(UUID taskId, int index) {
+        if (index < 1 || index > 999) throw new IllegalArgumentException("预览帧编号无效");
+        Path frame = previewDirectory(taskId).resolve("frame-%03d.jpg".formatted(index)).normalize();
+        if (!frame.startsWith(storageRoot) || !Files.isRegularFile(frame)) {
+            throw new IllegalStateException("渲染预览帧不存在");
+        }
+        return frame;
+    }
+
+    private Path previewDirectory(UUID taskId) {
+        var task = tasks.findById(taskId).orElseThrow(() -> new TaskNotFoundException(taskId));
+        if (task.getTimelinePath() == null) return storageRoot.resolve("unavailable");
+        Path timeline = Path.of(task.getTimelinePath()).toAbsolutePath().normalize();
+        Path directory = timeline.getParent().resolve("render-preview").normalize();
+        if (!timeline.startsWith(storageRoot) || !directory.startsWith(storageRoot)) {
+            throw new IllegalStateException("渲染预览目录不属于任务存储目录");
+        }
+        return directory;
+    }
+
+    private record ManifestFrame(int index, int sequence, double outputStartSeconds,
+                                 double outputEndSeconds, String fileName) { }
+    public record PreviewFrame(int index, int sequence, double outputStartSeconds,
+                               double outputEndSeconds, String imageUrl) { }
 }
 ``
 
@@ -15428,6 +15552,7 @@ import org.springframework.core.io.FileSystemResource;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 import java.io.IOException;
+import java.nio.file.Path;
 import java.util.List;
 import java.util.UUID;
 import org.springframework.web.servlet.mvc.method.annotation.SseEmitter;
@@ -15438,10 +15563,13 @@ public class VideoTaskController {
 
     private final VideoTaskService service;
     private final TaskEventStreamService eventStream;
+    private final cn.longer233.gamenarrator.render.RenderPreviewService renderPreviews;
 
-    public VideoTaskController(VideoTaskService service, TaskEventStreamService eventStream) {
+    public VideoTaskController(VideoTaskService service, TaskEventStreamService eventStream,
+            cn.longer233.gamenarrator.render.RenderPreviewService renderPreviews) {
         this.service = service;
         this.eventStream = eventStream;
+        this.renderPreviews = renderPreviews;
     }
 
     @GetMapping
@@ -15501,6 +15629,21 @@ public class VideoTaskController {
                 .contentType(mediaType)
                 .contentLength(path.toFile().length())
                 .header(HttpHeaders.CONTENT_DISPOSITION, "inline; filename=source-" + id)
+                .header(HttpHeaders.CACHE_CONTROL, "private, max-age=3600")
+                .body(new FileSystemResource(path));
+    }
+
+    @GetMapping("/{id}/render-preview")
+    public List<cn.longer233.gamenarrator.render.RenderPreviewService.PreviewFrame> renderPreview(
+            @PathVariable UUID id) {
+        return renderPreviews.frames(id);
+    }
+
+    @GetMapping("/{id}/render-preview/{index}")
+    public ResponseEntity<FileSystemResource> renderPreviewFrame(@PathVariable UUID id, @PathVariable int index) {
+        Path path = renderPreviews.frame(id, index);
+        return ResponseEntity.ok().contentType(MediaType.IMAGE_JPEG)
+                .contentLength(path.toFile().length())
                 .header(HttpHeaders.CACHE_CONTROL, "private, max-age=3600")
                 .body(new FileSystemResource(path));
     }
@@ -18426,6 +18569,7 @@ CREATE INDEX idx_segment_embedding_image_hash ON video_segment_embedding(image_h
 @media(max-width:680px){.detail-summary{grid-template-columns:1fr 1fr}.detail-grid{grid-template-columns:1fr}.stage-row{grid-template-columns:28px 1fr 38px}.stage-progress{grid-column:2/4}.dialog-header,.detail-content{padding:18px}}
 .visual-summary{color:#b9c8df;line-height:1.8;font-size:13px}
 .rendered-video{border-color:rgba(56,224,157,.42)}.rendered-video-head{display:flex;align-items:flex-start;justify-content:space-between;gap:18px}.rendered-video-head h3{margin-bottom:5px}.rendered-video-head p{margin:0;color:#91a1bd;font-size:12px}.rendered-video-head span{padding:5px 9px;border-radius:99px;background:rgba(56,224,157,.12);color:#38e09d;font-size:9px;font-weight:900}.result-player{display:block;width:100%;max-height:480px;margin:16px 0;border-radius:12px;background:#03050a;box-shadow:0 12px 35px rgba(0,0,0,.35)}.render-actions{display:flex;gap:10px;flex-wrap:wrap;margin-bottom:12px}.download-button,.preview-button{display:inline-block;padding:11px 18px;border-radius:10px;color:#fff;text-decoration:none;font-size:12px;font-weight:800}.download-button{background:linear-gradient(90deg,#16b8ce,#6f64e8)}.preview-button{border:1px solid #3b4969;background:#151e34}.rendered-video>code{display:block;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;color:#65ddeb;font-size:10px}
+.render-preview-heading{display:flex;align-items:flex-start;justify-content:space-between;gap:16px}.render-preview-heading h3{margin:0 0 5px}.render-preview-heading p{margin:0;color:#46505c;font-size:11px}.render-preview-heading>b{white-space:nowrap;padding:5px 8px;border:2px solid #111;background:#ffe548;font-size:10px}.render-preview-track{display:flex;gap:8px;margin-top:14px;padding:8px;overflow-x:auto;scroll-snap-type:x proximity;background:#111}.render-preview-track figure{position:relative;flex:0 0 180px;margin:0;scroll-snap-align:start;background:#fff;border:2px solid #fff}.render-preview-track img{display:block;width:100%;height:101px;object-fit:cover;background:#222}.render-preview-track figcaption{display:flex;align-items:center;justify-content:space-between;gap:6px;padding:6px;color:#111;font-size:9px}.render-preview-track figcaption b{font-size:11px}.render-preview-empty{padding:36px 18px;color:#fff;font-size:11px}
 .roadmap{margin-top:54px;padding:28px;border:1px solid #293047;border-radius:20px;background:rgba(13,19,37,.76)}.roadmap-title{align-items:center}.roadmap-title .step{font-size:24px}.roadmap-list{display:grid;grid-template-columns:repeat(5,1fr);gap:12px}.roadmap-list article{min-width:0;padding:18px;border:1px solid #2a334c;border-radius:14px;background:#0a1020;transition:transform .18s ease,border-color .18s ease}.roadmap-list article:hover{transform:translateY(-3px);border-color:#45d7ea}.roadmap-list b{display:inline-block;margin-bottom:15px;color:#45d7ea;font-size:20px}.roadmap-list h3{margin:0 0 9px;font-size:14px}.roadmap-list p{margin:0;color:#8492ad;font-size:11px;line-height:1.7}@media(max-width:1050px){.roadmap-list{grid-template-columns:repeat(2,1fr)}}@media(max-width:600px){.roadmap-list{grid-template-columns:1fr}}
 .export-panel{width:100%;margin:14px 0;padding:16px;border:1px solid #33405f;border-radius:12px;background:#090f20}.export-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:12px}.export-toolbar{display:flex;align-items:center;gap:14px;margin:15px 0}.export-message{font-size:12px;color:#45d7ea}.export-jobs{display:grid;gap:8px}.export-job{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:11px;border-radius:9px;background:#111a30}.export-job>div{min-width:0}.export-job strong,.export-job small{display:block}.export-job strong{font-size:12px}.export-job small{margin-top:5px;color:#8190ad;font-size:10px}.export-job.running{border-left:3px solid #45d7ea}.export-job.completed{border-left:3px solid #38e09d}.export-job.failed{border-left:3px solid #ff5577}.empty.compact{padding:12px}.open-export{float:none}@media(max-width:680px){.export-grid{grid-template-columns:1fr}.export-job{align-items:flex-start;flex-direction:column}}
 .effect-settings-panel{border-color:rgba(155,140,255,.55)}.effect-settings-panel output{color:#45d7ea;font-size:12px}.effect-toggle{display:flex;grid-template-columns:auto 1fr;align-items:center;gap:9px;padding:12px;border-radius:10px;background:#111a30}.effect-toggle input{width:auto}.effect-note{color:#8492ad;font-size:11px;line-height:1.7}.effect-message{font-size:12px;color:#45d7ea}
@@ -19369,10 +19513,44 @@ function renderTaskDetails(task) {
     ${task.generatedNarration ? `<section class="detail-block"><h3>${escapeHtml(task.generatedTitle || 'AI 文案')}</h3><p class="visual-summary">${escapeHtml(task.scriptSynopsis)}</p><pre class="transcript-text">${escapeHtml(task.generatedNarration)}</pre><div class="tags"><i>${task.generatedScriptSegmentCount} 段配音文案</i></div></section>` : ''}
     ${task.generatedVoiceSegmentCount ? `<section class="detail-block"><h3>${task.aiVoiceEnabled ? 'AI 配音' : '音频轨道'}</h3><p class="visual-summary">${task.aiVoiceEnabled ? `Piper 中文音色已生成 ${task.generatedVoiceSegmentCount} 段本地配音。` : `已跳过 AI 配音，并为 ${task.generatedVoiceSegmentCount} 段建立静音占位轨道，可在剪辑器中替换或删除。`}</p></section>` : ''}
     ${task.timelinePath ? `<section class="detail-block"><h3>剪辑时间线</h3><p class="visual-summary">已规划 ${formatDuration(task.plannedOutputDurationSeconds)} 的成片时间线；${task.voiceOverflowCount ? `${task.voiceOverflowCount} 段配音需要在渲染时调整语速。` : '所有配音均可放入对应镜头。'}</p></section>` : ''}
+    ${renderPreviewSection(task)}
     ${effectSettingsSection(task)}
     ${renderedVideoSection(task)}
     ${task.transcriptText ? `<section class="detail-block"><h3>语音转写</h3><pre class="transcript-text">${escapeHtml(task.transcriptText)}</pre></section>` : ''}
   `;
+  if (task.timelinePath) refreshRenderPreview(task.id);
+}
+
+function renderPreviewSection(task) {
+  const rendering = task.stages.some(stage => stage.type === 'RENDERING' && ['RUNNING','COMPLETED'].includes(stage.status));
+  if (!task.timelinePath || (!rendering && !task.renderedVideoPath)) return '';
+  return `<section class="detail-block render-preview-panel" data-render-preview="${task.id}">
+    <div class="render-preview-heading"><div><h3>渲染节奏预览</h3><p>片段编码完成后实时出现低分辨率序列帧，可提前检查镜头节奏。</p></div><b data-render-preview-count>正在读取…</b></div>
+    <div class="render-preview-track" data-render-preview-track><span class="render-preview-empty">等待首个片段完成编码…</span></div>
+  </section>`;
+}
+
+async function refreshRenderPreview(taskId) {
+  const panel = detailContent.querySelector(`[data-render-preview="${taskId}"]`);
+  if (!panel) return;
+  try {
+    const response = await fetch(`/api/tasks/${taskId}/render-preview`, {cache:'no-store'});
+    if (!response.ok) throw await readApiError(response);
+    const frames = await response.json();
+    const track = panel.querySelector('[data-render-preview-track]');
+    panel.querySelector('[data-render-preview-count]').textContent = `${frames.length} 帧`;
+    const existing = new Set(Array.from(track.querySelectorAll('[data-preview-index]')).map(item => Number(item.dataset.previewIndex)));
+    track.querySelector('.render-preview-empty')?.remove();
+    frames.filter(frame => !existing.has(frame.index)).forEach(frame => {
+      const item = document.createElement('figure');
+      item.dataset.previewIndex = frame.index;
+      item.innerHTML = `<img src="${frame.imageUrl}" alt="片段 ${frame.sequence} 渲染预览" loading="lazy"><figcaption><b>${String(frame.sequence).padStart(2,'0')}</b><span>${formatDuration(frame.outputStartSeconds)}–${formatDuration(frame.outputEndSeconds)}</span></figcaption>`;
+      track.appendChild(item);
+    });
+    if (!frames.length && !track.children.length) track.innerHTML = '<span class="render-preview-empty">等待首个片段完成编码…</span>';
+  } catch (error) {
+    panel.querySelector('[data-render-preview-count]').textContent = '预览暂不可用';
+  }
 }
 
 function effectSettingsSection(task) {
@@ -19567,6 +19745,10 @@ function renderStoryboardProgress(task) {
 }
 
 window.addEventListener('gamenarrator:tasks', event => {
+  if (detailDialog?.open && activeTaskId) {
+    const active = event.detail.find(item => item.id === activeTaskId);
+    if (active?.stages.some(stage => stage.type === 'RENDERING' && stage.status === 'RUNNING')) refreshRenderPreview(activeTaskId);
+  }
   if (!storyboardDialog?.open) return;
   const taskId = storyboardWorkspace?.querySelector('[data-task-id]')?.dataset.taskId;
   const task = event.detail.find(item => item.id === taskId);
@@ -19850,7 +20032,7 @@ const guideSteps = [
   {selector: '.history-panel', title: '第 5 步：从最左侧历史继续', text: '只有真正生成完成的任务才会进入页面最左侧“最近完成”列表。处理中、等待检查、失败或取消的任务都留在右侧，避免被误认为已经完成。点击已完成条目可查看生成文件、分镜、文案、时间线和最终视频。'},
   {selector: '.storyboard-review-option', title: '第 6 步：检查分镜再继续', text: '开启分镜检查后，流程会在文案与分镜生成后暂停。进入线性分镜工作台可调整顺序、起止时间、字幕、解说、素材和特效；保存全部修改后再继续配音与渲染。'},
   {selector: '.primary-nav', title: '更多工具入口', text: '“镜头搜索”使用本地语义模型寻找片段；“平台导入”负责下载并创建项目；“素材库”管理授权素材；“设置”管理云端或本地 AI。遇到问题可点击右上角“诊断日志”。'},
-  {selector: '.topbar-actions', title: '完成、诊断与再次查看', text: '任务完成后在详情中预览并导出 MP4。任何阶段失败时先查看任务详情和诊断日志；本引导可以随时从“使用引导”重新打开。当前版本为 v1.2.0。'}
+  {selector: '.topbar-actions', title: '完成、诊断与再次查看', text: '任务完成后在详情中预览并导出 MP4。任何阶段失败时先查看任务详情和诊断日志；本引导可以随时从“使用引导”重新打开。当前版本为 v1.3.0。'}
 ];
 let guideIndex = 0;
 let guideTarget = null;
@@ -20947,14 +21129,14 @@ document.querySelector('#copy-address').onclick=async()=>{await navigator.clipbo
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>GameNarrator 1.2.0</title>
+  <title>GameNarrator 1.3.0</title>
   <link rel="stylesheet" href="/media-importer.css?v=20260729-10">
   <link rel="stylesheet" href="/app.css?v=20260803-13">
 </head>
 <body>
   <div class="aurora"></div>
   <header class="topbar">
-    <a class="brand" href="/">GAME<span>NARRATOR</span><small class="app-version">v1.2.0</small></a>
+    <a class="brand" href="/">GAME<span>NARRATOR</span><small class="app-version">v1.3.0</small></a>
     <nav class="primary-nav" aria-label="主要功能">
       <a href="/?view=studio" data-view-link="studio">剪辑任务</a>
       <a href="/?view=search" data-view-link="search">镜头搜索</a>
@@ -23058,6 +23240,56 @@ class FfmpegVideoRendererEffectTest {
         String filter=renderer.buildVideoFilter(segment,plan);
         assertThat(filter).contains("gblur=","vignette=","colorbalance=","rgbashift=",
                 "flags=neighbor","lenscorrection=","fade=t=in");
+    }
+}
+``
+
+### FILE: src/test/java/cn/longer233/gamenarrator/render/RenderPreviewServiceTest.java
+
+``java
+package cn.longer233.gamenarrator.render;
+
+import cn.longer233.gamenarrator.task.domain.VideoTask;
+import cn.longer233.gamenarrator.task.repository.VideoTaskRepository;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.io.TempDir;
+
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.util.Map;
+import java.util.Optional;
+import java.util.UUID;
+
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
+
+class RenderPreviewServiceTest {
+    @TempDir Path storageRoot;
+
+    @Test
+    void readsIncrementalManifestAndServesOwnedFrame() throws Exception {
+        UUID taskId = UUID.randomUUID();
+        Path taskDirectory = Files.createDirectories(storageRoot.resolve("task"));
+        Path timeline = Files.writeString(taskDirectory.resolve("timeline.json"), "{}");
+        Path preview = Files.createDirectories(taskDirectory.resolve("render-preview"));
+        Files.write(preview.resolve("frame-001.jpg"), new byte[]{1, 2, 3});
+        new ObjectMapper().writeValue(preview.resolve("manifest.json").toFile(), Map.of("version", 1, "frames",
+                java.util.List.of(Map.of("index", 1, "sequence", 3, "outputStartSeconds", 5.0,
+                        "outputEndSeconds", 8.5, "fileName", "frame-001.jpg"))));
+
+        VideoTask task = mock(VideoTask.class);
+        when(task.getTimelinePath()).thenReturn(timeline.toString());
+        VideoTaskRepository repository = mock(VideoTaskRepository.class);
+        when(repository.findById(taskId)).thenReturn(Optional.of(task));
+        RenderPreviewService service = new RenderPreviewService(repository, new ObjectMapper(), storageRoot.toString());
+
+        assertThat(service.frames(taskId)).singleElement().satisfies(frame -> {
+            assertThat(frame.sequence()).isEqualTo(3);
+            assertThat(frame.imageUrl()).endsWith("/render-preview/1");
+        });
+        assertThat(service.frame(taskId, 1)).isEqualTo(preview.resolve("frame-001.jpg").toAbsolutePath().normalize());
     }
 }
 ``

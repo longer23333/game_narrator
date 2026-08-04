@@ -79,6 +79,9 @@ public class FfmpegVideoRenderer {
             if (segments.isEmpty()) throw new IllegalStateException("剪辑时间线为空");
             Path taskDirectory = timelinePath.getParent();
             Files.createDirectories(workDirectory);
+            Path previewDirectory = taskDirectory.resolve("render-preview");
+            preparePreviewDirectory(previewDirectory);
+            List<java.util.Map<String, Object>> previewFrames = new ArrayList<>();
             List<RenderAssetResolver.RenderAsset> storyboardAssets = renderAssetResolver.resolve(timelinePath);
             log.info("RENDERING_BEGIN segments={} source={} preferredEncoder={}",
                     segments.size(), sourceVideo, preferredEncoder);
@@ -110,6 +113,7 @@ public class FfmpegVideoRenderer {
                     }
                 }
                 clips.add(clip);
+                createPreviewFrame(clip, previewDirectory, segment, index, previewFrames);
                 effectManifest.add(java.util.Map.of(
                         "sequence", segment.sequence(),
                         "effectCue", segment.effectCue() == null ? "" : segment.effectCue(),
@@ -216,6 +220,42 @@ public class FfmpegVideoRenderer {
     private List<RenderAssetResolver.RenderAsset> visualAssets(List<RenderAssetResolver.RenderAsset> assets,
                                                                 int sequence) {
         return assets.stream().filter(asset -> !asset.audio() && asset.clipIndex() == sequence).limit(2).toList();
+    }
+
+    private void preparePreviewDirectory(Path previewDirectory) throws java.io.IOException {
+        Files.createDirectories(previewDirectory);
+        try (var files = Files.list(previewDirectory)) {
+            files.filter(Files::isRegularFile).forEach(path -> {
+                String name = path.getFileName().toString();
+                if (name.equals("manifest.json") || name.matches("frame-\\d{3}\\.jpg")) {
+                    try { Files.deleteIfExists(path); }
+                    catch (java.io.IOException exception) {
+                        log.warn("RENDER_PREVIEW_CLEANUP_FAILED path={} message={}", path, exception.getMessage());
+                    }
+                }
+            });
+        }
+    }
+
+    private void createPreviewFrame(Path clip, Path previewDirectory, TimelineSegment segment, int index,
+                                    List<java.util.Map<String, Object>> previewFrames) {
+        Path output = previewDirectory.resolve("frame-%03d.jpg".formatted(index + 1));
+        try {
+            run(List.of(ffmpegCommand, "-y", "-hide_banner", "-loglevel", "error", "-ss", "0.200",
+                    "-i", clip.toString(), "-frames:v", "1", "-vf", "scale=320:-2", "-q:v", "4",
+                    output.toString()), Duration.ofMinutes(2), "渲染预览帧生成");
+            previewFrames.add(java.util.Map.of(
+                    "index", index + 1,
+                    "sequence", segment.sequence(),
+                    "outputStartSeconds", segment.outputStartSeconds(),
+                    "outputEndSeconds", segment.outputEndSeconds(),
+                    "fileName", output.getFileName().toString()));
+            cn.longer233.gamenarrator.common.AtomicArtifactWriter.writeJson(objectMapper,
+                    previewDirectory.resolve("manifest.json"),
+                    java.util.Map.of("version", 1, "frames", List.copyOf(previewFrames)));
+        } catch (Exception exception) {
+            log.warn("RENDER_PREVIEW_FRAME_FAILED sequence={} message={}", segment.sequence(), exception.getMessage());
+        }
     }
 
     String buildStoryboardVideoFilter(TimelineSegment segment, EffectPlan plan, EffectPreset preset,

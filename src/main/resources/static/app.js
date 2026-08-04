@@ -725,10 +725,44 @@ function renderTaskDetails(task) {
     ${task.generatedNarration ? `<section class="detail-block"><h3>${escapeHtml(task.generatedTitle || 'AI 文案')}</h3><p class="visual-summary">${escapeHtml(task.scriptSynopsis)}</p><pre class="transcript-text">${escapeHtml(task.generatedNarration)}</pre><div class="tags"><i>${task.generatedScriptSegmentCount} 段配音文案</i></div></section>` : ''}
     ${task.generatedVoiceSegmentCount ? `<section class="detail-block"><h3>${task.aiVoiceEnabled ? 'AI 配音' : '音频轨道'}</h3><p class="visual-summary">${task.aiVoiceEnabled ? `Piper 中文音色已生成 ${task.generatedVoiceSegmentCount} 段本地配音。` : `已跳过 AI 配音，并为 ${task.generatedVoiceSegmentCount} 段建立静音占位轨道，可在剪辑器中替换或删除。`}</p></section>` : ''}
     ${task.timelinePath ? `<section class="detail-block"><h3>剪辑时间线</h3><p class="visual-summary">已规划 ${formatDuration(task.plannedOutputDurationSeconds)} 的成片时间线；${task.voiceOverflowCount ? `${task.voiceOverflowCount} 段配音需要在渲染时调整语速。` : '所有配音均可放入对应镜头。'}</p></section>` : ''}
+    ${renderPreviewSection(task)}
     ${effectSettingsSection(task)}
     ${renderedVideoSection(task)}
     ${task.transcriptText ? `<section class="detail-block"><h3>语音转写</h3><pre class="transcript-text">${escapeHtml(task.transcriptText)}</pre></section>` : ''}
   `;
+  if (task.timelinePath) refreshRenderPreview(task.id);
+}
+
+function renderPreviewSection(task) {
+  const rendering = task.stages.some(stage => stage.type === 'RENDERING' && ['RUNNING','COMPLETED'].includes(stage.status));
+  if (!task.timelinePath || (!rendering && !task.renderedVideoPath)) return '';
+  return `<section class="detail-block render-preview-panel" data-render-preview="${task.id}">
+    <div class="render-preview-heading"><div><h3>渲染节奏预览</h3><p>片段编码完成后实时出现低分辨率序列帧，可提前检查镜头节奏。</p></div><b data-render-preview-count>正在读取…</b></div>
+    <div class="render-preview-track" data-render-preview-track><span class="render-preview-empty">等待首个片段完成编码…</span></div>
+  </section>`;
+}
+
+async function refreshRenderPreview(taskId) {
+  const panel = detailContent.querySelector(`[data-render-preview="${taskId}"]`);
+  if (!panel) return;
+  try {
+    const response = await fetch(`/api/tasks/${taskId}/render-preview`, {cache:'no-store'});
+    if (!response.ok) throw await readApiError(response);
+    const frames = await response.json();
+    const track = panel.querySelector('[data-render-preview-track]');
+    panel.querySelector('[data-render-preview-count]').textContent = `${frames.length} 帧`;
+    const existing = new Set(Array.from(track.querySelectorAll('[data-preview-index]')).map(item => Number(item.dataset.previewIndex)));
+    track.querySelector('.render-preview-empty')?.remove();
+    frames.filter(frame => !existing.has(frame.index)).forEach(frame => {
+      const item = document.createElement('figure');
+      item.dataset.previewIndex = frame.index;
+      item.innerHTML = `<img src="${frame.imageUrl}" alt="片段 ${frame.sequence} 渲染预览" loading="lazy"><figcaption><b>${String(frame.sequence).padStart(2,'0')}</b><span>${formatDuration(frame.outputStartSeconds)}–${formatDuration(frame.outputEndSeconds)}</span></figcaption>`;
+      track.appendChild(item);
+    });
+    if (!frames.length && !track.children.length) track.innerHTML = '<span class="render-preview-empty">等待首个片段完成编码…</span>';
+  } catch (error) {
+    panel.querySelector('[data-render-preview-count]').textContent = '预览暂不可用';
+  }
 }
 
 function effectSettingsSection(task) {
@@ -923,6 +957,10 @@ function renderStoryboardProgress(task) {
 }
 
 window.addEventListener('gamenarrator:tasks', event => {
+  if (detailDialog?.open && activeTaskId) {
+    const active = event.detail.find(item => item.id === activeTaskId);
+    if (active?.stages.some(stage => stage.type === 'RENDERING' && stage.status === 'RUNNING')) refreshRenderPreview(activeTaskId);
+  }
   if (!storyboardDialog?.open) return;
   const taskId = storyboardWorkspace?.querySelector('[data-task-id]')?.dataset.taskId;
   const task = event.detail.find(item => item.id === taskId);
@@ -1206,7 +1244,7 @@ const guideSteps = [
   {selector: '.history-panel', title: '第 5 步：从最左侧历史继续', text: '只有真正生成完成的任务才会进入页面最左侧“最近完成”列表。处理中、等待检查、失败或取消的任务都留在右侧，避免被误认为已经完成。点击已完成条目可查看生成文件、分镜、文案、时间线和最终视频。'},
   {selector: '.storyboard-review-option', title: '第 6 步：检查分镜再继续', text: '开启分镜检查后，流程会在文案与分镜生成后暂停。进入线性分镜工作台可调整顺序、起止时间、字幕、解说、素材和特效；保存全部修改后再继续配音与渲染。'},
   {selector: '.primary-nav', title: '更多工具入口', text: '“镜头搜索”使用本地语义模型寻找片段；“平台导入”负责下载并创建项目；“素材库”管理授权素材；“设置”管理云端或本地 AI。遇到问题可点击右上角“诊断日志”。'},
-  {selector: '.topbar-actions', title: '完成、诊断与再次查看', text: '任务完成后在详情中预览并导出 MP4。任何阶段失败时先查看任务详情和诊断日志；本引导可以随时从“使用引导”重新打开。当前版本为 v1.2.0。'}
+  {selector: '.topbar-actions', title: '完成、诊断与再次查看', text: '任务完成后在详情中预览并导出 MP4。任何阶段失败时先查看任务详情和诊断日志；本引导可以随时从“使用引导”重新打开。当前版本为 v1.3.0。'}
 ];
 let guideIndex = 0;
 let guideTarget = null;

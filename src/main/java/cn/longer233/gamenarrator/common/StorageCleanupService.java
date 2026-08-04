@@ -63,7 +63,11 @@ public class StorageCleanupService implements ApplicationRunner {
             if (knownArtifacts != null) {
                 for (String value : knownArtifacts) {
                     if (value == null || value.isBlank()) continue;
-                    deleteOwned(Path.of(value).toAbsolutePath().normalize(), root);
+                    Path artifact = Path.of(value).toAbsolutePath().normalize();
+                    if ("timeline.json".equals(String.valueOf(artifact.getFileName()))) {
+                        deleteOwnedTree(artifact.getParent().resolve("render-preview"), root);
+                    }
+                    deleteOwned(artifact, root);
                 }
             }
             cleanupTaskNamedFiles(root.resolve("segment-clips"), root, taskId + "-");

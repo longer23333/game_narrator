@@ -13,6 +13,7 @@ import org.springframework.core.io.FileSystemResource;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 import java.io.IOException;
+import java.nio.file.Path;
 import java.util.List;
 import java.util.UUID;
 import org.springframework.web.servlet.mvc.method.annotation.SseEmitter;
@@ -23,10 +24,13 @@ public class VideoTaskController {
 
     private final VideoTaskService service;
     private final TaskEventStreamService eventStream;
+    private final cn.longer233.gamenarrator.render.RenderPreviewService renderPreviews;
 
-    public VideoTaskController(VideoTaskService service, TaskEventStreamService eventStream) {
+    public VideoTaskController(VideoTaskService service, TaskEventStreamService eventStream,
+            cn.longer233.gamenarrator.render.RenderPreviewService renderPreviews) {
         this.service = service;
         this.eventStream = eventStream;
+        this.renderPreviews = renderPreviews;
     }
 
     @GetMapping
@@ -86,6 +90,21 @@ public class VideoTaskController {
                 .contentType(mediaType)
                 .contentLength(path.toFile().length())
                 .header(HttpHeaders.CONTENT_DISPOSITION, "inline; filename=source-" + id)
+                .header(HttpHeaders.CACHE_CONTROL, "private, max-age=3600")
+                .body(new FileSystemResource(path));
+    }
+
+    @GetMapping("/{id}/render-preview")
+    public List<cn.longer233.gamenarrator.render.RenderPreviewService.PreviewFrame> renderPreview(
+            @PathVariable UUID id) {
+        return renderPreviews.frames(id);
+    }
+
+    @GetMapping("/{id}/render-preview/{index}")
+    public ResponseEntity<FileSystemResource> renderPreviewFrame(@PathVariable UUID id, @PathVariable int index) {
+        Path path = renderPreviews.frame(id, index);
+        return ResponseEntity.ok().contentType(MediaType.IMAGE_JPEG)
+                .contentLength(path.toFile().length())
                 .header(HttpHeaders.CACHE_CONTROL, "private, max-age=3600")
                 .body(new FileSystemResource(path));
     }

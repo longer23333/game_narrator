@@ -76,6 +76,13 @@
 - Task-owned segment clips, pending import files, task directories, and explicitly registered `PROJECT` assets are removed; unrelated shared library assets are retained.
 - Script segments support persisted manual `APPROVED` / `NEEDS_CHANGES` reviews and notes without overwriting the AI quality review. The editor highlights segment-specific AI issues and likely narration-duration overflow.
 - FFmpeg clip encoding emits `-progress pipe:1`; normalized encoding time updates both the task stage and stage-run record and reaches the browser over SSE.
+
+## 2026-08-04 incremental render preview pass
+
+- Each completed render clip produces one 320-pixel JPEG preview frame and atomically extends a versioned manifest.
+- The task detail view incrementally appends new frames from SSE-driven updates, preserving horizontal scroll and other dialog interactions.
+- Preview paths are constrained to the configured storage root, and deleting a task removes its retained preview directory.
+- This is a low-resolution rhythm preview, not a playable proxy of the unfinished final video.
 - Task state polling was removed from the frontend. EventSource heartbeat and bounded exponential reconnect are the sole task-update transport.
 - Asset/media service extraction, effect filter strategies, authenticated multi-user isolation, revision rollback UI, and user-owned export-preset CRUD remain separate schema/security refactors and are not represented as complete in this pass.
 # 1.0.1 内存优化记录
