@@ -1,7 +1,7 @@
 # GameNarrator — DeepSeek 项目上下文包
 
-> 自动生成时间：2026-08-04 17:02:56 +08:00
-> 文件数量：285。本文件由 scripts/export-deepseek-context.ps1 生成，请勿手工维护生成区。
+> 自动生成时间：2026-08-04 17:14:27 +08:00
+> 文件数量：286。本文件由 scripts/export-deepseek-context.ps1 生成，请勿手工维护生成区。
 
 ## 给 DeepSeek 的强制工作规则
 
@@ -32,7 +32,7 @@
 - `docs/FRONTEND_DEVELOPMENT.md`（1853 bytes）
 - `docs/MANUAL_EDITOR_PARITY.md`（2680 bytes）
 - `docs/OBSERVABILITY.md`（1109 bytes）
-- `docs/PERFORMANCE_PORTABILITY_AUDIT.md`（9659 bytes）
+- `docs/PERFORMANCE_PORTABILITY_AUDIT.md`（10223 bytes）
 - `docs/REQUIREMENTS.md`（21935 bytes）
 - `docs/STYLE_TEMPLATE_STORE.md`（1190 bytes）
 - `docs/VERSIONING.md`（687 bytes）
@@ -151,10 +151,11 @@
 - `src/main/java/cn/longer233/gamenarrator/pipeline/TaskWorkflowStateService.java`（13728 bytes）
 - `src/main/java/cn/longer233/gamenarrator/pipeline/VideoTaskEngine.java`（20683 bytes）
 - `src/main/java/cn/longer233/gamenarrator/pipeline/WaitingTaskRetryScheduler.java`（2399 bytes）
-- `src/main/java/cn/longer233/gamenarrator/render/FfmpegVideoRenderer.java`（31292 bytes）
+- `src/main/java/cn/longer233/gamenarrator/render/FfmpegVideoRenderer.java`（24170 bytes）
 - `src/main/java/cn/longer233/gamenarrator/render/RenderAssetResolver.java`（2211 bytes）
 - `src/main/java/cn/longer233/gamenarrator/render/RenderPreviewService.java`（3182 bytes）
 - `src/main/java/cn/longer233/gamenarrator/render/RenderResult.java`（133 bytes）
+- `src/main/java/cn/longer233/gamenarrator/render/RenderVideoFilterBuilder.java`（7614 bytes）
 - `src/main/java/cn/longer233/gamenarrator/script/AutoAssetAssignmentView.java`（246 bytes）
 - `src/main/java/cn/longer233/gamenarrator/script/GeneratedScript.java`（245 bytes）
 - `src/main/java/cn/longer233/gamenarrator/script/ManualScriptReviewRequest.java`（341 bytes）
@@ -289,8 +290,8 @@
 - `src/test/java/cn/longer233/gamenarrator/observability/StorageCapacityGuardTest.java`（1278 bytes）
 - `src/test/java/cn/longer233/gamenarrator/pipeline/PendingTaskRecoveryTest.java`（3156 bytes）
 - `src/test/java/cn/longer233/gamenarrator/pipeline/VideoPipelineEndToEndTest.java`（3211 bytes）
-- `src/test/java/cn/longer233/gamenarrator/render/FfmpegVideoRendererEffectTest.java`（2999 bytes）
 - `src/test/java/cn/longer233/gamenarrator/render/RenderPreviewServiceTest.java`（2115 bytes）
+- `src/test/java/cn/longer233/gamenarrator/render/RenderVideoFilterBuilderTest.java`（2457 bytes）
 - `src/test/java/cn/longer233/gamenarrator/script/OllamaScriptGeneratorTest.java`（2300 bytes）
 - `src/test/java/cn/longer233/gamenarrator/script/ScriptWorkspaceServiceTest.java`（6442 bytes）
 - `src/test/java/cn/longer233/gamenarrator/script/StoryboardAssetPlacementServiceTest.java`（918 bytes）
@@ -327,7 +328,7 @@
 
     <groupId>cn.longer233.graduation</groupId>
     <artifactId>game-narrator</artifactId>
-    <version>1.5.5</version>
+    <version>1.5.6</version>
     <name>GameNarrator</name>
     <description>多模态游戏视频智能解说与自动剪辑系统</description>
 
@@ -1544,6 +1545,12 @@ Grafana 数据源和仪表盘配置位于 `monitoring/grafana`。将 `provisioni
 - Platform reference title cleanup, Bilibili BV parsing, metadata lookup, and network-failure fallback now live in a dedicated `PlatformAssetMetadataResolver`.
 - `AssetCatalogService` retains transaction, catalog persistence, and tag-assignment ownership, so public APIs and stored data remain compatible while the large service is split gradually.
 - Renderer extraction and the remaining asset discovery/import responsibilities are still follow-up refactors; this pass does not claim the full P2 service split complete.
+
+## 2026-08-04 render filter boundary pass
+
+- Deterministic FFmpeg video-filter and storyboard-overlay graph construction now lives in `RenderVideoFilterBuilder`.
+- `FfmpegVideoRenderer` retains render orchestration, encoder fallback, process execution, preview generation, and audio/subtitle composition; generated filter behavior remains covered by focused tests and the real pipeline test.
+- Command execution and audio-mix graph extraction remain follow-up refactors, so renderer decomposition is intentionally incremental rather than represented as complete.
 # 1.0.1 内存优化记录
 
 - 截图镜头搜索在调用 `MultipartFile.getBytes()` 前检查可配置大小上限，避免超大上传产生第二份堆内存副本。
@@ -12517,8 +12524,6 @@ import cn.longer233.gamenarrator.effect.EffectPlan;
 import cn.longer233.gamenarrator.effect.EffectPreset;
 import cn.longer233.gamenarrator.effect.EffectSettingsRequest;
 import cn.longer233.gamenarrator.effect.SemanticEffectPlanner;
-import cn.longer233.gamenarrator.effect.TransitionType;
-import cn.longer233.gamenarrator.effect.VisualEffectType;
 import cn.longer233.gamenarrator.timeline.TimelineSegment;
 import cn.longer233.gamenarrator.subtitle.AssSubtitleBuilder;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -12548,12 +12553,14 @@ public class FfmpegVideoRenderer {
     private final AssSubtitleBuilder assSubtitleBuilder;
     private final ProceduralSoundEffectLibrary soundEffectLibrary;
     private final RenderAssetResolver renderAssetResolver;
+    private final RenderVideoFilterBuilder videoFilterBuilder;
 
     public FfmpegVideoRenderer(ObjectMapper objectMapper,
             SemanticEffectPlanner effectPlanner,
             AssSubtitleBuilder assSubtitleBuilder,
             ProceduralSoundEffectLibrary soundEffectLibrary,
             RenderAssetResolver renderAssetResolver,
+            RenderVideoFilterBuilder videoFilterBuilder,
             @Value("${game-narrator.ffmpeg-command}") String ffmpegCommand,
             @Value("${game-narrator.render.video-encoder:h264_nvenc}") String preferredEncoder) {
         this.objectMapper = objectMapper;
@@ -12561,6 +12568,7 @@ public class FfmpegVideoRenderer {
         this.assSubtitleBuilder = assSubtitleBuilder;
         this.soundEffectLibrary = soundEffectLibrary;
         this.renderAssetResolver = renderAssetResolver;
+        this.videoFilterBuilder = videoFilterBuilder;
         this.ffmpegCommand = ffmpegCommand;
         this.preferredEncoder = preferredEncoder;
     }
@@ -12711,8 +12719,8 @@ public class FfmpegVideoRenderer {
         }
         command.addAll(List.of("-map", assets.isEmpty() ? "0:v:0" : "[vout]",
                 "-map", hasAudio ? "0:a:0" : "1:a:0"));
-        if (assets.isEmpty()) command.addAll(List.of("-vf", buildVideoFilter(segment, effectPlan, preset)));
-        else command.addAll(List.of("-filter_complex", buildStoryboardVideoFilter(segment, effectPlan, preset,
+        if (assets.isEmpty()) command.addAll(List.of("-vf", videoFilterBuilder.video(segment, effectPlan, preset)));
+        else command.addAll(List.of("-filter_complex", videoFilterBuilder.storyboard(segment, effectPlan, preset,
                 assets, hasAudio ? 1 : 2)));
         command.addAll(List.of("-c:v", encoder));
         if ("h264_nvenc".equals(encoder)) command.addAll(List.of("-preset", "p4", "-cq", "24"));
@@ -12767,135 +12775,6 @@ public class FfmpegVideoRenderer {
         } catch (Exception exception) {
             log.warn("RENDER_PREVIEW_FRAME_FAILED sequence={} message={}", segment.sequence(), exception.getMessage());
         }
-    }
-
-    String buildStoryboardVideoFilter(TimelineSegment segment, EffectPlan plan, EffectPreset preset,
-                                      List<RenderAssetResolver.RenderAsset> assets, int firstInput) {
-        StringBuilder graph = new StringBuilder("[0:v]").append(buildVideoFilter(segment, plan, preset)).append("[base];");
-        String previous = "base";
-        for (int index = 0; index < assets.size(); index++) {
-            RenderAssetResolver.RenderAsset asset = assets.get(index);
-            String prepared = "asset" + index;
-            boolean background = "BACKGROUND".equals(asset.placementType());
-            graph.append('[').append(firstInput + index).append(":v]")
-                    .append("setpts=PTS-STARTPTS,");
-            if (background) graph.append("scale=1920:1080:force_original_aspect_ratio=increase,crop=1920:1080,")
-                    .append("format=rgba,colorchannelmixer=aa=0.38");
-            else graph.append("scale=720:720:force_original_aspect_ratio=decrease,format=rgba");
-            if (asset.cutoutApplied()) graph.append(",chromakey=0x00FF00:0.18:0.08");
-            graph.append('[').append(prepared).append("];[").append(previous).append("][")
-                    .append(prepared).append("]overlay=").append(overlayPosition(asset.position()))
-                    .append(":shortest=1[v").append(index).append("];");
-            previous = "v" + index;
-        }
-        graph.append('[').append(previous).append("]null[vout]");
-        return graph.toString();
-    }
-
-    private String overlayPosition(String position) {
-        return switch (String.valueOf(position)) {
-            case "TOP_LEFT" -> "40:40"; case "TOP_RIGHT" -> "W-w-40:40";
-            case "BOTTOM_LEFT" -> "40:H-h-40"; case "BOTTOM_RIGHT" -> "W-w-40:H-h-40";
-            default -> "(W-w)/2:(H-h)/2";
-        };
-    }
-
-    String buildVideoFilter(TimelineSegment segment, EffectPlan plan) {
-        return buildVideoFilter(segment, plan, null);
-    }
-
-    String buildVideoFilter(TimelineSegment segment, EffectPlan plan, EffectPreset preset) {
-        double duration = Math.max(0.5, segment.sourceEndSeconds() - segment.sourceStartSeconds());
-        double intensity = preset == null ? 0.75 : preset.defaultIntensity();
-        double transitionDuration = preset == null ? 0.28 : preset.transitionDurationSeconds();
-        List<String> filters = new ArrayList<>();
-        filters.add("scale=1920:1080:force_original_aspect_ratio=decrease");
-        filters.add("pad=1920:1080:(ow-iw)/2:(oh-ih)/2:black");
-        filters.add("setsar=1");
-        if (plan.effects().contains(VisualEffectType.ZOOM_PUNCH)) {
-            int zoomWidth = even(1920 * (1 + 0.10 * intensity));
-            int zoomHeight = even(1080 * (1 + 0.10 * intensity));
-            int offsetX = (zoomWidth - 1920) / 2;
-            int offsetY = (zoomHeight - 1080) / 2;
-            filters.add("scale=" + zoomWidth + ":" + zoomHeight);
-            filters.add("crop=1920:1080:x='" + offsetX + "+" + decimal(24 * intensity)
-                    + "*sin(2*PI*t/" + decimal(duration) + ")':y='" + offsetY + "+"
-                    + decimal(14 * intensity) + "*sin(2*PI*t/" + decimal(duration) + ")'");
-        }
-        if (plan.effects().contains(VisualEffectType.CAMERA_SHAKE)) {
-            filters.add("scale=1960:1120");
-            filters.add("crop=1920:1080:x='20+" + decimal(12 * intensity)
-                    + "*sin(45*t)':y='20+" + decimal(10 * intensity) + "*cos(39*t)'");
-        }
-        if (plan.effects().contains(VisualEffectType.WHITE_FLASH)) {
-            filters.add("fade=t=in:st=0:d=" + decimal(0.08 + 0.08 * intensity) + ":color=white");
-        }
-        if (plan.effects().contains(VisualEffectType.SLOW_MOTION)) {
-            filters.add("tmix=frames=3:weights='1 1 1'");
-        }
-        if (plan.effects().contains(VisualEffectType.FREEZE_ACCENT)) {
-            filters.add("eq=saturation=0.75:contrast=1.18");
-            filters.add("unsharp=5:5:1.2");
-        }
-        if (plan.effects().contains(VisualEffectType.SPEED_LINES)) {
-            filters.add("vignette=PI/5");
-            filters.add("unsharp=7:7:1.5");
-        }
-        if (plan.effects().contains(VisualEffectType.CINEMA_BARS)) {
-            filters.add("drawbox=x=0:y=0:w=iw:h=70:color=black:t=fill");
-            filters.add("drawbox=x=0:y=ih-70:w=iw:h=70:color=black:t=fill");
-        }
-        if (plan.effects().contains(VisualEffectType.TITLE_CARD)) {
-            filters.add("drawbox=x=0:y=0:w=iw:h=ih:color=black@0.22:t=fill:enable='between(t,0,0.8)'");
-        }
-        if (plan.effects().contains(VisualEffectType.GAUSSIAN_BLUR)) {
-            filters.add("gblur=sigma=" + decimal(0.5 + 1.8 * intensity));
-        }
-        if (plan.effects().contains(VisualEffectType.VIGNETTE)) {
-            filters.add("vignette=angle='PI/2.8'");
-        }
-        if (plan.effects().contains(VisualEffectType.BLACK_AND_WHITE)) {
-            filters.add("hue=s=0");
-        }
-        if (plan.effects().contains(VisualEffectType.WARM_TONE)) {
-            filters.add("colorbalance=rs=" + decimal(0.08 * intensity) + ":bs=-" + decimal(0.06 * intensity));
-        }
-        if (plan.effects().contains(VisualEffectType.COOL_TONE)) {
-            filters.add("colorbalance=rs=-" + decimal(0.05 * intensity) + ":bs=" + decimal(0.08 * intensity));
-        }
-        if (plan.effects().contains(VisualEffectType.HIGH_CONTRAST)) {
-            filters.add("eq=contrast=" + decimal(1 + 0.28 * intensity) + ":saturation=" + decimal(1 + 0.10 * intensity));
-        }
-        if (plan.effects().contains(VisualEffectType.RGB_SPLIT)) {
-            filters.add("rgbashift=rh=" + Math.max(1,Math.round(5 * intensity)) + ":bh=-" + Math.max(1,Math.round(4 * intensity)));
-        }
-        if (plan.effects().contains(VisualEffectType.HORIZONTAL_FLIP)) {
-            filters.add("hflip");
-        }
-        if (plan.effects().contains(VisualEffectType.PIXELATE)) {
-            int width=even(1920-(1500*intensity)); int height=even(1080-(840*intensity));
-            filters.add("scale=" + Math.max(320,width) + ":" + Math.max(180,height) + ":flags=neighbor");
-            filters.add("scale=1920:1080:flags=neighbor");
-        }
-        if (plan.effects().contains(VisualEffectType.LENS_DISTORTION)) {
-            filters.add("lenscorrection=k1=" + decimal(-0.12 * intensity) + ":k2=" + decimal(0.04 * intensity));
-        }
-        if (plan.transition() == TransitionType.FADE || plan.transition() == TransitionType.DISSOLVE) {
-            filters.add("fade=t=in:st=0:d=" + decimal(transitionDuration));
-            filters.add("fade=t=out:st=" + decimal(Math.max(0, duration - transitionDuration))
-                    + ":d=" + decimal(transitionDuration));
-        } else if (plan.transition() == TransitionType.PUSH) {
-            filters.add("crop=iw:ih:x='min(30,30*t/0.25)':y=0");
-            filters.add("scale=1920:1080");
-        }
-        filters.add("setsar=1");
-        filters.add("format=yuv420p");
-        return String.join(",", filters);
-    }
-
-    private int even(double value) {
-        int rounded = (int) Math.round(value);
-        return rounded % 2 == 0 ? rounded : rounded + 1;
     }
 
     private void mixVoiceAndSubtitle(Path baseVideo, List<TimelineSegment> segments,
@@ -13172,6 +13051,139 @@ public class RenderPreviewService {
 package cn.longer233.gamenarrator.render;
 
 public record RenderResult(String videoPath, String subtitlePath, long fileSizeBytes) {
+}
+``
+
+### FILE: src/main/java/cn/longer233/gamenarrator/render/RenderVideoFilterBuilder.java
+
+``java
+package cn.longer233.gamenarrator.render;
+
+import cn.longer233.gamenarrator.effect.EffectPlan;
+import cn.longer233.gamenarrator.effect.EffectPreset;
+import cn.longer233.gamenarrator.effect.TransitionType;
+import cn.longer233.gamenarrator.effect.VisualEffectType;
+import cn.longer233.gamenarrator.timeline.TimelineSegment;
+import org.springframework.stereotype.Component;
+
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Locale;
+
+/** Builds deterministic FFmpeg video-filter graphs independently from render process orchestration. */
+@Component
+public class RenderVideoFilterBuilder {
+    public String storyboard(TimelineSegment segment, EffectPlan plan, EffectPreset preset,
+                             List<RenderAssetResolver.RenderAsset> assets, int firstInput) {
+        StringBuilder graph = new StringBuilder("[0:v]").append(video(segment, plan, preset)).append("[base];");
+        String previous = "base";
+        for (int index = 0; index < assets.size(); index++) {
+            RenderAssetResolver.RenderAsset asset = assets.get(index);
+            String prepared = "asset" + index;
+            boolean background = "BACKGROUND".equals(asset.placementType());
+            graph.append('[').append(firstInput + index).append(":v]")
+                    .append("setpts=PTS-STARTPTS,");
+            if (background) graph.append("scale=1920:1080:force_original_aspect_ratio=increase,crop=1920:1080,")
+                    .append("format=rgba,colorchannelmixer=aa=0.38");
+            else graph.append("scale=720:720:force_original_aspect_ratio=decrease,format=rgba");
+            if (asset.cutoutApplied()) graph.append(",chromakey=0x00FF00:0.18:0.08");
+            graph.append('[').append(prepared).append("];[").append(previous).append("][")
+                    .append(prepared).append("]overlay=").append(overlayPosition(asset.position()))
+                    .append(":shortest=1[v").append(index).append("];");
+            previous = "v" + index;
+        }
+        graph.append('[').append(previous).append("]null[vout]");
+        return graph.toString();
+    }
+
+    public String video(TimelineSegment segment, EffectPlan plan) {
+        return video(segment, plan, null);
+    }
+
+    public String video(TimelineSegment segment, EffectPlan plan, EffectPreset preset) {
+        double duration = Math.max(0.5, segment.sourceEndSeconds() - segment.sourceStartSeconds());
+        double intensity = preset == null ? 0.75 : preset.defaultIntensity();
+        double transitionDuration = preset == null ? 0.28 : preset.transitionDurationSeconds();
+        List<String> filters = new ArrayList<>();
+        filters.add("scale=1920:1080:force_original_aspect_ratio=decrease");
+        filters.add("pad=1920:1080:(ow-iw)/2:(oh-ih)/2:black");
+        filters.add("setsar=1");
+        if (plan.effects().contains(VisualEffectType.ZOOM_PUNCH)) {
+            int zoomWidth = even(1920 * (1 + 0.10 * intensity));
+            int zoomHeight = even(1080 * (1 + 0.10 * intensity));
+            int offsetX = (zoomWidth - 1920) / 2;
+            int offsetY = (zoomHeight - 1080) / 2;
+            filters.add("scale=" + zoomWidth + ":" + zoomHeight);
+            filters.add("crop=1920:1080:x='" + offsetX + "+" + decimal(24 * intensity)
+                    + "*sin(2*PI*t/" + decimal(duration) + ")':y='" + offsetY + "+"
+                    + decimal(14 * intensity) + "*sin(2*PI*t/" + decimal(duration) + ")'");
+        }
+        if (plan.effects().contains(VisualEffectType.CAMERA_SHAKE)) {
+            filters.add("scale=1960:1120");
+            filters.add("crop=1920:1080:x='20+" + decimal(12 * intensity)
+                    + "*sin(45*t)':y='20+" + decimal(10 * intensity) + "*cos(39*t)'");
+        }
+        if (plan.effects().contains(VisualEffectType.WHITE_FLASH))
+            filters.add("fade=t=in:st=0:d=" + decimal(0.08 + 0.08 * intensity) + ":color=white");
+        if (plan.effects().contains(VisualEffectType.SLOW_MOTION)) filters.add("tmix=frames=3:weights='1 1 1'");
+        if (plan.effects().contains(VisualEffectType.FREEZE_ACCENT)) {
+            filters.add("eq=saturation=0.75:contrast=1.18"); filters.add("unsharp=5:5:1.2");
+        }
+        if (plan.effects().contains(VisualEffectType.SPEED_LINES)) {
+            filters.add("vignette=PI/5"); filters.add("unsharp=7:7:1.5");
+        }
+        if (plan.effects().contains(VisualEffectType.CINEMA_BARS)) {
+            filters.add("drawbox=x=0:y=0:w=iw:h=70:color=black:t=fill");
+            filters.add("drawbox=x=0:y=ih-70:w=iw:h=70:color=black:t=fill");
+        }
+        if (plan.effects().contains(VisualEffectType.TITLE_CARD))
+            filters.add("drawbox=x=0:y=0:w=iw:h=ih:color=black@0.22:t=fill:enable='between(t,0,0.8)'");
+        if (plan.effects().contains(VisualEffectType.GAUSSIAN_BLUR)) filters.add("gblur=sigma=" + decimal(0.5 + 1.8 * intensity));
+        if (plan.effects().contains(VisualEffectType.VIGNETTE)) filters.add("vignette=angle='PI/2.8'");
+        if (plan.effects().contains(VisualEffectType.BLACK_AND_WHITE)) filters.add("hue=s=0");
+        if (plan.effects().contains(VisualEffectType.WARM_TONE))
+            filters.add("colorbalance=rs=" + decimal(0.08 * intensity) + ":bs=-" + decimal(0.06 * intensity));
+        if (plan.effects().contains(VisualEffectType.COOL_TONE))
+            filters.add("colorbalance=rs=-" + decimal(0.05 * intensity) + ":bs=" + decimal(0.08 * intensity));
+        if (plan.effects().contains(VisualEffectType.HIGH_CONTRAST))
+            filters.add("eq=contrast=" + decimal(1 + 0.28 * intensity) + ":saturation=" + decimal(1 + 0.10 * intensity));
+        if (plan.effects().contains(VisualEffectType.RGB_SPLIT))
+            filters.add("rgbashift=rh=" + Math.max(1, Math.round(5 * intensity)) + ":bh=-" + Math.max(1, Math.round(4 * intensity)));
+        if (plan.effects().contains(VisualEffectType.HORIZONTAL_FLIP)) filters.add("hflip");
+        if (plan.effects().contains(VisualEffectType.PIXELATE)) {
+            int width = even(1920 - (1500 * intensity)); int height = even(1080 - (840 * intensity));
+            filters.add("scale=" + Math.max(320, width) + ":" + Math.max(180, height) + ":flags=neighbor");
+            filters.add("scale=1920:1080:flags=neighbor");
+        }
+        if (plan.effects().contains(VisualEffectType.LENS_DISTORTION))
+            filters.add("lenscorrection=k1=" + decimal(-0.12 * intensity) + ":k2=" + decimal(0.04 * intensity));
+        if (plan.transition() == TransitionType.FADE || plan.transition() == TransitionType.DISSOLVE) {
+            filters.add("fade=t=in:st=0:d=" + decimal(transitionDuration));
+            filters.add("fade=t=out:st=" + decimal(Math.max(0, duration - transitionDuration)) + ":d=" + decimal(transitionDuration));
+        } else if (plan.transition() == TransitionType.PUSH) {
+            filters.add("crop=iw:ih:x='min(30,30*t/0.25)':y=0"); filters.add("scale=1920:1080");
+        }
+        filters.add("setsar=1");
+        filters.add("format=yuv420p");
+        return String.join(",", filters);
+    }
+
+    private String overlayPosition(String position) {
+        return switch (String.valueOf(position)) {
+            case "TOP_LEFT" -> "40:40"; case "TOP_RIGHT" -> "W-w-40:40";
+            case "BOTTOM_LEFT" -> "40:H-h-40"; case "BOTTOM_RIGHT" -> "W-w-40:H-h-40";
+            default -> "(W-w)/2:(H-h)/2";
+        };
+    }
+
+    private int even(double value) {
+        int rounded = (int) Math.round(value);
+        return rounded % 2 == 0 ? rounded : rounded + 1;
+    }
+
+    private String decimal(double value) {
+        return String.format(Locale.ROOT, "%.3f", value);
+    }
 }
 ``
 
@@ -20698,7 +20710,7 @@ const guideSteps = [
   {selector: '.history-panel', title: '第 5 步：从最左侧历史继续', text: '只有真正生成完成的任务才会进入页面最左侧“最近完成”列表。处理中、等待检查、失败或取消的任务都留在右侧，避免被误认为已经完成。点击已完成条目可查看生成文件、分镜、文案、时间线和最终视频。'},
   {selector: '.storyboard-review-option', title: '第 6 步：检查分镜再继续', text: '开启分镜检查后，流程会在文案与分镜生成后暂停。进入线性分镜工作台可调整顺序、起止时间、字幕、解说、素材和特效；保存全部修改后再继续配音与渲染。'},
   {selector: '.primary-nav', title: '更多工具入口', text: '“镜头搜索”使用本地语义模型寻找片段；“平台导入”负责下载并创建项目；“素材库”管理授权素材；“设置”管理云端或本地 AI。遇到问题可点击右上角“诊断日志”。'},
-  {selector: '.topbar-actions', title: '完成、诊断与再次查看', text: '任务完成后在详情中预览并导出 MP4。任何阶段失败时先查看任务详情和诊断日志；本引导可以随时从“使用引导”重新打开。当前版本为 v1.5.5。'}
+  {selector: '.topbar-actions', title: '完成、诊断与再次查看', text: '任务完成后在详情中预览并导出 MP4。任何阶段失败时先查看任务详情和诊断日志；本引导可以随时从“使用引导”重新打开。当前版本为 v1.5.6。'}
 ];
 let guideIndex = 0;
 let guideTarget = null;
@@ -21795,14 +21807,14 @@ document.querySelector('#copy-address').onclick=async()=>{await navigator.clipbo
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>GameNarrator 1.5.5</title>
+  <title>GameNarrator 1.5.6</title>
   <link rel="stylesheet" href="/media-importer.css?v=20260729-10">
   <link rel="stylesheet" href="/app.css?v=20260803-13">
 </head>
 <body>
   <div class="aurora"></div>
   <header class="topbar">
-    <a class="brand" href="/">GAME<span>NARRATOR</span><small class="app-version">v1.5.5</small></a>
+    <a class="brand" href="/">GAME<span>NARRATOR</span><small class="app-version">v1.5.6</small></a>
     <nav class="primary-nav" aria-label="主要功能">
       <a href="/?view=studio" data-view-link="studio">剪辑任务</a>
       <a href="/?view=search" data-view-link="search">镜头搜索</a>
@@ -24154,73 +24166,6 @@ class VideoPipelineEndToEndTest {
 }
 ``
 
-### FILE: src/test/java/cn/longer233/gamenarrator/render/FfmpegVideoRendererEffectTest.java
-
-``java
-package cn.longer233.gamenarrator.render;
-
-import cn.longer233.gamenarrator.effect.EffectPlan;
-import cn.longer233.gamenarrator.effect.SemanticEffectPlanner;
-import cn.longer233.gamenarrator.effect.TransitionType;
-import cn.longer233.gamenarrator.effect.VisualEffectType;
-import cn.longer233.gamenarrator.timeline.TimelineSegment;
-import cn.longer233.gamenarrator.subtitle.AssSubtitleBuilder;
-import cn.longer233.gamenarrator.audio.ProceduralSoundEffectLibrary;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import org.junit.jupiter.api.Test;
-
-import java.util.List;
-import java.nio.file.Path;
-
-import static org.assertj.core.api.Assertions.assertThat;
-
-class FfmpegVideoRendererEffectTest {
-    private final FfmpegVideoRenderer renderer = new FfmpegVideoRenderer(
-            new ObjectMapper(), new SemanticEffectPlanner(), new AssSubtitleBuilder(),
-            new ProceduralSoundEffectLibrary(), org.mockito.Mockito.mock(RenderAssetResolver.class),
-            "ffmpeg", "libx264");
-
-    @Test
-    void buildsStableFiltersForImpactAndCinemaEffects() {
-        TimelineSegment segment = new TimelineSegment(1, 0, 12, 3, 15,
-                "最后一击", "最后一击", "高燃冲击", "voice.wav", 2, false);
-        EffectPlan plan = new EffectPlan(List.of(
-                VisualEffectType.ZOOM_PUNCH,
-                VisualEffectType.WHITE_FLASH,
-                VisualEffectType.CINEMA_BARS), TransitionType.ANIME_IMPACT, "test");
-
-        String filter = renderer.buildVideoFilter(segment, plan);
-
-        assertThat(filter).contains("crop=1920:1080", "color=white", "drawbox", "format=yuv420p");
-    }
-
-    @Test
-    void buildsCutoutStoryboardOverlayAtRequestedPosition() {
-        TimelineSegment segment = new TimelineSegment(1, 0, 12, 3, 15,
-                "narration", "subtitle", "impact", "voice.wav", 2, false);
-        var asset = new RenderAssetResolver.RenderAsset(1, "VIDEO", "OVERLAY", "BOTTOM_RIGHT",
-                true, Path.of("overlay.webm"), "overlay");
-
-        String graph = renderer.buildStoryboardVideoFilter(segment,
-                new EffectPlan(List.of(), TransitionType.HARD_CUT, "test"), null, List.of(asset), 1);
-
-        assertThat(graph).contains("chromakey=0x00FF00", "overlay=W-w-40:H-h-40", "[vout]");
-    }
-
-    @Test
-    void buildsFiltersForCommonPremiereStyleEffects() {
-        TimelineSegment segment = new TimelineSegment(1, 0, 8, 0, 8,
-                "回忆故障", "回忆故障", "梦境故障", "voice.wav", 2, false);
-        EffectPlan plan = new EffectPlan(List.of(VisualEffectType.GAUSSIAN_BLUR,
-                VisualEffectType.VIGNETTE,VisualEffectType.COOL_TONE,VisualEffectType.RGB_SPLIT,
-                VisualEffectType.PIXELATE,VisualEffectType.LENS_DISTORTION),TransitionType.DISSOLVE,"test");
-        String filter=renderer.buildVideoFilter(segment,plan);
-        assertThat(filter).contains("gblur=","vignette=","colorbalance=","rgbashift=",
-                "flags=neighbor","lenscorrection=","fade=t=in");
-    }
-}
-``
-
 ### FILE: src/test/java/cn/longer233/gamenarrator/render/RenderPreviewServiceTest.java
 
 ``java
@@ -24267,6 +24212,63 @@ class RenderPreviewServiceTest {
             assertThat(frame.imageUrl()).endsWith("/render-preview/1");
         });
         assertThat(service.frame(taskId, 1)).isEqualTo(preview.resolve("frame-001.jpg").toAbsolutePath().normalize());
+    }
+}
+``
+
+### FILE: src/test/java/cn/longer233/gamenarrator/render/RenderVideoFilterBuilderTest.java
+
+``java
+package cn.longer233.gamenarrator.render;
+
+import cn.longer233.gamenarrator.effect.EffectPlan;
+import cn.longer233.gamenarrator.effect.TransitionType;
+import cn.longer233.gamenarrator.effect.VisualEffectType;
+import cn.longer233.gamenarrator.timeline.TimelineSegment;
+import org.junit.jupiter.api.Test;
+
+import java.nio.file.Path;
+import java.util.List;
+
+import static org.assertj.core.api.Assertions.assertThat;
+
+class RenderVideoFilterBuilderTest {
+    private final RenderVideoFilterBuilder filterBuilder = new RenderVideoFilterBuilder();
+
+    @Test
+    void buildsStableFiltersForImpactAndCinemaEffects() {
+        TimelineSegment segment = new TimelineSegment(1, 0, 12, 3, 15,
+                "最后一击", "最后一击", "高燃冲击", "voice.wav", 2, false);
+        EffectPlan plan = new EffectPlan(List.of(VisualEffectType.ZOOM_PUNCH,
+                VisualEffectType.WHITE_FLASH, VisualEffectType.CINEMA_BARS), TransitionType.ANIME_IMPACT, "test");
+
+        assertThat(filterBuilder.video(segment, plan))
+                .contains("crop=1920:1080", "color=white", "drawbox", "format=yuv420p");
+    }
+
+    @Test
+    void buildsCutoutStoryboardOverlayAtRequestedPosition() {
+        TimelineSegment segment = new TimelineSegment(1, 0, 12, 3, 15,
+                "narration", "subtitle", "impact", "voice.wav", 2, false);
+        var asset = new RenderAssetResolver.RenderAsset(1, "VIDEO", "OVERLAY", "BOTTOM_RIGHT",
+                true, Path.of("overlay.webm"), "overlay");
+
+        String graph = filterBuilder.storyboard(segment,
+                new EffectPlan(List.of(), TransitionType.HARD_CUT, "test"), null, List.of(asset), 1);
+
+        assertThat(graph).contains("chromakey=0x00FF00", "overlay=W-w-40:H-h-40", "[vout]");
+    }
+
+    @Test
+    void buildsFiltersForCommonPremiereStyleEffects() {
+        TimelineSegment segment = new TimelineSegment(1, 0, 8, 0, 8,
+                "回忆故障", "回忆故障", "梦境故障", "voice.wav", 2, false);
+        EffectPlan plan = new EffectPlan(List.of(VisualEffectType.GAUSSIAN_BLUR,
+                VisualEffectType.VIGNETTE, VisualEffectType.COOL_TONE, VisualEffectType.RGB_SPLIT,
+                VisualEffectType.PIXELATE, VisualEffectType.LENS_DISTORTION), TransitionType.DISSOLVE, "test");
+
+        assertThat(filterBuilder.video(segment, plan)).contains("gblur=", "vignette=", "colorbalance=",
+                "rgbashift=", "flags=neighbor", "lenscorrection=", "fade=t=in");
     }
 }
 ``

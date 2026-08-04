@@ -91,6 +91,12 @@
 - Platform reference title cleanup, Bilibili BV parsing, metadata lookup, and network-failure fallback now live in a dedicated `PlatformAssetMetadataResolver`.
 - `AssetCatalogService` retains transaction, catalog persistence, and tag-assignment ownership, so public APIs and stored data remain compatible while the large service is split gradually.
 - Renderer extraction and the remaining asset discovery/import responsibilities are still follow-up refactors; this pass does not claim the full P2 service split complete.
+
+## 2026-08-04 render filter boundary pass
+
+- Deterministic FFmpeg video-filter and storyboard-overlay graph construction now lives in `RenderVideoFilterBuilder`.
+- `FfmpegVideoRenderer` retains render orchestration, encoder fallback, process execution, preview generation, and audio/subtitle composition; generated filter behavior remains covered by focused tests and the real pipeline test.
+- Command execution and audio-mix graph extraction remain follow-up refactors, so renderer decomposition is intentionally incremental rather than represented as complete.
 # 1.0.1 内存优化记录
 
 - 截图镜头搜索在调用 `MultipartFile.getBytes()` 前检查可配置大小上限，避免超大上传产生第二份堆内存副本。
