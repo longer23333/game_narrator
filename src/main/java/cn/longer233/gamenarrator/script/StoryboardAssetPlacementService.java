@@ -133,14 +133,14 @@ public class StoryboardAssetPlacementService {
         }
         List<StoryboardAssetPlacementView> result = list(taskId);
         if (result.size() == initialCount && result.isEmpty()) warnings.add("没有找到许可允许自动使用且可下载的匹配素材");
-        return new AutoAssetAssignmentView(Math.max(0, result.size() - initialCount), true,
+        return new AutoAssetAssignmentView(Math.max(0, result.size() - initialCount), false,
                 warnings.stream().distinct().limit(12).toList(), result);
     }
 
     public AutoAssetAssignmentView autoAssignIfEmpty(UUID taskId) {
         List<StoryboardAssetPlacementView> current = list(taskId);
         return current.isEmpty() ? autoAssign(taskId)
-                : new AutoAssetAssignmentView(current.size(), true, List.of(), current);
+                : new AutoAssetAssignmentView(current.size(), false, List.of(), current);
     }
 
     private AssetView findOrDownload(String query, List<String> types, Set<UUID> used, List<String> warnings) {
@@ -157,10 +157,10 @@ public class StoryboardAssetPlacementService {
                     for (AssetView candidate : found) {
                         if (used.contains(candidate.id())) continue;
                         try { return "DOWNLOADED".equals(candidate.importStatus()) ? candidate : assets.download(candidate.id()); }
-                        catch (Exception exception) { warnings.add(type + "/" + provider + "：" + concise(exception.getMessage())); }
+                        catch (Exception exception) { warnings.add(providerWarning(type, provider, exception)); }
                     }
                 } catch (Exception exception) {
-                    warnings.add(type + "/" + provider + "：" + concise(exception.getMessage()));
+                    warnings.add(providerWarning(type, provider, exception));
                 }
             }
         }
@@ -181,12 +181,18 @@ public class StoryboardAssetPlacementService {
                 .mapToInt(String::length).sum();
     }
 
-    private List<String> providersFor(String type) {
-        return switch (type) {
+    List<String> providersFor(String type) {
+        List<String> preferred = switch (type) {
             case "VIDEO" -> List.of("PEXELS", "PIXABAY", "WIKIMEDIA");
             case "MEME" -> List.of("OPENVERSE", "WIKIMEDIA");
             default -> List.of("OPENVERSE", "PIXABAY");
         };
+        return preferred.stream().filter(provider -> assets.supportsProvider(provider, type)).toList();
+    }
+
+    private String providerWarning(String type, String provider, Exception exception) {
+        if ("WIKIMEDIA".equals(provider)) return type + "/WIKIMEDIA：暂时无法连接，已自动跳过";
+        return type + "/" + provider + "：" + concise(exception.getMessage());
     }
 
     private String concise(String message) {

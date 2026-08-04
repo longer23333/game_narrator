@@ -164,6 +164,18 @@ public class AssetCatalogService {
                 || provider.equalsIgnoreCase(requestedProvider);
     }
 
+    public boolean supportsProvider(String provider, String assetType) {
+        if (provider == null || assetType == null) return false;
+        return switch (provider.toUpperCase(Locale.ROOT)) {
+            case "OPENVERSE" -> openverse.supports(assetType);
+            case "WIKIMEDIA" -> wikimedia.supports(assetType);
+            case "BILIBILI" -> bilibili.supports(assetType);
+            case "PEXELS" -> pexels.supports(assetType);
+            case "PIXABAY" -> pixabay.supports(assetType);
+            default -> false;
+        };
+    }
+
     private void requireConfiguredProvider(AssetSearchRequest request) {
         if ("PEXELS".equalsIgnoreCase(request.provider()) && !pexels.configured()) {
             throw new IllegalStateException("Pexels 搜索尚未配置：请设置 PEXELS_API_KEY");

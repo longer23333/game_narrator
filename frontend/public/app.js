@@ -927,7 +927,11 @@ async function handleStoryboardAction(button) {
     if (button.dataset.storyboardAction === 'auto-assets') {
       const result = await requestJson(`/api/tasks/${taskId}/storyboard/assets/auto`, {method:'POST'});
       const warning = result.warnings?.length ? `；部分来源不可用：${result.warnings.slice(0,3).join('；')}` : '';
-      window.alert(`已自动挂载 ${result.assignedCount} 项素材。Bilibili 素材需要先登录${warning}`);
+      const bilibili = result.bilibiliLoginRequired ? '；如需使用 Bilibili 素材，请先登录' : '';
+      const outcome = result.assignedCount > 0
+        ? `已自动挂载 ${result.assignedCount} 项素材`
+        : '当前没有找到符合授权及匹配条件的可用素材';
+      window.alert(`${outcome}${bilibili}${warning}`);
       await loadStoryboardEditor(taskId); return;
     }
     if (button.dataset.storyboardAction === 'asset-remove') {

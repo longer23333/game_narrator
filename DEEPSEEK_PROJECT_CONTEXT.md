@@ -1,7 +1,7 @@
 # GameNarrator — DeepSeek 项目上下文包
 
-> 自动生成时间：2026-08-04 10:11:03 +08:00
-> 文件数量：259。本文件由 scripts/export-deepseek-context.ps1 生成，请勿手工维护生成区。
+> 自动生成时间：2026-08-04 10:16:28 +08:00
+> 文件数量：260。本文件由 scripts/export-deepseek-context.ps1 生成，请勿手工维护生成区。
 
 ## 给 DeepSeek 的强制工作规则
 
@@ -50,7 +50,7 @@
 - `src/main/java/cn/longer233/gamenarrator/ai/AiUsageService.java`（3835 bytes）
 - `src/main/java/cn/longer233/gamenarrator/asset/AiAssetTagger.java`（8162 bytes）
 - `src/main/java/cn/longer233/gamenarrator/asset/AssetCatalogController.java`（10684 bytes）
-- `src/main/java/cn/longer233/gamenarrator/asset/AssetCatalogService.java`（60844 bytes）
+- `src/main/java/cn/longer233/gamenarrator/asset/AssetCatalogService.java`（61393 bytes）
 - `src/main/java/cn/longer233/gamenarrator/asset/AssetDerivativeRequest.java`（294 bytes）
 - `src/main/java/cn/longer233/gamenarrator/asset/AssetLibraryProperties.java`（5166 bytes）
 - `src/main/java/cn/longer233/gamenarrator/asset/AssetReferenceRequest.java`（833 bytes）
@@ -154,7 +154,7 @@
 - `src/main/java/cn/longer233/gamenarrator/script/ScriptSegment.java`（233 bytes）
 - `src/main/java/cn/longer233/gamenarrator/script/ScriptWorkspaceController.java`（5598 bytes）
 - `src/main/java/cn/longer233/gamenarrator/script/ScriptWorkspaceService.java`（19106 bytes）
-- `src/main/java/cn/longer233/gamenarrator/script/StoryboardAssetPlacementService.java`（13313 bytes）
+- `src/main/java/cn/longer233/gamenarrator/script/StoryboardAssetPlacementService.java`（13671 bytes）
 - `src/main/java/cn/longer233/gamenarrator/script/StoryboardAssetPlacementView.java`（330 bytes）
 - `src/main/java/cn/longer233/gamenarrator/script/StoryboardSegmentView.java`（305 bytes）
 - `src/main/java/cn/longer233/gamenarrator/script/StoryboardView.java`（236 bytes）
@@ -233,7 +233,7 @@
 - `src/main/resources/db/migration/V8__video_segment_semantic_index.sql`（634 bytes）
 - `src/main/resources/db/migration/V9__video_segment_image_hash.sql`（152 bytes）
 - `src/main/resources/static/app.css`（45571 bytes）
-- `src/main/resources/static/app.js`（74799 bytes）
+- `src/main/resources/static/app.js`（75030 bytes）
 - `src/main/resources/static/asset-library.js`（39551 bytes）
 - `src/main/resources/static/diagnostics.js`（1673 bytes）
 - `src/main/resources/static/export.js`（9227 bytes）
@@ -269,6 +269,7 @@
 - `src/test/java/cn/longer233/gamenarrator/render/FfmpegVideoRendererEffectTest.java`（2999 bytes）
 - `src/test/java/cn/longer233/gamenarrator/script/OllamaScriptGeneratorTest.java`（2300 bytes）
 - `src/test/java/cn/longer233/gamenarrator/script/ScriptWorkspaceServiceTest.java`（5023 bytes）
+- `src/test/java/cn/longer233/gamenarrator/script/StoryboardAssetPlacementServiceTest.java`（918 bytes）
 - `src/test/java/cn/longer233/gamenarrator/subtitle/AssSubtitleBuilderTest.java`（771 bytes）
 - `src/test/java/cn/longer233/gamenarrator/task/DatabaseMigrationTest.java`（4843 bytes）
 - `src/test/java/cn/longer233/gamenarrator/task/domain/VideoTaskTest.java`（4664 bytes）
@@ -3593,6 +3594,18 @@ public class AssetCatalogService {
     private boolean providerSelected(String requestedProvider, String provider) {
         return requestedProvider == null || requestedProvider.isBlank()
                 || provider.equalsIgnoreCase(requestedProvider);
+    }
+
+    public boolean supportsProvider(String provider, String assetType) {
+        if (provider == null || assetType == null) return false;
+        return switch (provider.toUpperCase(Locale.ROOT)) {
+            case "OPENVERSE" -> openverse.supports(assetType);
+            case "WIKIMEDIA" -> wikimedia.supports(assetType);
+            case "BILIBILI" -> bilibili.supports(assetType);
+            case "PEXELS" -> pexels.supports(assetType);
+            case "PIXABAY" -> pixabay.supports(assetType);
+            default -> false;
+        };
     }
 
     private void requireConfiguredProvider(AssetSearchRequest request) {
@@ -13216,14 +13229,14 @@ public class StoryboardAssetPlacementService {
         }
         List<StoryboardAssetPlacementView> result = list(taskId);
         if (result.size() == initialCount && result.isEmpty()) warnings.add("没有找到许可允许自动使用且可下载的匹配素材");
-        return new AutoAssetAssignmentView(Math.max(0, result.size() - initialCount), true,
+        return new AutoAssetAssignmentView(Math.max(0, result.size() - initialCount), false,
                 warnings.stream().distinct().limit(12).toList(), result);
     }
 
     public AutoAssetAssignmentView autoAssignIfEmpty(UUID taskId) {
         List<StoryboardAssetPlacementView> current = list(taskId);
         return current.isEmpty() ? autoAssign(taskId)
-                : new AutoAssetAssignmentView(current.size(), true, List.of(), current);
+                : new AutoAssetAssignmentView(current.size(), false, List.of(), current);
     }
 
     private AssetView findOrDownload(String query, List<String> types, Set<UUID> used, List<String> warnings) {
@@ -13240,10 +13253,10 @@ public class StoryboardAssetPlacementService {
                     for (AssetView candidate : found) {
                         if (used.contains(candidate.id())) continue;
                         try { return "DOWNLOADED".equals(candidate.importStatus()) ? candidate : assets.download(candidate.id()); }
-                        catch (Exception exception) { warnings.add(type + "/" + provider + "：" + concise(exception.getMessage())); }
+                        catch (Exception exception) { warnings.add(providerWarning(type, provider, exception)); }
                     }
                 } catch (Exception exception) {
-                    warnings.add(type + "/" + provider + "：" + concise(exception.getMessage()));
+                    warnings.add(providerWarning(type, provider, exception));
                 }
             }
         }
@@ -13264,12 +13277,18 @@ public class StoryboardAssetPlacementService {
                 .mapToInt(String::length).sum();
     }
 
-    private List<String> providersFor(String type) {
-        return switch (type) {
+    List<String> providersFor(String type) {
+        List<String> preferred = switch (type) {
             case "VIDEO" -> List.of("PEXELS", "PIXABAY", "WIKIMEDIA");
             case "MEME" -> List.of("OPENVERSE", "WIKIMEDIA");
             default -> List.of("OPENVERSE", "PIXABAY");
         };
+        return preferred.stream().filter(provider -> assets.supportsProvider(provider, type)).toList();
+    }
+
+    private String providerWarning(String type, String provider, Exception exception) {
+        if ("WIKIMEDIA".equals(provider)) return type + "/WIKIMEDIA：暂时无法连接，已自动跳过";
+        return type + "/" + provider + "：" + concise(exception.getMessage());
     }
 
     private String concise(String message) {
@@ -18947,7 +18966,11 @@ async function handleStoryboardAction(button) {
     if (button.dataset.storyboardAction === 'auto-assets') {
       const result = await requestJson(`/api/tasks/${taskId}/storyboard/assets/auto`, {method:'POST'});
       const warning = result.warnings?.length ? `；部分来源不可用：${result.warnings.slice(0,3).join('；')}` : '';
-      window.alert(`已自动挂载 ${result.assignedCount} 项素材。Bilibili 素材需要先登录${warning}`);
+      const bilibili = result.bilibiliLoginRequired ? '；如需使用 Bilibili 素材，请先登录' : '';
+      const outcome = result.assignedCount > 0
+        ? `已自动挂载 ${result.assignedCount} 项素材`
+        : '当前没有找到符合授权及匹配条件的可用素材';
+      window.alert(`${outcome}${bilibili}${warning}`);
       await loadStoryboardEditor(taskId); return;
     }
     if (button.dataset.storyboardAction === 'asset-remove') {
@@ -22384,6 +22407,34 @@ class ScriptWorkspaceServiceTest {
         return task.getStages().stream()
                 .filter(item -> item.getStageType() == type)
                 .findFirst().orElseThrow().getStatus();
+    }
+}
+``
+
+### FILE: src/test/java/cn/longer233/gamenarrator/script/StoryboardAssetPlacementServiceTest.java
+
+``java
+package cn.longer233.gamenarrator.script;
+
+import cn.longer233.gamenarrator.asset.AssetCatalogService;
+import org.junit.jupiter.api.Test;
+
+import java.util.List;
+
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
+
+class StoryboardAssetPlacementServiceTest {
+    @Test
+    void skipsOptionalProvidersThatAreNotConfigured() {
+        AssetCatalogService assets = mock(AssetCatalogService.class);
+        when(assets.supportsProvider("PEXELS", "VIDEO")).thenReturn(false);
+        when(assets.supportsProvider("PIXABAY", "VIDEO")).thenReturn(false);
+        when(assets.supportsProvider("WIKIMEDIA", "VIDEO")).thenReturn(true);
+        StoryboardAssetPlacementService service = new StoryboardAssetPlacementService(null, null, assets, null);
+
+        assertThat(service.providersFor("VIDEO")).isEqualTo(List.of("WIKIMEDIA"));
     }
 }
 ``
