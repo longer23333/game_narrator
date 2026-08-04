@@ -283,6 +283,8 @@
       message.textContent = "项目已创建，下载进度会实时显示在任务列表中。";
       try {
         const duration = Math.max(15, Math.min(3600, Math.round(resolvedMedia?.durationSeconds || 90)));
+        const taskOptionsForm = document.querySelector('#task-form');
+        const enabled = name => Boolean(taskOptionsForm?.elements[name]?.checked);
         const project = await request("/api/media-import/projects", {
           media:{url:resolvedUrl,formatId:selectedFormat,subtitles:document.querySelector("#media-subtitles").checked,
             addToLibrary:document.querySelector("#media-add-library").checked,rightsConfirmed:true,
@@ -290,8 +292,10 @@
             thumbnail:resolvedMedia?.thumbnail || null,durationSeconds:resolvedMedia?.durationSeconds || null,tags:libraryTags()},
           name:resolvedMedia?.title || "平台视频项目",gameCategory:"其他",commentaryStyle:"HUMOROUS",
           targetDurationSeconds:duration,editingScope:"HIGHLIGHTS",taskBrief:"提取时间线并生成精彩片段合集",
-          terminologyGlossary:"",storyboardReviewEnabled:true,automaticGenerationEnabled:true,
-          cloudVisionEnabled:true,aiScriptEnabled:true,aiVoiceEnabled:true,autoAssetsEnabled:true
+          terminologyGlossary:"",storyboardReviewEnabled:enabled('storyboardReviewEnabled'),
+          automaticGenerationEnabled:enabled('automaticGenerationEnabled'),
+          cloudVisionEnabled:enabled('cloudVisionEnabled'),aiScriptEnabled:enabled('aiScriptEnabled'),
+          aiVoiceEnabled:enabled('aiVoiceEnabled'),autoAssetsEnabled:enabled('autoAssetsEnabled')
         });
         message.textContent = `项目“${project.name}”正在下载，可在任务页实时查看。`;
         document.querySelector('[data-nav-page="tasks"]')?.click();

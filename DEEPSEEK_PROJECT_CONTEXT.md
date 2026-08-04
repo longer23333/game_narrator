@@ -1,6 +1,6 @@
 # GameNarrator — DeepSeek 项目上下文包
 
-> 自动生成时间：2026-08-04 10:59:00 +08:00
+> 自动生成时间：2026-08-04 11:06:50 +08:00
 > 文件数量：260。本文件由 scripts/export-deepseek-context.ps1 生成，请勿手工维护生成区。
 
 ## 给 DeepSeek 的强制工作规则
@@ -180,7 +180,7 @@
 - `src/main/java/cn/longer233/gamenarrator/task/domain/VideoTask.java`（22301 bytes）
 - `src/main/java/cn/longer233/gamenarrator/task/repository/VideoTaskRepository.java`（505 bytes）
 - `src/main/java/cn/longer233/gamenarrator/task/web/TaskEventStreamService.java`（1895 bytes）
-- `src/main/java/cn/longer233/gamenarrator/task/web/VideoTaskController.java`（6655 bytes）
+- `src/main/java/cn/longer233/gamenarrator/task/web/VideoTaskController.java`（6659 bytes）
 - `src/main/java/cn/longer233/gamenarrator/timeline/TimelinePlanner.java`（4735 bytes）
 - `src/main/java/cn/longer233/gamenarrator/timeline/TimelinePlanningResult.java`（246 bytes）
 - `src/main/java/cn/longer233/gamenarrator/timeline/TimelineSegment.java`（410 bytes）
@@ -232,15 +232,15 @@
 - `src/main/resources/db/migration/V7__storyboard_review.sql`（207 bytes）
 - `src/main/resources/db/migration/V8__video_segment_semantic_index.sql`（634 bytes）
 - `src/main/resources/db/migration/V9__video_segment_image_hash.sql`（152 bytes）
-- `src/main/resources/static/app.css`（55118 bytes）
-- `src/main/resources/static/app.js`（77281 bytes）
+- `src/main/resources/static/app.css`（55413 bytes）
+- `src/main/resources/static/app.js`（77754 bytes）
 - `src/main/resources/static/asset-library.js`（39551 bytes）
 - `src/main/resources/static/diagnostics.js`（1673 bytes）
 - `src/main/resources/static/export.js`（9227 bytes）
 - `src/main/resources/static/extension-install.html`（3410 bytes）
 - `src/main/resources/static/index.html`（23426 bytes）
 - `src/main/resources/static/media-importer.css`（4474 bytes）
-- `src/main/resources/static/media-importer.js`（23963 bytes）
+- `src/main/resources/static/media-importer.js`（24293 bytes）
 - `src/test/java/cn/longer233/gamenarrator/ai/AdaptiveAiChatClientTest.java`（1725 bytes）
 - `src/test/java/cn/longer233/gamenarrator/ai/AiUsageServiceTest.java`（1164 bytes）
 - `src/test/java/cn/longer233/gamenarrator/asset/AiAssetTaggerTest.java`（2432 bytes）
@@ -273,7 +273,7 @@
 - `src/test/java/cn/longer233/gamenarrator/subtitle/AssSubtitleBuilderTest.java`（771 bytes）
 - `src/test/java/cn/longer233/gamenarrator/task/DatabaseMigrationTest.java`（4843 bytes）
 - `src/test/java/cn/longer233/gamenarrator/task/domain/VideoTaskTest.java`（4664 bytes）
-- `src/test/java/cn/longer233/gamenarrator/task/web/VideoTaskControllerTest.java`（12121 bytes）
+- `src/test/java/cn/longer233/gamenarrator/task/web/VideoTaskControllerTest.java`（12409 bytes）
 - `src/test/java/cn/longer233/gamenarrator/timeline/TimelinePlannerTest.java`（2442 bytes）
 - `src/test/java/cn/longer233/gamenarrator/timeline/TimelineValidatorTest.java`（1515 bytes）
 - `src/test/java/cn/longer233/gamenarrator/transcription/PlatformSubtitleReaderTest.java`（953 bytes）
@@ -15153,10 +15153,10 @@ public class VideoTaskController {
             @RequestParam(value = "terminologyGlossary", defaultValue = "") String terminologyGlossary,
             @RequestParam(value = "storyboardReviewEnabled", defaultValue = "false") boolean storyboardReviewEnabled,
             @RequestParam(value = "automaticGenerationEnabled", defaultValue = "true") boolean automaticGenerationEnabled,
-            @RequestParam(value = "cloudVisionEnabled", defaultValue = "true") boolean cloudVisionEnabled,
-            @RequestParam(value = "aiScriptEnabled", defaultValue = "true") boolean aiScriptEnabled,
-            @RequestParam(value = "aiVoiceEnabled", defaultValue = "true") boolean aiVoiceEnabled,
-            @RequestParam(value = "autoAssetsEnabled", defaultValue = "true") boolean autoAssetsEnabled,
+            @RequestParam(value = "cloudVisionEnabled", defaultValue = "false") boolean cloudVisionEnabled,
+            @RequestParam(value = "aiScriptEnabled", defaultValue = "false") boolean aiScriptEnabled,
+            @RequestParam(value = "aiVoiceEnabled", defaultValue = "false") boolean aiVoiceEnabled,
+            @RequestParam(value = "autoAssetsEnabled", defaultValue = "false") boolean autoAssetsEnabled,
             @RequestParam("video") MultipartFile video
     ) throws IOException {
         CreateVideoTaskCommand command = new CreateVideoTaskCommand(
@@ -18150,15 +18150,16 @@ button:disabled{color:#4b4b4b;background:#d5d5d5;opacity:1}
 .app-version{margin-left:8px;padding:2px 5px;color:#111;background:var(--yellow);border:2px solid #111;font-size:9px;letter-spacing:0;vertical-align:middle}
 .history-panel{grid-area:history;padding:20px;color:#111;background:#fff;border:4px solid #111;box-shadow:8px 8px 0 #111}
 .create-panel{grid-area:create}.task-panel{grid-area:active}
-.workspace{grid-template-areas:"create active" "history active"}
+.workspace{grid-template-columns:280px minmax(0,1fr) 320px;grid-template-areas:"history create active"}
 .history-panel .section-title{align-items:center;margin-bottom:14px}.history-panel .section-title h2{margin:3px 0;font-size:24px}.history-panel .section-title small{font-size:9px}
-.history-panel .task-list{grid-template-columns:repeat(2,minmax(0,1fr));max-height:none;overflow:visible}
+.history-panel .task-list{grid-template-columns:1fr;max-height:calc(100vh - 190px);overflow:auto}
 .history-panel .task-card{padding:11px;box-shadow:3px 3px 0 #111}
 .task-panel .active-task{display:grid;gap:12px;margin:0;padding:0;border:0}.task-panel .active-task>small{color:#111}.active-task-item{display:grid;gap:8px}
 .task-panel .active-task-card{color:#111;background:var(--green);border:3px solid #111;box-shadow:4px 4px 0 #111}
 .task-panel .active-task-card i,.task-panel .active-task-card em{color:#25352b}
 .task-panel .active-progress{background:#fff;border:2px solid #111}.task-panel .active-progress i{background:var(--violet)}
-@media(max-width:860px){.workspace{grid-template-areas:"create" "active" "history"}.history-panel .task-list{grid-template-columns:1fr}.task-panel{position:static;max-height:none}}
+@media(max-width:1150px){.workspace{grid-template-columns:minmax(0,1fr) 320px;grid-template-areas:"create active" "history active"}.history-panel .task-list{grid-template-columns:repeat(2,minmax(0,1fr));max-height:none;overflow:visible}}
+@media(max-width:860px){.workspace{grid-template-columns:1fr;grid-template-areas:"create" "active" "history"}.history-panel .task-list{grid-template-columns:1fr}.task-panel{position:static;max-height:none}}
 
 /* Page-level contrast normalization for every primary navigation view. */
 .hero h1 span{display:inline-block;padding:0 .08em;color:#fff;background:#111;-webkit-text-stroke:0}
@@ -18383,13 +18384,13 @@ function createTaskCard(task) {
 }
 
 function reconcileTaskCards(tasks) {
-  const activeTasks = tasks.filter(task => !['COMPLETED', 'FAILED', 'CANCELLED'].includes(task.status));
+  const activeTasks = tasks.filter(task => task.status !== 'COMPLETED');
   renderActiveTask(activeTasks);
-  const recentTasks = tasks.filter(task => ['COMPLETED', 'FAILED', 'CANCELLED'].includes(task.status)).slice(0, 8);
+  const recentTasks = tasks.filter(task => task.status === 'COMPLETED').slice(0, 8);
   if (!recentTasks.length) {
     const empty = taskList.querySelector('.empty');
-    if (empty && taskList.children.length === 1) empty.textContent = '还没有任务，上传一段游戏录像开始实验。';
-    else taskList.innerHTML = '<p class="empty">还没有任务，上传一段游戏录像开始实验。</p>';
+    if (empty && taskList.children.length === 1) empty.textContent = '还没有已完成的任务。';
+    else taskList.innerHTML = '<p class="empty">还没有已完成的任务。</p>';
     return;
   }
   taskList.querySelector('.empty')?.remove();
@@ -18474,6 +18475,9 @@ taskForm.addEventListener('submit', async event => {
   event.preventDefault();
   message.textContent = '正在上传并建立任务…';
   const requestBody = new FormData(taskForm);
+  const booleanOptions = ['storyboardReviewEnabled', 'automaticGenerationEnabled', 'cloudVisionEnabled',
+    'aiScriptEnabled', 'aiVoiceEnabled', 'autoAssetsEnabled'];
+  booleanOptions.forEach(name => requestBody.set(name, String(Boolean(taskForm.elements[name]?.checked))));
   const video = requestBody.get('video');
   console.info('[GameNarrator] 创建任务', {
     name: requestBody.get('name'),
@@ -18488,7 +18492,9 @@ taskForm.addEventListener('submit', async event => {
     const createdTask = await createTaskWithProgress(requestBody);
     console.info('[GameNarrator] 任务创建成功', createdTask);
     message.textContent = `任务创建成功：${createdTask.id}。处理引擎已自动启动。`;
+    const selectedOptions = Object.fromEntries(booleanOptions.map(name => [name, taskForm.elements[name]?.checked]));
     taskForm.reset();
+    booleanOptions.forEach(name => { if (taskForm.elements[name]) taskForm.elements[name].checked = selectedOptions[name]; });
     await loadTasks();
   } catch (error) {
     console.error('[GameNarrator] 任务创建失败', error);
@@ -19370,7 +19376,7 @@ const guideSteps = [
   {selector: '.effect-toggle', title: '第 2 步：按需组合 AI 能力', text: '自动流程、云端视觉、AI 文案、AI 配音和自动素材互不绑定。关闭某项不会阻止手动编辑；使用云端服务前请先到“设置”填写 API Key，本地模型则复用已安装的 Ollama、Whisper 与 Piper。'},
   {selector: '.dropzone', title: '第 3 步：上传并开始处理', text: '支持 MP4、MOV、MKV 和 WEBM。创建后请勿关闭正在运行的桌面应用；任务进度会通过实时事件推送，不需要反复刷新页面。'},
   {selector: '.task-panel', title: '第 4 步：右侧跟踪运行任务', text: '运行中的任务固定显示在右侧，包括当前阶段、阶段完成数、处理范围、百分比和九阶段轨迹。点击绿色任务卡可以随时打开详情；任务结束后会自动离开右侧。'},
-  {selector: '.history-panel', title: '第 5 步：从左侧历史继续', text: '完成、失败或取消的任务会进入左侧“最近完成”列表。点击条目可查看诊断原因、生成文件、AI 分析、分镜、文案、时间线和最终视频，也可以重命名或删除。'},
+  {selector: '.history-panel', title: '第 5 步：从最左侧历史继续', text: '只有真正生成完成的任务才会进入页面最左侧“最近完成”列表。处理中、等待检查、失败或取消的任务都留在右侧，避免被误认为已经完成。点击已完成条目可查看生成文件、分镜、文案、时间线和最终视频。'},
   {selector: '.storyboard-review-option', title: '第 6 步：检查分镜再继续', text: '开启分镜检查后，流程会在文案与分镜生成后暂停。进入线性分镜工作台可调整顺序、起止时间、字幕、解说、素材和特效；保存全部修改后再继续配音与渲染。'},
   {selector: '.primary-nav', title: '更多工具入口', text: '“镜头搜索”使用本地语义模型寻找片段；“平台导入”负责下载并创建项目；“素材库”管理授权素材；“设置”管理云端或本地 AI。遇到问题可点击右上角“诊断日志”。'},
   {selector: '.topbar-actions', title: '完成、诊断与再次查看', text: '任务完成后在详情中预览并导出 MP4。任何阶段失败时先查看任务详情和诊断日志；本引导可以随时从“使用引导”重新打开。当前版本为 v0.2.0。'}
@@ -21067,6 +21073,8 @@ document.querySelector('#copy-address').onclick=async()=>{await navigator.clipbo
       message.textContent = "项目已创建，下载进度会实时显示在任务列表中。";
       try {
         const duration = Math.max(15, Math.min(3600, Math.round(resolvedMedia?.durationSeconds || 90)));
+        const taskOptionsForm = document.querySelector('#task-form');
+        const enabled = name => Boolean(taskOptionsForm?.elements[name]?.checked);
         const project = await request("/api/media-import/projects", {
           media:{url:resolvedUrl,formatId:selectedFormat,subtitles:document.querySelector("#media-subtitles").checked,
             addToLibrary:document.querySelector("#media-add-library").checked,rightsConfirmed:true,
@@ -21074,8 +21082,10 @@ document.querySelector('#copy-address').onclick=async()=>{await navigator.clipbo
             thumbnail:resolvedMedia?.thumbnail || null,durationSeconds:resolvedMedia?.durationSeconds || null,tags:libraryTags()},
           name:resolvedMedia?.title || "平台视频项目",gameCategory:"其他",commentaryStyle:"HUMOROUS",
           targetDurationSeconds:duration,editingScope:"HIGHLIGHTS",taskBrief:"提取时间线并生成精彩片段合集",
-          terminologyGlossary:"",storyboardReviewEnabled:true,automaticGenerationEnabled:true,
-          cloudVisionEnabled:true,aiScriptEnabled:true,aiVoiceEnabled:true,autoAssetsEnabled:true
+          terminologyGlossary:"",storyboardReviewEnabled:enabled('storyboardReviewEnabled'),
+          automaticGenerationEnabled:enabled('automaticGenerationEnabled'),
+          cloudVisionEnabled:enabled('cloudVisionEnabled'),aiScriptEnabled:enabled('aiScriptEnabled'),
+          aiVoiceEnabled:enabled('aiVoiceEnabled'),autoAssetsEnabled:enabled('autoAssetsEnabled')
         });
         message.textContent = `项目“${project.name}”正在下载，可在任务页实时查看。`;
         document.querySelector('[data-nav-page="tasks"]')?.click();
@@ -22999,6 +23009,10 @@ class VideoTaskControllerTest {
                 .andExpect(content().contentTypeCompatibleWith("application/json"))
                 .andExpect(jsonPath("$.name").value("Boss 战高光"))
                 .andExpect(jsonPath("$.status").value("READY"))
+                .andExpect(jsonPath("$.cloudVisionEnabled").value(false))
+                .andExpect(jsonPath("$.aiScriptEnabled").value(false))
+                .andExpect(jsonPath("$.aiVoiceEnabled").value(false))
+                .andExpect(jsonPath("$.autoAssetsEnabled").value(false))
                 .andExpect(jsonPath("$.stages.length()").value(9))
                 .andReturn();
 

@@ -193,13 +193,13 @@ function createTaskCard(task) {
 }
 
 function reconcileTaskCards(tasks) {
-  const activeTasks = tasks.filter(task => !['COMPLETED', 'FAILED', 'CANCELLED'].includes(task.status));
+  const activeTasks = tasks.filter(task => task.status !== 'COMPLETED');
   renderActiveTask(activeTasks);
-  const recentTasks = tasks.filter(task => ['COMPLETED', 'FAILED', 'CANCELLED'].includes(task.status)).slice(0, 8);
+  const recentTasks = tasks.filter(task => task.status === 'COMPLETED').slice(0, 8);
   if (!recentTasks.length) {
     const empty = taskList.querySelector('.empty');
-    if (empty && taskList.children.length === 1) empty.textContent = '还没有任务，上传一段游戏录像开始实验。';
-    else taskList.innerHTML = '<p class="empty">还没有任务，上传一段游戏录像开始实验。</p>';
+    if (empty && taskList.children.length === 1) empty.textContent = '还没有已完成的任务。';
+    else taskList.innerHTML = '<p class="empty">还没有已完成的任务。</p>';
     return;
   }
   taskList.querySelector('.empty')?.remove();
@@ -284,6 +284,9 @@ taskForm.addEventListener('submit', async event => {
   event.preventDefault();
   message.textContent = '正在上传并建立任务…';
   const requestBody = new FormData(taskForm);
+  const booleanOptions = ['storyboardReviewEnabled', 'automaticGenerationEnabled', 'cloudVisionEnabled',
+    'aiScriptEnabled', 'aiVoiceEnabled', 'autoAssetsEnabled'];
+  booleanOptions.forEach(name => requestBody.set(name, String(Boolean(taskForm.elements[name]?.checked))));
   const video = requestBody.get('video');
   console.info('[GameNarrator] 创建任务', {
     name: requestBody.get('name'),
@@ -298,7 +301,9 @@ taskForm.addEventListener('submit', async event => {
     const createdTask = await createTaskWithProgress(requestBody);
     console.info('[GameNarrator] 任务创建成功', createdTask);
     message.textContent = `任务创建成功：${createdTask.id}。处理引擎已自动启动。`;
+    const selectedOptions = Object.fromEntries(booleanOptions.map(name => [name, taskForm.elements[name]?.checked]));
     taskForm.reset();
+    booleanOptions.forEach(name => { if (taskForm.elements[name]) taskForm.elements[name].checked = selectedOptions[name]; });
     await loadTasks();
   } catch (error) {
     console.error('[GameNarrator] 任务创建失败', error);
@@ -1180,7 +1185,7 @@ const guideSteps = [
   {selector: '.effect-toggle', title: '第 2 步：按需组合 AI 能力', text: '自动流程、云端视觉、AI 文案、AI 配音和自动素材互不绑定。关闭某项不会阻止手动编辑；使用云端服务前请先到“设置”填写 API Key，本地模型则复用已安装的 Ollama、Whisper 与 Piper。'},
   {selector: '.dropzone', title: '第 3 步：上传并开始处理', text: '支持 MP4、MOV、MKV 和 WEBM。创建后请勿关闭正在运行的桌面应用；任务进度会通过实时事件推送，不需要反复刷新页面。'},
   {selector: '.task-panel', title: '第 4 步：右侧跟踪运行任务', text: '运行中的任务固定显示在右侧，包括当前阶段、阶段完成数、处理范围、百分比和九阶段轨迹。点击绿色任务卡可以随时打开详情；任务结束后会自动离开右侧。'},
-  {selector: '.history-panel', title: '第 5 步：从左侧历史继续', text: '完成、失败或取消的任务会进入左侧“最近完成”列表。点击条目可查看诊断原因、生成文件、AI 分析、分镜、文案、时间线和最终视频，也可以重命名或删除。'},
+  {selector: '.history-panel', title: '第 5 步：从最左侧历史继续', text: '只有真正生成完成的任务才会进入页面最左侧“最近完成”列表。处理中、等待检查、失败或取消的任务都留在右侧，避免被误认为已经完成。点击已完成条目可查看生成文件、分镜、文案、时间线和最终视频。'},
   {selector: '.storyboard-review-option', title: '第 6 步：检查分镜再继续', text: '开启分镜检查后，流程会在文案与分镜生成后暂停。进入线性分镜工作台可调整顺序、起止时间、字幕、解说、素材和特效；保存全部修改后再继续配音与渲染。'},
   {selector: '.primary-nav', title: '更多工具入口', text: '“镜头搜索”使用本地语义模型寻找片段；“平台导入”负责下载并创建项目；“素材库”管理授权素材；“设置”管理云端或本地 AI。遇到问题可点击右上角“诊断日志”。'},
   {selector: '.topbar-actions', title: '完成、诊断与再次查看', text: '任务完成后在详情中预览并导出 MP4。任何阶段失败时先查看任务详情和诊断日志；本引导可以随时从“使用引导”重新打开。当前版本为 v0.2.0。'}

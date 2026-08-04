@@ -115,6 +115,10 @@ class VideoTaskControllerTest {
                 .andExpect(content().contentTypeCompatibleWith("application/json"))
                 .andExpect(jsonPath("$.name").value("Boss 战高光"))
                 .andExpect(jsonPath("$.status").value("READY"))
+                .andExpect(jsonPath("$.cloudVisionEnabled").value(false))
+                .andExpect(jsonPath("$.aiScriptEnabled").value(false))
+                .andExpect(jsonPath("$.aiVoiceEnabled").value(false))
+                .andExpect(jsonPath("$.autoAssetsEnabled").value(false))
                 .andExpect(jsonPath("$.stages.length()").value(9))
                 .andReturn();
 

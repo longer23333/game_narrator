@@ -133,10 +133,10 @@ public class VideoTaskController {
             @RequestParam(value = "terminologyGlossary", defaultValue = "") String terminologyGlossary,
             @RequestParam(value = "storyboardReviewEnabled", defaultValue = "false") boolean storyboardReviewEnabled,
             @RequestParam(value = "automaticGenerationEnabled", defaultValue = "true") boolean automaticGenerationEnabled,
-            @RequestParam(value = "cloudVisionEnabled", defaultValue = "true") boolean cloudVisionEnabled,
-            @RequestParam(value = "aiScriptEnabled", defaultValue = "true") boolean aiScriptEnabled,
-            @RequestParam(value = "aiVoiceEnabled", defaultValue = "true") boolean aiVoiceEnabled,
-            @RequestParam(value = "autoAssetsEnabled", defaultValue = "true") boolean autoAssetsEnabled,
+            @RequestParam(value = "cloudVisionEnabled", defaultValue = "false") boolean cloudVisionEnabled,
+            @RequestParam(value = "aiScriptEnabled", defaultValue = "false") boolean aiScriptEnabled,
+            @RequestParam(value = "aiVoiceEnabled", defaultValue = "false") boolean aiVoiceEnabled,
+            @RequestParam(value = "autoAssetsEnabled", defaultValue = "false") boolean autoAssetsEnabled,
             @RequestParam("video") MultipartFile video
     ) throws IOException {
         CreateVideoTaskCommand command = new CreateVideoTaskCommand(
