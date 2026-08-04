@@ -1,5 +1,6 @@
 package cn.longer233.gamenarrator.asset;
 
+import cn.longer233.gamenarrator.identity.CurrentUserContext;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.springframework.beans.factory.annotation.Value;
@@ -28,7 +29,6 @@ import java.nio.file.StandardCopyOption;
 @Service
 public class AssetCatalogService {
     private static final Logger log = LoggerFactory.getLogger(AssetCatalogService.class);
-    private static final UUID LOCAL_USER = UUID.fromString("00000000-0000-0000-0000-000000000001");
     private static final long MAX_DOWNLOAD_BYTES = 100L * 1024 * 1024;
     private static final long MAX_UPLOAD_BYTES = 500L * 1024 * 1024;
     private final JdbcTemplate jdbc;
@@ -44,6 +44,7 @@ public class AssetCatalogService {
     private final BgeAssetSemanticSearch semanticSearch;
     private final Executor taskExecutor;
     private final SafeRemoteHttpConnector remoteConnector;
+    private final CurrentUserContext currentUser;
     private final Path storageRoot;
     private final String ffmpegCommand;
     private final Set<UUID> localizationQueued = java.util.concurrent.ConcurrentHashMap.newKeySet();
@@ -56,6 +57,7 @@ public class AssetCatalogService {
                                BgeAssetSemanticSearch semanticSearch,
                                @Qualifier("taskExecutor") Executor taskExecutor,
                                SafeRemoteHttpConnector remoteConnector,
+                               CurrentUserContext currentUser,
                                @Value("${game-narrator.storage-root}") String storageRoot,
                                @Value("${game-narrator.ffmpeg-command}") String ffmpegCommand) {
         this.jdbc = jdbc;
@@ -71,6 +73,7 @@ public class AssetCatalogService {
         this.semanticSearch = semanticSearch;
         this.taskExecutor = taskExecutor;
         this.remoteConnector = remoteConnector;
+        this.currentUser = currentUser;
         this.storageRoot = Path.of(storageRoot).toAbsolutePath().normalize();
         this.ffmpegCommand = ffmpegCommand;
     }
@@ -209,7 +212,7 @@ public class AssetCatalogService {
                     if (!value.isBlank()) sourceTags.add(value);
                 });
                 assignTags(id, sourceTags.stream().limit(20).toList(), "SOURCE", 1.0, null);
-                assignTags(id, expansion.chineseTags(), "QUERY", 0.9, LOCAL_USER);
+                assignTags(id, expansion.chineseTags(), "QUERY", 0.9, currentUser.userId());
                 assignTags(id, aiTagger.classifyFast(request.assetType(), item.path("title").asText(), sourceTags),
                         "AI", 0.65, null);
             }
@@ -358,7 +361,7 @@ public class AssetCatalogService {
         List<AssetView> results = jdbc.query(sql, (rs, n) -> find(rs.getObject(1, UUID.class)), type,
                 providerFilter, statusFilter, archived, favorite, favorite,
                 "%" + text + "%", "%" + text + "%", "%" + text + "%", "%" + text + "%",
-                LOCAL_USER, LOCAL_USER, "%" + text + "%");
+                currentUser.userId(), currentUser.userId(), "%" + text + "%");
         scheduleChineseAi(results.stream().map(AssetView::id).toList());
         return results;
     }
@@ -430,7 +433,7 @@ public class AssetCatalogService {
         String metadata;
         try {
             metadata = objectMapper.writeValueAsString(Map.of(
-                    "registeredBy", LOCAL_USER.toString(),
+                    "registeredBy", currentUser.userId().toString(),
                     "sourceUrl", request.sourceUrl(),
                     "platformTags", request.platformTags() == null ? List.of() : request.platformTags()));
         } catch (Exception exception) {
@@ -452,7 +455,7 @@ public class AssetCatalogService {
         if ("BILIBILI".equals(provider)) {
             jdbc.update("DELETE FROM asset_tag_assignment WHERE asset_id=? AND tag_source <> 'USER'", id);
         }
-        assignTags(id, platformTags, tagSource, 1.0, LOCAL_USER);
+        assignTags(id, platformTags, tagSource, 1.0, currentUser.userId());
         assignTags(id, originTags, "AI_ORIGIN", 0.55, null);
         if (repairedBilibiliTitle) {
             jdbc.update("DELETE FROM asset_tag_assignment WHERE asset_id=? AND tag_source IN ('AI','AI_TRANSLATION')", id);
@@ -492,7 +495,7 @@ public class AssetCatalogService {
         String metadata;
         try {
             metadata = objectMapper.writeValueAsString(Map.of(
-                    "registeredBy", LOCAL_USER.toString(),
+                    "registeredBy", currentUser.userId().toString(),
                     "sourceUrl", imported.sourceUrl(),
                     "rightsConfirmed", true,
                     "sizeBytes", Files.size(resolvedPath),
@@ -510,7 +513,7 @@ public class AssetCatalogService {
                 """, id, provider, externalId, "VIDEO", title, imported.creator(), imported.sourceUrl(),
                 preview, "用户确认拥有下载和再创作所需权利", durationMs, resolvedPath.toString(),
                 "DOWNLOADED", metadata, OffsetDateTime.now(), OffsetDateTime.now());
-        assignTags(id, platformTags.stream().limit(20).toList(), "PLATFORM", 1.0, LOCAL_USER);
+        assignTags(id, platformTags.stream().limit(20).toList(), "PLATFORM", 1.0, currentUser.userId());
         assignTags(id, originTags, "AI_ORIGIN", 0.55, null);
         assignTags(id, aiTagger.classify("VIDEO", title, platformTags), "AI", 0.65, null);
         enrichWithChineseAi(List.of(id));
@@ -554,7 +557,8 @@ public class AssetCatalogService {
         List<String> tags = new ArrayList<>(aiTagger.classifyFast(assetType, safeName, List.of("本地上传")));
         tags.add("本地上传");
         if (greenScreen) { tags.add("绿幕"); tags.add("已抠图"); tags.add("主体素材"); }
-        assignTags(id, tags, greenScreen ? "AI" : "USER", greenScreen ? 0.95 : 0.8, greenScreen ? null : LOCAL_USER);
+        assignTags(id, tags, greenScreen ? "AI" : "USER", greenScreen ? 0.95 : 0.8,
+                greenScreen ? null : currentUser.userId());
         return find(id);
     }
 
@@ -643,7 +647,7 @@ public class AssetCatalogService {
         String style = text(task, "COMMENTARY_STYLE");
         if (category != null && !category.isBlank()) tags.add(category);
         if (style != null && !style.isBlank()) tags.add(style);
-        assignTags(assetId, tags, "PROJECT", 1.0, LOCAL_USER);
+        assignTags(assetId, tags, "PROJECT", 1.0, currentUser.userId());
         assignTags(assetId, aiTagger.classifyFast("VIDEO", title, tags), "AI", 0.65, null);
         return find(assetId);
     }
@@ -936,7 +940,7 @@ public class AssetCatalogService {
         jdbc.update("""
                 MERGE INTO asset_tag_override(id,asset_id,tag_id,action,user_id,created_at)
                 KEY(asset_id,tag_id,user_id) VALUES(?,?,?,?,?,?)
-                """, UUID.randomUUID(), assetId, tagId, action, LOCAL_USER, OffsetDateTime.now());
+                """, UUID.randomUUID(), assetId, tagId, action, currentUser.userId(), OffsetDateTime.now());
     }
 
     private List<AssetView.TagView> effectiveTags(UUID assetId) {
@@ -954,7 +958,7 @@ public class AssetCatalogService {
                 ORDER BY user_added DESC,t.display_name
                 """, (rs, n) -> new AssetView.TagView(rs.getString("display_name"),
                 rs.getString("sources") == null ? List.of() : List.of(rs.getString("sources").split(",")),
-                rs.getInt("user_added") == 1), assetId, assetId, LOCAL_USER);
+                rs.getInt("user_added") == 1), assetId, assetId, currentUser.userId());
     }
 
     private UUID ensureTag(String normalized, String display) {

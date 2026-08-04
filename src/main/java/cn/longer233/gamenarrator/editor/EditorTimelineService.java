@@ -1,6 +1,7 @@
 package cn.longer233.gamenarrator.editor;
 
 import cn.longer233.gamenarrator.script.ScriptWorkspaceService;
+import cn.longer233.gamenarrator.identity.CurrentUserContext;
 import cn.longer233.gamenarrator.script.StoryboardSegmentView;
 import cn.longer233.gamenarrator.task.application.TaskNotFoundException;
 import cn.longer233.gamenarrator.task.domain.VideoTask;
@@ -23,15 +24,16 @@ import java.util.*;
 
 @Service
 public class EditorTimelineService {
-    private static final UUID LOCAL_USER = UUID.fromString("00000000-0000-0000-0000-000000000001");
     private final JdbcTemplate jdbc;
     private final ObjectMapper mapper;
     private final VideoTaskRepository tasks;
     private final ScriptWorkspaceService workspace;
+    private final CurrentUserContext currentUser;
 
     public EditorTimelineService(JdbcTemplate jdbc, ObjectMapper mapper, VideoTaskRepository tasks,
-                                 ScriptWorkspaceService workspace) {
+                                 ScriptWorkspaceService workspace, CurrentUserContext currentUser) {
         this.jdbc = jdbc; this.mapper = mapper; this.tasks = tasks; this.workspace = workspace;
+        this.currentUser = currentUser;
     }
 
     @Transactional
@@ -263,7 +265,7 @@ public class EditorTimelineService {
             UUID parent=currentRevision(id), revision=UUID.randomUUID(); String json=mapper.writeValueAsString(manifest);
             Integer no=jdbc.queryForObject("SELECT COALESCE(MAX(revision_no),0)+1 FROM project_revision WHERE project_id=?",Integer.class,id);
             jdbc.update("INSERT INTO project_revision(id,project_id,revision_no,parent_revision_id,created_by,change_type,change_summary,parameter_snapshot_json,manifest_json,manifest_schema_version,manifest_sha256,created_at) VALUES(?,?,?,?,?,?,?,?,?,?,?,?)",
-                    revision,id,no,parent,LOCAL_USER,type,summary,"{}",json,3,HexFormat.of().formatHex(MessageDigest.getInstance("SHA-256").digest(json.getBytes(StandardCharsets.UTF_8))),OffsetDateTime.now());
+                    revision,id,no,parent,currentUser.userId(),type,summary,"{}",json,3,HexFormat.of().formatHex(MessageDigest.getInstance("SHA-256").digest(json.getBytes(StandardCharsets.UTF_8))),OffsetDateTime.now());
             jdbc.update("UPDATE video_project SET current_revision_id=?,updated_at=CURRENT_TIMESTAMP,version=version+1 WHERE id=?",revision,id);
         } catch(Exception e){throw new IllegalStateException("无法保存剪辑版本",e);}
     }

@@ -1,7 +1,7 @@
 # GameNarrator — DeepSeek 项目上下文包
 
-> 自动生成时间：2026-08-04 16:15:22 +08:00
-> 文件数量：278。本文件由 scripts/export-deepseek-context.ps1 生成，请勿手工维护生成区。
+> 自动生成时间：2026-08-04 16:24:06 +08:00
+> 文件数量：281。本文件由 scripts/export-deepseek-context.ps1 生成，请勿手工维护生成区。
 
 ## 给 DeepSeek 的强制工作规则
 
@@ -28,7 +28,7 @@
 - `docs/ARCHITECTURE.md`（2049 bytes）
 - `docs/ASSET_LIBRARY_DESIGN.md`（1697 bytes）
 - `docs/CLIP_COMPILATIONS.md`（702 bytes）
-- `docs/DATABASE_DESIGN.md`（28565 bytes）
+- `docs/DATABASE_DESIGN.md`（28746 bytes）
 - `docs/FRONTEND_DEVELOPMENT.md`（1853 bytes）
 - `docs/MANUAL_EDITOR_PARITY.md`（2680 bytes）
 - `docs/OBSERVABILITY.md`（1109 bytes）
@@ -53,7 +53,7 @@
 - `src/main/java/cn/longer233/gamenarrator/ai/AiUsageService.java`（3835 bytes）
 - `src/main/java/cn/longer233/gamenarrator/asset/AiAssetTagger.java`（8162 bytes）
 - `src/main/java/cn/longer233/gamenarrator/asset/AssetCatalogController.java`（12153 bytes）
-- `src/main/java/cn/longer233/gamenarrator/asset/AssetCatalogService.java`（61393 bytes）
+- `src/main/java/cn/longer233/gamenarrator/asset/AssetCatalogService.java`（61634 bytes）
 - `src/main/java/cn/longer233/gamenarrator/asset/AssetDerivativeRequest.java`（294 bytes）
 - `src/main/java/cn/longer233/gamenarrator/asset/AssetLibraryProperties.java`（5166 bytes）
 - `src/main/java/cn/longer233/gamenarrator/asset/AssetReferenceRequest.java`（833 bytes）
@@ -92,7 +92,7 @@
 - `src/main/java/cn/longer233/gamenarrator/diagnostics/SystemDiagnosticsService.java`（6625 bytes）
 - `src/main/java/cn/longer233/gamenarrator/editor/EditorCommandRequest.java`（294 bytes）
 - `src/main/java/cn/longer233/gamenarrator/editor/EditorTimelineController.java`（931 bytes）
-- `src/main/java/cn/longer233/gamenarrator/editor/EditorTimelineService.java`（18256 bytes）
+- `src/main/java/cn/longer233/gamenarrator/editor/EditorTimelineService.java`（18350 bytes）
 - `src/main/java/cn/longer233/gamenarrator/effect/EffectController.java`（1399 bytes）
 - `src/main/java/cn/longer233/gamenarrator/effect/EffectPlan.java`（196 bytes）
 - `src/main/java/cn/longer233/gamenarrator/effect/EffectPreset.java`（438 bytes）
@@ -113,6 +113,8 @@
 - `src/main/java/cn/longer233/gamenarrator/highlight/HighlightClip.java`（722 bytes）
 - `src/main/java/cn/longer233/gamenarrator/highlight/HighlightSelectionResult.java`（177 bytes）
 - `src/main/java/cn/longer233/gamenarrator/highlight/RuleBasedHighlightSelector.java`（12826 bytes）
+- `src/main/java/cn/longer233/gamenarrator/identity/CurrentUserContext.java`（201 bytes）
+- `src/main/java/cn/longer233/gamenarrator/identity/LocalUserContext.java`（473 bytes）
 - `src/main/java/cn/longer233/gamenarrator/importer/ContentOriginAssessment.java`（148 bytes）
 - `src/main/java/cn/longer233/gamenarrator/importer/MediaDownloadJobService.java`（3029 bytes）
 - `src/main/java/cn/longer233/gamenarrator/importer/MediaDownloadJobView.java`（219 bytes）
@@ -143,8 +145,8 @@
 - `src/main/java/cn/longer233/gamenarrator/pipeline/EngineTaskContext.java`（1224 bytes）
 - `src/main/java/cn/longer233/gamenarrator/pipeline/FailedVisionTaskRepair.java`（2063 bytes）
 - `src/main/java/cn/longer233/gamenarrator/pipeline/PendingTaskRecovery.java`（2188 bytes）
-- `src/main/java/cn/longer233/gamenarrator/pipeline/PipelineRunTracker.java`（5680 bytes）
-- `src/main/java/cn/longer233/gamenarrator/pipeline/ProjectArtifactRegistry.java`（5346 bytes）
+- `src/main/java/cn/longer233/gamenarrator/pipeline/PipelineRunTracker.java`（5774 bytes）
+- `src/main/java/cn/longer233/gamenarrator/pipeline/ProjectArtifactRegistry.java`（5450 bytes）
 - `src/main/java/cn/longer233/gamenarrator/pipeline/TaskWorkflowStateService.java`（13728 bytes）
 - `src/main/java/cn/longer233/gamenarrator/pipeline/VideoTaskEngine.java`（20683 bytes）
 - `src/main/java/cn/longer233/gamenarrator/pipeline/WaitingTaskRetryScheduler.java`（2399 bytes）
@@ -174,7 +176,7 @@
 - `src/main/java/cn/longer233/gamenarrator/storage/VideoStorage.java`（2534 bytes）
 - `src/main/java/cn/longer233/gamenarrator/subtitle/AssSubtitleBuilder.java`（3839 bytes）
 - `src/main/java/cn/longer233/gamenarrator/task/application/CreateVideoTaskCommand.java`（839 bytes）
-- `src/main/java/cn/longer233/gamenarrator/task/application/ProjectHistoryService.java`（3967 bytes）
+- `src/main/java/cn/longer233/gamenarrator/task/application/ProjectHistoryService.java`（4076 bytes）
 - `src/main/java/cn/longer233/gamenarrator/task/application/RenameTaskRequest.java`（222 bytes）
 - `src/main/java/cn/longer233/gamenarrator/task/application/StageView.java`（767 bytes）
 - `src/main/java/cn/longer233/gamenarrator/task/application/TaskNotFoundException.java`（239 bytes）
@@ -273,6 +275,7 @@
 - `src/test/java/cn/longer233/gamenarrator/effect/SemanticEffectPlannerTest.java`（1359 bytes）
 - `src/test/java/cn/longer233/gamenarrator/export/FfmpegProgressParserTest.java`（1550 bytes）
 - `src/test/java/cn/longer233/gamenarrator/highlight/RuleBasedHighlightSelectorTest.java`（5608 bytes）
+- `src/test/java/cn/longer233/gamenarrator/identity/LocalUserContextTest.java`（396 bytes）
 - `src/test/java/cn/longer233/gamenarrator/importer/MediaImportControllerSessionTest.java`（3224 bytes）
 - `src/test/java/cn/longer233/gamenarrator/importer/RemoteThumbnailFetchPolicyTest.java`（1502 bytes）
 - `src/test/java/cn/longer233/gamenarrator/importer/RemoteThumbnailServiceTest.java`（476 bytes）
@@ -320,7 +323,7 @@
 
     <groupId>cn.longer233.graduation</groupId>
     <artifactId>game-narrator</artifactId>
-    <version>1.5.2</version>
+    <version>1.5.3</version>
     <name>GameNarrator</name>
     <description>多模态游戏视频智能解说与自动剪辑系统</description>
 
@@ -767,7 +770,7 @@ erDiagram
 | updated_at | TIMESTAMP | NOT NULL | 修改时间 |
 | last_login_at | TIMESTAMP | NULL | 最近登录时间 |
 
-默认数据：`local-user`。禁止将设备 ID、产品 ID 等硬件隐私作为用户主键。
+默认数据：`local-user`。禁止将设备 ID、产品 ID 等硬件隐私作为用户主键。业务服务通过 `CurrentUserContext` 获取当前用户，不得再写入固定 UUID；当前单机实现为 `LocalUserContext`，未来可替换为已认证的请求上下文。
 
 ### 4.2 `video_project` 视频项目
 
@@ -3577,6 +3580,7 @@ public class AssetCatalogController {
 ``java
 package cn.longer233.gamenarrator.asset;
 
+import cn.longer233.gamenarrator.identity.CurrentUserContext;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.springframework.beans.factory.annotation.Value;
@@ -3605,7 +3609,6 @@ import java.nio.file.StandardCopyOption;
 @Service
 public class AssetCatalogService {
     private static final Logger log = LoggerFactory.getLogger(AssetCatalogService.class);
-    private static final UUID LOCAL_USER = UUID.fromString("00000000-0000-0000-0000-000000000001");
     private static final long MAX_DOWNLOAD_BYTES = 100L * 1024 * 1024;
     private static final long MAX_UPLOAD_BYTES = 500L * 1024 * 1024;
     private final JdbcTemplate jdbc;
@@ -3621,6 +3624,7 @@ public class AssetCatalogService {
     private final BgeAssetSemanticSearch semanticSearch;
     private final Executor taskExecutor;
     private final SafeRemoteHttpConnector remoteConnector;
+    private final CurrentUserContext currentUser;
     private final Path storageRoot;
     private final String ffmpegCommand;
     private final Set<UUID> localizationQueued = java.util.concurrent.ConcurrentHashMap.newKeySet();
@@ -3633,6 +3637,7 @@ public class AssetCatalogService {
                                BgeAssetSemanticSearch semanticSearch,
                                @Qualifier("taskExecutor") Executor taskExecutor,
                                SafeRemoteHttpConnector remoteConnector,
+                               CurrentUserContext currentUser,
                                @Value("${game-narrator.storage-root}") String storageRoot,
                                @Value("${game-narrator.ffmpeg-command}") String ffmpegCommand) {
         this.jdbc = jdbc;
@@ -3648,6 +3653,7 @@ public class AssetCatalogService {
         this.semanticSearch = semanticSearch;
         this.taskExecutor = taskExecutor;
         this.remoteConnector = remoteConnector;
+        this.currentUser = currentUser;
         this.storageRoot = Path.of(storageRoot).toAbsolutePath().normalize();
         this.ffmpegCommand = ffmpegCommand;
     }
@@ -3786,7 +3792,7 @@ public class AssetCatalogService {
                     if (!value.isBlank()) sourceTags.add(value);
                 });
                 assignTags(id, sourceTags.stream().limit(20).toList(), "SOURCE", 1.0, null);
-                assignTags(id, expansion.chineseTags(), "QUERY", 0.9, LOCAL_USER);
+                assignTags(id, expansion.chineseTags(), "QUERY", 0.9, currentUser.userId());
                 assignTags(id, aiTagger.classifyFast(request.assetType(), item.path("title").asText(), sourceTags),
                         "AI", 0.65, null);
             }
@@ -3935,7 +3941,7 @@ public class AssetCatalogService {
         List<AssetView> results = jdbc.query(sql, (rs, n) -> find(rs.getObject(1, UUID.class)), type,
                 providerFilter, statusFilter, archived, favorite, favorite,
                 "%" + text + "%", "%" + text + "%", "%" + text + "%", "%" + text + "%",
-                LOCAL_USER, LOCAL_USER, "%" + text + "%");
+                currentUser.userId(), currentUser.userId(), "%" + text + "%");
         scheduleChineseAi(results.stream().map(AssetView::id).toList());
         return results;
     }
@@ -4007,7 +4013,7 @@ public class AssetCatalogService {
         String metadata;
         try {
             metadata = objectMapper.writeValueAsString(Map.of(
-                    "registeredBy", LOCAL_USER.toString(),
+                    "registeredBy", currentUser.userId().toString(),
                     "sourceUrl", request.sourceUrl(),
                     "platformTags", request.platformTags() == null ? List.of() : request.platformTags()));
         } catch (Exception exception) {
@@ -4029,7 +4035,7 @@ public class AssetCatalogService {
         if ("BILIBILI".equals(provider)) {
             jdbc.update("DELETE FROM asset_tag_assignment WHERE asset_id=? AND tag_source <> 'USER'", id);
         }
-        assignTags(id, platformTags, tagSource, 1.0, LOCAL_USER);
+        assignTags(id, platformTags, tagSource, 1.0, currentUser.userId());
         assignTags(id, originTags, "AI_ORIGIN", 0.55, null);
         if (repairedBilibiliTitle) {
             jdbc.update("DELETE FROM asset_tag_assignment WHERE asset_id=? AND tag_source IN ('AI','AI_TRANSLATION')", id);
@@ -4069,7 +4075,7 @@ public class AssetCatalogService {
         String metadata;
         try {
             metadata = objectMapper.writeValueAsString(Map.of(
-                    "registeredBy", LOCAL_USER.toString(),
+                    "registeredBy", currentUser.userId().toString(),
                     "sourceUrl", imported.sourceUrl(),
                     "rightsConfirmed", true,
                     "sizeBytes", Files.size(resolvedPath),
@@ -4087,7 +4093,7 @@ public class AssetCatalogService {
                 """, id, provider, externalId, "VIDEO", title, imported.creator(), imported.sourceUrl(),
                 preview, "用户确认拥有下载和再创作所需权利", durationMs, resolvedPath.toString(),
                 "DOWNLOADED", metadata, OffsetDateTime.now(), OffsetDateTime.now());
-        assignTags(id, platformTags.stream().limit(20).toList(), "PLATFORM", 1.0, LOCAL_USER);
+        assignTags(id, platformTags.stream().limit(20).toList(), "PLATFORM", 1.0, currentUser.userId());
         assignTags(id, originTags, "AI_ORIGIN", 0.55, null);
         assignTags(id, aiTagger.classify("VIDEO", title, platformTags), "AI", 0.65, null);
         enrichWithChineseAi(List.of(id));
@@ -4131,7 +4137,8 @@ public class AssetCatalogService {
         List<String> tags = new ArrayList<>(aiTagger.classifyFast(assetType, safeName, List.of("本地上传")));
         tags.add("本地上传");
         if (greenScreen) { tags.add("绿幕"); tags.add("已抠图"); tags.add("主体素材"); }
-        assignTags(id, tags, greenScreen ? "AI" : "USER", greenScreen ? 0.95 : 0.8, greenScreen ? null : LOCAL_USER);
+        assignTags(id, tags, greenScreen ? "AI" : "USER", greenScreen ? 0.95 : 0.8,
+                greenScreen ? null : currentUser.userId());
         return find(id);
     }
 
@@ -4220,7 +4227,7 @@ public class AssetCatalogService {
         String style = text(task, "COMMENTARY_STYLE");
         if (category != null && !category.isBlank()) tags.add(category);
         if (style != null && !style.isBlank()) tags.add(style);
-        assignTags(assetId, tags, "PROJECT", 1.0, LOCAL_USER);
+        assignTags(assetId, tags, "PROJECT", 1.0, currentUser.userId());
         assignTags(assetId, aiTagger.classifyFast("VIDEO", title, tags), "AI", 0.65, null);
         return find(assetId);
     }
@@ -4513,7 +4520,7 @@ public class AssetCatalogService {
         jdbc.update("""
                 MERGE INTO asset_tag_override(id,asset_id,tag_id,action,user_id,created_at)
                 KEY(asset_id,tag_id,user_id) VALUES(?,?,?,?,?,?)
-                """, UUID.randomUUID(), assetId, tagId, action, LOCAL_USER, OffsetDateTime.now());
+                """, UUID.randomUUID(), assetId, tagId, action, currentUser.userId(), OffsetDateTime.now());
     }
 
     private List<AssetView.TagView> effectiveTags(UUID assetId) {
@@ -4531,7 +4538,7 @@ public class AssetCatalogService {
                 ORDER BY user_added DESC,t.display_name
                 """, (rs, n) -> new AssetView.TagView(rs.getString("display_name"),
                 rs.getString("sources") == null ? List.of() : List.of(rs.getString("sources").split(",")),
-                rs.getInt("user_added") == 1), assetId, assetId, LOCAL_USER);
+                rs.getInt("user_added") == 1), assetId, assetId, currentUser.userId());
     }
 
     private UUID ensureTag(String normalized, String display) {
@@ -7519,6 +7526,7 @@ public class EditorTimelineController {
 package cn.longer233.gamenarrator.editor;
 
 import cn.longer233.gamenarrator.script.ScriptWorkspaceService;
+import cn.longer233.gamenarrator.identity.CurrentUserContext;
 import cn.longer233.gamenarrator.script.StoryboardSegmentView;
 import cn.longer233.gamenarrator.task.application.TaskNotFoundException;
 import cn.longer233.gamenarrator.task.domain.VideoTask;
@@ -7541,15 +7549,16 @@ import java.util.*;
 
 @Service
 public class EditorTimelineService {
-    private static final UUID LOCAL_USER = UUID.fromString("00000000-0000-0000-0000-000000000001");
     private final JdbcTemplate jdbc;
     private final ObjectMapper mapper;
     private final VideoTaskRepository tasks;
     private final ScriptWorkspaceService workspace;
+    private final CurrentUserContext currentUser;
 
     public EditorTimelineService(JdbcTemplate jdbc, ObjectMapper mapper, VideoTaskRepository tasks,
-                                 ScriptWorkspaceService workspace) {
+                                 ScriptWorkspaceService workspace, CurrentUserContext currentUser) {
         this.jdbc = jdbc; this.mapper = mapper; this.tasks = tasks; this.workspace = workspace;
+        this.currentUser = currentUser;
     }
 
     @Transactional
@@ -7781,7 +7790,7 @@ public class EditorTimelineService {
             UUID parent=currentRevision(id), revision=UUID.randomUUID(); String json=mapper.writeValueAsString(manifest);
             Integer no=jdbc.queryForObject("SELECT COALESCE(MAX(revision_no),0)+1 FROM project_revision WHERE project_id=?",Integer.class,id);
             jdbc.update("INSERT INTO project_revision(id,project_id,revision_no,parent_revision_id,created_by,change_type,change_summary,parameter_snapshot_json,manifest_json,manifest_schema_version,manifest_sha256,created_at) VALUES(?,?,?,?,?,?,?,?,?,?,?,?)",
-                    revision,id,no,parent,LOCAL_USER,type,summary,"{}",json,3,HexFormat.of().formatHex(MessageDigest.getInstance("SHA-256").digest(json.getBytes(StandardCharsets.UTF_8))),OffsetDateTime.now());
+                    revision,id,no,parent,currentUser.userId(),type,summary,"{}",json,3,HexFormat.of().formatHex(MessageDigest.getInstance("SHA-256").digest(json.getBytes(StandardCharsets.UTF_8))),OffsetDateTime.now());
             jdbc.update("UPDATE video_project SET current_revision_id=?,updated_at=CURRENT_TIMESTAMP,version=version+1 WHERE id=?",revision,id);
         } catch(Exception e){throw new IllegalStateException("无法保存剪辑版本",e);}
     }
@@ -9121,6 +9130,40 @@ public class RuleBasedHighlightSelector {
             case "探索" -> 4;
             default -> 0;
         };
+    }
+}
+``
+
+### FILE: src/main/java/cn/longer233/gamenarrator/identity/CurrentUserContext.java
+
+``java
+package cn.longer233.gamenarrator.identity;
+
+import java.util.UUID;
+
+/** Supplies the owner/auditor identity used by application services. */
+public interface CurrentUserContext {
+    UUID userId();
+}
+``
+
+### FILE: src/main/java/cn/longer233/gamenarrator/identity/LocalUserContext.java
+
+``java
+package cn.longer233.gamenarrator.identity;
+
+import org.springframework.stereotype.Component;
+
+import java.util.UUID;
+
+/** Single-machine identity used until an authenticated multi-user context is introduced. */
+@Component
+public final class LocalUserContext implements CurrentUserContext {
+    public static final UUID LOCAL_USER_ID = UUID.fromString("00000000-0000-0000-0000-000000000001");
+
+    @Override
+    public UUID userId() {
+        return LOCAL_USER_ID;
     }
 }
 ``
@@ -11435,6 +11478,7 @@ public class PendingTaskRecovery implements ApplicationRunner {
 ``java
 package cn.longer233.gamenarrator.pipeline;
 
+import cn.longer233.gamenarrator.identity.CurrentUserContext;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Component;
@@ -11447,13 +11491,14 @@ import java.util.UUID;
 /** Mirrors the legacy task state into the versioned run model during the transition period. */
 @Component
 public class PipelineRunTracker {
-    private static final UUID LOCAL_USER = UUID.fromString("00000000-0000-0000-0000-000000000001");
     private final JdbcTemplate jdbc;
     private final ObjectMapper objectMapper;
+    private final CurrentUserContext currentUser;
 
-    public PipelineRunTracker(JdbcTemplate jdbc, ObjectMapper objectMapper) {
+    public PipelineRunTracker(JdbcTemplate jdbc, ObjectMapper objectMapper, CurrentUserContext currentUser) {
         this.jdbc = jdbc;
         this.objectMapper = objectMapper;
+        this.currentUser = currentUser;
     }
 
     public void running(UUID taskId, String stageType) {
@@ -11512,7 +11557,7 @@ public class PipelineRunTracker {
         jdbc.update("""
                 INSERT INTO generation_run(id,project_id,user_id,input_revision_id,run_type,status,
                 trigger_source,started_at,trace_id,created_at) VALUES(?,?,?,?,?,'RUNNING','SYSTEM',?,?,?)
-                """, runId, taskId, LOCAL_USER, revisionId, "FULL_PIPELINE", now(), "task-" + taskId, now());
+                """, runId, taskId, currentUser.userId(), revisionId, "FULL_PIPELINE", now(), "task-" + taskId, now());
         jdbc.update("UPDATE video_project SET latest_run_id=?,status='PROCESSING',updated_at=? WHERE id=?",
                 runId, now(), taskId);
         return runId;
@@ -11562,6 +11607,7 @@ public class PipelineRunTracker {
 ``java
 package cn.longer233.gamenarrator.pipeline;
 
+import cn.longer233.gamenarrator.identity.CurrentUserContext;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import org.springframework.jdbc.core.JdbcTemplate;
@@ -11579,13 +11625,14 @@ import java.io.InputStream;
 /** Records pipeline files in the V2 artifact model and advances the project manifest revision. */
 @Component
 public class ProjectArtifactRegistry {
-    private static final UUID LOCAL_USER = UUID.fromString("00000000-0000-0000-0000-000000000001");
     private final JdbcTemplate jdbc;
     private final ObjectMapper mapper;
+    private final CurrentUserContext currentUser;
 
-    public ProjectArtifactRegistry(JdbcTemplate jdbc, ObjectMapper mapper) {
+    public ProjectArtifactRegistry(JdbcTemplate jdbc, ObjectMapper mapper, CurrentUserContext currentUser) {
         this.jdbc = jdbc;
         this.mapper = mapper;
+        this.currentUser = currentUser;
     }
 
     public void record(UUID projectId, String type, String value, String mimeType, boolean temporary) {
@@ -11617,14 +11664,14 @@ public class ProjectArtifactRegistry {
                     INSERT INTO project_revision(id,project_id,revision_no,parent_revision_id,created_by,change_type,
                     change_summary,parameter_snapshot_json,manifest_json,manifest_schema_version,manifest_sha256,created_at)
                     VALUES(?,?,?,?,?,'PIPELINE_OUTPUT',?,'{}',?,?,?,?)
-                    """, revision, projectId, revisionNo, parent, LOCAL_USER, "记录阶段产物：" + type,
+                    """, revision, projectId, revisionNo, parent, currentUser.userId(), "记录阶段产物：" + type,
                     json, 3, sha256(json.getBytes()), now);
             if (existing.isEmpty()) {
                 jdbc.update("""
                         INSERT INTO artifact(id,owner_id,project_id,revision_id,generation_run_id,artifact_type,storage_key,
                         mime_type,size_bytes,sha256,schema_version,temporary,expires_at,created_at,deleted_at)
                         VALUES(?,?,?,?,?,?,?,?,?,?,?,?,NULL,?,NULL)
-                        """, artifactId, LOCAL_USER, projectId, revision, run, type, storageKey, mimeType,
+                        """, artifactId, currentUser.userId(), projectId, revision, run, type, storageKey, mimeType,
                         Files.size(path), contentHash, 1, temporary, now);
             } else {
                 jdbc.update("""
@@ -14554,6 +14601,7 @@ public record CreateVideoTaskCommand(
 package cn.longer233.gamenarrator.task.application;
 
 import cn.longer233.gamenarrator.task.domain.VideoTask;
+import cn.longer233.gamenarrator.identity.CurrentUserContext;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Service;
@@ -14569,14 +14617,14 @@ import java.util.UUID;
 
 @Service
 public class ProjectHistoryService {
-    static final UUID LOCAL_USER_ID = UUID.fromString("00000000-0000-0000-0000-000000000001");
-
     private final JdbcTemplate jdbc;
     private final ObjectMapper objectMapper;
+    private final CurrentUserContext currentUser;
 
-    public ProjectHistoryService(JdbcTemplate jdbc, ObjectMapper objectMapper) {
+    public ProjectHistoryService(JdbcTemplate jdbc, ObjectMapper objectMapper, CurrentUserContext currentUser) {
         this.jdbc = jdbc;
         this.objectMapper = objectMapper;
+        this.currentUser = currentUser;
     }
 
     public void createInitialHistory(VideoTask task) {
@@ -14602,18 +14650,18 @@ public class ProjectHistoryService {
                 INSERT INTO video_project(id,owner_id,name,description,game_category,
                 commentary_style,status,current_revision_id,latest_run_id,created_at,updated_at,
                 deleted_at,version) VALUES(?,?,?,?,?,?,'DRAFT',NULL,NULL,?,?,NULL,0)
-                """, projectId, LOCAL_USER_ID, task.getName(), task.getTaskBrief(),
+                """, projectId, currentUser.userId(), task.getName(), task.getTaskBrief(),
                 task.getGameCategory(), task.getCommentaryStyle().name(), createdAt, createdAt);
         jdbc.update("""
                 INSERT INTO project_revision(id,project_id,revision_no,parent_revision_id,created_by,
                 change_type,change_summary,parameter_snapshot_json,manifest_json,
                 manifest_schema_version,manifest_sha256,created_at)
                 VALUES(?,?,1,NULL,?,'INITIAL',?,?,?,?,?,?)
-                """, revisionId, projectId, LOCAL_USER_ID, "任务创建时生成的初始工程版本",
+                """, revisionId, projectId, currentUser.userId(), "任务创建时生成的初始工程版本",
                 parameters, manifest, 2, sha256(manifest), createdAt);
         jdbc.update("UPDATE video_project SET current_revision_id=? WHERE id=?", revisionId, projectId);
         jdbc.update("UPDATE video_tasks SET owner_id=?,project_id=? WHERE id=?",
-                LOCAL_USER_ID, projectId, task.getId());
+                currentUser.userId(), projectId, task.getId());
     }
 
     public void renameProject(UUID projectId, String name) {
@@ -20593,7 +20641,7 @@ const guideSteps = [
   {selector: '.history-panel', title: '第 5 步：从最左侧历史继续', text: '只有真正生成完成的任务才会进入页面最左侧“最近完成”列表。处理中、等待检查、失败或取消的任务都留在右侧，避免被误认为已经完成。点击已完成条目可查看生成文件、分镜、文案、时间线和最终视频。'},
   {selector: '.storyboard-review-option', title: '第 6 步：检查分镜再继续', text: '开启分镜检查后，流程会在文案与分镜生成后暂停。进入线性分镜工作台可调整顺序、起止时间、字幕、解说、素材和特效；保存全部修改后再继续配音与渲染。'},
   {selector: '.primary-nav', title: '更多工具入口', text: '“镜头搜索”使用本地语义模型寻找片段；“平台导入”负责下载并创建项目；“素材库”管理授权素材；“设置”管理云端或本地 AI。遇到问题可点击右上角“诊断日志”。'},
-  {selector: '.topbar-actions', title: '完成、诊断与再次查看', text: '任务完成后在详情中预览并导出 MP4。任何阶段失败时先查看任务详情和诊断日志；本引导可以随时从“使用引导”重新打开。当前版本为 v1.5.2。'}
+  {selector: '.topbar-actions', title: '完成、诊断与再次查看', text: '任务完成后在详情中预览并导出 MP4。任何阶段失败时先查看任务详情和诊断日志；本引导可以随时从“使用引导”重新打开。当前版本为 v1.5.3。'}
 ];
 let guideIndex = 0;
 let guideTarget = null;
@@ -21690,14 +21738,14 @@ document.querySelector('#copy-address').onclick=async()=>{await navigator.clipbo
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>GameNarrator 1.5.2</title>
+  <title>GameNarrator 1.5.3</title>
   <link rel="stylesheet" href="/media-importer.css?v=20260729-10">
   <link rel="stylesheet" href="/app.css?v=20260803-13">
 </head>
 <body>
   <div class="aurora"></div>
   <header class="topbar">
-    <a class="brand" href="/">GAME<span>NARRATOR</span><small class="app-version">v1.5.2</small></a>
+    <a class="brand" href="/">GAME<span>NARRATOR</span><small class="app-version">v1.5.3</small></a>
     <nav class="primary-nav" aria-label="主要功能">
       <a href="/?view=studio" data-view-link="studio">剪辑任务</a>
       <a href="/?view=search" data-view-link="search">镜头搜索</a>
@@ -23437,6 +23485,26 @@ class RuleBasedHighlightSelectorTest {
 
     private FrameUnderstanding frame(int index, double time, String event, int score) {
         return new FrameUnderstanding(index, time, "frame.jpg", "description", event, score, "{}");
+    }
+}
+``
+
+### FILE: src/test/java/cn/longer233/gamenarrator/identity/LocalUserContextTest.java
+
+``java
+package cn.longer233.gamenarrator.identity;
+
+import org.junit.jupiter.api.Test;
+
+import java.util.UUID;
+
+import static org.assertj.core.api.Assertions.assertThat;
+
+class LocalUserContextTest {
+    @Test
+    void suppliesTheSeededSingleMachineUser() {
+        assertThat(new LocalUserContext().userId())
+                .isEqualTo(UUID.fromString("00000000-0000-0000-0000-000000000001"));
     }
 }
 ``

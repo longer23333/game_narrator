@@ -93,7 +93,7 @@ erDiagram
 | updated_at | TIMESTAMP | NOT NULL | 修改时间 |
 | last_login_at | TIMESTAMP | NULL | 最近登录时间 |
 
-默认数据：`local-user`。禁止将设备 ID、产品 ID 等硬件隐私作为用户主键。
+默认数据：`local-user`。禁止将设备 ID、产品 ID 等硬件隐私作为用户主键。业务服务通过 `CurrentUserContext` 获取当前用户，不得再写入固定 UUID；当前单机实现为 `LocalUserContext`，未来可替换为已认证的请求上下文。
 
 ### 4.2 `video_project` 视频项目
 

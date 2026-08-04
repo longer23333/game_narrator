@@ -1,5 +1,6 @@
 package cn.longer233.gamenarrator.pipeline;
 
+import cn.longer233.gamenarrator.identity.CurrentUserContext;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import org.springframework.jdbc.core.JdbcTemplate;
@@ -17,13 +18,14 @@ import java.io.InputStream;
 /** Records pipeline files in the V2 artifact model and advances the project manifest revision. */
 @Component
 public class ProjectArtifactRegistry {
-    private static final UUID LOCAL_USER = UUID.fromString("00000000-0000-0000-0000-000000000001");
     private final JdbcTemplate jdbc;
     private final ObjectMapper mapper;
+    private final CurrentUserContext currentUser;
 
-    public ProjectArtifactRegistry(JdbcTemplate jdbc, ObjectMapper mapper) {
+    public ProjectArtifactRegistry(JdbcTemplate jdbc, ObjectMapper mapper, CurrentUserContext currentUser) {
         this.jdbc = jdbc;
         this.mapper = mapper;
+        this.currentUser = currentUser;
     }
 
     public void record(UUID projectId, String type, String value, String mimeType, boolean temporary) {
@@ -55,14 +57,14 @@ public class ProjectArtifactRegistry {
                     INSERT INTO project_revision(id,project_id,revision_no,parent_revision_id,created_by,change_type,
                     change_summary,parameter_snapshot_json,manifest_json,manifest_schema_version,manifest_sha256,created_at)
                     VALUES(?,?,?,?,?,'PIPELINE_OUTPUT',?,'{}',?,?,?,?)
-                    """, revision, projectId, revisionNo, parent, LOCAL_USER, "记录阶段产物：" + type,
+                    """, revision, projectId, revisionNo, parent, currentUser.userId(), "记录阶段产物：" + type,
                     json, 3, sha256(json.getBytes()), now);
             if (existing.isEmpty()) {
                 jdbc.update("""
                         INSERT INTO artifact(id,owner_id,project_id,revision_id,generation_run_id,artifact_type,storage_key,
                         mime_type,size_bytes,sha256,schema_version,temporary,expires_at,created_at,deleted_at)
                         VALUES(?,?,?,?,?,?,?,?,?,?,?,?,NULL,?,NULL)
-                        """, artifactId, LOCAL_USER, projectId, revision, run, type, storageKey, mimeType,
+                        """, artifactId, currentUser.userId(), projectId, revision, run, type, storageKey, mimeType,
                         Files.size(path), contentHash, 1, temporary, now);
             } else {
                 jdbc.update("""

@@ -1,5 +1,6 @@
 package cn.longer233.gamenarrator.pipeline;
 
+import cn.longer233.gamenarrator.identity.CurrentUserContext;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Component;
@@ -12,13 +13,14 @@ import java.util.UUID;
 /** Mirrors the legacy task state into the versioned run model during the transition period. */
 @Component
 public class PipelineRunTracker {
-    private static final UUID LOCAL_USER = UUID.fromString("00000000-0000-0000-0000-000000000001");
     private final JdbcTemplate jdbc;
     private final ObjectMapper objectMapper;
+    private final CurrentUserContext currentUser;
 
-    public PipelineRunTracker(JdbcTemplate jdbc, ObjectMapper objectMapper) {
+    public PipelineRunTracker(JdbcTemplate jdbc, ObjectMapper objectMapper, CurrentUserContext currentUser) {
         this.jdbc = jdbc;
         this.objectMapper = objectMapper;
+        this.currentUser = currentUser;
     }
 
     public void running(UUID taskId, String stageType) {
@@ -77,7 +79,7 @@ public class PipelineRunTracker {
         jdbc.update("""
                 INSERT INTO generation_run(id,project_id,user_id,input_revision_id,run_type,status,
                 trigger_source,started_at,trace_id,created_at) VALUES(?,?,?,?,?,'RUNNING','SYSTEM',?,?,?)
-                """, runId, taskId, LOCAL_USER, revisionId, "FULL_PIPELINE", now(), "task-" + taskId, now());
+                """, runId, taskId, currentUser.userId(), revisionId, "FULL_PIPELINE", now(), "task-" + taskId, now());
         jdbc.update("UPDATE video_project SET latest_run_id=?,status='PROCESSING',updated_at=? WHERE id=?",
                 runId, now(), taskId);
         return runId;

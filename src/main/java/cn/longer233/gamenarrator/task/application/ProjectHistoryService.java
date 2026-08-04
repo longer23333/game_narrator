@@ -1,6 +1,7 @@
 package cn.longer233.gamenarrator.task.application;
 
 import cn.longer233.gamenarrator.task.domain.VideoTask;
+import cn.longer233.gamenarrator.identity.CurrentUserContext;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Service;
@@ -16,14 +17,14 @@ import java.util.UUID;
 
 @Service
 public class ProjectHistoryService {
-    static final UUID LOCAL_USER_ID = UUID.fromString("00000000-0000-0000-0000-000000000001");
-
     private final JdbcTemplate jdbc;
     private final ObjectMapper objectMapper;
+    private final CurrentUserContext currentUser;
 
-    public ProjectHistoryService(JdbcTemplate jdbc, ObjectMapper objectMapper) {
+    public ProjectHistoryService(JdbcTemplate jdbc, ObjectMapper objectMapper, CurrentUserContext currentUser) {
         this.jdbc = jdbc;
         this.objectMapper = objectMapper;
+        this.currentUser = currentUser;
     }
 
     public void createInitialHistory(VideoTask task) {
@@ -49,18 +50,18 @@ public class ProjectHistoryService {
                 INSERT INTO video_project(id,owner_id,name,description,game_category,
                 commentary_style,status,current_revision_id,latest_run_id,created_at,updated_at,
                 deleted_at,version) VALUES(?,?,?,?,?,?,'DRAFT',NULL,NULL,?,?,NULL,0)
-                """, projectId, LOCAL_USER_ID, task.getName(), task.getTaskBrief(),
+                """, projectId, currentUser.userId(), task.getName(), task.getTaskBrief(),
                 task.getGameCategory(), task.getCommentaryStyle().name(), createdAt, createdAt);
         jdbc.update("""
                 INSERT INTO project_revision(id,project_id,revision_no,parent_revision_id,created_by,
                 change_type,change_summary,parameter_snapshot_json,manifest_json,
                 manifest_schema_version,manifest_sha256,created_at)
                 VALUES(?,?,1,NULL,?,'INITIAL',?,?,?,?,?,?)
-                """, revisionId, projectId, LOCAL_USER_ID, "任务创建时生成的初始工程版本",
+                """, revisionId, projectId, currentUser.userId(), "任务创建时生成的初始工程版本",
                 parameters, manifest, 2, sha256(manifest), createdAt);
         jdbc.update("UPDATE video_project SET current_revision_id=? WHERE id=?", revisionId, projectId);
         jdbc.update("UPDATE video_tasks SET owner_id=?,project_id=? WHERE id=?",
-                LOCAL_USER_ID, projectId, task.getId());
+                currentUser.userId(), projectId, task.getId());
     }
 
     public void renameProject(UUID projectId, String name) {
