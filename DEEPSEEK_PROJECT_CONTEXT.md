@@ -1,7 +1,7 @@
 # GameNarrator — DeepSeek 项目上下文包
 
-> 自动生成时间：2026-08-04 16:39:16 +08:00
-> 文件数量：283。本文件由 scripts/export-deepseek-context.ps1 生成，请勿手工维护生成区。
+> 自动生成时间：2026-08-04 17:02:56 +08:00
+> 文件数量：285。本文件由 scripts/export-deepseek-context.ps1 生成，请勿手工维护生成区。
 
 ## 给 DeepSeek 的强制工作规则
 
@@ -32,7 +32,7 @@
 - `docs/FRONTEND_DEVELOPMENT.md`（1853 bytes）
 - `docs/MANUAL_EDITOR_PARITY.md`（2680 bytes）
 - `docs/OBSERVABILITY.md`（1109 bytes）
-- `docs/PERFORMANCE_PORTABILITY_AUDIT.md`（9090 bytes）
+- `docs/PERFORMANCE_PORTABILITY_AUDIT.md`（9659 bytes）
 - `docs/REQUIREMENTS.md`（21935 bytes）
 - `docs/STYLE_TEMPLATE_STORE.md`（1190 bytes）
 - `docs/VERSIONING.md`（687 bytes）
@@ -53,7 +53,7 @@
 - `src/main/java/cn/longer233/gamenarrator/ai/AiUsageService.java`（3835 bytes）
 - `src/main/java/cn/longer233/gamenarrator/asset/AiAssetTagger.java`（8162 bytes）
 - `src/main/java/cn/longer233/gamenarrator/asset/AssetCatalogController.java`（12153 bytes）
-- `src/main/java/cn/longer233/gamenarrator/asset/AssetCatalogService.java`（61634 bytes）
+- `src/main/java/cn/longer233/gamenarrator/asset/AssetCatalogService.java`（60032 bytes）
 - `src/main/java/cn/longer233/gamenarrator/asset/AssetDerivativeRequest.java`（294 bytes）
 - `src/main/java/cn/longer233/gamenarrator/asset/AssetLibraryProperties.java`（5166 bytes）
 - `src/main/java/cn/longer233/gamenarrator/asset/AssetReferenceRequest.java`（833 bytes）
@@ -69,6 +69,7 @@
 - `src/main/java/cn/longer233/gamenarrator/asset/OpenverseAssetClient.java`（2682 bytes）
 - `src/main/java/cn/longer233/gamenarrator/asset/PexelsAssetClient.java`（4927 bytes）
 - `src/main/java/cn/longer233/gamenarrator/asset/PixabayAssetClient.java`（4502 bytes）
+- `src/main/java/cn/longer233/gamenarrator/asset/PlatformAssetMetadataResolver.java`（3507 bytes）
 - `src/main/java/cn/longer233/gamenarrator/asset/SafeRemoteHttpConnector.java`（2332 bytes）
 - `src/main/java/cn/longer233/gamenarrator/asset/WikimediaAssetClient.java`（5250 bytes）
 - `src/main/java/cn/longer233/gamenarrator/audio/AudioAnalysisService.java`（5357 bytes）
@@ -257,10 +258,11 @@
 - `src/test/java/cn/longer233/gamenarrator/ai/AiUsageServiceTest.java`（1164 bytes）
 - `src/test/java/cn/longer233/gamenarrator/asset/AiAssetTaggerTest.java`（2432 bytes）
 - `src/test/java/cn/longer233/gamenarrator/asset/AssetCatalogControllerThumbnailTest.java`（1712 bytes）
-- `src/test/java/cn/longer233/gamenarrator/asset/AssetCatalogServiceTest.java`（808 bytes）
+- `src/test/java/cn/longer233/gamenarrator/asset/AssetCatalogServiceTest.java`（828 bytes）
 - `src/test/java/cn/longer233/gamenarrator/asset/BgeAssetSemanticSearchRankingTest.java`（581 bytes）
 - `src/test/java/cn/longer233/gamenarrator/asset/BilibiliAssetClientTest.java`（6341 bytes）
 - `src/test/java/cn/longer233/gamenarrator/asset/ChineseAssetQueryExpanderTest.java`（1742 bytes）
+- `src/test/java/cn/longer233/gamenarrator/asset/PlatformAssetMetadataResolverTest.java`（2962 bytes）
 - `src/test/java/cn/longer233/gamenarrator/asset/SafeRemoteHttpConnectorTest.java`（834 bytes）
 - `src/test/java/cn/longer233/gamenarrator/audio/AudioAnalysisServiceTest.java`（449 bytes）
 - `src/test/java/cn/longer233/gamenarrator/audio/ProceduralSoundEffectLibraryTest.java`（1211 bytes）
@@ -325,7 +327,7 @@
 
     <groupId>cn.longer233.graduation</groupId>
     <artifactId>game-narrator</artifactId>
-    <version>1.5.4</version>
+    <version>1.5.5</version>
     <name>GameNarrator</name>
     <description>多模态游戏视频智能解说与自动剪辑系统</description>
 
@@ -1536,6 +1538,12 @@ Grafana 数据源和仪表盘配置位于 `monitoring/grafana`。将 `provisioni
 - This is a low-resolution rhythm preview, not a playable proxy of the unfinished final video.
 - Task state polling was removed from the frontend. EventSource heartbeat and bounded exponential reconnect are the sole task-update transport.
 - Asset/media service extraction, effect filter strategies, authenticated multi-user isolation, revision rollback UI, and user-owned export-preset CRUD remain separate schema/security refactors and are not represented as complete in this pass.
+
+## 2026-08-04 platform metadata boundary pass
+
+- Platform reference title cleanup, Bilibili BV parsing, metadata lookup, and network-failure fallback now live in a dedicated `PlatformAssetMetadataResolver`.
+- `AssetCatalogService` retains transaction, catalog persistence, and tag-assignment ownership, so public APIs and stored data remain compatible while the large service is split gradually.
+- Renderer extraction and the remaining asset discovery/import responsibilities are still follow-up refactors; this pass does not claim the full P2 service split complete.
 # 1.0.1 内存优化记录
 
 - 截图镜头搜索在调用 `MultipartFile.getBytes()` 前检查可配置大小上限，避免超大上传产生第二份堆内存副本。
@@ -3620,6 +3628,7 @@ public class AssetCatalogService {
     private final OpenverseAssetClient openverse;
     private final WikimediaAssetClient wikimedia;
     private final BilibiliAssetClient bilibili;
+    private final PlatformAssetMetadataResolver platformMetadataResolver;
     private final PexelsAssetClient pexels;
     private final PixabayAssetClient pixabay;
     private final AiAssetTagger aiTagger;
@@ -3635,7 +3644,8 @@ public class AssetCatalogService {
 
     public AssetCatalogService(JdbcTemplate jdbc, ObjectMapper objectMapper,
                                OpenverseAssetClient openverse, WikimediaAssetClient wikimedia,
-                               BilibiliAssetClient bilibili, PexelsAssetClient pexels,
+                               BilibiliAssetClient bilibili, PlatformAssetMetadataResolver platformMetadataResolver,
+                               PexelsAssetClient pexels,
                                PixabayAssetClient pixabay, AiAssetTagger aiTagger,
                                ChineseAssetQueryExpander queryExpander, AssetLibraryProperties assetLibraryProperties,
                                BgeAssetSemanticSearch semanticSearch,
@@ -3649,6 +3659,7 @@ public class AssetCatalogService {
         this.openverse = openverse;
         this.wikimedia = wikimedia;
         this.bilibili = bilibili;
+        this.platformMetadataResolver = platformMetadataResolver;
         this.pexels = pexels;
         this.pixabay = pixabay;
         this.aiTagger = aiTagger;
@@ -3852,10 +3863,9 @@ public class AssetCatalogService {
         for (Map<String, Object> row : rows) {
             UUID id = (UUID) row.get("ID");
             String sourceUrl = String.valueOf(row.get("LANDING_URL"));
-            String bvid = extractBvid(sourceUrl);
-            if (bvid == null) continue;
-            try {
-                BilibiliAssetClient.VideoMetadata metadata = bilibili.metadata(bvid);
+            Optional<BilibiliAssetClient.VideoMetadata> resolved = platformMetadataResolver.metadata(sourceUrl);
+            if (resolved.isPresent()) {
+                BilibiliAssetClient.VideoMetadata metadata = resolved.get();
                 if (metadata.title().isBlank()) continue;
                 jdbc.update("""
                         UPDATE external_asset SET title=?,localized_title=?,creator=?,duration_ms=?,
@@ -3866,8 +3876,6 @@ public class AssetCatalogService {
                 jdbc.update("DELETE FROM asset_embedding WHERE asset_id=?", id);
                 assignTags(id, metadata.tags(), "SOURCE", 1.0, null);
                 repaired++;
-            } catch (Exception exception) {
-                log.warn("Bilibili metadata repair skipped bvid={}: {}", bvid, concise(exception));
             }
         }
         return repaired;
@@ -3974,28 +3982,13 @@ public class AssetCatalogService {
         }
         String provider = request.provider() == null || request.provider().isBlank()
                 ? providerFor(sourceUri.getHost()) : request.provider().toUpperCase(Locale.ROOT);
-        String title = cleanReferenceTitle(provider, request.title(), request.sourceUrl());
-        boolean repairedBilibiliTitle = !title.equals(request.title().trim());
-        String creator = request.creator();
-        String previewUrl = request.previewUrl();
-        Long durationMs = null;
-        List<String> importedTags = request.platformTags() == null ? List.of() : request.platformTags();
-        if ("BILIBILI".equals(provider)) {
-            String bvid = extractBvid(request.sourceUrl());
-            if (bvid != null) {
-                try {
-                    BilibiliAssetClient.VideoMetadata metadata = bilibili.metadata(bvid);
-                    title = metadata.title();
-                    creator = metadata.creator();
-                    previewUrl = metadata.thumbnailUrl();
-                    durationMs = metadata.durationMs();
-                    importedTags = metadata.tags();
-                    repairedBilibiliTitle = false;
-                } catch (Exception exception) {
-                    log.warn("Bilibili reference metadata lookup failed bvid={}: {}", bvid, concise(exception));
-                }
-            }
-        }
+        PlatformAssetMetadataResolver.ResolvedReference resolved = platformMetadataResolver.resolve(provider, request);
+        String title = resolved.title();
+        String creator = resolved.creator();
+        String previewUrl = resolved.previewUrl();
+        Long durationMs = resolved.durationMs();
+        List<String> importedTags = resolved.platformTags();
+        boolean repairedBilibiliTitle = resolved.fallbackTitleChanged();
         String externalId = UUID.nameUUIDFromBytes(request.sourceUrl().getBytes(StandardCharsets.UTF_8)).toString();
         List<UUID> existing = jdbc.query(
                 "SELECT id FROM external_asset WHERE provider=? AND external_id=?",
@@ -4597,23 +4590,6 @@ public class AssetCatalogService {
         if (value.endsWith("douyin.com")) return "DOUYIN";
         if (value.endsWith("tiktok.com")) return "TIKTOK";
         return "USER_REFERENCE";
-    }
-
-    static String cleanReferenceTitle(String provider, String rawTitle, String sourceUrl) {
-        String title = rawTitle == null ? "" : rawTitle.replaceAll("\\s+", " ").trim();
-        if (!"BILIBILI".equals(provider)) return title;
-        boolean interfaceText = title.matches("(?i)^(?:添加至)?稍后再看.*")
-                || title.matches("^[\\d.]+(?:万|亿)?\\s*[\\d.]+(?:万|亿)?\\s*\\d{1,2}:\\d{2}$");
-        if (!interfaceText) return title;
-        java.util.regex.Matcher matcher = java.util.regex.Pattern.compile("(?i)/video/(BV[0-9A-Za-z]+)")
-                .matcher(sourceUrl);
-        return matcher.find() ? "Bilibili 视频 " + matcher.group(1) : "Bilibili 视频候选素材";
-    }
-
-    private String extractBvid(String sourceUrl) {
-        java.util.regex.Matcher matcher = java.util.regex.Pattern.compile("(?i)/video/(BV[0-9A-Za-z]+)")
-                .matcher(sourceUrl == null ? "" : sourceUrl);
-        return matcher.find() ? matcher.group(1) : null;
     }
 
     private String normalizePreviewUrl(String value) {
@@ -5718,6 +5694,83 @@ public class PixabayAssetClient {
         for (String tag : tags.split(",")) if (!tag.isBlank()) tagList.add(tag.trim());
         return out;
     }
+}
+``
+
+### FILE: src/main/java/cn/longer233/gamenarrator/asset/PlatformAssetMetadataResolver.java
+
+``java
+package cn.longer233.gamenarrator.asset;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.stereotype.Component;
+
+import java.util.List;
+import java.util.Locale;
+import java.util.Optional;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+
+/** Resolves platform-owned metadata without coupling catalog persistence to provider APIs. */
+@Component
+public class PlatformAssetMetadataResolver {
+    private static final Logger log = LoggerFactory.getLogger(PlatformAssetMetadataResolver.class);
+    private static final Pattern BILIBILI_VIDEO = Pattern.compile("(?i)/video/(BV[0-9A-Za-z]+)");
+    private final BilibiliAssetClient bilibili;
+
+    public PlatformAssetMetadataResolver(BilibiliAssetClient bilibili) {
+        this.bilibili = bilibili;
+    }
+
+    public ResolvedReference resolve(String provider, AssetReferenceRequest request) {
+        String normalizedProvider = String.valueOf(provider).toUpperCase(Locale.ROOT);
+        String title = cleanReferenceTitle(normalizedProvider, request.title(), request.sourceUrl());
+        boolean fallbackTitleChanged = !title.equals(request.title().trim());
+        ResolvedReference fallback = new ResolvedReference(title, request.creator(), request.previewUrl(), null,
+                request.platformTags() == null ? List.of() : List.copyOf(request.platformTags()), fallbackTitleChanged);
+        if (!"BILIBILI".equals(normalizedProvider)) return fallback;
+        return metadata(request.sourceUrl())
+                .map(value -> new ResolvedReference(value.title(), value.creator(), value.thumbnailUrl(),
+                        value.durationMs(), value.tags(), false))
+                .orElse(fallback);
+    }
+
+    public Optional<BilibiliAssetClient.VideoMetadata> metadata(String sourceUrl) {
+        String bvid = extractBvid(sourceUrl);
+        if (bvid == null) return Optional.empty();
+        try {
+            return Optional.of(bilibili.metadata(bvid));
+        } catch (Exception exception) {
+            log.warn("Bilibili metadata lookup failed bvid={}: {}", bvid, concise(exception));
+            return Optional.empty();
+        }
+    }
+
+    static String cleanReferenceTitle(String provider, String rawTitle, String sourceUrl) {
+        String title = rawTitle == null ? "" : rawTitle.replaceAll("\\s+", " ").trim();
+        if (!"BILIBILI".equals(provider)) return title;
+        boolean interfaceText = title.matches("(?i)^(?:添加至)?稍后再看.*")
+                || title.matches("^[\\d.]+(?:万|亿)?\\s*[\\d.]+(?:万|亿)?\\s*\\d{1,2}:\\d{2}$");
+        if (!interfaceText) return title;
+        String bvid = extractBvid(sourceUrl);
+        return bvid == null ? "Bilibili 视频候选素材" : "Bilibili 视频 " + bvid;
+    }
+
+    static String extractBvid(String sourceUrl) {
+        Matcher matcher = BILIBILI_VIDEO.matcher(sourceUrl == null ? "" : sourceUrl);
+        return matcher.find() ? matcher.group(1) : null;
+    }
+
+    private String concise(Exception exception) {
+        String message = exception.getMessage();
+        if (message == null) return exception.getClass().getSimpleName();
+        if (message.contains("412")) return "HTTP 412 platform risk control";
+        return message.length() <= 240 ? message : message.substring(0, 240) + "…";
+    }
+
+    public record ResolvedReference(String title, String creator, String previewUrl, Long durationMs,
+                                    List<String> platformTags, boolean fallbackTitleChanged) { }
 }
 ``
 
@@ -20645,7 +20698,7 @@ const guideSteps = [
   {selector: '.history-panel', title: '第 5 步：从最左侧历史继续', text: '只有真正生成完成的任务才会进入页面最左侧“最近完成”列表。处理中、等待检查、失败或取消的任务都留在右侧，避免被误认为已经完成。点击已完成条目可查看生成文件、分镜、文案、时间线和最终视频。'},
   {selector: '.storyboard-review-option', title: '第 6 步：检查分镜再继续', text: '开启分镜检查后，流程会在文案与分镜生成后暂停。进入线性分镜工作台可调整顺序、起止时间、字幕、解说、素材和特效；保存全部修改后再继续配音与渲染。'},
   {selector: '.primary-nav', title: '更多工具入口', text: '“镜头搜索”使用本地语义模型寻找片段；“平台导入”负责下载并创建项目；“素材库”管理授权素材；“设置”管理云端或本地 AI。遇到问题可点击右上角“诊断日志”。'},
-  {selector: '.topbar-actions', title: '完成、诊断与再次查看', text: '任务完成后在详情中预览并导出 MP4。任何阶段失败时先查看任务详情和诊断日志；本引导可以随时从“使用引导”重新打开。当前版本为 v1.5.4。'}
+  {selector: '.topbar-actions', title: '完成、诊断与再次查看', text: '任务完成后在详情中预览并导出 MP4。任何阶段失败时先查看任务详情和诊断日志；本引导可以随时从“使用引导”重新打开。当前版本为 v1.5.5。'}
 ];
 let guideIndex = 0;
 let guideTarget = null;
@@ -21742,14 +21795,14 @@ document.querySelector('#copy-address').onclick=async()=>{await navigator.clipbo
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>GameNarrator 1.5.4</title>
+  <title>GameNarrator 1.5.5</title>
   <link rel="stylesheet" href="/media-importer.css?v=20260729-10">
   <link rel="stylesheet" href="/app.css?v=20260803-13">
 </head>
 <body>
   <div class="aurora"></div>
   <header class="topbar">
-    <a class="brand" href="/">GAME<span>NARRATOR</span><small class="app-version">v1.5.4</small></a>
+    <a class="brand" href="/">GAME<span>NARRATOR</span><small class="app-version">v1.5.5</small></a>
     <nav class="primary-nav" aria-label="主要功能">
       <a href="/?view=studio" data-view-link="studio">剪辑任务</a>
       <a href="/?view=search" data-view-link="search">镜头搜索</a>
@@ -22676,7 +22729,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 class AssetCatalogServiceTest {
     @Test
     void replacesBilibiliWatchLaterChromeTextWithStableVideoIdentity() {
-        String result = AssetCatalogService.cleanReferenceTitle("BILIBILI",
+        String result = PlatformAssetMetadataResolver.cleanReferenceTitle("BILIBILI",
                 "添加至稍后再看28.5万52001:55", "https://www.bilibili.com/video/BV1Ab411c7De");
 
         assertThat(result).isEqualTo("Bilibili 视频 BV1Ab411c7De");
@@ -22684,7 +22737,7 @@ class AssetCatalogServiceTest {
 
     @Test
     void preservesRealBilibiliVideoTitle() {
-        String result = AssetCatalogService.cleanReferenceTitle("BILIBILI",
+        String result = PlatformAssetMetadataResolver.cleanReferenceTitle("BILIBILI",
                 "高级弹幕制作教程", "https://www.bilibili.com/video/BV1Ab411c7De");
 
         assertThat(result).isEqualTo("高级弹幕制作教程");
@@ -22892,6 +22945,75 @@ class ChineseAssetQueryExpanderTest {
 
         assertThat(result.providerQuery()).isEqualTo("upbeat music");
         assertThat(result.chineseTags()).isEmpty();
+    }
+}
+``
+
+### FILE: src/test/java/cn/longer233/gamenarrator/asset/PlatformAssetMetadataResolverTest.java
+
+``java
+package cn.longer233.gamenarrator.asset;
+
+import org.junit.jupiter.api.Test;
+
+import java.util.List;
+
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
+
+class PlatformAssetMetadataResolverTest {
+    private final BilibiliAssetClient bilibili = mock(BilibiliAssetClient.class);
+    private final PlatformAssetMetadataResolver resolver = new PlatformAssetMetadataResolver(bilibili);
+
+    @Test
+    void replacesBilibiliReferenceWithAuthoritativeMetadata() {
+        when(bilibili.metadata("BV17e356iEEA")).thenReturn(new BilibiliAssetClient.VideoMetadata(
+                "BV17e356iEEA", "正式标题", "作者", "游戏", List.of("游戏", "高光"), 12_000,
+                "https://img.test/a.jpg"));
+
+        PlatformAssetMetadataResolver.ResolvedReference result = resolver.resolve("BILIBILI",
+                request("添加至稍后再看", "https://www.bilibili.com/video/BV17e356iEEA"));
+
+        assertThat(result.title()).isEqualTo("正式标题");
+        assertThat(result.creator()).isEqualTo("作者");
+        assertThat(result.previewUrl()).isEqualTo("https://img.test/a.jpg");
+        assertThat(result.durationMs()).isEqualTo(12_000);
+        assertThat(result.platformTags()).containsExactly("游戏", "高光");
+        assertThat(result.fallbackTitleChanged()).isFalse();
+    }
+
+    @Test
+    void keepsSafeFallbackWhenPlatformLookupFails() {
+        when(bilibili.metadata("BV17e356iEEA")).thenThrow(new IllegalStateException("HTTP 412"));
+
+        PlatformAssetMetadataResolver.ResolvedReference result = resolver.resolve("BILIBILI",
+                request("添加至稍后再看", "https://www.bilibili.com/video/BV17e356iEEA"));
+
+        assertThat(result.title()).isEqualTo("Bilibili 视频 BV17e356iEEA");
+        assertThat(result.platformTags()).containsExactly("原标签");
+        assertThat(result.fallbackTitleChanged()).isTrue();
+    }
+
+    @Test
+    void normalizesOtherProviderTitleWithoutCallingPlatformApi() {
+        PlatformAssetMetadataResolver.ResolvedReference result = resolver.resolve("YOUTUBE",
+                request("  原始   标题  ", "https://www.youtube.com/watch?v=abc"));
+
+        assertThat(result.title()).isEqualTo("原始 标题");
+        assertThat(result.fallbackTitleChanged()).isTrue();
+    }
+
+    @Test
+    void extractsBvidOnlyFromVideoPath() {
+        assertThat(PlatformAssetMetadataResolver.extractBvid(
+                "https://www.bilibili.com/video/BV17e356iEEA?p=2")).isEqualTo("BV17e356iEEA");
+        assertThat(PlatformAssetMetadataResolver.extractBvid("https://www.bilibili.com/")).isNull();
+    }
+
+    private AssetReferenceRequest request(String title, String url) {
+        return new AssetReferenceRequest("BILIBILI", url, "https://img.test/fallback.jpg", null,
+                title, "旧作者", "VIDEO", "RIGHTS_REVIEW_REQUIRED", null, "需确认权利", List.of("原标签"));
     }
 }
 ``

@@ -85,6 +85,12 @@
 - This is a low-resolution rhythm preview, not a playable proxy of the unfinished final video.
 - Task state polling was removed from the frontend. EventSource heartbeat and bounded exponential reconnect are the sole task-update transport.
 - Asset/media service extraction, effect filter strategies, authenticated multi-user isolation, revision rollback UI, and user-owned export-preset CRUD remain separate schema/security refactors and are not represented as complete in this pass.
+
+## 2026-08-04 platform metadata boundary pass
+
+- Platform reference title cleanup, Bilibili BV parsing, metadata lookup, and network-failure fallback now live in a dedicated `PlatformAssetMetadataResolver`.
+- `AssetCatalogService` retains transaction, catalog persistence, and tag-assignment ownership, so public APIs and stored data remain compatible while the large service is split gradually.
+- Renderer extraction and the remaining asset discovery/import responsibilities are still follow-up refactors; this pass does not claim the full P2 service split complete.
 # 1.0.1 内存优化记录
 
 - 截图镜头搜索在调用 `MultipartFile.getBytes()` 前检查可配置大小上限，避免超大上传产生第二份堆内存副本。

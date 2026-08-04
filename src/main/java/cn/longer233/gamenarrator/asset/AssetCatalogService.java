@@ -36,6 +36,7 @@ public class AssetCatalogService {
     private final OpenverseAssetClient openverse;
     private final WikimediaAssetClient wikimedia;
     private final BilibiliAssetClient bilibili;
+    private final PlatformAssetMetadataResolver platformMetadataResolver;
     private final PexelsAssetClient pexels;
     private final PixabayAssetClient pixabay;
     private final AiAssetTagger aiTagger;
@@ -51,7 +52,8 @@ public class AssetCatalogService {
 
     public AssetCatalogService(JdbcTemplate jdbc, ObjectMapper objectMapper,
                                OpenverseAssetClient openverse, WikimediaAssetClient wikimedia,
-                               BilibiliAssetClient bilibili, PexelsAssetClient pexels,
+                               BilibiliAssetClient bilibili, PlatformAssetMetadataResolver platformMetadataResolver,
+                               PexelsAssetClient pexels,
                                PixabayAssetClient pixabay, AiAssetTagger aiTagger,
                                ChineseAssetQueryExpander queryExpander, AssetLibraryProperties assetLibraryProperties,
                                BgeAssetSemanticSearch semanticSearch,
@@ -65,6 +67,7 @@ public class AssetCatalogService {
         this.openverse = openverse;
         this.wikimedia = wikimedia;
         this.bilibili = bilibili;
+        this.platformMetadataResolver = platformMetadataResolver;
         this.pexels = pexels;
         this.pixabay = pixabay;
         this.aiTagger = aiTagger;
@@ -268,10 +271,9 @@ public class AssetCatalogService {
         for (Map<String, Object> row : rows) {
             UUID id = (UUID) row.get("ID");
             String sourceUrl = String.valueOf(row.get("LANDING_URL"));
-            String bvid = extractBvid(sourceUrl);
-            if (bvid == null) continue;
-            try {
-                BilibiliAssetClient.VideoMetadata metadata = bilibili.metadata(bvid);
+            Optional<BilibiliAssetClient.VideoMetadata> resolved = platformMetadataResolver.metadata(sourceUrl);
+            if (resolved.isPresent()) {
+                BilibiliAssetClient.VideoMetadata metadata = resolved.get();
                 if (metadata.title().isBlank()) continue;
                 jdbc.update("""
                         UPDATE external_asset SET title=?,localized_title=?,creator=?,duration_ms=?,
@@ -282,8 +284,6 @@ public class AssetCatalogService {
                 jdbc.update("DELETE FROM asset_embedding WHERE asset_id=?", id);
                 assignTags(id, metadata.tags(), "SOURCE", 1.0, null);
                 repaired++;
-            } catch (Exception exception) {
-                log.warn("Bilibili metadata repair skipped bvid={}: {}", bvid, concise(exception));
             }
         }
         return repaired;
@@ -390,28 +390,13 @@ public class AssetCatalogService {
         }
         String provider = request.provider() == null || request.provider().isBlank()
                 ? providerFor(sourceUri.getHost()) : request.provider().toUpperCase(Locale.ROOT);
-        String title = cleanReferenceTitle(provider, request.title(), request.sourceUrl());
-        boolean repairedBilibiliTitle = !title.equals(request.title().trim());
-        String creator = request.creator();
-        String previewUrl = request.previewUrl();
-        Long durationMs = null;
-        List<String> importedTags = request.platformTags() == null ? List.of() : request.platformTags();
-        if ("BILIBILI".equals(provider)) {
-            String bvid = extractBvid(request.sourceUrl());
-            if (bvid != null) {
-                try {
-                    BilibiliAssetClient.VideoMetadata metadata = bilibili.metadata(bvid);
-                    title = metadata.title();
-                    creator = metadata.creator();
-                    previewUrl = metadata.thumbnailUrl();
-                    durationMs = metadata.durationMs();
-                    importedTags = metadata.tags();
-                    repairedBilibiliTitle = false;
-                } catch (Exception exception) {
-                    log.warn("Bilibili reference metadata lookup failed bvid={}: {}", bvid, concise(exception));
-                }
-            }
-        }
+        PlatformAssetMetadataResolver.ResolvedReference resolved = platformMetadataResolver.resolve(provider, request);
+        String title = resolved.title();
+        String creator = resolved.creator();
+        String previewUrl = resolved.previewUrl();
+        Long durationMs = resolved.durationMs();
+        List<String> importedTags = resolved.platformTags();
+        boolean repairedBilibiliTitle = resolved.fallbackTitleChanged();
         String externalId = UUID.nameUUIDFromBytes(request.sourceUrl().getBytes(StandardCharsets.UTF_8)).toString();
         List<UUID> existing = jdbc.query(
                 "SELECT id FROM external_asset WHERE provider=? AND external_id=?",
@@ -1013,23 +998,6 @@ public class AssetCatalogService {
         if (value.endsWith("douyin.com")) return "DOUYIN";
         if (value.endsWith("tiktok.com")) return "TIKTOK";
         return "USER_REFERENCE";
-    }
-
-    static String cleanReferenceTitle(String provider, String rawTitle, String sourceUrl) {
-        String title = rawTitle == null ? "" : rawTitle.replaceAll("\\s+", " ").trim();
-        if (!"BILIBILI".equals(provider)) return title;
-        boolean interfaceText = title.matches("(?i)^(?:添加至)?稍后再看.*")
-                || title.matches("^[\\d.]+(?:万|亿)?\\s*[\\d.]+(?:万|亿)?\\s*\\d{1,2}:\\d{2}$");
-        if (!interfaceText) return title;
-        java.util.regex.Matcher matcher = java.util.regex.Pattern.compile("(?i)/video/(BV[0-9A-Za-z]+)")
-                .matcher(sourceUrl);
-        return matcher.find() ? "Bilibili 视频 " + matcher.group(1) : "Bilibili 视频候选素材";
-    }
-
-    private String extractBvid(String sourceUrl) {
-        java.util.regex.Matcher matcher = java.util.regex.Pattern.compile("(?i)/video/(BV[0-9A-Za-z]+)")
-                .matcher(sourceUrl == null ? "" : sourceUrl);
-        return matcher.find() ? matcher.group(1) : null;
     }
 
     private String normalizePreviewUrl(String value) {
