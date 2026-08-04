@@ -51,3 +51,12 @@
 - `GAME_NARRATOR_AI_API_KEY` can supply the API key without persisting it in `ai-settings.json`.
 - Diagnostics include active external-process counts. Full Micrometer percentiles remain deferred until a supported monitoring surface is selected.
 - SSE replacement, provider-strategy extraction, and splitting the two large media/catalog services remain architectural follow-ups rather than being mixed into this risk-focused patch.
+
+## 2026-08-04 cleanup and push-update pass
+
+- One shared SSE stream now publishes changed task snapshots once per second for all browser clients; polling remains only as an automatic compatibility fallback.
+- Crash-left `.tmp` files and stale `import-downloads` entries are cleaned at startup and hourly after 24 hours, with every deletion constrained by `SecurePathGuard`.
+- Expired export artifacts are physically removed and marked deleted/expired in the database.
+- Remote thumbnail retention defaults to 30 minutes.
+- CI installs FFmpeg and runs the real five-second, nine-stage pipeline test.
+- Service extraction, effect-filter strategies, JavaScript module splitting, and full Micrometer stage percentiles remain staged refactors because they change broad internal interfaces.

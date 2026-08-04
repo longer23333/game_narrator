@@ -69,7 +69,7 @@ game-narrator:
     # Keep the in-heap preview cache bounded (default worst case is about 48 MiB).
     thumbnail-max-bytes: ${THUMBNAIL_MAX_BYTES:1572864}
     thumbnail-cache-entries: ${THUMBNAIL_CACHE_ENTRIES:32}
-    thumbnail-cache-minutes: ${THUMBNAIL_CACHE_MINUTES:10}
+    thumbnail-cache-minutes: ${THUMBNAIL_CACHE_MINUTES:30}
   asset-library:
     provider-priority: [BILIBILI, PEXELS, PIXABAY, DOUYIN, USER_REFERENCE, OPENVERSE, WIKIMEDIA, YOUTUBE, TIKTOK]
     domestic-sources:
@@ -207,6 +207,11 @@ game-narrator:
     ffmpeg-max-concurrent: ${FFMPEG_MAX_CONCURRENT:1}
     whisper-max-concurrent: ${WHISPER_MAX_CONCURRENT:1}
     other-max-concurrent: ${OTHER_PROCESS_MAX_CONCURRENT:2}
+  cleanup:
+    retention-hours: ${CLEANUP_RETENTION_HOURS:24}
+    interval-ms: ${CLEANUP_INTERVAL_MS:3600000}
+  task-stream:
+    refresh-ms: ${TASK_STREAM_REFRESH_MS:1000}
   pipeline:
     waiting-retry-delay-ms: ${PIPELINE_WAITING_RETRY_DELAY_MS:30000}
     waiting-retry-initial-delay-ms: ${PIPELINE_WAITING_RETRY_INITIAL_DELAY_MS:30000}

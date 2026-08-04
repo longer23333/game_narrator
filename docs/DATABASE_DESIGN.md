@@ -629,3 +629,10 @@ POST /api/exports/{id}/cancel                  取消导出
 7. 导出预设、导出任务和多格式 FFmpeg 适配。
 8. 导出文件过期清理和重新导出。
 9. PostgreSQL 切换和权限隔离。
+
+## 15. 当前迁移补充与回滚说明
+
+- V20 为 `video_tasks` 增加独立的 `version BIGINT NOT NULL DEFAULT 0`。它用于任务状态与分镜编辑的 JPA 乐观锁；`video_project.version` 继续只保护项目元数据，两列互不替代。
+- H2 回滚 V20 时，应先停止后台任务，再执行 `ALTER TABLE video_tasks DROP COLUMN version`。生产数据回滚前必须备份；Flyway 已执行的迁移文件不得修改。
+- 外部进程并发、临时文件保留时间、SSE 刷新周期和缩略图 TTL 属于运行配置，不是数据库字段。
+- 到期导出清理会删除物理文件，将 `artifact.deleted_at` 写为清理时间，并把 `export_job.status` 更新为 `EXPIRED`；任务和参数快照继续保留，可重新导出。

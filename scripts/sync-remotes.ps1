@@ -1,6 +1,7 @@
 param(
     [string]$Branch = "",
-    [string[]]$Remotes = @()
+    [string[]]$Remotes = @(),
+    [switch]$DryRun
 )
 
 $ErrorActionPreference = "Stop"
@@ -26,6 +27,11 @@ foreach ($remote in $requiredRemotes) {
 }
 
 foreach ($remote in $requiredRemotes) {
+    if ($DryRun) {
+        $remoteUrl = git -c $safeDirectoryArgument -C $repositoryRoot remote get-url --push $remote
+        Write-Host "[dry-run] Would push HEAD to $remote ($remoteUrl), branch '$Branch'."
+        continue
+    }
     Write-Host "Pushing $Branch to $remote..."
     git -c $safeDirectoryArgument -C $repositoryRoot push $remote "HEAD:refs/heads/$Branch"
     if ($LASTEXITCODE -ne 0) {
@@ -33,4 +39,8 @@ foreach ($remote in $requiredRemotes) {
     }
 }
 
-Write-Host "Synchronized '$Branch' to: $($requiredRemotes -join ', ')."
+if ($DryRun) {
+    Write-Host "Dry run complete; nothing was pushed."
+} else {
+    Write-Host "Synchronized '$Branch' to: $($requiredRemotes -join ', ')."
+}

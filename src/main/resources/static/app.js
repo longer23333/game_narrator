@@ -103,6 +103,8 @@ const storyboardWorkspace = document.querySelector('#storyboard-workspace');
 let activeTaskId = null;
 let tasksLoading = false;
 let taskPollTimer = null;
+let taskEventStream = null;
+let taskStreamConnected = false;
 let effectPresets = [];
 let storyboardProgressTimer = null;
 const segmentSearchForm = document.querySelector('#segment-search-form');
@@ -131,7 +133,9 @@ async function loadTasks() {
     if (!response.ok) throw await readApiError(response);
     const tasks = await response.json();
     reconcileTaskCards(tasks);
-    scheduleTaskPoll(tasks.some(task => ['DRAFT', 'READY', 'PROCESSING'].includes(task.status)) ? 5000 : 60000);
+    if (!taskStreamConnected) {
+      scheduleTaskPoll(tasks.some(task => ['DRAFT', 'READY', 'PROCESSING'].includes(task.status)) ? 5000 : 60000);
+    }
     return tasks;
   } finally {
     tasksLoading = false;
@@ -139,6 +143,7 @@ async function loadTasks() {
 }
 
 function scheduleTaskPoll(delayMs) {
+  if (taskStreamConnected) return;
   clearTimeout(taskPollTimer);
   taskPollTimer = setTimeout(() => {
     if (document.hidden) {
@@ -150,6 +155,32 @@ function scheduleTaskPoll(delayMs) {
       scheduleTaskPoll(10000);
     });
   }, delayMs);
+}
+
+function connectTaskStream() {
+  if (!window.EventSource || taskEventStream) return;
+  taskEventStream = new EventSource('/api/tasks/stream');
+  taskEventStream.onopen = () => {
+    taskStreamConnected = true;
+    clearTimeout(taskPollTimer);
+    clearInterval(storyboardProgressTimer);
+  };
+  taskEventStream.onmessage = event => {
+    try {
+      const tasks = JSON.parse(event.data);
+      reconcileTaskCards(tasks);
+      window.dispatchEvent(new CustomEvent('gamenarrator:tasks', {detail:tasks}));
+    } catch (error) {
+      console.warn('[GameNarrator] SSE payload ignored', error);
+    }
+  };
+  taskEventStream.onerror = () => {
+    taskStreamConnected = false;
+    taskEventStream?.close();
+    taskEventStream = null;
+    scheduleTaskPoll(3000);
+    setTimeout(connectTaskStream, 10000);
+  };
 }
 
 function taskCardHtml(task) {
@@ -818,7 +849,7 @@ async function loadStoryboardEditor(taskId) {
     </section>`;
   storyboardWorkspace.scrollTo({top:0, behavior:'smooth'});
   await updateStoryboardProgress(taskId);
-  storyboardProgressTimer = setInterval(() => updateStoryboardProgress(taskId), 2000);
+  if (!taskStreamConnected) storyboardProgressTimer = setInterval(() => updateStoryboardProgress(taskId), 2000);
 }
 
 document.querySelector('#storyboard-close')?.addEventListener('click', () => { clearInterval(storyboardProgressTimer); storyboardDialog.close(); });
@@ -833,6 +864,15 @@ async function updateStoryboardProgress(taskId) {
   if (!panel) return;
   try {
     const task = await requestJson(`/api/tasks/${taskId}`);
+    renderStoryboardProgress(task);
+  } catch (error) {
+    panel.innerHTML = `<p class="task-error">进度读取失败：${escapeHtml(error.message)}</p>`;
+  }
+}
+
+function renderStoryboardProgress(task) {
+    const panel = storyboardWorkspace?.querySelector('[data-storyboard-progress]');
+    if (!panel) return;
     const completed = task.stages.filter(stage => stage.status === 'COMPLETED').length;
     const running = task.stages.find(stage => stage.status === 'RUNNING');
     const waiting = task.stages.find(stage => stage.status === 'PENDING');
@@ -847,10 +887,14 @@ async function updateStoryboardProgress(taskId) {
       <div class="storyboard-overall-progress"><i style="width:${exact}%"></i></div>
       <div class="storyboard-stage-strip">${task.stages.map(stage => `<span class="${stage.status.toLowerCase()}"><i></i>${escapeHtml(stageNames[stage.type])}<b>${stage.progress}%</b></span>`).join('')}</div>
       <p>${voiceHint || (waiting ? `下一阶段：${stageNames[waiting.type]}` : '正在整理最终结果')}</p>`;
-  } catch (error) {
-    panel.innerHTML = `<p class="task-error">进度读取失败：${escapeHtml(error.message)}</p>`;
-  }
 }
+
+window.addEventListener('gamenarrator:tasks', event => {
+  if (!storyboardDialog?.open) return;
+  const taskId = storyboardWorkspace?.querySelector('[data-task-id]')?.dataset.taskId;
+  const task = event.detail.find(item => item.id === taskId);
+  if (task) renderStoryboardProgress(task);
+});
 
 async function handleStoryboardAction(button) {
   const taskId = button.dataset.taskId;
@@ -940,7 +984,12 @@ async function handleStoryboardAction(button) {
   } catch (error) {
     button.disabled = false;
     button.title = error.message;
-    window.alert(error.message);
+    if (error.code === 'CONCURRENT_MODIFICATION' || error.status === 409) {
+      window.alert('任务已被后台流程或其他编辑操作更新，正在重新加载分镜，请确认后再重试。');
+      await loadStoryboardEditor(taskId);
+    } else {
+      window.alert(error.message);
+    }
   }
 }
 
@@ -1109,7 +1158,7 @@ function showLoadError(error) {
 loadTasks().catch(error => {
   showLoadError(error);
   scheduleTaskPoll(10000);
-});
+}).finally(connectTaskStream);
 
 const guideSteps = [
   {selector: '.hero', title: '目标：从录像得到可下载成片', text: '核心闭环只有 4 步：上传录像 → 等待完整分析 → 检查并修改分镜 → 下载 MP4。AI、素材搜索和平台导入都是可选增强，不会阻止普通剪辑。'},

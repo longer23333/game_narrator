@@ -4,6 +4,8 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.net.URI;
 import java.net.http.*;
@@ -13,6 +15,7 @@ import java.util.*;
 
 @Component
 public class AdaptiveAiChatClient {
+    private static final Logger log = LoggerFactory.getLogger(AdaptiveAiChatClient.class);
     private final ObjectMapper mapper;
     private final AiSettingsService settings;
     private final AiUsageService usage;
@@ -163,6 +166,8 @@ public class AdaptiveAiChatClient {
             } catch (java.io.IOException exception) {
                 lastFailure = exception;
                 if (attempt == cloudMaxAttempts) throw exception;
+                log.warn("CLOUD_AI_RETRY layer=network attempt={} maxAttempts={} reason={}",
+                        attempt, cloudMaxAttempts, exception.getClass().getSimpleName());
             }
             long delay = Math.min(5_000L, cloudInitialBackoff.toMillis() << Math.min(20, attempt - 1));
             if (delay > 0) Thread.sleep(delay);

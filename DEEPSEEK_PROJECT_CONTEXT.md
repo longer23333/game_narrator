@@ -1,7 +1,7 @@
 # GameNarrator — DeepSeek 项目上下文包
 
-> 自动生成时间：2026-08-04 09:02:35 +08:00
-> 文件数量：243。本文件由 scripts/export-deepseek-context.ps1 生成，请勿手工维护生成区。
+> 自动生成时间：2026-08-04 09:16:30 +08:00
+> 文件数量：246。本文件由 scripts/export-deepseek-context.ps1 生成，请勿手工维护生成区。
 
 ## 给 DeepSeek 的强制工作规则
 
@@ -27,10 +27,10 @@
 - `.gitignore`（277 bytes）
 - `docs/ARCHITECTURE.md`（2049 bytes）
 - `docs/ASSET_LIBRARY_DESIGN.md`（1697 bytes）
-- `docs/DATABASE_DESIGN.md`（27795 bytes）
+- `docs/DATABASE_DESIGN.md`（28565 bytes）
 - `docs/FRONTEND_DEVELOPMENT.md`（1853 bytes）
 - `docs/MANUAL_EDITOR_PARITY.md`（2553 bytes）
-- `docs/PERFORMANCE_PORTABILITY_AUDIT.md`（5286 bytes）
+- `docs/PERFORMANCE_PORTABILITY_AUDIT.md`（6072 bytes）
 - `docs/REQUIREMENTS.md`（21389 bytes）
 - `scripts/build-windows-release.ps1`（11841 bytes）
 - `scripts/export-deepseek-context.ps1`（5568 bytes）
@@ -39,10 +39,10 @@
 - `scripts/setup-piper.ps1`（1322 bytes）
 - `scripts/setup-vision-model.ps1`（931 bytes）
 - `scripts/setup-whisper.ps1`（1323 bytes）
-- `scripts/sync-remotes.ps1`（1448 bytes）
+- `scripts/sync-remotes.ps1`（1786 bytes）
 - `scripts/test-windows-clean-install.ps1`（3068 bytes）
 - `scripts/verify-before-push.ps1`（1116 bytes）
-- `src/main/java/cn/longer233/gamenarrator/ai/AdaptiveAiChatClient.java`（14270 bytes）
+- `src/main/java/cn/longer233/gamenarrator/ai/AdaptiveAiChatClient.java`（14601 bytes）
 - `src/main/java/cn/longer233/gamenarrator/ai/AiContentRejectedException.java`（187 bytes）
 - `src/main/java/cn/longer233/gamenarrator/ai/AiSettingsController.java`（1967 bytes）
 - `src/main/java/cn/longer233/gamenarrator/ai/AiSettingsService.java`（5376 bytes）
@@ -74,6 +74,7 @@
 - `src/main/java/cn/longer233/gamenarrator/common/ExternalProcessRunner.java`（7919 bytes）
 - `src/main/java/cn/longer233/gamenarrator/common/RequestTraceFilter.java`（1908 bytes）
 - `src/main/java/cn/longer233/gamenarrator/common/SecurePathGuard.java`（1894 bytes）
+- `src/main/java/cn/longer233/gamenarrator/common/StorageCleanupService.java`（5365 bytes）
 - `src/main/java/cn/longer233/gamenarrator/common/TaskProcessRegistry.java`（2646 bytes）
 - `src/main/java/cn/longer233/gamenarrator/config/AsyncConfig.java`（1465 bytes）
 - `src/main/java/cn/longer233/gamenarrator/config/ExternalProcessConfig.java`（670 bytes）
@@ -171,7 +172,8 @@
 - `src/main/java/cn/longer233/gamenarrator/task/domain/TaskStatus.java`（150 bytes）
 - `src/main/java/cn/longer233/gamenarrator/task/domain/VideoTask.java`（22301 bytes）
 - `src/main/java/cn/longer233/gamenarrator/task/repository/VideoTaskRepository.java`（505 bytes）
-- `src/main/java/cn/longer233/gamenarrator/task/web/VideoTaskController.java`（6292 bytes）
+- `src/main/java/cn/longer233/gamenarrator/task/web/TaskEventStreamService.java`（1895 bytes）
+- `src/main/java/cn/longer233/gamenarrator/task/web/VideoTaskController.java`（6655 bytes）
 - `src/main/java/cn/longer233/gamenarrator/timeline/TimelinePlanner.java`（4735 bytes）
 - `src/main/java/cn/longer233/gamenarrator/timeline/TimelinePlanningResult.java`（246 bytes）
 - `src/main/java/cn/longer233/gamenarrator/timeline/TimelineSegment.java`（410 bytes）
@@ -198,7 +200,7 @@
 - `src/main/java/cn/longer233/gamenarrator/voice/VoiceOption.java`（137 bytes）
 - `src/main/java/cn/longer233/gamenarrator/voice/VoiceRegenerationRequest.java`（419 bytes）
 - `src/main/java/cn/longer233/gamenarrator/voice/VoiceSegment.java`（296 bytes）
-- `src/main/resources/application.yml`（12950 bytes）
+- `src/main/resources/application.yml`（13122 bytes）
 - `src/main/resources/application-release.yml`（1055 bytes）
 - `src/main/resources/db/migration/V1__database_v2_foundation.sql`（17535 bytes）
 - `src/main/resources/db/migration/V10__allow_storyboard_review_task_status.sql`（528 bytes）
@@ -221,7 +223,7 @@
 - `src/main/resources/db/migration/V8__video_segment_semantic_index.sql`（634 bytes）
 - `src/main/resources/db/migration/V9__video_segment_image_hash.sql`（152 bytes）
 - `src/main/resources/static/app.css`（44302 bytes）
-- `src/main/resources/static/app.js`（71462 bytes）
+- `src/main/resources/static/app.js`（73208 bytes）
 - `src/main/resources/static/asset-library.js`（39551 bytes）
 - `src/main/resources/static/diagnostics.js`（1673 bytes）
 - `src/main/resources/static/export.js`（9227 bytes）
@@ -242,6 +244,7 @@
 - `src/test/java/cn/longer233/gamenarrator/common/ExternalProcessRunnerTest.java`（1623 bytes）
 - `src/test/java/cn/longer233/gamenarrator/common/ProcessSleeper.java`（229 bytes）
 - `src/test/java/cn/longer233/gamenarrator/common/SecurePathGuardTest.java`（1373 bytes）
+- `src/test/java/cn/longer233/gamenarrator/common/StorageCleanupServiceTest.java`（1782 bytes）
 - `src/test/java/cn/longer233/gamenarrator/config/AsyncConfigTest.java`（991 bytes）
 - `src/test/java/cn/longer233/gamenarrator/diagnostics/DiagnosticLogServiceTest.java`（906 bytes）
 - `src/test/java/cn/longer233/gamenarrator/effect/SemanticEffectPlannerTest.java`（1359 bytes）
@@ -1238,6 +1241,13 @@ POST /api/exports/{id}/cancel                  取消导出
 7. 导出预设、导出任务和多格式 FFmpeg 适配。
 8. 导出文件过期清理和重新导出。
 9. PostgreSQL 切换和权限隔离。
+
+## 15. 当前迁移补充与回滚说明
+
+- V20 为 `video_tasks` 增加独立的 `version BIGINT NOT NULL DEFAULT 0`。它用于任务状态与分镜编辑的 JPA 乐观锁；`video_project.version` 继续只保护项目元数据，两列互不替代。
+- H2 回滚 V20 时，应先停止后台任务，再执行 `ALTER TABLE video_tasks DROP COLUMN version`。生产数据回滚前必须备份；Flyway 已执行的迁移文件不得修改。
+- 外部进程并发、临时文件保留时间、SSE 刷新周期和缩略图 TTL 属于运行配置，不是数据库字段。
+- 到期导出清理会删除物理文件，将 `artifact.deleted_at` 写为清理时间，并把 `export_job.status` 更新为 `EXPIRED`；任务和参数快照继续保留，可重新导出。
 ``
 
 ### FILE: docs/FRONTEND_DEVELOPMENT.md
@@ -1404,6 +1414,15 @@ GameNarrator 在禁用或未配置 AI 时，仍应能完成导入、粗剪、精
 - `GAME_NARRATOR_AI_API_KEY` can supply the API key without persisting it in `ai-settings.json`.
 - Diagnostics include active external-process counts. Full Micrometer percentiles remain deferred until a supported monitoring surface is selected.
 - SSE replacement, provider-strategy extraction, and splitting the two large media/catalog services remain architectural follow-ups rather than being mixed into this risk-focused patch.
+
+## 2026-08-04 cleanup and push-update pass
+
+- One shared SSE stream now publishes changed task snapshots once per second for all browser clients; polling remains only as an automatic compatibility fallback.
+- Crash-left `.tmp` files and stale `import-downloads` entries are cleaned at startup and hourly after 24 hours, with every deletion constrained by `SecurePathGuard`.
+- Expired export artifacts are physically removed and marked deleted/expired in the database.
+- Remote thumbnail retention defaults to 30 minutes.
+- CI installs FFmpeg and runs the real five-second, nine-stage pipeline test.
+- Service extraction, effect-filter strategies, JavaScript module splitting, and full Micrometer stage percentiles remain staged refactors because they change broad internal interfaces.
 ``
 
 ### FILE: docs/REQUIREMENTS.md
@@ -2345,7 +2364,8 @@ Write-Host "Model: $modelPath"
 ``powershell
 param(
     [string]$Branch = "",
-    [string[]]$Remotes = @()
+    [string[]]$Remotes = @(),
+    [switch]$DryRun
 )
 
 $ErrorActionPreference = "Stop"
@@ -2371,6 +2391,11 @@ foreach ($remote in $requiredRemotes) {
 }
 
 foreach ($remote in $requiredRemotes) {
+    if ($DryRun) {
+        $remoteUrl = git -c $safeDirectoryArgument -C $repositoryRoot remote get-url --push $remote
+        Write-Host "[dry-run] Would push HEAD to $remote ($remoteUrl), branch '$Branch'."
+        continue
+    }
     Write-Host "Pushing $Branch to $remote..."
     git -c $safeDirectoryArgument -C $repositoryRoot push $remote "HEAD:refs/heads/$Branch"
     if ($LASTEXITCODE -ne 0) {
@@ -2378,7 +2403,11 @@ foreach ($remote in $requiredRemotes) {
     }
 }
 
-Write-Host "Synchronized '$Branch' to: $($requiredRemotes -join ', ')."
+if ($DryRun) {
+    Write-Host "Dry run complete; nothing was pushed."
+} else {
+    Write-Host "Synchronized '$Branch' to: $($requiredRemotes -join ', ')."
+}
 ``
 
 ### FILE: scripts/test-windows-clean-install.ps1
@@ -2481,6 +2510,8 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.net.URI;
 import java.net.http.*;
@@ -2490,6 +2521,7 @@ import java.util.*;
 
 @Component
 public class AdaptiveAiChatClient {
+    private static final Logger log = LoggerFactory.getLogger(AdaptiveAiChatClient.class);
     private final ObjectMapper mapper;
     private final AiSettingsService settings;
     private final AiUsageService usage;
@@ -2640,6 +2672,8 @@ public class AdaptiveAiChatClient {
             } catch (java.io.IOException exception) {
                 lastFailure = exception;
                 if (attempt == cloudMaxAttempts) throw exception;
+                log.warn("CLOUD_AI_RETRY layer=network attempt={} maxAttempts={} reason={}",
+                        attempt, cloudMaxAttempts, exception.getClass().getSimpleName());
             }
             long delay = Math.min(5_000L, cloudInitialBackoff.toMillis() << Math.min(20, attempt - 1));
             if (delay > 0) Thread.sleep(delay);
@@ -6241,6 +6275,132 @@ public final class SecurePathGuard {
                 throw new IOException("Symbolic links are not allowed in managed storage: " + current);
             }
         }
+    }
+}
+``
+
+### FILE: src/main/java/cn/longer233/gamenarrator/common/StorageCleanupService.java
+
+``java
+package cn.longer233.gamenarrator.common;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.boot.ApplicationArguments;
+import org.springframework.boot.ApplicationRunner;
+import org.springframework.core.annotation.Order;
+import org.springframework.jdbc.core.JdbcTemplate;
+import org.springframework.scheduling.annotation.Scheduled;
+import org.springframework.stereotype.Component;
+
+import java.nio.file.Files;
+import java.nio.file.LinkOption;
+import java.nio.file.Path;
+import java.time.Duration;
+import java.time.Instant;
+import java.time.OffsetDateTime;
+import java.util.Comparator;
+import java.util.List;
+import java.util.Map;
+import java.util.UUID;
+
+@Component
+@Order(30)
+public class StorageCleanupService implements ApplicationRunner {
+    private static final Logger log = LoggerFactory.getLogger(StorageCleanupService.class);
+    private final Path storageRoot;
+    private final Duration retention;
+    private final JdbcTemplate jdbc;
+
+    public StorageCleanupService(@Value("${game-narrator.storage-root}") String storageRoot,
+                                 @Value("${game-narrator.cleanup.retention-hours:24}") long retentionHours,
+                                 JdbcTemplate jdbc) {
+        this.storageRoot = Path.of(storageRoot).toAbsolutePath().normalize();
+        this.retention = Duration.ofHours(Math.max(1, retentionHours));
+        this.jdbc = jdbc;
+    }
+
+    @Override public void run(ApplicationArguments args) { cleanup(); }
+
+    @Scheduled(fixedDelayString = "${game-narrator.cleanup.interval-ms:3600000}")
+    public void cleanup() {
+        try {
+            Path root = SecurePathGuard.prepareRoot(storageRoot);
+            Instant cutoff = Instant.now().minus(retention);
+            int temporary = cleanupTemporaryFiles(root, cutoff);
+            int imports = cleanupTree(root.resolve("import-downloads"), root, cutoff);
+            int exports = cleanupExpiredExports(root);
+            if (temporary + imports + exports > 0) {
+                log.info("STORAGE_CLEANUP temporaryFiles={} importEntries={} expiredExports={}",
+                        temporary, imports, exports);
+            }
+        } catch (Exception exception) {
+            log.warn("STORAGE_CLEANUP_FAILED reason={}", exception.getMessage());
+        }
+    }
+
+    private int cleanupTemporaryFiles(Path root, Instant cutoff) throws Exception {
+        int deleted = 0;
+        try (var paths = Files.walk(root)) {
+            for (Path path : paths.filter(Files::isRegularFile).toList()) {
+                if (!path.getFileName().toString().endsWith(".tmp")) continue;
+                if (olderThan(path, cutoff) && deleteOwned(path, root)) deleted++;
+            }
+        }
+        return deleted;
+    }
+
+    private int cleanupTree(Path directory, Path root, Instant cutoff) throws Exception {
+        if (!Files.isDirectory(directory, LinkOption.NOFOLLOW_LINKS)
+                || !SecurePathGuard.isOwned(directory, root)) return 0;
+        int deleted = 0;
+        try (var paths = Files.walk(directory)) {
+            for (Path path : paths.sorted(Comparator.reverseOrder()).toList()) {
+                if (path.equals(directory)) continue;
+                if (Files.isDirectory(path, LinkOption.NOFOLLOW_LINKS)) {
+                    try (var children = Files.list(path)) {
+                        if (children.findAny().isEmpty() && deleteOwned(path, root)) deleted++;
+                    }
+                } else if (olderThan(path, cutoff) && deleteOwned(path, root)) deleted++;
+            }
+        }
+        return deleted;
+    }
+
+    private int cleanupExpiredExports(Path root) {
+        List<Map<String, Object>> expired = jdbc.queryForList("""
+                SELECT ej.id job_id,a.id artifact_id,a.storage_key
+                FROM export_job ej JOIN artifact a ON a.id=ej.output_artifact_id
+                WHERE ej.expires_at<? AND ej.status='COMPLETED' AND a.deleted_at IS NULL
+                """, OffsetDateTime.now());
+        int cleaned = 0;
+        for (Map<String, Object> row : expired) {
+            Path path = Path.of(row.get("STORAGE_KEY").toString()).toAbsolutePath().normalize();
+            if (!SecurePathGuard.isOwned(path, root)) {
+                log.warn("EXPORT_CLEANUP_SKIPPED reason=outside_storage_root jobId={}", row.get("JOB_ID"));
+                continue;
+            }
+            try {
+                Files.deleteIfExists(path);
+                OffsetDateTime now = OffsetDateTime.now();
+                jdbc.update("UPDATE artifact SET deleted_at=? WHERE id=?", now, row.get("ARTIFACT_ID"));
+                jdbc.update("UPDATE export_job SET status='EXPIRED' WHERE id=?", row.get("JOB_ID"));
+                cleaned++;
+            } catch (Exception exception) {
+                log.warn("EXPORT_CLEANUP_FAILED jobId={} reason={}", row.get("JOB_ID"), exception.getMessage());
+            }
+        }
+        return cleaned;
+    }
+
+    private boolean olderThan(Path path, Instant cutoff) throws Exception {
+        return Files.getLastModifiedTime(path, LinkOption.NOFOLLOW_LINKS).toInstant().isBefore(cutoff);
+    }
+
+    private boolean deleteOwned(Path path, Path root) throws Exception {
+        if (!SecurePathGuard.isOwned(path, root)) return false;
+        return Files.deleteIfExists(path);
     }
 }
 ``
@@ -14141,6 +14301,63 @@ public interface VideoTaskRepository extends JpaRepository<VideoTask, UUID> {
 }
 ``
 
+### FILE: src/main/java/cn/longer233/gamenarrator/task/web/TaskEventStreamService.java
+
+``java
+package cn.longer233.gamenarrator.task.web;
+
+import cn.longer233.gamenarrator.task.application.VideoTaskService;
+import org.springframework.scheduling.annotation.Scheduled;
+import org.springframework.stereotype.Service;
+import org.springframework.web.servlet.mvc.method.annotation.SseEmitter;
+
+import java.io.IOException;
+import java.util.concurrent.CopyOnWriteArrayList;
+
+@Service
+public class TaskEventStreamService {
+    private final VideoTaskService tasks;
+    private final CopyOnWriteArrayList<SseEmitter> clients = new CopyOnWriteArrayList<>();
+    private volatile int lastStateHash;
+    private volatile long lastHeartbeat;
+
+    public TaskEventStreamService(VideoTaskService tasks) {
+        this.tasks = tasks;
+    }
+
+    public SseEmitter subscribe() {
+        SseEmitter emitter = new SseEmitter(0L);
+        clients.add(emitter);
+        emitter.onCompletion(() -> clients.remove(emitter));
+        emitter.onTimeout(() -> clients.remove(emitter));
+        emitter.onError(error -> clients.remove(emitter));
+        send(emitter, tasks.findAll());
+        return emitter;
+    }
+
+    @Scheduled(fixedDelayString = "${game-narrator.task-stream.refresh-ms:1000}")
+    public void publishChanges() {
+        if (clients.isEmpty()) return;
+        var snapshot = tasks.findAll();
+        int stateHash = snapshot.hashCode();
+        long now = System.currentTimeMillis();
+        if (stateHash == lastStateHash && now - lastHeartbeat < 15_000) return;
+        lastStateHash = stateHash;
+        lastHeartbeat = now;
+        clients.forEach(emitter -> send(emitter, snapshot));
+    }
+
+    private void send(SseEmitter emitter, Object data) {
+        try {
+            emitter.send(SseEmitter.event().data(data).reconnectTime(3000));
+        } catch (IOException | IllegalStateException exception) {
+            clients.remove(emitter);
+            emitter.complete();
+        }
+    }
+}
+``
+
 ### FILE: src/main/java/cn/longer233/gamenarrator/task/web/VideoTaskController.java
 
 ``java
@@ -14161,20 +14378,28 @@ import org.springframework.web.multipart.MultipartFile;
 import java.io.IOException;
 import java.util.List;
 import java.util.UUID;
+import org.springframework.web.servlet.mvc.method.annotation.SseEmitter;
 
 @RestController
 @RequestMapping("/api/tasks")
 public class VideoTaskController {
 
     private final VideoTaskService service;
+    private final TaskEventStreamService eventStream;
 
-    public VideoTaskController(VideoTaskService service) {
+    public VideoTaskController(VideoTaskService service, TaskEventStreamService eventStream) {
         this.service = service;
+        this.eventStream = eventStream;
     }
 
     @GetMapping
     public List<VideoTaskView> list() {
         return service.findAll();
+    }
+
+    @GetMapping(path = "/stream", produces = MediaType.TEXT_EVENT_STREAM_VALUE)
+    public SseEmitter stream() {
+        return eventStream.subscribe();
     }
 
     @GetMapping("/{id}")
@@ -15920,7 +16145,7 @@ game-narrator:
     # Keep the in-heap preview cache bounded (default worst case is about 48 MiB).
     thumbnail-max-bytes: ${THUMBNAIL_MAX_BYTES:1572864}
     thumbnail-cache-entries: ${THUMBNAIL_CACHE_ENTRIES:32}
-    thumbnail-cache-minutes: ${THUMBNAIL_CACHE_MINUTES:10}
+    thumbnail-cache-minutes: ${THUMBNAIL_CACHE_MINUTES:30}
   asset-library:
     provider-priority: [BILIBILI, PEXELS, PIXABAY, DOUYIN, USER_REFERENCE, OPENVERSE, WIKIMEDIA, YOUTUBE, TIKTOK]
     domestic-sources:
@@ -16058,6 +16283,11 @@ game-narrator:
     ffmpeg-max-concurrent: ${FFMPEG_MAX_CONCURRENT:1}
     whisper-max-concurrent: ${WHISPER_MAX_CONCURRENT:1}
     other-max-concurrent: ${OTHER_PROCESS_MAX_CONCURRENT:2}
+  cleanup:
+    retention-hours: ${CLEANUP_RETENTION_HOURS:24}
+    interval-ms: ${CLEANUP_INTERVAL_MS:3600000}
+  task-stream:
+    refresh-ms: ${TASK_STREAM_REFRESH_MS:1000}
   pipeline:
     waiting-retry-delay-ms: ${PIPELINE_WAITING_RETRY_DELAY_MS:30000}
     waiting-retry-initial-delay-ms: ${PIPELINE_WAITING_RETRY_INITIAL_DELAY_MS:30000}
@@ -17067,6 +17297,8 @@ const storyboardWorkspace = document.querySelector('#storyboard-workspace');
 let activeTaskId = null;
 let tasksLoading = false;
 let taskPollTimer = null;
+let taskEventStream = null;
+let taskStreamConnected = false;
 let effectPresets = [];
 let storyboardProgressTimer = null;
 const segmentSearchForm = document.querySelector('#segment-search-form');
@@ -17095,7 +17327,9 @@ async function loadTasks() {
     if (!response.ok) throw await readApiError(response);
     const tasks = await response.json();
     reconcileTaskCards(tasks);
-    scheduleTaskPoll(tasks.some(task => ['DRAFT', 'READY', 'PROCESSING'].includes(task.status)) ? 5000 : 60000);
+    if (!taskStreamConnected) {
+      scheduleTaskPoll(tasks.some(task => ['DRAFT', 'READY', 'PROCESSING'].includes(task.status)) ? 5000 : 60000);
+    }
     return tasks;
   } finally {
     tasksLoading = false;
@@ -17103,6 +17337,7 @@ async function loadTasks() {
 }
 
 function scheduleTaskPoll(delayMs) {
+  if (taskStreamConnected) return;
   clearTimeout(taskPollTimer);
   taskPollTimer = setTimeout(() => {
     if (document.hidden) {
@@ -17114,6 +17349,32 @@ function scheduleTaskPoll(delayMs) {
       scheduleTaskPoll(10000);
     });
   }, delayMs);
+}
+
+function connectTaskStream() {
+  if (!window.EventSource || taskEventStream) return;
+  taskEventStream = new EventSource('/api/tasks/stream');
+  taskEventStream.onopen = () => {
+    taskStreamConnected = true;
+    clearTimeout(taskPollTimer);
+    clearInterval(storyboardProgressTimer);
+  };
+  taskEventStream.onmessage = event => {
+    try {
+      const tasks = JSON.parse(event.data);
+      reconcileTaskCards(tasks);
+      window.dispatchEvent(new CustomEvent('gamenarrator:tasks', {detail:tasks}));
+    } catch (error) {
+      console.warn('[GameNarrator] SSE payload ignored', error);
+    }
+  };
+  taskEventStream.onerror = () => {
+    taskStreamConnected = false;
+    taskEventStream?.close();
+    taskEventStream = null;
+    scheduleTaskPoll(3000);
+    setTimeout(connectTaskStream, 10000);
+  };
 }
 
 function taskCardHtml(task) {
@@ -17782,7 +18043,7 @@ async function loadStoryboardEditor(taskId) {
     </section>`;
   storyboardWorkspace.scrollTo({top:0, behavior:'smooth'});
   await updateStoryboardProgress(taskId);
-  storyboardProgressTimer = setInterval(() => updateStoryboardProgress(taskId), 2000);
+  if (!taskStreamConnected) storyboardProgressTimer = setInterval(() => updateStoryboardProgress(taskId), 2000);
 }
 
 document.querySelector('#storyboard-close')?.addEventListener('click', () => { clearInterval(storyboardProgressTimer); storyboardDialog.close(); });
@@ -17797,6 +18058,15 @@ async function updateStoryboardProgress(taskId) {
   if (!panel) return;
   try {
     const task = await requestJson(`/api/tasks/${taskId}`);
+    renderStoryboardProgress(task);
+  } catch (error) {
+    panel.innerHTML = `<p class="task-error">进度读取失败：${escapeHtml(error.message)}</p>`;
+  }
+}
+
+function renderStoryboardProgress(task) {
+    const panel = storyboardWorkspace?.querySelector('[data-storyboard-progress]');
+    if (!panel) return;
     const completed = task.stages.filter(stage => stage.status === 'COMPLETED').length;
     const running = task.stages.find(stage => stage.status === 'RUNNING');
     const waiting = task.stages.find(stage => stage.status === 'PENDING');
@@ -17811,10 +18081,14 @@ async function updateStoryboardProgress(taskId) {
       <div class="storyboard-overall-progress"><i style="width:${exact}%"></i></div>
       <div class="storyboard-stage-strip">${task.stages.map(stage => `<span class="${stage.status.toLowerCase()}"><i></i>${escapeHtml(stageNames[stage.type])}<b>${stage.progress}%</b></span>`).join('')}</div>
       <p>${voiceHint || (waiting ? `下一阶段：${stageNames[waiting.type]}` : '正在整理最终结果')}</p>`;
-  } catch (error) {
-    panel.innerHTML = `<p class="task-error">进度读取失败：${escapeHtml(error.message)}</p>`;
-  }
 }
+
+window.addEventListener('gamenarrator:tasks', event => {
+  if (!storyboardDialog?.open) return;
+  const taskId = storyboardWorkspace?.querySelector('[data-task-id]')?.dataset.taskId;
+  const task = event.detail.find(item => item.id === taskId);
+  if (task) renderStoryboardProgress(task);
+});
 
 async function handleStoryboardAction(button) {
   const taskId = button.dataset.taskId;
@@ -17904,7 +18178,12 @@ async function handleStoryboardAction(button) {
   } catch (error) {
     button.disabled = false;
     button.title = error.message;
-    window.alert(error.message);
+    if (error.code === 'CONCURRENT_MODIFICATION' || error.status === 409) {
+      window.alert('任务已被后台流程或其他编辑操作更新，正在重新加载分镜，请确认后再重试。');
+      await loadStoryboardEditor(taskId);
+    } else {
+      window.alert(error.message);
+    }
   }
 }
 
@@ -18073,7 +18352,7 @@ function showLoadError(error) {
 loadTasks().catch(error => {
   showLoadError(error);
   scheduleTaskPoll(10000);
-});
+}).finally(connectTaskStream);
 
 const guideSteps = [
   {selector: '.hero', title: '目标：从录像得到可下载成片', text: '核心闭环只有 4 步：上传录像 → 等待完整分析 → 检查并修改分镜 → 下载 MP4。AI、素材搜索和平台导入都是可选增强，不会阻止普通剪辑。'},
@@ -20431,6 +20710,56 @@ class SecurePathGuardTest {
             org.junit.jupiter.api.Assumptions.abort("Symbolic links are unavailable for this test account");
         }
         assertThat(SecurePathGuard.isOwned(link.resolve("escaped.mp4"), root)).isFalse();
+    }
+}
+``
+
+### FILE: src/test/java/cn/longer233/gamenarrator/common/StorageCleanupServiceTest.java
+
+``java
+package cn.longer233.gamenarrator.common;
+
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.io.TempDir;
+import org.springframework.jdbc.core.JdbcTemplate;
+
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.attribute.FileTime;
+import java.time.Instant;
+import java.time.temporal.ChronoUnit;
+import java.util.List;
+
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
+
+class StorageCleanupServiceTest {
+    @TempDir Path temporary;
+
+    @Test
+    void removesOnlyExpiredTemporaryAndImportFiles() throws Exception {
+        JdbcTemplate jdbc = mock(JdbcTemplate.class);
+        when(jdbc.queryForList(anyString(), any(Object[].class))).thenReturn(List.of());
+        Path oldTemporary = temporary.resolve("tasks/a/.artifact.tmp");
+        Path recentTemporary = temporary.resolve("tasks/a/.recent.tmp");
+        Path oldImport = temporary.resolve("import-downloads/job/video.mp4");
+        Files.createDirectories(oldTemporary.getParent());
+        Files.createDirectories(oldImport.getParent());
+        Files.writeString(oldTemporary, "old");
+        Files.writeString(recentTemporary, "recent");
+        Files.writeString(oldImport, "old");
+        FileTime old = FileTime.from(Instant.now().minus(2, ChronoUnit.DAYS));
+        Files.setLastModifiedTime(oldTemporary, old);
+        Files.setLastModifiedTime(oldImport, old);
+
+        new StorageCleanupService(temporary.toString(), 24, jdbc).cleanup();
+
+        assertThat(oldTemporary).doesNotExist();
+        assertThat(oldImport).doesNotExist();
+        assertThat(recentTemporary).exists();
     }
 }
 ``

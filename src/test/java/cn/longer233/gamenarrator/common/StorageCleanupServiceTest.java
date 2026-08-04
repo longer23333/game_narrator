@@ -1,0 +1,45 @@
+package cn.longer233.gamenarrator.common;
+
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.io.TempDir;
+import org.springframework.jdbc.core.JdbcTemplate;
+
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.attribute.FileTime;
+import java.time.Instant;
+import java.time.temporal.ChronoUnit;
+import java.util.List;
+
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
+
+class StorageCleanupServiceTest {
+    @TempDir Path temporary;
+
+    @Test
+    void removesOnlyExpiredTemporaryAndImportFiles() throws Exception {
+        JdbcTemplate jdbc = mock(JdbcTemplate.class);
+        when(jdbc.queryForList(anyString(), any(Object[].class))).thenReturn(List.of());
+        Path oldTemporary = temporary.resolve("tasks/a/.artifact.tmp");
+        Path recentTemporary = temporary.resolve("tasks/a/.recent.tmp");
+        Path oldImport = temporary.resolve("import-downloads/job/video.mp4");
+        Files.createDirectories(oldTemporary.getParent());
+        Files.createDirectories(oldImport.getParent());
+        Files.writeString(oldTemporary, "old");
+        Files.writeString(recentTemporary, "recent");
+        Files.writeString(oldImport, "old");
+        FileTime old = FileTime.from(Instant.now().minus(2, ChronoUnit.DAYS));
+        Files.setLastModifiedTime(oldTemporary, old);
+        Files.setLastModifiedTime(oldImport, old);
+
+        new StorageCleanupService(temporary.toString(), 24, jdbc).cleanup();
+
+        assertThat(oldTemporary).doesNotExist();
+        assertThat(oldImport).doesNotExist();
+        assertThat(recentTemporary).exists();
+    }
+}
