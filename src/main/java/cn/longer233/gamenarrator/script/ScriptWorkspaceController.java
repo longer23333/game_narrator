@@ -28,6 +28,18 @@ public class ScriptWorkspaceController {
         return service.find(taskId);
     }
 
+    @GetMapping("/script/reviews")
+    public java.util.Map<String, Object> reviews(@PathVariable("taskId") UUID taskId) {
+        return service.reviews(taskId);
+    }
+
+    @PutMapping("/script/segments/{clipIndex}/review")
+    public java.util.Map<String, Object> review(@PathVariable("taskId") UUID taskId,
+            @PathVariable("clipIndex") int clipIndex,
+            @Valid @RequestBody ManualScriptReviewRequest request) {
+        return service.review(taskId, clipIndex, request);
+    }
+
     @PutMapping("/script/segments/{clipIndex}")
     public ScriptDocumentView update(@PathVariable UUID taskId, @PathVariable int clipIndex,
                                      @Valid @RequestBody UpdateScriptSegmentRequest request) {

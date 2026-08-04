@@ -225,6 +225,36 @@ public class ScriptWorkspaceService {
         return revised;
     }
 
+    @Transactional
+    public Map<String, Object> review(UUID taskId, int clipIndex, ManualScriptReviewRequest request) {
+        VideoTask task = requireTask(taskId);
+        ScriptDocumentView document = readDocument(task);
+        requireSegment(document.segments(), clipIndex);
+        Path path = requireScriptPath(task);
+        JsonNode root = readJson(path);
+        Map<String, Object> output = objectMapper.convertValue(root,
+                new com.fasterxml.jackson.core.type.TypeReference<LinkedHashMap<String, Object>>() {});
+        Map<String, Object> reviews = root.path("manualReviews").isObject()
+                ? objectMapper.convertValue(root.path("manualReviews"),
+                    new com.fasterxml.jackson.core.type.TypeReference<LinkedHashMap<String, Object>>() {})
+                : new LinkedHashMap<>();
+        reviews.put(Integer.toString(clipIndex), Map.of(
+                "status", request.status(),
+                "note", request.note() == null ? "" : request.note().trim(),
+                "updatedAt", java.time.Instant.now().toString()));
+        output.put("manualReviews", reviews);
+        writeAtomically(path, output);
+        return Map.copyOf(reviews);
+    }
+
+    @Transactional
+    public Map<String, Object> reviews(UUID taskId) {
+        JsonNode reviews = readJson(requireScriptPath(requireTask(taskId))).path("manualReviews");
+        if (!reviews.isObject()) return Map.of();
+        return objectMapper.convertValue(reviews,
+                new com.fasterxml.jackson.core.type.TypeReference<LinkedHashMap<String, Object>>() {});
+    }
+
     private ScriptDocumentView readDocument(VideoTask task) {
         Path path = requireScriptPath(task);
         JsonNode document = readJson(path);

@@ -1,7 +1,7 @@
 # GameNarrator — DeepSeek 项目上下文包
 
-> 自动生成时间：2026-08-04 09:36:33 +08:00
-> 文件数量：257。本文件由 scripts/export-deepseek-context.ps1 生成，请勿手工维护生成区。
+> 自动生成时间：2026-08-04 10:00:46 +08:00
+> 文件数量：259。本文件由 scripts/export-deepseek-context.ps1 生成，请勿手工维护生成区。
 
 ## 给 DeepSeek 的强制工作规则
 
@@ -22,7 +22,7 @@
 
 ## 当前文件清单
 
-- `pom.xml`（2236 bytes）
+- `pom.xml`（2304 bytes）
 - `README.md`（4934 bytes）
 - `.gitignore`（277 bytes）
 - `docs/ARCHITECTURE.md`（2049 bytes）
@@ -31,7 +31,7 @@
 - `docs/DATABASE_DESIGN.md`（28565 bytes）
 - `docs/FRONTEND_DEVELOPMENT.md`（1853 bytes）
 - `docs/MANUAL_EDITOR_PARITY.md`（2553 bytes）
-- `docs/PERFORMANCE_PORTABILITY_AUDIT.md`（6917 bytes）
+- `docs/PERFORMANCE_PORTABILITY_AUDIT.md`（8090 bytes）
 - `docs/REQUIREMENTS.md`（21389 bytes）
 - `scripts/build-windows-release.ps1`（11841 bytes）
 - `scripts/export-deepseek-context.ps1`（5568 bytes）
@@ -39,7 +39,7 @@
 - `scripts/setup-media-importer.ps1`（1038 bytes）
 - `scripts/setup-piper.ps1`（1322 bytes）
 - `scripts/setup-vision-model.ps1`（931 bytes）
-- `scripts/setup-whisper.ps1`（1323 bytes）
+- `scripts/setup-whisper.ps1`（2003 bytes）
 - `scripts/sync-remotes.ps1`（1786 bytes）
 - `scripts/test-windows-clean-install.ps1`（3068 bytes）
 - `scripts/verify-before-push.ps1`（1116 bytes）
@@ -76,9 +76,9 @@
 - `src/main/java/cn/longer233/gamenarrator/common/PhaseRetryExecutor.java`（3901 bytes）
 - `src/main/java/cn/longer233/gamenarrator/common/RequestTraceFilter.java`（1908 bytes）
 - `src/main/java/cn/longer233/gamenarrator/common/SecurePathGuard.java`（1894 bytes）
-- `src/main/java/cn/longer233/gamenarrator/common/StorageCleanupService.java`（5365 bytes）
-- `src/main/java/cn/longer233/gamenarrator/common/TaskProcessRegistry.java`（2646 bytes）
-- `src/main/java/cn/longer233/gamenarrator/compilation/ClipCompilationController.java`（1818 bytes）
+- `src/main/java/cn/longer233/gamenarrator/common/StorageCleanupService.java`（8247 bytes）
+- `src/main/java/cn/longer233/gamenarrator/common/TaskProcessRegistry.java`（3454 bytes）
+- `src/main/java/cn/longer233/gamenarrator/compilation/ClipCompilationController.java`（1836 bytes）
 - `src/main/java/cn/longer233/gamenarrator/compilation/ClipCompilationService.java`（4099 bytes）
 - `src/main/java/cn/longer233/gamenarrator/config/AsyncConfig.java`（1465 bytes）
 - `src/main/java/cn/longer233/gamenarrator/config/ExternalProcessConfig.java`（670 bytes）
@@ -134,16 +134,17 @@
 - `src/main/java/cn/longer233/gamenarrator/pipeline/EngineTaskContext.java`（1224 bytes）
 - `src/main/java/cn/longer233/gamenarrator/pipeline/FailedVisionTaskRepair.java`（2063 bytes）
 - `src/main/java/cn/longer233/gamenarrator/pipeline/PendingTaskRecovery.java`（1817 bytes）
-- `src/main/java/cn/longer233/gamenarrator/pipeline/PipelineRunTracker.java`（5283 bytes）
+- `src/main/java/cn/longer233/gamenarrator/pipeline/PipelineRunTracker.java`（5680 bytes）
 - `src/main/java/cn/longer233/gamenarrator/pipeline/ProjectArtifactRegistry.java`（5346 bytes）
-- `src/main/java/cn/longer233/gamenarrator/pipeline/TaskWorkflowStateService.java`（13663 bytes）
-- `src/main/java/cn/longer233/gamenarrator/pipeline/VideoTaskEngine.java`（20339 bytes）
+- `src/main/java/cn/longer233/gamenarrator/pipeline/TaskWorkflowStateService.java`（13728 bytes）
+- `src/main/java/cn/longer233/gamenarrator/pipeline/VideoTaskEngine.java`（20683 bytes）
 - `src/main/java/cn/longer233/gamenarrator/pipeline/WaitingTaskRetryScheduler.java`（2399 bytes）
-- `src/main/java/cn/longer233/gamenarrator/render/FfmpegVideoRenderer.java`（27379 bytes）
+- `src/main/java/cn/longer233/gamenarrator/render/FfmpegVideoRenderer.java`（28915 bytes）
 - `src/main/java/cn/longer233/gamenarrator/render/RenderAssetResolver.java`（2211 bytes）
 - `src/main/java/cn/longer233/gamenarrator/render/RenderResult.java`（133 bytes）
 - `src/main/java/cn/longer233/gamenarrator/script/AutoAssetAssignmentView.java`（246 bytes）
 - `src/main/java/cn/longer233/gamenarrator/script/GeneratedScript.java`（245 bytes）
+- `src/main/java/cn/longer233/gamenarrator/script/ManualScriptReviewRequest.java`（341 bytes）
 - `src/main/java/cn/longer233/gamenarrator/script/MoveStoryboardSegmentRequest.java`（195 bytes）
 - `src/main/java/cn/longer233/gamenarrator/script/OllamaScriptGenerator.java`（19230 bytes）
 - `src/main/java/cn/longer233/gamenarrator/script/PlaceStoryboardAssetRequest.java`（307 bytes）
@@ -151,8 +152,8 @@
 - `src/main/java/cn/longer233/gamenarrator/script/ScriptDocumentView.java`（264 bytes）
 - `src/main/java/cn/longer233/gamenarrator/script/ScriptQualityReview.java`（318 bytes）
 - `src/main/java/cn/longer233/gamenarrator/script/ScriptSegment.java`（233 bytes）
-- `src/main/java/cn/longer233/gamenarrator/script/ScriptWorkspaceController.java`（5099 bytes）
-- `src/main/java/cn/longer233/gamenarrator/script/ScriptWorkspaceService.java`（17514 bytes）
+- `src/main/java/cn/longer233/gamenarrator/script/ScriptWorkspaceController.java`（5598 bytes）
+- `src/main/java/cn/longer233/gamenarrator/script/ScriptWorkspaceService.java`（19106 bytes）
 - `src/main/java/cn/longer233/gamenarrator/script/StoryboardAssetPlacementService.java`（13313 bytes）
 - `src/main/java/cn/longer233/gamenarrator/script/StoryboardAssetPlacementView.java`（330 bytes）
 - `src/main/java/cn/longer233/gamenarrator/script/StoryboardSegmentView.java`（305 bytes）
@@ -167,7 +168,7 @@
 - `src/main/java/cn/longer233/gamenarrator/task/application/RenameTaskRequest.java`（222 bytes）
 - `src/main/java/cn/longer233/gamenarrator/task/application/StageView.java`（767 bytes）
 - `src/main/java/cn/longer233/gamenarrator/task/application/TaskNotFoundException.java`（239 bytes）
-- `src/main/java/cn/longer233/gamenarrator/task/application/VideoTaskService.java`（12986 bytes）
+- `src/main/java/cn/longer233/gamenarrator/task/application/VideoTaskService.java`（11613 bytes）
 - `src/main/java/cn/longer233/gamenarrator/task/application/VideoTaskView.java`（4287 bytes）
 - `src/main/java/cn/longer233/gamenarrator/task/domain/CommentaryStyle.java`（128 bytes）
 - `src/main/java/cn/longer233/gamenarrator/task/domain/EditingScope.java`（108 bytes）
@@ -188,7 +189,7 @@
 - `src/main/java/cn/longer233/gamenarrator/transcription/SubtitleChunkAnalysisService.java`（4709 bytes）
 - `src/main/java/cn/longer233/gamenarrator/transcription/TerminologyCorrector.java`（2256 bytes）
 - `src/main/java/cn/longer233/gamenarrator/transcription/TranscriptionResult.java`（196 bytes）
-- `src/main/java/cn/longer233/gamenarrator/transcription/WhisperCppTranscriber.java`（4962 bytes）
+- `src/main/java/cn/longer233/gamenarrator/transcription/WhisperCppTranscriber.java`（5595 bytes）
 - `src/main/java/cn/longer233/gamenarrator/vision/FrameOcrService.java`（2246 bytes）
 - `src/main/java/cn/longer233/gamenarrator/vision/FrameUnderstanding.java`（267 bytes）
 - `src/main/java/cn/longer233/gamenarrator/vision/HighlightHint.java`（131 bytes）
@@ -231,14 +232,14 @@
 - `src/main/resources/db/migration/V7__storyboard_review.sql`（207 bytes）
 - `src/main/resources/db/migration/V8__video_segment_semantic_index.sql`（634 bytes）
 - `src/main/resources/db/migration/V9__video_segment_image_hash.sql`（152 bytes）
-- `src/main/resources/static/app.css`（44302 bytes）
-- `src/main/resources/static/app.js`（73208 bytes）
+- `src/main/resources/static/app.css`（45492 bytes）
+- `src/main/resources/static/app.js`（74799 bytes）
 - `src/main/resources/static/asset-library.js`（39551 bytes）
 - `src/main/resources/static/diagnostics.js`（1673 bytes）
 - `src/main/resources/static/export.js`（9227 bytes）
 - `src/main/resources/static/extension-install.html`（3410 bytes）
 - `src/main/resources/static/index.html`（23154 bytes）
-- `src/main/resources/static/media-importer.css`（4256 bytes）
+- `src/main/resources/static/media-importer.css`（4495 bytes）
 - `src/main/resources/static/media-importer.js`（23963 bytes）
 - `src/test/java/cn/longer233/gamenarrator/ai/AdaptiveAiChatClientTest.java`（1725 bytes）
 - `src/test/java/cn/longer233/gamenarrator/ai/AiUsageServiceTest.java`（1164 bytes）
@@ -253,7 +254,7 @@
 - `src/test/java/cn/longer233/gamenarrator/common/ExternalProcessRunnerTest.java`（1623 bytes）
 - `src/test/java/cn/longer233/gamenarrator/common/ProcessSleeper.java`（229 bytes）
 - `src/test/java/cn/longer233/gamenarrator/common/SecurePathGuardTest.java`（1373 bytes）
-- `src/test/java/cn/longer233/gamenarrator/common/StorageCleanupServiceTest.java`（1782 bytes）
+- `src/test/java/cn/longer233/gamenarrator/common/StorageCleanupServiceTest.java`（2694 bytes）
 - `src/test/java/cn/longer233/gamenarrator/config/AsyncConfigTest.java`（991 bytes）
 - `src/test/java/cn/longer233/gamenarrator/diagnostics/DiagnosticLogServiceTest.java`（906 bytes）
 - `src/test/java/cn/longer233/gamenarrator/effect/SemanticEffectPlannerTest.java`（1359 bytes）
@@ -267,7 +268,7 @@
 - `src/test/java/cn/longer233/gamenarrator/pipeline/VideoPipelineEndToEndTest.java`（3001 bytes）
 - `src/test/java/cn/longer233/gamenarrator/render/FfmpegVideoRendererEffectTest.java`（2999 bytes）
 - `src/test/java/cn/longer233/gamenarrator/script/OllamaScriptGeneratorTest.java`（2300 bytes）
-- `src/test/java/cn/longer233/gamenarrator/script/ScriptWorkspaceServiceTest.java`（3458 bytes）
+- `src/test/java/cn/longer233/gamenarrator/script/ScriptWorkspaceServiceTest.java`（5023 bytes）
 - `src/test/java/cn/longer233/gamenarrator/subtitle/AssSubtitleBuilderTest.java`（771 bytes）
 - `src/test/java/cn/longer233/gamenarrator/task/DatabaseMigrationTest.java`（4843 bytes）
 - `src/test/java/cn/longer233/gamenarrator/task/domain/VideoTaskTest.java`（4664 bytes）
@@ -276,6 +277,7 @@
 - `src/test/java/cn/longer233/gamenarrator/timeline/TimelineValidatorTest.java`（1515 bytes）
 - `src/test/java/cn/longer233/gamenarrator/transcription/PlatformSubtitleReaderTest.java`（953 bytes）
 - `src/test/java/cn/longer233/gamenarrator/transcription/SubtitleChunkAnalysisServiceTest.java`（1373 bytes）
+- `src/test/java/cn/longer233/gamenarrator/transcription/WhisperCppTranscriberTest.java`（774 bytes）
 - `src/test/java/cn/longer233/gamenarrator/vision/ImagePerceptualHashTest.java`（1287 bytes）
 - `src/test/java/cn/longer233/gamenarrator/vision/VideoSegmentClipServiceTest.java`（2242 bytes）
 - `src/test/java/cn/longer233/gamenarrator/vision/VideoSegmentSemanticIndexRankingTest.java`（1270 bytes）
@@ -305,6 +307,7 @@
 
     <properties>
         <java.version>21</java.version>
+        <maven.compiler.parameters>true</maven.compiler.parameters>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
     </properties>
@@ -1464,6 +1467,15 @@ GameNarrator 在禁用或未配置 AI 时，仍应能完成导入、粗剪、精
 - Download, analysis, and generation use independent bounded retry budgets and exponential backoff.
 - Flyway V21 adds cross-project clip compilations with explicit persistent ordering.
 - The repository is distributed under the MIT License. No source was copied from autoclip; GitHub was unreachable from this environment during comparison.
+
+## 2026-08-04 cleanup, review, and render progress pass
+
+- Task deletion cancels registered process trees, waits up to five seconds, then delegates physical cleanup to one `StorageCleanupService` boundary guarded by `SecurePathGuard`.
+- Task-owned segment clips, pending import files, task directories, and explicitly registered `PROJECT` assets are removed; unrelated shared library assets are retained.
+- Script segments support persisted manual `APPROVED` / `NEEDS_CHANGES` reviews and notes without overwriting the AI quality review. The editor highlights segment-specific AI issues and likely narration-duration overflow.
+- FFmpeg clip encoding emits `-progress pipe:1`; normalized encoding time updates both the task stage and stage-run record and reaches the browser over SSE.
+- Task state polling was removed from the frontend. EventSource heartbeat and bounded exponential reconnect are the sole task-update transport.
+- Asset/media service extraction, effect filter strategies, authenticated multi-user isolation, revision rollback UI, and user-owned export-preset CRUD remain separate schema/security refactors and are not represented as complete in this pass.
 ``
 
 ### FILE: docs/REQUIREMENTS.md
@@ -2363,6 +2375,10 @@ Write-Host "Vision model is ready: qwen2.5vl:3b"
 ### FILE: scripts/setup-whisper.ps1
 
 ``powershell
+param(
+  [string]$ModelUrl = $(if ($env:WHISPER_MODEL_URL) { $env:WHISPER_MODEL_URL } else { "https://huggingface.co/ggerganov/whisper.cpp/resolve/main/ggml-base.bin" })
+)
+
 $ErrorActionPreference = "Stop"
 
 $projectRoot = Split-Path -Parent $PSScriptRoot
@@ -2373,21 +2389,29 @@ $modelPath = Join-Path $modelDirectory "ggml-base.bin"
 
 New-Item -ItemType Directory -Force -Path $toolDirectory, $modelDirectory | Out-Null
 
-Write-Host "Downloading whisper.cpp..."
-curl.exe -L --retry 5 --retry-all-errors `
-  -o $archivePath `
-  "https://github.com/ggml-org/whisper.cpp/releases/download/v1.9.1/whisper-bin-x64.zip"
-if ($LASTEXITCODE -ne 0) {
-  throw "whisper.cpp download failed with exit code $LASTEXITCODE"
+if (-not (Test-Path -LiteralPath (Join-Path $toolDirectory "Release\whisper-cli.exe"))) {
+  Write-Host "Downloading whisper.cpp..."
+  curl.exe -fL --retry 5 --retry-all-errors `
+    -o $archivePath `
+    "https://github.com/ggml-org/whisper.cpp/releases/download/v1.9.1/whisper-bin-x64.zip"
+  if ($LASTEXITCODE -ne 0) {
+    throw "whisper.cpp download failed with exit code $LASTEXITCODE"
+  }
+  Expand-Archive -LiteralPath $archivePath -DestinationPath $toolDirectory -Force
+} else {
+  Write-Host "whisper.cpp executable already exists; skipping binary download."
 }
-Expand-Archive -LiteralPath $archivePath -DestinationPath $toolDirectory -Force
 
-Write-Host "Downloading multilingual base model..."
-curl.exe -L --retry 5 --retry-all-errors `
-  -o $modelPath `
-  "https://huggingface.co/ggerganov/whisper.cpp/resolve/main/ggml-base.bin"
-if ($LASTEXITCODE -ne 0) {
-  throw "Whisper model download failed with exit code $LASTEXITCODE"
+if (-not (Test-Path -LiteralPath $modelPath) -or (Get-Item -LiteralPath $modelPath).Length -lt 100MB) {
+  Write-Host "Downloading multilingual base model..."
+  $partialModelPath = "$modelPath.partial"
+  curl.exe -fL --retry 5 --retry-all-errors -C - -o $partialModelPath $ModelUrl
+  if ($LASTEXITCODE -ne 0) {
+    throw "Whisper model download failed with exit code $LASTEXITCODE. Set WHISPER_MODEL_URL to an approved mirror and retry."
+  }
+  Move-Item -LiteralPath $partialModelPath -Destination $modelPath -Force
+} else {
+  Write-Host "Whisper model already exists; skipping model download."
 }
 
 $executable = Join-Path $toolDirectory "Release\whisper-cli.exe"
@@ -6426,6 +6450,7 @@ import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
+import java.util.Collection;
 
 @Component
 @Order(30)
@@ -6459,6 +6484,55 @@ public class StorageCleanupService implements ApplicationRunner {
             }
         } catch (Exception exception) {
             log.warn("STORAGE_CLEANUP_FAILED reason={}", exception.getMessage());
+        }
+    }
+
+    public void cleanupTask(UUID taskId, Collection<String> knownArtifacts) {
+        try {
+            Path root = SecurePathGuard.prepareRoot(storageRoot);
+            if (knownArtifacts != null) {
+                for (String value : knownArtifacts) {
+                    if (value == null || value.isBlank()) continue;
+                    deleteOwned(Path.of(value).toAbsolutePath().normalize(), root);
+                }
+            }
+            cleanupTaskNamedFiles(root.resolve("segment-clips"), root, taskId + "-");
+            cleanupTaskNamedFiles(root.resolve("import-downloads"), root, taskId.toString());
+            cleanupTaskNamedFiles(root.resolve("assets").resolve("projects"), root, taskId.toString());
+            deleteOwnedTree(root.resolve("tasks").resolve(taskId.toString()), root);
+            List<Map<String, Object>> projectAssets = jdbc.queryForList(
+                    "SELECT id,local_path FROM external_asset WHERE provider='PROJECT' AND external_id=?",
+                    taskId.toString());
+            for (Map<String, Object> asset : projectAssets) {
+                Object localPath = asset.get("LOCAL_PATH");
+                if (localPath != null) deleteOwned(Path.of(localPath.toString()).toAbsolutePath().normalize(), root);
+                jdbc.update("DELETE FROM asset_tag_override WHERE asset_id=?", asset.get("ID"));
+                jdbc.update("DELETE FROM asset_tag_assignment WHERE asset_id=?", asset.get("ID"));
+                jdbc.update("DELETE FROM external_asset WHERE id=?", asset.get("ID"));
+            }
+            log.info("TASK_STORAGE_CLEANUP taskId={} knownArtifacts={}", taskId,
+                    knownArtifacts == null ? 0 : knownArtifacts.size());
+        } catch (Exception exception) {
+            log.warn("TASK_STORAGE_CLEANUP_FAILED taskId={} reason={}", taskId, exception.getMessage());
+        }
+    }
+
+    private void cleanupTaskNamedFiles(Path directory, Path root, String prefix) throws Exception {
+        if (!Files.isDirectory(directory, LinkOption.NOFOLLOW_LINKS)
+                || !SecurePathGuard.isOwned(directory, root)) return;
+        try (var paths = Files.list(directory)) {
+            for (Path path : paths.filter(candidate -> candidate.getFileName().toString().startsWith(prefix)).toList()) {
+                if (Files.isDirectory(path, LinkOption.NOFOLLOW_LINKS)) deleteOwnedTree(path, root);
+                else deleteOwned(path, root);
+            }
+        }
+    }
+
+    private void deleteOwnedTree(Path directory, Path root) throws Exception {
+        if (!Files.exists(directory, LinkOption.NOFOLLOW_LINKS)
+                || !SecurePathGuard.isOwned(directory, root)) return;
+        try (var paths = Files.walk(directory)) {
+            for (Path path : paths.sorted(Comparator.reverseOrder()).toList()) deleteOwned(path, root);
         }
     }
 
@@ -6536,6 +6610,7 @@ import java.util.Set;
 import java.util.UUID;
 import java.util.concurrent.CancellationException;
 import java.util.concurrent.ConcurrentHashMap;
+import java.time.Duration;
 
 /** Associates external processes with the task currently executing on an engine thread. */
 public final class TaskProcessRegistry {
@@ -6579,6 +6654,23 @@ public final class TaskProcessRegistry {
     public static void cancel(UUID taskId) {
         CANCELLED.add(taskId);
         PROCESSES.getOrDefault(taskId, Set.of()).forEach(ExternalProcessRunner::terminateTree);
+    }
+
+    public static boolean cancelAndAwait(UUID taskId, Duration timeout) {
+        cancel(taskId);
+        long deadline = System.nanoTime() + timeout.toNanos();
+        while (System.nanoTime() < deadline) {
+            Set<Process> processes = PROCESSES.getOrDefault(taskId, Set.of());
+            if (processes.stream().noneMatch(Process::isAlive)) return true;
+            processes.stream().filter(Process::isAlive).forEach(ExternalProcessRunner::terminateTree);
+            try {
+                Thread.sleep(50);
+            } catch (InterruptedException exception) {
+                Thread.currentThread().interrupt();
+                return false;
+            }
+        }
+        return PROCESSES.getOrDefault(taskId, Set.of()).stream().noneMatch(Process::isAlive);
     }
 
     public static void throwIfCancelled(UUID taskId) {
@@ -6626,7 +6718,7 @@ public class ClipCompilationController {
     public ClipCompilationController(ClipCompilationService service) { this.service = service; }
 
     @GetMapping public List<ClipCompilationService.CompilationView> list() { return service.list(); }
-    @GetMapping("/{id}") public ClipCompilationService.CompilationView find(@PathVariable UUID id) { return service.find(id); }
+    @GetMapping("/{id}") public ClipCompilationService.CompilationView find(@PathVariable("id") UUID id) { return service.find(id); }
 
     @PostMapping @ResponseStatus(HttpStatus.CREATED)
     public ClipCompilationService.CompilationView create(@Valid @RequestBody CreateRequest request) {
@@ -6634,12 +6726,12 @@ public class ClipCompilationController {
     }
 
     @PostMapping("/{id}/items")
-    public ClipCompilationService.CompilationView add(@PathVariable UUID id, @Valid @RequestBody AddRequest request) {
+    public ClipCompilationService.CompilationView add(@PathVariable("id") UUID id, @Valid @RequestBody AddRequest request) {
         return service.add(id, request.taskId(), request.clipIndex());
     }
 
     @PutMapping("/{id}/order")
-    public ClipCompilationService.CompilationView reorder(@PathVariable UUID id,
+    public ClipCompilationService.CompilationView reorder(@PathVariable("id") UUID id,
             @Valid @RequestBody ReorderRequest request) { return service.reorder(id, request.itemIds()); }
 
     public record CreateRequest(@NotBlank @Size(max=120) String name) {}
@@ -10573,6 +10665,14 @@ public class PipelineRunTracker {
         if ("RENDERING".equals(stageType)) finishRun(taskId, "COMPLETED", null);
     }
 
+    public void progress(UUID taskId, String stageType, int progress) {
+        UUID runId = activeRun(taskId);
+        jdbc.update("""
+                UPDATE stage_run SET progress=? WHERE id=(SELECT id FROM stage_run
+                WHERE generation_run_id=? AND stage_type=? ORDER BY attempt_no DESC LIMIT 1)
+                """, Math.max(10, Math.min(99, progress)), runId, stageType);
+    }
+
     public void failed(UUID taskId, String stageType, String reason) {
         updateStage(taskId, stageType, "FAILED", 100, null, reason);
         finishRun(taskId, "FAILED", reason);
@@ -10838,6 +10938,7 @@ public class TaskWorkflowStateService {
     @Transactional
     public void updateStageProgress(UUID taskId, ProcessingStageType stageType, int progress) {
         requireTask(taskId).updateStageProgress(stageType, progress);
+        runTracker.progress(taskId, stageType.name(), progress);
     }
 
     @Transactional
@@ -11230,13 +11331,15 @@ public class VideoTaskEngine {
                 if (result != null) {
                     log.info("TRANSCRIPTION_PLATFORM_SUBTITLE taskId={} subtitle={}", taskId,
                             result.subtitlePath());
-                } else if (context.hasAudio()) {
+                } else if (context.hasAudio() && transcriber.runtimeAvailable()) {
                     String extractedAudioPath = context.extractedAudioPath();
                     result = retryExecutor.analysis(() ->
                             transcriber.transcribe(Path.of(extractedAudioPath)));
                 } else {
                     result = new TranscriptionResult("", null, null, null);
-                    log.info("TRANSCRIPTION_SKIPPED taskId={} reason=no_audio_track", taskId);
+                    String reason = context.hasAudio() ? "whisper_unavailable" : "no_audio_track";
+                    log.warn("TRANSCRIPTION_SKIPPED taskId={} reason={} setup=.\\scripts\\setup-whisper.ps1",
+                            taskId, reason);
                 }
                 stateService.markTranscriptionCompleted(taskId, result);
                 if (result.subtitlePath() != null) {
@@ -11366,7 +11469,9 @@ public class VideoTaskEngine {
                 var preset = effectPresetCatalog.require(context.commentaryStyle());
                 var settings = new EffectSettingsRequest(preset.code(), null, true, false);
                 RenderResult result = videoRenderer.render(sourcePath, Path.of(context.timelinePath()),
-                        context.hasAudio(), preset, settings);
+                        context.hasAudio(), preset, settings,
+                        progress -> stateService.updateStageProgress(taskId,
+                                ProcessingStageType.RENDERING, progress));
                 stateService.markRenderingCompleted(taskId, result);
                 log.info("ENGINE_STAGE_COMPLETED taskId={} stage=RENDERING output={} sizeBytes={}",
                         taskId, result.videoPath(), result.fileSizeBytes());
@@ -11560,6 +11665,12 @@ public class FfmpegVideoRenderer {
 
     public RenderResult render(Path sourceVideo, Path timelinePath, boolean hasSourceAudio,
                                EffectPreset preset, EffectSettingsRequest settings) {
+        return render(sourceVideo, timelinePath, hasSourceAudio, preset, settings, ignored -> { });
+    }
+
+    public RenderResult render(Path sourceVideo, Path timelinePath, boolean hasSourceAudio,
+                               EffectPreset preset, EffectSettingsRequest settings,
+                               java.util.function.IntConsumer progressConsumer) {
         Path workDirectory = timelinePath.getParent().resolve("render-work");
         try {
             var root = objectMapper.readTree(timelinePath.toFile());
@@ -11577,6 +11688,7 @@ public class FfmpegVideoRenderer {
             List<EffectPlan> effectPlans = new ArrayList<>();
             String encoder = preferredEncoder;
             for (int index = 0; index < segments.size(); index++) {
+                int clipPosition = index;
                 Path clip = workDirectory.resolve("clip-%02d.mp4".formatted(index + 1));
                 TimelineSegment segment = segments.get(index);
                 EffectPlan effectPlan = effectPlanner.plan(
@@ -11584,13 +11696,15 @@ public class FfmpegVideoRenderer {
                 effectPlans.add(effectPlan);
                 try {
                     encodeClip(sourceVideo, segment, clip, hasSourceAudio, encoder, effectPlan, preset,
-                            visualAssets(storyboardAssets, segment.sequence()));
+                            visualAssets(storyboardAssets, segment.sequence()), fraction -> progressConsumer.accept(
+                                    10 + (int) Math.floor((clipPosition + fraction) / segments.size() * 65)));
                 } catch (IllegalStateException exception) {
                     if (index == 0 && !"libx264".equals(encoder)) {
                         log.warn("RENDER_ENCODER_FALLBACK from={} to=libx264 reason={}", encoder, exception.getMessage());
                         encoder = "libx264";
                         encodeClip(sourceVideo, segment, clip, hasSourceAudio, encoder, effectPlan, preset,
-                                visualAssets(storyboardAssets, segment.sequence()));
+                                visualAssets(storyboardAssets, segment.sequence()), fraction -> progressConsumer.accept(
+                                        10 + (int) Math.floor((clipPosition + fraction) / segments.size() * 65)));
                     } else {
                         throw exception;
                     }
@@ -11625,6 +11739,7 @@ public class FfmpegVideoRenderer {
                     "-c", "copy", baseVideo.toString()), Duration.ofMinutes(30), "片段拼接");
 
             Path subtitle = taskDirectory.resolve("generated-subtitles.srt");
+            progressConsumer.accept(80);
             cn.longer233.gamenarrator.common.AtomicArtifactWriter.writeText(
                     subtitle, buildSrt(segments), StandardCharsets.UTF_8);
             boolean dynamicSubtitles = settings != null && Boolean.TRUE.equals(settings.dynamicSubtitles());
@@ -11649,6 +11764,7 @@ public class FfmpegVideoRenderer {
                     preset == null ? 0.20 : preset.sourceAudioVolume(), dynamicSubtitle, soundCues,
                     storyboardAssets.stream().filter(RenderAssetResolver.RenderAsset::audio).toList());
             long size = Files.size(output);
+            progressConsumer.accept(95);
             log.info("RENDERING_SUCCESS encoder={} duration={} sizeBytes={} output={}",
                     encoder, root.path("outputDurationSeconds").asDouble(), size, output);
             return new RenderResult(output.toString(), subtitle.toString(), size);
@@ -11663,7 +11779,8 @@ public class FfmpegVideoRenderer {
 
     private void encodeClip(Path source, TimelineSegment segment, Path output,
                             boolean hasAudio, String encoder, EffectPlan effectPlan, EffectPreset preset,
-                            List<RenderAssetResolver.RenderAsset> assets) {
+                            List<RenderAssetResolver.RenderAsset> assets,
+                            java.util.function.DoubleConsumer progressConsumer) {
         List<String> command = new ArrayList<>(List.of(ffmpegCommand, "-y", "-hide_banner",
                 "-loglevel", "warning", "-ss", decimal(segment.sourceStartSeconds()),
                 "-t", decimal(segment.sourceEndSeconds() - segment.sourceStartSeconds()),
@@ -11685,8 +11802,15 @@ public class FfmpegVideoRenderer {
         command.addAll(List.of("-c:v", encoder));
         if ("h264_nvenc".equals(encoder)) command.addAll(List.of("-preset", "p4", "-cq", "24"));
         else command.addAll(List.of("-preset", "veryfast", "-crf", "23"));
-        command.addAll(List.of("-c:a", "aac", "-ar", "48000", "-ac", "2", "-shortest", output.toString()));
-        run(command, Duration.ofMinutes(45), "片段编码");
+        command.addAll(List.of("-c:a", "aac", "-ar", "48000", "-ac", "2", "-shortest",
+                "-progress", "pipe:1", "-nostats", output.toString()));
+        run(command, Duration.ofMinutes(45), "片段编码", line -> {
+            if (!line.startsWith("out_time_us=")) return;
+            try {
+                double elapsed = Long.parseLong(line.substring("out_time_us=".length()).trim()) / 1_000_000d;
+                progressConsumer.accept(Math.max(0, Math.min(1, elapsed / Math.max(.1, duration))));
+            } catch (NumberFormatException ignored) { }
+        });
     }
 
     private List<RenderAssetResolver.RenderAsset> visualAssets(List<RenderAssetResolver.RenderAsset> assets,
@@ -11943,8 +12067,14 @@ public class FfmpegVideoRenderer {
     }
 
     private void run(List<String> command, Duration timeout, String operation) {
+        run(command, timeout, operation, ignored -> { });
+    }
+
+    private void run(List<String> command, Duration timeout, String operation,
+                     java.util.function.Consumer<String> outputLine) {
         try {
-            var result = cn.longer233.gamenarrator.common.ExternalProcessRunner.run(command, timeout);
+            var result = cn.longer233.gamenarrator.common.ExternalProcessRunner.run(
+                    command, timeout, null, outputLine);
             if (result.exitCode() != 0) {
                 throw new IllegalStateException(operation + "失败，FFmpeg 退出码 " + result.exitCode()
                         + "：" + tail(result.output(), 1600));
@@ -12049,6 +12179,21 @@ public record GeneratedScript(
         String scriptPath,
         List<ScriptSegment> segments
 ) {
+}
+``
+
+### FILE: src/main/java/cn/longer233/gamenarrator/script/ManualScriptReviewRequest.java
+
+``java
+package cn.longer233.gamenarrator.script;
+
+import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.Pattern;
+import jakarta.validation.constraints.Size;
+
+public record ManualScriptReviewRequest(
+        @NotNull @Pattern(regexp = "APPROVED|NEEDS_CHANGES") String status,
+        @Size(max = 500) String note) {
 }
 ``
 
@@ -12467,6 +12612,18 @@ public class ScriptWorkspaceController {
         return service.find(taskId);
     }
 
+    @GetMapping("/script/reviews")
+    public java.util.Map<String, Object> reviews(@PathVariable("taskId") UUID taskId) {
+        return service.reviews(taskId);
+    }
+
+    @PutMapping("/script/segments/{clipIndex}/review")
+    public java.util.Map<String, Object> review(@PathVariable("taskId") UUID taskId,
+            @PathVariable("clipIndex") int clipIndex,
+            @Valid @RequestBody ManualScriptReviewRequest request) {
+        return service.review(taskId, clipIndex, request);
+    }
+
     @PutMapping("/script/segments/{clipIndex}")
     public ScriptDocumentView update(@PathVariable UUID taskId, @PathVariable int clipIndex,
                                      @Valid @RequestBody UpdateScriptSegmentRequest request) {
@@ -12779,6 +12936,36 @@ public class ScriptWorkspaceService {
         task.applyScriptRevision(revised.title(), revised.synopsis(), revised.fullNarration(),
                 scriptPath.toString(), revised.segments().size());
         return revised;
+    }
+
+    @Transactional
+    public Map<String, Object> review(UUID taskId, int clipIndex, ManualScriptReviewRequest request) {
+        VideoTask task = requireTask(taskId);
+        ScriptDocumentView document = readDocument(task);
+        requireSegment(document.segments(), clipIndex);
+        Path path = requireScriptPath(task);
+        JsonNode root = readJson(path);
+        Map<String, Object> output = objectMapper.convertValue(root,
+                new com.fasterxml.jackson.core.type.TypeReference<LinkedHashMap<String, Object>>() {});
+        Map<String, Object> reviews = root.path("manualReviews").isObject()
+                ? objectMapper.convertValue(root.path("manualReviews"),
+                    new com.fasterxml.jackson.core.type.TypeReference<LinkedHashMap<String, Object>>() {})
+                : new LinkedHashMap<>();
+        reviews.put(Integer.toString(clipIndex), Map.of(
+                "status", request.status(),
+                "note", request.note() == null ? "" : request.note().trim(),
+                "updatedAt", java.time.Instant.now().toString()));
+        output.put("manualReviews", reviews);
+        writeAtomically(path, output);
+        return Map.copyOf(reviews);
+    }
+
+    @Transactional
+    public Map<String, Object> reviews(UUID taskId) {
+        JsonNode reviews = readJson(requireScriptPath(requireTask(taskId))).path("manualReviews");
+        if (!reviews.isObject()) return Map.of();
+        return objectMapper.convertValue(reviews,
+                new com.fasterxml.jackson.core.type.TypeReference<LinkedHashMap<String, Object>>() {});
     }
 
     private ScriptDocumentView readDocument(VideoTask task) {
@@ -13577,6 +13764,7 @@ public class VideoTaskService {
     private final EffectRerenderWorker effectRerenderWorker;
     private final ProjectHistoryService projectHistoryService;
     private final Path storageRoot;
+    private final cn.longer233.gamenarrator.common.StorageCleanupService storageCleanup;
 
     public VideoTaskService(
             VideoTaskRepository repository,
@@ -13584,6 +13772,7 @@ public class VideoTaskService {
             VideoTaskEngine engine,
             EffectRerenderWorker effectRerenderWorker,
             ProjectHistoryService projectHistoryService,
+            cn.longer233.gamenarrator.common.StorageCleanupService storageCleanup,
             @org.springframework.beans.factory.annotation.Value("${game-narrator.storage-root}") String storageRoot
     ) {
         this.repository = repository;
@@ -13591,6 +13780,7 @@ public class VideoTaskService {
         this.engine = engine;
         this.effectRerenderWorker = effectRerenderWorker;
         this.projectHistoryService = projectHistoryService;
+        this.storageCleanup = storageCleanup;
         this.storageRoot = Path.of(storageRoot).toAbsolutePath().normalize();
     }
 
@@ -13768,6 +13958,8 @@ public class VideoTaskService {
         if (task.getStatus() == cn.longer233.gamenarrator.task.domain.TaskStatus.READY
                 || task.getStatus() == cn.longer233.gamenarrator.task.domain.TaskStatus.PROCESSING) {
             engine.requestDeletion(id);
+            cn.longer233.gamenarrator.common.TaskProcessRegistry.cancelAndAwait(id,
+                    java.time.Duration.ofSeconds(5));
         }
         List<String> paths = java.util.stream.Stream.of(task.getSourceVideoPath(), task.getExtractedAudioPath(),
                 task.getSceneManifestPath(), task.getTranscriptTextPath(), task.getSubtitlePath(),
@@ -13782,56 +13974,17 @@ public class VideoTaskService {
             ownedPaths.add(source.resolveSibling(source.getFileName() + ".platform.txt").toString());
             ownedPaths.add(source.resolveSibling(source.getFileName() + ".platform.srt.analysis.json").toString());
         }
-        Path taskDirectory = storageRoot.resolve("tasks").resolve(id.toString()).normalize();
         repository.delete(task);
         repository.flush();
         TransactionSynchronizationManager.registerSynchronization(new TransactionSynchronization() {
             @Override
             public void afterCommit() {
-                ownedPaths.forEach(VideoTaskService.this::deleteOwnedArtifact);
-                deleteOwnedTree(taskDirectory);
+                storageCleanup.cleanupTask(id, ownedPaths);
                 log.info("TASK_DELETED taskId={} artifactCandidates={}", id, ownedPaths.size());
             }
         });
     }
 
-    private void deleteOwnedArtifact(String value) {
-        try {
-            Path path = Path.of(value).toAbsolutePath().normalize();
-            if (!safeOwnedPath(path, storageRoot)) {
-                log.warn("TASK_ARTIFACT_DELETE_SKIPPED reason=outside_storage_root");
-                return;
-            }
-            Files.deleteIfExists(path);
-        } catch (Exception exception) {
-            log.warn("TASK_ARTIFACT_DELETE_SKIPPED reason={}", exception.getClass().getSimpleName());
-        }
-    }
-
-    private void deleteOwnedTree(Path candidate) {
-        Path path = candidate.toAbsolutePath().normalize();
-        Path taskRoot = storageRoot.resolve("tasks").normalize();
-        if (!safeOwnedPath(path, taskRoot)) {
-            log.warn("TASK_DIRECTORY_DELETE_SKIPPED reason=outside_task_root");
-            return;
-        }
-        if (!Files.exists(path)) return;
-        try (var entries = Files.walk(path)) {
-            for (Path entry : entries.sorted(java.util.Comparator.reverseOrder()).toList()) {
-                if (Files.isSymbolicLink(entry)) {
-                    Files.deleteIfExists(entry);
-                    continue;
-                }
-                Files.deleteIfExists(entry);
-            }
-        } catch (Exception exception) {
-            log.warn("TASK_DIRECTORY_DELETE_SKIPPED reason={}", exception.getClass().getSimpleName());
-        }
-    }
-
-    private boolean safeOwnedPath(Path candidate, Path allowedRoot) {
-        return cn.longer233.gamenarrator.common.SecurePathGuard.isOwned(candidate, allowedRoot);
-    }
 }
 ``
 
@@ -14812,7 +14965,7 @@ public class TaskEventStreamService {
         var snapshot = tasks.findAll();
         int stateHash = snapshot.hashCode();
         long now = System.currentTimeMillis();
-        if (stateHash == lastStateHash && now - lastHeartbeat < 15_000) return;
+        if (stateHash == lastStateHash && now - lastHeartbeat < 10_000) return;
         lastStateHash = stateHash;
         lastHeartbeat = now;
         clients.forEach(emitter -> send(emitter, snapshot));
@@ -14820,7 +14973,7 @@ public class TaskEventStreamService {
 
     private void send(SseEmitter emitter, Object data) {
         try {
-            emitter.send(SseEmitter.event().data(data).reconnectTime(3000));
+            emitter.send(SseEmitter.event().data(data).reconnectTime(1000));
         } catch (IOException | IllegalStateException exception) {
             clients.remove(emitter);
             emitter.complete();
@@ -15494,6 +15647,17 @@ public class WhisperCppTranscriber {
     }
 
     private void validateRuntime(Path audioPath) {
+        if (!Files.isRegularFile(executable)) {
+            throw new IllegalStateException("未找到 whisper.cpp 执行程序：" + executable
+                    + "。请在项目根目录运行 .\\scripts\\setup-whisper.ps1，或提供平台字幕");
+        }
+        if (!Files.isRegularFile(model)) {
+            throw new IllegalStateException("未找到 Whisper 模型：" + model
+                    + "。请在项目根目录运行 .\\scripts\\setup-whisper.ps1");
+        }
+        if (!Files.isRegularFile(audioPath)) {
+            throw new IllegalStateException("未找到待转写音频：" + audioPath);
+        }
         if (!Files.isRegularFile(executable)) {
             throw new IllegalStateException("未找到 whisper.cpp 执行程序：" + executable);
         }
@@ -17840,6 +18004,14 @@ CREATE INDEX idx_segment_embedding_image_hash ON video_segment_embedding(image_h
 .guided-tour-card footer button{color:var(--ink);background:#fff;border:3px solid var(--ink);box-shadow:3px 3px 0 var(--ink)}
 .guided-tour-card [data-guide-skip]{color:#333;background:#fff}.guided-tour-card [data-guide-next]{color:var(--ink);background:var(--blue)}
 .guided-tour-dots i{width:9px;height:9px;border:2px solid var(--ink);border-radius:0;background:#fff}.guided-tour-dots i.active{width:30px;border-radius:0;background:var(--pink)}
+
+/* Readability pass: separate text from similarly colored surfaces. */
+:where(p,small,label,span,dt,dd,.stage-caption,.media-meta,.effect-note,.asset-attribution,.storyboard-description){text-shadow:0 1px 2px rgba(0,0,0,.92)}
+:where(h1,h2,h3,strong,button,.step,.eyebrow,.section-title small){text-shadow:0 1px 0 rgba(0,0,0,.9),0 0 2px rgba(0,0,0,.55)}
+:where(.lead,.task-card p,.empty,.detail-brief,.stage-info small,.artifact-list span,.roadmap-list p,.asset-card-body>p,.asset-attribution){color:#aebbd2}
+:where(.detail-grid dt,.detail-summary span,.stage-index,.stage-row>b,.ai-usage span,.ai-usage strong small){color:#9aa9c4}
+input::placeholder,textarea::placeholder{color:#91a0bb;opacity:1;text-shadow:0 1px 2px #000}
+.script-segment-card.quality-warning{border-color:#ffb347;box-shadow:inset 4px 0 0 #ffb347}.script-segment-card.manual-approved{border-color:#38e09d;box-shadow:inset 4px 0 0 #38e09d}.script-segment-card.manual-needs-changes{border-color:#ff5577;box-shadow:inset 4px 0 0 #ff5577}.segment-quality-issues{margin:8px 0;padding:9px 11px;border:1px solid #ffb347;background:rgba(255,179,71,.12);color:#ffe1ad}.segment-quality-issues ul{margin:6px 0 0;padding-left:18px}
 @media(max-width:650px){.guided-tour-card{box-shadow:7px 7px 0 var(--pink),11px 11px 0 var(--ink);transform:none}.guided-tour-target{box-shadow:0 0 0 4px var(--yellow),0 0 0 7px var(--ink),0 0 0 9999px rgba(17,17,17,.28)!important}}
 ``
 
@@ -17950,9 +18122,9 @@ const storyboardDialog = document.querySelector('#storyboard-dialog');
 const storyboardWorkspace = document.querySelector('#storyboard-workspace');
 let activeTaskId = null;
 let tasksLoading = false;
-let taskPollTimer = null;
 let taskEventStream = null;
 let taskStreamConnected = false;
+let taskStreamRetryMs = 1000;
 let effectPresets = [];
 let storyboardProgressTimer = null;
 const segmentSearchForm = document.querySelector('#segment-search-form');
@@ -17981,9 +18153,6 @@ async function loadTasks() {
     if (!response.ok) throw await readApiError(response);
     const tasks = await response.json();
     reconcileTaskCards(tasks);
-    if (!taskStreamConnected) {
-      scheduleTaskPoll(tasks.some(task => ['DRAFT', 'READY', 'PROCESSING'].includes(task.status)) ? 5000 : 60000);
-    }
     return tasks;
   } finally {
     tasksLoading = false;
@@ -17991,18 +18160,7 @@ async function loadTasks() {
 }
 
 function scheduleTaskPoll(delayMs) {
-  if (taskStreamConnected) return;
-  clearTimeout(taskPollTimer);
-  taskPollTimer = setTimeout(() => {
-    if (document.hidden) {
-      scheduleTaskPoll(60000);
-      return;
-    }
-    loadTasks().catch(error => {
-      showLoadError(error);
-      scheduleTaskPoll(10000);
-    });
-  }, delayMs);
+  // Kept as a compatibility hook for older action handlers. Task state is SSE-only.
 }
 
 function connectTaskStream() {
@@ -18010,7 +18168,7 @@ function connectTaskStream() {
   taskEventStream = new EventSource('/api/tasks/stream');
   taskEventStream.onopen = () => {
     taskStreamConnected = true;
-    clearTimeout(taskPollTimer);
+    taskStreamRetryMs = 1000;
     clearInterval(storyboardProgressTimer);
   };
   taskEventStream.onmessage = event => {
@@ -18026,8 +18184,9 @@ function connectTaskStream() {
     taskStreamConnected = false;
     taskEventStream?.close();
     taskEventStream = null;
-    scheduleTaskPoll(3000);
-    setTimeout(connectTaskStream, 10000);
+    const retry = taskStreamRetryMs;
+    taskStreamRetryMs = Math.min(30000, taskStreamRetryMs * 2);
+    setTimeout(connectTaskStream, retry);
   };
 }
 
@@ -18473,6 +18632,12 @@ detailContent.addEventListener('click', async event => {
           speed: Number(card.querySelector('[name="voiceSpeed"]').value)
         })
       });
+    } else if (actionButton.dataset.scriptAction.startsWith('review-')) {
+      const status = actionButton.dataset.scriptAction === 'review-approved' ? 'APPROVED' : 'NEEDS_CHANGES';
+      await requestJson(`/api/tasks/${taskId}/script/segments/${clipIndex}/review`, {
+        method: 'PUT', headers: {'Content-Type': 'application/json'},
+        body: JSON.stringify({status, note: card.querySelector('[name="reviewNote"]').value})
+      });
     }
     await refreshTaskDetails(taskId);
     await loadScriptEditor(taskId);
@@ -18617,9 +18782,10 @@ detailContent.addEventListener('click', async event => {
 });
 
 async function loadScriptEditor(taskId) {
-  const [script, voices] = await Promise.all([
+  const [script, voices, manualReviews] = await Promise.all([
     requestJson(`/api/tasks/${taskId}/script`),
-    requestJson(`/api/tasks/${taskId}/voice/options`)
+    requestJson(`/api/tasks/${taskId}/voice/options`),
+    requestJson(`/api/tasks/${taskId}/script/reviews`)
   ]);
   const voiceOptions = voices.map(voice => `<option value="${escapeHtml(voice.id)}" ${voice.available ? '' : 'disabled'} ${voice.defaultVoice ? 'selected' : ''}>${escapeHtml(voice.name)}${voice.available ? '' : '（未安装）'}</option>`).join('');
   const existing = detailContent.querySelector('.script-editor');
@@ -18633,9 +18799,17 @@ async function loadScriptEditor(taskId) {
         <span>${escapeHtml(script.qualityReview?.summary || '尚未生成质量评审')}</span>
         ${script.qualityReview?.issues?.length ? `<ul>${script.qualityReview.issues.map(issue => `<li>${escapeHtml(issue)}</li>`).join('')}</ul>` : ''}
       </aside>
-      <div class="script-segment-list">${script.segments.map(segment => `
-        <article class="script-segment-card" data-script-segment="${segment.clipIndex}">
+      <div class="script-segment-list">${script.segments.map(segment => {
+        const manual = manualReviews[String(segment.clipIndex)] || {};
+        const duration = Math.max(.1, segment.endSeconds - segment.startSeconds);
+        const overflow = segment.narration.length > duration * 5;
+        const aiIssues = (script.qualityReview?.issues || []).filter(issue =>
+          new RegExp(`(?:片段|分镜|clip)\\s*${segment.clipIndex}\\b`, 'i').test(issue));
+        const warnings = [...aiIssues, ...(overflow ? ['文案长度可能超过当前镜头的可配音时长'] : [])];
+        return `
+        <article class="script-segment-card ${warnings.length ? 'quality-warning' : ''} ${manual.status === 'APPROVED' ? 'manual-approved' : manual.status === 'NEEDS_CHANGES' ? 'manual-needs-changes' : ''}" data-script-segment="${segment.clipIndex}">
           <header><strong>片段 ${segment.clipIndex}</strong><small>${segment.startSeconds.toFixed(1)}s – ${segment.endSeconds.toFixed(1)}s</small></header>
+          ${warnings.length ? `<aside class="segment-quality-issues"><strong>需要检查</strong><ul>${warnings.map(issue => `<li>${escapeHtml(issue)}</li>`).join('')}</ul></aside>` : ''}
           <label>解说文案<textarea name="narration" maxlength="500">${escapeHtml(segment.narration)}</textarea></label>
           <label>字幕<input name="subtitle" maxlength="500" value="${escapeHtml(segment.subtitle)}"></label>
           <label>特效提示<input name="effectCue" maxlength="200" value="${escapeHtml(segment.effectCue)}"></label>
@@ -18645,8 +18819,11 @@ async function loadScriptEditor(taskId) {
             <button type="button" data-script-action="save" data-task-id="${taskId}" data-clip-index="${segment.clipIndex}">保存片段</button>
             <button type="button" data-script-action="regenerate" data-task-id="${taskId}" data-clip-index="${segment.clipIndex}">AI 重写</button>
             <button type="button" data-script-action="voice" data-task-id="${taskId}" data-clip-index="${segment.clipIndex}">重新配音</button>
+            <button type="button" data-script-action="review-approved" data-task-id="${taskId}" data-clip-index="${segment.clipIndex}">通过</button>
+            <button type="button" data-script-action="review-needs-changes" data-task-id="${taskId}" data-clip-index="${segment.clipIndex}">需修改</button>
           </div>
-        </article>`).join('')}</div>
+          <label>评审备注<input name="reviewNote" maxlength="500" value="${escapeHtml(manual.note || '')}" placeholder="说明事实冲突、节奏或措辞问题"></label>
+        </article>`}).join('')}</div>
     </section>`);
   detailContent.querySelector('.script-editor').scrollIntoView({behavior: 'smooth', block: 'start'});
 }
@@ -20407,6 +20584,8 @@ document.querySelector('#copy-address').onclick=async()=>{await navigator.clipbo
 .media-preview-progress{display:grid;gap:7px}.media-preview-progress[hidden]{display:none}.media-preview-progress progress{width:100%;height:12px;accent-color:#9b8cff}.media-preview-progress span{color:#b9afea;font-size:11px}
 @media(max-width:1050px){.auto-auth-state,.media-url-field{grid-column:1/-1}.cookie-fallback{grid-column:span 5}.rights-confirm{grid-column:span 7}.media-resolve-form>button{grid-column:1/-1}}@media(max-width:750px){.media-resolve-form{grid-template-columns:1fr}.media-resolve-form>*{grid-column:1!important}.bilibili-login-panel{grid-template-columns:1fr}.bilibili-login-panel span{grid-column:1}.resolved-media{grid-template-columns:1fr}.media-importer{padding:18px}}
 .media-online-preview{position:relative}.media-preview-close{position:absolute;z-index:1;top:22px;right:22px;width:34px;height:34px;padding:0;border-radius:50%;background:rgba(5,10,20,.82);font-size:24px;line-height:1;color:#fff;box-shadow:0 3px 14px #000}
+.media-importer :where(p,small,label,span){text-shadow:0 1px 2px rgba(0,0,0,.92)}
+.media-importer :where(.resolved-media p,.resolved-media small,.auto-auth-state small,.bilibili-login-panel small,.bilibili-login-panel span){color:#aebbd2}
 ``
 
 ### FILE: src/main/resources/static/media-importer.js
@@ -21409,6 +21588,7 @@ import java.nio.file.attribute.FileTime;
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
 import java.util.List;
+import java.util.UUID;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
@@ -21440,6 +21620,25 @@ class StorageCleanupServiceTest {
         assertThat(oldTemporary).doesNotExist();
         assertThat(oldImport).doesNotExist();
         assertThat(recentTemporary).exists();
+    }
+
+    @Test
+    void taskCleanupRemovesOwnedSegmentAndKnownImportArtifacts() throws Exception {
+        JdbcTemplate jdbc = mock(JdbcTemplate.class);
+        when(jdbc.queryForList(anyString(), any(Object[].class))).thenReturn(List.of());
+        UUID taskId = UUID.randomUUID();
+        Path clip = temporary.resolve("segment-clips").resolve(taskId + "-0_000-5_000.mp4");
+        Path imported = temporary.resolve("import-downloads").resolve(taskId + "-source.mp4");
+        Files.createDirectories(clip.getParent());
+        Files.createDirectories(imported.getParent());
+        Files.writeString(clip, "clip");
+        Files.writeString(imported, "source");
+
+        new StorageCleanupService(temporary.toString(), 24, jdbc)
+                .cleanupTask(taskId, List.of(imported.toString()));
+
+        assertThat(clip).doesNotExist();
+        assertThat(imported).doesNotExist();
     }
 }
 ``
@@ -22159,6 +22358,28 @@ class ScriptWorkspaceServiceTest {
                 .path("narration").asText()).isEqualTo("revised");
     }
 
+    @Test
+    void storesManualReviewPerSegmentWithoutReplacingAiReview() throws Exception {
+        ObjectMapper mapper = new ObjectMapper();
+        Path scriptPath = temporaryDirectory.resolve("review-script.json");
+        List<ScriptSegment> segments = List.of(new ScriptSegment(1, 0, 8, "text", "subtitle", "cut"));
+        mapper.writeValue(scriptPath.toFile(), Map.of("title", "title", "synopsis", "synopsis",
+                "fullNarration", "text", "qualityReview", Map.of("score", 60, "passed", false,
+                        "issues", List.of("事实需要核对"), "summary", "需复核"), "segments", segments));
+        VideoTask task = new VideoTask("demo", "ACTION", CommentaryStyle.ANIME_THEATER,
+                30, "brief", temporaryDirectory.resolve("source.mp4").toString());
+        task.completeScriptGeneration("title", "synopsis", "text", scriptPath.toString(), 1);
+        VideoTaskRepository repository = mock(VideoTaskRepository.class);
+        when(repository.findById(task.getId())).thenReturn(Optional.of(task));
+        ScriptWorkspaceService service = new ScriptWorkspaceService(repository, mapper,
+                mock(OllamaScriptGenerator.class), mock(VoiceGenerator.class));
+
+        service.review(task.getId(), 1, new ManualScriptReviewRequest("NEEDS_CHANGES", "角色名称不准确"));
+
+        assertThat(service.reviews(task.getId()).toString()).contains("NEEDS_CHANGES", "角色名称不准确");
+        assertThat(mapper.readTree(scriptPath.toFile()).path("qualityReview").path("score").asInt()).isEqualTo(60);
+    }
+
     private StageStatus stage(VideoTask task, ProcessingStageType type) {
         return task.getStages().stream()
                 .filter(item -> item.getStageType() == type)
@@ -22843,6 +23064,34 @@ class SubtitleChunkAnalysisServiceTest {
         assertThat(root.path("chunks").get(0).path("outline").asText()).contains("开始探索");
         assertThat(root.path("chunks").get(0).path("timeline").path("startSeconds").asDouble()).isEqualTo(1);
         assertThat(root.path("chunks").get(0).path("excitementScore").asInt()).isGreaterThan(35);
+    }
+}
+``
+
+### FILE: src/test/java/cn/longer233/gamenarrator/transcription/WhisperCppTranscriberTest.java
+
+``java
+package cn.longer233.gamenarrator.transcription;
+
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.io.TempDir;
+
+import java.nio.file.Path;
+
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
+
+class WhisperCppTranscriberTest {
+    @TempDir Path directory;
+
+    @Test
+    void missingRuntimeExplainsHowToInstallIt() {
+        WhisperCppTranscriber transcriber = new WhisperCppTranscriber(
+                directory.resolve("whisper-cli.exe").toString(),
+                directory.resolve("ggml-base.bin").toString(), "auto", 2);
+
+        assertThatThrownBy(() -> transcriber.transcribe(directory.resolve("audio.wav")))
+                .isInstanceOf(IllegalStateException.class)
+                .hasMessageContaining("setup-whisper.ps1");
     }
 }
 ``

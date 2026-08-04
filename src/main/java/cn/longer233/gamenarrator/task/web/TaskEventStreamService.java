@@ -35,7 +35,7 @@ public class TaskEventStreamService {
         var snapshot = tasks.findAll();
         int stateHash = snapshot.hashCode();
         long now = System.currentTimeMillis();
-        if (stateHash == lastStateHash && now - lastHeartbeat < 15_000) return;
+        if (stateHash == lastStateHash && now - lastHeartbeat < 10_000) return;
         lastStateHash = stateHash;
         lastHeartbeat = now;
         clients.forEach(emitter -> send(emitter, snapshot));
@@ -43,7 +43,7 @@ public class TaskEventStreamService {
 
     private void send(SseEmitter emitter, Object data) {
         try {
-            emitter.send(SseEmitter.event().data(data).reconnectTime(3000));
+            emitter.send(SseEmitter.event().data(data).reconnectTime(1000));
         } catch (IOException | IllegalStateException exception) {
             clients.remove(emitter);
             emitter.complete();

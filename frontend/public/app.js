@@ -102,9 +102,9 @@ const storyboardDialog = document.querySelector('#storyboard-dialog');
 const storyboardWorkspace = document.querySelector('#storyboard-workspace');
 let activeTaskId = null;
 let tasksLoading = false;
-let taskPollTimer = null;
 let taskEventStream = null;
 let taskStreamConnected = false;
+let taskStreamRetryMs = 1000;
 let effectPresets = [];
 let storyboardProgressTimer = null;
 const segmentSearchForm = document.querySelector('#segment-search-form');
@@ -133,9 +133,6 @@ async function loadTasks() {
     if (!response.ok) throw await readApiError(response);
     const tasks = await response.json();
     reconcileTaskCards(tasks);
-    if (!taskStreamConnected) {
-      scheduleTaskPoll(tasks.some(task => ['DRAFT', 'READY', 'PROCESSING'].includes(task.status)) ? 5000 : 60000);
-    }
     return tasks;
   } finally {
     tasksLoading = false;
@@ -143,18 +140,7 @@ async function loadTasks() {
 }
 
 function scheduleTaskPoll(delayMs) {
-  if (taskStreamConnected) return;
-  clearTimeout(taskPollTimer);
-  taskPollTimer = setTimeout(() => {
-    if (document.hidden) {
-      scheduleTaskPoll(60000);
-      return;
-    }
-    loadTasks().catch(error => {
-      showLoadError(error);
-      scheduleTaskPoll(10000);
-    });
-  }, delayMs);
+  // Kept as a compatibility hook for older action handlers. Task state is SSE-only.
 }
 
 function connectTaskStream() {
@@ -162,7 +148,7 @@ function connectTaskStream() {
   taskEventStream = new EventSource('/api/tasks/stream');
   taskEventStream.onopen = () => {
     taskStreamConnected = true;
-    clearTimeout(taskPollTimer);
+    taskStreamRetryMs = 1000;
     clearInterval(storyboardProgressTimer);
   };
   taskEventStream.onmessage = event => {
@@ -178,8 +164,9 @@ function connectTaskStream() {
     taskStreamConnected = false;
     taskEventStream?.close();
     taskEventStream = null;
-    scheduleTaskPoll(3000);
-    setTimeout(connectTaskStream, 10000);
+    const retry = taskStreamRetryMs;
+    taskStreamRetryMs = Math.min(30000, taskStreamRetryMs * 2);
+    setTimeout(connectTaskStream, retry);
   };
 }
 
@@ -625,6 +612,12 @@ detailContent.addEventListener('click', async event => {
           speed: Number(card.querySelector('[name="voiceSpeed"]').value)
         })
       });
+    } else if (actionButton.dataset.scriptAction.startsWith('review-')) {
+      const status = actionButton.dataset.scriptAction === 'review-approved' ? 'APPROVED' : 'NEEDS_CHANGES';
+      await requestJson(`/api/tasks/${taskId}/script/segments/${clipIndex}/review`, {
+        method: 'PUT', headers: {'Content-Type': 'application/json'},
+        body: JSON.stringify({status, note: card.querySelector('[name="reviewNote"]').value})
+      });
     }
     await refreshTaskDetails(taskId);
     await loadScriptEditor(taskId);
@@ -769,9 +762,10 @@ detailContent.addEventListener('click', async event => {
 });
 
 async function loadScriptEditor(taskId) {
-  const [script, voices] = await Promise.all([
+  const [script, voices, manualReviews] = await Promise.all([
     requestJson(`/api/tasks/${taskId}/script`),
-    requestJson(`/api/tasks/${taskId}/voice/options`)
+    requestJson(`/api/tasks/${taskId}/voice/options`),
+    requestJson(`/api/tasks/${taskId}/script/reviews`)
   ]);
   const voiceOptions = voices.map(voice => `<option value="${escapeHtml(voice.id)}" ${voice.available ? '' : 'disabled'} ${voice.defaultVoice ? 'selected' : ''}>${escapeHtml(voice.name)}${voice.available ? '' : '（未安装）'}</option>`).join('');
   const existing = detailContent.querySelector('.script-editor');
@@ -785,9 +779,17 @@ async function loadScriptEditor(taskId) {
         <span>${escapeHtml(script.qualityReview?.summary || '尚未生成质量评审')}</span>
         ${script.qualityReview?.issues?.length ? `<ul>${script.qualityReview.issues.map(issue => `<li>${escapeHtml(issue)}</li>`).join('')}</ul>` : ''}
       </aside>
-      <div class="script-segment-list">${script.segments.map(segment => `
-        <article class="script-segment-card" data-script-segment="${segment.clipIndex}">
+      <div class="script-segment-list">${script.segments.map(segment => {
+        const manual = manualReviews[String(segment.clipIndex)] || {};
+        const duration = Math.max(.1, segment.endSeconds - segment.startSeconds);
+        const overflow = segment.narration.length > duration * 5;
+        const aiIssues = (script.qualityReview?.issues || []).filter(issue =>
+          new RegExp(`(?:片段|分镜|clip)\\s*${segment.clipIndex}\\b`, 'i').test(issue));
+        const warnings = [...aiIssues, ...(overflow ? ['文案长度可能超过当前镜头的可配音时长'] : [])];
+        return `
+        <article class="script-segment-card ${warnings.length ? 'quality-warning' : ''} ${manual.status === 'APPROVED' ? 'manual-approved' : manual.status === 'NEEDS_CHANGES' ? 'manual-needs-changes' : ''}" data-script-segment="${segment.clipIndex}">
           <header><strong>片段 ${segment.clipIndex}</strong><small>${segment.startSeconds.toFixed(1)}s – ${segment.endSeconds.toFixed(1)}s</small></header>
+          ${warnings.length ? `<aside class="segment-quality-issues"><strong>需要检查</strong><ul>${warnings.map(issue => `<li>${escapeHtml(issue)}</li>`).join('')}</ul></aside>` : ''}
           <label>解说文案<textarea name="narration" maxlength="500">${escapeHtml(segment.narration)}</textarea></label>
           <label>字幕<input name="subtitle" maxlength="500" value="${escapeHtml(segment.subtitle)}"></label>
           <label>特效提示<input name="effectCue" maxlength="200" value="${escapeHtml(segment.effectCue)}"></label>
@@ -797,8 +799,11 @@ async function loadScriptEditor(taskId) {
             <button type="button" data-script-action="save" data-task-id="${taskId}" data-clip-index="${segment.clipIndex}">保存片段</button>
             <button type="button" data-script-action="regenerate" data-task-id="${taskId}" data-clip-index="${segment.clipIndex}">AI 重写</button>
             <button type="button" data-script-action="voice" data-task-id="${taskId}" data-clip-index="${segment.clipIndex}">重新配音</button>
+            <button type="button" data-script-action="review-approved" data-task-id="${taskId}" data-clip-index="${segment.clipIndex}">通过</button>
+            <button type="button" data-script-action="review-needs-changes" data-task-id="${taskId}" data-clip-index="${segment.clipIndex}">需修改</button>
           </div>
-        </article>`).join('')}</div>
+          <label>评审备注<input name="reviewNote" maxlength="500" value="${escapeHtml(manual.note || '')}" placeholder="说明事实冲突、节奏或措辞问题"></label>
+        </article>`}).join('')}</div>
     </section>`);
   detailContent.querySelector('.script-editor').scrollIntoView({behavior: 'smooth', block: 'start'});
 }

@@ -37,6 +37,14 @@ public class PipelineRunTracker {
         if ("RENDERING".equals(stageType)) finishRun(taskId, "COMPLETED", null);
     }
 
+    public void progress(UUID taskId, String stageType, int progress) {
+        UUID runId = activeRun(taskId);
+        jdbc.update("""
+                UPDATE stage_run SET progress=? WHERE id=(SELECT id FROM stage_run
+                WHERE generation_run_id=? AND stage_type=? ORDER BY attempt_no DESC LIMIT 1)
+                """, Math.max(10, Math.min(99, progress)), runId, stageType);
+    }
+
     public void failed(UUID taskId, String stageType, String reason) {
         updateStage(taskId, stageType, "FAILED", 100, null, reason);
         finishRun(taskId, "FAILED", reason);

@@ -82,6 +82,17 @@ public class WhisperCppTranscriber {
 
     private void validateRuntime(Path audioPath) {
         if (!Files.isRegularFile(executable)) {
+            throw new IllegalStateException("未找到 whisper.cpp 执行程序：" + executable
+                    + "。请在项目根目录运行 .\\scripts\\setup-whisper.ps1，或提供平台字幕");
+        }
+        if (!Files.isRegularFile(model)) {
+            throw new IllegalStateException("未找到 Whisper 模型：" + model
+                    + "。请在项目根目录运行 .\\scripts\\setup-whisper.ps1");
+        }
+        if (!Files.isRegularFile(audioPath)) {
+            throw new IllegalStateException("未找到待转写音频：" + audioPath);
+        }
+        if (!Files.isRegularFile(executable)) {
             throw new IllegalStateException("未找到 whisper.cpp 执行程序：" + executable);
         }
         if (!Files.isRegularFile(model)) {

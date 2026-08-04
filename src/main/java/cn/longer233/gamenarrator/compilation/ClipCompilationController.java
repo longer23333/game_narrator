@@ -19,7 +19,7 @@ public class ClipCompilationController {
     public ClipCompilationController(ClipCompilationService service) { this.service = service; }
 
     @GetMapping public List<ClipCompilationService.CompilationView> list() { return service.list(); }
-    @GetMapping("/{id}") public ClipCompilationService.CompilationView find(@PathVariable UUID id) { return service.find(id); }
+    @GetMapping("/{id}") public ClipCompilationService.CompilationView find(@PathVariable("id") UUID id) { return service.find(id); }
 
     @PostMapping @ResponseStatus(HttpStatus.CREATED)
     public ClipCompilationService.CompilationView create(@Valid @RequestBody CreateRequest request) {
@@ -27,12 +27,12 @@ public class ClipCompilationController {
     }
 
     @PostMapping("/{id}/items")
-    public ClipCompilationService.CompilationView add(@PathVariable UUID id, @Valid @RequestBody AddRequest request) {
+    public ClipCompilationService.CompilationView add(@PathVariable("id") UUID id, @Valid @RequestBody AddRequest request) {
         return service.add(id, request.taskId(), request.clipIndex());
     }
 
     @PutMapping("/{id}/order")
-    public ClipCompilationService.CompilationView reorder(@PathVariable UUID id,
+    public ClipCompilationService.CompilationView reorder(@PathVariable("id") UUID id,
             @Valid @RequestBody ReorderRequest request) { return service.reorder(id, request.itemIds()); }
 
     public record CreateRequest(@NotBlank @Size(max=120) String name) {}

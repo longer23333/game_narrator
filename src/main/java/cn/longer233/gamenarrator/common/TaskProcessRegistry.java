@@ -4,6 +4,7 @@ import java.util.Set;
 import java.util.UUID;
 import java.util.concurrent.CancellationException;
 import java.util.concurrent.ConcurrentHashMap;
+import java.time.Duration;
 
 /** Associates external processes with the task currently executing on an engine thread. */
 public final class TaskProcessRegistry {
@@ -47,6 +48,23 @@ public final class TaskProcessRegistry {
     public static void cancel(UUID taskId) {
         CANCELLED.add(taskId);
         PROCESSES.getOrDefault(taskId, Set.of()).forEach(ExternalProcessRunner::terminateTree);
+    }
+
+    public static boolean cancelAndAwait(UUID taskId, Duration timeout) {
+        cancel(taskId);
+        long deadline = System.nanoTime() + timeout.toNanos();
+        while (System.nanoTime() < deadline) {
+            Set<Process> processes = PROCESSES.getOrDefault(taskId, Set.of());
+            if (processes.stream().noneMatch(Process::isAlive)) return true;
+            processes.stream().filter(Process::isAlive).forEach(ExternalProcessRunner::terminateTree);
+            try {
+                Thread.sleep(50);
+            } catch (InterruptedException exception) {
+                Thread.currentThread().interrupt();
+                return false;
+            }
+        }
+        return PROCESSES.getOrDefault(taskId, Set.of()).stream().noneMatch(Process::isAlive);
     }
 
     public static void throwIfCancelled(UUID taskId) {

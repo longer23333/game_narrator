@@ -69,3 +69,12 @@
 - Download, analysis, and generation use independent bounded retry budgets and exponential backoff.
 - Flyway V21 adds cross-project clip compilations with explicit persistent ordering.
 - The repository is distributed under the MIT License. No source was copied from autoclip; GitHub was unreachable from this environment during comparison.
+
+## 2026-08-04 cleanup, review, and render progress pass
+
+- Task deletion cancels registered process trees, waits up to five seconds, then delegates physical cleanup to one `StorageCleanupService` boundary guarded by `SecurePathGuard`.
+- Task-owned segment clips, pending import files, task directories, and explicitly registered `PROJECT` assets are removed; unrelated shared library assets are retained.
+- Script segments support persisted manual `APPROVED` / `NEEDS_CHANGES` reviews and notes without overwriting the AI quality review. The editor highlights segment-specific AI issues and likely narration-duration overflow.
+- FFmpeg clip encoding emits `-progress pipe:1`; normalized encoding time updates both the task stage and stage-run record and reaches the browser over SSE.
+- Task state polling was removed from the frontend. EventSource heartbeat and bounded exponential reconnect are the sole task-update transport.
+- Asset/media service extraction, effect filter strategies, authenticated multi-user isolation, revision rollback UI, and user-owned export-preset CRUD remain separate schema/security refactors and are not represented as complete in this pass.

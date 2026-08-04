@@ -62,6 +62,28 @@ class ScriptWorkspaceServiceTest {
                 .path("narration").asText()).isEqualTo("revised");
     }
 
+    @Test
+    void storesManualReviewPerSegmentWithoutReplacingAiReview() throws Exception {
+        ObjectMapper mapper = new ObjectMapper();
+        Path scriptPath = temporaryDirectory.resolve("review-script.json");
+        List<ScriptSegment> segments = List.of(new ScriptSegment(1, 0, 8, "text", "subtitle", "cut"));
+        mapper.writeValue(scriptPath.toFile(), Map.of("title", "title", "synopsis", "synopsis",
+                "fullNarration", "text", "qualityReview", Map.of("score", 60, "passed", false,
+                        "issues", List.of("事实需要核对"), "summary", "需复核"), "segments", segments));
+        VideoTask task = new VideoTask("demo", "ACTION", CommentaryStyle.ANIME_THEATER,
+                30, "brief", temporaryDirectory.resolve("source.mp4").toString());
+        task.completeScriptGeneration("title", "synopsis", "text", scriptPath.toString(), 1);
+        VideoTaskRepository repository = mock(VideoTaskRepository.class);
+        when(repository.findById(task.getId())).thenReturn(Optional.of(task));
+        ScriptWorkspaceService service = new ScriptWorkspaceService(repository, mapper,
+                mock(OllamaScriptGenerator.class), mock(VoiceGenerator.class));
+
+        service.review(task.getId(), 1, new ManualScriptReviewRequest("NEEDS_CHANGES", "角色名称不准确"));
+
+        assertThat(service.reviews(task.getId()).toString()).contains("NEEDS_CHANGES", "角色名称不准确");
+        assertThat(mapper.readTree(scriptPath.toFile()).path("qualityReview").path("score").asInt()).isEqualTo(60);
+    }
+
     private StageStatus stage(VideoTask task, ProcessingStageType type) {
         return task.getStages().stream()
                 .filter(item -> item.getStageType() == type)

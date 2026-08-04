@@ -65,6 +65,12 @@ public class FfmpegVideoRenderer {
 
     public RenderResult render(Path sourceVideo, Path timelinePath, boolean hasSourceAudio,
                                EffectPreset preset, EffectSettingsRequest settings) {
+        return render(sourceVideo, timelinePath, hasSourceAudio, preset, settings, ignored -> { });
+    }
+
+    public RenderResult render(Path sourceVideo, Path timelinePath, boolean hasSourceAudio,
+                               EffectPreset preset, EffectSettingsRequest settings,
+                               java.util.function.IntConsumer progressConsumer) {
         Path workDirectory = timelinePath.getParent().resolve("render-work");
         try {
             var root = objectMapper.readTree(timelinePath.toFile());
@@ -82,6 +88,7 @@ public class FfmpegVideoRenderer {
             List<EffectPlan> effectPlans = new ArrayList<>();
             String encoder = preferredEncoder;
             for (int index = 0; index < segments.size(); index++) {
+                int clipPosition = index;
                 Path clip = workDirectory.resolve("clip-%02d.mp4".formatted(index + 1));
                 TimelineSegment segment = segments.get(index);
                 EffectPlan effectPlan = effectPlanner.plan(
@@ -89,13 +96,15 @@ public class FfmpegVideoRenderer {
                 effectPlans.add(effectPlan);
                 try {
                     encodeClip(sourceVideo, segment, clip, hasSourceAudio, encoder, effectPlan, preset,
-                            visualAssets(storyboardAssets, segment.sequence()));
+                            visualAssets(storyboardAssets, segment.sequence()), fraction -> progressConsumer.accept(
+                                    10 + (int) Math.floor((clipPosition + fraction) / segments.size() * 65)));
                 } catch (IllegalStateException exception) {
                     if (index == 0 && !"libx264".equals(encoder)) {
                         log.warn("RENDER_ENCODER_FALLBACK from={} to=libx264 reason={}", encoder, exception.getMessage());
                         encoder = "libx264";
                         encodeClip(sourceVideo, segment, clip, hasSourceAudio, encoder, effectPlan, preset,
-                                visualAssets(storyboardAssets, segment.sequence()));
+                                visualAssets(storyboardAssets, segment.sequence()), fraction -> progressConsumer.accept(
+                                        10 + (int) Math.floor((clipPosition + fraction) / segments.size() * 65)));
                     } else {
                         throw exception;
                     }
@@ -130,6 +139,7 @@ public class FfmpegVideoRenderer {
                     "-c", "copy", baseVideo.toString()), Duration.ofMinutes(30), "片段拼接");
 
             Path subtitle = taskDirectory.resolve("generated-subtitles.srt");
+            progressConsumer.accept(80);
             cn.longer233.gamenarrator.common.AtomicArtifactWriter.writeText(
                     subtitle, buildSrt(segments), StandardCharsets.UTF_8);
             boolean dynamicSubtitles = settings != null && Boolean.TRUE.equals(settings.dynamicSubtitles());
@@ -154,6 +164,7 @@ public class FfmpegVideoRenderer {
                     preset == null ? 0.20 : preset.sourceAudioVolume(), dynamicSubtitle, soundCues,
                     storyboardAssets.stream().filter(RenderAssetResolver.RenderAsset::audio).toList());
             long size = Files.size(output);
+            progressConsumer.accept(95);
             log.info("RENDERING_SUCCESS encoder={} duration={} sizeBytes={} output={}",
                     encoder, root.path("outputDurationSeconds").asDouble(), size, output);
             return new RenderResult(output.toString(), subtitle.toString(), size);
@@ -168,7 +179,8 @@ public class FfmpegVideoRenderer {
 
     private void encodeClip(Path source, TimelineSegment segment, Path output,
                             boolean hasAudio, String encoder, EffectPlan effectPlan, EffectPreset preset,
-                            List<RenderAssetResolver.RenderAsset> assets) {
+                            List<RenderAssetResolver.RenderAsset> assets,
+                            java.util.function.DoubleConsumer progressConsumer) {
         List<String> command = new ArrayList<>(List.of(ffmpegCommand, "-y", "-hide_banner",
                 "-loglevel", "warning", "-ss", decimal(segment.sourceStartSeconds()),
                 "-t", decimal(segment.sourceEndSeconds() - segment.sourceStartSeconds()),
@@ -190,8 +202,15 @@ public class FfmpegVideoRenderer {
         command.addAll(List.of("-c:v", encoder));
         if ("h264_nvenc".equals(encoder)) command.addAll(List.of("-preset", "p4", "-cq", "24"));
         else command.addAll(List.of("-preset", "veryfast", "-crf", "23"));
-        command.addAll(List.of("-c:a", "aac", "-ar", "48000", "-ac", "2", "-shortest", output.toString()));
-        run(command, Duration.ofMinutes(45), "片段编码");
+        command.addAll(List.of("-c:a", "aac", "-ar", "48000", "-ac", "2", "-shortest",
+                "-progress", "pipe:1", "-nostats", output.toString()));
+        run(command, Duration.ofMinutes(45), "片段编码", line -> {
+            if (!line.startsWith("out_time_us=")) return;
+            try {
+                double elapsed = Long.parseLong(line.substring("out_time_us=".length()).trim()) / 1_000_000d;
+                progressConsumer.accept(Math.max(0, Math.min(1, elapsed / Math.max(.1, duration))));
+            } catch (NumberFormatException ignored) { }
+        });
     }
 
     private List<RenderAssetResolver.RenderAsset> visualAssets(List<RenderAssetResolver.RenderAsset> assets,
@@ -448,8 +467,14 @@ public class FfmpegVideoRenderer {
     }
 
     private void run(List<String> command, Duration timeout, String operation) {
+        run(command, timeout, operation, ignored -> { });
+    }
+
+    private void run(List<String> command, Duration timeout, String operation,
+                     java.util.function.Consumer<String> outputLine) {
         try {
-            var result = cn.longer233.gamenarrator.common.ExternalProcessRunner.run(command, timeout);
+            var result = cn.longer233.gamenarrator.common.ExternalProcessRunner.run(
+                    command, timeout, null, outputLine);
             if (result.exitCode() != 0) {
                 throw new IllegalStateException(operation + "失败，FFmpeg 退出码 " + result.exitCode()
                         + "：" + tail(result.output(), 1600));

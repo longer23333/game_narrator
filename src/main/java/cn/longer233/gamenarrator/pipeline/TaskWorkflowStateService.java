@@ -81,6 +81,7 @@ public class TaskWorkflowStateService {
     @Transactional
     public void updateStageProgress(UUID taskId, ProcessingStageType stageType, int progress) {
         requireTask(taskId).updateStageProgress(stageType, progress);
+        runTracker.progress(taskId, stageType.name(), progress);
     }
 
     @Transactional

@@ -20,6 +20,7 @@ import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
+import java.util.Collection;
 
 @Component
 @Order(30)
@@ -53,6 +54,55 @@ public class StorageCleanupService implements ApplicationRunner {
             }
         } catch (Exception exception) {
             log.warn("STORAGE_CLEANUP_FAILED reason={}", exception.getMessage());
+        }
+    }
+
+    public void cleanupTask(UUID taskId, Collection<String> knownArtifacts) {
+        try {
+            Path root = SecurePathGuard.prepareRoot(storageRoot);
+            if (knownArtifacts != null) {
+                for (String value : knownArtifacts) {
+                    if (value == null || value.isBlank()) continue;
+                    deleteOwned(Path.of(value).toAbsolutePath().normalize(), root);
+                }
+            }
+            cleanupTaskNamedFiles(root.resolve("segment-clips"), root, taskId + "-");
+            cleanupTaskNamedFiles(root.resolve("import-downloads"), root, taskId.toString());
+            cleanupTaskNamedFiles(root.resolve("assets").resolve("projects"), root, taskId.toString());
+            deleteOwnedTree(root.resolve("tasks").resolve(taskId.toString()), root);
+            List<Map<String, Object>> projectAssets = jdbc.queryForList(
+                    "SELECT id,local_path FROM external_asset WHERE provider='PROJECT' AND external_id=?",
+                    taskId.toString());
+            for (Map<String, Object> asset : projectAssets) {
+                Object localPath = asset.get("LOCAL_PATH");
+                if (localPath != null) deleteOwned(Path.of(localPath.toString()).toAbsolutePath().normalize(), root);
+                jdbc.update("DELETE FROM asset_tag_override WHERE asset_id=?", asset.get("ID"));
+                jdbc.update("DELETE FROM asset_tag_assignment WHERE asset_id=?", asset.get("ID"));
+                jdbc.update("DELETE FROM external_asset WHERE id=?", asset.get("ID"));
+            }
+            log.info("TASK_STORAGE_CLEANUP taskId={} knownArtifacts={}", taskId,
+                    knownArtifacts == null ? 0 : knownArtifacts.size());
+        } catch (Exception exception) {
+            log.warn("TASK_STORAGE_CLEANUP_FAILED taskId={} reason={}", taskId, exception.getMessage());
+        }
+    }
+
+    private void cleanupTaskNamedFiles(Path directory, Path root, String prefix) throws Exception {
+        if (!Files.isDirectory(directory, LinkOption.NOFOLLOW_LINKS)
+                || !SecurePathGuard.isOwned(directory, root)) return;
+        try (var paths = Files.list(directory)) {
+            for (Path path : paths.filter(candidate -> candidate.getFileName().toString().startsWith(prefix)).toList()) {
+                if (Files.isDirectory(path, LinkOption.NOFOLLOW_LINKS)) deleteOwnedTree(path, root);
+                else deleteOwned(path, root);
+            }
+        }
+    }
+
+    private void deleteOwnedTree(Path directory, Path root) throws Exception {
+        if (!Files.exists(directory, LinkOption.NOFOLLOW_LINKS)
+                || !SecurePathGuard.isOwned(directory, root)) return;
+        try (var paths = Files.walk(directory)) {
+            for (Path path : paths.sorted(Comparator.reverseOrder()).toList()) deleteOwned(path, root);
         }
     }
 

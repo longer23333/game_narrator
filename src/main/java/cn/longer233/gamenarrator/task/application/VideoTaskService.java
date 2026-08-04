@@ -30,6 +30,7 @@ public class VideoTaskService {
     private final EffectRerenderWorker effectRerenderWorker;
     private final ProjectHistoryService projectHistoryService;
     private final Path storageRoot;
+    private final cn.longer233.gamenarrator.common.StorageCleanupService storageCleanup;
 
     public VideoTaskService(
             VideoTaskRepository repository,
@@ -37,6 +38,7 @@ public class VideoTaskService {
             VideoTaskEngine engine,
             EffectRerenderWorker effectRerenderWorker,
             ProjectHistoryService projectHistoryService,
+            cn.longer233.gamenarrator.common.StorageCleanupService storageCleanup,
             @org.springframework.beans.factory.annotation.Value("${game-narrator.storage-root}") String storageRoot
     ) {
         this.repository = repository;
@@ -44,6 +46,7 @@ public class VideoTaskService {
         this.engine = engine;
         this.effectRerenderWorker = effectRerenderWorker;
         this.projectHistoryService = projectHistoryService;
+        this.storageCleanup = storageCleanup;
         this.storageRoot = Path.of(storageRoot).toAbsolutePath().normalize();
     }
 
@@ -221,6 +224,8 @@ public class VideoTaskService {
         if (task.getStatus() == cn.longer233.gamenarrator.task.domain.TaskStatus.READY
                 || task.getStatus() == cn.longer233.gamenarrator.task.domain.TaskStatus.PROCESSING) {
             engine.requestDeletion(id);
+            cn.longer233.gamenarrator.common.TaskProcessRegistry.cancelAndAwait(id,
+                    java.time.Duration.ofSeconds(5));
         }
         List<String> paths = java.util.stream.Stream.of(task.getSourceVideoPath(), task.getExtractedAudioPath(),
                 task.getSceneManifestPath(), task.getTranscriptTextPath(), task.getSubtitlePath(),
@@ -235,54 +240,15 @@ public class VideoTaskService {
             ownedPaths.add(source.resolveSibling(source.getFileName() + ".platform.txt").toString());
             ownedPaths.add(source.resolveSibling(source.getFileName() + ".platform.srt.analysis.json").toString());
         }
-        Path taskDirectory = storageRoot.resolve("tasks").resolve(id.toString()).normalize();
         repository.delete(task);
         repository.flush();
         TransactionSynchronizationManager.registerSynchronization(new TransactionSynchronization() {
             @Override
             public void afterCommit() {
-                ownedPaths.forEach(VideoTaskService.this::deleteOwnedArtifact);
-                deleteOwnedTree(taskDirectory);
+                storageCleanup.cleanupTask(id, ownedPaths);
                 log.info("TASK_DELETED taskId={} artifactCandidates={}", id, ownedPaths.size());
             }
         });
     }
 
-    private void deleteOwnedArtifact(String value) {
-        try {
-            Path path = Path.of(value).toAbsolutePath().normalize();
-            if (!safeOwnedPath(path, storageRoot)) {
-                log.warn("TASK_ARTIFACT_DELETE_SKIPPED reason=outside_storage_root");
-                return;
-            }
-            Files.deleteIfExists(path);
-        } catch (Exception exception) {
-            log.warn("TASK_ARTIFACT_DELETE_SKIPPED reason={}", exception.getClass().getSimpleName());
-        }
-    }
-
-    private void deleteOwnedTree(Path candidate) {
-        Path path = candidate.toAbsolutePath().normalize();
-        Path taskRoot = storageRoot.resolve("tasks").normalize();
-        if (!safeOwnedPath(path, taskRoot)) {
-            log.warn("TASK_DIRECTORY_DELETE_SKIPPED reason=outside_task_root");
-            return;
-        }
-        if (!Files.exists(path)) return;
-        try (var entries = Files.walk(path)) {
-            for (Path entry : entries.sorted(java.util.Comparator.reverseOrder()).toList()) {
-                if (Files.isSymbolicLink(entry)) {
-                    Files.deleteIfExists(entry);
-                    continue;
-                }
-                Files.deleteIfExists(entry);
-            }
-        } catch (Exception exception) {
-            log.warn("TASK_DIRECTORY_DELETE_SKIPPED reason={}", exception.getClass().getSimpleName());
-        }
-    }
-
-    private boolean safeOwnedPath(Path candidate, Path allowedRoot) {
-        return cn.longer233.gamenarrator.common.SecurePathGuard.isOwned(candidate, allowedRoot);
-    }
 }

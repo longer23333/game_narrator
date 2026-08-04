@@ -164,13 +164,15 @@ public class VideoTaskEngine {
                 if (result != null) {
                     log.info("TRANSCRIPTION_PLATFORM_SUBTITLE taskId={} subtitle={}", taskId,
                             result.subtitlePath());
-                } else if (context.hasAudio()) {
+                } else if (context.hasAudio() && transcriber.runtimeAvailable()) {
                     String extractedAudioPath = context.extractedAudioPath();
                     result = retryExecutor.analysis(() ->
                             transcriber.transcribe(Path.of(extractedAudioPath)));
                 } else {
                     result = new TranscriptionResult("", null, null, null);
-                    log.info("TRANSCRIPTION_SKIPPED taskId={} reason=no_audio_track", taskId);
+                    String reason = context.hasAudio() ? "whisper_unavailable" : "no_audio_track";
+                    log.warn("TRANSCRIPTION_SKIPPED taskId={} reason={} setup=.\\scripts\\setup-whisper.ps1",
+                            taskId, reason);
                 }
                 stateService.markTranscriptionCompleted(taskId, result);
                 if (result.subtitlePath() != null) {
@@ -300,7 +302,9 @@ public class VideoTaskEngine {
                 var preset = effectPresetCatalog.require(context.commentaryStyle());
                 var settings = new EffectSettingsRequest(preset.code(), null, true, false);
                 RenderResult result = videoRenderer.render(sourcePath, Path.of(context.timelinePath()),
-                        context.hasAudio(), preset, settings);
+                        context.hasAudio(), preset, settings,
+                        progress -> stateService.updateStageProgress(taskId,
+                                ProcessingStageType.RENDERING, progress));
                 stateService.markRenderingCompleted(taskId, result);
                 log.info("ENGINE_STAGE_COMPLETED taskId={} stage=RENDERING output={} sizeBytes={}",
                         taskId, result.videoPath(), result.fileSizeBytes());

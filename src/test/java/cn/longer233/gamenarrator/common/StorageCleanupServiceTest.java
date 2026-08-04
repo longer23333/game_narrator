@@ -10,6 +10,7 @@ import java.nio.file.attribute.FileTime;
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
 import java.util.List;
+import java.util.UUID;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
@@ -41,5 +42,24 @@ class StorageCleanupServiceTest {
         assertThat(oldTemporary).doesNotExist();
         assertThat(oldImport).doesNotExist();
         assertThat(recentTemporary).exists();
+    }
+
+    @Test
+    void taskCleanupRemovesOwnedSegmentAndKnownImportArtifacts() throws Exception {
+        JdbcTemplate jdbc = mock(JdbcTemplate.class);
+        when(jdbc.queryForList(anyString(), any(Object[].class))).thenReturn(List.of());
+        UUID taskId = UUID.randomUUID();
+        Path clip = temporary.resolve("segment-clips").resolve(taskId + "-0_000-5_000.mp4");
+        Path imported = temporary.resolve("import-downloads").resolve(taskId + "-source.mp4");
+        Files.createDirectories(clip.getParent());
+        Files.createDirectories(imported.getParent());
+        Files.writeString(clip, "clip");
+        Files.writeString(imported, "source");
+
+        new StorageCleanupService(temporary.toString(), 24, jdbc)
+                .cleanupTask(taskId, List.of(imported.toString()));
+
+        assertThat(clip).doesNotExist();
+        assertThat(imported).doesNotExist();
     }
 }

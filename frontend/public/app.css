@@ -76,4 +76,12 @@
 .guided-tour-card footer button{color:var(--ink);background:#fff;border:3px solid var(--ink);box-shadow:3px 3px 0 var(--ink)}
 .guided-tour-card [data-guide-skip]{color:#333;background:#fff}.guided-tour-card [data-guide-next]{color:var(--ink);background:var(--blue)}
 .guided-tour-dots i{width:9px;height:9px;border:2px solid var(--ink);border-radius:0;background:#fff}.guided-tour-dots i.active{width:30px;border-radius:0;background:var(--pink)}
+
+/* Readability pass: separate text from similarly colored surfaces. */
+:where(p,small,label,span,dt,dd,.stage-caption,.media-meta,.effect-note,.asset-attribution,.storyboard-description){text-shadow:0 1px 2px rgba(0,0,0,.92)}
+:where(h1,h2,h3,strong,button,.step,.eyebrow,.section-title small){text-shadow:0 1px 0 rgba(0,0,0,.9),0 0 2px rgba(0,0,0,.55)}
+:where(.lead,.task-card p,.empty,.detail-brief,.stage-info small,.artifact-list span,.roadmap-list p,.asset-card-body>p,.asset-attribution){color:#aebbd2}
+:where(.detail-grid dt,.detail-summary span,.stage-index,.stage-row>b,.ai-usage span,.ai-usage strong small){color:#9aa9c4}
+input::placeholder,textarea::placeholder{color:#91a0bb;opacity:1;text-shadow:0 1px 2px #000}
+.script-segment-card.quality-warning{border-color:#ffb347;box-shadow:inset 4px 0 0 #ffb347}.script-segment-card.manual-approved{border-color:#38e09d;box-shadow:inset 4px 0 0 #38e09d}.script-segment-card.manual-needs-changes{border-color:#ff5577;box-shadow:inset 4px 0 0 #ff5577}.segment-quality-issues{margin:8px 0;padding:9px 11px;border:1px solid #ffb347;background:rgba(255,179,71,.12);color:#ffe1ad}.segment-quality-issues ul{margin:6px 0 0;padding-left:18px}
 @media(max-width:650px){.guided-tour-card{box-shadow:7px 7px 0 var(--pink),11px 11px 0 var(--ink);transform:none}.guided-tour-target{box-shadow:0 0 0 4px var(--yellow),0 0 0 7px var(--ink),0 0 0 9999px rgba(17,17,17,.28)!important}}
