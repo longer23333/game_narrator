@@ -6,6 +6,9 @@ import cn.longer233.gamenarrator.media.MediaMetadata;
 import cn.longer233.gamenarrator.media.MediaPreparationResult;
 import cn.longer233.gamenarrator.transcription.TranscriptionResult;
 import cn.longer233.gamenarrator.transcription.WhisperCppTranscriber;
+import cn.longer233.gamenarrator.transcription.PlatformSubtitleReader;
+import cn.longer233.gamenarrator.transcription.SubtitleChunkAnalysisService;
+import cn.longer233.gamenarrator.common.PhaseRetryExecutor;
 import cn.longer233.gamenarrator.vision.OllamaVisionClient;
 import cn.longer233.gamenarrator.vision.VideoUnderstandingResult;
 import cn.longer233.gamenarrator.vision.VideoSegmentSemanticIndex;
@@ -45,6 +48,9 @@ public class VideoTaskEngine {
     private final FfmpegMediaProbe mediaProbe;
     private final FfmpegMediaPreprocessor mediaPreprocessor;
     private final WhisperCppTranscriber transcriber;
+    private final PlatformSubtitleReader platformSubtitleReader;
+    private final SubtitleChunkAnalysisService subtitleChunkAnalysis;
+    private final PhaseRetryExecutor retryExecutor;
     private final OllamaVisionClient visionClient;
     private final VideoSegmentSemanticIndex segmentSemanticIndex;
     private final RuleBasedHighlightSelector highlightSelector;
@@ -72,6 +78,9 @@ public class VideoTaskEngine {
             FfmpegMediaProbe mediaProbe,
             FfmpegMediaPreprocessor mediaPreprocessor,
             WhisperCppTranscriber transcriber,
+            PlatformSubtitleReader platformSubtitleReader,
+            SubtitleChunkAnalysisService subtitleChunkAnalysis,
+            PhaseRetryExecutor retryExecutor,
             OllamaVisionClient visionClient,
             VideoSegmentSemanticIndex segmentSemanticIndex,
             RuleBasedHighlightSelector highlightSelector,
@@ -87,6 +96,9 @@ public class VideoTaskEngine {
         this.mediaProbe = mediaProbe;
         this.mediaPreprocessor = mediaPreprocessor;
         this.transcriber = transcriber;
+        this.platformSubtitleReader = platformSubtitleReader;
+        this.subtitleChunkAnalysis = subtitleChunkAnalysis;
+        this.retryExecutor = retryExecutor;
         this.visionClient = visionClient;
         this.segmentSemanticIndex = segmentSemanticIndex;
         this.highlightSelector = highlightSelector;
@@ -148,14 +160,25 @@ public class VideoTaskEngine {
             checkCancellation(taskId);
             if (!context.transcriptionCompleted()) {
                 stateService.markTranscriptionRunning(taskId);
-                TranscriptionResult result;
-                if (context.hasAudio()) {
-                    result = transcriber.transcribe(Path.of(context.extractedAudioPath()));
+                TranscriptionResult result = platformSubtitleReader.read(sourcePath);
+                if (result != null) {
+                    log.info("TRANSCRIPTION_PLATFORM_SUBTITLE taskId={} subtitle={}", taskId,
+                            result.subtitlePath());
+                } else if (context.hasAudio()) {
+                    String extractedAudioPath = context.extractedAudioPath();
+                    result = retryExecutor.analysis(() ->
+                            transcriber.transcribe(Path.of(extractedAudioPath)));
                 } else {
                     result = new TranscriptionResult("", null, null, null);
                     log.info("TRANSCRIPTION_SKIPPED taskId={} reason=no_audio_track", taskId);
                 }
                 stateService.markTranscriptionCompleted(taskId, result);
+                if (result.subtitlePath() != null) {
+                    String subtitlePath = result.subtitlePath();
+                    Path analysis = retryExecutor.analysis(() ->
+                            subtitleChunkAnalysis.analyze(Path.of(subtitlePath)));
+                    if (analysis != null) log.info("SUBTITLE_CHUNK_ANALYSIS taskId={} output={}", taskId, analysis);
+                }
                 log.info("ENGINE_STAGE_COMPLETED taskId={} stage=TRANSCRIPTION characterCount={}",
                         taskId, result.text().length());
                 context = stateService.context(taskId);
@@ -176,11 +199,12 @@ public class VideoTaskEngine {
                     return;
                 }
                 stateService.markVideoUnderstandingRunning(taskId);
-                VideoUnderstandingResult result = context.cloudVisionEnabled()
-                        ? visionClient.analyze(Path.of(context.sceneManifestPath()), context.transcriptText(),
+                EngineTaskContext analysisContext = context;
+                VideoUnderstandingResult result = retryExecutor.analysis(() -> analysisContext.cloudVisionEnabled()
+                        ? visionClient.analyze(Path.of(analysisContext.sceneManifestPath()), analysisContext.transcriptText(),
                             progress -> stateService.updateStageProgress(taskId,
                                     ProcessingStageType.VIDEO_UNDERSTANDING, progress))
-                        : visionClient.analyzeWithoutAi(Path.of(context.sceneManifestPath()), context.transcriptText());
+                        : visionClient.analyzeWithoutAi(Path.of(analysisContext.sceneManifestPath()), analysisContext.transcriptText()));
                 stateService.markVideoUnderstandingCompleted(taskId, result);
                 segmentSemanticIndex.index(taskId, Path.of(result.analysisPath()));
                 log.info("ENGINE_STAGE_COMPLETED taskId={} stage=VIDEO_UNDERSTANDING frameCount={}",
@@ -209,10 +233,11 @@ public class VideoTaskEngine {
             checkCancellation(taskId);
             if (!context.scriptGenerationCompleted()) {
                 stateService.markScriptGenerationRunning(taskId);
-                GeneratedScript result = context.aiScriptEnabled()
-                        ? scriptGenerator.generate(Path.of(context.highlightManifestPath()),
-                            context.gameCategory(), context.commentaryStyle(), context.taskBrief(), context.transcriptText())
-                        : scriptGenerator.generateWithoutAi(Path.of(context.highlightManifestPath()));
+                EngineTaskContext generationContext = context;
+                GeneratedScript result = retryExecutor.generation(() -> generationContext.aiScriptEnabled()
+                        ? scriptGenerator.generate(Path.of(generationContext.highlightManifestPath()),
+                            generationContext.gameCategory(), generationContext.commentaryStyle(), generationContext.taskBrief(), generationContext.transcriptText())
+                        : scriptGenerator.generateWithoutAi(Path.of(generationContext.highlightManifestPath())));
                 stateService.markScriptGenerationCompleted(taskId, result);
                 log.info("ENGINE_STAGE_COMPLETED taskId={} stage=SCRIPT_GENERATION segmentCount={}",
                         taskId, result.segments().size());

@@ -22,6 +22,7 @@ class YtDlpMediaImporterTest {
 
     private final YtDlpMediaImporter importer = new YtDlpMediaImporter(
             new ObjectMapper(), new MediaImportProperties(), mock(AssetCatalogService.class),
+            new cn.longer233.gamenarrator.common.PhaseRetryExecutor(1, 1, 1, 0),
             "./target/importer-test");
 
     @Test

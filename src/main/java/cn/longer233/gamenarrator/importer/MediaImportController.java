@@ -36,15 +36,26 @@ public class MediaImportController {
     private final MediaDownloadJobService downloadJobs;
     private final PlatformContentClassifier contentClassifier;
     private final AssetCatalogService assetCatalogService;
+    private final RemoteProjectImportService projectImports;
 
     public MediaImportController(YtDlpMediaImporter importer, RemoteThumbnailService thumbnailService,
                                  MediaDownloadJobService downloadJobs, PlatformContentClassifier contentClassifier,
-                                 AssetCatalogService assetCatalogService) {
+                                 AssetCatalogService assetCatalogService,
+                                 RemoteProjectImportService projectImports) {
         this.importer = importer;
         this.thumbnailService = thumbnailService;
         this.downloadJobs = downloadJobs;
         this.contentClassifier = contentClassifier;
         this.assetCatalogService = assetCatalogService;
+        this.projectImports = projectImports;
+    }
+
+    @PostMapping("/projects")
+    @ResponseStatus(org.springframework.http.HttpStatus.CREATED)
+    public cn.longer233.gamenarrator.task.application.VideoTaskView createProject(
+            @Valid @RequestBody RemoteProjectImportRequest request, HttpSession session) {
+        requireOwnedToken(session, request.media().cookieToken());
+        return projectImports.start(request);
     }
 
     @GetMapping("/status")
@@ -133,7 +144,7 @@ public class MediaImportController {
         }
         MediaDownloadResult result = job.result();
         MediaDownloadResult publicResult = new MediaDownloadResult(result.status(), result.localPath(),
-                result.fileName(), result.sizeBytes(), result.assetId(), url);
+                result.fileName(), result.sizeBytes(), result.assetId(), url, result.platformSubtitlePath());
         return ResponseEntity.ok(new MediaDownloadJobView(job.id(), job.status(), job.progress(),
                 publicResult, job.error()));
     }

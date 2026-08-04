@@ -82,6 +82,37 @@ public class VideoTaskService {
     }
 
     @Transactional
+    public VideoTaskView createPendingRemote(CreateVideoTaskCommand command, String pendingVideoPath) {
+        VideoTask task = new VideoTask(command.name(), command.gameCategory(), command.commentaryStyle(),
+                command.targetDurationSeconds(), command.taskBrief(), pendingVideoPath,
+                command.storyboardReviewEnabled());
+        task.configureEditingScope(command.editingScope());
+        task.configureTerminologyGlossary(command.terminologyGlossary());
+        task.configureAiOptions(command.automaticGenerationEnabled(), command.cloudVisionEnabled(),
+                command.aiScriptEnabled(), command.aiVoiceEnabled(), command.autoAssetsEnabled());
+        task.startIngestion();
+        VideoTask saved = repository.saveAndFlush(task);
+        projectHistoryService.createInitialHistory(saved);
+        return VideoTaskView.from(saved);
+    }
+
+    @Transactional
+    public void updateRemoteDownloadProgress(UUID id, int progress) {
+        repository.findById(id).orElseThrow(() -> new TaskNotFoundException(id))
+                .updateStageProgress(cn.longer233.gamenarrator.task.domain.ProcessingStageType.VIDEO_INGESTION,
+                        Math.max(10, Math.min(99, progress)));
+    }
+
+    @Transactional
+    public void failRemoteDownload(UUID id, String reason) {
+        repository.findById(id).orElseThrow(() -> new TaskNotFoundException(id)).failIngestion(reason);
+    }
+
+    public void startDownloadedRemote(UUID id) {
+        engine.start(id);
+    }
+
+    @Transactional
     public VideoTaskView find(UUID id) {
         log.debug("TASK_FIND taskId={}", id);
         return repository.findById(id)
@@ -197,15 +228,22 @@ public class VideoTaskService {
                 task.getGeneratedScriptPath(), task.getVoiceManifestPath(), task.getTimelinePath(),
                 task.getGeneratedSubtitlePath(), task.getRenderedVideoPath())
                 .filter(java.util.Objects::nonNull).filter(value -> !value.isBlank()).toList();
+        List<String> ownedPaths = new java.util.ArrayList<>(paths);
+        if (task.getSourceVideoPath() != null) {
+            Path source = Path.of(task.getSourceVideoPath());
+            ownedPaths.add(source.resolveSibling(source.getFileName() + ".platform.srt").toString());
+            ownedPaths.add(source.resolveSibling(source.getFileName() + ".platform.txt").toString());
+            ownedPaths.add(source.resolveSibling(source.getFileName() + ".platform.srt.analysis.json").toString());
+        }
         Path taskDirectory = storageRoot.resolve("tasks").resolve(id.toString()).normalize();
         repository.delete(task);
         repository.flush();
         TransactionSynchronizationManager.registerSynchronization(new TransactionSynchronization() {
             @Override
             public void afterCommit() {
-                paths.forEach(VideoTaskService.this::deleteOwnedArtifact);
+                ownedPaths.forEach(VideoTaskService.this::deleteOwnedArtifact);
                 deleteOwnedTree(taskDirectory);
-                log.info("TASK_DELETED taskId={} artifactCandidates={}", id, paths.size());
+                log.info("TASK_DELETED taskId={} artifactCandidates={}", id, ownedPaths.size());
             }
         });
     }

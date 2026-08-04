@@ -136,6 +136,10 @@ $env:FFMPEG_COMMAND="C:\path\to\ffmpeg.exe"
 .\mvnw.cmd spring-boot:run
 ```
 
+## 许可证
+
+本项目采用 [MIT License](LICENSE)。
+
 ## 论文创新点建议
 
 - 融合音频强度、视觉事件置信度和语义重要性的高光评分方法

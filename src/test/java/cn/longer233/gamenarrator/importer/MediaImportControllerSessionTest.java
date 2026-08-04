@@ -28,7 +28,8 @@ class MediaImportControllerSessionTest {
         when(importer.uploadCookies(any(), anyString())).thenReturn(token);
         MediaImportController controller = new MediaImportController(importer, mock(RemoteThumbnailService.class),
                 mock(MediaDownloadJobService.class), mock(PlatformContentClassifier.class),
-                mock(cn.longer233.gamenarrator.asset.AssetCatalogService.class));
+                mock(cn.longer233.gamenarrator.asset.AssetCatalogService.class),
+                mock(RemoteProjectImportService.class));
         MockHttpSession owner = new MockHttpSession();
         MockHttpSession otherUser = new MockHttpSession();
         controller.uploadCookies(new MockMultipartFile("file", "cookies.txt", "text/plain",
@@ -46,7 +47,8 @@ class MediaImportControllerSessionTest {
                 "COMPLETED", video.toString(), "preview.mp4", 3, null, null));
         MediaImportController controller = new MediaImportController(importer, mock(RemoteThumbnailService.class),
                 mock(MediaDownloadJobService.class), mock(PlatformContentClassifier.class),
-                mock(cn.longer233.gamenarrator.asset.AssetCatalogService.class));
+                mock(cn.longer233.gamenarrator.asset.AssetCatalogService.class),
+                mock(RemoteProjectImportService.class));
         MockHttpSession owner = new MockHttpSession();
         MediaDownloadRequest request = new MediaDownloadRequest("https://example.com/video", "18",
                 false, false, true, null, "title", null, null, 1.0, List.of());

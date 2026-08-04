@@ -205,6 +205,8 @@
       <div class="media-preview-progress" hidden><progress max="100" value="0"></progress><span>等待开始</span></div>
       <button id="media-download" type="button">自动下载所选格式</button>
       <div class="media-download-progress" hidden><progress max="100" value="0"></progress><span>等待开始</span></div></div></article>`;
+    result.querySelector("#media-download")?.insertAdjacentHTML("afterend",
+      '<button id="media-create-project" type="button">下载并立即创建剪辑项目</button>');
     const coverImage = result.querySelector(".media-cover img");
     if (coverImage) coverImage.addEventListener("error", () =>
       coverImage.closest(".media-cover").classList.add("cover-error"), {once:true});
@@ -275,6 +277,30 @@
   if (savedMediaPreferences.rightsConfirmed && form.elements.rightsConfirmed)
     form.elements.rightsConfirmed.checked = true;
   result.addEventListener("click", async event => {
+    if (event.target.id === "media-create-project") {
+      const selectedFormat = document.querySelector("#media-format")?.value || "best";
+      event.target.disabled = true;
+      message.textContent = "项目已创建，下载进度会实时显示在任务列表中。";
+      try {
+        const duration = Math.max(15, Math.min(3600, Math.round(resolvedMedia?.durationSeconds || 90)));
+        const project = await request("/api/media-import/projects", {
+          media:{url:resolvedUrl,formatId:selectedFormat,subtitles:document.querySelector("#media-subtitles").checked,
+            addToLibrary:document.querySelector("#media-add-library").checked,rightsConfirmed:true,
+            cookieToken:cookieToken || null,title:resolvedMedia?.title || null,creator:resolvedMedia?.creator || null,
+            thumbnail:resolvedMedia?.thumbnail || null,durationSeconds:resolvedMedia?.durationSeconds || null,tags:libraryTags()},
+          name:resolvedMedia?.title || "平台视频项目",gameCategory:"其他",commentaryStyle:"HUMOROUS",
+          targetDurationSeconds:duration,editingScope:"HIGHLIGHTS",taskBrief:"提取时间线并生成精彩片段合集",
+          terminologyGlossary:"",storyboardReviewEnabled:true,automaticGenerationEnabled:true,
+          cloudVisionEnabled:true,aiScriptEnabled:true,aiVoiceEnabled:true,autoAssetsEnabled:true
+        });
+        message.textContent = `项目“${project.name}”正在下载，可在任务页实时查看。`;
+        document.querySelector('[data-nav-page="tasks"]')?.click();
+      } catch (error) {
+        message.textContent = error.message;
+        event.target.disabled = false;
+      }
+      return;
+    }
     if (event.target.matches(".media-preview-close")) {
       const preview = event.target.closest(".media-online-preview");
       const video = preview?.querySelector("video");

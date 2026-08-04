@@ -60,3 +60,12 @@
 - Remote thumbnail retention defaults to 30 minutes.
 - CI installs FFmpeg and runs the real five-second, nine-stage pipeline test.
 - Service extraction, effect-filter strategies, JavaScript module splitting, and full Micrometer stage percentiles remain staged refactors because they change broad internal interfaces.
+
+## 2026-08-04 platform project workflow
+
+- A remote import persists its project before yt-dlp starts; download progress is stored on `VIDEO_INGESTION` and delivered through the shared task SSE stream.
+- yt-dlp requests platform subtitles and converts them to SRT. The pipeline reads a non-empty platform SRT first and invokes Whisper only as fallback.
+- Subtitle content is bounded into configurable chunks and produces ordered outline, timeline, and excitement-score data in an auditable JSON artifact.
+- Download, analysis, and generation use independent bounded retry budgets and exponential backoff.
+- Flyway V21 adds cross-project clip compilations with explicit persistent ordering.
+- The repository is distributed under the MIT License. No source was copied from autoclip; GitHub was unreachable from this environment during comparison.

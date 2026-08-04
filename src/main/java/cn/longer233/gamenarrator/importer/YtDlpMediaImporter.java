@@ -31,15 +31,18 @@ public class YtDlpMediaImporter {
     private final ObjectMapper objectMapper;
     private final MediaImportProperties properties;
     private final AssetCatalogService assetCatalogService;
+    private final cn.longer233.gamenarrator.common.PhaseRetryExecutor retryExecutor;
     private final Semaphore worker = new Semaphore(1);
 
     public YtDlpMediaImporter(ObjectMapper objectMapper,
                               MediaImportProperties properties,
                               AssetCatalogService assetCatalogService,
+                              cn.longer233.gamenarrator.common.PhaseRetryExecutor retryExecutor,
                               @Value("${game-narrator.storage-root}") String storageRoot) {
         this.objectMapper = objectMapper;
         this.properties = properties;
         this.assetCatalogService = assetCatalogService;
+        this.retryExecutor = retryExecutor;
         this.executable = Path.of(properties.getYtDlp()).toAbsolutePath().normalize();
         this.importDirectory = Path.of(storageRoot).toAbsolutePath().normalize().resolve("imports");
         this.transientDownloadDirectory = Path.of(storageRoot).toAbsolutePath().normalize()
@@ -159,6 +162,11 @@ public class YtDlpMediaImporter {
 
     public MediaDownloadResult download(MediaDownloadRequest request,
                                         java.util.function.Consumer<MediaDownloadProgress> progressConsumer) {
+        return retryExecutor.download(() -> downloadOnce(request, progressConsumer));
+    }
+
+    private MediaDownloadResult downloadOnce(MediaDownloadRequest request,
+                                        java.util.function.Consumer<MediaDownloadProgress> progressConsumer) {
         requireAvailable();
         validateSource(request.url());
         if (!worker.tryAcquire()) throw new IllegalStateException("已有一个平台素材下载任务正在运行");
@@ -175,7 +183,8 @@ public class YtDlpMediaImporter {
                     "--output", targetDirectory.resolve("%(extractor)s-%(id)s-%(title).80s.%(ext)s").toString(),
                     "--print", "after_move:" + marker + "%(filepath)s"));
             if (request.subtitles()) {
-                command.addAll(List.of("--write-subs", "--write-auto-subs", "--sub-langs", "zh.*,ja.*,en.*"));
+                command.addAll(List.of("--write-subs", "--write-auto-subs", "--sub-langs", "zh.*,ja.*,en.*",
+                        "--sub-format", "srt/best", "--convert-subs", "srt"));
             }
             String output = runAuthenticated(command, uri, null,
                     request.cookieToken(), request.url(), Duration.ofHours(2), line -> {
@@ -197,14 +206,37 @@ public class YtDlpMediaImporter {
                             request.url(), request.title(), request.creator(), request.thumbnail(),
                             request.durationSeconds(), request.tags()), outputPath)
                     : null;
+            Path subtitlePath = request.subtitles() ? findSubtitle(outputPath) : null;
             return new MediaDownloadResult("COMPLETED", outputPath.toString(),
                     outputPath.getFileName().toString(), size,
-                    asset == null ? null : asset.id(), null);
+                    asset == null ? null : asset.id(), null,
+                    subtitlePath == null ? null : subtitlePath.toString());
         } catch (IOException exception) {
             throw new IllegalStateException("无法读取下载结果：" + exception.getMessage(), exception);
         } finally {
             worker.release();
         }
+    }
+
+    private Path findSubtitle(Path video) throws IOException {
+        String name = video.getFileName().toString();
+        int dot = name.lastIndexOf('.');
+        String stem = dot < 0 ? name : name.substring(0, dot);
+        try (var paths = Files.list(video.getParent())) {
+            return paths.filter(Files::isRegularFile)
+                    .filter(path -> path.getFileName().toString().startsWith(stem + "."))
+                    .filter(path -> path.getFileName().toString().toLowerCase(Locale.ROOT).endsWith(".srt"))
+                    .sorted(Comparator.comparing((Path path) -> subtitlePreference(path.getFileName().toString())))
+                    .findFirst().orElse(null);
+        }
+    }
+
+    private int subtitlePreference(String name) {
+        String lower = name.toLowerCase(Locale.ROOT);
+        if (lower.contains(".zh")) return 0;
+        if (lower.contains(".ja")) return 1;
+        if (lower.contains(".en")) return 2;
+        return 3;
     }
 
     static String playableFormatSelector(String requested) {

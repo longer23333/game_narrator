@@ -54,6 +54,13 @@ logging:
     file: "%d{yyyy-MM-dd HH:mm:ss.SSS} %-5level [%thread] [trace=%X{traceId:-system}] %logger{48} - %msg%n"
 
 game-narrator:
+  retry:
+    download-attempts: ${DOWNLOAD_RETRY_ATTEMPTS:3}
+    analysis-attempts: ${ANALYSIS_RETRY_ATTEMPTS:2}
+    generation-attempts: ${GENERATION_RETRY_ATTEMPTS:3}
+    initial-backoff-ms: ${PHASE_RETRY_BACKOFF_MS:500}
+  subtitle:
+    chunk-characters: ${SUBTITLE_CHUNK_CHARACTERS:4000}
   ocr:
     enabled: ${OCR_ENABLED:false}
     executable: ${TESSERACT_EXECUTABLE:tesseract}

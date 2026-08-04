@@ -1,7 +1,7 @@
 # GameNarrator — DeepSeek 项目上下文包
 
-> 自动生成时间：2026-08-04 09:16:30 +08:00
-> 文件数量：246。本文件由 scripts/export-deepseek-context.ps1 生成，请勿手工维护生成区。
+> 自动生成时间：2026-08-04 09:36:33 +08:00
+> 文件数量：257。本文件由 scripts/export-deepseek-context.ps1 生成，请勿手工维护生成区。
 
 ## 给 DeepSeek 的强制工作规则
 
@@ -23,14 +23,15 @@
 ## 当前文件清单
 
 - `pom.xml`（2236 bytes）
-- `README.md`（4877 bytes）
+- `README.md`（4934 bytes）
 - `.gitignore`（277 bytes）
 - `docs/ARCHITECTURE.md`（2049 bytes）
 - `docs/ASSET_LIBRARY_DESIGN.md`（1697 bytes）
+- `docs/CLIP_COMPILATIONS.md`（702 bytes）
 - `docs/DATABASE_DESIGN.md`（28565 bytes）
 - `docs/FRONTEND_DEVELOPMENT.md`（1853 bytes）
 - `docs/MANUAL_EDITOR_PARITY.md`（2553 bytes）
-- `docs/PERFORMANCE_PORTABILITY_AUDIT.md`（6072 bytes）
+- `docs/PERFORMANCE_PORTABILITY_AUDIT.md`（6917 bytes）
 - `docs/REQUIREMENTS.md`（21389 bytes）
 - `scripts/build-windows-release.ps1`（11841 bytes）
 - `scripts/export-deepseek-context.ps1`（5568 bytes）
@@ -72,10 +73,13 @@
 - `src/main/java/cn/longer233/gamenarrator/common/ApiExceptionHandler.java`（7008 bytes）
 - `src/main/java/cn/longer233/gamenarrator/common/AtomicArtifactWriter.java`（2074 bytes）
 - `src/main/java/cn/longer233/gamenarrator/common/ExternalProcessRunner.java`（7919 bytes）
+- `src/main/java/cn/longer233/gamenarrator/common/PhaseRetryExecutor.java`（3901 bytes）
 - `src/main/java/cn/longer233/gamenarrator/common/RequestTraceFilter.java`（1908 bytes）
 - `src/main/java/cn/longer233/gamenarrator/common/SecurePathGuard.java`（1894 bytes）
 - `src/main/java/cn/longer233/gamenarrator/common/StorageCleanupService.java`（5365 bytes）
 - `src/main/java/cn/longer233/gamenarrator/common/TaskProcessRegistry.java`（2646 bytes）
+- `src/main/java/cn/longer233/gamenarrator/compilation/ClipCompilationController.java`（1818 bytes）
+- `src/main/java/cn/longer233/gamenarrator/compilation/ClipCompilationService.java`（4099 bytes）
 - `src/main/java/cn/longer233/gamenarrator/config/AsyncConfig.java`（1465 bytes）
 - `src/main/java/cn/longer233/gamenarrator/config/ExternalProcessConfig.java`（670 bytes）
 - `src/main/java/cn/longer233/gamenarrator/diagnostics/DiagnosticLogService.java`（4016 bytes）
@@ -110,16 +114,18 @@
 - `src/main/java/cn/longer233/gamenarrator/importer/MediaDownloadJobView.java`（219 bytes）
 - `src/main/java/cn/longer233/gamenarrator/importer/MediaDownloadProgress.java`（206 bytes）
 - `src/main/java/cn/longer233/gamenarrator/importer/MediaDownloadRequest.java`（1017 bytes）
-- `src/main/java/cn/longer233/gamenarrator/importer/MediaDownloadResult.java`（340 bytes）
-- `src/main/java/cn/longer233/gamenarrator/importer/MediaImportController.java`（16942 bytes）
+- `src/main/java/cn/longer233/gamenarrator/importer/MediaDownloadResult.java`（710 bytes）
+- `src/main/java/cn/longer233/gamenarrator/importer/MediaImportController.java`（17545 bytes）
 - `src/main/java/cn/longer233/gamenarrator/importer/MediaImportProperties.java`（3295 bytes）
 - `src/main/java/cn/longer233/gamenarrator/importer/MediaPreviewResult.java`（134 bytes）
 - `src/main/java/cn/longer233/gamenarrator/importer/MediaResolveRequest.java`（510 bytes）
 - `src/main/java/cn/longer233/gamenarrator/importer/MediaVariant.java`（309 bytes）
 - `src/main/java/cn/longer233/gamenarrator/importer/PlatformContentClassifier.java`（4630 bytes）
+- `src/main/java/cn/longer233/gamenarrator/importer/RemoteProjectImportRequest.java`（919 bytes）
+- `src/main/java/cn/longer233/gamenarrator/importer/RemoteProjectImportService.java`（3711 bytes）
 - `src/main/java/cn/longer233/gamenarrator/importer/RemoteThumbnailService.java`（6298 bytes）
 - `src/main/java/cn/longer233/gamenarrator/importer/ResolvedMedia.java`（934 bytes）
-- `src/main/java/cn/longer233/gamenarrator/importer/YtDlpMediaImporter.java`（28922 bytes）
+- `src/main/java/cn/longer233/gamenarrator/importer/YtDlpMediaImporter.java`（30642 bytes）
 - `src/main/java/cn/longer233/gamenarrator/media/FfmpegMediaPreprocessor.java`（8553 bytes）
 - `src/main/java/cn/longer233/gamenarrator/media/FfmpegMediaProbe.java`（3405 bytes）
 - `src/main/java/cn/longer233/gamenarrator/media/MediaMetadata.java`（233 bytes）
@@ -131,7 +137,7 @@
 - `src/main/java/cn/longer233/gamenarrator/pipeline/PipelineRunTracker.java`（5283 bytes）
 - `src/main/java/cn/longer233/gamenarrator/pipeline/ProjectArtifactRegistry.java`（5346 bytes）
 - `src/main/java/cn/longer233/gamenarrator/pipeline/TaskWorkflowStateService.java`（13663 bytes）
-- `src/main/java/cn/longer233/gamenarrator/pipeline/VideoTaskEngine.java`（18553 bytes）
+- `src/main/java/cn/longer233/gamenarrator/pipeline/VideoTaskEngine.java`（20339 bytes）
 - `src/main/java/cn/longer233/gamenarrator/pipeline/WaitingTaskRetryScheduler.java`（2399 bytes）
 - `src/main/java/cn/longer233/gamenarrator/render/FfmpegVideoRenderer.java`（27379 bytes）
 - `src/main/java/cn/longer233/gamenarrator/render/RenderAssetResolver.java`（2211 bytes）
@@ -161,7 +167,7 @@
 - `src/main/java/cn/longer233/gamenarrator/task/application/RenameTaskRequest.java`（222 bytes）
 - `src/main/java/cn/longer233/gamenarrator/task/application/StageView.java`（767 bytes）
 - `src/main/java/cn/longer233/gamenarrator/task/application/TaskNotFoundException.java`（239 bytes）
-- `src/main/java/cn/longer233/gamenarrator/task/application/VideoTaskService.java`（10944 bytes）
+- `src/main/java/cn/longer233/gamenarrator/task/application/VideoTaskService.java`（12986 bytes）
 - `src/main/java/cn/longer233/gamenarrator/task/application/VideoTaskView.java`（4287 bytes）
 - `src/main/java/cn/longer233/gamenarrator/task/domain/CommentaryStyle.java`（128 bytes）
 - `src/main/java/cn/longer233/gamenarrator/task/domain/EditingScope.java`（108 bytes）
@@ -178,6 +184,8 @@
 - `src/main/java/cn/longer233/gamenarrator/timeline/TimelinePlanningResult.java`（246 bytes）
 - `src/main/java/cn/longer233/gamenarrator/timeline/TimelineSegment.java`（410 bytes）
 - `src/main/java/cn/longer233/gamenarrator/timeline/TimelineValidator.java`（2600 bytes）
+- `src/main/java/cn/longer233/gamenarrator/transcription/PlatformSubtitleReader.java`（1439 bytes）
+- `src/main/java/cn/longer233/gamenarrator/transcription/SubtitleChunkAnalysisService.java`（4709 bytes）
 - `src/main/java/cn/longer233/gamenarrator/transcription/TerminologyCorrector.java`（2256 bytes）
 - `src/main/java/cn/longer233/gamenarrator/transcription/TranscriptionResult.java`（196 bytes）
 - `src/main/java/cn/longer233/gamenarrator/transcription/WhisperCppTranscriber.java`（4962 bytes）
@@ -200,7 +208,7 @@
 - `src/main/java/cn/longer233/gamenarrator/voice/VoiceOption.java`（137 bytes）
 - `src/main/java/cn/longer233/gamenarrator/voice/VoiceRegenerationRequest.java`（419 bytes）
 - `src/main/java/cn/longer233/gamenarrator/voice/VoiceSegment.java`（296 bytes）
-- `src/main/resources/application.yml`（13122 bytes）
+- `src/main/resources/application.yml`（13413 bytes）
 - `src/main/resources/application-release.yml`（1055 bytes）
 - `src/main/resources/db/migration/V1__database_v2_foundation.sql`（17535 bytes）
 - `src/main/resources/db/migration/V10__allow_storyboard_review_task_status.sql`（528 bytes）
@@ -215,6 +223,7 @@
 - `src/main/resources/db/migration/V19__task_glossary.sql`（71 bytes）
 - `src/main/resources/db/migration/V2__backfill_legacy_project_history.sql`（2646 bytes）
 - `src/main/resources/db/migration/V20__video_task_optimistic_lock.sql`（70 bytes）
+- `src/main/resources/db/migration/V21__clip_compilations.sql`（890 bytes）
 - `src/main/resources/db/migration/V3__external_asset_catalog.sql`（2371 bytes）
 - `src/main/resources/db/migration/V4__asset_library_organization.sql`（270 bytes）
 - `src/main/resources/db/migration/V5__asset_semantic_embeddings.sql`（430 bytes）
@@ -230,7 +239,7 @@
 - `src/main/resources/static/extension-install.html`（3410 bytes）
 - `src/main/resources/static/index.html`（23154 bytes）
 - `src/main/resources/static/media-importer.css`（4256 bytes）
-- `src/main/resources/static/media-importer.js`（22107 bytes）
+- `src/main/resources/static/media-importer.js`（23963 bytes）
 - `src/test/java/cn/longer233/gamenarrator/ai/AdaptiveAiChatClientTest.java`（1725 bytes）
 - `src/test/java/cn/longer233/gamenarrator/ai/AiUsageServiceTest.java`（1164 bytes）
 - `src/test/java/cn/longer233/gamenarrator/asset/AiAssetTaggerTest.java`（2432 bytes）
@@ -250,9 +259,9 @@
 - `src/test/java/cn/longer233/gamenarrator/effect/SemanticEffectPlannerTest.java`（1359 bytes）
 - `src/test/java/cn/longer233/gamenarrator/export/FfmpegProgressParserTest.java`（993 bytes）
 - `src/test/java/cn/longer233/gamenarrator/highlight/RuleBasedHighlightSelectorTest.java`（4407 bytes）
-- `src/test/java/cn/longer233/gamenarrator/importer/MediaImportControllerSessionTest.java`（3112 bytes）
+- `src/test/java/cn/longer233/gamenarrator/importer/MediaImportControllerSessionTest.java`（3224 bytes）
 - `src/test/java/cn/longer233/gamenarrator/importer/RemoteThumbnailServiceTest.java`（476 bytes）
-- `src/test/java/cn/longer233/gamenarrator/importer/YtDlpMediaImporterTest.java`（1876 bytes）
+- `src/test/java/cn/longer233/gamenarrator/importer/YtDlpMediaImporterTest.java`（1957 bytes）
 - `src/test/java/cn/longer233/gamenarrator/media/FfmpegMediaProbeTest.java`（1064 bytes）
 - `src/test/java/cn/longer233/gamenarrator/pipeline/PendingTaskRecoveryTest.java`（2050 bytes）
 - `src/test/java/cn/longer233/gamenarrator/pipeline/VideoPipelineEndToEndTest.java`（3001 bytes）
@@ -265,6 +274,8 @@
 - `src/test/java/cn/longer233/gamenarrator/task/web/VideoTaskControllerTest.java`（12121 bytes）
 - `src/test/java/cn/longer233/gamenarrator/timeline/TimelinePlannerTest.java`（2442 bytes）
 - `src/test/java/cn/longer233/gamenarrator/timeline/TimelineValidatorTest.java`（1515 bytes）
+- `src/test/java/cn/longer233/gamenarrator/transcription/PlatformSubtitleReaderTest.java`（953 bytes）
+- `src/test/java/cn/longer233/gamenarrator/transcription/SubtitleChunkAnalysisServiceTest.java`（1373 bytes）
 - `src/test/java/cn/longer233/gamenarrator/vision/ImagePerceptualHashTest.java`（1287 bytes）
 - `src/test/java/cn/longer233/gamenarrator/vision/VideoSegmentClipServiceTest.java`（2242 bytes）
 - `src/test/java/cn/longer233/gamenarrator/vision/VideoSegmentSemanticIndexRankingTest.java`（1270 bytes）
@@ -479,6 +490,10 @@ $env:FFMPEG_COMMAND="C:\path\to\ffmpeg.exe"
 .\mvnw.cmd spring-boot:run
 ```
 
+## 许可证
+
+本项目采用 [MIT License](LICENSE)。
+
 ## 论文创新点建议
 
 - 融合音频强度、视觉事件置信度和语义重要性的高光评分方法
@@ -605,6 +620,23 @@ Ollama 不可用时仍使用内置游戏/动漫剪辑词典，不会导致中文
 - 只通过平台官方 API 或明确允许的下载地址获取文件。
 - 不通过解析页面、绕过签名或规避访问控制下载媒体。
 - 未声明许可的引用默认只作为灵感和索引，不自动进入最终成片。
+``
+
+### FILE: docs/CLIP_COMPILATIONS.md
+
+``text
+# 切片合集与 V21 迁移
+
+V21 新增 `clip_compilation` 和 `clip_compilation_item`。合集项通过 `task_id`、`clip_index` 引用已有项目切片，`position` 是持久化播放顺序。
+
+接口：
+
+- `POST /api/compilations` 创建合集。
+- `POST /api/compilations/{id}/items` 加入项目切片。
+- `PUT /api/compilations/{id}/order` 传入完整的 item ID 顺序并原子重排。
+- `GET /api/compilations` 或 `GET /api/compilations/{id}` 查询。
+
+删除视频任务或合集时，外键会级联删除关联项。需要回滚 V21 时，应先导出合集顺序，再删除 `clip_compilation_item`，最后删除 `clip_compilation`；不要修改已经执行过的 Flyway 文件。
 ``
 
 ### FILE: docs/DATABASE_DESIGN.md
@@ -1423,6 +1455,15 @@ GameNarrator 在禁用或未配置 AI 时，仍应能完成导入、粗剪、精
 - Remote thumbnail retention defaults to 30 minutes.
 - CI installs FFmpeg and runs the real five-second, nine-stage pipeline test.
 - Service extraction, effect-filter strategies, JavaScript module splitting, and full Micrometer stage percentiles remain staged refactors because they change broad internal interfaces.
+
+## 2026-08-04 platform project workflow
+
+- A remote import persists its project before yt-dlp starts; download progress is stored on `VIDEO_INGESTION` and delivered through the shared task SSE stream.
+- yt-dlp requests platform subtitles and converts them to SRT. The pipeline reads a non-empty platform SRT first and invokes Whisper only as fallback.
+- Subtitle content is bounded into configurable chunks and produces ordered outline, timeline, and excitement-score data in an auditable JSON artifact.
+- Download, analysis, and generation use independent bounded retry budgets and exponential backoff.
+- Flyway V21 adds cross-project clip compilations with explicit persistent ordering.
+- The repository is distributed under the MIT License. No source was copied from autoclip; GitHub was unreachable from this environment during comparison.
 ``
 
 ### FILE: docs/REQUIREMENTS.md
@@ -6168,6 +6209,87 @@ public final class ExternalProcessRunner {
 }
 ``
 
+### FILE: src/main/java/cn/longer233/gamenarrator/common/PhaseRetryExecutor.java
+
+``java
+package cn.longer233.gamenarrator.common;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.stereotype.Component;
+
+import java.io.IOException;
+import java.net.ConnectException;
+import java.net.SocketTimeoutException;
+import java.net.UnknownHostException;
+import java.util.concurrent.Callable;
+
+@Component
+public class PhaseRetryExecutor {
+    private static final Logger log = LoggerFactory.getLogger(PhaseRetryExecutor.class);
+    private final int downloadAttempts;
+    private final int analysisAttempts;
+    private final int generationAttempts;
+    private final long initialBackoffMs;
+
+    public PhaseRetryExecutor(
+            @Value("${game-narrator.retry.download-attempts:3}") int downloadAttempts,
+            @Value("${game-narrator.retry.analysis-attempts:2}") int analysisAttempts,
+            @Value("${game-narrator.retry.generation-attempts:3}") int generationAttempts,
+            @Value("${game-narrator.retry.initial-backoff-ms:500}") long initialBackoffMs) {
+        this.downloadAttempts = Math.max(1, downloadAttempts);
+        this.analysisAttempts = Math.max(1, analysisAttempts);
+        this.generationAttempts = Math.max(1, generationAttempts);
+        this.initialBackoffMs = Math.max(0, initialBackoffMs);
+    }
+
+    public <T> T download(Callable<T> action) { return execute("download", downloadAttempts, action); }
+    public <T> T analysis(Callable<T> action) { return execute("analysis", analysisAttempts, action); }
+    public <T> T generation(Callable<T> action) { return execute("generation", generationAttempts, action); }
+
+    private <T> T execute(String phase, int attempts, Callable<T> action) {
+        RuntimeException last = null;
+        for (int attempt = 1; attempt <= attempts; attempt++) {
+            try {
+                return action.call();
+            } catch (InterruptedException exception) {
+                Thread.currentThread().interrupt();
+                throw new IllegalStateException(phase + " interrupted", exception);
+            } catch (Exception exception) {
+                last = exception instanceof RuntimeException runtime
+                        ? runtime : new IllegalStateException(exception.getMessage(), exception);
+                if (attempt == attempts || !isTransient(exception)) throw last;
+                long delay = Math.min(10_000, initialBackoffMs * (1L << Math.min(8, attempt - 1)));
+                log.warn("PHASE_RETRY phase={} attempt={} delayMs={} reason={}",
+                        phase, attempt, delay, exception.getClass().getSimpleName());
+                try {
+                    Thread.sleep(delay);
+                } catch (InterruptedException interrupted) {
+                    Thread.currentThread().interrupt();
+                    throw new IllegalStateException(phase + " retry interrupted", interrupted);
+                }
+            }
+        }
+        throw last == null ? new IllegalStateException(phase + " failed") : last;
+    }
+
+    static boolean isTransient(Throwable error) {
+        for (Throwable current = error; current != null; current = current.getCause()) {
+            if (current instanceof SocketTimeoutException || current instanceof ConnectException
+                    || current instanceof UnknownHostException) return true;
+            if (current instanceof IOException) return true;
+            String message = String.valueOf(current.getMessage()).toLowerCase();
+            if (message.contains("timeout") || message.contains("timed out")
+                    || message.contains("connection reset") || message.contains("temporarily unavailable")
+                    || message.contains("http error 408") || message.contains("http error 429")
+                    || message.matches(".*http error 5\\d\\d.*")) return true;
+        }
+        return false;
+    }
+}
+``
+
 ### FILE: src/main/java/cn/longer233/gamenarrator/common/RequestTraceFilter.java
 
 ``java
@@ -6477,6 +6599,138 @@ public final class TaskProcessRegistry {
             CURRENT_TASK.remove();
         }
     }
+}
+``
+
+### FILE: src/main/java/cn/longer233/gamenarrator/compilation/ClipCompilationController.java
+
+``java
+package cn.longer233.gamenarrator.compilation;
+
+import jakarta.validation.Valid;
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotEmpty;
+import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.Positive;
+import jakarta.validation.constraints.Size;
+import org.springframework.http.HttpStatus;
+import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
+import java.util.UUID;
+
+@RestController
+@RequestMapping("/api/compilations")
+public class ClipCompilationController {
+    private final ClipCompilationService service;
+    public ClipCompilationController(ClipCompilationService service) { this.service = service; }
+
+    @GetMapping public List<ClipCompilationService.CompilationView> list() { return service.list(); }
+    @GetMapping("/{id}") public ClipCompilationService.CompilationView find(@PathVariable UUID id) { return service.find(id); }
+
+    @PostMapping @ResponseStatus(HttpStatus.CREATED)
+    public ClipCompilationService.CompilationView create(@Valid @RequestBody CreateRequest request) {
+        return service.create(request.name());
+    }
+
+    @PostMapping("/{id}/items")
+    public ClipCompilationService.CompilationView add(@PathVariable UUID id, @Valid @RequestBody AddRequest request) {
+        return service.add(id, request.taskId(), request.clipIndex());
+    }
+
+    @PutMapping("/{id}/order")
+    public ClipCompilationService.CompilationView reorder(@PathVariable UUID id,
+            @Valid @RequestBody ReorderRequest request) { return service.reorder(id, request.itemIds()); }
+
+    public record CreateRequest(@NotBlank @Size(max=120) String name) {}
+    public record AddRequest(@NotNull UUID taskId, @Positive int clipIndex) {}
+    public record ReorderRequest(@NotEmpty List<@NotNull UUID> itemIds) {}
+}
+``
+
+### FILE: src/main/java/cn/longer233/gamenarrator/compilation/ClipCompilationService.java
+
+``java
+package cn.longer233.gamenarrator.compilation;
+
+import org.springframework.jdbc.core.simple.JdbcClient;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
+import java.time.Instant;
+import java.util.List;
+import java.util.UUID;
+
+@Service
+public class ClipCompilationService {
+    private final JdbcClient jdbc;
+
+    public ClipCompilationService(JdbcClient jdbc) { this.jdbc = jdbc; }
+
+    @Transactional
+    public CompilationView create(String name) {
+        String normalized = name == null ? "" : name.trim();
+        if (normalized.isBlank() || normalized.length() > 120) throw new IllegalArgumentException("合集名称长度必须为 1 到 120 个字符");
+        UUID id = UUID.randomUUID();
+        Instant now = Instant.now();
+        jdbc.sql("INSERT INTO clip_compilation(id,name,created_at) VALUES (?,?,?)")
+                .params(id, normalized, now).update();
+        return new CompilationView(id, normalized, now, List.of());
+    }
+
+    public List<CompilationView> list() {
+        return jdbc.sql("SELECT id,name,created_at FROM clip_compilation ORDER BY created_at DESC")
+                .query((rs, row) -> view((UUID) rs.getObject("id"), rs.getString("name"),
+                        rs.getTimestamp("created_at").toInstant())).list();
+    }
+
+    public CompilationView find(UUID id) {
+        return jdbc.sql("SELECT id,name,created_at FROM clip_compilation WHERE id=?").param(id)
+                .query((rs, row) -> view(id, rs.getString("name"), rs.getTimestamp("created_at").toInstant()))
+                .optional().orElseThrow(() -> new IllegalArgumentException("合集不存在"));
+    }
+
+    @Transactional
+    public CompilationView add(UUID id, UUID taskId, int clipIndex) {
+        find(id);
+        Integer position = jdbc.sql("SELECT COALESCE(MAX(position),0)+1 FROM clip_compilation_item WHERE compilation_id=?")
+                .param(id).query(Integer.class).single();
+        jdbc.sql("INSERT INTO clip_compilation_item(id,compilation_id,task_id,clip_index,position,created_at) VALUES (?,?,?,?,?,?)")
+                .params(UUID.randomUUID(), id, taskId, clipIndex, position, Instant.now()).update();
+        return find(id);
+    }
+
+    @Transactional
+    public CompilationView reorder(UUID id, List<UUID> itemIds) {
+        CompilationView current = find(id);
+        if (itemIds == null || itemIds.size() != current.items().size()
+                || !java.util.Set.copyOf(itemIds).equals(current.items().stream().map(CompilationItemView::id).collect(java.util.stream.Collectors.toSet()))) {
+            throw new IllegalArgumentException("排序必须包含合集中的全部切片且不能重复");
+        }
+        for (int i = 0; i < itemIds.size(); i++) {
+            jdbc.sql("UPDATE clip_compilation_item SET position=? WHERE id=? AND compilation_id=?")
+                    .params(-(i + 1), itemIds.get(i), id).update();
+        }
+        for (int i = 0; i < itemIds.size(); i++) {
+            jdbc.sql("UPDATE clip_compilation_item SET position=? WHERE id=? AND compilation_id=?")
+                    .params(i + 1, itemIds.get(i), id).update();
+        }
+        return find(id);
+    }
+
+    private CompilationView view(UUID id, String name, Instant createdAt) {
+        List<CompilationItemView> items = jdbc.sql("""
+                SELECT i.id,i.task_id,i.clip_index,i.position,t.name task_name
+                FROM clip_compilation_item i JOIN video_tasks t ON t.id=i.task_id
+                WHERE i.compilation_id=? ORDER BY i.position
+                """).param(id).query((rs, row) -> new CompilationItemView((UUID) rs.getObject("id"),
+                (UUID) rs.getObject("task_id"), rs.getInt("clip_index"), rs.getInt("position"),
+                rs.getString("task_name"))).list();
+        return new CompilationView(id, name, createdAt, items);
+    }
+
+    public record CompilationView(UUID id, String name, Instant createdAt, List<CompilationItemView> items) {}
+    public record CompilationItemView(UUID id, UUID taskId, int clipIndex, int position, String taskName) {}
 }
 ``
 
@@ -8415,7 +8669,12 @@ package cn.longer233.gamenarrator.importer;
 public record MediaDownloadResult(String status,
                                   @com.fasterxml.jackson.annotation.JsonIgnore String localPath,
                                   String fileName, long sizeBytes,
-                                  java.util.UUID assetId, String downloadUrl) {
+                                  java.util.UUID assetId, String downloadUrl,
+                                  @com.fasterxml.jackson.annotation.JsonIgnore String platformSubtitlePath) {
+    public MediaDownloadResult(String status, String localPath, String fileName, long sizeBytes,
+                               java.util.UUID assetId, String downloadUrl) {
+        this(status, localPath, fileName, sizeBytes, assetId, downloadUrl, null);
+    }
 }
 ``
 
@@ -8460,15 +8719,26 @@ public class MediaImportController {
     private final MediaDownloadJobService downloadJobs;
     private final PlatformContentClassifier contentClassifier;
     private final AssetCatalogService assetCatalogService;
+    private final RemoteProjectImportService projectImports;
 
     public MediaImportController(YtDlpMediaImporter importer, RemoteThumbnailService thumbnailService,
                                  MediaDownloadJobService downloadJobs, PlatformContentClassifier contentClassifier,
-                                 AssetCatalogService assetCatalogService) {
+                                 AssetCatalogService assetCatalogService,
+                                 RemoteProjectImportService projectImports) {
         this.importer = importer;
         this.thumbnailService = thumbnailService;
         this.downloadJobs = downloadJobs;
         this.contentClassifier = contentClassifier;
         this.assetCatalogService = assetCatalogService;
+        this.projectImports = projectImports;
+    }
+
+    @PostMapping("/projects")
+    @ResponseStatus(org.springframework.http.HttpStatus.CREATED)
+    public cn.longer233.gamenarrator.task.application.VideoTaskView createProject(
+            @Valid @RequestBody RemoteProjectImportRequest request, HttpSession session) {
+        requireOwnedToken(session, request.media().cookieToken());
+        return projectImports.start(request);
     }
 
     @GetMapping("/status")
@@ -8557,7 +8827,7 @@ public class MediaImportController {
         }
         MediaDownloadResult result = job.result();
         MediaDownloadResult publicResult = new MediaDownloadResult(result.status(), result.localPath(),
-                result.fileName(), result.sizeBytes(), result.assetId(), url);
+                result.fileName(), result.sizeBytes(), result.assetId(), url, result.platformSubtitlePath());
         return ResponseEntity.ok(new MediaDownloadJobView(job.id(), job.status(), job.progress(),
                 publicResult, job.error()));
     }
@@ -8947,6 +9217,112 @@ public class PlatformContentClassifier {
 }
 ``
 
+### FILE: src/main/java/cn/longer233/gamenarrator/importer/RemoteProjectImportRequest.java
+
+``java
+package cn.longer233.gamenarrator.importer;
+
+import cn.longer233.gamenarrator.task.domain.CommentaryStyle;
+import cn.longer233.gamenarrator.task.domain.EditingScope;
+import jakarta.validation.Valid;
+import jakarta.validation.constraints.*;
+
+public record RemoteProjectImportRequest(
+        @Valid @NotNull MediaDownloadRequest media,
+        @NotBlank @Size(max = 120) String name,
+        @NotBlank @Size(max = 40) String gameCategory,
+        @NotNull CommentaryStyle commentaryStyle,
+        @Min(15) @Max(3600) int targetDurationSeconds,
+        @NotNull EditingScope editingScope,
+        @NotBlank @Size(max = 500) String taskBrief,
+        @Size(max = 4000) String terminologyGlossary,
+        boolean storyboardReviewEnabled,
+        boolean automaticGenerationEnabled,
+        boolean cloudVisionEnabled,
+        boolean aiScriptEnabled,
+        boolean aiVoiceEnabled,
+        boolean autoAssetsEnabled) {
+}
+``
+
+### FILE: src/main/java/cn/longer233/gamenarrator/importer/RemoteProjectImportService.java
+
+``java
+package cn.longer233.gamenarrator.importer;
+
+import cn.longer233.gamenarrator.common.SecurePathGuard;
+import cn.longer233.gamenarrator.task.application.CreateVideoTaskCommand;
+import cn.longer233.gamenarrator.task.application.VideoTaskService;
+import cn.longer233.gamenarrator.task.application.VideoTaskView;
+import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.stereotype.Service;
+
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.StandardCopyOption;
+import java.util.concurrent.Executor;
+
+@Service
+public class RemoteProjectImportService {
+    private final YtDlpMediaImporter importer;
+    private final VideoTaskService tasks;
+    private final Executor executor;
+    private final Path taskRoot;
+
+    public RemoteProjectImportService(YtDlpMediaImporter importer, VideoTaskService tasks,
+            @Qualifier("taskExecutor") Executor executor,
+            @Value("${game-narrator.storage-root}") String storageRoot) {
+        this.importer = importer;
+        this.tasks = tasks;
+        this.executor = executor;
+        this.taskRoot = Path.of(storageRoot).toAbsolutePath().normalize().resolve("tasks");
+    }
+
+    public VideoTaskView start(RemoteProjectImportRequest request) {
+        CreateVideoTaskCommand command = new CreateVideoTaskCommand(request.name(), request.gameCategory(),
+                request.commentaryStyle(), request.targetDurationSeconds(), request.editingScope(),
+                request.taskBrief(), request.terminologyGlossary(), request.storyboardReviewEnabled(),
+                request.automaticGenerationEnabled(), request.cloudVisionEnabled(), request.aiScriptEnabled(),
+                request.aiVoiceEnabled(), request.autoAssetsEnabled());
+        Path pending = taskRoot.resolve("pending-" + java.util.UUID.randomUUID() + ".mp4");
+        VideoTaskView task = tasks.createPendingRemote(command, pending.toString());
+        executor.execute(() -> download(task, request.media(), pending));
+        return task;
+    }
+
+    private void download(VideoTaskView task, MediaDownloadRequest request, Path pending) {
+        try {
+            MediaDownloadResult result = importer.download(request, progress ->
+                    tasks.updateRemoteDownloadProgress(task.id(), percent(progress.percent())));
+            Path source = Path.of(result.localPath()).toAbsolutePath().normalize();
+            Path safeRoot = SecurePathGuard.prepareRoot(taskRoot);
+            Files.createDirectories(taskRoot);
+            if (!SecurePathGuard.isOwned(pending, safeRoot)) throw new IllegalStateException("非法项目路径");
+            if (result.assetId() == null) {
+                Files.move(source, pending, StandardCopyOption.REPLACE_EXISTING);
+            } else {
+                Files.copy(source, pending, StandardCopyOption.REPLACE_EXISTING);
+            }
+            if (result.platformSubtitlePath() != null) {
+                Path subtitle = Path.of(result.platformSubtitlePath()).toAbsolutePath().normalize();
+                if (Files.isRegularFile(subtitle)) Files.move(subtitle,
+                        pending.resolveSibling(pending.getFileName() + ".platform.srt"),
+                        StandardCopyOption.REPLACE_EXISTING);
+            }
+            tasks.startDownloadedRemote(task.id());
+        } catch (Exception exception) {
+            tasks.failRemoteDownload(task.id(), "下载失败：" + exception.getMessage());
+        }
+    }
+
+    private int percent(String value) {
+        try { return (int) Math.floor(Double.parseDouble(value.replace("%", "").trim())); }
+        catch (Exception ignored) { return 10; }
+    }
+}
+``
+
 ### FILE: src/main/java/cn/longer233/gamenarrator/importer/RemoteThumbnailService.java
 
 ``java
@@ -9142,15 +9518,18 @@ public class YtDlpMediaImporter {
     private final ObjectMapper objectMapper;
     private final MediaImportProperties properties;
     private final AssetCatalogService assetCatalogService;
+    private final cn.longer233.gamenarrator.common.PhaseRetryExecutor retryExecutor;
     private final Semaphore worker = new Semaphore(1);
 
     public YtDlpMediaImporter(ObjectMapper objectMapper,
                               MediaImportProperties properties,
                               AssetCatalogService assetCatalogService,
+                              cn.longer233.gamenarrator.common.PhaseRetryExecutor retryExecutor,
                               @Value("${game-narrator.storage-root}") String storageRoot) {
         this.objectMapper = objectMapper;
         this.properties = properties;
         this.assetCatalogService = assetCatalogService;
+        this.retryExecutor = retryExecutor;
         this.executable = Path.of(properties.getYtDlp()).toAbsolutePath().normalize();
         this.importDirectory = Path.of(storageRoot).toAbsolutePath().normalize().resolve("imports");
         this.transientDownloadDirectory = Path.of(storageRoot).toAbsolutePath().normalize()
@@ -9270,6 +9649,11 @@ public class YtDlpMediaImporter {
 
     public MediaDownloadResult download(MediaDownloadRequest request,
                                         java.util.function.Consumer<MediaDownloadProgress> progressConsumer) {
+        return retryExecutor.download(() -> downloadOnce(request, progressConsumer));
+    }
+
+    private MediaDownloadResult downloadOnce(MediaDownloadRequest request,
+                                        java.util.function.Consumer<MediaDownloadProgress> progressConsumer) {
         requireAvailable();
         validateSource(request.url());
         if (!worker.tryAcquire()) throw new IllegalStateException("已有一个平台素材下载任务正在运行");
@@ -9286,7 +9670,8 @@ public class YtDlpMediaImporter {
                     "--output", targetDirectory.resolve("%(extractor)s-%(id)s-%(title).80s.%(ext)s").toString(),
                     "--print", "after_move:" + marker + "%(filepath)s"));
             if (request.subtitles()) {
-                command.addAll(List.of("--write-subs", "--write-auto-subs", "--sub-langs", "zh.*,ja.*,en.*"));
+                command.addAll(List.of("--write-subs", "--write-auto-subs", "--sub-langs", "zh.*,ja.*,en.*",
+                        "--sub-format", "srt/best", "--convert-subs", "srt"));
             }
             String output = runAuthenticated(command, uri, null,
                     request.cookieToken(), request.url(), Duration.ofHours(2), line -> {
@@ -9308,14 +9693,37 @@ public class YtDlpMediaImporter {
                             request.url(), request.title(), request.creator(), request.thumbnail(),
                             request.durationSeconds(), request.tags()), outputPath)
                     : null;
+            Path subtitlePath = request.subtitles() ? findSubtitle(outputPath) : null;
             return new MediaDownloadResult("COMPLETED", outputPath.toString(),
                     outputPath.getFileName().toString(), size,
-                    asset == null ? null : asset.id(), null);
+                    asset == null ? null : asset.id(), null,
+                    subtitlePath == null ? null : subtitlePath.toString());
         } catch (IOException exception) {
             throw new IllegalStateException("无法读取下载结果：" + exception.getMessage(), exception);
         } finally {
             worker.release();
         }
+    }
+
+    private Path findSubtitle(Path video) throws IOException {
+        String name = video.getFileName().toString();
+        int dot = name.lastIndexOf('.');
+        String stem = dot < 0 ? name : name.substring(0, dot);
+        try (var paths = Files.list(video.getParent())) {
+            return paths.filter(Files::isRegularFile)
+                    .filter(path -> path.getFileName().toString().startsWith(stem + "."))
+                    .filter(path -> path.getFileName().toString().toLowerCase(Locale.ROOT).endsWith(".srt"))
+                    .sorted(Comparator.comparing((Path path) -> subtitlePreference(path.getFileName().toString())))
+                    .findFirst().orElse(null);
+        }
+    }
+
+    private int subtitlePreference(String name) {
+        String lower = name.toLowerCase(Locale.ROOT);
+        if (lower.contains(".zh")) return 0;
+        if (lower.contains(".ja")) return 1;
+        if (lower.contains(".en")) return 2;
+        return 3;
     }
 
     static String playableFormatSelector(String requested) {
@@ -10664,6 +11072,9 @@ import cn.longer233.gamenarrator.media.MediaMetadata;
 import cn.longer233.gamenarrator.media.MediaPreparationResult;
 import cn.longer233.gamenarrator.transcription.TranscriptionResult;
 import cn.longer233.gamenarrator.transcription.WhisperCppTranscriber;
+import cn.longer233.gamenarrator.transcription.PlatformSubtitleReader;
+import cn.longer233.gamenarrator.transcription.SubtitleChunkAnalysisService;
+import cn.longer233.gamenarrator.common.PhaseRetryExecutor;
 import cn.longer233.gamenarrator.vision.OllamaVisionClient;
 import cn.longer233.gamenarrator.vision.VideoUnderstandingResult;
 import cn.longer233.gamenarrator.vision.VideoSegmentSemanticIndex;
@@ -10703,6 +11114,9 @@ public class VideoTaskEngine {
     private final FfmpegMediaProbe mediaProbe;
     private final FfmpegMediaPreprocessor mediaPreprocessor;
     private final WhisperCppTranscriber transcriber;
+    private final PlatformSubtitleReader platformSubtitleReader;
+    private final SubtitleChunkAnalysisService subtitleChunkAnalysis;
+    private final PhaseRetryExecutor retryExecutor;
     private final OllamaVisionClient visionClient;
     private final VideoSegmentSemanticIndex segmentSemanticIndex;
     private final RuleBasedHighlightSelector highlightSelector;
@@ -10730,6 +11144,9 @@ public class VideoTaskEngine {
             FfmpegMediaProbe mediaProbe,
             FfmpegMediaPreprocessor mediaPreprocessor,
             WhisperCppTranscriber transcriber,
+            PlatformSubtitleReader platformSubtitleReader,
+            SubtitleChunkAnalysisService subtitleChunkAnalysis,
+            PhaseRetryExecutor retryExecutor,
             OllamaVisionClient visionClient,
             VideoSegmentSemanticIndex segmentSemanticIndex,
             RuleBasedHighlightSelector highlightSelector,
@@ -10745,6 +11162,9 @@ public class VideoTaskEngine {
         this.mediaProbe = mediaProbe;
         this.mediaPreprocessor = mediaPreprocessor;
         this.transcriber = transcriber;
+        this.platformSubtitleReader = platformSubtitleReader;
+        this.subtitleChunkAnalysis = subtitleChunkAnalysis;
+        this.retryExecutor = retryExecutor;
         this.visionClient = visionClient;
         this.segmentSemanticIndex = segmentSemanticIndex;
         this.highlightSelector = highlightSelector;
@@ -10806,14 +11226,25 @@ public class VideoTaskEngine {
             checkCancellation(taskId);
             if (!context.transcriptionCompleted()) {
                 stateService.markTranscriptionRunning(taskId);
-                TranscriptionResult result;
-                if (context.hasAudio()) {
-                    result = transcriber.transcribe(Path.of(context.extractedAudioPath()));
+                TranscriptionResult result = platformSubtitleReader.read(sourcePath);
+                if (result != null) {
+                    log.info("TRANSCRIPTION_PLATFORM_SUBTITLE taskId={} subtitle={}", taskId,
+                            result.subtitlePath());
+                } else if (context.hasAudio()) {
+                    String extractedAudioPath = context.extractedAudioPath();
+                    result = retryExecutor.analysis(() ->
+                            transcriber.transcribe(Path.of(extractedAudioPath)));
                 } else {
                     result = new TranscriptionResult("", null, null, null);
                     log.info("TRANSCRIPTION_SKIPPED taskId={} reason=no_audio_track", taskId);
                 }
                 stateService.markTranscriptionCompleted(taskId, result);
+                if (result.subtitlePath() != null) {
+                    String subtitlePath = result.subtitlePath();
+                    Path analysis = retryExecutor.analysis(() ->
+                            subtitleChunkAnalysis.analyze(Path.of(subtitlePath)));
+                    if (analysis != null) log.info("SUBTITLE_CHUNK_ANALYSIS taskId={} output={}", taskId, analysis);
+                }
                 log.info("ENGINE_STAGE_COMPLETED taskId={} stage=TRANSCRIPTION characterCount={}",
                         taskId, result.text().length());
                 context = stateService.context(taskId);
@@ -10834,11 +11265,12 @@ public class VideoTaskEngine {
                     return;
                 }
                 stateService.markVideoUnderstandingRunning(taskId);
-                VideoUnderstandingResult result = context.cloudVisionEnabled()
-                        ? visionClient.analyze(Path.of(context.sceneManifestPath()), context.transcriptText(),
+                EngineTaskContext analysisContext = context;
+                VideoUnderstandingResult result = retryExecutor.analysis(() -> analysisContext.cloudVisionEnabled()
+                        ? visionClient.analyze(Path.of(analysisContext.sceneManifestPath()), analysisContext.transcriptText(),
                             progress -> stateService.updateStageProgress(taskId,
                                     ProcessingStageType.VIDEO_UNDERSTANDING, progress))
-                        : visionClient.analyzeWithoutAi(Path.of(context.sceneManifestPath()), context.transcriptText());
+                        : visionClient.analyzeWithoutAi(Path.of(analysisContext.sceneManifestPath()), analysisContext.transcriptText()));
                 stateService.markVideoUnderstandingCompleted(taskId, result);
                 segmentSemanticIndex.index(taskId, Path.of(result.analysisPath()));
                 log.info("ENGINE_STAGE_COMPLETED taskId={} stage=VIDEO_UNDERSTANDING frameCount={}",
@@ -10867,10 +11299,11 @@ public class VideoTaskEngine {
             checkCancellation(taskId);
             if (!context.scriptGenerationCompleted()) {
                 stateService.markScriptGenerationRunning(taskId);
-                GeneratedScript result = context.aiScriptEnabled()
-                        ? scriptGenerator.generate(Path.of(context.highlightManifestPath()),
-                            context.gameCategory(), context.commentaryStyle(), context.taskBrief(), context.transcriptText())
-                        : scriptGenerator.generateWithoutAi(Path.of(context.highlightManifestPath()));
+                EngineTaskContext generationContext = context;
+                GeneratedScript result = retryExecutor.generation(() -> generationContext.aiScriptEnabled()
+                        ? scriptGenerator.generate(Path.of(generationContext.highlightManifestPath()),
+                            generationContext.gameCategory(), generationContext.commentaryStyle(), generationContext.taskBrief(), generationContext.transcriptText())
+                        : scriptGenerator.generateWithoutAi(Path.of(generationContext.highlightManifestPath())));
                 stateService.markScriptGenerationCompleted(taskId, result);
                 log.info("ENGINE_STAGE_COMPLETED taskId={} stage=SCRIPT_GENERATION segmentCount={}",
                         taskId, result.segments().size());
@@ -13196,6 +13629,37 @@ public class VideoTaskService {
     }
 
     @Transactional
+    public VideoTaskView createPendingRemote(CreateVideoTaskCommand command, String pendingVideoPath) {
+        VideoTask task = new VideoTask(command.name(), command.gameCategory(), command.commentaryStyle(),
+                command.targetDurationSeconds(), command.taskBrief(), pendingVideoPath,
+                command.storyboardReviewEnabled());
+        task.configureEditingScope(command.editingScope());
+        task.configureTerminologyGlossary(command.terminologyGlossary());
+        task.configureAiOptions(command.automaticGenerationEnabled(), command.cloudVisionEnabled(),
+                command.aiScriptEnabled(), command.aiVoiceEnabled(), command.autoAssetsEnabled());
+        task.startIngestion();
+        VideoTask saved = repository.saveAndFlush(task);
+        projectHistoryService.createInitialHistory(saved);
+        return VideoTaskView.from(saved);
+    }
+
+    @Transactional
+    public void updateRemoteDownloadProgress(UUID id, int progress) {
+        repository.findById(id).orElseThrow(() -> new TaskNotFoundException(id))
+                .updateStageProgress(cn.longer233.gamenarrator.task.domain.ProcessingStageType.VIDEO_INGESTION,
+                        Math.max(10, Math.min(99, progress)));
+    }
+
+    @Transactional
+    public void failRemoteDownload(UUID id, String reason) {
+        repository.findById(id).orElseThrow(() -> new TaskNotFoundException(id)).failIngestion(reason);
+    }
+
+    public void startDownloadedRemote(UUID id) {
+        engine.start(id);
+    }
+
+    @Transactional
     public VideoTaskView find(UUID id) {
         log.debug("TASK_FIND taskId={}", id);
         return repository.findById(id)
@@ -13311,15 +13775,22 @@ public class VideoTaskService {
                 task.getGeneratedScriptPath(), task.getVoiceManifestPath(), task.getTimelinePath(),
                 task.getGeneratedSubtitlePath(), task.getRenderedVideoPath())
                 .filter(java.util.Objects::nonNull).filter(value -> !value.isBlank()).toList();
+        List<String> ownedPaths = new java.util.ArrayList<>(paths);
+        if (task.getSourceVideoPath() != null) {
+            Path source = Path.of(task.getSourceVideoPath());
+            ownedPaths.add(source.resolveSibling(source.getFileName() + ".platform.srt").toString());
+            ownedPaths.add(source.resolveSibling(source.getFileName() + ".platform.txt").toString());
+            ownedPaths.add(source.resolveSibling(source.getFileName() + ".platform.srt.analysis.json").toString());
+        }
         Path taskDirectory = storageRoot.resolve("tasks").resolve(id.toString()).normalize();
         repository.delete(task);
         repository.flush();
         TransactionSynchronizationManager.registerSynchronization(new TransactionSynchronization() {
             @Override
             public void afterCommit() {
-                paths.forEach(VideoTaskService.this::deleteOwnedArtifact);
+                ownedPaths.forEach(VideoTaskService.this::deleteOwnedArtifact);
                 deleteOwnedTree(taskDirectory);
-                log.info("TASK_DELETED taskId={} artifactCandidates={}", id, paths.size());
+                log.info("TASK_DELETED taskId={} artifactCandidates={}", id, ownedPaths.size());
             }
         });
     }
@@ -14712,6 +15183,155 @@ public class TimelineValidator {
             throw new IllegalStateException(prefix + label + "时间范围无效");
         }
     }
+}
+``
+
+### FILE: src/main/java/cn/longer233/gamenarrator/transcription/PlatformSubtitleReader.java
+
+``java
+package cn.longer233.gamenarrator.transcription;
+
+import cn.longer233.gamenarrator.common.AtomicArtifactWriter;
+import org.springframework.stereotype.Component;
+
+import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
+import java.nio.file.Path;
+
+@Component
+public class PlatformSubtitleReader {
+    public TranscriptionResult read(Path sourceVideo) {
+        Path subtitle = sourceVideo.resolveSibling(sourceVideo.getFileName() + ".platform.srt");
+        if (!Files.isRegularFile(subtitle)) return null;
+        try {
+            String srt = Files.readString(subtitle, StandardCharsets.UTF_8);
+            String text = srt.lines()
+                    .filter(line -> !line.isBlank())
+                    .filter(line -> !line.trim().matches("\\d+"))
+                    .filter(line -> !line.contains("-->"))
+                    .map(line -> line.replaceAll("<[^>]+>", "").trim())
+                    .filter(line -> !line.isBlank())
+                    .reduce((left, right) -> left + " " + right).orElse("");
+            if (text.isBlank()) return null;
+            Path textPath = sourceVideo.resolveSibling(sourceVideo.getFileName() + ".platform.txt");
+            AtomicArtifactWriter.writeText(textPath, text, StandardCharsets.UTF_8);
+            return new TranscriptionResult(text, textPath.toString(), subtitle.toString(), null);
+        } catch (Exception exception) {
+            return null;
+        }
+    }
+}
+``
+
+### FILE: src/main/java/cn/longer233/gamenarrator/transcription/SubtitleChunkAnalysisService.java
+
+``java
+package cn.longer233.gamenarrator.transcription;
+
+import cn.longer233.gamenarrator.common.AtomicArtifactWriter;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.stereotype.Service;
+
+import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.util.ArrayList;
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Map;
+
+@Service
+public class SubtitleChunkAnalysisService {
+    private final ObjectMapper mapper;
+    private final int maxCharacters;
+
+    public SubtitleChunkAnalysisService(ObjectMapper mapper,
+            @Value("${game-narrator.subtitle.chunk-characters:4000}") int maxCharacters) {
+        this.mapper = mapper;
+        this.maxCharacters = Math.max(500, maxCharacters);
+    }
+
+    public Path analyze(Path subtitlePath) {
+        if (subtitlePath == null || !Files.isRegularFile(subtitlePath)) return null;
+        try {
+            List<Cue> cues = parse(Files.readString(subtitlePath, StandardCharsets.UTF_8));
+            if (cues.isEmpty()) return null;
+            List<List<Cue>> chunks = chunk(cues);
+            List<Map<String, Object>> output = new ArrayList<>();
+            for (int index = 0; index < chunks.size(); index++) {
+                List<Cue> chunk = chunks.get(index);
+                String text = chunk.stream().map(Cue::text).reduce((a, b) -> a + " " + b).orElse("");
+                Map<String, Object> item = new LinkedHashMap<>();
+                item.put("index", index + 1);
+                item.put("outline", outline(text));
+                item.put("timeline", Map.of("startSeconds", chunk.getFirst().start(),
+                        "endSeconds", chunk.getLast().end()));
+                item.put("excitementScore", excitement(text));
+                item.put("text", text);
+                output.add(item);
+            }
+            Path target = subtitlePath.resolveSibling(subtitlePath.getFileName() + ".analysis.json");
+            AtomicArtifactWriter.writeText(target, mapper.writerWithDefaultPrettyPrinter()
+                    .writeValueAsString(Map.of("strategy", "chunked-subtitle-v1", "chunks", output)),
+                    StandardCharsets.UTF_8);
+            return target;
+        } catch (Exception exception) {
+            throw new IllegalStateException("字幕分块分析失败：" + exception.getMessage(), exception);
+        }
+    }
+
+    private List<List<Cue>> chunk(List<Cue> cues) {
+        List<List<Cue>> result = new ArrayList<>();
+        List<Cue> current = new ArrayList<>();
+        int length = 0;
+        for (Cue cue : cues) {
+            if (!current.isEmpty() && length + cue.text().length() > maxCharacters) {
+                result.add(List.copyOf(current)); current.clear(); length = 0;
+            }
+            current.add(cue); length += cue.text().length();
+        }
+        if (!current.isEmpty()) result.add(List.copyOf(current));
+        return result;
+    }
+
+    private String outline(String text) {
+        String normalized = text.replaceAll("\\s+", " ").trim();
+        return normalized.substring(0, Math.min(180, normalized.length()));
+    }
+
+    private int excitement(String text) {
+        int score = 35;
+        String lower = text.toLowerCase();
+        for (String keyword : List.of("击杀", "胜利", "反杀", "精彩", "危险", "boss", "win", "kill", "!", "！")) {
+            int from = 0;
+            while ((from = lower.indexOf(keyword, from)) >= 0) { score += 8; from += keyword.length(); }
+        }
+        return Math.min(100, score);
+    }
+
+    private List<Cue> parse(String srt) {
+        List<Cue> cues = new ArrayList<>();
+        for (String block : srt.replace("\r\n", "\n").split("\n\\s*\n")) {
+            String[] lines = block.lines().toArray(String[]::new);
+            int timing = -1;
+            for (int i = 0; i < lines.length; i++) if (lines[i].contains("-->")) { timing = i; break; }
+            if (timing < 0) continue;
+            String[] range = lines[timing].split("-->");
+            if (range.length != 2) continue;
+            String text = String.join(" ", java.util.Arrays.copyOfRange(lines, timing + 1, lines.length)).trim();
+            if (!text.isBlank()) cues.add(new Cue(seconds(range[0]), seconds(range[1]), text));
+        }
+        return cues;
+    }
+
+    private double seconds(String timestamp) {
+        String[] parts = timestamp.trim().replace(',', '.').split(":");
+        return Double.parseDouble(parts[0]) * 3600 + Double.parseDouble(parts[1]) * 60
+                + Double.parseDouble(parts[2]);
+    }
+
+    private record Cue(double start, double end, String text) {}
 }
 ``
 
@@ -16130,6 +16750,13 @@ logging:
     file: "%d{yyyy-MM-dd HH:mm:ss.SSS} %-5level [%thread] [trace=%X{traceId:-system}] %logger{48} - %msg%n"
 
 game-narrator:
+  retry:
+    download-attempts: ${DOWNLOAD_RETRY_ATTEMPTS:3}
+    analysis-attempts: ${ANALYSIS_RETRY_ATTEMPTS:2}
+    generation-attempts: ${GENERATION_RETRY_ATTEMPTS:3}
+    initial-backoff-ms: ${PHASE_RETRY_BACKOFF_MS:500}
+  subtitle:
+    chunk-characters: ${SUBTITLE_CHUNK_CHARACTERS:4000}
   ocr:
     enabled: ${OCR_ENABLED:false}
     executable: ${TESSERACT_EXECUTABLE:tesseract}
@@ -16973,6 +17600,33 @@ WHERE NOT EXISTS (
 
 ``sql
 ALTER TABLE video_tasks ADD COLUMN version BIGINT NOT NULL DEFAULT 0;
+``
+
+### FILE: src/main/resources/db/migration/V21__clip_compilations.sql
+
+``sql
+CREATE TABLE clip_compilation (
+    id UUID PRIMARY KEY,
+    name VARCHAR(120) NOT NULL,
+    created_at TIMESTAMP WITH TIME ZONE NOT NULL
+);
+
+CREATE TABLE clip_compilation_item (
+    id UUID PRIMARY KEY,
+    compilation_id UUID NOT NULL,
+    task_id UUID NOT NULL,
+    clip_index INTEGER NOT NULL,
+    position INTEGER NOT NULL,
+    created_at TIMESTAMP WITH TIME ZONE NOT NULL,
+    CONSTRAINT fk_compilation_item_compilation FOREIGN KEY (compilation_id)
+        REFERENCES clip_compilation(id) ON DELETE CASCADE,
+    CONSTRAINT fk_compilation_item_task FOREIGN KEY (task_id)
+        REFERENCES video_tasks(id) ON DELETE CASCADE,
+    CONSTRAINT uk_compilation_item_position UNIQUE (compilation_id, position),
+    CONSTRAINT uk_compilation_item_clip UNIQUE (compilation_id, task_id, clip_index)
+);
+
+CREATE INDEX idx_compilation_item_order ON clip_compilation_item(compilation_id, position);
 ``
 
 ### FILE: src/main/resources/db/migration/V3__external_asset_catalog.sql
@@ -19965,6 +20619,8 @@ document.querySelector('#copy-address').onclick=async()=>{await navigator.clipbo
       <div class="media-preview-progress" hidden><progress max="100" value="0"></progress><span>等待开始</span></div>
       <button id="media-download" type="button">自动下载所选格式</button>
       <div class="media-download-progress" hidden><progress max="100" value="0"></progress><span>等待开始</span></div></div></article>`;
+    result.querySelector("#media-download")?.insertAdjacentHTML("afterend",
+      '<button id="media-create-project" type="button">下载并立即创建剪辑项目</button>');
     const coverImage = result.querySelector(".media-cover img");
     if (coverImage) coverImage.addEventListener("error", () =>
       coverImage.closest(".media-cover").classList.add("cover-error"), {once:true});
@@ -20035,6 +20691,30 @@ document.querySelector('#copy-address').onclick=async()=>{await navigator.clipbo
   if (savedMediaPreferences.rightsConfirmed && form.elements.rightsConfirmed)
     form.elements.rightsConfirmed.checked = true;
   result.addEventListener("click", async event => {
+    if (event.target.id === "media-create-project") {
+      const selectedFormat = document.querySelector("#media-format")?.value || "best";
+      event.target.disabled = true;
+      message.textContent = "项目已创建，下载进度会实时显示在任务列表中。";
+      try {
+        const duration = Math.max(15, Math.min(3600, Math.round(resolvedMedia?.durationSeconds || 90)));
+        const project = await request("/api/media-import/projects", {
+          media:{url:resolvedUrl,formatId:selectedFormat,subtitles:document.querySelector("#media-subtitles").checked,
+            addToLibrary:document.querySelector("#media-add-library").checked,rightsConfirmed:true,
+            cookieToken:cookieToken || null,title:resolvedMedia?.title || null,creator:resolvedMedia?.creator || null,
+            thumbnail:resolvedMedia?.thumbnail || null,durationSeconds:resolvedMedia?.durationSeconds || null,tags:libraryTags()},
+          name:resolvedMedia?.title || "平台视频项目",gameCategory:"其他",commentaryStyle:"HUMOROUS",
+          targetDurationSeconds:duration,editingScope:"HIGHLIGHTS",taskBrief:"提取时间线并生成精彩片段合集",
+          terminologyGlossary:"",storyboardReviewEnabled:true,automaticGenerationEnabled:true,
+          cloudVisionEnabled:true,aiScriptEnabled:true,aiVoiceEnabled:true,autoAssetsEnabled:true
+        });
+        message.textContent = `项目“${project.name}”正在下载，可在任务页实时查看。`;
+        document.querySelector('[data-nav-page="tasks"]')?.click();
+      } catch (error) {
+        message.textContent = error.message;
+        event.target.disabled = false;
+      }
+      return;
+    }
     if (event.target.matches(".media-preview-close")) {
       const preview = event.target.closest(".media-online-preview");
       const video = preview?.querySelector("video");
@@ -21029,7 +21709,8 @@ class MediaImportControllerSessionTest {
         when(importer.uploadCookies(any(), anyString())).thenReturn(token);
         MediaImportController controller = new MediaImportController(importer, mock(RemoteThumbnailService.class),
                 mock(MediaDownloadJobService.class), mock(PlatformContentClassifier.class),
-                mock(cn.longer233.gamenarrator.asset.AssetCatalogService.class));
+                mock(cn.longer233.gamenarrator.asset.AssetCatalogService.class),
+                mock(RemoteProjectImportService.class));
         MockHttpSession owner = new MockHttpSession();
         MockHttpSession otherUser = new MockHttpSession();
         controller.uploadCookies(new MockMultipartFile("file", "cookies.txt", "text/plain",
@@ -21047,7 +21728,8 @@ class MediaImportControllerSessionTest {
                 "COMPLETED", video.toString(), "preview.mp4", 3, null, null));
         MediaImportController controller = new MediaImportController(importer, mock(RemoteThumbnailService.class),
                 mock(MediaDownloadJobService.class), mock(PlatformContentClassifier.class),
-                mock(cn.longer233.gamenarrator.asset.AssetCatalogService.class));
+                mock(cn.longer233.gamenarrator.asset.AssetCatalogService.class),
+                mock(RemoteProjectImportService.class));
         MockHttpSession owner = new MockHttpSession();
         MediaDownloadRequest request = new MediaDownloadRequest("https://example.com/video", "18",
                 false, false, true, null, "title", null, null, 1.0, List.of());
@@ -21110,6 +21792,7 @@ class YtDlpMediaImporterTest {
 
     private final YtDlpMediaImporter importer = new YtDlpMediaImporter(
             new ObjectMapper(), new MediaImportProperties(), mock(AssetCatalogService.class),
+            new cn.longer233.gamenarrator.common.PhaseRetryExecutor(1, 1, 1, 0),
             "./target/importer-test");
 
     @Test
@@ -22087,6 +22770,79 @@ class TimelineValidatorTest {
     private TimelineSegment segment(int sequence, double start, double end, Path voice) {
         return new TimelineSegment(sequence, start, end, start, end,
                 "解说", "字幕", "转场", voice.toString(), 1, false);
+    }
+}
+``
+
+### FILE: src/test/java/cn/longer233/gamenarrator/transcription/PlatformSubtitleReaderTest.java
+
+``java
+package cn.longer233.gamenarrator.transcription;
+
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.io.TempDir;
+
+import java.nio.file.Files;
+import java.nio.file.Path;
+
+import static org.assertj.core.api.Assertions.assertThat;
+
+class PlatformSubtitleReaderTest {
+    @TempDir Path directory;
+
+    @Test
+    void readsPlatformSubtitleBeforeWhisperIsNeeded() throws Exception {
+        Path video = directory.resolve("video.mp4");
+        Files.writeString(video, "placeholder");
+        Files.writeString(video.resolveSibling("video.mp4.platform.srt"), """
+                1
+                00:00:00,000 --> 00:00:02,000
+                平台字幕优先
+                """);
+        TranscriptionResult result = new PlatformSubtitleReader().read(video);
+        assertThat(result).isNotNull();
+        assertThat(result.text()).isEqualTo("平台字幕优先");
+        assertThat(result.subtitlePath()).endsWith("platform.srt");
+    }
+}
+``
+
+### FILE: src/test/java/cn/longer233/gamenarrator/transcription/SubtitleChunkAnalysisServiceTest.java
+
+``java
+package cn.longer233.gamenarrator.transcription;
+
+import com.fasterxml.jackson.databind.ObjectMapper;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.io.TempDir;
+
+import java.nio.file.Files;
+import java.nio.file.Path;
+
+import static org.assertj.core.api.Assertions.assertThat;
+
+class SubtitleChunkAnalysisServiceTest {
+    @TempDir Path directory;
+
+    @Test
+    void createsOrderedOutlineTimelineAndExcitementPasses() throws Exception {
+        Path subtitle = directory.resolve("source.srt");
+        Files.writeString(subtitle, """
+                1
+                00:00:01,000 --> 00:00:03,000
+                开始探索地图
+
+                2
+                00:00:08,000 --> 00:00:10,000
+                精彩反杀！获得胜利！
+                """);
+        ObjectMapper mapper = new ObjectMapper();
+        Path output = new SubtitleChunkAnalysisService(mapper, 500).analyze(subtitle);
+        var root = mapper.readTree(output.toFile());
+        assertThat(root.path("strategy").asText()).isEqualTo("chunked-subtitle-v1");
+        assertThat(root.path("chunks").get(0).path("outline").asText()).contains("开始探索");
+        assertThat(root.path("chunks").get(0).path("timeline").path("startSeconds").asDouble()).isEqualTo(1);
+        assertThat(root.path("chunks").get(0).path("excitementScore").asInt()).isGreaterThan(35);
     }
 }
 ``
