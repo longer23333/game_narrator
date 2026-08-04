@@ -36,6 +36,7 @@ public class FfmpegVideoRenderer {
     private final ProceduralSoundEffectLibrary soundEffectLibrary;
     private final RenderAssetResolver renderAssetResolver;
     private final RenderVideoFilterBuilder videoFilterBuilder;
+    private final RenderAudioMixBuilder audioMixBuilder;
 
     public FfmpegVideoRenderer(ObjectMapper objectMapper,
             SemanticEffectPlanner effectPlanner,
@@ -43,6 +44,7 @@ public class FfmpegVideoRenderer {
             ProceduralSoundEffectLibrary soundEffectLibrary,
             RenderAssetResolver renderAssetResolver,
             RenderVideoFilterBuilder videoFilterBuilder,
+            RenderAudioMixBuilder audioMixBuilder,
             @Value("${game-narrator.ffmpeg-command}") String ffmpegCommand,
             @Value("${game-narrator.render.video-encoder:h264_nvenc}") String preferredEncoder) {
         this.objectMapper = objectMapper;
@@ -51,6 +53,7 @@ public class FfmpegVideoRenderer {
         this.soundEffectLibrary = soundEffectLibrary;
         this.renderAssetResolver = renderAssetResolver;
         this.videoFilterBuilder = videoFilterBuilder;
+        this.audioMixBuilder = audioMixBuilder;
         this.ffmpegCommand = ffmpegCommand;
         this.preferredEncoder = preferredEncoder;
     }
@@ -272,54 +275,9 @@ public class FfmpegVideoRenderer {
             command.addAll(List.of("-i", asset.path().toString()));
         }
         command.addAll(List.of("-i", subtitle.toString()));
-        StringBuilder filter = new StringBuilder("[0:a]volume=")
-                .append(decimal(sourceAudioVolume)).append("[bg];");
-        for (int index = 0; index < segments.size(); index++) {
-            TimelineSegment segment = segments.get(index);
-            long delay = Math.round(segment.outputStartSeconds() * 1000);
-            filter.append('[').append(index + 1).append(":a]");
-            double clipDuration = segment.outputEndSeconds() - segment.outputStartSeconds();
-            if (segment.voiceDurationSeconds() > clipDuration - 0.25) {
-                double speed = Math.min(2.0,
-                        segment.voiceDurationSeconds() / Math.max(0.5, clipDuration - 0.25));
-                filter.append("atempo=").append(decimal(speed)).append(',');
-            }
-            filter.append("adelay=")
-                    .append(delay).append('|').append(delay).append("[v").append(index).append("];");
-        }
-        for (int index = 0; index < soundCues.size(); index++) {
-            SoundCue cue = soundCues.get(index);
-            int inputIndex = segments.size() + 1 + index;
-            long delay = Math.round(cue.startSeconds() * 1000);
-            filter.append('[').append(inputIndex).append(":a]volume=")
-                    .append(decimal(cue.volume())).append(",adelay=")
-                    .append(delay).append('|').append(delay).append("[s").append(index).append("];");
-        }
-        double totalDuration = segments.getLast().outputEndSeconds();
-        for (int index = 0; index < externalAudio.size(); index++) {
-            RenderAssetResolver.RenderAsset asset = externalAudio.get(index);
-            int inputIndex = segments.size() + 1 + soundCues.size() + index;
-            TimelineSegment segment = segments.stream().filter(item -> item.sequence() == asset.clipIndex())
-                    .findFirst().orElse(segments.getFirst());
-            filter.append('[').append(inputIndex).append(":a]");
-            if ("BACKGROUND_AUDIO".equals(asset.placementType())) {
-                filter.append("atrim=0:").append(decimal(totalDuration)).append(",volume=0.14");
-            } else {
-                long delay = Math.round(segment.outputStartSeconds() * 1000);
-                filter.append("atrim=0:").append(decimal(segment.outputEndSeconds()-segment.outputStartSeconds()))
-                        .append(",volume=0.48,adelay=").append(delay).append('|').append(delay);
-            }
-            filter.append("[x").append(index).append("];");
-        }
-        for (int index = 0; index < segments.size(); index++) filter.append("[v").append(index).append(']');
-        for (int index = 0; index < soundCues.size(); index++) filter.append("[s").append(index).append(']');
-        for (int index = 0; index < externalAudio.size(); index++) filter.append("[x").append(index).append(']');
-        filter.append("amix=inputs=").append(segments.size() + soundCues.size() + externalAudio.size())
-                .append(":duration=longest:normalize=0,asplit=2[voiceSide][voiceMix];")
-                .append("[bg][voiceSide]sidechaincompress=threshold=0.02:ratio=8:attack=20:release=320[ducked];")
-                .append("[ducked][voiceMix]amix=inputs=2:duration=first:dropout_transition=0[aout]");
-        int subtitleInput = segments.size() + soundCues.size() + externalAudio.size() + 1;
-        command.addAll(List.of("-filter_complex", filter.toString()));
+        RenderAudioMixBuilder.AudioMixPlan mixPlan = audioMixBuilder.build(
+                segments, soundCues, externalAudio, sourceAudioVolume);
+        command.addAll(List.of("-filter_complex", mixPlan.filterGraph()));
         if (dynamicSubtitle != null) {
             command.addAll(List.of("-vf", "ass='" + filterPath(dynamicSubtitle) + "'",
                     "-map", "0:v:0", "-map", "[aout]", "-c:v", preferredEncoder));
@@ -328,7 +286,7 @@ public class FfmpegVideoRenderer {
             }
         } else {
             command.addAll(List.of("-map", "0:v:0", "-map", "[aout]",
-                    "-map", subtitleInput + ":s:0", "-c:v", "copy",
+                    "-map", mixPlan.subtitleInput() + ":s:0", "-c:v", "copy",
                     "-c:s", "mov_text", "-metadata:s:s:0", "language=zho"));
         }
         command.addAll(List.of("-c:a", "aac", "-b:a", "192k", "-movflags", "+faststart",

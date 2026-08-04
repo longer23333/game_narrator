@@ -97,6 +97,12 @@
 - Deterministic FFmpeg video-filter and storyboard-overlay graph construction now lives in `RenderVideoFilterBuilder`.
 - `FfmpegVideoRenderer` retains render orchestration, encoder fallback, process execution, preview generation, and audio/subtitle composition; generated filter behavior remains covered by focused tests and the real pipeline test.
 - Command execution and audio-mix graph extraction remain follow-up refactors, so renderer decomposition is intentionally incremental rather than represented as complete.
+
+## 2026-08-04 render audio-mix boundary pass
+
+- Narration timing and bounded speed-up, sound-effect delays, external BGM/SFX placement, source-audio ducking, and subtitle input indexing now live in `RenderAudioMixBuilder`.
+- `FfmpegVideoRenderer` still owns input-file ordering and final FFmpeg command execution, while consuming an immutable audio-mix plan from the new pure builder.
+- FFmpeg process execution and encoder fallback remain follow-up boundaries; no new audio engine or user-facing mixing controls are claimed in this pass.
 # 1.0.1 内存优化记录
 
 - 截图镜头搜索在调用 `MultipartFile.getBytes()` 前检查可配置大小上限，避免超大上传产生第二份堆内存副本。

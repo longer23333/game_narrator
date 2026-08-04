@@ -1,7 +1,7 @@
 # GameNarrator — DeepSeek 项目上下文包
 
-> 自动生成时间：2026-08-04 17:14:27 +08:00
-> 文件数量：286。本文件由 scripts/export-deepseek-context.ps1 生成，请勿手工维护生成区。
+> 自动生成时间：2026-08-04 17:21:44 +08:00
+> 文件数量：288。本文件由 scripts/export-deepseek-context.ps1 生成，请勿手工维护生成区。
 
 ## 给 DeepSeek 的强制工作规则
 
@@ -32,7 +32,7 @@
 - `docs/FRONTEND_DEVELOPMENT.md`（1853 bytes）
 - `docs/MANUAL_EDITOR_PARITY.md`（2680 bytes）
 - `docs/OBSERVABILITY.md`（1109 bytes）
-- `docs/PERFORMANCE_PORTABILITY_AUDIT.md`（10223 bytes）
+- `docs/PERFORMANCE_PORTABILITY_AUDIT.md`（10763 bytes）
 - `docs/REQUIREMENTS.md`（21935 bytes）
 - `docs/STYLE_TEMPLATE_STORE.md`（1190 bytes）
 - `docs/VERSIONING.md`（687 bytes）
@@ -151,8 +151,9 @@
 - `src/main/java/cn/longer233/gamenarrator/pipeline/TaskWorkflowStateService.java`（13728 bytes）
 - `src/main/java/cn/longer233/gamenarrator/pipeline/VideoTaskEngine.java`（20683 bytes）
 - `src/main/java/cn/longer233/gamenarrator/pipeline/WaitingTaskRetryScheduler.java`（2399 bytes）
-- `src/main/java/cn/longer233/gamenarrator/render/FfmpegVideoRenderer.java`（24170 bytes）
+- `src/main/java/cn/longer233/gamenarrator/render/FfmpegVideoRenderer.java`（21138 bytes）
 - `src/main/java/cn/longer233/gamenarrator/render/RenderAssetResolver.java`（2211 bytes）
+- `src/main/java/cn/longer233/gamenarrator/render/RenderAudioMixBuilder.java`（4473 bytes）
 - `src/main/java/cn/longer233/gamenarrator/render/RenderPreviewService.java`（3182 bytes）
 - `src/main/java/cn/longer233/gamenarrator/render/RenderResult.java`（133 bytes）
 - `src/main/java/cn/longer233/gamenarrator/render/RenderVideoFilterBuilder.java`（7614 bytes）
@@ -290,6 +291,7 @@
 - `src/test/java/cn/longer233/gamenarrator/observability/StorageCapacityGuardTest.java`（1278 bytes）
 - `src/test/java/cn/longer233/gamenarrator/pipeline/PendingTaskRecoveryTest.java`（3156 bytes）
 - `src/test/java/cn/longer233/gamenarrator/pipeline/VideoPipelineEndToEndTest.java`（3211 bytes）
+- `src/test/java/cn/longer233/gamenarrator/render/RenderAudioMixBuilderTest.java`（2564 bytes）
 - `src/test/java/cn/longer233/gamenarrator/render/RenderPreviewServiceTest.java`（2115 bytes）
 - `src/test/java/cn/longer233/gamenarrator/render/RenderVideoFilterBuilderTest.java`（2457 bytes）
 - `src/test/java/cn/longer233/gamenarrator/script/OllamaScriptGeneratorTest.java`（2300 bytes）
@@ -328,7 +330,7 @@
 
     <groupId>cn.longer233.graduation</groupId>
     <artifactId>game-narrator</artifactId>
-    <version>1.5.6</version>
+    <version>1.5.7</version>
     <name>GameNarrator</name>
     <description>多模态游戏视频智能解说与自动剪辑系统</description>
 
@@ -1551,6 +1553,12 @@ Grafana 数据源和仪表盘配置位于 `monitoring/grafana`。将 `provisioni
 - Deterministic FFmpeg video-filter and storyboard-overlay graph construction now lives in `RenderVideoFilterBuilder`.
 - `FfmpegVideoRenderer` retains render orchestration, encoder fallback, process execution, preview generation, and audio/subtitle composition; generated filter behavior remains covered by focused tests and the real pipeline test.
 - Command execution and audio-mix graph extraction remain follow-up refactors, so renderer decomposition is intentionally incremental rather than represented as complete.
+
+## 2026-08-04 render audio-mix boundary pass
+
+- Narration timing and bounded speed-up, sound-effect delays, external BGM/SFX placement, source-audio ducking, and subtitle input indexing now live in `RenderAudioMixBuilder`.
+- `FfmpegVideoRenderer` still owns input-file ordering and final FFmpeg command execution, while consuming an immutable audio-mix plan from the new pure builder.
+- FFmpeg process execution and encoder fallback remain follow-up boundaries; no new audio engine or user-facing mixing controls are claimed in this pass.
 # 1.0.1 内存优化记录
 
 - 截图镜头搜索在调用 `MultipartFile.getBytes()` 前检查可配置大小上限，避免超大上传产生第二份堆内存副本。
@@ -12554,6 +12562,7 @@ public class FfmpegVideoRenderer {
     private final ProceduralSoundEffectLibrary soundEffectLibrary;
     private final RenderAssetResolver renderAssetResolver;
     private final RenderVideoFilterBuilder videoFilterBuilder;
+    private final RenderAudioMixBuilder audioMixBuilder;
 
     public FfmpegVideoRenderer(ObjectMapper objectMapper,
             SemanticEffectPlanner effectPlanner,
@@ -12561,6 +12570,7 @@ public class FfmpegVideoRenderer {
             ProceduralSoundEffectLibrary soundEffectLibrary,
             RenderAssetResolver renderAssetResolver,
             RenderVideoFilterBuilder videoFilterBuilder,
+            RenderAudioMixBuilder audioMixBuilder,
             @Value("${game-narrator.ffmpeg-command}") String ffmpegCommand,
             @Value("${game-narrator.render.video-encoder:h264_nvenc}") String preferredEncoder) {
         this.objectMapper = objectMapper;
@@ -12569,6 +12579,7 @@ public class FfmpegVideoRenderer {
         this.soundEffectLibrary = soundEffectLibrary;
         this.renderAssetResolver = renderAssetResolver;
         this.videoFilterBuilder = videoFilterBuilder;
+        this.audioMixBuilder = audioMixBuilder;
         this.ffmpegCommand = ffmpegCommand;
         this.preferredEncoder = preferredEncoder;
     }
@@ -12790,54 +12801,9 @@ public class FfmpegVideoRenderer {
             command.addAll(List.of("-i", asset.path().toString()));
         }
         command.addAll(List.of("-i", subtitle.toString()));
-        StringBuilder filter = new StringBuilder("[0:a]volume=")
-                .append(decimal(sourceAudioVolume)).append("[bg];");
-        for (int index = 0; index < segments.size(); index++) {
-            TimelineSegment segment = segments.get(index);
-            long delay = Math.round(segment.outputStartSeconds() * 1000);
-            filter.append('[').append(index + 1).append(":a]");
-            double clipDuration = segment.outputEndSeconds() - segment.outputStartSeconds();
-            if (segment.voiceDurationSeconds() > clipDuration - 0.25) {
-                double speed = Math.min(2.0,
-                        segment.voiceDurationSeconds() / Math.max(0.5, clipDuration - 0.25));
-                filter.append("atempo=").append(decimal(speed)).append(',');
-            }
-            filter.append("adelay=")
-                    .append(delay).append('|').append(delay).append("[v").append(index).append("];");
-        }
-        for (int index = 0; index < soundCues.size(); index++) {
-            SoundCue cue = soundCues.get(index);
-            int inputIndex = segments.size() + 1 + index;
-            long delay = Math.round(cue.startSeconds() * 1000);
-            filter.append('[').append(inputIndex).append(":a]volume=")
-                    .append(decimal(cue.volume())).append(",adelay=")
-                    .append(delay).append('|').append(delay).append("[s").append(index).append("];");
-        }
-        double totalDuration = segments.getLast().outputEndSeconds();
-        for (int index = 0; index < externalAudio.size(); index++) {
-            RenderAssetResolver.RenderAsset asset = externalAudio.get(index);
-            int inputIndex = segments.size() + 1 + soundCues.size() + index;
-            TimelineSegment segment = segments.stream().filter(item -> item.sequence() == asset.clipIndex())
-                    .findFirst().orElse(segments.getFirst());
-            filter.append('[').append(inputIndex).append(":a]");
-            if ("BACKGROUND_AUDIO".equals(asset.placementType())) {
-                filter.append("atrim=0:").append(decimal(totalDuration)).append(",volume=0.14");
-            } else {
-                long delay = Math.round(segment.outputStartSeconds() * 1000);
-                filter.append("atrim=0:").append(decimal(segment.outputEndSeconds()-segment.outputStartSeconds()))
-                        .append(",volume=0.48,adelay=").append(delay).append('|').append(delay);
-            }
-            filter.append("[x").append(index).append("];");
-        }
-        for (int index = 0; index < segments.size(); index++) filter.append("[v").append(index).append(']');
-        for (int index = 0; index < soundCues.size(); index++) filter.append("[s").append(index).append(']');
-        for (int index = 0; index < externalAudio.size(); index++) filter.append("[x").append(index).append(']');
-        filter.append("amix=inputs=").append(segments.size() + soundCues.size() + externalAudio.size())
-                .append(":duration=longest:normalize=0,asplit=2[voiceSide][voiceMix];")
-                .append("[bg][voiceSide]sidechaincompress=threshold=0.02:ratio=8:attack=20:release=320[ducked];")
-                .append("[ducked][voiceMix]amix=inputs=2:duration=first:dropout_transition=0[aout]");
-        int subtitleInput = segments.size() + soundCues.size() + externalAudio.size() + 1;
-        command.addAll(List.of("-filter_complex", filter.toString()));
+        RenderAudioMixBuilder.AudioMixPlan mixPlan = audioMixBuilder.build(
+                segments, soundCues, externalAudio, sourceAudioVolume);
+        command.addAll(List.of("-filter_complex", mixPlan.filterGraph()));
         if (dynamicSubtitle != null) {
             command.addAll(List.of("-vf", "ass='" + filterPath(dynamicSubtitle) + "'",
                     "-map", "0:v:0", "-map", "[aout]", "-c:v", preferredEncoder));
@@ -12846,7 +12812,7 @@ public class FfmpegVideoRenderer {
             }
         } else {
             command.addAll(List.of("-map", "0:v:0", "-map", "[aout]",
-                    "-map", subtitleInput + ":s:0", "-c:v", "copy",
+                    "-map", mixPlan.subtitleInput() + ":s:0", "-c:v", "copy",
                     "-c:s", "mov_text", "-metadata:s:s:0", "language=zho"));
         }
         command.addAll(List.of("-c:a", "aac", "-b:a", "192k", "-movflags", "+faststart",
@@ -12971,6 +12937,85 @@ public class RenderAssetResolver {
                               boolean cutoutApplied, Path path, String title) {
         public boolean audio() { return "SFX".equals(assetType) || "BGM".equals(assetType); }
     }
+}
+``
+
+### FILE: src/main/java/cn/longer233/gamenarrator/render/RenderAudioMixBuilder.java
+
+``java
+package cn.longer233.gamenarrator.render;
+
+import cn.longer233.gamenarrator.audio.SoundCue;
+import cn.longer233.gamenarrator.timeline.TimelineSegment;
+import org.springframework.stereotype.Component;
+
+import java.util.List;
+import java.util.Locale;
+
+/** Builds the FFmpeg audio mix graph while leaving process and file orchestration to the renderer. */
+@Component
+public class RenderAudioMixBuilder {
+    public AudioMixPlan build(List<TimelineSegment> segments, List<SoundCue> soundCues,
+                              List<RenderAssetResolver.RenderAsset> externalAudio,
+                              double sourceAudioVolume) {
+        if (segments == null || segments.isEmpty()) throw new IllegalArgumentException("剪辑时间线不能为空");
+        List<SoundCue> cues = soundCues == null ? List.of() : soundCues;
+        List<RenderAssetResolver.RenderAsset> assets = externalAudio == null ? List.of() : externalAudio;
+        StringBuilder filter = new StringBuilder("[0:a]volume=")
+                .append(decimal(sourceAudioVolume)).append("[bg];");
+        for (int index = 0; index < segments.size(); index++) {
+            TimelineSegment segment = segments.get(index);
+            long delay = Math.round(segment.outputStartSeconds() * 1000);
+            filter.append('[').append(index + 1).append(":a]");
+            double clipDuration = segment.outputEndSeconds() - segment.outputStartSeconds();
+            if (segment.voiceDurationSeconds() > clipDuration - 0.25) {
+                double speed = Math.min(2.0,
+                        segment.voiceDurationSeconds() / Math.max(0.5, clipDuration - 0.25));
+                filter.append("atempo=").append(decimal(speed)).append(',');
+            }
+            filter.append("adelay=").append(delay).append('|').append(delay)
+                    .append("[v").append(index).append("];");
+        }
+        for (int index = 0; index < cues.size(); index++) {
+            SoundCue cue = cues.get(index);
+            int inputIndex = segments.size() + 1 + index;
+            long delay = Math.round(cue.startSeconds() * 1000);
+            filter.append('[').append(inputIndex).append(":a]volume=")
+                    .append(decimal(cue.volume())).append(",adelay=")
+                    .append(delay).append('|').append(delay).append("[s").append(index).append("];");
+        }
+        double totalDuration = segments.getLast().outputEndSeconds();
+        for (int index = 0; index < assets.size(); index++) {
+            RenderAssetResolver.RenderAsset asset = assets.get(index);
+            int inputIndex = segments.size() + 1 + cues.size() + index;
+            TimelineSegment segment = segments.stream().filter(item -> item.sequence() == asset.clipIndex())
+                    .findFirst().orElse(segments.getFirst());
+            filter.append('[').append(inputIndex).append(":a]");
+            if ("BACKGROUND_AUDIO".equals(asset.placementType())) {
+                filter.append("atrim=0:").append(decimal(totalDuration)).append(",volume=0.14");
+            } else {
+                long delay = Math.round(segment.outputStartSeconds() * 1000);
+                filter.append("atrim=0:").append(decimal(segment.outputEndSeconds() - segment.outputStartSeconds()))
+                        .append(",volume=0.48,adelay=").append(delay).append('|').append(delay);
+            }
+            filter.append("[x").append(index).append("];");
+        }
+        for (int index = 0; index < segments.size(); index++) filter.append("[v").append(index).append(']');
+        for (int index = 0; index < cues.size(); index++) filter.append("[s").append(index).append(']');
+        for (int index = 0; index < assets.size(); index++) filter.append("[x").append(index).append(']');
+        filter.append("amix=inputs=").append(segments.size() + cues.size() + assets.size())
+                .append(":duration=longest:normalize=0,asplit=2[voiceSide][voiceMix];")
+                .append("[bg][voiceSide]sidechaincompress=threshold=0.02:ratio=8:attack=20:release=320[ducked];")
+                .append("[ducked][voiceMix]amix=inputs=2:duration=first:dropout_transition=0[aout]");
+        int subtitleInput = segments.size() + cues.size() + assets.size() + 1;
+        return new AudioMixPlan(filter.toString(), subtitleInput);
+    }
+
+    private String decimal(double value) {
+        return String.format(Locale.ROOT, "%.3f", value);
+    }
+
+    public record AudioMixPlan(String filterGraph, int subtitleInput) { }
 }
 ``
 
@@ -20710,7 +20755,7 @@ const guideSteps = [
   {selector: '.history-panel', title: '第 5 步：从最左侧历史继续', text: '只有真正生成完成的任务才会进入页面最左侧“最近完成”列表。处理中、等待检查、失败或取消的任务都留在右侧，避免被误认为已经完成。点击已完成条目可查看生成文件、分镜、文案、时间线和最终视频。'},
   {selector: '.storyboard-review-option', title: '第 6 步：检查分镜再继续', text: '开启分镜检查后，流程会在文案与分镜生成后暂停。进入线性分镜工作台可调整顺序、起止时间、字幕、解说、素材和特效；保存全部修改后再继续配音与渲染。'},
   {selector: '.primary-nav', title: '更多工具入口', text: '“镜头搜索”使用本地语义模型寻找片段；“平台导入”负责下载并创建项目；“素材库”管理授权素材；“设置”管理云端或本地 AI。遇到问题可点击右上角“诊断日志”。'},
-  {selector: '.topbar-actions', title: '完成、诊断与再次查看', text: '任务完成后在详情中预览并导出 MP4。任何阶段失败时先查看任务详情和诊断日志；本引导可以随时从“使用引导”重新打开。当前版本为 v1.5.6。'}
+  {selector: '.topbar-actions', title: '完成、诊断与再次查看', text: '任务完成后在详情中预览并导出 MP4。任何阶段失败时先查看任务详情和诊断日志；本引导可以随时从“使用引导”重新打开。当前版本为 v1.5.7。'}
 ];
 let guideIndex = 0;
 let guideTarget = null;
@@ -21807,14 +21852,14 @@ document.querySelector('#copy-address').onclick=async()=>{await navigator.clipbo
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>GameNarrator 1.5.6</title>
+  <title>GameNarrator 1.5.7</title>
   <link rel="stylesheet" href="/media-importer.css?v=20260729-10">
   <link rel="stylesheet" href="/app.css?v=20260803-13">
 </head>
 <body>
   <div class="aurora"></div>
   <header class="topbar">
-    <a class="brand" href="/">GAME<span>NARRATOR</span><small class="app-version">v1.5.6</small></a>
+    <a class="brand" href="/">GAME<span>NARRATOR</span><small class="app-version">v1.5.7</small></a>
     <nav class="primary-nav" aria-label="主要功能">
       <a href="/?view=studio" data-view-link="studio">剪辑任务</a>
       <a href="/?view=search" data-view-link="search">镜头搜索</a>
@@ -24162,6 +24207,73 @@ class VideoPipelineEndToEndTest {
         assertThat(current.stages()).hasSize(9).allMatch(stage -> stage.status() == StageStatus.COMPLETED);
         assertThat(Path.of(current.renderedVideoPath())).isRegularFile();
         assertThat(Path.of(current.sceneManifestPath()).resolveSibling("audio-analysis.json")).isRegularFile();
+    }
+}
+``
+
+### FILE: src/test/java/cn/longer233/gamenarrator/render/RenderAudioMixBuilderTest.java
+
+``java
+package cn.longer233.gamenarrator.render;
+
+import cn.longer233.gamenarrator.audio.SoundCue;
+import cn.longer233.gamenarrator.timeline.TimelineSegment;
+import org.junit.jupiter.api.Test;
+
+import java.nio.file.Path;
+import java.util.List;
+
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
+
+class RenderAudioMixBuilderTest {
+    private final RenderAudioMixBuilder builder = new RenderAudioMixBuilder();
+
+    @Test
+    void buildsVoiceCueAndBackgroundMixWithStableInputIndexes() {
+        List<TimelineSegment> segments = segments();
+        SoundCue cue = new SoundCue(1, 1.25, "IMPACT", "impact.wav", 0.6);
+        var background = new RenderAssetResolver.RenderAsset(1, "BGM", "BACKGROUND_AUDIO", "CENTER",
+                false, Path.of("music.wav"), "music");
+
+        RenderAudioMixBuilder.AudioMixPlan plan = builder.build(
+                segments, List.of(cue), List.of(background), 0.2);
+
+        assertThat(plan.filterGraph()).contains(
+                "[0:a]volume=0.200[bg]",
+                "[1:a]atempo=1.263,adelay=0|0[v0]",
+                "[2:a]adelay=5000|5000[v1]",
+                "[3:a]volume=0.600,adelay=1250|1250[s0]",
+                "[4:a]atrim=0:10.000,volume=0.14[x0]",
+                "amix=inputs=4:duration=longest:normalize=0",
+                "sidechaincompress=threshold=0.02:ratio=8",
+                "[aout]");
+        assertThat(plan.subtitleInput()).isEqualTo(5);
+    }
+
+    @Test
+    void alignsExternalSoundEffectToItsStoryboardSegment() {
+        var soundEffect = new RenderAssetResolver.RenderAsset(2, "SFX", "SOUND_EFFECT", "CENTER",
+                false, Path.of("effect.wav"), "effect");
+
+        RenderAudioMixBuilder.AudioMixPlan plan = builder.build(segments(), List.of(), List.of(soundEffect), 0.15);
+
+        assertThat(plan.filterGraph()).contains(
+                "[3:a]atrim=0:5.000,volume=0.48,adelay=5000|5000[x0]");
+        assertThat(plan.subtitleInput()).isEqualTo(4);
+    }
+
+    @Test
+    void rejectsEmptyTimeline() {
+        assertThatThrownBy(() -> builder.build(List.of(), List.of(), List.of(), 0.2))
+                .isInstanceOf(IllegalArgumentException.class)
+                .hasMessage("剪辑时间线不能为空");
+    }
+
+    private List<TimelineSegment> segments() {
+        return List.of(
+                new TimelineSegment(1, 0, 5, 0, 5, "旁白一", "字幕一", "", "voice-1.wav", 6, false),
+                new TimelineSegment(2, 5, 10, 5, 10, "旁白二", "字幕二", "", "voice-2.wav", 4, false));
     }
 }
 ``
