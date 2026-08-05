@@ -118,12 +118,28 @@ if (-not $SkipFrontendRestore) {
 }
 & $npm --prefix (Join-Path $projectRoot 'frontend') run build
 if ($LASTEXITCODE -ne 0) { throw 'Frontend build failed' }
+$targetRoot = Join-Path $projectRoot 'target'
+$staleJars = @(Get-ChildItem $targetRoot -Filter '*.jar' -File -ErrorAction SilentlyContinue)
+foreach ($staleJar in $staleJars) {
+  Remove-Item -LiteralPath $staleJar.FullName -Force
+}
 & (Join-Path $projectRoot 'mvnw.cmd') -DskipTests package
 if ($LASTEXITCODE -ne 0) { throw 'Backend build failed' }
-$jar = Get-ChildItem (Join-Path $projectRoot 'target') -Filter '*.jar' | Where-Object Name -NotLike '*.original' | Select-Object -First 1
-if (-not $jar) { throw 'Spring Boot jar was not generated' }
+$jarPath = Join-Path $projectRoot "target\game-narrator-$appVersion.jar"
+Require-File $jarPath "Spring Boot jar for version $appVersion was not generated"
+Add-Type -AssemblyName System.IO.Compression.FileSystem
+$jarArchive = [IO.Compression.ZipFile]::OpenRead($jarPath)
+try {
+  $indexEntry = $jarArchive.GetEntry('BOOT-INF/classes/static/index.html')
+  if (-not $indexEntry) { throw 'Packaged Spring Boot jar does not contain the frontend index' }
+  $reader = [IO.StreamReader]::new($indexEntry.Open(), [Text.Encoding]::UTF8)
+  try { $packagedIndex = $reader.ReadToEnd() } finally { $reader.Dispose() }
+  if (-not $packagedIndex.Contains("v$appVersion")) {
+    throw "Packaged frontend version does not match $appVersion; refusing to create a stale installer"
+  }
+} finally { $jarArchive.Dispose() }
 New-Item -ItemType Directory -Path (Join-Path $staging 'app') | Out-Null
-Copy-Item -LiteralPath $jar.FullName -Destination (Join-Path $staging 'app\game-narrator.jar')
+Copy-Item -LiteralPath $jarPath -Destination (Join-Path $staging 'app\game-narrator.jar')
 
 Write-Host 'Creating bundled Java 21 runtime...'
 $jlink = (Get-Command jlink -ErrorAction Stop).Source

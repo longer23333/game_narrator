@@ -1,6 +1,6 @@
 # GameNarrator — DeepSeek 项目上下文包
 
-> 自动生成时间：2026-08-05 10:16:54 +08:00
+> 自动生成时间：2026-08-05 10:35:29 +08:00
 > 文件数量：301。本文件由 scripts/export-deepseek-context.ps1 生成，请勿手工维护生成区。
 
 ## 给 DeepSeek 的强制工作规则
@@ -36,7 +36,7 @@
 - `docs/REQUIREMENTS.md`（21961 bytes）
 - `docs/STYLE_TEMPLATE_STORE.md`（1190 bytes）
 - `docs/VERSIONING.md`（687 bytes）
-- `scripts/build-windows-release.ps1`（13522 bytes）
+- `scripts/build-windows-release.ps1`（14349 bytes）
 - `scripts/export-deepseek-context.ps1`（5568 bytes）
 - `scripts/generate-app-icon.ps1`（1832 bytes）
 - `scripts/setup-media-importer.ps1`（1038 bytes）
@@ -265,7 +265,7 @@
 - `src/main/resources/static/index.html`（23734 bytes）
 - `src/main/resources/static/media-importer.css`（4474 bytes）
 - `src/main/resources/static/media-importer.js`（24293 bytes）
-- `src/main/resources/static/updates.js`（3564 bytes）
+- `src/main/resources/static/updates.js`（3825 bytes）
 - `src/test/java/cn/longer233/gamenarrator/ai/AdaptiveAiChatClientTest.java`（1725 bytes）
 - `src/test/java/cn/longer233/gamenarrator/ai/AiUsageServiceTest.java`（1164 bytes）
 - `src/test/java/cn/longer233/gamenarrator/asset/AiAssetTaggerTest.java`（2432 bytes）
@@ -343,7 +343,7 @@
 
     <groupId>cn.longer233.graduation</groupId>
     <artifactId>game-narrator</artifactId>
-    <version>2.1.1</version>
+    <version>2.1.2</version>
     <name>GameNarrator</name>
     <description>多模态游戏视频智能解说与自动剪辑系统</description>
 
@@ -2207,12 +2207,28 @@ if (-not $SkipFrontendRestore) {
 }
 & $npm --prefix (Join-Path $projectRoot 'frontend') run build
 if ($LASTEXITCODE -ne 0) { throw 'Frontend build failed' }
+$targetRoot = Join-Path $projectRoot 'target'
+$staleJars = @(Get-ChildItem $targetRoot -Filter '*.jar' -File -ErrorAction SilentlyContinue)
+foreach ($staleJar in $staleJars) {
+  Remove-Item -LiteralPath $staleJar.FullName -Force
+}
 & (Join-Path $projectRoot 'mvnw.cmd') -DskipTests package
 if ($LASTEXITCODE -ne 0) { throw 'Backend build failed' }
-$jar = Get-ChildItem (Join-Path $projectRoot 'target') -Filter '*.jar' | Where-Object Name -NotLike '*.original' | Select-Object -First 1
-if (-not $jar) { throw 'Spring Boot jar was not generated' }
+$jarPath = Join-Path $projectRoot "target\game-narrator-$appVersion.jar"
+Require-File $jarPath "Spring Boot jar for version $appVersion was not generated"
+Add-Type -AssemblyName System.IO.Compression.FileSystem
+$jarArchive = [IO.Compression.ZipFile]::OpenRead($jarPath)
+try {
+  $indexEntry = $jarArchive.GetEntry('BOOT-INF/classes/static/index.html')
+  if (-not $indexEntry) { throw 'Packaged Spring Boot jar does not contain the frontend index' }
+  $reader = [IO.StreamReader]::new($indexEntry.Open(), [Text.Encoding]::UTF8)
+  try { $packagedIndex = $reader.ReadToEnd() } finally { $reader.Dispose() }
+  if (-not $packagedIndex.Contains("v$appVersion")) {
+    throw "Packaged frontend version does not match $appVersion; refusing to create a stale installer"
+  }
+} finally { $jarArchive.Dispose() }
 New-Item -ItemType Directory -Path (Join-Path $staging 'app') | Out-Null
-Copy-Item -LiteralPath $jar.FullName -Destination (Join-Path $staging 'app\game-narrator.jar')
+Copy-Item -LiteralPath $jarPath -Destination (Join-Path $staging 'app\game-narrator.jar')
 
 Write-Host 'Creating bundled Java 21 runtime...'
 $jlink = (Get-Command jlink -ErrorAction Stop).Source
@@ -20020,7 +20036,7 @@ document.querySelector('#updates-open')?.addEventListener('click', async event =
   try { await loadLazyScript('updates'); document.querySelector('#updates-dialog')?.showModal(); }
   catch (error) { window.alert(error.message); } finally { button.disabled = false; }
 });
-if (localStorage.getItem('gameNarrator.lastSeenRelease') === '2.1.1') document.querySelector('#updates-open')?.classList.remove('has-update');
+if (localStorage.getItem('gameNarrator.lastSeenRelease') === '2.1.2') document.querySelector('#updates-open')?.classList.remove('has-update');
 window.addEventListener('gamenarrator-release-jump', event => {
   const {view='studio', selector, note} = event.detail || {}; activateView(view, true);
   setTimeout(() => {
@@ -21522,7 +21538,7 @@ const guideSteps = [
   {selector: '.history-panel', title: '第 5 步：从最左侧历史继续', text: '只有真正生成完成的任务才会进入页面最左侧“最近完成”列表。处理中、等待检查、失败或取消的任务都留在右侧，避免被误认为已经完成。点击已完成条目可查看生成文件、分镜、文案、时间线和最终视频。'},
   {selector: '.storyboard-review-option', title: '第 6 步：检查分镜再继续', text: '开启分镜检查后，流程会在文案与分镜生成后暂停。进入线性分镜工作台可调整顺序、起止时间、字幕、解说、素材和特效；保存全部修改后再继续配音与渲染。'},
   {selector: '.primary-nav', title: '更多工具入口', text: '“镜头搜索”使用本地语义模型寻找片段；“平台导入”负责下载并创建项目；“素材库”管理授权素材；“设置”管理云端或本地 AI。遇到问题可点击右上角“诊断日志”。'},
-  {selector: '.topbar-actions', title: '完成、诊断与再次查看', text: '任务完成后在详情中预览并导出 MP4。任何阶段失败时先查看任务详情和诊断日志；本引导可以随时从“使用引导”重新打开。当前版本为 v2.1.1。'}
+  {selector: '.topbar-actions', title: '完成、诊断与再次查看', text: '任务完成后在详情中预览并导出 MP4。任何阶段失败时先查看任务详情和诊断日志；本引导可以随时从“使用引导”重新打开。当前版本为 v2.1.2。'}
 ];
 let guideIndex = 0;
 let guideTarget = null;
@@ -22619,14 +22635,14 @@ document.querySelector('#copy-address').onclick=async()=>{await navigator.clipbo
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>GameNarrator 2.1.1</title>
+  <title>GameNarrator 2.1.2</title>
   <link rel="stylesheet" href="/media-importer.css?v=20260729-10">
   <link rel="stylesheet" href="/app.css?v=20260803-13">
 </head>
 <body>
   <div class="aurora"></div>
   <header class="topbar">
-    <a class="brand" href="/">GAME<span>NARRATOR</span><small class="app-version">v2.1.1</small></a>
+    <a class="brand" href="/">GAME<span>NARRATOR</span><small class="app-version">v2.1.2</small></a>
     <nav class="primary-nav" aria-label="主要功能">
       <a href="/?view=studio" data-view-link="studio">剪辑任务</a>
       <a href="/?view=search" data-view-link="search">镜头搜索</a>
@@ -23371,7 +23387,8 @@ document.querySelector('#copy-address').onclick=async()=>{await navigator.clipbo
 
 ``javascript
 const releases = [
-  {version:'2.1.1', title:'Windows 发行构建稳定性', current:true, items:['发行构建自动识别并关闭当前项目的 Vite/esbuild 文件锁','不影响其他 Node 程序','保留可复现的 npm ci 依赖恢复'], jump:{view:'studio', selector:'#task-list'}},
+  {version:'2.1.2', title:'修复安装包误装旧程序', current:true, items:['发行构建先清理历史 JAR','只打包与当前版本精确匹配的 JAR','创建安装器前校验内置前端版本，拒绝陈旧产物'], jump:{view:'studio', selector:'#task-list'}},
+  {version:'2.1.1', title:'Windows 发行构建稳定性', items:['发行构建自动识别并关闭当前项目的 Vite/esbuild 文件锁','不影响其他 Node 程序','保留可复现的 npm ci 依赖恢复'], jump:{view:'studio', selector:'#task-list'}},
   {version:'2.1.0', title:'更新公告与功能定位', items:['新增完整历史更新公告','支持跳转到相关视图并高亮功能位置','本机记录已读状态，不上传浏览记录'], jump:{view:'studio', selector:'#task-list', note:'请选择一个已生成任务进入分镜工作台，可查看 2.0 版本树。'}},
   {version:'2.0.0', title:'完整工程版本树', items:['版本命名与父子分支可视化','任意历史节点切换','切换后同步分镜并使旧渲染失效'], jump:{view:'studio', selector:'.revision-tree-panel', note:'请先打开一个已生成任务的分镜工作台。'}},
   {version:'1.8.0', title:'前端按需加载', items:['素材库和平台导入按视图加载','诊断模块首次打开时加载','降低首屏脚本解析与内存压力'], jump:{view:'assets', selector:'.asset-library'}},
