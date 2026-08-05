@@ -1,0 +1,47 @@
+spring:
+  datasource:
+    url: "jdbc:h2:file:${GAME_NARRATOR_DATA_ROOT}/game-narrator-lite;CACHE_SIZE=4096"
+management:
+  prometheus:
+    metrics:
+      export:
+        enabled: false
+  endpoints:
+    enabled-by-default: false
+game-narrator:
+  ocr:
+    enabled: false
+  asset-library:
+    semantic-search:
+      enabled: false
+    openverse:
+      enabled: false
+    wikimedia:
+      enabled: false
+    bilibili:
+      enabled: false
+    pexels:
+      enabled: false
+    pixabay:
+      enabled: false
+  media-preview:
+    thumbnail-max-bytes: 524288
+    thumbnail-cache-entries: 8
+    thumbnail-max-concurrent: 1
+  async:
+    core-pool-size: 1
+    max-pool-size: 1
+    queue-capacity: 2
+  external-process:
+    ffmpeg-max-concurrent: 1
+    whisper-max-concurrent: 1
+    other-max-concurrent: 1
+  scene-analysis-fps: 2
+  maximum-scene-frames: 60
+  whisper:
+    executable: "${GAME_NARRATOR_APP_ROOT}/unavailable/whisper-cli.exe"
+    threads: 1
+  piper:
+    executable: "${GAME_NARRATOR_APP_ROOT}/unavailable/piper.exe"
+  render:
+    video-encoder: libx264

@@ -9,6 +9,7 @@ launcher/obj/
 dist/
 release/cache/
 release/staging/
+release/staging-lite/
 release/desktop-publish-check/
 skill-build/
 *.iml

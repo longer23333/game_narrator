@@ -1,7 +1,7 @@
 # GameNarrator — DeepSeek 项目上下文包
 
-> 自动生成时间：2026-08-05 10:47:47 +08:00
-> 文件数量：301。本文件由 scripts/export-deepseek-context.ps1 生成，请勿手工维护生成区。
+> 自动生成时间：2026-08-05 10:59:09 +08:00
+> 文件数量：303。本文件由 scripts/export-deepseek-context.ps1 生成，请勿手工维护生成区。
 
 ## 给 DeepSeek 的强制工作规则
 
@@ -36,6 +36,7 @@
 - `docs/REQUIREMENTS.md`（21961 bytes）
 - `docs/STYLE_TEMPLATE_STORE.md`（1190 bytes）
 - `docs/VERSIONING.md`（687 bytes）
+- `scripts/build-windows-demo-lite.ps1`（2907 bytes）
 - `scripts/build-windows-release.ps1`（14349 bytes）
 - `scripts/export-deepseek-context.ps1`（5568 bytes）
 - `scripts/generate-app-icon.ps1`（1832 bytes）
@@ -233,6 +234,7 @@
 - `src/main/java/cn/longer233/gamenarrator/voice/VoiceRegenerationRequest.java`（419 bytes）
 - `src/main/java/cn/longer233/gamenarrator/voice/VoiceSegment.java`（296 bytes）
 - `src/main/resources/application.yml`（14337 bytes）
+- `src/main/resources/application-lite.yml`（1055 bytes）
 - `src/main/resources/application-release.yml`（1153 bytes）
 - `src/main/resources/db/migration/V1__database_v2_foundation.sql`（17535 bytes）
 - `src/main/resources/db/migration/V10__allow_storyboard_review_task_status.sql`（528 bytes）
@@ -2082,6 +2084,58 @@ GameNarrator 使用 `主版本.功能版本.修复版本` 三段式版本号。
 - 发生不兼容变更或达到下一代产品标准时，递增第一位并将后两位归零，例如 `1.9.3` → `2.0.0`。
 
 每次发布必须同步更新 Maven、前端包、网站、Windows 启动器和安装程序版本。安装程序文件名使用 `GameNarrator-Setup-版本号.exe`。
+``
+
+### FILE: scripts/build-windows-demo-lite.ps1
+
+``powershell
+param([switch]$SkipFrontendRestore)
+$ErrorActionPreference = 'Stop'
+$projectRoot = (Resolve-Path (Join-Path $PSScriptRoot '..')).Path
+$staging = Join-Path $projectRoot 'release\staging-lite'
+$cache = Join-Path $projectRoot 'release\cache'
+$dist = Join-Path $projectRoot 'dist'
+$pom = [xml](Get-Content (Join-Path $projectRoot 'pom.xml') -Raw)
+$version = [string]$pom.project.version
+
+if (Test-Path $staging) { Remove-Item -LiteralPath $staging -Recurse -Force }
+New-Item -ItemType Directory -Path $staging | Out-Null
+
+$npm = (Get-Command npm.cmd -ErrorAction Stop).Source
+if (-not $SkipFrontendRestore) {
+  & $npm --prefix (Join-Path $projectRoot 'frontend') ci --no-audit --no-fund
+  if ($LASTEXITCODE -ne 0) { throw 'Frontend dependencies failed' }
+}
+& $npm --prefix (Join-Path $projectRoot 'frontend') run build
+if ($LASTEXITCODE -ne 0) { throw 'Frontend build failed' }
+Get-ChildItem (Join-Path $projectRoot 'target') -Filter '*.jar' -File -ErrorAction SilentlyContinue | Remove-Item -Force
+& (Join-Path $projectRoot 'mvnw.cmd') -DskipTests package
+if ($LASTEXITCODE -ne 0) { throw 'Backend build failed' }
+$jar = Join-Path $projectRoot "target\game-narrator-$version.jar"
+if (-not (Test-Path $jar)) { throw "Missing $jar" }
+New-Item -ItemType Directory -Path (Join-Path $staging 'app') | Out-Null
+Copy-Item $jar (Join-Path $staging 'app\game-narrator.jar')
+
+& (Get-Command jlink -ErrorAction Stop).Source --add-modules ALL-MODULE-PATH --strip-debug --no-header-files --no-man-pages --compress=zip-6 --output (Join-Path $staging 'runtime')
+if ($LASTEXITCODE -ne 0) { throw 'jlink failed' }
+
+$ffmpeg = Get-ChildItem (Join-Path $cache 'ffmpeg-extracted') -Recurse -Filter ffmpeg.exe | Select-Object -First 1
+if (-not $ffmpeg) { throw 'Run the full release build once to prepare the FFmpeg cache.' }
+New-Item -ItemType Directory -Path (Join-Path $staging 'tools\ffmpeg\bin') -Force | Out-Null
+Copy-Item $ffmpeg.FullName (Join-Path $staging 'tools\ffmpeg\bin\ffmpeg.exe')
+Copy-Item (Join-Path $projectRoot 'release\lite\GameNarrator-Demo-Lite.cmd') $staging
+
+$bytes = (Get-ChildItem $staging -Recurse -File | Measure-Object Length -Sum).Sum
+$mib = [math]::Round($bytes / 1MB, 1)
+if ($bytes -gt 300MB) { throw "Demo Lite installed size is $mib MiB, exceeding the 300 MiB limit." }
+Set-Content (Join-Path $staging 'EDITION.txt') "GameNarrator Demo Lite $version`r`nInstalled payload: $mib MiB`r`nNo bundled AI, Whisper or TTS models."
+
+$iscc = Get-Item (Join-Path $env:LOCALAPPDATA 'Programs\Inno Setup 6\ISCC.exe') -ErrorAction Stop
+& $iscc.FullName "/DAppVersion=$version" (Join-Path $projectRoot 'release\installer\GameNarrator-Demo-Lite.iss')
+if ($LASTEXITCODE -ne 0) { throw 'Installer compilation failed' }
+$setup = Join-Path $dist "GameNarrator-Demo-Lite-Setup-$version.exe"
+if (-not (Test-Path $setup)) { throw 'Installer was not generated' }
+Write-Host "SUCCESS: $setup (installed payload $mib MiB)"
 ``
 
 ### FILE: scripts/build-windows-release.ps1
@@ -18946,6 +19000,58 @@ game-narrator:
         model: "${PIPER_XIAOXIAO_MODEL:./models/piper/zh_CN-xiaoxiao-medium.onnx}"
   render:
     video-encoder: ${VIDEO_ENCODER:h264_nvenc}
+``
+
+### FILE: src/main/resources/application-lite.yml
+
+``yaml
+spring:
+  datasource:
+    url: "jdbc:h2:file:${GAME_NARRATOR_DATA_ROOT}/game-narrator-lite;CACHE_SIZE=4096"
+management:
+  prometheus:
+    metrics:
+      export:
+        enabled: false
+  endpoints:
+    enabled-by-default: false
+game-narrator:
+  ocr:
+    enabled: false
+  asset-library:
+    semantic-search:
+      enabled: false
+    openverse:
+      enabled: false
+    wikimedia:
+      enabled: false
+    bilibili:
+      enabled: false
+    pexels:
+      enabled: false
+    pixabay:
+      enabled: false
+  media-preview:
+    thumbnail-max-bytes: 524288
+    thumbnail-cache-entries: 8
+    thumbnail-max-concurrent: 1
+  async:
+    core-pool-size: 1
+    max-pool-size: 1
+    queue-capacity: 2
+  external-process:
+    ffmpeg-max-concurrent: 1
+    whisper-max-concurrent: 1
+    other-max-concurrent: 1
+  scene-analysis-fps: 2
+  maximum-scene-frames: 60
+  whisper:
+    executable: "${GAME_NARRATOR_APP_ROOT}/unavailable/whisper-cli.exe"
+    threads: 1
+  piper:
+    executable: "${GAME_NARRATOR_APP_ROOT}/unavailable/piper.exe"
+  render:
+    video-encoder: libx264
 ``
 
 ### FILE: src/main/resources/application-release.yml
