@@ -1,7 +1,7 @@
 # GameNarrator — DeepSeek 项目上下文包
 
-> 自动生成时间：2026-08-05 09:18:37 +08:00
-> 文件数量：292。本文件由 scripts/export-deepseek-context.ps1 生成，请勿手工维护生成区。
+> 自动生成时间：2026-08-05 09:30:02 +08:00
+> 文件数量：294。本文件由 scripts/export-deepseek-context.ps1 生成，请勿手工维护生成区。
 
 ## 给 DeepSeek 的强制工作规则
 
@@ -53,8 +53,9 @@
 - `src/main/java/cn/longer233/gamenarrator/ai/AiUsageService.java`（3835 bytes）
 - `src/main/java/cn/longer233/gamenarrator/asset/AiAssetTagger.java`（8162 bytes）
 - `src/main/java/cn/longer233/gamenarrator/asset/AssetCatalogController.java`（12153 bytes）
-- `src/main/java/cn/longer233/gamenarrator/asset/AssetCatalogService.java`（60032 bytes）
+- `src/main/java/cn/longer233/gamenarrator/asset/AssetCatalogService.java`（54454 bytes）
 - `src/main/java/cn/longer233/gamenarrator/asset/AssetDerivativeRequest.java`（294 bytes）
+- `src/main/java/cn/longer233/gamenarrator/asset/AssetDownloadService.java`（9244 bytes）
 - `src/main/java/cn/longer233/gamenarrator/asset/AssetLibraryProperties.java`（5166 bytes）
 - `src/main/java/cn/longer233/gamenarrator/asset/AssetReferenceRequest.java`（833 bytes）
 - `src/main/java/cn/longer233/gamenarrator/asset/AssetSearchExpansion.java`（175 bytes）
@@ -264,6 +265,7 @@
 - `src/test/java/cn/longer233/gamenarrator/asset/AiAssetTaggerTest.java`（2432 bytes）
 - `src/test/java/cn/longer233/gamenarrator/asset/AssetCatalogControllerThumbnailTest.java`（1712 bytes）
 - `src/test/java/cn/longer233/gamenarrator/asset/AssetCatalogServiceTest.java`（828 bytes）
+- `src/test/java/cn/longer233/gamenarrator/asset/AssetDownloadServiceTest.java`（1904 bytes）
 - `src/test/java/cn/longer233/gamenarrator/asset/BgeAssetSemanticSearchRankingTest.java`（581 bytes）
 - `src/test/java/cn/longer233/gamenarrator/asset/BilibiliAssetClientTest.java`（6341 bytes）
 - `src/test/java/cn/longer233/gamenarrator/asset/ChineseAssetQueryExpanderTest.java`（1742 bytes）
@@ -334,7 +336,7 @@
 
     <groupId>cn.longer233.graduation</groupId>
     <artifactId>game-narrator</artifactId>
-    <version>1.6.1</version>
+    <version>1.6.2</version>
     <name>GameNarrator</name>
     <description>多模态游戏视频智能解说与自动剪辑系统</description>
 
@@ -3651,7 +3653,6 @@ import java.nio.file.StandardCopyOption;
 @Service
 public class AssetCatalogService {
     private static final Logger log = LoggerFactory.getLogger(AssetCatalogService.class);
-    private static final long MAX_DOWNLOAD_BYTES = 100L * 1024 * 1024;
     private static final long MAX_UPLOAD_BYTES = 500L * 1024 * 1024;
     private final JdbcTemplate jdbc;
     private final ObjectMapper objectMapper;
@@ -3666,7 +3667,7 @@ public class AssetCatalogService {
     private final AssetLibraryProperties assetLibraryProperties;
     private final BgeAssetSemanticSearch semanticSearch;
     private final Executor taskExecutor;
-    private final SafeRemoteHttpConnector remoteConnector;
+    private final AssetDownloadService assetDownloadService;
     private final CurrentUserContext currentUser;
     private final Path storageRoot;
     private final String ffmpegCommand;
@@ -3680,7 +3681,7 @@ public class AssetCatalogService {
                                ChineseAssetQueryExpander queryExpander, AssetLibraryProperties assetLibraryProperties,
                                BgeAssetSemanticSearch semanticSearch,
                                @Qualifier("taskExecutor") Executor taskExecutor,
-                               SafeRemoteHttpConnector remoteConnector,
+                               AssetDownloadService assetDownloadService,
                                CurrentUserContext currentUser,
                                @Value("${game-narrator.storage-root}") String storageRoot,
                                @Value("${game-narrator.ffmpeg-command}") String ffmpegCommand) {
@@ -3697,7 +3698,7 @@ public class AssetCatalogService {
         this.assetLibraryProperties = assetLibraryProperties;
         this.semanticSearch = semanticSearch;
         this.taskExecutor = taskExecutor;
-        this.remoteConnector = remoteConnector;
+        this.assetDownloadService = assetDownloadService;
         this.currentUser = currentUser;
         this.storageRoot = Path.of(storageRoot).toAbsolutePath().normalize();
         this.ffmpegCommand = ffmpegCommand;
@@ -4273,91 +4274,13 @@ public class AssetCatalogService {
 
     @Transactional
     public AssetView download(UUID assetId) {
-        Map<String, Object> row = jdbc.queryForMap(
-                "SELECT download_url,license_code,title FROM external_asset WHERE id=?", assetId);
-        String license = String.valueOf(row.get("LICENSE_CODE")).toLowerCase(Locale.ROOT);
-        if (!Set.of("cc0", "pdm", "by", "by-sa", "pexels_license", "pixabay_content_license").contains(license)) {
-            throw new IllegalStateException("该素材许可证不在自动下载白名单中，请在原始页面人工确认");
-        }
-        URI uri = URI.create(String.valueOf(row.get("DOWNLOAD_URL")));
-        validatePublicHttps(uri);
-        try {
-            Path directory = storageRoot.resolve("library").resolve(assetId.toString());
-            Files.createDirectories(directory);
-            String extension = extension(uri.getPath());
-            Path output = directory.resolve("source." + extension);
-            HttpURLConnection connection = remoteConnector.open(uri,
-                    Map.of("User-Agent", "GameNarrator/0.1"), 3);
-            int status = connection.getResponseCode();
-            if (status < 200 || status >= 300) throw new IllegalStateException("素材下载返回 HTTP " + status);
-            long length = connection.getContentLengthLong();
-            if (length > MAX_DOWNLOAD_BYTES) throw new IllegalStateException("素材超过 100MB 自动下载限制");
-            try (InputStream input = connection.getInputStream();
-                 var outputStream = Files.newOutputStream(output)) {
-                byte[] buffer = new byte[64 * 1024];
-                long total = 0;
-                int count;
-                while ((count = input.read(buffer)) >= 0) {
-                    total += count;
-                    if (total > MAX_DOWNLOAD_BYTES) throw new IllegalStateException("素材超过 100MB 自动下载限制");
-                    outputStream.write(buffer, 0, count);
-                }
-            }
-            jdbc.update("""
-                    UPDATE external_asset SET local_path=?,import_status='DOWNLOADED',downloaded_at=? WHERE id=?
-                    """, output.toString(), OffsetDateTime.now(), assetId);
-            return find(assetId);
-        } catch (java.io.IOException exception) {
-            throw new IllegalStateException("素材下载失败：" + exception.getMessage(), exception);
-        }
+        assetDownloadService.download(assetId);
+        return find(assetId);
     }
 
     @Transactional
     public AssetView derive(UUID assetId, AssetDerivativeRequest request) {
-        AssetView source = find(assetId);
-        if (!"VIDEO".equals(source.assetType())) throw new IllegalArgumentException("只有视频素材可以提取画面或声音");
-        if (!"DOWNLOADED".equals(source.importStatus())) source = download(assetId);
-        Path input = Path.of(source.localPath()).toAbsolutePath().normalize();
-        Path directory = storageRoot.resolve("library").resolve(assetId.toString()).normalize();
-        if (!input.startsWith(storageRoot) || !directory.startsWith(storageRoot) || !Files.isRegularFile(input)) {
-            throw new IllegalStateException("视频文件不在授权素材目录中");
-        }
-        String mode = request.mode().toUpperCase(Locale.ROOT);
-        double timestamp = request.timestampSeconds() == null ? 0 : request.timestampSeconds();
-        String suffix = "FRAME".equals(mode) ? "frame-" + Math.round(timestamp * 1000) + ".jpg" : "audio.m4a";
-        Path output = directory.resolve(suffix).normalize();
-        List<String> command = new ArrayList<>(List.of(ffmpegCommand, "-y"));
-        if ("FRAME".equals(mode)) command.addAll(List.of("-ss", String.valueOf(timestamp)));
-        command.addAll(List.of("-i", input.toString()));
-        if ("FRAME".equals(mode)) command.addAll(List.of("-frames:v", "1", "-q:v", "2", output.toString()));
-        else command.addAll(List.of("-vn", "-c:a", "aac", "-b:a", "192k", output.toString()));
-        try {
-            var result = cn.longer233.gamenarrator.common.ExternalProcessRunner.run(command,
-                    java.time.Duration.ofMinutes(10));
-            if (result.exitCode() != 0 || !Files.isRegularFile(output)) {
-                throw new IllegalStateException("FFmpeg 提取失败：" + conciseOutput(result.output()));
-            }
-        } catch (java.io.IOException exception) {
-            throw new IllegalStateException("无法启动 FFmpeg：" + exception.getMessage(), exception);
-        } catch (InterruptedException exception) {
-            Thread.currentThread().interrupt();
-            throw new IllegalStateException("素材提取已中断", exception);
-        }
-        UUID derivedId = UUID.nameUUIDFromBytes((assetId + ":" + mode + ":" + timestamp)
-                .getBytes(StandardCharsets.UTF_8));
-        String derivedType = "FRAME".equals(mode) ? "IMAGE" : "SFX";
-        String title = source.title() + ("FRAME".equals(mode) ? " · 单帧" : " · 音轨");
-        jdbc.update("""
-                MERGE INTO external_asset(id,provider,external_id,asset_type,title,creator,landing_url,
-                preview_url,download_url,license_code,license_url,attribution,duration_ms,local_path,
-                import_status,metadata_json,discovered_at,downloaded_at) KEY(provider,external_id)
-                VALUES(?,?,?,?,?,?,?,?,NULL,?,?,?,?,?,?,?, ?,?)
-                """, derivedId, "LOCAL_DERIVED", assetId + ":" + mode + ":" + timestamp, derivedType,
-                title, source.creator(), source.landingUrl(), null, source.licenseCode(), source.licenseUrl(),
-                source.attribution(), "FRAME".equals(mode) ? null : source.durationMs(), output.toString(),
-                "DOWNLOADED", "{\"derivedFrom\":\"" + assetId + "\",\"mode\":\"" + mode + "\"}",
-                OffsetDateTime.now(), OffsetDateTime.now());
-        return find(derivedId);
+        return find(assetDownloadService.derive(assetId, request));
     }
 
     private String conciseOutput(String output) {
@@ -4653,6 +4576,176 @@ public record AssetDerivativeRequest(
         @Pattern(regexp = "(?i)FRAME|AUDIO") String mode,
         @PositiveOrZero Double timestampSeconds
 ) { }
+``
+
+### FILE: src/main/java/cn/longer233/gamenarrator/asset/AssetDownloadService.java
+
+``java
+package cn.longer233.gamenarrator.asset;
+
+import cn.longer233.gamenarrator.common.ExternalProcessRunner;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.jdbc.core.JdbcTemplate;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
+import java.io.InputStream;
+import java.net.HttpURLConnection;
+import java.net.InetAddress;
+import java.net.URI;
+import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.time.Duration;
+import java.time.OffsetDateTime;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Locale;
+import java.util.Map;
+import java.util.Set;
+import java.util.UUID;
+
+@Service
+public class AssetDownloadService {
+    private static final long MAX_DOWNLOAD_BYTES = 100L * 1024 * 1024;
+    private static final Set<String> DOWNLOAD_LICENSES = Set.of(
+            "cc0", "pdm", "by", "by-sa", "pexels_license", "pixabay_content_license");
+
+    private final JdbcTemplate jdbc;
+    private final SafeRemoteHttpConnector remoteConnector;
+    private final Path storageRoot;
+    private final String ffmpegCommand;
+
+    public AssetDownloadService(JdbcTemplate jdbc, SafeRemoteHttpConnector remoteConnector,
+                                @Value("${game-narrator.storage-root}") String storageRoot,
+                                @Value("${game-narrator.ffmpeg-command}") String ffmpegCommand) {
+        this.jdbc = jdbc;
+        this.remoteConnector = remoteConnector;
+        this.storageRoot = Path.of(storageRoot).toAbsolutePath().normalize();
+        this.ffmpegCommand = ffmpegCommand;
+    }
+
+    @Transactional
+    public void download(UUID assetId) {
+        Map<String, Object> row = jdbc.queryForMap(
+                "SELECT download_url,license_code FROM external_asset WHERE id=?", assetId);
+        String license = String.valueOf(row.get("LICENSE_CODE")).toLowerCase(Locale.ROOT);
+        if (!DOWNLOAD_LICENSES.contains(license)) {
+            throw new IllegalStateException("该素材许可证不在自动下载白名单中，请在原始页面人工确认");
+        }
+        URI uri = URI.create(String.valueOf(row.get("DOWNLOAD_URL")));
+        validatePublicHttps(uri);
+        try {
+            Path directory = storageRoot.resolve("library").resolve(assetId.toString()).normalize();
+            if (!directory.startsWith(storageRoot)) throw new IllegalStateException("素材目录不在授权存储范围内");
+            Files.createDirectories(directory);
+            Path output = directory.resolve("source." + extension(uri.getPath())).normalize();
+            HttpURLConnection connection = remoteConnector.open(uri, Map.of("User-Agent", "GameNarrator/0.1"), 3);
+            int status = connection.getResponseCode();
+            if (status < 200 || status >= 300) throw new IllegalStateException("素材下载返回 HTTP " + status);
+            long length = connection.getContentLengthLong();
+            if (length > MAX_DOWNLOAD_BYTES) throw new IllegalStateException("素材超过 100MB 自动下载限制");
+            try (InputStream input = connection.getInputStream(); var outputStream = Files.newOutputStream(output)) {
+                byte[] buffer = new byte[64 * 1024];
+                long total = 0;
+                int count;
+                while ((count = input.read(buffer)) >= 0) {
+                    total += count;
+                    if (total > MAX_DOWNLOAD_BYTES) throw new IllegalStateException("素材超过 100MB 自动下载限制");
+                    outputStream.write(buffer, 0, count);
+                }
+            }
+            jdbc.update("UPDATE external_asset SET local_path=?,import_status='DOWNLOADED',downloaded_at=? WHERE id=?",
+                    output.toString(), OffsetDateTime.now(), assetId);
+        } catch (java.io.IOException exception) {
+            throw new IllegalStateException("素材下载失败：" + exception.getMessage(), exception);
+        }
+    }
+
+    @Transactional
+    public UUID derive(UUID assetId, AssetDerivativeRequest request) {
+        Map<String, Object> row = jdbc.queryForMap("""
+                SELECT asset_type,title,creator,landing_url,license_code,license_url,attribution,
+                       duration_ms,local_path,import_status FROM external_asset WHERE id=?
+                """, assetId);
+        if (!"VIDEO".equals(row.get("ASSET_TYPE"))) throw new IllegalArgumentException("只有视频素材可以提取画面或声音");
+        if (!"DOWNLOADED".equals(row.get("IMPORT_STATUS"))) {
+            download(assetId);
+            row = jdbc.queryForMap("""
+                    SELECT asset_type,title,creator,landing_url,license_code,license_url,attribution,
+                           duration_ms,local_path,import_status FROM external_asset WHERE id=?
+                    """, assetId);
+        }
+        Path input = Path.of(String.valueOf(row.get("LOCAL_PATH"))).toAbsolutePath().normalize();
+        Path directory = storageRoot.resolve("library").resolve(assetId.toString()).normalize();
+        if (!input.startsWith(storageRoot) || !directory.startsWith(storageRoot) || !Files.isRegularFile(input)) {
+            throw new IllegalStateException("视频文件不在授权素材目录中");
+        }
+        String mode = request.mode().toUpperCase(Locale.ROOT);
+        double timestamp = request.timestampSeconds() == null ? 0 : request.timestampSeconds();
+        Path output = directory.resolve("FRAME".equals(mode)
+                ? "frame-" + Math.round(timestamp * 1000) + ".jpg" : "audio.m4a").normalize();
+        List<String> command = new ArrayList<>(List.of(ffmpegCommand, "-y"));
+        if ("FRAME".equals(mode)) command.addAll(List.of("-ss", String.valueOf(timestamp)));
+        command.addAll(List.of("-i", input.toString()));
+        if ("FRAME".equals(mode)) command.addAll(List.of("-frames:v", "1", "-q:v", "2", output.toString()));
+        else command.addAll(List.of("-vn", "-c:a", "aac", "-b:a", "192k", output.toString()));
+        try {
+            var result = ExternalProcessRunner.run(command, Duration.ofMinutes(10));
+            if (result.exitCode() != 0 || !Files.isRegularFile(output)) {
+                throw new IllegalStateException("FFmpeg 提取失败：" + conciseOutput(result.output()));
+            }
+        } catch (java.io.IOException exception) {
+            throw new IllegalStateException("无法启动 FFmpeg：" + exception.getMessage(), exception);
+        } catch (InterruptedException exception) {
+            Thread.currentThread().interrupt();
+            throw new IllegalStateException("素材提取已中断", exception);
+        }
+        UUID derivedId = UUID.nameUUIDFromBytes((assetId + ":" + mode + ":" + timestamp)
+                .getBytes(StandardCharsets.UTF_8));
+        String derivedType = "FRAME".equals(mode) ? "IMAGE" : "SFX";
+        String title = row.get("TITLE") + ("FRAME".equals(mode) ? " · 单帧" : " · 音轨");
+        jdbc.update("""
+                MERGE INTO external_asset(id,provider,external_id,asset_type,title,creator,landing_url,
+                preview_url,download_url,license_code,license_url,attribution,duration_ms,local_path,
+                import_status,metadata_json,discovered_at,downloaded_at) KEY(provider,external_id)
+                VALUES(?,?,?,?,?,?,?,?,NULL,?,?,?,?,?,?,?, ?,?)
+                """, derivedId, "LOCAL_DERIVED", assetId + ":" + mode + ":" + timestamp, derivedType,
+                title, row.get("CREATOR"), row.get("LANDING_URL"), null, row.get("LICENSE_CODE"),
+                row.get("LICENSE_URL"), row.get("ATTRIBUTION"), "FRAME".equals(mode) ? null : row.get("DURATION_MS"),
+                output.toString(), "DOWNLOADED", "{\"derivedFrom\":\"" + assetId + "\",\"mode\":\"" + mode + "\"}",
+                OffsetDateTime.now(), OffsetDateTime.now());
+        return derivedId;
+    }
+
+    private void validatePublicHttps(URI uri) {
+        if (!"https".equalsIgnoreCase(uri.getScheme()) || uri.getHost() == null) {
+            throw new IllegalArgumentException("下载地址必须是公网 HTTPS 地址");
+        }
+        try {
+            for (InetAddress address : InetAddress.getAllByName(uri.getHost())) {
+                if (address.isAnyLocalAddress() || address.isLoopbackAddress() || address.isLinkLocalAddress()
+                        || address.isSiteLocalAddress() || address.isMulticastAddress()) {
+                    throw new IllegalArgumentException("下载地址不能指向本机或内网");
+                }
+            }
+        } catch (java.net.UnknownHostException exception) {
+            throw new IllegalArgumentException("下载地址无法解析", exception);
+        }
+    }
+
+    private String extension(String path) {
+        int dot = path == null ? -1 : path.lastIndexOf('.');
+        String value = dot < 0 ? "bin" : path.substring(dot + 1).toLowerCase(Locale.ROOT);
+        return value.matches("[a-z0-9]{1,8}") ? value : "bin";
+    }
+
+    private String conciseOutput(String output) {
+        if (output == null) return "无输出";
+        String value = output.strip();
+        return value.length() <= 600 ? value : value.substring(value.length() - 600);
+    }
+}
 ``
 
 ### FILE: src/main/java/cn/longer233/gamenarrator/asset/AssetLibraryProperties.java
@@ -21105,7 +21198,7 @@ const guideSteps = [
   {selector: '.history-panel', title: '第 5 步：从最左侧历史继续', text: '只有真正生成完成的任务才会进入页面最左侧“最近完成”列表。处理中、等待检查、失败或取消的任务都留在右侧，避免被误认为已经完成。点击已完成条目可查看生成文件、分镜、文案、时间线和最终视频。'},
   {selector: '.storyboard-review-option', title: '第 6 步：检查分镜再继续', text: '开启分镜检查后，流程会在文案与分镜生成后暂停。进入线性分镜工作台可调整顺序、起止时间、字幕、解说、素材和特效；保存全部修改后再继续配音与渲染。'},
   {selector: '.primary-nav', title: '更多工具入口', text: '“镜头搜索”使用本地语义模型寻找片段；“平台导入”负责下载并创建项目；“素材库”管理授权素材；“设置”管理云端或本地 AI。遇到问题可点击右上角“诊断日志”。'},
-  {selector: '.topbar-actions', title: '完成、诊断与再次查看', text: '任务完成后在详情中预览并导出 MP4。任何阶段失败时先查看任务详情和诊断日志；本引导可以随时从“使用引导”重新打开。当前版本为 v1.6.1。'}
+  {selector: '.topbar-actions', title: '完成、诊断与再次查看', text: '任务完成后在详情中预览并导出 MP4。任何阶段失败时先查看任务详情和诊断日志；本引导可以随时从“使用引导”重新打开。当前版本为 v1.6.2。'}
 ];
 let guideIndex = 0;
 let guideTarget = null;
@@ -22202,14 +22295,14 @@ document.querySelector('#copy-address').onclick=async()=>{await navigator.clipbo
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>GameNarrator 1.6.1</title>
+  <title>GameNarrator 1.6.2</title>
   <link rel="stylesheet" href="/media-importer.css?v=20260729-10">
   <link rel="stylesheet" href="/app.css?v=20260803-13">
 </head>
 <body>
   <div class="aurora"></div>
   <header class="topbar">
-    <a class="brand" href="/">GAME<span>NARRATOR</span><small class="app-version">v1.6.1</small></a>
+    <a class="brand" href="/">GAME<span>NARRATOR</span><small class="app-version">v1.6.2</small></a>
     <nav class="primary-nav" aria-label="主要功能">
       <a href="/?view=studio" data-view-link="studio">剪辑任务</a>
       <a href="/?view=search" data-view-link="search">镜头搜索</a>
@@ -23148,6 +23241,56 @@ class AssetCatalogServiceTest {
                 "高级弹幕制作教程", "https://www.bilibili.com/video/BV1Ab411c7De");
 
         assertThat(result).isEqualTo("高级弹幕制作教程");
+    }
+}
+``
+
+### FILE: src/test/java/cn/longer233/gamenarrator/asset/AssetDownloadServiceTest.java
+
+``java
+package cn.longer233.gamenarrator.asset;
+
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.io.TempDir;
+import org.springframework.jdbc.core.JdbcTemplate;
+
+import java.nio.file.Path;
+import java.util.Map;
+import java.util.UUID;
+
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
+
+class AssetDownloadServiceTest {
+    @TempDir Path storage;
+
+    @Test
+    void rejectsDownloadWhenLicenseIsNotOnAutomaticWhitelist() {
+        JdbcTemplate jdbc = mock(JdbcTemplate.class);
+        UUID id = UUID.randomUUID();
+        when(jdbc.queryForMap("SELECT download_url,license_code FROM external_asset WHERE id=?", id))
+                .thenReturn(Map.of("DOWNLOAD_URL", "https://example.com/video.mp4", "LICENSE_CODE", "ARR"));
+        AssetDownloadService service = new AssetDownloadService(
+                jdbc, mock(SafeRemoteHttpConnector.class), storage.toString(), "ffmpeg");
+
+        assertThatThrownBy(() -> service.download(id))
+                .isInstanceOf(IllegalStateException.class)
+                .hasMessageContaining("许可证");
+    }
+
+    @Test
+    void rejectsDerivativeForNonVideoAssetBeforeStartingFfmpeg() {
+        JdbcTemplate jdbc = mock(JdbcTemplate.class);
+        UUID id = UUID.randomUUID();
+        when(jdbc.queryForMap(org.mockito.ArgumentMatchers.startsWith("SELECT asset_type"),
+                org.mockito.ArgumentMatchers.eq(id))).thenReturn(Map.of("ASSET_TYPE", "IMAGE"));
+        AssetDownloadService service = new AssetDownloadService(
+                jdbc, mock(SafeRemoteHttpConnector.class), storage.toString(), "missing-ffmpeg");
+
+        assertThatThrownBy(() -> service.derive(id, new AssetDerivativeRequest("FRAME", 1.0)))
+                .isInstanceOf(IllegalArgumentException.class)
+                .hasMessageContaining("只有视频素材");
     }
 }
 ``

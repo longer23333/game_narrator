@@ -29,7 +29,6 @@ import java.nio.file.StandardCopyOption;
 @Service
 public class AssetCatalogService {
     private static final Logger log = LoggerFactory.getLogger(AssetCatalogService.class);
-    private static final long MAX_DOWNLOAD_BYTES = 100L * 1024 * 1024;
     private static final long MAX_UPLOAD_BYTES = 500L * 1024 * 1024;
     private final JdbcTemplate jdbc;
     private final ObjectMapper objectMapper;
@@ -44,7 +43,7 @@ public class AssetCatalogService {
     private final AssetLibraryProperties assetLibraryProperties;
     private final BgeAssetSemanticSearch semanticSearch;
     private final Executor taskExecutor;
-    private final SafeRemoteHttpConnector remoteConnector;
+    private final AssetDownloadService assetDownloadService;
     private final CurrentUserContext currentUser;
     private final Path storageRoot;
     private final String ffmpegCommand;
@@ -58,7 +57,7 @@ public class AssetCatalogService {
                                ChineseAssetQueryExpander queryExpander, AssetLibraryProperties assetLibraryProperties,
                                BgeAssetSemanticSearch semanticSearch,
                                @Qualifier("taskExecutor") Executor taskExecutor,
-                               SafeRemoteHttpConnector remoteConnector,
+                               AssetDownloadService assetDownloadService,
                                CurrentUserContext currentUser,
                                @Value("${game-narrator.storage-root}") String storageRoot,
                                @Value("${game-narrator.ffmpeg-command}") String ffmpegCommand) {
@@ -75,7 +74,7 @@ public class AssetCatalogService {
         this.assetLibraryProperties = assetLibraryProperties;
         this.semanticSearch = semanticSearch;
         this.taskExecutor = taskExecutor;
-        this.remoteConnector = remoteConnector;
+        this.assetDownloadService = assetDownloadService;
         this.currentUser = currentUser;
         this.storageRoot = Path.of(storageRoot).toAbsolutePath().normalize();
         this.ffmpegCommand = ffmpegCommand;
@@ -651,91 +650,13 @@ public class AssetCatalogService {
 
     @Transactional
     public AssetView download(UUID assetId) {
-        Map<String, Object> row = jdbc.queryForMap(
-                "SELECT download_url,license_code,title FROM external_asset WHERE id=?", assetId);
-        String license = String.valueOf(row.get("LICENSE_CODE")).toLowerCase(Locale.ROOT);
-        if (!Set.of("cc0", "pdm", "by", "by-sa", "pexels_license", "pixabay_content_license").contains(license)) {
-            throw new IllegalStateException("该素材许可证不在自动下载白名单中，请在原始页面人工确认");
-        }
-        URI uri = URI.create(String.valueOf(row.get("DOWNLOAD_URL")));
-        validatePublicHttps(uri);
-        try {
-            Path directory = storageRoot.resolve("library").resolve(assetId.toString());
-            Files.createDirectories(directory);
-            String extension = extension(uri.getPath());
-            Path output = directory.resolve("source." + extension);
-            HttpURLConnection connection = remoteConnector.open(uri,
-                    Map.of("User-Agent", "GameNarrator/0.1"), 3);
-            int status = connection.getResponseCode();
-            if (status < 200 || status >= 300) throw new IllegalStateException("素材下载返回 HTTP " + status);
-            long length = connection.getContentLengthLong();
-            if (length > MAX_DOWNLOAD_BYTES) throw new IllegalStateException("素材超过 100MB 自动下载限制");
-            try (InputStream input = connection.getInputStream();
-                 var outputStream = Files.newOutputStream(output)) {
-                byte[] buffer = new byte[64 * 1024];
-                long total = 0;
-                int count;
-                while ((count = input.read(buffer)) >= 0) {
-                    total += count;
-                    if (total > MAX_DOWNLOAD_BYTES) throw new IllegalStateException("素材超过 100MB 自动下载限制");
-                    outputStream.write(buffer, 0, count);
-                }
-            }
-            jdbc.update("""
-                    UPDATE external_asset SET local_path=?,import_status='DOWNLOADED',downloaded_at=? WHERE id=?
-                    """, output.toString(), OffsetDateTime.now(), assetId);
-            return find(assetId);
-        } catch (java.io.IOException exception) {
-            throw new IllegalStateException("素材下载失败：" + exception.getMessage(), exception);
-        }
+        assetDownloadService.download(assetId);
+        return find(assetId);
     }
 
     @Transactional
     public AssetView derive(UUID assetId, AssetDerivativeRequest request) {
-        AssetView source = find(assetId);
-        if (!"VIDEO".equals(source.assetType())) throw new IllegalArgumentException("只有视频素材可以提取画面或声音");
-        if (!"DOWNLOADED".equals(source.importStatus())) source = download(assetId);
-        Path input = Path.of(source.localPath()).toAbsolutePath().normalize();
-        Path directory = storageRoot.resolve("library").resolve(assetId.toString()).normalize();
-        if (!input.startsWith(storageRoot) || !directory.startsWith(storageRoot) || !Files.isRegularFile(input)) {
-            throw new IllegalStateException("视频文件不在授权素材目录中");
-        }
-        String mode = request.mode().toUpperCase(Locale.ROOT);
-        double timestamp = request.timestampSeconds() == null ? 0 : request.timestampSeconds();
-        String suffix = "FRAME".equals(mode) ? "frame-" + Math.round(timestamp * 1000) + ".jpg" : "audio.m4a";
-        Path output = directory.resolve(suffix).normalize();
-        List<String> command = new ArrayList<>(List.of(ffmpegCommand, "-y"));
-        if ("FRAME".equals(mode)) command.addAll(List.of("-ss", String.valueOf(timestamp)));
-        command.addAll(List.of("-i", input.toString()));
-        if ("FRAME".equals(mode)) command.addAll(List.of("-frames:v", "1", "-q:v", "2", output.toString()));
-        else command.addAll(List.of("-vn", "-c:a", "aac", "-b:a", "192k", output.toString()));
-        try {
-            var result = cn.longer233.gamenarrator.common.ExternalProcessRunner.run(command,
-                    java.time.Duration.ofMinutes(10));
-            if (result.exitCode() != 0 || !Files.isRegularFile(output)) {
-                throw new IllegalStateException("FFmpeg 提取失败：" + conciseOutput(result.output()));
-            }
-        } catch (java.io.IOException exception) {
-            throw new IllegalStateException("无法启动 FFmpeg：" + exception.getMessage(), exception);
-        } catch (InterruptedException exception) {
-            Thread.currentThread().interrupt();
-            throw new IllegalStateException("素材提取已中断", exception);
-        }
-        UUID derivedId = UUID.nameUUIDFromBytes((assetId + ":" + mode + ":" + timestamp)
-                .getBytes(StandardCharsets.UTF_8));
-        String derivedType = "FRAME".equals(mode) ? "IMAGE" : "SFX";
-        String title = source.title() + ("FRAME".equals(mode) ? " · 单帧" : " · 音轨");
-        jdbc.update("""
-                MERGE INTO external_asset(id,provider,external_id,asset_type,title,creator,landing_url,
-                preview_url,download_url,license_code,license_url,attribution,duration_ms,local_path,
-                import_status,metadata_json,discovered_at,downloaded_at) KEY(provider,external_id)
-                VALUES(?,?,?,?,?,?,?,?,NULL,?,?,?,?,?,?,?, ?,?)
-                """, derivedId, "LOCAL_DERIVED", assetId + ":" + mode + ":" + timestamp, derivedType,
-                title, source.creator(), source.landingUrl(), null, source.licenseCode(), source.licenseUrl(),
-                source.attribution(), "FRAME".equals(mode) ? null : source.durationMs(), output.toString(),
-                "DOWNLOADED", "{\"derivedFrom\":\"" + assetId + "\",\"mode\":\"" + mode + "\"}",
-                OffsetDateTime.now(), OffsetDateTime.now());
-        return find(derivedId);
+        return find(assetDownloadService.derive(assetId, request));
     }
 
     private String conciseOutput(String output) {
