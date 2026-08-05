@@ -1,6 +1,6 @@
 # GameNarrator — DeepSeek 项目上下文包
 
-> 自动生成时间：2026-08-05 09:34:33 +08:00
+> 自动生成时间：2026-08-05 09:47:58 +08:00
 > 文件数量：295。本文件由 scripts/export-deepseek-context.ps1 生成，请勿手工维护生成区。
 
 ## 给 DeepSeek 的强制工作规则
@@ -30,7 +30,7 @@
 - `docs/CLIP_COMPILATIONS.md`（702 bytes）
 - `docs/DATABASE_DESIGN.md`（28746 bytes）
 - `docs/FRONTEND_DEVELOPMENT.md`（1853 bytes）
-- `docs/MANUAL_EDITOR_PARITY.md`（4244 bytes）
+- `docs/MANUAL_EDITOR_PARITY.md`（4271 bytes）
 - `docs/OBSERVABILITY.md`（1109 bytes）
 - `docs/PERFORMANCE_PORTABILITY_AUDIT.md`（10763 bytes）
 - `docs/REQUIREMENTS.md`（21935 bytes）
@@ -94,7 +94,7 @@
 - `src/main/java/cn/longer233/gamenarrator/diagnostics/SystemDiagnosticsService.java`（6625 bytes）
 - `src/main/java/cn/longer233/gamenarrator/editor/EditorCommandRequest.java`（294 bytes）
 - `src/main/java/cn/longer233/gamenarrator/editor/EditorTimelineController.java`（931 bytes）
-- `src/main/java/cn/longer233/gamenarrator/editor/EditorTimelineService.java`（20615 bytes）
+- `src/main/java/cn/longer233/gamenarrator/editor/EditorTimelineService.java`（23144 bytes）
 - `src/main/java/cn/longer233/gamenarrator/effect/EffectController.java`（1399 bytes）
 - `src/main/java/cn/longer233/gamenarrator/effect/EffectPlan.java`（196 bytes）
 - `src/main/java/cn/longer233/gamenarrator/effect/EffectPreset.java`（438 bytes）
@@ -172,7 +172,7 @@
 - `src/main/java/cn/longer233/gamenarrator/script/ScriptQualityReview.java`（318 bytes）
 - `src/main/java/cn/longer233/gamenarrator/script/ScriptSegment.java`（233 bytes）
 - `src/main/java/cn/longer233/gamenarrator/script/ScriptWorkspaceController.java`（5598 bytes）
-- `src/main/java/cn/longer233/gamenarrator/script/ScriptWorkspaceService.java`（22770 bytes）
+- `src/main/java/cn/longer233/gamenarrator/script/ScriptWorkspaceService.java`（23794 bytes）
 - `src/main/java/cn/longer233/gamenarrator/script/StoryboardAssetPlacementService.java`（13671 bytes）
 - `src/main/java/cn/longer233/gamenarrator/script/StoryboardAssetPlacementView.java`（330 bytes）
 - `src/main/java/cn/longer233/gamenarrator/script/StoryboardSegmentView.java`（305 bytes）
@@ -252,7 +252,7 @@
 - `src/main/resources/db/migration/V8__video_segment_semantic_index.sql`（634 bytes）
 - `src/main/resources/db/migration/V9__video_segment_image_hash.sql`（152 bytes）
 - `src/main/resources/static/app.css`（61499 bytes）
-- `src/main/resources/static/app.js`（97476 bytes）
+- `src/main/resources/static/app.js`（97910 bytes）
 - `src/main/resources/static/asset-library.js`（39551 bytes）
 - `src/main/resources/static/diagnostics.js`（1673 bytes）
 - `src/main/resources/static/export.js`（10391 bytes）
@@ -296,7 +296,7 @@
 - `src/test/java/cn/longer233/gamenarrator/observability/PrometheusEndpointTest.java`（1491 bytes）
 - `src/test/java/cn/longer233/gamenarrator/observability/StorageCapacityGuardTest.java`（1278 bytes）
 - `src/test/java/cn/longer233/gamenarrator/pipeline/PendingTaskRecoveryTest.java`（3156 bytes）
-- `src/test/java/cn/longer233/gamenarrator/pipeline/VideoPipelineEndToEndTest.java`（6124 bytes）
+- `src/test/java/cn/longer233/gamenarrator/pipeline/VideoPipelineEndToEndTest.java`（6606 bytes）
 - `src/test/java/cn/longer233/gamenarrator/render/RenderAudioMixBuilderTest.java`（2564 bytes）
 - `src/test/java/cn/longer233/gamenarrator/render/RenderPreviewServiceTest.java`（2115 bytes）
 - `src/test/java/cn/longer233/gamenarrator/render/RenderVideoFilterBuilderTest.java`（2457 bytes）
@@ -337,7 +337,7 @@
 
     <groupId>cn.longer233.graduation</groupId>
     <artifactId>game-narrator</artifactId>
-    <version>1.6.3</version>
+    <version>1.7.0</version>
     <name>GameNarrator</name>
     <description>多模态游戏视频智能解说与自动剪辑系统</description>
 
@@ -1422,7 +1422,7 @@ GameNarrator 在禁用或未配置 AI 时，仍应能完成导入、粗剪、精
 | 领域 | 当前 | 下一阶段 |
 |---|---|---|
 | 源监视器 | 已实现原片播放、片段定位、前后跳镜 | 入点/出点标记、逐帧步进、J/K/L 播放 |
-| 时间线 | 已实现源视频监视器、播放头定位、片段选择、缩放、波形、拖拽移动、磁吸、双侧修剪、刀片分割、删除及持久化撤销/重做；无 AI 模式会用本地规则自动建立可编辑基础时间线；结构编辑会同步到实际分镜和渲染产物 | 多素材自由上轨、轨道增删、组合片段、嵌套序列 |
+| 时间线 | 已实现源视频监视器、播放头定位、片段选择、缩放、波形、拖拽移动、磁吸、双侧修剪、刀片分割、删除、连续片段重新连接及持久化撤回/恢复；无 AI 模式会用本地规则自动建立可编辑基础时间线；结构编辑会同步到实际分镜和渲染产物 | 多素材自由上轨、轨道增删、组合片段、嵌套序列 |
 | 历史 | 每条剪辑命令写入不可变 `project_revision`，支持持久化撤销/重做；自动化测试覆盖 55 次连续操作 | 历史树分支可视化和版本命名 |
 | 音频 | 已有原声、配音、SFX、BGM 混合，轨道静音/独奏和真实 WAV 峰值波形 | 淡入淡出和峰值告警 |
 | 画面 | 已有裁切适配、贴图、抠图、18 种效果，变换/透明度/音量关键帧和亮度/对比度/饱和度/色温面板 | 曲线编辑器、调色轮和 LUT 导入 |
@@ -7759,6 +7759,7 @@ public class EditorTimelineService {
         Map<String, Object> values = request.values();
         switch (type) {
             case "SPLIT" -> split(timeline, text(values, "clipId"), number(values, "atSeconds"));
+            case "MERGE" -> mergeWithNext(timeline, text(values, "clipId"));
             case "DELETE" -> delete(timeline, text(values, "clipId"));
             case "MOVE" -> move(timeline, text(values, "clipId"), text(values, "trackId"),
                     number(values, "timelineStartSeconds"), bool(values, "snap", true));
@@ -7771,8 +7772,8 @@ public class EditorTimelineService {
             case "COLOR_SET" -> color(timeline, text(values, "clipId"), values);
             default -> throw new IllegalArgumentException("不支持的剪辑命令：" + type);
         }
-        if (Set.of("SPLIT", "DELETE", "MOVE", "TRIM").contains(type)) normalizeClipOrder(timeline);
-        if (Set.of("SPLIT", "DELETE", "MOVE", "TRIM").contains(type)) syncRenderableStoryboard(taskId, timeline);
+        if (Set.of("SPLIT", "MERGE", "DELETE", "MOVE", "TRIM").contains(type)) normalizeClipOrder(timeline);
+        if (Set.of("SPLIT", "MERGE", "DELETE", "MOVE", "TRIM").contains(type)) syncRenderableStoryboard(taskId, timeline);
         manifest.set("editorTimeline", timeline);
         saveRevision(taskId, manifest, type, "手动剪辑：" + type);
         attachHistory(timeline, taskId);
@@ -7884,6 +7885,45 @@ public class EditorTimelineService {
         throw new IllegalArgumentException("片段不存在");
     }
 
+    private void mergeWithNext(ObjectNode timeline, String clipId) {
+        ArrayNode clips = (ArrayNode) timeline.path("clips");
+        List<ObjectNode> ordered = new ArrayList<>();
+        clips.forEach(item -> ordered.add((ObjectNode) item));
+        ordered.sort(Comparator.comparingDouble(item -> item.path("timelineStartSeconds").asDouble()));
+        for (int index = 0; index < ordered.size(); index++) {
+            ObjectNode left = ordered.get(index);
+            if (!clipId.equals(left.path("id").asText())) continue;
+            if (index + 1 >= ordered.size()) throw new IllegalArgumentException("所选片段右侧没有可连接片段");
+            ObjectNode right = ordered.get(index + 1);
+            if (!left.path("trackId").asText().equals(right.path("trackId").asText())) {
+                throw new IllegalArgumentException("只能连接同一轨道上的片段");
+            }
+            if (Math.abs(left.path("sourceEndSeconds").asDouble()
+                    - right.path("sourceStartSeconds").asDouble()) > .02) {
+                throw new IllegalArgumentException("两个片段在源视频上不连续，不能直接连接");
+            }
+            ArrayNode sources = mapper.createArrayNode();
+            appendSourceIndexes(sources, left);
+            appendSourceIndexes(sources, right);
+            left.set("sourceClipIndexes", sources);
+            left.put("sourceEndSeconds", right.path("sourceEndSeconds").asDouble());
+            left.put("durationSeconds", left.path("sourceEndSeconds").asDouble()
+                    - left.path("sourceStartSeconds").asDouble());
+            for (int raw = 0; raw < clips.size(); raw++) {
+                if (right.path("id").asText().equals(clips.get(raw).path("id").asText())) {
+                    clips.remove(raw);
+                    return;
+                }
+            }
+        }
+        throw new IllegalArgumentException("片段不存在");
+    }
+
+    private void appendSourceIndexes(ArrayNode target, JsonNode clip) {
+        if (clip.path("sourceClipIndexes").isArray()) clip.path("sourceClipIndexes").forEach(target::add);
+        else target.add(clip.path("sourceClipIndex").asInt());
+    }
+
     private void move(ObjectNode timeline, String clipId, String trackId, double start, boolean snap) {
         ObjectNode clip = clip((ArrayNode) timeline.path("clips"), clipId);
         if (timeline.path("tracks").findValuesAsText("id").stream().noneMatch(trackId::equals)) throw new IllegalArgumentException("轨道不存在");
@@ -7991,9 +8031,12 @@ public class EditorTimelineService {
         jdbc.update("DELETE FROM storyboard_asset_placement WHERE task_id=?", taskId);
         int targetIndex = 1;
         for (JsonNode clip : timeline.path("clips")) {
-            int sourceIndex = clip.path("sourceClipIndex").asInt(targetIndex);
+            Set<Integer> sourceIndexes = new LinkedHashSet<>();
+            if (clip.path("sourceClipIndexes").isArray()) {
+                clip.path("sourceClipIndexes").forEach(item -> sourceIndexes.add(item.asInt()));
+            } else sourceIndexes.add(clip.path("sourceClipIndex").asInt(targetIndex));
             for (Map<String, Object> placement : existing) {
-                if (((Number) placement.get("CLIP_INDEX")).intValue() != sourceIndex) continue;
+                if (!sourceIndexes.contains(((Number) placement.get("CLIP_INDEX")).intValue())) continue;
                 jdbc.update("""
                         INSERT INTO storyboard_asset_placement(id,task_id,clip_index,asset_id,placement_type,
                             position_name,instruction,ai_assigned,cutout_applied,created_at)
@@ -14151,6 +14194,7 @@ import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.UUID;
 
 @Service
@@ -14328,23 +14372,33 @@ public class ScriptWorkspaceService {
         for (int position = 0; position < ordered.size(); position++) {
             JsonNode editorClip = ordered.get(position);
             String id = editorClip.path("id").asText();
-            int sourcePosition = editorClip.has("sourceClipIndex")
+            List<Integer> rawSourcePositions = new ArrayList<>();
+            if (editorClip.path("sourceClipIndexes").isArray()) {
+                editorClip.path("sourceClipIndexes").forEach(item -> rawSourcePositions.add(item.asInt() - 1));
+            } else rawSourcePositions.add(editorClip.has("sourceClipIndex")
                     ? editorClip.path("sourceClipIndex").asInt() - 1
-                    : id.startsWith("clip-") ? Integer.parseInt(id.substring(5)) - 1 : position;
-            if (sourcePosition < 0 || sourcePosition >= document.segments().size()) throw new IllegalArgumentException("可视时间线包含无效片段");
+                    : id.startsWith("clip-") ? Integer.parseInt(id.substring(5)) - 1 : position);
+            List<Integer> sourcePositions = rawSourcePositions.stream()
+                    .map(source -> Math.max(0, Math.min(document.segments().size() - 1, source)))
+                    .toList();
+            int sourcePosition = sourcePositions.getFirst();
             double start = editorClip.path("sourceStartSeconds").asDouble();
             double end = editorClip.path("sourceEndSeconds").asDouble();
             if (end <= start + .04 || start < 0 || (task.getDurationSeconds() != null && end > task.getDurationSeconds() + .001)) {
                 throw new IllegalArgumentException("可视时间线入点或出点无效");
             }
-            ScriptSegment text = document.segments().get(sourcePosition);
-            scripts.add(new ScriptSegment(position + 1, start, end, text.narration(), text.subtitle(), text.effectCue()));
+            List<ScriptSegment> mergedTexts = sourcePositions.stream().map(document.segments()::get).toList();
+            scripts.add(new ScriptSegment(position + 1, start, end,
+                    joinDistinct(mergedTexts.stream().map(ScriptSegment::narration).toList(), "\n"),
+                    joinDistinct(mergedTexts.stream().map(ScriptSegment::subtitle).toList(), " "),
+                    joinDistinct(mergedTexts.stream().map(ScriptSegment::effectCue).toList(), "；")));
             HighlightClip clip = currentClips.get(sourcePosition);
             highlights.add(new HighlightClip(clip.sourceFrameIndex(), start, end,
                     Math.max(start, Math.min(end, clip.anchorSeconds())), clip.eventType(), clip.description(),
                     clip.sourceScore(), clip.finalScore(), clip.locked(), clip.excluded()));
             ((com.fasterxml.jackson.databind.node.ObjectNode) editorClip).put("id", "clip-" + (position + 1));
             ((com.fasterxml.jackson.databind.node.ObjectNode) editorClip).put("sourceClipIndex", position + 1);
+            ((com.fasterxml.jackson.databind.node.ObjectNode) editorClip).remove("sourceClipIndexes");
         }
         String narration = String.join("\n", scripts.stream().map(ScriptSegment::narration).toList());
         Path scriptPath = requireScriptPath(task);
@@ -14358,6 +14412,11 @@ public class ScriptWorkspaceService {
         highlightOutput.put("selectedDurationSeconds", highlights.stream().mapToDouble(HighlightClip::durationSeconds).sum());
         writeAtomically(highlightPath, highlightOutput); writeAtomically(scriptPath, scriptOutput);
         task.applyScriptRevision(document.title(), document.synopsis(), narration, scriptPath.toString(), scripts.size());
+    }
+
+    private String joinDistinct(List<String> values, String delimiter) {
+        return String.join(delimiter, values.stream().filter(Objects::nonNull).map(String::trim)
+                .filter(value -> !value.isBlank()).distinct().toList());
     }
 
     @Transactional
@@ -20705,7 +20764,7 @@ async function loadStoryboardEditor(taskId) {
       <div class="storyboard-stats"><span>${storyboard.segments.length} 个分镜</span><span>预计素材时长 ${formatDuration(totalDuration)}</span><span>支持拖拽排序与入点/出点修剪</span></div>
       <section class="editor-source-monitor"><video controls preload="metadata" src="/api/tasks/${taskId}/source" data-editor-preview></video><div><strong>源视频监视器</strong><small>在时间线上选择位置会同步跳转原片；可直接播放确认剪切点。</small></div></section>
       <section class="storyboard-visual-timeline" data-visual-timeline>
-        <header><div><strong>自由剪辑时间线</strong><small>单击选择片段或定位播放头；支持分割、删除、拖动排序和双侧修剪</small></div><div class="timeline-toolbar"><button type="button" data-editor-history="UNDO">撤销</button><button type="button" data-editor-history="REDO">重做</button><button type="button" data-editor-action="SPLIT" disabled>刀片分割</button><button type="button" data-editor-action="DELETE" disabled>删除片段</button><label>缩放 <input type="range" min="24" max="120" value="54" data-timeline-zoom></label><b data-history-count></b></div></header>
+        <header><div><strong>自由剪辑时间线</strong><small>单击选择片段或定位播放头；剪断后可与右侧连续片段重新连接</small></div><div class="timeline-toolbar"><button type="button" data-editor-history="UNDO">撤回上一步</button><button type="button" data-editor-history="REDO">恢复撤回</button><button type="button" data-editor-action="SPLIT" disabled>刀片分割</button><button type="button" data-editor-action="MERGE" disabled>连接右侧片段</button><button type="button" data-editor-action="DELETE" disabled>删除片段</button><label>缩放 <input type="range" min="24" max="120" value="54" data-timeline-zoom></label><b data-history-count></b></div></header>
         <div class="timeline-selection-status" data-timeline-selection>请选择片段；点击片段内部可设置分割位置</div>
         <div class="storyboard-waveform" data-storyboard-waveform></div>
         <div class="storyboard-track-scroll"><div class="storyboard-track" data-storyboard-track></div></div>
@@ -20768,6 +20827,8 @@ function mountStoryboardTimeline(taskId, timeline, waveform) {
       if (button.dataset.editorAction === 'SPLIT') {
         const atSeconds = panel._playheadSeconds ?? clip.timelineStartSeconds + clip.durationSeconds / 2;
         await editorTimelineCommand(taskId, 'SPLIT', {clipId:clip.id, atSeconds});
+      } else if (button.dataset.editorAction === 'MERGE') {
+        await editorTimelineCommand(taskId, 'MERGE', {clipId:clip.id});
       } else {
         await editorTimelineCommand(taskId, 'DELETE', {clipId:clip.id});
       }
@@ -20866,6 +20927,9 @@ document.addEventListener('keydown', event => {
   }
   if ((event.ctrlKey || event.metaKey) && event.key.toLowerCase() === 'b') {
     event.preventDefault(); storyboardWorkspace.querySelector('[data-editor-action="SPLIT"]:not(:disabled)')?.click(); return;
+  }
+  if ((event.ctrlKey || event.metaKey) && event.key.toLowerCase() === 'j') {
+    event.preventDefault(); storyboardWorkspace.querySelector('[data-editor-action="MERGE"]:not(:disabled)')?.click(); return;
   }
   if (!(event.ctrlKey || event.metaKey)) return;
   const type = event.key.toLowerCase() === 'z' && event.shiftKey ? 'REDO' : event.key.toLowerCase() === 'z' ? 'UNDO' : event.key.toLowerCase() === 'y' ? 'REDO' : null;
@@ -21199,7 +21263,7 @@ const guideSteps = [
   {selector: '.history-panel', title: '第 5 步：从最左侧历史继续', text: '只有真正生成完成的任务才会进入页面最左侧“最近完成”列表。处理中、等待检查、失败或取消的任务都留在右侧，避免被误认为已经完成。点击已完成条目可查看生成文件、分镜、文案、时间线和最终视频。'},
   {selector: '.storyboard-review-option', title: '第 6 步：检查分镜再继续', text: '开启分镜检查后，流程会在文案与分镜生成后暂停。进入线性分镜工作台可调整顺序、起止时间、字幕、解说、素材和特效；保存全部修改后再继续配音与渲染。'},
   {selector: '.primary-nav', title: '更多工具入口', text: '“镜头搜索”使用本地语义模型寻找片段；“平台导入”负责下载并创建项目；“素材库”管理授权素材；“设置”管理云端或本地 AI。遇到问题可点击右上角“诊断日志”。'},
-  {selector: '.topbar-actions', title: '完成、诊断与再次查看', text: '任务完成后在详情中预览并导出 MP4。任何阶段失败时先查看任务详情和诊断日志；本引导可以随时从“使用引导”重新打开。当前版本为 v1.6.3。'}
+  {selector: '.topbar-actions', title: '完成、诊断与再次查看', text: '任务完成后在详情中预览并导出 MP4。任何阶段失败时先查看任务详情和诊断日志；本引导可以随时从“使用引导”重新打开。当前版本为 v1.7.0。'}
 ];
 let guideIndex = 0;
 let guideTarget = null;
@@ -22296,14 +22360,14 @@ document.querySelector('#copy-address').onclick=async()=>{await navigator.clipbo
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>GameNarrator 1.6.3</title>
+  <title>GameNarrator 1.7.0</title>
   <link rel="stylesheet" href="/media-importer.css?v=20260729-10">
   <link rel="stylesheet" href="/app.css?v=20260803-13">
 </head>
 <body>
   <div class="aurora"></div>
   <header class="topbar">
-    <a class="brand" href="/">GAME<span>NARRATOR</span><small class="app-version">v1.6.3</small></a>
+    <a class="brand" href="/">GAME<span>NARRATOR</span><small class="app-version">v1.7.0</small></a>
     <nav class="primary-nav" aria-label="主要功能">
       <a href="/?view=studio" data-view-link="studio">剪辑任务</a>
       <a href="/?view=search" data-view-link="search">镜头搜索</a>
@@ -24839,8 +24903,16 @@ class VideoPipelineEndToEndTest {
         assertThat(split.path("clips")).hasSize(2);
         assertThat(tasks.find(created.id()).timelinePath()).isNull();
 
+        var merged = editor.command(created.id(), new EditorCommandRequest("MERGE", java.util.Map.of(
+                "clipId", split.path("clips").get(0).path("id").asText())));
+        assertThat(merged.path("clips")).hasSize(1);
+
+        var restored = editor.command(created.id(), new EditorCommandRequest("UNDO", java.util.Map.of()));
+        assertThat(restored.path("clips")).hasSize(2);
+        assertThat(restored.path("history").path("canRedo").asBoolean()).isTrue();
+
         var deleted = editor.command(created.id(), new EditorCommandRequest("DELETE", java.util.Map.of(
-                "clipId", split.path("clips").get(1).path("id").asText())));
+                "clipId", restored.path("clips").get(1).path("id").asText())));
         assertThat(deleted.path("clips")).hasSize(1);
     }
 }

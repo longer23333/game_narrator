@@ -20,6 +20,7 @@ import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.UUID;
 
 @Service
@@ -197,23 +198,33 @@ public class ScriptWorkspaceService {
         for (int position = 0; position < ordered.size(); position++) {
             JsonNode editorClip = ordered.get(position);
             String id = editorClip.path("id").asText();
-            int sourcePosition = editorClip.has("sourceClipIndex")
+            List<Integer> rawSourcePositions = new ArrayList<>();
+            if (editorClip.path("sourceClipIndexes").isArray()) {
+                editorClip.path("sourceClipIndexes").forEach(item -> rawSourcePositions.add(item.asInt() - 1));
+            } else rawSourcePositions.add(editorClip.has("sourceClipIndex")
                     ? editorClip.path("sourceClipIndex").asInt() - 1
-                    : id.startsWith("clip-") ? Integer.parseInt(id.substring(5)) - 1 : position;
-            if (sourcePosition < 0 || sourcePosition >= document.segments().size()) throw new IllegalArgumentException("可视时间线包含无效片段");
+                    : id.startsWith("clip-") ? Integer.parseInt(id.substring(5)) - 1 : position);
+            List<Integer> sourcePositions = rawSourcePositions.stream()
+                    .map(source -> Math.max(0, Math.min(document.segments().size() - 1, source)))
+                    .toList();
+            int sourcePosition = sourcePositions.getFirst();
             double start = editorClip.path("sourceStartSeconds").asDouble();
             double end = editorClip.path("sourceEndSeconds").asDouble();
             if (end <= start + .04 || start < 0 || (task.getDurationSeconds() != null && end > task.getDurationSeconds() + .001)) {
                 throw new IllegalArgumentException("可视时间线入点或出点无效");
             }
-            ScriptSegment text = document.segments().get(sourcePosition);
-            scripts.add(new ScriptSegment(position + 1, start, end, text.narration(), text.subtitle(), text.effectCue()));
+            List<ScriptSegment> mergedTexts = sourcePositions.stream().map(document.segments()::get).toList();
+            scripts.add(new ScriptSegment(position + 1, start, end,
+                    joinDistinct(mergedTexts.stream().map(ScriptSegment::narration).toList(), "\n"),
+                    joinDistinct(mergedTexts.stream().map(ScriptSegment::subtitle).toList(), " "),
+                    joinDistinct(mergedTexts.stream().map(ScriptSegment::effectCue).toList(), "；")));
             HighlightClip clip = currentClips.get(sourcePosition);
             highlights.add(new HighlightClip(clip.sourceFrameIndex(), start, end,
                     Math.max(start, Math.min(end, clip.anchorSeconds())), clip.eventType(), clip.description(),
                     clip.sourceScore(), clip.finalScore(), clip.locked(), clip.excluded()));
             ((com.fasterxml.jackson.databind.node.ObjectNode) editorClip).put("id", "clip-" + (position + 1));
             ((com.fasterxml.jackson.databind.node.ObjectNode) editorClip).put("sourceClipIndex", position + 1);
+            ((com.fasterxml.jackson.databind.node.ObjectNode) editorClip).remove("sourceClipIndexes");
         }
         String narration = String.join("\n", scripts.stream().map(ScriptSegment::narration).toList());
         Path scriptPath = requireScriptPath(task);
@@ -227,6 +238,11 @@ public class ScriptWorkspaceService {
         highlightOutput.put("selectedDurationSeconds", highlights.stream().mapToDouble(HighlightClip::durationSeconds).sum());
         writeAtomically(highlightPath, highlightOutput); writeAtomically(scriptPath, scriptOutput);
         task.applyScriptRevision(document.title(), document.synopsis(), narration, scriptPath.toString(), scripts.size());
+    }
+
+    private String joinDistinct(List<String> values, String delimiter) {
+        return String.join(delimiter, values.stream().filter(Objects::nonNull).map(String::trim)
+                .filter(value -> !value.isBlank()).distinct().toList());
     }
 
     @Transactional

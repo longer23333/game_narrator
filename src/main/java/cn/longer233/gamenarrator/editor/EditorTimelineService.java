@@ -53,6 +53,7 @@ public class EditorTimelineService {
         Map<String, Object> values = request.values();
         switch (type) {
             case "SPLIT" -> split(timeline, text(values, "clipId"), number(values, "atSeconds"));
+            case "MERGE" -> mergeWithNext(timeline, text(values, "clipId"));
             case "DELETE" -> delete(timeline, text(values, "clipId"));
             case "MOVE" -> move(timeline, text(values, "clipId"), text(values, "trackId"),
                     number(values, "timelineStartSeconds"), bool(values, "snap", true));
@@ -65,8 +66,8 @@ public class EditorTimelineService {
             case "COLOR_SET" -> color(timeline, text(values, "clipId"), values);
             default -> throw new IllegalArgumentException("不支持的剪辑命令：" + type);
         }
-        if (Set.of("SPLIT", "DELETE", "MOVE", "TRIM").contains(type)) normalizeClipOrder(timeline);
-        if (Set.of("SPLIT", "DELETE", "MOVE", "TRIM").contains(type)) syncRenderableStoryboard(taskId, timeline);
+        if (Set.of("SPLIT", "MERGE", "DELETE", "MOVE", "TRIM").contains(type)) normalizeClipOrder(timeline);
+        if (Set.of("SPLIT", "MERGE", "DELETE", "MOVE", "TRIM").contains(type)) syncRenderableStoryboard(taskId, timeline);
         manifest.set("editorTimeline", timeline);
         saveRevision(taskId, manifest, type, "手动剪辑：" + type);
         attachHistory(timeline, taskId);
@@ -178,6 +179,45 @@ public class EditorTimelineService {
         throw new IllegalArgumentException("片段不存在");
     }
 
+    private void mergeWithNext(ObjectNode timeline, String clipId) {
+        ArrayNode clips = (ArrayNode) timeline.path("clips");
+        List<ObjectNode> ordered = new ArrayList<>();
+        clips.forEach(item -> ordered.add((ObjectNode) item));
+        ordered.sort(Comparator.comparingDouble(item -> item.path("timelineStartSeconds").asDouble()));
+        for (int index = 0; index < ordered.size(); index++) {
+            ObjectNode left = ordered.get(index);
+            if (!clipId.equals(left.path("id").asText())) continue;
+            if (index + 1 >= ordered.size()) throw new IllegalArgumentException("所选片段右侧没有可连接片段");
+            ObjectNode right = ordered.get(index + 1);
+            if (!left.path("trackId").asText().equals(right.path("trackId").asText())) {
+                throw new IllegalArgumentException("只能连接同一轨道上的片段");
+            }
+            if (Math.abs(left.path("sourceEndSeconds").asDouble()
+                    - right.path("sourceStartSeconds").asDouble()) > .02) {
+                throw new IllegalArgumentException("两个片段在源视频上不连续，不能直接连接");
+            }
+            ArrayNode sources = mapper.createArrayNode();
+            appendSourceIndexes(sources, left);
+            appendSourceIndexes(sources, right);
+            left.set("sourceClipIndexes", sources);
+            left.put("sourceEndSeconds", right.path("sourceEndSeconds").asDouble());
+            left.put("durationSeconds", left.path("sourceEndSeconds").asDouble()
+                    - left.path("sourceStartSeconds").asDouble());
+            for (int raw = 0; raw < clips.size(); raw++) {
+                if (right.path("id").asText().equals(clips.get(raw).path("id").asText())) {
+                    clips.remove(raw);
+                    return;
+                }
+            }
+        }
+        throw new IllegalArgumentException("片段不存在");
+    }
+
+    private void appendSourceIndexes(ArrayNode target, JsonNode clip) {
+        if (clip.path("sourceClipIndexes").isArray()) clip.path("sourceClipIndexes").forEach(target::add);
+        else target.add(clip.path("sourceClipIndex").asInt());
+    }
+
     private void move(ObjectNode timeline, String clipId, String trackId, double start, boolean snap) {
         ObjectNode clip = clip((ArrayNode) timeline.path("clips"), clipId);
         if (timeline.path("tracks").findValuesAsText("id").stream().noneMatch(trackId::equals)) throw new IllegalArgumentException("轨道不存在");
@@ -285,9 +325,12 @@ public class EditorTimelineService {
         jdbc.update("DELETE FROM storyboard_asset_placement WHERE task_id=?", taskId);
         int targetIndex = 1;
         for (JsonNode clip : timeline.path("clips")) {
-            int sourceIndex = clip.path("sourceClipIndex").asInt(targetIndex);
+            Set<Integer> sourceIndexes = new LinkedHashSet<>();
+            if (clip.path("sourceClipIndexes").isArray()) {
+                clip.path("sourceClipIndexes").forEach(item -> sourceIndexes.add(item.asInt()));
+            } else sourceIndexes.add(clip.path("sourceClipIndex").asInt(targetIndex));
             for (Map<String, Object> placement : existing) {
-                if (((Number) placement.get("CLIP_INDEX")).intValue() != sourceIndex) continue;
+                if (!sourceIndexes.contains(((Number) placement.get("CLIP_INDEX")).intValue())) continue;
                 jdbc.update("""
                         INSERT INTO storyboard_asset_placement(id,task_id,clip_index,asset_id,placement_type,
                             position_name,instruction,ai_assigned,cutout_applied,created_at)

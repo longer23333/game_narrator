@@ -109,8 +109,16 @@ class VideoPipelineEndToEndTest {
         assertThat(split.path("clips")).hasSize(2);
         assertThat(tasks.find(created.id()).timelinePath()).isNull();
 
+        var merged = editor.command(created.id(), new EditorCommandRequest("MERGE", java.util.Map.of(
+                "clipId", split.path("clips").get(0).path("id").asText())));
+        assertThat(merged.path("clips")).hasSize(1);
+
+        var restored = editor.command(created.id(), new EditorCommandRequest("UNDO", java.util.Map.of()));
+        assertThat(restored.path("clips")).hasSize(2);
+        assertThat(restored.path("history").path("canRedo").asBoolean()).isTrue();
+
         var deleted = editor.command(created.id(), new EditorCommandRequest("DELETE", java.util.Map.of(
-                "clipId", split.path("clips").get(1).path("id").asText())));
+                "clipId", restored.path("clips").get(1).path("id").asText())));
         assertThat(deleted.path("clips")).hasSize(1);
     }
 }
