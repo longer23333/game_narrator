@@ -32,7 +32,7 @@ $ffmpeg = Get-ChildItem (Join-Path $cache 'ffmpeg-extracted') -Recurse -Filter f
 if (-not $ffmpeg) { throw 'Run the full release build once to prepare the FFmpeg cache.' }
 New-Item -ItemType Directory -Path (Join-Path $staging 'tools\ffmpeg\bin') -Force | Out-Null
 Copy-Item $ffmpeg.FullName (Join-Path $staging 'tools\ffmpeg\bin\ffmpeg.exe')
-Copy-Item (Join-Path $projectRoot 'release\lite\GameNarrator-Demo-Lite.cmd') $staging
+Copy-Item (Join-Path $projectRoot 'release\lite\GameNarrator-Demo-Lite.ps1') $staging
 
 $bytes = (Get-ChildItem $staging -Recurse -File | Measure-Object Length -Sum).Sum
 $mib = [math]::Round($bytes / 1MB, 1)

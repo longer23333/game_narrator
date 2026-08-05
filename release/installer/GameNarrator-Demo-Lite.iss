@@ -1,6 +1,6 @@
 #define AppName "GameNarrator Demo Lite"
 #ifndef AppVersion
-#define AppVersion "2.1.3"
+#define AppVersion "2.1.4"
 #endif
 
 [Setup]
@@ -27,11 +27,11 @@ Name: "chinesesimplified"; MessagesFile: "..\cache\ChineseSimplified.isl"
 Source: "..\staging-lite\*"; DestDir: "{app}"; Flags: ignoreversion recursesubdirs createallsubdirs
 
 [Icons]
-Name: "{autoprograms}\GameNarrator 展示轻量版"; Filename: "{app}\GameNarrator-Demo-Lite.cmd"; WorkingDir: "{app}"
-Name: "{autodesktop}\GameNarrator 展示轻量版"; Filename: "{app}\GameNarrator-Demo-Lite.cmd"; WorkingDir: "{app}"; Tasks: desktopicon
+Name: "{autoprograms}\GameNarrator 展示轻量版"; Filename: "powershell.exe"; Parameters: "-NoProfile -ExecutionPolicy Bypass -WindowStyle Hidden -File ""{app}\GameNarrator-Demo-Lite.ps1"""; WorkingDir: "{app}"
+Name: "{autodesktop}\GameNarrator 展示轻量版"; Filename: "powershell.exe"; Parameters: "-NoProfile -ExecutionPolicy Bypass -WindowStyle Hidden -File ""{app}\GameNarrator-Demo-Lite.ps1"""; WorkingDir: "{app}"; Tasks: desktopicon
 
 [Tasks]
 Name: "desktopicon"; Description: "创建桌面快捷方式"; Flags: checkedonce
 
 [Run]
-Filename: "{app}\GameNarrator-Demo-Lite.cmd"; Description: "启动 GameNarrator 展示轻量版"; Flags: nowait postinstall skipifsilent
+Filename: "powershell.exe"; Parameters: "-NoProfile -ExecutionPolicy Bypass -WindowStyle Hidden -File ""{app}\GameNarrator-Demo-Lite.ps1"""; Description: "启动 GameNarrator 展示轻量版"; Flags: nowait postinstall skipifsilent
