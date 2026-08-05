@@ -170,7 +170,7 @@ public class FfmpegVideoRenderer {
             Path output = taskDirectory.resolve("final-video.mp4");
             mixVoiceAndSubtitle(baseVideo, segments, subtitle, output,
                     preset == null ? 0.20 : preset.sourceAudioVolume(), dynamicSubtitle, soundCues,
-                    storyboardAssets.stream().filter(RenderAssetResolver.RenderAsset::audio).toList());
+                    storyboardAssets.stream().filter(RenderAssetResolver.RenderAsset::audio).toList(), encoder);
             long size = Files.size(output);
             progressConsumer.accept(95);
             log.info("RENDERING_SUCCESS encoder={} duration={} sizeBytes={} output={}",
@@ -265,7 +265,30 @@ public class FfmpegVideoRenderer {
     private void mixVoiceAndSubtitle(Path baseVideo, List<TimelineSegment> segments,
                                      Path subtitle, Path output, double sourceAudioVolume,
                                      Path dynamicSubtitle, List<SoundCue> soundCues,
-                                     List<RenderAssetResolver.RenderAsset> externalAudio) {
+                                     List<RenderAssetResolver.RenderAsset> externalAudio,
+                                     String encoder) {
+        try {
+            mixVoiceAndSubtitleOnce(baseVideo, segments, subtitle, output, sourceAudioVolume,
+                    dynamicSubtitle, soundCues, externalAudio, encoder);
+        } catch (IllegalStateException exception) {
+            if (dynamicSubtitle == null || "libx264".equals(encoder)) throw exception;
+            log.warn("RENDER_MIX_ENCODER_FALLBACK from={} to=libx264 reason={}", encoder, exception.getMessage());
+            try {
+                Files.deleteIfExists(output);
+            } catch (java.io.IOException cleanupException) {
+                log.warn("RENDER_MIX_PARTIAL_OUTPUT_CLEANUP_FAILED output={} message={}",
+                        output, cleanupException.getMessage());
+            }
+            mixVoiceAndSubtitleOnce(baseVideo, segments, subtitle, output, sourceAudioVolume,
+                    dynamicSubtitle, soundCues, externalAudio, "libx264");
+        }
+    }
+
+    private void mixVoiceAndSubtitleOnce(Path baseVideo, List<TimelineSegment> segments,
+                                         Path subtitle, Path output, double sourceAudioVolume,
+                                         Path dynamicSubtitle, List<SoundCue> soundCues,
+                                         List<RenderAssetResolver.RenderAsset> externalAudio,
+                                         String encoder) {
         List<String> command = new ArrayList<>(List.of(ffmpegCommand, "-y", "-hide_banner",
                 "-loglevel", "warning", "-i", baseVideo.toString()));
         for (TimelineSegment segment : segments) command.addAll(List.of("-i", segment.voicePath()));
@@ -280,9 +303,11 @@ public class FfmpegVideoRenderer {
         command.addAll(List.of("-filter_complex", mixPlan.filterGraph()));
         if (dynamicSubtitle != null) {
             command.addAll(List.of("-vf", "ass='" + filterPath(dynamicSubtitle) + "'",
-                    "-map", "0:v:0", "-map", "[aout]", "-c:v", preferredEncoder));
-            if ("h264_nvenc".equals(preferredEncoder)) {
+                    "-map", "0:v:0", "-map", "[aout]", "-c:v", encoder));
+            if ("h264_nvenc".equals(encoder)) {
                 command.addAll(List.of("-preset", "p4", "-cq", "22"));
+            } else if ("libx264".equals(encoder)) {
+                command.addAll(List.of("-preset", "veryfast", "-crf", "21"));
             }
         } else {
             command.addAll(List.of("-map", "0:v:0", "-map", "[aout]",
