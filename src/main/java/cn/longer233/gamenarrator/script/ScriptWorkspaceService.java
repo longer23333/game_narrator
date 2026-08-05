@@ -191,13 +191,15 @@ public class ScriptWorkspaceService {
         List<JsonNode> ordered = new ArrayList<>();
         timeline.path("clips").forEach(ordered::add);
         ordered.sort(java.util.Comparator.comparingDouble(item -> item.path("timelineStartSeconds").asDouble()));
-        if (ordered.size() != document.segments().size()) throw new IllegalArgumentException("可视时间线片段数量必须与分镜一致");
+        if (ordered.isEmpty()) throw new IllegalArgumentException("时间线至少需要保留一个片段");
         List<ScriptSegment> scripts = new ArrayList<>();
         List<HighlightClip> highlights = new ArrayList<>();
         for (int position = 0; position < ordered.size(); position++) {
             JsonNode editorClip = ordered.get(position);
             String id = editorClip.path("id").asText();
-            int sourcePosition = id.startsWith("clip-") ? Integer.parseInt(id.substring(5)) - 1 : position;
+            int sourcePosition = editorClip.has("sourceClipIndex")
+                    ? editorClip.path("sourceClipIndex").asInt() - 1
+                    : id.startsWith("clip-") ? Integer.parseInt(id.substring(5)) - 1 : position;
             if (sourcePosition < 0 || sourcePosition >= document.segments().size()) throw new IllegalArgumentException("可视时间线包含无效片段");
             double start = editorClip.path("sourceStartSeconds").asDouble();
             double end = editorClip.path("sourceEndSeconds").asDouble();
@@ -211,6 +213,7 @@ public class ScriptWorkspaceService {
                     Math.max(start, Math.min(end, clip.anchorSeconds())), clip.eventType(), clip.description(),
                     clip.sourceScore(), clip.finalScore(), clip.locked(), clip.excluded()));
             ((com.fasterxml.jackson.databind.node.ObjectNode) editorClip).put("id", "clip-" + (position + 1));
+            ((com.fasterxml.jackson.databind.node.ObjectNode) editorClip).put("sourceClipIndex", position + 1);
         }
         String narration = String.join("\n", scripts.stream().map(ScriptSegment::narration).toList());
         Path scriptPath = requireScriptPath(task);

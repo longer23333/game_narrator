@@ -1,6 +1,8 @@
 package cn.longer233.gamenarrator.pipeline;
 
 import cn.longer233.gamenarrator.common.ExternalProcessRunner;
+import cn.longer233.gamenarrator.editor.EditorCommandRequest;
+import cn.longer233.gamenarrator.editor.EditorTimelineService;
 import cn.longer233.gamenarrator.task.application.CreateVideoTaskCommand;
 import cn.longer233.gamenarrator.task.application.VideoTaskService;
 import cn.longer233.gamenarrator.task.domain.CommentaryStyle;
@@ -31,6 +33,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 })
 class VideoPipelineEndToEndTest {
     @Autowired VideoTaskService tasks;
+    @Autowired EditorTimelineService editor;
     @TempDir Path temporary;
 
     @Test
@@ -96,5 +99,18 @@ class VideoPipelineEndToEndTest {
         assertThat(current.renderedVideoPath()).isNull();
         assertThat(current.stages().stream().filter(stage -> stage.status() == StageStatus.COMPLETED)).hasSize(8);
         assertThat(current.stages().getLast().status()).isEqualTo(StageStatus.PENDING);
+
+        var timeline = editor.timeline(created.id());
+        var first = timeline.path("clips").get(0);
+        double splitAt = first.path("timelineStartSeconds").asDouble()
+                + first.path("durationSeconds").asDouble() / 2;
+        var split = editor.command(created.id(), new EditorCommandRequest("SPLIT", java.util.Map.of(
+                "clipId", first.path("id").asText(), "atSeconds", splitAt)));
+        assertThat(split.path("clips")).hasSize(2);
+        assertThat(tasks.find(created.id()).timelinePath()).isNull();
+
+        var deleted = editor.command(created.id(), new EditorCommandRequest("DELETE", java.util.Map.of(
+                "clipId", split.path("clips").get(1).path("id").asText())));
+        assertThat(deleted.path("clips")).hasSize(1);
     }
 }

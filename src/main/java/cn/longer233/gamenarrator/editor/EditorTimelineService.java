@@ -53,6 +53,7 @@ public class EditorTimelineService {
         Map<String, Object> values = request.values();
         switch (type) {
             case "SPLIT" -> split(timeline, text(values, "clipId"), number(values, "atSeconds"));
+            case "DELETE" -> delete(timeline, text(values, "clipId"));
             case "MOVE" -> move(timeline, text(values, "clipId"), text(values, "trackId"),
                     number(values, "timelineStartSeconds"), bool(values, "snap", true));
             case "TRIM" -> trim(timeline, text(values, "clipId"), number(values, "sourceStartSeconds"),
@@ -64,8 +65,8 @@ public class EditorTimelineService {
             case "COLOR_SET" -> color(timeline, text(values, "clipId"), values);
             default -> throw new IllegalArgumentException("不支持的剪辑命令：" + type);
         }
-        if ("MOVE".equals(type) || "TRIM".equals(type)) normalizeClipOrder(timeline);
-        if ("MOVE".equals(type) || "TRIM".equals(type)) syncRenderableStoryboard(taskId, timeline);
+        if (Set.of("SPLIT", "DELETE", "MOVE", "TRIM").contains(type)) normalizeClipOrder(timeline);
+        if (Set.of("SPLIT", "DELETE", "MOVE", "TRIM").contains(type)) syncRenderableStoryboard(taskId, timeline);
         manifest.set("editorTimeline", timeline);
         saveRevision(taskId, manifest, type, "手动剪辑：" + type);
         attachHistory(timeline, taskId);
@@ -128,6 +129,7 @@ public class EditorTimelineService {
         for (StoryboardSegmentView segment : segments) {
             ObjectNode clip = clips.addObject();
             clip.put("id", "clip-" + segment.clipIndex()); clip.put("trackId", "video-1");
+            clip.put("sourceClipIndex", segment.clipIndex());
             clip.put("sourceStartSeconds", segment.startSeconds()); clip.put("sourceEndSeconds", segment.endSeconds());
             clip.put("timelineStartSeconds", cursor); clip.put("durationSeconds", segment.endSeconds() - segment.startSeconds());
             clip.put("sourceVolume", 1.0); clip.put("muted", false); clip.putObject("color")
@@ -139,6 +141,7 @@ public class EditorTimelineService {
                     ? sourceTask.getTargetDurationSeconds() : sourceTask.getDurationSeconds();
             ObjectNode clip = clips.addObject();
             clip.put("id", "source-video"); clip.put("trackId", "video-1");
+            clip.put("sourceClipIndex", 1);
             clip.put("sourceStartSeconds", 0); clip.put("sourceEndSeconds", duration);
             clip.put("timelineStartSeconds", 0); clip.put("durationSeconds", duration);
             clip.put("sourceVolume", 1.0); clip.put("muted", false); clip.putObject("color")
@@ -161,6 +164,18 @@ public class EditorTimelineService {
         right.put("timelineStartSeconds", at); right.put("sourceStartSeconds", clip.path("sourceStartSeconds").asDouble() + left);
         right.put("durationSeconds", duration - left); clip.put("sourceEndSeconds", right.path("sourceStartSeconds").asDouble());
         clip.put("durationSeconds", left); clips.add(right);
+    }
+
+    private void delete(ObjectNode timeline, String clipId) {
+        ArrayNode clips = (ArrayNode) timeline.path("clips");
+        if (clips.size() <= 1) throw new IllegalArgumentException("时间线至少需要保留一个片段");
+        for (int index = 0; index < clips.size(); index++) {
+            if (clipId.equals(clips.get(index).path("id").asText())) {
+                clips.remove(index);
+                return;
+            }
+        }
+        throw new IllegalArgumentException("片段不存在");
     }
 
     private void move(ObjectNode timeline, String clipId, String trackId, double start, boolean snap) {
@@ -253,9 +268,36 @@ public class EditorTimelineService {
     }
 
     private void syncRenderableStoryboard(UUID id, ObjectNode timeline) {
-        boolean storyboardClips = !timeline.path("clips").isEmpty();
-        for (JsonNode clip : timeline.path("clips")) storyboardClips &= clip.path("id").asText().startsWith("clip-");
-        if (storyboardClips) workspace.applyEditorTimeline(id, timeline);
+        if (timeline.path("clips").isEmpty()) return;
+        VideoTask task = requireTask(id);
+        if (task.getGeneratedScriptPath() == null || task.getHighlightManifestPath() == null) return;
+        remapAssetPlacements(id, timeline);
+        workspace.applyEditorTimeline(id, timeline);
+    }
+
+    private void remapAssetPlacements(UUID taskId, ObjectNode timeline) {
+        List<Map<String, Object>> existing = jdbc.queryForList("""
+                SELECT clip_index,asset_id,placement_type,position_name,instruction,
+                       ai_assigned,cutout_applied,created_at
+                FROM storyboard_asset_placement WHERE task_id=?
+                """, taskId);
+        if (existing.isEmpty()) return;
+        jdbc.update("DELETE FROM storyboard_asset_placement WHERE task_id=?", taskId);
+        int targetIndex = 1;
+        for (JsonNode clip : timeline.path("clips")) {
+            int sourceIndex = clip.path("sourceClipIndex").asInt(targetIndex);
+            for (Map<String, Object> placement : existing) {
+                if (((Number) placement.get("CLIP_INDEX")).intValue() != sourceIndex) continue;
+                jdbc.update("""
+                        INSERT INTO storyboard_asset_placement(id,task_id,clip_index,asset_id,placement_type,
+                            position_name,instruction,ai_assigned,cutout_applied,created_at)
+                        VALUES(?,?,?,?,?,?,?,?,?,?)
+                        """, UUID.randomUUID(), taskId, targetIndex, placement.get("ASSET_ID"),
+                        placement.get("PLACEMENT_TYPE"), placement.get("POSITION_NAME"), placement.get("INSTRUCTION"),
+                        placement.get("AI_ASSIGNED"), placement.get("CUTOUT_APPLIED"), placement.get("CREATED_AT"));
+            }
+            targetIndex++;
+        }
     }
 
     private ObjectNode currentManifest(UUID id) { requireTask(id); try { return (ObjectNode) mapper.readTree(jdbc.queryForObject("SELECT manifest_json FROM project_revision WHERE id=?", String.class, currentRevision(id))); } catch(Exception e){throw new IllegalStateException("工程清单无法读取",e);} }

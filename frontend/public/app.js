@@ -977,11 +977,13 @@ async function loadStoryboardEditor(taskId) {
   const totalDuration = storyboard.segments.reduce((sum, item) => sum + item.endSeconds - item.startSeconds, 0);
   storyboardWorkspace.innerHTML = `
     <section class="detail-block storyboard-editor" data-task-id="${taskId}" data-review-enabled="${storyboard.reviewEnabled}" data-approved="${storyboard.approved}">
-      <header class="storyboard-editor-head"><div><small>AI STORYBOARD</small><h3>${escapeHtml(storyboard.title || 'AI 分镜与文案')}</h3><p>${escapeHtml(storyboard.synopsis || '')}</p></div>
+      <header class="storyboard-editor-head"><div><small>EDITOR WORKSPACE</small><h3>${escapeHtml(storyboard.title || '自由剪辑与分镜')}</h3><p>${escapeHtml(storyboard.synopsis || '')}</p></div>
       <div class="storyboard-head-actions"><button type="button" data-storyboard-action="auto-assets" data-task-id="${taskId}">自动匹配并下载素材</button>${storyboard.approved ? '<span class="storyboard-approved">已确认 / 自动模式</span>' : '<span class="storyboard-review-pending">修改后请使用底部主按钮保存并继续</span>'}</div></header>
       <div class="storyboard-stats"><span>${storyboard.segments.length} 个分镜</span><span>预计素材时长 ${formatDuration(totalDuration)}</span><span>支持拖拽排序与入点/出点修剪</span></div>
+      <section class="editor-source-monitor"><video controls preload="metadata" src="/api/tasks/${taskId}/source" data-editor-preview></video><div><strong>源视频监视器</strong><small>在时间线上选择位置会同步跳转原片；可直接播放确认剪切点。</small></div></section>
       <section class="storyboard-visual-timeline" data-visual-timeline>
-        <header><div><strong>可视化分镜轨道</strong><small>拖动片段排序，拖动左右把手调整入点/出点</small></div><div class="timeline-toolbar"><button type="button" data-editor-history="UNDO">撤销</button><button type="button" data-editor-history="REDO">重做</button><label>缩放 <input type="range" min="24" max="120" value="54" data-timeline-zoom></label><b data-history-count></b></div></header>
+        <header><div><strong>自由剪辑时间线</strong><small>单击选择片段或定位播放头；支持分割、删除、拖动排序和双侧修剪</small></div><div class="timeline-toolbar"><button type="button" data-editor-history="UNDO">撤销</button><button type="button" data-editor-history="REDO">重做</button><button type="button" data-editor-action="SPLIT" disabled>刀片分割</button><button type="button" data-editor-action="DELETE" disabled>删除片段</button><label>缩放 <input type="range" min="24" max="120" value="54" data-timeline-zoom></label><b data-history-count></b></div></header>
+        <div class="timeline-selection-status" data-timeline-selection>请选择片段；点击片段内部可设置分割位置</div>
         <div class="storyboard-waveform" data-storyboard-waveform></div>
         <div class="storyboard-track-scroll"><div class="storyboard-track" data-storyboard-track></div></div>
       </section>
@@ -1035,6 +1037,23 @@ function mountStoryboardTimeline(taskId, timeline, waveform) {
       await loadStoryboardEditor(taskId);
     } catch (error) { button.title = error.message; button.disabled = false; }
   }));
+  panel.querySelectorAll('[data-editor-action]').forEach(button => button.addEventListener('click', async () => {
+    const clip = panel._timeline.clips.find(item => item.id === panel._selectedClipId);
+    if (!clip) return;
+    button.disabled = true;
+    try {
+      if (button.dataset.editorAction === 'SPLIT') {
+        const atSeconds = panel._playheadSeconds ?? clip.timelineStartSeconds + clip.durationSeconds / 2;
+        await editorTimelineCommand(taskId, 'SPLIT', {clipId:clip.id, atSeconds});
+      } else {
+        await editorTimelineCommand(taskId, 'DELETE', {clipId:clip.id});
+      }
+      await loadStoryboardEditor(taskId);
+    } catch (error) {
+      panel.querySelector('[data-timeline-selection]').textContent = error.message;
+      button.disabled = false;
+    }
+  }));
   draw();
 }
 
@@ -1043,11 +1062,11 @@ function drawStoryboardTimeline(panel, taskId, pixelsPerSecond) {
   const track = panel.querySelector('[data-storyboard-track]');
   const duration = Math.max(1, timeline.durationSeconds || 1);
   track.style.width = `${Math.max(720, duration * pixelsPerSecond)}px`;
-  track.innerHTML = timeline.clips.map((clip, index) => `<article class="storyboard-track-clip" draggable="true" data-editor-clip="${clip.id}" style="left:${clip.timelineStartSeconds * pixelsPerSecond}px;width:${Math.max(42, clip.durationSeconds * pixelsPerSecond)}px">
+  track.innerHTML = `${panel._playheadSeconds == null ? '' : `<i class="timeline-playhead" style="left:${panel._playheadSeconds * pixelsPerSecond}px"></i>`}${timeline.clips.map((clip, index) => `<article class="storyboard-track-clip ${clip.id === panel._selectedClipId ? 'selected' : ''}" draggable="true" data-editor-clip="${clip.id}" style="left:${clip.timelineStartSeconds * pixelsPerSecond}px;width:${Math.max(42, clip.durationSeconds * pixelsPerSecond)}px">
     <button type="button" class="trim-handle trim-in" data-trim-edge="IN" aria-label="调整片段 ${index + 1} 入点"></button>
     <img src="/api/tasks/${taskId}/storyboard/segments/${index + 1}/thumbnail" alt="片段 ${index + 1}"><span><b>${index + 1}</b><small>${clip.sourceStartSeconds.toFixed(1)}–${clip.sourceEndSeconds.toFixed(1)}s</small></span>
     <button type="button" class="trim-handle trim-out" data-trim-edge="OUT" aria-label="调整片段 ${index + 1} 出点"></button>
-  </article>`).join('');
+  </article>`).join('')}`;
   const history = timeline.history || {};
   panel.querySelector('[data-history-count]').textContent = `${history.revisionCount || 0} 个持久化版本`;
   panel.querySelector('[data-editor-history="UNDO"]').disabled = !history.canUndo;
@@ -1059,6 +1078,19 @@ function drawStoryboardTimeline(panel, taskId, pixelsPerSecond) {
   let draggedId = null;
   track.querySelectorAll('[data-editor-clip]').forEach(clip => {
     clip.addEventListener('dragstart', event => { draggedId = clip.dataset.editorClip; event.dataTransfer.effectAllowed = 'move'; });
+    clip.addEventListener('click', event => {
+      if (event.target.closest('[data-trim-edge]')) return;
+      const model = timeline.clips.find(item => item.id === clip.dataset.editorClip);
+      panel._selectedClipId = model.id;
+      panel._playheadSeconds = Math.max(model.timelineStartSeconds + .05,
+        Math.min(model.timelineStartSeconds + model.durationSeconds - .05,
+          (event.clientX - track.getBoundingClientRect().left) / pixelsPerSecond));
+      const preview = storyboardWorkspace.querySelector('[data-editor-preview]');
+      if (preview) preview.currentTime = model.sourceStartSeconds + panel._playheadSeconds - model.timelineStartSeconds;
+      panel.querySelector('[data-timeline-selection]').textContent = `已选片段 ${timeline.clips.indexOf(model) + 1} · 播放头 ${panel._playheadSeconds.toFixed(2)} 秒`;
+      panel.querySelectorAll('[data-editor-action]').forEach(button => button.disabled = false);
+      drawStoryboardTimeline(panel, taskId, pixelsPerSecond);
+    });
   });
   track.addEventListener('dragover', event => { event.preventDefault(); event.dataTransfer.dropEffect = 'move'; });
   track.addEventListener('drop', async event => {
@@ -1103,7 +1135,16 @@ function editorTimelineCommand(taskId, type, payload) {
 }
 
 document.addEventListener('keydown', event => {
-  if (!storyboardDialog?.open || !(event.ctrlKey || event.metaKey)) return;
+  if (!storyboardDialog?.open) return;
+  if (event.key === 'Delete' || event.key === 'Backspace') {
+    const button = storyboardWorkspace.querySelector('[data-editor-action="DELETE"]:not(:disabled)');
+    if (button && !event.target.matches('input,textarea')) { event.preventDefault(); button.click(); }
+    return;
+  }
+  if ((event.ctrlKey || event.metaKey) && event.key.toLowerCase() === 'b') {
+    event.preventDefault(); storyboardWorkspace.querySelector('[data-editor-action="SPLIT"]:not(:disabled)')?.click(); return;
+  }
+  if (!(event.ctrlKey || event.metaKey)) return;
   const type = event.key.toLowerCase() === 'z' && event.shiftKey ? 'REDO' : event.key.toLowerCase() === 'z' ? 'UNDO' : event.key.toLowerCase() === 'y' ? 'REDO' : null;
   if (!type) return;
   event.preventDefault();
@@ -1435,7 +1476,7 @@ const guideSteps = [
   {selector: '.history-panel', title: '第 5 步：从最左侧历史继续', text: '只有真正生成完成的任务才会进入页面最左侧“最近完成”列表。处理中、等待检查、失败或取消的任务都留在右侧，避免被误认为已经完成。点击已完成条目可查看生成文件、分镜、文案、时间线和最终视频。'},
   {selector: '.storyboard-review-option', title: '第 6 步：检查分镜再继续', text: '开启分镜检查后，流程会在文案与分镜生成后暂停。进入线性分镜工作台可调整顺序、起止时间、字幕、解说、素材和特效；保存全部修改后再继续配音与渲染。'},
   {selector: '.primary-nav', title: '更多工具入口', text: '“镜头搜索”使用本地语义模型寻找片段；“平台导入”负责下载并创建项目；“素材库”管理授权素材；“设置”管理云端或本地 AI。遇到问题可点击右上角“诊断日志”。'},
-  {selector: '.topbar-actions', title: '完成、诊断与再次查看', text: '任务完成后在详情中预览并导出 MP4。任何阶段失败时先查看任务详情和诊断日志；本引导可以随时从“使用引导”重新打开。当前版本为 v1.6.0。'}
+  {selector: '.topbar-actions', title: '完成、诊断与再次查看', text: '任务完成后在详情中预览并导出 MP4。任何阶段失败时先查看任务详情和诊断日志；本引导可以随时从“使用引导”重新打开。当前版本为 v1.6.1。'}
 ];
 let guideIndex = 0;
 let guideTarget = null;
