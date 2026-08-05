@@ -1,0 +1,9 @@
+<resources>
+    <style name="Theme.GameNarrator" parent="Theme.MaterialComponents.DayNight.NoActionBar">
+        <item name="colorPrimary">#7C5CFF</item>
+        <item name="colorSecondary">#20D3A2</item>
+        <item name="android:navigationBarColor">#11131A</item>
+        <item name="android:windowLightStatusBar">false</item>
+        <item name="android:fontFamily">sans</item>
+    </style>
+</resources>
