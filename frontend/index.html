@@ -3,14 +3,14 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>GameNarrator 2.0.0</title>
+  <title>GameNarrator 2.1.0</title>
   <link rel="stylesheet" href="/media-importer.css?v=20260729-10">
   <link rel="stylesheet" href="/app.css?v=20260803-13">
 </head>
 <body>
   <div class="aurora"></div>
   <header class="topbar">
-    <a class="brand" href="/">GAME<span>NARRATOR</span><small class="app-version">v2.0.0</small></a>
+    <a class="brand" href="/">GAME<span>NARRATOR</span><small class="app-version">v2.1.0</small></a>
     <nav class="primary-nav" aria-label="主要功能">
       <a href="/?view=studio" data-view-link="studio">剪辑任务</a>
       <a href="/?view=search" data-view-link="search">镜头搜索</a>
@@ -18,7 +18,7 @@
       <a href="/?view=assets" data-view-link="assets">素材库</a>
       <a href="/?view=settings" data-view-link="settings">设置</a>
     </nav>
-    <div class="topbar-actions"><button id="guide-open" class="diagnostics-open guide-open" type="button">使用引导</button><button id="diagnostics-open" class="diagnostics-open" type="button">诊断日志</button><div class="system-state"><i></i> 本地推理工作台</div></div>
+    <div class="topbar-actions"><button id="updates-open" class="diagnostics-open has-update" type="button">更新公告</button><button id="guide-open" class="diagnostics-open guide-open" type="button">使用引导</button><button id="diagnostics-open" class="diagnostics-open" type="button">诊断日志</button><div class="system-state"><i></i> 本地推理工作台</div></div>
   </header>
 
   <main>
@@ -295,5 +295,6 @@
       </section>
     </div>
   </dialog>
+  <dialog id="updates-dialog" class="task-dialog updates-dialog"><div class="dialog-shell"><header class="dialog-header"><div><small>RELEASE HISTORY</small><h2>更新公告</h2></div><button id="updates-close" class="dialog-close" type="button">×</button></header><section id="updates-list" class="updates-list"><p class="empty">正在读取更新历史…</p></section></div></dialog>
 </body>
 </html>

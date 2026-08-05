@@ -1,7 +1,7 @@
 # GameNarrator — DeepSeek 项目上下文包
 
-> 自动生成时间：2026-08-05 10:02:37 +08:00
-> 文件数量：300。本文件由 scripts/export-deepseek-context.ps1 生成，请勿手工维护生成区。
+> 自动生成时间：2026-08-05 10:08:57 +08:00
+> 文件数量：301。本文件由 scripts/export-deepseek-context.ps1 生成，请勿手工维护生成区。
 
 ## 给 DeepSeek 的强制工作规则
 
@@ -256,15 +256,16 @@
 - `src/main/resources/db/migration/V7__storyboard_review.sql`（207 bytes）
 - `src/main/resources/db/migration/V8__video_segment_semantic_index.sql`（634 bytes）
 - `src/main/resources/db/migration/V9__video_segment_image_hash.sql`（152 bytes）
-- `src/main/resources/static/app.css`（62273 bytes）
-- `src/main/resources/static/app.js`（102115 bytes）
+- `src/main/resources/static/app.css`（63306 bytes）
+- `src/main/resources/static/app.js`（103195 bytes）
 - `src/main/resources/static/asset-library.js`（39551 bytes）
 - `src/main/resources/static/diagnostics.js`（1673 bytes）
 - `src/main/resources/static/export.js`（10391 bytes）
 - `src/main/resources/static/extension-install.html`（3410 bytes）
-- `src/main/resources/static/index.html`（23250 bytes）
+- `src/main/resources/static/index.html`（23734 bytes）
 - `src/main/resources/static/media-importer.css`（4474 bytes）
 - `src/main/resources/static/media-importer.js`（24293 bytes）
+- `src/main/resources/static/updates.js`（3305 bytes）
 - `src/test/java/cn/longer233/gamenarrator/ai/AdaptiveAiChatClientTest.java`（1725 bytes）
 - `src/test/java/cn/longer233/gamenarrator/ai/AiUsageServiceTest.java`（1164 bytes）
 - `src/test/java/cn/longer233/gamenarrator/asset/AiAssetTaggerTest.java`（2432 bytes）
@@ -342,7 +343,7 @@
 
     <groupId>cn.longer233.graduation</groupId>
     <artifactId>game-narrator</artifactId>
-    <version>2.0.0</version>
+    <version>2.1.0</version>
     <name>GameNarrator</name>
     <description>多模态游戏视频智能解说与自动剪辑系统</description>
 
@@ -19915,6 +19916,7 @@ button:disabled{color:#4b4b4b;background:#d5d5d5;opacity:1}
 .domestic-source-directory a small{color:#46505c}.domestic-source-directory a b{color:#8b174f}
 .revision-tree-panel{margin:14px 0;padding:12px;border:3px solid #111;background:#f7f8fb;color:#111}.revision-tree-panel summary{cursor:pointer;font-weight:800}.revision-tree-list{display:grid;gap:7px;margin-top:10px}.revision-tree-item{display:grid;grid-template-columns:minmax(220px,1fr) auto auto auto;gap:8px;align-items:center;margin-left:calc(var(--revision-depth) * 18px);padding:8px;border:2px solid #111;background:#fff}.revision-tree-item.current{background:#d9ffd7;box-shadow:3px 3px 0 #111}.revision-tree-item span b,.revision-tree-item span small{display:block}.revision-tree-item span small{color:#596273}.revision-tree-item i{font-size:11px}@media(max-width:760px){.revision-tree-item{grid-template-columns:1fr 1fr}.revision-tree-item span{grid-column:1/-1}}
 .editor-source-monitor{display:grid;grid-template-columns:minmax(320px,2fr) minmax(180px,1fr);gap:14px;align-items:center;margin:14px 0;padding:12px;border:3px solid #111;background:#101522;color:#fff}.editor-source-monitor video{width:100%;max-height:52vh;background:#000}.editor-source-monitor strong,.editor-source-monitor small{display:block}.editor-source-monitor small{margin-top:7px;color:#b8c3d8}@media(max-width:760px){.editor-source-monitor{grid-template-columns:1fr}}
+.diagnostics-open.has-update{position:relative}.diagnostics-open.has-update:after{content:"";position:absolute;right:3px;top:3px;width:8px;height:8px;border-radius:50%;background:#ff3158;box-shadow:0 0 0 2px #fff}.updates-dialog .dialog-shell{max-width:880px}.updates-list{display:grid;gap:14px;padding:18px;max-height:75vh;overflow:auto}.release-card{padding:16px;border:2px solid #26324a;border-radius:14px;background:#0b1324}.release-card.current{border-color:#75e6a4;box-shadow:0 0 0 2px rgba(117,230,164,.18)}.release-card header{display:flex;align-items:center;gap:10px}.release-card header b{color:#75e6a4}.release-card header h3{margin:0;flex:1}.release-card header i{font-size:11px;color:#111;background:#75e6a4;padding:3px 7px;border-radius:999px}.release-card ul{margin:12px 0;padding-left:22px;color:#c7d2e5}.release-card button{margin-top:4px}.release-highlight{animation:release-highlight 2.6s ease}@keyframes release-highlight{0%,100%{outline:0 solid transparent}20%,70%{outline:6px solid #ffe548;outline-offset:6px}}
 ``
 
 ### FILE: src/main/resources/static/app.js
@@ -19929,6 +19931,7 @@ const lazyScriptUrls = {
   assets:'/asset-library.js?v=20260805-1',
   import:'/media-importer.js?v=20260805-1',
   diagnostics:'/diagnostics.js?v=20260805-1'
+  ,updates:'/updates.js?v=20260805-1'
 };
 
 function loadLazyScript(key) {
@@ -19995,6 +19998,21 @@ document.querySelector('#diagnostics-open')?.addEventListener('click', async eve
   } finally {
     button.disabled = false;
   }
+});
+document.querySelector('#updates-open')?.addEventListener('click', async event => {
+  if (loadedLazyFeatures.has('updates')) return;
+  event.preventDefault(); const button = event.currentTarget; button.disabled = true;
+  try { await loadLazyScript('updates'); document.querySelector('#updates-dialog')?.showModal(); }
+  catch (error) { window.alert(error.message); } finally { button.disabled = false; }
+});
+if (localStorage.getItem('gameNarrator.lastSeenRelease') === '2.1.0') document.querySelector('#updates-open')?.classList.remove('has-update');
+window.addEventListener('gamenarrator-release-jump', event => {
+  const {view='studio', selector, note} = event.detail || {}; activateView(view, true);
+  setTimeout(() => {
+    const target = selector ? document.querySelector(selector) : null;
+    if (target) { target.scrollIntoView({behavior:'smooth', block:'center'}); target.classList.add('release-highlight'); setTimeout(() => target.classList.remove('release-highlight'), 2600); }
+    else if (note) window.alert(note);
+  }, 350);
 });
 const aiSettingsForm = document.querySelector('#ai-settings-form');
 const aiKeyState = document.querySelector('#ai-key-state');
@@ -21489,7 +21507,7 @@ const guideSteps = [
   {selector: '.history-panel', title: '第 5 步：从最左侧历史继续', text: '只有真正生成完成的任务才会进入页面最左侧“最近完成”列表。处理中、等待检查、失败或取消的任务都留在右侧，避免被误认为已经完成。点击已完成条目可查看生成文件、分镜、文案、时间线和最终视频。'},
   {selector: '.storyboard-review-option', title: '第 6 步：检查分镜再继续', text: '开启分镜检查后，流程会在文案与分镜生成后暂停。进入线性分镜工作台可调整顺序、起止时间、字幕、解说、素材和特效；保存全部修改后再继续配音与渲染。'},
   {selector: '.primary-nav', title: '更多工具入口', text: '“镜头搜索”使用本地语义模型寻找片段；“平台导入”负责下载并创建项目；“素材库”管理授权素材；“设置”管理云端或本地 AI。遇到问题可点击右上角“诊断日志”。'},
-  {selector: '.topbar-actions', title: '完成、诊断与再次查看', text: '任务完成后在详情中预览并导出 MP4。任何阶段失败时先查看任务详情和诊断日志；本引导可以随时从“使用引导”重新打开。当前版本为 v2.0.0。'}
+  {selector: '.topbar-actions', title: '完成、诊断与再次查看', text: '任务完成后在详情中预览并导出 MP4。任何阶段失败时先查看任务详情和诊断日志；本引导可以随时从“使用引导”重新打开。当前版本为 v2.1.0。'}
 ];
 let guideIndex = 0;
 let guideTarget = null;
@@ -22586,14 +22604,14 @@ document.querySelector('#copy-address').onclick=async()=>{await navigator.clipbo
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>GameNarrator 2.0.0</title>
+  <title>GameNarrator 2.1.0</title>
   <link rel="stylesheet" href="/media-importer.css?v=20260729-10">
   <link rel="stylesheet" href="/app.css?v=20260803-13">
 </head>
 <body>
   <div class="aurora"></div>
   <header class="topbar">
-    <a class="brand" href="/">GAME<span>NARRATOR</span><small class="app-version">v2.0.0</small></a>
+    <a class="brand" href="/">GAME<span>NARRATOR</span><small class="app-version">v2.1.0</small></a>
     <nav class="primary-nav" aria-label="主要功能">
       <a href="/?view=studio" data-view-link="studio">剪辑任务</a>
       <a href="/?view=search" data-view-link="search">镜头搜索</a>
@@ -22601,7 +22619,7 @@ document.querySelector('#copy-address').onclick=async()=>{await navigator.clipbo
       <a href="/?view=assets" data-view-link="assets">素材库</a>
       <a href="/?view=settings" data-view-link="settings">设置</a>
     </nav>
-    <div class="topbar-actions"><button id="guide-open" class="diagnostics-open guide-open" type="button">使用引导</button><button id="diagnostics-open" class="diagnostics-open" type="button">诊断日志</button><div class="system-state"><i></i> 本地推理工作台</div></div>
+    <div class="topbar-actions"><button id="updates-open" class="diagnostics-open has-update" type="button">更新公告</button><button id="guide-open" class="diagnostics-open guide-open" type="button">使用引导</button><button id="diagnostics-open" class="diagnostics-open" type="button">诊断日志</button><div class="system-state"><i></i> 本地推理工作台</div></div>
   </header>
 
   <main>
@@ -22878,6 +22896,7 @@ document.querySelector('#copy-address').onclick=async()=>{await navigator.clipbo
       </section>
     </div>
   </dialog>
+  <dialog id="updates-dialog" class="task-dialog updates-dialog"><div class="dialog-shell"><header class="dialog-header"><div><small>RELEASE HISTORY</small><h2>更新公告</h2></div><button id="updates-close" class="dialog-close" type="button">×</button></header><section id="updates-list" class="updates-list"><p class="empty">正在读取更新历史…</p></section></div></dialog>
 </body>
 </html>
 ``
@@ -23331,6 +23350,42 @@ document.querySelector('#copy-address').onclick=async()=>{await navigator.clipbo
     }
   });
 })();
+``
+
+### FILE: src/main/resources/static/updates.js
+
+``javascript
+const releases = [
+  {version:'2.1.0', title:'更新公告与功能定位', current:true, items:['新增完整历史更新公告','支持跳转到相关视图并高亮功能位置','本机记录已读状态，不上传浏览记录'], jump:{view:'studio', selector:'#task-list', note:'请选择一个已生成任务进入分镜工作台，可查看 2.0 版本树。'}},
+  {version:'2.0.0', title:'完整工程版本树', items:['版本命名与父子分支可视化','任意历史节点切换','切换后同步分镜并使旧渲染失效'], jump:{view:'studio', selector:'.revision-tree-panel', note:'请先打开一个已生成任务的分镜工作台。'}},
+  {version:'1.8.0', title:'前端按需加载', items:['素材库和平台导入按视图加载','诊断模块首次打开时加载','降低首屏脚本解析与内存压力'], jump:{view:'assets', selector:'.asset-library'}},
+  {version:'1.7.0', title:'片段连接与结构撤回', items:['剪断片段可重新连接','连接保留文案、字幕、特效和素材','结构编辑支持持久化撤回与恢复'], jump:{view:'studio', selector:'[data-open-storyboard]', note:'请选择一个已生成分镜的任务。'}},
+  {version:'1.6.0–1.6.3', title:'无 AI 可编辑工程', items:['无 AI 模式生成基础可编辑时间线','转写、自动素材和特效可随时独立调用','允许纯原声、仅字幕和纯画面剪辑'], jump:{view:'studio', selector:'.enhancement-toolbox', note:'请选择一个准备完成的任务查看智能增强工具箱。'}},
+  {version:'1.5.x', title:'性能、清理与渲染稳定性', items:['安全存储清理与远程封面失败缓存','渲染视频滤镜和音频混音拆分','GitHub 与 Gitee 双远端同步发布'], jump:{view:'studio', selector:'.storage-overview'}}
+];
+
+const dialog = document.querySelector('#updates-dialog');
+const list = document.querySelector('#updates-list');
+const escapeHtml = value => String(value ?? '').replace(/[&<>"']/g, char => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[char]));
+
+if (dialog && list) {
+  list.innerHTML = releases.map((release, index) => `<article class="release-card ${release.current ? 'current' : ''}">
+    <header><b>v${escapeHtml(release.version)}</b><h3>${escapeHtml(release.title)}</h3>${release.current ? '<i>当前版本</i>' : ''}</header>
+    <ul>${release.items.map(item => `<li>${escapeHtml(item)}</li>`).join('')}</ul>
+    ${release.jump ? `<button type="button" data-release-jump="${index}">查看更新效果</button>` : ''}
+  </article>`).join('');
+  localStorage.setItem('gameNarrator.lastSeenRelease', releases[0].version);
+  document.querySelector('#updates-open')?.classList.remove('has-update');
+  document.querySelector('#updates-open')?.addEventListener('click', () => { if (!dialog.open) dialog.showModal(); });
+  document.querySelector('#updates-close')?.addEventListener('click', () => dialog.close());
+  dialog.addEventListener('click', event => { if (event.target === dialog) dialog.close(); });
+  list.addEventListener('click', event => {
+    const button = event.target.closest('[data-release-jump]');
+    if (!button) return;
+    dialog.close();
+    window.dispatchEvent(new CustomEvent('gamenarrator-release-jump', {detail:releases[Number(button.dataset.releaseJump)].jump}));
+  });
+}
 ``
 
 ### FILE: src/test/java/cn/longer233/gamenarrator/ai/AdaptiveAiChatClientTest.java
