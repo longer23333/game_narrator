@@ -1,7 +1,7 @@
 # GameNarrator — DeepSeek 项目上下文包
 
-> 自动生成时间：2026-08-05 09:30:02 +08:00
-> 文件数量：294。本文件由 scripts/export-deepseek-context.ps1 生成，请勿手工维护生成区。
+> 自动生成时间：2026-08-05 09:34:33 +08:00
+> 文件数量：295。本文件由 scripts/export-deepseek-context.ps1 生成，请勿手工维护生成区。
 
 ## 给 DeepSeek 的强制工作规则
 
@@ -177,9 +177,9 @@
 - `src/main/java/cn/longer233/gamenarrator/script/StoryboardAssetPlacementView.java`（330 bytes）
 - `src/main/java/cn/longer233/gamenarrator/script/StoryboardSegmentView.java`（305 bytes）
 - `src/main/java/cn/longer233/gamenarrator/script/StoryboardView.java`（236 bytes）
-- `src/main/java/cn/longer233/gamenarrator/script/UpdateScriptSegmentRequest.java`（321 bytes）
+- `src/main/java/cn/longer233/gamenarrator/script/UpdateScriptSegmentRequest.java`（319 bytes）
 - `src/main/java/cn/longer233/gamenarrator/script/UpdateStoryboardAssetRequest.java`（380 bytes）
-- `src/main/java/cn/longer233/gamenarrator/script/UpdateStoryboardSegmentRequest.java`（520 bytes）
+- `src/main/java/cn/longer233/gamenarrator/script/UpdateStoryboardSegmentRequest.java`（518 bytes）
 - `src/main/java/cn/longer233/gamenarrator/storage/VideoStorage.java`（2534 bytes）
 - `src/main/java/cn/longer233/gamenarrator/subtitle/AssSubtitleBuilder.java`（3839 bytes）
 - `src/main/java/cn/longer233/gamenarrator/task/application/CreateVideoTaskCommand.java`（839 bytes）
@@ -300,6 +300,7 @@
 - `src/test/java/cn/longer233/gamenarrator/render/RenderAudioMixBuilderTest.java`（2564 bytes）
 - `src/test/java/cn/longer233/gamenarrator/render/RenderPreviewServiceTest.java`（2115 bytes）
 - `src/test/java/cn/longer233/gamenarrator/render/RenderVideoFilterBuilderTest.java`（2457 bytes）
+- `src/test/java/cn/longer233/gamenarrator/script/ManualNarrationValidationTest.java`（1115 bytes）
 - `src/test/java/cn/longer233/gamenarrator/script/OllamaScriptGeneratorTest.java`（2300 bytes）
 - `src/test/java/cn/longer233/gamenarrator/script/ScriptWorkspaceServiceTest.java`（6442 bytes）
 - `src/test/java/cn/longer233/gamenarrator/script/StoryboardAssetPlacementServiceTest.java`（918 bytes）
@@ -336,7 +337,7 @@
 
     <groupId>cn.longer233.graduation</groupId>
     <artifactId>game-narrator</artifactId>
-    <version>1.6.2</version>
+    <version>1.6.3</version>
     <name>GameNarrator</name>
     <description>多模态游戏视频智能解说与自动剪辑系统</description>
 
@@ -14824,11 +14825,11 @@ public record StoryboardView(
 ``java
 package cn.longer233.gamenarrator.script;
 
-import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
 
 public record UpdateScriptSegmentRequest(
-        @NotBlank @Size(max = 500) String narration,
+        @NotNull @Size(max = 500) String narration,
         @Size(max = 500) String subtitle,
         @Size(max = 200) String effectCue
 ) {
@@ -14855,13 +14856,13 @@ public record UpdateStoryboardAssetRequest(
 package cn.longer233.gamenarrator.script;
 
 import jakarta.validation.constraints.DecimalMin;
-import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
 
 public record UpdateStoryboardSegmentRequest(
         @DecimalMin("0.0") double startSeconds,
         @DecimalMin("0.01") double endSeconds,
-        @NotBlank @Size(max = 500) String narration,
+        @NotNull @Size(max = 500) String narration,
         @Size(max = 500) String subtitle,
         @Size(max = 200) String effectCue,
         boolean locked,
@@ -21198,7 +21199,7 @@ const guideSteps = [
   {selector: '.history-panel', title: '第 5 步：从最左侧历史继续', text: '只有真正生成完成的任务才会进入页面最左侧“最近完成”列表。处理中、等待检查、失败或取消的任务都留在右侧，避免被误认为已经完成。点击已完成条目可查看生成文件、分镜、文案、时间线和最终视频。'},
   {selector: '.storyboard-review-option', title: '第 6 步：检查分镜再继续', text: '开启分镜检查后，流程会在文案与分镜生成后暂停。进入线性分镜工作台可调整顺序、起止时间、字幕、解说、素材和特效；保存全部修改后再继续配音与渲染。'},
   {selector: '.primary-nav', title: '更多工具入口', text: '“镜头搜索”使用本地语义模型寻找片段；“平台导入”负责下载并创建项目；“素材库”管理授权素材；“设置”管理云端或本地 AI。遇到问题可点击右上角“诊断日志”。'},
-  {selector: '.topbar-actions', title: '完成、诊断与再次查看', text: '任务完成后在详情中预览并导出 MP4。任何阶段失败时先查看任务详情和诊断日志；本引导可以随时从“使用引导”重新打开。当前版本为 v1.6.2。'}
+  {selector: '.topbar-actions', title: '完成、诊断与再次查看', text: '任务完成后在详情中预览并导出 MP4。任何阶段失败时先查看任务详情和诊断日志；本引导可以随时从“使用引导”重新打开。当前版本为 v1.6.3。'}
 ];
 let guideIndex = 0;
 let guideTarget = null;
@@ -22295,14 +22296,14 @@ document.querySelector('#copy-address').onclick=async()=>{await navigator.clipbo
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>GameNarrator 1.6.2</title>
+  <title>GameNarrator 1.6.3</title>
   <link rel="stylesheet" href="/media-importer.css?v=20260729-10">
   <link rel="stylesheet" href="/app.css?v=20260803-13">
 </head>
 <body>
   <div class="aurora"></div>
   <header class="topbar">
-    <a class="brand" href="/">GAME<span>NARRATOR</span><small class="app-version">v1.6.2</small></a>
+    <a class="brand" href="/">GAME<span>NARRATOR</span><small class="app-version">v1.6.3</small></a>
     <nav class="primary-nav" aria-label="主要功能">
       <a href="/?view=studio" data-view-link="studio">剪辑任务</a>
       <a href="/?view=search" data-view-link="search">镜头搜索</a>
@@ -25015,6 +25016,39 @@ class RenderVideoFilterBuilderTest {
 
         assertThat(filterBuilder.video(segment, plan)).contains("gblur=", "vignette=", "colorbalance=",
                 "rgbashift=", "flags=neighbor", "lenscorrection=", "fade=t=in");
+    }
+}
+``
+
+### FILE: src/test/java/cn/longer233/gamenarrator/script/ManualNarrationValidationTest.java
+
+``java
+package cn.longer233.gamenarrator.script;
+
+import jakarta.validation.Validation;
+import org.junit.jupiter.api.Test;
+
+import static org.assertj.core.api.Assertions.assertThat;
+
+class ManualNarrationValidationTest {
+    @Test
+    void allowsEmptyNarrationForOriginalAudioOrSilentManualEdits() {
+        try (var factory = Validation.buildDefaultValidatorFactory()) {
+            var validator = factory.getValidator();
+            assertThat(validator.validate(new UpdateScriptSegmentRequest("", "仅字幕", ""))).isEmpty();
+            assertThat(validator.validate(new UpdateStoryboardSegmentRequest(
+                    0, 2, "", "仅字幕", "", false, false))).isEmpty();
+        }
+    }
+
+    @Test
+    void stillRejectsMissingNarrationField() {
+        try (var factory = Validation.buildDefaultValidatorFactory()) {
+            var violations = factory.getValidator().validate(
+                    new UpdateScriptSegmentRequest(null, "字幕", ""));
+            assertThat(violations).extracting(item -> item.getPropertyPath().toString())
+                    .containsExactly("narration");
+        }
     }
 }
 ``
