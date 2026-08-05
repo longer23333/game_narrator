@@ -1,7 +1,7 @@
 # GameNarrator — DeepSeek 项目上下文包
 
-> 自动生成时间：2026-08-05 09:55:39 +08:00
-> 文件数量：295。本文件由 scripts/export-deepseek-context.ps1 生成，请勿手工维护生成区。
+> 自动生成时间：2026-08-05 10:02:37 +08:00
+> 文件数量：300。本文件由 scripts/export-deepseek-context.ps1 生成，请勿手工维护生成区。
 
 ## 给 DeepSeek 的强制工作规则
 
@@ -30,10 +30,10 @@
 - `docs/CLIP_COMPILATIONS.md`（702 bytes）
 - `docs/DATABASE_DESIGN.md`（28746 bytes）
 - `docs/FRONTEND_DEVELOPMENT.md`（1853 bytes）
-- `docs/MANUAL_EDITOR_PARITY.md`（4271 bytes）
+- `docs/MANUAL_EDITOR_PARITY.md`（4286 bytes）
 - `docs/OBSERVABILITY.md`（1109 bytes）
 - `docs/PERFORMANCE_PORTABILITY_AUDIT.md`（10763 bytes）
-- `docs/REQUIREMENTS.md`（21935 bytes）
+- `docs/REQUIREMENTS.md`（21961 bytes）
 - `docs/STYLE_TEMPLATE_STORE.md`（1190 bytes）
 - `docs/VERSIONING.md`（687 bytes）
 - `scripts/build-windows-release.ps1`（12634 bytes）
@@ -94,7 +94,11 @@
 - `src/main/java/cn/longer233/gamenarrator/diagnostics/SystemDiagnosticsService.java`（6625 bytes）
 - `src/main/java/cn/longer233/gamenarrator/editor/EditorCommandRequest.java`（294 bytes）
 - `src/main/java/cn/longer233/gamenarrator/editor/EditorTimelineController.java`（931 bytes）
-- `src/main/java/cn/longer233/gamenarrator/editor/EditorTimelineService.java`（23144 bytes）
+- `src/main/java/cn/longer233/gamenarrator/editor/EditorTimelineService.java`（23612 bytes）
+- `src/main/java/cn/longer233/gamenarrator/editor/ProjectRevisionController.java`（1043 bytes）
+- `src/main/java/cn/longer233/gamenarrator/editor/ProjectRevisionService.java`（2940 bytes）
+- `src/main/java/cn/longer233/gamenarrator/editor/ProjectRevisionView.java`（368 bytes）
+- `src/main/java/cn/longer233/gamenarrator/editor/RenameRevisionRequest.java`（217 bytes）
 - `src/main/java/cn/longer233/gamenarrator/effect/EffectController.java`（1399 bytes）
 - `src/main/java/cn/longer233/gamenarrator/effect/EffectPlan.java`（196 bytes）
 - `src/main/java/cn/longer233/gamenarrator/effect/EffectPreset.java`（438 bytes）
@@ -244,6 +248,7 @@
 - `src/main/resources/db/migration/V2__backfill_legacy_project_history.sql`（2646 bytes）
 - `src/main/resources/db/migration/V20__video_task_optimistic_lock.sql`（70 bytes）
 - `src/main/resources/db/migration/V21__clip_compilations.sql`（890 bytes）
+- `src/main/resources/db/migration/V22__project_revision_tree.sql`（163 bytes）
 - `src/main/resources/db/migration/V3__external_asset_catalog.sql`（2371 bytes）
 - `src/main/resources/db/migration/V4__asset_library_organization.sql`（270 bytes）
 - `src/main/resources/db/migration/V5__asset_semantic_embeddings.sql`（430 bytes）
@@ -251,8 +256,8 @@
 - `src/main/resources/db/migration/V7__storyboard_review.sql`（207 bytes）
 - `src/main/resources/db/migration/V8__video_segment_semantic_index.sql`（634 bytes）
 - `src/main/resources/db/migration/V9__video_segment_image_hash.sql`（152 bytes）
-- `src/main/resources/static/app.css`（61499 bytes）
-- `src/main/resources/static/app.js`（99628 bytes）
+- `src/main/resources/static/app.css`（62273 bytes）
+- `src/main/resources/static/app.js`（102115 bytes）
 - `src/main/resources/static/asset-library.js`（39551 bytes）
 - `src/main/resources/static/diagnostics.js`（1673 bytes）
 - `src/main/resources/static/export.js`（10391 bytes）
@@ -308,7 +313,7 @@
 - `src/test/java/cn/longer233/gamenarrator/task/DatabaseMigrationTest.java`（4843 bytes）
 - `src/test/java/cn/longer233/gamenarrator/task/domain/VideoTaskTest.java`（4664 bytes）
 - `src/test/java/cn/longer233/gamenarrator/task/TaskLifecycleIntegrationTest.java`（3749 bytes）
-- `src/test/java/cn/longer233/gamenarrator/task/web/VideoTaskControllerTest.java`（14473 bytes）
+- `src/test/java/cn/longer233/gamenarrator/task/web/VideoTaskControllerTest.java`（16044 bytes）
 - `src/test/java/cn/longer233/gamenarrator/timeline/TimelinePlannerTest.java`（2442 bytes）
 - `src/test/java/cn/longer233/gamenarrator/timeline/TimelineValidatorTest.java`（1515 bytes）
 - `src/test/java/cn/longer233/gamenarrator/transcription/PlatformSubtitleReaderTest.java`（953 bytes）
@@ -337,7 +342,7 @@
 
     <groupId>cn.longer233.graduation</groupId>
     <artifactId>game-narrator</artifactId>
-    <version>1.8.0</version>
+    <version>2.0.0</version>
     <name>GameNarrator</name>
     <description>多模态游戏视频智能解说与自动剪辑系统</description>
 
@@ -1423,7 +1428,7 @@ GameNarrator 在禁用或未配置 AI 时，仍应能完成导入、粗剪、精
 |---|---|---|
 | 源监视器 | 已实现原片播放、片段定位、前后跳镜 | 入点/出点标记、逐帧步进、J/K/L 播放 |
 | 时间线 | 已实现源视频监视器、播放头定位、片段选择、缩放、波形、拖拽移动、磁吸、双侧修剪、刀片分割、删除、连续片段重新连接及持久化撤回/恢复；无 AI 模式会用本地规则自动建立可编辑基础时间线；结构编辑会同步到实际分镜和渲染产物 | 多素材自由上轨、轨道增删、组合片段、嵌套序列 |
-| 历史 | 每条剪辑命令写入不可变 `project_revision`，支持持久化撤销/重做；自动化测试覆盖 55 次连续操作 | 历史树分支可视化和版本命名 |
+| 历史 | 每条剪辑命令写入不可变 `project_revision`；2.0 提供完整父子版本树、版本命名、任意节点切换及持久化撤回/恢复 | 版本差异预览与分支合并 |
 | 音频 | 已有原声、配音、SFX、BGM 混合，轨道静音/独奏和真实 WAV 峰值波形 | 淡入淡出和峰值告警 |
 | 画面 | 已有裁切适配、贴图、抠图、18 种效果，变换/透明度/音量关键帧和亮度/对比度/饱和度/色温面板 | 曲线编辑器、调色轮和 LUT 导入 |
 | 字幕 | 已有 SRT/ASS 和多种动态风格；编辑期间可独立重跑语音转写和字幕生成，失败不改变主任务状态 | 时间线字幕块、批量样式、逐字编辑 |
@@ -1756,7 +1761,7 @@ GameNarrator 是一个面向游戏和动漫内容创作者的本地智能视频�
 | FR-402 | P0 | 支持三种通用风格 | 已实现 | 动漫剧场、热血高燃和轻松吐槽之间有可辨识差异 |
 | FR-403 | P0 | 原创性约束 | 已实现 | 提示词禁止照抄识别文本和模仿具体创作者独特表达 |
 | FR-404 | P1 | 重新生成文案 | 未实现 | 可只重生成指定片段，不影响其他阶段数据 |
-| FR-405 | P1 | 文案编辑 | 1.0 基础完成 | 已支持分段编辑及下游失效；完整版本树与历史可视化属于 2.0 |
+| FR-405 | P1 | 文案编辑 | 2.0 完成 | 已支持分段编辑、下游失效、完整父子版本树、版本命名、历史可视化和任意版本切换 |
 | FR-406 | P1 | 文案质量评分 | 未实现 | 检测过短、重复、空字段、事实冲突和明显识别乱码 |
 
 ### 7.6 AI 配音
@@ -7750,6 +7755,17 @@ public class EditorTimelineService {
     }
 
     @Transactional
+    public JsonNode checkout(UUID taskId, UUID revisionId) {
+        requireTask(taskId);
+        jdbc.update("UPDATE video_project SET current_revision_id=?,updated_at=CURRENT_TIMESTAMP,version=version+1 WHERE id=?",
+                revisionId, taskId);
+        ObjectNode result = timelineFrom(currentManifest(taskId), taskId);
+        syncRenderableStoryboard(taskId, result);
+        attachHistory(result, taskId);
+        return result;
+    }
+
+    @Transactional
     public JsonNode command(UUID taskId, EditorCommandRequest request) {
         String type = request.type().trim().toUpperCase(Locale.ROOT);
         if ("UNDO".equals(type)) return undo(taskId);
@@ -8068,6 +8084,122 @@ public class EditorTimelineService {
     private boolean bool(Map<String,Object>v,String k,boolean d){Object n=v.get(k);return n==null?d:Boolean.parseBoolean(n.toString());}
     private double bounded(double v,double min,double max){return Math.max(min,Math.min(max,v));}
 }
+``
+
+### FILE: src/main/java/cn/longer233/gamenarrator/editor/ProjectRevisionController.java
+
+``java
+package cn.longer233.gamenarrator.editor;
+
+import com.fasterxml.jackson.databind.JsonNode;
+import jakarta.validation.Valid;
+import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
+import java.util.UUID;
+
+@RestController
+@RequestMapping("/api/tasks/{taskId}/editor/revisions")
+public class ProjectRevisionController {
+    private final ProjectRevisionService service;
+    public ProjectRevisionController(ProjectRevisionService service) { this.service = service; }
+    @GetMapping public List<ProjectRevisionView> list(@PathVariable UUID taskId) { return service.list(taskId); }
+    @PatchMapping("/{revisionId}") public ProjectRevisionView rename(@PathVariable UUID taskId,
+            @PathVariable UUID revisionId, @Valid @RequestBody RenameRevisionRequest request) {
+        return service.rename(taskId, revisionId, request);
+    }
+    @PostMapping("/{revisionId}/checkout") public JsonNode checkout(@PathVariable UUID taskId,
+            @PathVariable UUID revisionId) { return service.checkout(taskId, revisionId); }
+}
+``
+
+### FILE: src/main/java/cn/longer233/gamenarrator/editor/ProjectRevisionService.java
+
+``java
+package cn.longer233.gamenarrator.editor;
+
+import cn.longer233.gamenarrator.task.application.TaskNotFoundException;
+import cn.longer233.gamenarrator.task.repository.VideoTaskRepository;
+import jakarta.transaction.Transactional;
+import org.springframework.jdbc.core.JdbcTemplate;
+import org.springframework.stereotype.Service;
+
+import java.util.List;
+import java.util.UUID;
+
+@Service
+public class ProjectRevisionService {
+    private final JdbcTemplate jdbc;
+    private final VideoTaskRepository tasks;
+    private final EditorTimelineService editor;
+
+    public ProjectRevisionService(JdbcTemplate jdbc, VideoTaskRepository tasks, EditorTimelineService editor) {
+        this.jdbc = jdbc; this.tasks = tasks; this.editor = editor;
+    }
+
+    public List<ProjectRevisionView> list(UUID taskId) {
+        requireTask(taskId);
+        UUID current = jdbc.queryForObject("SELECT current_revision_id FROM video_project WHERE id=?", UUID.class, taskId);
+        return jdbc.query("""
+                SELECT r.id,r.revision_no,r.parent_revision_id,r.revision_label,r.change_type,
+                       r.change_summary,r.created_at,
+                       (SELECT COUNT(*) FROM project_revision c WHERE c.parent_revision_id=r.id) child_count
+                FROM project_revision r WHERE r.project_id=? ORDER BY r.revision_no
+                """, (rs, row) -> new ProjectRevisionView(rs.getObject("id", UUID.class), rs.getInt("revision_no"),
+                rs.getObject("parent_revision_id", UUID.class), rs.getString("revision_label"),
+                rs.getString("change_type"), rs.getString("change_summary"),
+                rs.getObject("created_at", java.time.OffsetDateTime.class),
+                rs.getObject("id", UUID.class).equals(current), rs.getInt("child_count")), taskId);
+    }
+
+    @Transactional
+    public ProjectRevisionView rename(UUID taskId, UUID revisionId, RenameRevisionRequest request) {
+        requireRevision(taskId, revisionId);
+        jdbc.update("UPDATE project_revision SET revision_label=? WHERE id=? AND project_id=?",
+                request.label().trim(), revisionId, taskId);
+        return list(taskId).stream().filter(item -> item.id().equals(revisionId)).findFirst().orElseThrow();
+    }
+
+    @Transactional
+    public com.fasterxml.jackson.databind.JsonNode checkout(UUID taskId, UUID revisionId) {
+        requireRevision(taskId, revisionId);
+        return editor.checkout(taskId, revisionId);
+    }
+
+    private void requireTask(UUID id) {
+        if (tasks.findById(id).isEmpty()) throw new TaskNotFoundException(id);
+    }
+    private void requireRevision(UUID taskId, UUID revisionId) {
+        requireTask(taskId);
+        Integer count = jdbc.queryForObject("SELECT COUNT(*) FROM project_revision WHERE id=? AND project_id=?",
+                Integer.class, revisionId, taskId);
+        if (count == null || count == 0) throw new IllegalArgumentException("工程版本不存在");
+    }
+}
+``
+
+### FILE: src/main/java/cn/longer233/gamenarrator/editor/ProjectRevisionView.java
+
+``java
+package cn.longer233.gamenarrator.editor;
+
+import java.time.OffsetDateTime;
+import java.util.UUID;
+
+public record ProjectRevisionView(UUID id, int revisionNo, UUID parentRevisionId, String label,
+                                  String changeType, String changeSummary, OffsetDateTime createdAt,
+                                  boolean current, int childCount) { }
+``
+
+### FILE: src/main/java/cn/longer233/gamenarrator/editor/RenameRevisionRequest.java
+
+``java
+package cn.longer233.gamenarrator.editor;
+
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.Size;
+
+public record RenameRevisionRequest(@NotBlank @Size(max = 100) String label) { }
 ``
 
 ### FILE: src/main/java/cn/longer233/gamenarrator/effect/EffectController.java
@@ -19411,6 +19543,13 @@ CREATE TABLE clip_compilation_item (
 CREATE INDEX idx_compilation_item_order ON clip_compilation_item(compilation_id, position);
 ``
 
+### FILE: src/main/resources/db/migration/V22__project_revision_tree.sql
+
+``sql
+ALTER TABLE project_revision ADD COLUMN revision_label VARCHAR(100);
+CREATE INDEX idx_project_revision_parent ON project_revision(project_id, parent_revision_id);
+``
+
 ### FILE: src/main/resources/db/migration/V3__external_asset_catalog.sql
 
 ``sql
@@ -19774,6 +19913,7 @@ button:disabled{color:#4b4b4b;background:#d5d5d5;opacity:1}
 .domestic-source-directory summary,.domestic-source-directory section>strong{color:#111}
 .domestic-source-directory a{color:#111;background:#fff;border:2px solid #111}
 .domestic-source-directory a small{color:#46505c}.domestic-source-directory a b{color:#8b174f}
+.revision-tree-panel{margin:14px 0;padding:12px;border:3px solid #111;background:#f7f8fb;color:#111}.revision-tree-panel summary{cursor:pointer;font-weight:800}.revision-tree-list{display:grid;gap:7px;margin-top:10px}.revision-tree-item{display:grid;grid-template-columns:minmax(220px,1fr) auto auto auto;gap:8px;align-items:center;margin-left:calc(var(--revision-depth) * 18px);padding:8px;border:2px solid #111;background:#fff}.revision-tree-item.current{background:#d9ffd7;box-shadow:3px 3px 0 #111}.revision-tree-item span b,.revision-tree-item span small{display:block}.revision-tree-item span small{color:#596273}.revision-tree-item i{font-size:11px}@media(max-width:760px){.revision-tree-item{grid-template-columns:1fr 1fr}.revision-tree-item span{grid-column:1/-1}}
 .editor-source-monitor{display:grid;grid-template-columns:minmax(320px,2fr) minmax(180px,1fr);gap:14px;align-items:center;margin:14px 0;padding:12px;border:3px solid #111;background:#101522;color:#fff}.editor-source-monitor video{width:100%;max-height:52vh;background:#000}.editor-source-monitor strong,.editor-source-monitor small{display:block}.editor-source-monitor small{margin-top:7px;color:#b8c3d8}@media(max-width:760px){.editor-source-monitor{grid-template-columns:1fr}}
 ``
 
@@ -20798,12 +20938,13 @@ async function loadStoryboardEditor(taskId) {
   clearInterval(storyboardProgressTimer);
   if (!storyboardDialog.open) storyboardDialog.showModal();
   storyboardWorkspace.innerHTML = '<p class="empty">正在读取完整分镜时间线…</p>';
-  const [storyboard, localAssets, placements, editorTimeline, waveform] = await Promise.all([
+  const [storyboard, localAssets, placements, editorTimeline, waveform, revisions] = await Promise.all([
     requestJson(`/api/tasks/${taskId}/storyboard`),
     requestJson('/api/assets?importStatus=DOWNLOADED&limit=100'),
     requestJson(`/api/tasks/${taskId}/storyboard/assets`),
     requestJson(`/api/tasks/${taskId}/editor`),
-    requestJson(`/api/tasks/${taskId}/editor/waveform?points=320`)
+    requestJson(`/api/tasks/${taskId}/editor/waveform?points=320`),
+    requestJson(`/api/tasks/${taskId}/editor/revisions`)
   ]);
   const totalDuration = storyboard.segments.reduce((sum, item) => sum + item.endSeconds - item.startSeconds, 0);
   storyboardWorkspace.innerHTML = `
@@ -20818,6 +20959,7 @@ async function loadStoryboardEditor(taskId) {
         <div class="storyboard-waveform" data-storyboard-waveform></div>
         <div class="storyboard-track-scroll"><div class="storyboard-track" data-storyboard-track></div></div>
       </section>
+      <details class="revision-tree-panel" open><summary>工程版本树 · ${revisions.length} 个版本</summary><div class="revision-tree-list">${renderRevisionTree(revisions)}</div></details>
       <section class="storyboard-pipeline-progress" data-storyboard-progress><p>正在读取处理进度…</p></section>
       <p class="bilibili-asset-login-hint">自动接取 Bilibili 视频和专栏素材前必须先完成上方 Bilibili 登录；未登录时只会使用本地素材与开放许可素材源。</p>
       <p class="effect-note">修改镜头起止时间会直接改变最终成片使用的源视频范围；保存文案后，后续配音、字幕和渲染会使用最新内容。</p>
@@ -20848,9 +20990,44 @@ async function loadStoryboardEditor(taskId) {
       <footer class="storyboard-continue-bar"><div><strong>修改完成了吗？</strong><small>点击后会先保存全部分镜，再明确启动配音、时间线规划和视频渲染。</small></div><button type="button" data-storyboard-action="save-all-continue" data-task-id="${taskId}">保存全部修改并执行下一步 →</button></footer>
     </section>`;
   mountStoryboardTimeline(taskId, editorTimeline, waveform);
+  mountRevisionTree(taskId);
   storyboardWorkspace.scrollTo({top:0, behavior:'smooth'});
   await updateStoryboardProgress(taskId);
   if (!taskStreamConnected) storyboardProgressTimer = setInterval(() => updateStoryboardProgress(taskId), 2000);
+}
+
+function renderRevisionTree(revisions) {
+  const byId = new Map(revisions.map(item => [item.id, item]));
+  const depth = item => { let value = 0, parent = item.parentRevisionId; while (parent && byId.has(parent) && value < 20) { value++; parent = byId.get(parent).parentRevisionId; } return value; };
+  return revisions.map(item => `<article class="revision-tree-item ${item.current ? 'current' : ''}" style="--revision-depth:${depth(item)}">
+    <span><b>${escapeHtml(item.label || `版本 ${item.revisionNo}`)}</b><small>${escapeHtml(item.changeSummary || item.changeType)} · ${new Date(item.createdAt).toLocaleString()}</small></span>
+    <i>${item.childCount ? `${item.childCount} 个分支` : '叶节点'}</i>
+    <button type="button" data-revision-name="${item.id}">命名</button>
+    <button type="button" data-revision-checkout="${item.id}" ${item.current ? 'disabled' : ''}>${item.current ? '当前版本' : '切换到此版本'}</button>
+  </article>`).join('');
+}
+
+function mountRevisionTree(taskId) {
+  const panel = storyboardWorkspace.querySelector('.revision-tree-panel');
+  panel?.addEventListener('click', async event => {
+    const nameButton = event.target.closest('[data-revision-name]');
+    const checkoutButton = event.target.closest('[data-revision-checkout]');
+    if (!nameButton && !checkoutButton) return;
+    const button = nameButton || checkoutButton; button.disabled = true;
+    try {
+      if (nameButton) {
+        const label = window.prompt('输入版本名称（最多 100 字）');
+        if (!label?.trim()) return;
+        await requestJson(`/api/tasks/${taskId}/editor/revisions/${nameButton.dataset.revisionName}`, {
+          method:'PATCH', headers:{'Content-Type':'application/json'}, body:JSON.stringify({label:label.trim()})
+        });
+      } else {
+        if (!window.confirm('切换版本会使当前旧配音和渲染结果失效，确定继续吗？')) return;
+        await requestJson(`/api/tasks/${taskId}/editor/revisions/${checkoutButton.dataset.revisionCheckout}/checkout`, {method:'POST'});
+      }
+      await loadStoryboardEditor(taskId);
+    } catch (error) { window.alert(error.message); button.disabled = false; }
+  });
 }
 
 function mountStoryboardTimeline(taskId, timeline, waveform) {
@@ -21312,7 +21489,7 @@ const guideSteps = [
   {selector: '.history-panel', title: '第 5 步：从最左侧历史继续', text: '只有真正生成完成的任务才会进入页面最左侧“最近完成”列表。处理中、等待检查、失败或取消的任务都留在右侧，避免被误认为已经完成。点击已完成条目可查看生成文件、分镜、文案、时间线和最终视频。'},
   {selector: '.storyboard-review-option', title: '第 6 步：检查分镜再继续', text: '开启分镜检查后，流程会在文案与分镜生成后暂停。进入线性分镜工作台可调整顺序、起止时间、字幕、解说、素材和特效；保存全部修改后再继续配音与渲染。'},
   {selector: '.primary-nav', title: '更多工具入口', text: '“镜头搜索”使用本地语义模型寻找片段；“平台导入”负责下载并创建项目；“素材库”管理授权素材；“设置”管理云端或本地 AI。遇到问题可点击右上角“诊断日志”。'},
-  {selector: '.topbar-actions', title: '完成、诊断与再次查看', text: '任务完成后在详情中预览并导出 MP4。任何阶段失败时先查看任务详情和诊断日志；本引导可以随时从“使用引导”重新打开。当前版本为 v1.8.0。'}
+  {selector: '.topbar-actions', title: '完成、诊断与再次查看', text: '任务完成后在详情中预览并导出 MP4。任何阶段失败时先查看任务详情和诊断日志；本引导可以随时从“使用引导”重新打开。当前版本为 v2.0.0。'}
 ];
 let guideIndex = 0;
 let guideTarget = null;
@@ -22409,14 +22586,14 @@ document.querySelector('#copy-address').onclick=async()=>{await navigator.clipbo
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>GameNarrator 1.8.0</title>
+  <title>GameNarrator 2.0.0</title>
   <link rel="stylesheet" href="/media-importer.css?v=20260729-10">
   <link rel="stylesheet" href="/app.css?v=20260803-13">
 </head>
 <body>
   <div class="aurora"></div>
   <header class="topbar">
-    <a class="brand" href="/">GAME<span>NARRATOR</span><small class="app-version">v1.8.0</small></a>
+    <a class="brand" href="/">GAME<span>NARRATOR</span><small class="app-version">v2.0.0</small></a>
     <nav class="primary-nav" aria-label="主要功能">
       <a href="/?view=studio" data-view-link="studio">剪辑任务</a>
       <a href="/?view=search" data-view-link="search">镜头搜索</a>
@@ -25999,6 +26176,27 @@ class VideoTaskControllerTest {
         mockMvc.perform(post("/api/tasks/{id}/editor/commands", id).contentType("application/json")
                         .content("{\"type\":\"UNDO\",\"payload\":{}}"))
                 .andExpect(status().isOk()).andExpect(jsonPath("$.history.canRedo").value(true));
+    }
+
+    @Test
+    void projectRevisionTreeCanBeListedNamedAndCheckedOut() throws Exception {
+        var created = mockMvc.perform(multipart("/api/tasks").file(new MockMultipartFile(
+                        "video", "versions.mp4", "video/mp4", "version-video".getBytes()))
+                        .param("name", "版本树").param("gameCategory", "ACTION")
+                        .param("commentaryStyle", "ANIME_THEATER").param("targetDurationSeconds", "90")
+                        .param("taskBrief", "版本树测试"))
+                .andExpect(status().isCreated()).andReturn();
+        UUID id = UUID.fromString(objectMapper.readTree(created.getResponse().getContentAsString()).path("id").asText());
+        String revisions = mockMvc.perform(get("/api/tasks/{id}/editor/revisions", id))
+                .andExpect(status().isOk()).andExpect(jsonPath("$[0].current").value(true)).andReturn()
+                .getResponse().getContentAsString();
+        UUID revisionId = UUID.fromString(objectMapper.readTree(revisions).get(0).path("id").asText());
+
+        mockMvc.perform(patch("/api/tasks/{id}/editor/revisions/{revisionId}", id, revisionId)
+                        .contentType("application/json").content("{\"label\":\"初始剪辑方案\"}"))
+                .andExpect(status().isOk()).andExpect(jsonPath("$.label").value("初始剪辑方案"));
+        mockMvc.perform(post("/api/tasks/{id}/editor/revisions/{revisionId}/checkout", id, revisionId))
+                .andExpect(status().isOk()).andExpect(jsonPath("$.history.revisionCount").value(1));
     }
 
 }

@@ -278,4 +278,25 @@ class VideoTaskControllerTest {
                 .andExpect(status().isOk()).andExpect(jsonPath("$.history.canRedo").value(true));
     }
 
+    @Test
+    void projectRevisionTreeCanBeListedNamedAndCheckedOut() throws Exception {
+        var created = mockMvc.perform(multipart("/api/tasks").file(new MockMultipartFile(
+                        "video", "versions.mp4", "video/mp4", "version-video".getBytes()))
+                        .param("name", "版本树").param("gameCategory", "ACTION")
+                        .param("commentaryStyle", "ANIME_THEATER").param("targetDurationSeconds", "90")
+                        .param("taskBrief", "版本树测试"))
+                .andExpect(status().isCreated()).andReturn();
+        UUID id = UUID.fromString(objectMapper.readTree(created.getResponse().getContentAsString()).path("id").asText());
+        String revisions = mockMvc.perform(get("/api/tasks/{id}/editor/revisions", id))
+                .andExpect(status().isOk()).andExpect(jsonPath("$[0].current").value(true)).andReturn()
+                .getResponse().getContentAsString();
+        UUID revisionId = UUID.fromString(objectMapper.readTree(revisions).get(0).path("id").asText());
+
+        mockMvc.perform(patch("/api/tasks/{id}/editor/revisions/{revisionId}", id, revisionId)
+                        .contentType("application/json").content("{\"label\":\"初始剪辑方案\"}"))
+                .andExpect(status().isOk()).andExpect(jsonPath("$.label").value("初始剪辑方案"));
+        mockMvc.perform(post("/api/tasks/{id}/editor/revisions/{revisionId}/checkout", id, revisionId))
+                .andExpect(status().isOk()).andExpect(jsonPath("$.history.revisionCount").value(1));
+    }
+
 }

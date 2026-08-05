@@ -1016,12 +1016,13 @@ async function loadStoryboardEditor(taskId) {
   clearInterval(storyboardProgressTimer);
   if (!storyboardDialog.open) storyboardDialog.showModal();
   storyboardWorkspace.innerHTML = '<p class="empty">正在读取完整分镜时间线…</p>';
-  const [storyboard, localAssets, placements, editorTimeline, waveform] = await Promise.all([
+  const [storyboard, localAssets, placements, editorTimeline, waveform, revisions] = await Promise.all([
     requestJson(`/api/tasks/${taskId}/storyboard`),
     requestJson('/api/assets?importStatus=DOWNLOADED&limit=100'),
     requestJson(`/api/tasks/${taskId}/storyboard/assets`),
     requestJson(`/api/tasks/${taskId}/editor`),
-    requestJson(`/api/tasks/${taskId}/editor/waveform?points=320`)
+    requestJson(`/api/tasks/${taskId}/editor/waveform?points=320`),
+    requestJson(`/api/tasks/${taskId}/editor/revisions`)
   ]);
   const totalDuration = storyboard.segments.reduce((sum, item) => sum + item.endSeconds - item.startSeconds, 0);
   storyboardWorkspace.innerHTML = `
@@ -1036,6 +1037,7 @@ async function loadStoryboardEditor(taskId) {
         <div class="storyboard-waveform" data-storyboard-waveform></div>
         <div class="storyboard-track-scroll"><div class="storyboard-track" data-storyboard-track></div></div>
       </section>
+      <details class="revision-tree-panel" open><summary>工程版本树 · ${revisions.length} 个版本</summary><div class="revision-tree-list">${renderRevisionTree(revisions)}</div></details>
       <section class="storyboard-pipeline-progress" data-storyboard-progress><p>正在读取处理进度…</p></section>
       <p class="bilibili-asset-login-hint">自动接取 Bilibili 视频和专栏素材前必须先完成上方 Bilibili 登录；未登录时只会使用本地素材与开放许可素材源。</p>
       <p class="effect-note">修改镜头起止时间会直接改变最终成片使用的源视频范围；保存文案后，后续配音、字幕和渲染会使用最新内容。</p>
@@ -1066,9 +1068,44 @@ async function loadStoryboardEditor(taskId) {
       <footer class="storyboard-continue-bar"><div><strong>修改完成了吗？</strong><small>点击后会先保存全部分镜，再明确启动配音、时间线规划和视频渲染。</small></div><button type="button" data-storyboard-action="save-all-continue" data-task-id="${taskId}">保存全部修改并执行下一步 →</button></footer>
     </section>`;
   mountStoryboardTimeline(taskId, editorTimeline, waveform);
+  mountRevisionTree(taskId);
   storyboardWorkspace.scrollTo({top:0, behavior:'smooth'});
   await updateStoryboardProgress(taskId);
   if (!taskStreamConnected) storyboardProgressTimer = setInterval(() => updateStoryboardProgress(taskId), 2000);
+}
+
+function renderRevisionTree(revisions) {
+  const byId = new Map(revisions.map(item => [item.id, item]));
+  const depth = item => { let value = 0, parent = item.parentRevisionId; while (parent && byId.has(parent) && value < 20) { value++; parent = byId.get(parent).parentRevisionId; } return value; };
+  return revisions.map(item => `<article class="revision-tree-item ${item.current ? 'current' : ''}" style="--revision-depth:${depth(item)}">
+    <span><b>${escapeHtml(item.label || `版本 ${item.revisionNo}`)}</b><small>${escapeHtml(item.changeSummary || item.changeType)} · ${new Date(item.createdAt).toLocaleString()}</small></span>
+    <i>${item.childCount ? `${item.childCount} 个分支` : '叶节点'}</i>
+    <button type="button" data-revision-name="${item.id}">命名</button>
+    <button type="button" data-revision-checkout="${item.id}" ${item.current ? 'disabled' : ''}>${item.current ? '当前版本' : '切换到此版本'}</button>
+  </article>`).join('');
+}
+
+function mountRevisionTree(taskId) {
+  const panel = storyboardWorkspace.querySelector('.revision-tree-panel');
+  panel?.addEventListener('click', async event => {
+    const nameButton = event.target.closest('[data-revision-name]');
+    const checkoutButton = event.target.closest('[data-revision-checkout]');
+    if (!nameButton && !checkoutButton) return;
+    const button = nameButton || checkoutButton; button.disabled = true;
+    try {
+      if (nameButton) {
+        const label = window.prompt('输入版本名称（最多 100 字）');
+        if (!label?.trim()) return;
+        await requestJson(`/api/tasks/${taskId}/editor/revisions/${nameButton.dataset.revisionName}`, {
+          method:'PATCH', headers:{'Content-Type':'application/json'}, body:JSON.stringify({label:label.trim()})
+        });
+      } else {
+        if (!window.confirm('切换版本会使当前旧配音和渲染结果失效，确定继续吗？')) return;
+        await requestJson(`/api/tasks/${taskId}/editor/revisions/${checkoutButton.dataset.revisionCheckout}/checkout`, {method:'POST'});
+      }
+      await loadStoryboardEditor(taskId);
+    } catch (error) { window.alert(error.message); button.disabled = false; }
+  });
 }
 
 function mountStoryboardTimeline(taskId, timeline, waveform) {
@@ -1530,7 +1567,7 @@ const guideSteps = [
   {selector: '.history-panel', title: '第 5 步：从最左侧历史继续', text: '只有真正生成完成的任务才会进入页面最左侧“最近完成”列表。处理中、等待检查、失败或取消的任务都留在右侧，避免被误认为已经完成。点击已完成条目可查看生成文件、分镜、文案、时间线和最终视频。'},
   {selector: '.storyboard-review-option', title: '第 6 步：检查分镜再继续', text: '开启分镜检查后，流程会在文案与分镜生成后暂停。进入线性分镜工作台可调整顺序、起止时间、字幕、解说、素材和特效；保存全部修改后再继续配音与渲染。'},
   {selector: '.primary-nav', title: '更多工具入口', text: '“镜头搜索”使用本地语义模型寻找片段；“平台导入”负责下载并创建项目；“素材库”管理授权素材；“设置”管理云端或本地 AI。遇到问题可点击右上角“诊断日志”。'},
-  {selector: '.topbar-actions', title: '完成、诊断与再次查看', text: '任务完成后在详情中预览并导出 MP4。任何阶段失败时先查看任务详情和诊断日志；本引导可以随时从“使用引导”重新打开。当前版本为 v1.8.0。'}
+  {selector: '.topbar-actions', title: '完成、诊断与再次查看', text: '任务完成后在详情中预览并导出 MP4。任何阶段失败时先查看任务详情和诊断日志；本引导可以随时从“使用引导”重新打开。当前版本为 v2.0.0。'}
 ];
 let guideIndex = 0;
 let guideTarget = null;

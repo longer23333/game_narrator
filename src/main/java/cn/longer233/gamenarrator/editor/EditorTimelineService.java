@@ -44,6 +44,17 @@ public class EditorTimelineService {
     }
 
     @Transactional
+    public JsonNode checkout(UUID taskId, UUID revisionId) {
+        requireTask(taskId);
+        jdbc.update("UPDATE video_project SET current_revision_id=?,updated_at=CURRENT_TIMESTAMP,version=version+1 WHERE id=?",
+                revisionId, taskId);
+        ObjectNode result = timelineFrom(currentManifest(taskId), taskId);
+        syncRenderableStoryboard(taskId, result);
+        attachHistory(result, taskId);
+        return result;
+    }
+
+    @Transactional
     public JsonNode command(UUID taskId, EditorCommandRequest request) {
         String type = request.type().trim().toUpperCase(Locale.ROOT);
         if ("UNDO".equals(type)) return undo(taskId);
