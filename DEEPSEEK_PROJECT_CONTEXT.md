@@ -1,6 +1,6 @@
 # GameNarrator — DeepSeek 项目上下文包
 
-> 自动生成时间：2026-08-05 09:47:58 +08:00
+> 自动生成时间：2026-08-05 09:55:39 +08:00
 > 文件数量：295。本文件由 scripts/export-deepseek-context.ps1 生成，请勿手工维护生成区。
 
 ## 给 DeepSeek 的强制工作规则
@@ -252,12 +252,12 @@
 - `src/main/resources/db/migration/V8__video_segment_semantic_index.sql`（634 bytes）
 - `src/main/resources/db/migration/V9__video_segment_image_hash.sql`（152 bytes）
 - `src/main/resources/static/app.css`（61499 bytes）
-- `src/main/resources/static/app.js`（97910 bytes）
+- `src/main/resources/static/app.js`（99628 bytes）
 - `src/main/resources/static/asset-library.js`（39551 bytes）
 - `src/main/resources/static/diagnostics.js`（1673 bytes）
 - `src/main/resources/static/export.js`（10391 bytes）
 - `src/main/resources/static/extension-install.html`（3410 bytes）
-- `src/main/resources/static/index.html`（23426 bytes）
+- `src/main/resources/static/index.html`（23250 bytes）
 - `src/main/resources/static/media-importer.css`（4474 bytes）
 - `src/main/resources/static/media-importer.js`（24293 bytes）
 - `src/test/java/cn/longer233/gamenarrator/ai/AdaptiveAiChatClientTest.java`（1725 bytes）
@@ -337,7 +337,7 @@
 
     <groupId>cn.longer233.graduation</groupId>
     <artifactId>game-narrator</artifactId>
-    <version>1.7.0</version>
+    <version>1.8.0</version>
     <name>GameNarrator</name>
     <description>多模态游戏视频智能解说与自动剪辑系统</description>
 
@@ -19783,6 +19783,34 @@ button:disabled{color:#4b4b4b;background:#d5d5d5;opacity:1}
 const taskList = document.querySelector('#task-list');
 const activeTaskPanel = document.querySelector('#active-task');
 const validViews = new Set(['studio', 'search', 'import', 'assets', 'settings']);
+const lazyScriptPromises = new Map();
+const loadedLazyFeatures = new Set();
+const lazyScriptUrls = {
+  assets:'/asset-library.js?v=20260805-1',
+  import:'/media-importer.js?v=20260805-1',
+  diagnostics:'/diagnostics.js?v=20260805-1'
+};
+
+function loadLazyScript(key) {
+  if (lazyScriptPromises.has(key)) return lazyScriptPromises.get(key);
+  const promise = import(/* @vite-ignore */ lazyScriptUrls[key]).then(module => {
+    loadedLazyFeatures.add(key);
+    return module;
+  }).catch(error => {
+    lazyScriptPromises.delete(key);
+    throw new Error(`无法加载${key}功能脚本：${error.message}`);
+  });
+  lazyScriptPromises.set(key, promise);
+  return promise;
+}
+
+async function ensureViewScripts(view) {
+  if (view === 'import') await loadLazyScript('import');
+  if (view === 'assets') {
+    await loadLazyScript('import');
+    await loadLazyScript('assets');
+  }
+}
 
 function activateView(view, updateHistory = false) {
   const selected = validViews.has(view) ? view : 'studio';
@@ -19795,6 +19823,11 @@ function activateView(view, updateHistory = false) {
   });
   const labels = {studio:'剪辑任务', search:'镜头搜索', import:'平台导入', assets:'素材库', settings:'AI 与系统设置'};
   document.title = `${labels[selected]} · GameNarrator`;
+  ensureViewScripts(selected).catch(error => {
+    const page = document.querySelector(`[data-page="${selected}"]`);
+    const message = page?.querySelector('.asset-library-note,.empty');
+    if (message) message.textContent = `${error.message}，请刷新页面重试。`;
+  });
   if (updateHistory) history.pushState({view:selected}, '', `/?view=${selected}`);
   window.scrollTo({top:0, behavior:'instant'});
 }
@@ -19807,6 +19840,22 @@ document.querySelector('.primary-nav')?.addEventListener('click', event => {
   activateView(link.dataset.viewLink, true);
 });
 window.addEventListener('popstate', () => activateView(new URLSearchParams(location.search).get('view')));
+document.querySelector('#diagnostics-open')?.addEventListener('click', async event => {
+  if (loadedLazyFeatures.has('diagnostics')) return;
+  event.preventDefault();
+  const button = event.currentTarget;
+  button.disabled = true;
+  try {
+    await loadLazyScript('diagnostics');
+    const dialog = document.querySelector('#diagnostics-dialog');
+    if (dialog && !dialog.open) dialog.showModal();
+    document.querySelector('#diagnostics-refresh')?.click();
+  } catch (error) {
+    window.alert(error.message);
+  } finally {
+    button.disabled = false;
+  }
+});
 const aiSettingsForm = document.querySelector('#ai-settings-form');
 const aiKeyState = document.querySelector('#ai-key-state');
 const aiProviderPresets = {
@@ -21263,7 +21312,7 @@ const guideSteps = [
   {selector: '.history-panel', title: '第 5 步：从最左侧历史继续', text: '只有真正生成完成的任务才会进入页面最左侧“最近完成”列表。处理中、等待检查、失败或取消的任务都留在右侧，避免被误认为已经完成。点击已完成条目可查看生成文件、分镜、文案、时间线和最终视频。'},
   {selector: '.storyboard-review-option', title: '第 6 步：检查分镜再继续', text: '开启分镜检查后，流程会在文案与分镜生成后暂停。进入线性分镜工作台可调整顺序、起止时间、字幕、解说、素材和特效；保存全部修改后再继续配音与渲染。'},
   {selector: '.primary-nav', title: '更多工具入口', text: '“镜头搜索”使用本地语义模型寻找片段；“平台导入”负责下载并创建项目；“素材库”管理授权素材；“设置”管理云端或本地 AI。遇到问题可点击右上角“诊断日志”。'},
-  {selector: '.topbar-actions', title: '完成、诊断与再次查看', text: '任务完成后在详情中预览并导出 MP4。任何阶段失败时先查看任务详情和诊断日志；本引导可以随时从“使用引导”重新打开。当前版本为 v1.7.0。'}
+  {selector: '.topbar-actions', title: '完成、诊断与再次查看', text: '任务完成后在详情中预览并导出 MP4。任何阶段失败时先查看任务详情和诊断日志；本引导可以随时从“使用引导”重新打开。当前版本为 v1.8.0。'}
 ];
 let guideIndex = 0;
 let guideTarget = null;
@@ -22360,14 +22409,14 @@ document.querySelector('#copy-address').onclick=async()=>{await navigator.clipbo
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>GameNarrator 1.7.0</title>
+  <title>GameNarrator 1.8.0</title>
   <link rel="stylesheet" href="/media-importer.css?v=20260729-10">
   <link rel="stylesheet" href="/app.css?v=20260803-13">
 </head>
 <body>
   <div class="aurora"></div>
   <header class="topbar">
-    <a class="brand" href="/">GAME<span>NARRATOR</span><small class="app-version">v1.7.0</small></a>
+    <a class="brand" href="/">GAME<span>NARRATOR</span><small class="app-version">v1.8.0</small></a>
     <nav class="primary-nav" aria-label="主要功能">
       <a href="/?view=studio" data-view-link="studio">剪辑任务</a>
       <a href="/?view=search" data-view-link="search">镜头搜索</a>
@@ -22642,9 +22691,6 @@ document.querySelector('#copy-address').onclick=async()=>{await navigator.clipbo
   </dialog>
   <script src="/app.js?v=20260803-10"></script>
   <script src="/export.js?v=20260728-4"></script>
-  <script src="/asset-library.js?v=20260803-3"></script>
-  <script src="/media-importer.js?v=20260803-4"></script>
-  <script defer src="/diagnostics.js?v=20260803-2"></script>
   <dialog id="diagnostics-dialog" class="task-dialog diagnostics-dialog">
     <div class="dialog-shell">
       <header class="dialog-header"><div><small>SUPPORT &amp; TROUBLESHOOTING</small><h2>诊断日志</h2></div><button id="diagnostics-close" class="dialog-close" type="button">×</button></header>

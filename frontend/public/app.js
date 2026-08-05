@@ -1,6 +1,34 @@
 const taskList = document.querySelector('#task-list');
 const activeTaskPanel = document.querySelector('#active-task');
 const validViews = new Set(['studio', 'search', 'import', 'assets', 'settings']);
+const lazyScriptPromises = new Map();
+const loadedLazyFeatures = new Set();
+const lazyScriptUrls = {
+  assets:'/asset-library.js?v=20260805-1',
+  import:'/media-importer.js?v=20260805-1',
+  diagnostics:'/diagnostics.js?v=20260805-1'
+};
+
+function loadLazyScript(key) {
+  if (lazyScriptPromises.has(key)) return lazyScriptPromises.get(key);
+  const promise = import(/* @vite-ignore */ lazyScriptUrls[key]).then(module => {
+    loadedLazyFeatures.add(key);
+    return module;
+  }).catch(error => {
+    lazyScriptPromises.delete(key);
+    throw new Error(`无法加载${key}功能脚本：${error.message}`);
+  });
+  lazyScriptPromises.set(key, promise);
+  return promise;
+}
+
+async function ensureViewScripts(view) {
+  if (view === 'import') await loadLazyScript('import');
+  if (view === 'assets') {
+    await loadLazyScript('import');
+    await loadLazyScript('assets');
+  }
+}
 
 function activateView(view, updateHistory = false) {
   const selected = validViews.has(view) ? view : 'studio';
@@ -13,6 +41,11 @@ function activateView(view, updateHistory = false) {
   });
   const labels = {studio:'剪辑任务', search:'镜头搜索', import:'平台导入', assets:'素材库', settings:'AI 与系统设置'};
   document.title = `${labels[selected]} · GameNarrator`;
+  ensureViewScripts(selected).catch(error => {
+    const page = document.querySelector(`[data-page="${selected}"]`);
+    const message = page?.querySelector('.asset-library-note,.empty');
+    if (message) message.textContent = `${error.message}，请刷新页面重试。`;
+  });
   if (updateHistory) history.pushState({view:selected}, '', `/?view=${selected}`);
   window.scrollTo({top:0, behavior:'instant'});
 }
@@ -25,6 +58,22 @@ document.querySelector('.primary-nav')?.addEventListener('click', event => {
   activateView(link.dataset.viewLink, true);
 });
 window.addEventListener('popstate', () => activateView(new URLSearchParams(location.search).get('view')));
+document.querySelector('#diagnostics-open')?.addEventListener('click', async event => {
+  if (loadedLazyFeatures.has('diagnostics')) return;
+  event.preventDefault();
+  const button = event.currentTarget;
+  button.disabled = true;
+  try {
+    await loadLazyScript('diagnostics');
+    const dialog = document.querySelector('#diagnostics-dialog');
+    if (dialog && !dialog.open) dialog.showModal();
+    document.querySelector('#diagnostics-refresh')?.click();
+  } catch (error) {
+    window.alert(error.message);
+  } finally {
+    button.disabled = false;
+  }
+});
 const aiSettingsForm = document.querySelector('#ai-settings-form');
 const aiKeyState = document.querySelector('#ai-key-state');
 const aiProviderPresets = {
@@ -1481,7 +1530,7 @@ const guideSteps = [
   {selector: '.history-panel', title: '第 5 步：从最左侧历史继续', text: '只有真正生成完成的任务才会进入页面最左侧“最近完成”列表。处理中、等待检查、失败或取消的任务都留在右侧，避免被误认为已经完成。点击已完成条目可查看生成文件、分镜、文案、时间线和最终视频。'},
   {selector: '.storyboard-review-option', title: '第 6 步：检查分镜再继续', text: '开启分镜检查后，流程会在文案与分镜生成后暂停。进入线性分镜工作台可调整顺序、起止时间、字幕、解说、素材和特效；保存全部修改后再继续配音与渲染。'},
   {selector: '.primary-nav', title: '更多工具入口', text: '“镜头搜索”使用本地语义模型寻找片段；“平台导入”负责下载并创建项目；“素材库”管理授权素材；“设置”管理云端或本地 AI。遇到问题可点击右上角“诊断日志”。'},
-  {selector: '.topbar-actions', title: '完成、诊断与再次查看', text: '任务完成后在详情中预览并导出 MP4。任何阶段失败时先查看任务详情和诊断日志；本引导可以随时从“使用引导”重新打开。当前版本为 v1.7.0。'}
+  {selector: '.topbar-actions', title: '完成、诊断与再次查看', text: '任务完成后在详情中预览并导出 MP4。任何阶段失败时先查看任务详情和诊断日志；本引导可以随时从“使用引导”重新打开。当前版本为 v1.8.0。'}
 ];
 let guideIndex = 0;
 let guideTarget = null;
