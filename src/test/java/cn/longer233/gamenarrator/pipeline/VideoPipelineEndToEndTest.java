@@ -63,4 +63,38 @@ class VideoPipelineEndToEndTest {
         assertThat(Path.of(current.renderedVideoPath())).isRegularFile();
         assertThat(Path.of(current.sceneManifestPath()).resolveSibling("audio-analysis.json")).isRegularFile();
     }
+
+    @Test
+    void preparesCompleteEditableTimelineWithoutAnyAiOrAutomaticRender() throws Exception {
+        Path source = temporary.resolve("manual-five-seconds.mp4");
+        var generated = ExternalProcessRunner.run(List.of("ffmpeg",
+                "-y", "-hide_banner", "-loglevel", "error", "-f", "lavfi",
+                "-i", "color=c=green:s=320x180:d=5", "-f", "lavfi", "-i", "sine=frequency=440:duration=5",
+                "-shortest", "-c:v", "libx264", "-pix_fmt", "yuv420p", "-c:a", "aac",
+                source.toString()), Duration.ofSeconds(30));
+        assertThat(generated.exitCode()).isZero();
+
+        var command = new CreateVideoTaskCommand("manual editor e2e", "ACTION",
+                CommentaryStyle.ANIME_THEATER, 15, EditingScope.FULL_VIDEO,
+                "manual editing without AI", "", false, false, false, false, false, false);
+        var created = tasks.create(command, new MockMultipartFile("video", "manual-five-seconds.mp4",
+                "video/mp4", Files.readAllBytes(source)));
+
+        long deadline = System.nanoTime() + Duration.ofMinutes(2).toNanos();
+        var current = tasks.find(created.id());
+        while (current.timelinePath() == null && current.status() != TaskStatus.FAILED
+                && System.nanoTime() < deadline) {
+            Thread.sleep(250);
+            current = tasks.find(created.id());
+        }
+
+        assertThat(current.failureReason()).isNull();
+        assertThat(current.status()).isEqualTo(TaskStatus.READY);
+        assertThat(current.generatedScriptPath()).isNotBlank();
+        assertThat(current.voiceManifestPath()).isNotBlank();
+        assertThat(Path.of(current.timelinePath())).isRegularFile();
+        assertThat(current.renderedVideoPath()).isNull();
+        assertThat(current.stages().stream().filter(stage -> stage.status() == StageStatus.COMPLETED)).hasSize(8);
+        assertThat(current.stages().getLast().status()).isEqualTo(StageStatus.PENDING);
+    }
 }

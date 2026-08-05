@@ -520,6 +520,34 @@ detailDialog.addEventListener('close', () => { activeTaskId = null; });
 detailContent.addEventListener('click', async event => {
   const retryButton = event.target.closest('[data-retry-task]');
   const addAssetButton = event.target.closest('[data-add-project-asset]');
+  const enhancementButton = event.target.closest('[data-task-enhancement]');
+  if (enhancementButton) {
+    const taskId = enhancementButton.dataset.taskId;
+    const type = enhancementButton.dataset.taskEnhancement;
+    const status = detailContent.querySelector('[data-enhancement-status]');
+    enhancementButton.disabled = true;
+    status.textContent = type === 'transcription' ? '正在启动语音识别…'
+      : type === 'assets' ? '正在匹配并下载素材…' : '正在启动自动特效渲染…';
+    try {
+      const response = await fetch(`/api/tasks/${taskId}/enhancements/${type}`, {method:'POST'});
+      if (!response.ok) throw await readApiError(response);
+      if (type === 'transcription') {
+        status.textContent = '转写在后台运行，当前剪辑不会被锁定或覆盖。';
+        pollEnhancementStatus(taskId);
+      } else if (type === 'assets') {
+        const result = await response.json();
+        status.textContent = `自动素材完成：新增 ${result.assignedCount} 个；${result.warnings?.join('；') || '可进入分镜工作台调整。'}`;
+        enhancementButton.disabled = false;
+      } else {
+        status.textContent = '自动特效渲染已启动；现有剪辑数据保持不变。';
+        setTimeout(() => refreshTaskDetails(taskId), 1200);
+      }
+    } catch (error) {
+      enhancementButton.disabled = false;
+      status.textContent = `增强失败：${error.message}`;
+    }
+    return;
+  }
   if (addAssetButton) {
     addAssetButton.disabled = true;
     addAssetButton.textContent = '正在加入…';
@@ -691,6 +719,16 @@ function renderTaskDetails(task) {
     ${['FAILED','CANCELLED'].includes(task.status) ? `<section class="detail-block task-operations"><button type="button" data-retry-task="${task.id}">${task.status === 'CANCELLED' ? '从取消处继续' : '重试失败阶段'}</button><small>已完成阶段会保留，从中断位置继续处理。</small></section>` : ''}
     ${task.generatedScriptPath ? `<section class="detail-block task-operations storyboard-launch"><button type="button" data-open-storyboard="${task.id}">进入线性分镜工作台 →</button><small>${task.storyboardReviewEnabled && !task.storyboardApproved ? '需要在独立分镜时间线中检查并确认后才能继续生成。' : '按镜头顺序编辑画面、起止时间、文案、字幕、素材和特效。'}</small></section>` : ''}
     ${task.generatedScriptPath ? `<section class="detail-block task-operations"><button type="button" data-open-script="${task.id}">编辑分段文案</button><small>支持保存、AI 单段重写和单段重新配音。</small></section>` : ''}
+    <section class="detail-block enhancement-toolbox">
+      <h3>智能增强工具箱</h3>
+      <p class="visual-summary">手动剪辑始终可用；下面每项可随时单独执行，失败不会破坏当前时间线或已有成片。</p>
+      <div class="task-operations">
+        <button type="button" data-task-enhancement="transcription" data-task-id="${task.id}" ${task.status === 'PROCESSING' || !task.durationSeconds ? 'disabled' : ''}>重新转写并生成字幕</button>
+        <button type="button" data-task-enhancement="assets" data-task-id="${task.id}" ${task.status === 'PROCESSING' || !task.generatedScriptPath ? 'disabled' : ''}>自动匹配素材</button>
+        <button type="button" data-task-enhancement="effects" data-task-id="${task.id}" ${task.status === 'PROCESSING' || !task.timelinePath ? 'disabled' : ''}>自动规划特效并渲染</button>
+      </div>
+      <small data-enhancement-status>${task.status === 'PROCESSING' ? '主流水线运行期间暂不可启动独立增强。' : '可按需使用，不要求创建任务时预先开启 AI。'}</small>
+    </section>
     <section class="detail-summary">
       <div class="detail-status ${task.status.toLowerCase()}">${task.status}</div>
       <div><span>总体进度</span><strong>${overallProgress}%</strong></div>
@@ -731,6 +769,27 @@ function renderTaskDetails(task) {
     ${task.transcriptText ? `<section class="detail-block"><h3>语音转写</h3><pre class="transcript-text">${escapeHtml(task.transcriptText)}</pre></section>` : ''}
   `;
   if (task.timelinePath) refreshRenderPreview(task.id);
+}
+
+async function pollEnhancementStatus(taskId) {
+  for (let attempt = 0; attempt < 120 && activeTaskId === taskId; attempt++) {
+    await new Promise(resolve => setTimeout(resolve, 1000));
+    try {
+      const jobs = await requestJson(`/api/tasks/${taskId}/enhancements`);
+      const transcription = jobs.find(job => job.type === 'TRANSCRIPTION');
+      const target = detailContent.querySelector('[data-enhancement-status]');
+      if (!target || !transcription) return;
+      target.textContent = transcription.message;
+      if (transcription.status === 'COMPLETED') {
+        await refreshTaskDetails(taskId);
+        return;
+      }
+      if (transcription.status === 'FAILED') {
+        detailContent.querySelector('[data-task-enhancement="transcription"]')?.removeAttribute('disabled');
+        return;
+      }
+    } catch (_) { return; }
+  }
 }
 
 function renderPreviewSection(task) {
@@ -1376,7 +1435,7 @@ const guideSteps = [
   {selector: '.history-panel', title: '第 5 步：从最左侧历史继续', text: '只有真正生成完成的任务才会进入页面最左侧“最近完成”列表。处理中、等待检查、失败或取消的任务都留在右侧，避免被误认为已经完成。点击已完成条目可查看生成文件、分镜、文案、时间线和最终视频。'},
   {selector: '.storyboard-review-option', title: '第 6 步：检查分镜再继续', text: '开启分镜检查后，流程会在文案与分镜生成后暂停。进入线性分镜工作台可调整顺序、起止时间、字幕、解说、素材和特效；保存全部修改后再继续配音与渲染。'},
   {selector: '.primary-nav', title: '更多工具入口', text: '“镜头搜索”使用本地语义模型寻找片段；“平台导入”负责下载并创建项目；“素材库”管理授权素材；“设置”管理云端或本地 AI。遇到问题可点击右上角“诊断日志”。'},
-  {selector: '.topbar-actions', title: '完成、诊断与再次查看', text: '任务完成后在详情中预览并导出 MP4。任何阶段失败时先查看任务详情和诊断日志；本引导可以随时从“使用引导”重新打开。当前版本为 v1.5.7。'}
+  {selector: '.topbar-actions', title: '完成、诊断与再次查看', text: '任务完成后在详情中预览并导出 MP4。任何阶段失败时先查看任务详情和诊断日志；本引导可以随时从“使用引导”重新打开。当前版本为 v1.6.0。'}
 ];
 let guideIndex = 0;
 let guideTarget = null;

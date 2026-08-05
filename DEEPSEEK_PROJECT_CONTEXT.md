@@ -1,7 +1,7 @@
 # GameNarrator — DeepSeek 项目上下文包
 
-> 自动生成时间：2026-08-04 17:21:44 +08:00
-> 文件数量：288。本文件由 scripts/export-deepseek-context.ps1 生成，请勿手工维护生成区。
+> 自动生成时间：2026-08-05 09:05:11 +08:00
+> 文件数量：292。本文件由 scripts/export-deepseek-context.ps1 生成，请勿手工维护生成区。
 
 ## 给 DeepSeek 的强制工作规则
 
@@ -30,7 +30,7 @@
 - `docs/CLIP_COMPILATIONS.md`（702 bytes）
 - `docs/DATABASE_DESIGN.md`（28746 bytes）
 - `docs/FRONTEND_DEVELOPMENT.md`（1853 bytes）
-- `docs/MANUAL_EDITOR_PARITY.md`（2680 bytes）
+- `docs/MANUAL_EDITOR_PARITY.md`（3922 bytes）
 - `docs/OBSERVABILITY.md`（1109 bytes）
 - `docs/PERFORMANCE_PORTABILITY_AUDIT.md`（10763 bytes）
 - `docs/REQUIREMENTS.md`（21935 bytes）
@@ -103,6 +103,9 @@
 - `src/main/java/cn/longer233/gamenarrator/effect/SemanticEffectPlanner.java`（5208 bytes）
 - `src/main/java/cn/longer233/gamenarrator/effect/TransitionType.java`（139 bytes）
 - `src/main/java/cn/longer233/gamenarrator/effect/VisualEffectType.java`（386 bytes）
+- `src/main/java/cn/longer233/gamenarrator/enhancement/EnhancementJobView.java`（148 bytes）
+- `src/main/java/cn/longer233/gamenarrator/enhancement/TaskEnhancementController.java`（1808 bytes）
+- `src/main/java/cn/longer233/gamenarrator/enhancement/TaskEnhancementService.java`（6099 bytes）
 - `src/main/java/cn/longer233/gamenarrator/export/CreateExportRequest.java`（471 bytes）
 - `src/main/java/cn/longer233/gamenarrator/export/ExportController.java`（1876 bytes）
 - `src/main/java/cn/longer233/gamenarrator/export/ExportJobView.java`（510 bytes）
@@ -148,8 +151,8 @@
 - `src/main/java/cn/longer233/gamenarrator/pipeline/PendingTaskRecovery.java`（2188 bytes）
 - `src/main/java/cn/longer233/gamenarrator/pipeline/PipelineRunTracker.java`（5774 bytes）
 - `src/main/java/cn/longer233/gamenarrator/pipeline/ProjectArtifactRegistry.java`（5450 bytes）
-- `src/main/java/cn/longer233/gamenarrator/pipeline/TaskWorkflowStateService.java`（13728 bytes）
-- `src/main/java/cn/longer233/gamenarrator/pipeline/VideoTaskEngine.java`（20683 bytes）
+- `src/main/java/cn/longer233/gamenarrator/pipeline/TaskWorkflowStateService.java`（14571 bytes）
+- `src/main/java/cn/longer233/gamenarrator/pipeline/VideoTaskEngine.java`（20766 bytes）
 - `src/main/java/cn/longer233/gamenarrator/pipeline/WaitingTaskRetryScheduler.java`（2399 bytes）
 - `src/main/java/cn/longer233/gamenarrator/render/FfmpegVideoRenderer.java`（21138 bytes）
 - `src/main/java/cn/longer233/gamenarrator/render/RenderAssetResolver.java`（2211 bytes）
@@ -247,8 +250,8 @@
 - `src/main/resources/db/migration/V7__storyboard_review.sql`（207 bytes）
 - `src/main/resources/db/migration/V8__video_segment_semantic_index.sql`（634 bytes）
 - `src/main/resources/db/migration/V9__video_segment_image_hash.sql`（152 bytes）
-- `src/main/resources/static/app.css`（60326 bytes）
-- `src/main/resources/static/app.js`（90915 bytes）
+- `src/main/resources/static/app.css`（60471 bytes）
+- `src/main/resources/static/app.js`（94345 bytes）
 - `src/main/resources/static/asset-library.js`（39551 bytes）
 - `src/main/resources/static/diagnostics.js`（1673 bytes）
 - `src/main/resources/static/export.js`（10391 bytes）
@@ -278,6 +281,7 @@
 - `src/test/java/cn/longer233/gamenarrator/diagnostics/DiagnosticLogServiceTest.java`（906 bytes）
 - `src/test/java/cn/longer233/gamenarrator/effect/EffectPresetCatalogTest.java`（2318 bytes）
 - `src/test/java/cn/longer233/gamenarrator/effect/SemanticEffectPlannerTest.java`（1359 bytes）
+- `src/test/java/cn/longer233/gamenarrator/enhancement/TaskEnhancementServiceTest.java`（4256 bytes）
 - `src/test/java/cn/longer233/gamenarrator/export/FfmpegProgressParserTest.java`（1550 bytes）
 - `src/test/java/cn/longer233/gamenarrator/highlight/RuleBasedHighlightSelectorTest.java`（5608 bytes）
 - `src/test/java/cn/longer233/gamenarrator/identity/LocalUserContextTest.java`（396 bytes）
@@ -290,7 +294,7 @@
 - `src/test/java/cn/longer233/gamenarrator/observability/PrometheusEndpointTest.java`（1491 bytes）
 - `src/test/java/cn/longer233/gamenarrator/observability/StorageCapacityGuardTest.java`（1278 bytes）
 - `src/test/java/cn/longer233/gamenarrator/pipeline/PendingTaskRecoveryTest.java`（3156 bytes）
-- `src/test/java/cn/longer233/gamenarrator/pipeline/VideoPipelineEndToEndTest.java`（3211 bytes）
+- `src/test/java/cn/longer233/gamenarrator/pipeline/VideoPipelineEndToEndTest.java`（5176 bytes）
 - `src/test/java/cn/longer233/gamenarrator/render/RenderAudioMixBuilderTest.java`（2564 bytes）
 - `src/test/java/cn/longer233/gamenarrator/render/RenderPreviewServiceTest.java`（2115 bytes）
 - `src/test/java/cn/longer233/gamenarrator/render/RenderVideoFilterBuilderTest.java`（2457 bytes）
@@ -330,7 +334,7 @@
 
     <groupId>cn.longer233.graduation</groupId>
     <artifactId>game-narrator</artifactId>
-    <version>1.5.7</version>
+    <version>1.6.0</version>
     <name>GameNarrator</name>
     <description>多模态游戏视频智能解说与自动剪辑系统</description>
 
@@ -1415,11 +1419,11 @@ GameNarrator 在禁用或未配置 AI 时，仍应能完成导入、粗剪、精
 | 领域 | 当前 | 下一阶段 |
 |---|---|---|
 | 源监视器 | 已实现原片播放、片段定位、前后跳镜 | 入点/出点标记、逐帧步进、J/K/L 播放 |
-| 时间线 | 已实现视频/叠加/音频/字幕四轨、缩放、波形、拖拽移动、磁吸、拖拽修剪和刀片分割；分镜工作台中的排序与修剪会同步到实际渲染产物 | 轨道增删、组合片段、嵌套序列 |
+| 时间线 | 已实现视频/叠加/音频/字幕四轨、缩放、波形、拖拽移动、磁吸、拖拽修剪和刀片分割；无 AI 模式会用本地规则自动建立可编辑基础时间线；分镜工作台中的排序与修剪会同步到实际渲染产物 | 轨道增删、组合片段、嵌套序列 |
 | 历史 | 每条剪辑命令写入不可变 `project_revision`，支持持久化撤销/重做；自动化测试覆盖 55 次连续操作 | 历史树分支可视化和版本命名 |
 | 音频 | 已有原声、配音、SFX、BGM 混合，轨道静音/独奏和真实 WAV 峰值波形 | 淡入淡出和峰值告警 |
 | 画面 | 已有裁切适配、贴图、抠图、18 种效果，变换/透明度/音量关键帧和亮度/对比度/饱和度/色温面板 | 曲线编辑器、调色轮和 LUT 导入 |
-| 字幕 | 已有 SRT/ASS 和多种动态风格 | 时间线字幕块、批量样式、逐字编辑 |
+| 字幕 | 已有 SRT/ASS 和多种动态风格；编辑期间可独立重跑语音转写和字幕生成，失败不改变主任务状态 | 时间线字幕块、批量样式、逐字编辑 |
 | 导出 | 已有 FFmpeg 预设与后台导出 | 自定义分辨率/码率、帧率转换、透明通道、分段导出 |
 
 ## 实施原则
@@ -1428,6 +1432,16 @@ GameNarrator 在禁用或未配置 AI 时，仍应能完成导入、粗剪、精
 2. 预览可以使用代理媒体，最终导出仍从原素材渲染。
 3. 编辑命令与渲染参数必须可序列化、可验证、可迁移。
 4. 优先使用现有 Java/FFmpeg 边界，不因对标而盲目引入重型框架或不兼容许可证代码。
+5. 主剪辑流程不依赖 AI；语音转写、素材匹配、文案、配音和特效属于可在编辑期间独立调用的增强作业。
+6. 增强作业失败不得把可编辑任务改成失败状态，也不得清空已有时间线、素材放置或成片。
+
+## 1.6.0 可选增强工具箱
+
+- 关闭自动生成后不再停留在“只有媒体准备”的半成品状态；系统会用本地场景、音频和规则分析建立分镜、占位文案、静音音轨及可渲染时间线，然后以 `READY` 状态交给用户编辑。
+- 任务详情提供统一入口，可单独重新转写并生成字幕、自动匹配分镜素材、自动规划特效并渲染。
+- 转写作业拥有独立的运行/完成/失败状态，只有成功结果会写入转写产物；失败信息留在工具箱内。
+- 自动素材继续保留已有手工放置，自动特效继续基于当前时间线重渲染，不要求创建任务时预先开启 AI。
+- 主流水线运行期间禁止并发启动增强，避免 Whisper、素材下载或 FFmpeg 与正在执行的阶段互相覆盖。
 ``
 
 ### FILE: docs/OBSERVABILITY.md
@@ -8378,6 +8392,184 @@ public enum VisualEffectType {
 }
 ``
 
+### FILE: src/main/java/cn/longer233/gamenarrator/enhancement/EnhancementJobView.java
+
+``java
+package cn.longer233.gamenarrator.enhancement;
+
+public record EnhancementJobView(String type, String status, String message, boolean available) { }
+``
+
+### FILE: src/main/java/cn/longer233/gamenarrator/enhancement/TaskEnhancementController.java
+
+``java
+package cn.longer233.gamenarrator.enhancement;
+
+import cn.longer233.gamenarrator.effect.EffectSettingsRequest;
+import cn.longer233.gamenarrator.script.AutoAssetAssignmentView;
+import cn.longer233.gamenarrator.script.StoryboardAssetPlacementService;
+import cn.longer233.gamenarrator.task.application.VideoTaskService;
+import org.springframework.http.HttpStatus;
+import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
+import java.util.UUID;
+
+@RestController
+@RequestMapping("/api/tasks/{taskId}/enhancements")
+public class TaskEnhancementController {
+    private final TaskEnhancementService enhancements;
+    private final StoryboardAssetPlacementService assets;
+    private final VideoTaskService tasks;
+
+    public TaskEnhancementController(TaskEnhancementService enhancements,
+                                     StoryboardAssetPlacementService assets, VideoTaskService tasks) {
+        this.enhancements = enhancements;
+        this.assets = assets;
+        this.tasks = tasks;
+    }
+
+    @GetMapping
+    public List<EnhancementJobView> status(@PathVariable UUID taskId) {
+        return enhancements.status(taskId);
+    }
+
+    @PostMapping("/transcription")
+    @ResponseStatus(HttpStatus.ACCEPTED)
+    public EnhancementJobView transcribe(@PathVariable UUID taskId) {
+        return enhancements.startTranscription(taskId);
+    }
+
+    @PostMapping("/assets")
+    public AutoAssetAssignmentView autoAssets(@PathVariable UUID taskId) {
+        enhancements.requireIdleTask(taskId);
+        return assets.autoAssign(taskId);
+    }
+
+    @PostMapping("/effects")
+    @ResponseStatus(HttpStatus.ACCEPTED)
+    public void autoEffects(@PathVariable UUID taskId) {
+        enhancements.requireIdleTask(taskId);
+        tasks.rerenderEffects(taskId, EffectSettingsRequest.defaults());
+    }
+}
+``
+
+### FILE: src/main/java/cn/longer233/gamenarrator/enhancement/TaskEnhancementService.java
+
+``java
+package cn.longer233.gamenarrator.enhancement;
+
+import cn.longer233.gamenarrator.pipeline.TaskWorkflowStateService;
+import cn.longer233.gamenarrator.transcription.PlatformSubtitleReader;
+import cn.longer233.gamenarrator.transcription.SubtitleChunkAnalysisService;
+import cn.longer233.gamenarrator.transcription.TranscriptionResult;
+import cn.longer233.gamenarrator.transcription.WhisperCppTranscriber;
+import cn.longer233.gamenarrator.task.domain.TaskStatus;
+import cn.longer233.gamenarrator.task.repository.VideoTaskRepository;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.stereotype.Service;
+
+import java.nio.file.Path;
+import java.util.List;
+import java.util.UUID;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.Executor;
+
+@Service
+public class TaskEnhancementService {
+    private static final Logger log = LoggerFactory.getLogger(TaskEnhancementService.class);
+    private final TaskWorkflowStateService state;
+    private final PlatformSubtitleReader platformSubtitles;
+    private final WhisperCppTranscriber transcriber;
+    private final SubtitleChunkAnalysisService subtitleAnalysis;
+    private final Executor executor;
+    private final VideoTaskRepository repository;
+    private final ConcurrentHashMap<UUID, EnhancementJobView> transcriptionJobs = new ConcurrentHashMap<>();
+
+    public TaskEnhancementService(TaskWorkflowStateService state, PlatformSubtitleReader platformSubtitles,
+                                  WhisperCppTranscriber transcriber,
+                                  SubtitleChunkAnalysisService subtitleAnalysis,
+                                  VideoTaskRepository repository,
+                                  @Qualifier("taskExecutor") Executor executor) {
+        this.state = state;
+        this.platformSubtitles = platformSubtitles;
+        this.transcriber = transcriber;
+        this.subtitleAnalysis = subtitleAnalysis;
+        this.repository = repository;
+        this.executor = executor;
+    }
+
+    public List<EnhancementJobView> status(UUID taskId) {
+        var context = state.context(taskId);
+        boolean idle = repository.findById(taskId).map(task -> task.getStatus() != TaskStatus.PROCESSING).orElse(false);
+        EnhancementJobView transcription = transcriptionJobs.get(taskId);
+        if (transcription == null) {
+            boolean available = idle && context.sceneDetectionCompleted() && context.hasAudio();
+            transcription = new EnhancementJobView("TRANSCRIPTION", "IDLE",
+                    available ? "可重新识别语音并生成字幕" : "需要平台字幕或已安装的 Whisper", available);
+        }
+        return List.of(transcription,
+                new EnhancementJobView("AUTO_ASSETS", "IDLE",
+                        context.scriptGenerationCompleted() ? "可按分镜自动匹配素材" : "需要先建立分镜",
+                        idle && context.scriptGenerationCompleted()),
+                new EnhancementJobView("AUTO_EFFECTS", "IDLE",
+                        context.timelinePlanningCompleted() ? "可自动规划特效并重新渲染" : "需要先建立时间线",
+                        idle && context.timelinePlanningCompleted()));
+    }
+
+    public EnhancementJobView startTranscription(UUID taskId) {
+        requireIdleTask(taskId);
+        var context = state.context(taskId);
+        if (!context.sceneDetectionCompleted() || !context.hasAudio() || context.extractedAudioPath() == null) {
+            throw new IllegalStateException("任务尚未完成音频准备，不能执行语音转写");
+        }
+        EnhancementJobView running = new EnhancementJobView("TRANSCRIPTION", "RUNNING", "正在识别语音并生成字幕", true);
+        EnhancementJobView existing = transcriptionJobs.putIfAbsent(taskId, running);
+        if (existing != null && "RUNNING".equals(existing.status())) throw new IllegalStateException("语音转写正在运行");
+        transcriptionJobs.put(taskId, running);
+        executor.execute(() -> transcribe(taskId));
+        return running;
+    }
+
+    public void requireIdleTask(UUID taskId) {
+        var task = repository.findById(taskId).orElseThrow(() -> new IllegalArgumentException("剪辑任务不存在"));
+        if (task.getStatus() == TaskStatus.PROCESSING) {
+            throw new IllegalStateException("主流水线正在处理，请完成或取消后再运行增强工具");
+        }
+    }
+
+    private void transcribe(UUID taskId) {
+        try {
+            var context = state.context(taskId);
+            TranscriptionResult result = platformSubtitles.read(Path.of(context.sourceVideoPath()));
+            if (result == null) {
+                if (!transcriber.runtimeAvailable()) throw new IllegalStateException("Whisper 尚未安装或不可用");
+                result = transcriber.transcribe(Path.of(context.extractedAudioPath()));
+            }
+            state.applyTranscriptionEnhancement(taskId, result);
+            if (result.subtitlePath() != null) subtitleAnalysis.analyze(Path.of(result.subtitlePath()));
+            EnhancementJobView completed = new EnhancementJobView("TRANSCRIPTION", "COMPLETED",
+                    "语音转写和字幕已更新，可继续手动编辑", true);
+            transcriptionJobs.put(taskId, completed);
+            log.info("TASK_ENHANCEMENT_COMPLETED taskId={} type=TRANSCRIPTION characters={}", taskId, result.text().length());
+        } catch (Exception exception) {
+            transcriptionJobs.put(taskId, new EnhancementJobView("TRANSCRIPTION", "FAILED",
+                    concise(exception), true));
+            log.warn("TASK_ENHANCEMENT_FAILED taskId={} type=TRANSCRIPTION reason={}", taskId, concise(exception));
+        }
+    }
+
+    private String concise(Exception exception) {
+        String message = exception.getMessage();
+        if (message == null || message.isBlank()) message = exception.getClass().getSimpleName();
+        return message.length() <= 300 ? message : message.substring(0, 297) + "...";
+    }
+}
+``
+
 ### FILE: src/main/java/cn/longer233/gamenarrator/export/CreateExportRequest.java
 
 ``java
@@ -11939,6 +12131,17 @@ public class TaskWorkflowStateService {
         artifactRegistry.record(taskId, "TRANSCRIPT_DETAIL", corrected.detailJsonPath(), "application/json", false);
     }
 
+    /** Applies an optional enhancement without moving the overall task into PROCESSING or FAILED. */
+    @Transactional
+    public void applyTranscriptionEnhancement(UUID taskId, TranscriptionResult result) {
+        VideoTask task = requireTask(taskId);
+        TranscriptionResult corrected = terminologyCorrector.correct(result, task.getTerminologyGlossary());
+        task.completeTranscription(corrected.text(), corrected.textPath(), corrected.subtitlePath(), corrected.detailJsonPath());
+        artifactRegistry.record(taskId, "TRANSCRIPT_TEXT", corrected.textPath(), "text/plain", false);
+        artifactRegistry.record(taskId, "TRANSCRIPT_SUBTITLE", corrected.subtitlePath(), "application/x-subrip", false);
+        artifactRegistry.record(taskId, "TRANSCRIPT_DETAIL", corrected.detailJsonPath(), "application/json", false);
+    }
+
     @Transactional
     public void markTranscriptionFailed(UUID taskId, String reason) {
         requireTask(taskId).failTranscription(reason);
@@ -12243,12 +12446,6 @@ public class VideoTaskEngine {
                         taskId);
             }
 
-            if (!context.automaticGenerationEnabled()) {
-                stateService.markManualEditingReady(taskId);
-                log.info("ENGINE_READY taskId={} mode=manual mediaPrepared=true", taskId);
-                return;
-            }
-
             activeStage = "TRANSCRIPTION";
             checkCancellation(taskId);
             if (!context.transcriptionCompleted()) {
@@ -12257,15 +12454,15 @@ public class VideoTaskEngine {
                 if (result != null) {
                     log.info("TRANSCRIPTION_PLATFORM_SUBTITLE taskId={} subtitle={}", taskId,
                             result.subtitlePath());
-                } else if (context.hasAudio() && transcriber.runtimeAvailable()) {
+                } else if (context.automaticGenerationEnabled() && context.hasAudio() && transcriber.runtimeAvailable()) {
                     String extractedAudioPath = context.extractedAudioPath();
                     result = retryExecutor.analysis(() ->
                             transcriber.transcribe(Path.of(extractedAudioPath)));
                 } else {
                     result = new TranscriptionResult("", null, null, null);
-                    String reason = context.hasAudio() ? "whisper_unavailable" : "no_audio_track";
-                    log.warn("TRANSCRIPTION_SKIPPED taskId={} reason={} setup=.\\scripts\\setup-whisper.ps1",
-                            taskId, reason);
+                    String reason = !context.automaticGenerationEnabled() ? "manual_mode_optional_enhancement"
+                            : context.hasAudio() ? "whisper_unavailable" : "no_audio_track";
+                    log.info("TRANSCRIPTION_SKIPPED taskId={} reason={}", taskId, reason);
                 }
                 stateService.markTranscriptionCompleted(taskId, result);
                 if (result.subtitlePath() != null) {
@@ -12387,6 +12584,11 @@ public class VideoTaskEngine {
                 context = stateService.context(taskId);
             } else {
                 log.info("ENGINE_STAGE_SKIPPED taskId={} stage=TIMELINE_PLANNING reason=already_completed", taskId);
+            }
+            if (!context.automaticGenerationEnabled()) {
+                stateService.markManualEditingReady(taskId);
+                log.info("ENGINE_READY taskId={} mode=manual editableTimeline=true", taskId);
+                return;
             }
             activeStage = "RENDERING";
             checkCancellation(taskId);
@@ -19147,6 +19349,7 @@ CREATE INDEX idx_segment_embedding_image_hash ON video_segment_embedding(image_h
 .stage-line span{height:4px}.stage-line span.running{background:#45d7ea;box-shadow:0 0 10px #45d7ea}.stage-line span.completed{background:#38e09d}.stage-line span.failed{background:#ff5577}.stage-caption,.media-meta{margin-top:9px;color:#7f8daa;font-size:11px}.task-error{margin-top:10px;padding:9px;border:1px solid rgba(255,85,119,.35);border-radius:8px;color:#ff8ba3;background:rgba(255,85,119,.08);font-size:12px}
 .task-card{cursor:pointer;transition:transform .18s ease,border-color .18s ease,box-shadow .18s ease}.task-card:hover,.task-card:focus-visible{transform:translateY(-2px);border-color:#45d7ea;box-shadow:0 12px 30px rgba(0,0,0,.22);outline:none}
 .task-operations{display:flex;align-items:center;gap:12px}.task-operations button{padding:10px 14px}.task-operations button:disabled{cursor:wait;opacity:.65}.task-operations small{color:#8492ad}
+.enhancement-toolbox .task-operations{flex-wrap:wrap;margin:14px 0}.enhancement-toolbox>[data-enhancement-status]{display:block;line-height:1.6}
 .task-delete-operation{border-color:rgba(255,85,119,.35)}.task-delete-operation button{background:#8f2941}.task-delete-operation small{color:#d79aaa}
 .task-card-actions{display:flex;align-items:center;gap:8px}.task-card-delete{padding:5px 9px;border:1px solid rgba(255,85,119,.42);border-radius:7px;background:rgba(143,41,65,.32);color:#ff9caf;font-size:10px}.task-card-delete:hover{background:#8f2941;color:#fff}.task-card-delete:disabled{opacity:.6;cursor:wait}
 .script-segment-list{display:grid;gap:14px}.script-segment-card{padding:16px;border:1px solid #2b3652;border-radius:12px;background:#0a1020}.script-segment-card header{display:flex;justify-content:space-between;margin-bottom:12px}.script-segment-card header small{color:#8492ad}.script-segment-card label{margin-top:10px}.script-segment-card textarea{min-height:80px}.script-actions{display:flex;gap:8px;flex-wrap:wrap;margin-top:12px}.script-actions button{padding:9px 12px;font-size:11px}.script-actions button:nth-child(2){background:linear-gradient(90deg,#7559dc,#d64ba0)}.script-actions button:nth-child(3){background:#1b2943}
@@ -19899,6 +20102,34 @@ detailDialog.addEventListener('close', () => { activeTaskId = null; });
 detailContent.addEventListener('click', async event => {
   const retryButton = event.target.closest('[data-retry-task]');
   const addAssetButton = event.target.closest('[data-add-project-asset]');
+  const enhancementButton = event.target.closest('[data-task-enhancement]');
+  if (enhancementButton) {
+    const taskId = enhancementButton.dataset.taskId;
+    const type = enhancementButton.dataset.taskEnhancement;
+    const status = detailContent.querySelector('[data-enhancement-status]');
+    enhancementButton.disabled = true;
+    status.textContent = type === 'transcription' ? '正在启动语音识别…'
+      : type === 'assets' ? '正在匹配并下载素材…' : '正在启动自动特效渲染…';
+    try {
+      const response = await fetch(`/api/tasks/${taskId}/enhancements/${type}`, {method:'POST'});
+      if (!response.ok) throw await readApiError(response);
+      if (type === 'transcription') {
+        status.textContent = '转写在后台运行，当前剪辑不会被锁定或覆盖。';
+        pollEnhancementStatus(taskId);
+      } else if (type === 'assets') {
+        const result = await response.json();
+        status.textContent = `自动素材完成：新增 ${result.assignedCount} 个；${result.warnings?.join('；') || '可进入分镜工作台调整。'}`;
+        enhancementButton.disabled = false;
+      } else {
+        status.textContent = '自动特效渲染已启动；现有剪辑数据保持不变。';
+        setTimeout(() => refreshTaskDetails(taskId), 1200);
+      }
+    } catch (error) {
+      enhancementButton.disabled = false;
+      status.textContent = `增强失败：${error.message}`;
+    }
+    return;
+  }
   if (addAssetButton) {
     addAssetButton.disabled = true;
     addAssetButton.textContent = '正在加入…';
@@ -20070,6 +20301,16 @@ function renderTaskDetails(task) {
     ${['FAILED','CANCELLED'].includes(task.status) ? `<section class="detail-block task-operations"><button type="button" data-retry-task="${task.id}">${task.status === 'CANCELLED' ? '从取消处继续' : '重试失败阶段'}</button><small>已完成阶段会保留，从中断位置继续处理。</small></section>` : ''}
     ${task.generatedScriptPath ? `<section class="detail-block task-operations storyboard-launch"><button type="button" data-open-storyboard="${task.id}">进入线性分镜工作台 →</button><small>${task.storyboardReviewEnabled && !task.storyboardApproved ? '需要在独立分镜时间线中检查并确认后才能继续生成。' : '按镜头顺序编辑画面、起止时间、文案、字幕、素材和特效。'}</small></section>` : ''}
     ${task.generatedScriptPath ? `<section class="detail-block task-operations"><button type="button" data-open-script="${task.id}">编辑分段文案</button><small>支持保存、AI 单段重写和单段重新配音。</small></section>` : ''}
+    <section class="detail-block enhancement-toolbox">
+      <h3>智能增强工具箱</h3>
+      <p class="visual-summary">手动剪辑始终可用；下面每项可随时单独执行，失败不会破坏当前时间线或已有成片。</p>
+      <div class="task-operations">
+        <button type="button" data-task-enhancement="transcription" data-task-id="${task.id}" ${task.status === 'PROCESSING' || !task.durationSeconds ? 'disabled' : ''}>重新转写并生成字幕</button>
+        <button type="button" data-task-enhancement="assets" data-task-id="${task.id}" ${task.status === 'PROCESSING' || !task.generatedScriptPath ? 'disabled' : ''}>自动匹配素材</button>
+        <button type="button" data-task-enhancement="effects" data-task-id="${task.id}" ${task.status === 'PROCESSING' || !task.timelinePath ? 'disabled' : ''}>自动规划特效并渲染</button>
+      </div>
+      <small data-enhancement-status>${task.status === 'PROCESSING' ? '主流水线运行期间暂不可启动独立增强。' : '可按需使用，不要求创建任务时预先开启 AI。'}</small>
+    </section>
     <section class="detail-summary">
       <div class="detail-status ${task.status.toLowerCase()}">${task.status}</div>
       <div><span>总体进度</span><strong>${overallProgress}%</strong></div>
@@ -20110,6 +20351,27 @@ function renderTaskDetails(task) {
     ${task.transcriptText ? `<section class="detail-block"><h3>语音转写</h3><pre class="transcript-text">${escapeHtml(task.transcriptText)}</pre></section>` : ''}
   `;
   if (task.timelinePath) refreshRenderPreview(task.id);
+}
+
+async function pollEnhancementStatus(taskId) {
+  for (let attempt = 0; attempt < 120 && activeTaskId === taskId; attempt++) {
+    await new Promise(resolve => setTimeout(resolve, 1000));
+    try {
+      const jobs = await requestJson(`/api/tasks/${taskId}/enhancements`);
+      const transcription = jobs.find(job => job.type === 'TRANSCRIPTION');
+      const target = detailContent.querySelector('[data-enhancement-status]');
+      if (!target || !transcription) return;
+      target.textContent = transcription.message;
+      if (transcription.status === 'COMPLETED') {
+        await refreshTaskDetails(taskId);
+        return;
+      }
+      if (transcription.status === 'FAILED') {
+        detailContent.querySelector('[data-task-enhancement="transcription"]')?.removeAttribute('disabled');
+        return;
+      }
+    } catch (_) { return; }
+  }
 }
 
 function renderPreviewSection(task) {
@@ -20755,7 +21017,7 @@ const guideSteps = [
   {selector: '.history-panel', title: '第 5 步：从最左侧历史继续', text: '只有真正生成完成的任务才会进入页面最左侧“最近完成”列表。处理中、等待检查、失败或取消的任务都留在右侧，避免被误认为已经完成。点击已完成条目可查看生成文件、分镜、文案、时间线和最终视频。'},
   {selector: '.storyboard-review-option', title: '第 6 步：检查分镜再继续', text: '开启分镜检查后，流程会在文案与分镜生成后暂停。进入线性分镜工作台可调整顺序、起止时间、字幕、解说、素材和特效；保存全部修改后再继续配音与渲染。'},
   {selector: '.primary-nav', title: '更多工具入口', text: '“镜头搜索”使用本地语义模型寻找片段；“平台导入”负责下载并创建项目；“素材库”管理授权素材；“设置”管理云端或本地 AI。遇到问题可点击右上角“诊断日志”。'},
-  {selector: '.topbar-actions', title: '完成、诊断与再次查看', text: '任务完成后在详情中预览并导出 MP4。任何阶段失败时先查看任务详情和诊断日志；本引导可以随时从“使用引导”重新打开。当前版本为 v1.5.7。'}
+  {selector: '.topbar-actions', title: '完成、诊断与再次查看', text: '任务完成后在详情中预览并导出 MP4。任何阶段失败时先查看任务详情和诊断日志；本引导可以随时从“使用引导”重新打开。当前版本为 v1.6.0。'}
 ];
 let guideIndex = 0;
 let guideTarget = null;
@@ -21852,14 +22114,14 @@ document.querySelector('#copy-address').onclick=async()=>{await navigator.clipbo
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>GameNarrator 1.5.7</title>
+  <title>GameNarrator 1.6.0</title>
   <link rel="stylesheet" href="/media-importer.css?v=20260729-10">
   <link rel="stylesheet" href="/app.css?v=20260803-13">
 </head>
 <body>
   <div class="aurora"></div>
   <header class="topbar">
-    <a class="brand" href="/">GAME<span>NARRATOR</span><small class="app-version">v1.5.7</small></a>
+    <a class="brand" href="/">GAME<span>NARRATOR</span><small class="app-version">v1.6.0</small></a>
     <nav class="primary-nav" aria-label="主要功能">
       <a href="/?view=studio" data-view-link="studio">剪辑任务</a>
       <a href="/?view=search" data-view-link="search">镜头搜索</a>
@@ -23564,6 +23826,97 @@ class SemanticEffectPlannerTest {
 }
 ``
 
+### FILE: src/test/java/cn/longer233/gamenarrator/enhancement/TaskEnhancementServiceTest.java
+
+``java
+package cn.longer233.gamenarrator.enhancement;
+
+import cn.longer233.gamenarrator.pipeline.EngineTaskContext;
+import cn.longer233.gamenarrator.pipeline.TaskWorkflowStateService;
+import cn.longer233.gamenarrator.task.domain.TaskStatus;
+import cn.longer233.gamenarrator.task.domain.VideoTask;
+import cn.longer233.gamenarrator.task.repository.VideoTaskRepository;
+import cn.longer233.gamenarrator.transcription.PlatformSubtitleReader;
+import cn.longer233.gamenarrator.transcription.SubtitleChunkAnalysisService;
+import cn.longer233.gamenarrator.transcription.TranscriptionResult;
+import cn.longer233.gamenarrator.transcription.WhisperCppTranscriber;
+import org.junit.jupiter.api.Test;
+
+import java.nio.file.Path;
+import java.util.Optional;
+import java.util.UUID;
+
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
+import static org.mockito.Mockito.*;
+
+class TaskEnhancementServiceTest {
+    private final TaskWorkflowStateService state = mock(TaskWorkflowStateService.class);
+    private final PlatformSubtitleReader platform = mock(PlatformSubtitleReader.class);
+    private final WhisperCppTranscriber transcriber = mock(WhisperCppTranscriber.class);
+    private final SubtitleChunkAnalysisService analysis = mock(SubtitleChunkAnalysisService.class);
+    private final VideoTaskRepository repository = mock(VideoTaskRepository.class);
+    private final TaskEnhancementService service = new TaskEnhancementService(
+            state, platform, transcriber, analysis, repository, Runnable::run);
+
+    @Test
+    void independentlyTranscribesAndAppliesResultWithoutStartingPipeline() {
+        UUID taskId = UUID.randomUUID();
+        VideoTask task = mock(VideoTask.class);
+        when(task.getStatus()).thenReturn(TaskStatus.READY);
+        when(repository.findById(taskId)).thenReturn(Optional.of(task));
+        when(state.context(taskId)).thenReturn(context());
+        when(platform.read(Path.of("source.mp4"))).thenReturn(null);
+        when(transcriber.runtimeAvailable()).thenReturn(true);
+        TranscriptionResult result = new TranscriptionResult("识别文本", "transcript.txt", "subtitle.srt", "detail.json");
+        when(transcriber.transcribe(Path.of("speech.wav"))).thenReturn(result);
+
+        EnhancementJobView started = service.startTranscription(taskId);
+
+        assertThat(started.status()).isEqualTo("RUNNING");
+        assertThat(service.status(taskId).getFirst().status()).isEqualTo("COMPLETED");
+        verify(state).applyTranscriptionEnhancement(taskId, result);
+        verify(analysis).analyze(Path.of("subtitle.srt"));
+    }
+
+    @Test
+    void keepsFailureInsideEnhancementJob() {
+        UUID taskId = UUID.randomUUID();
+        VideoTask task = mock(VideoTask.class);
+        when(task.getStatus()).thenReturn(TaskStatus.COMPLETED);
+        when(repository.findById(taskId)).thenReturn(Optional.of(task));
+        when(state.context(taskId)).thenReturn(context());
+        when(platform.read(any())).thenReturn(null);
+        when(transcriber.runtimeAvailable()).thenReturn(false);
+
+        service.startTranscription(taskId);
+
+        assertThat(service.status(taskId).getFirst().status()).isEqualTo("FAILED");
+        verify(state, never()).markTranscriptionFailed(any(), any());
+        verify(state, never()).applyTranscriptionEnhancement(any(), any());
+    }
+
+    @Test
+    void rejectsEnhancementWhileMainPipelineIsRunning() {
+        UUID taskId = UUID.randomUUID();
+        VideoTask task = mock(VideoTask.class);
+        when(task.getStatus()).thenReturn(TaskStatus.PROCESSING);
+        when(repository.findById(taskId)).thenReturn(Optional.of(task));
+
+        assertThatThrownBy(() -> service.startTranscription(taskId))
+                .isInstanceOf(IllegalStateException.class)
+                .hasMessageContaining("主流水线正在处理");
+    }
+
+    private EngineTaskContext context() {
+        return new EngineTaskContext("source.mp4", true, true, false, false, false, false,
+                false, false, false, true, "speech.wav", "scenes.json", "", null, null,
+                null, null, null, 60.0, 30, "FULL_VIDEO", "ACTION", "ANIME_THEATER", "",
+                false, false, false, false, false, false, false);
+    }
+}
+``
+
 ### FILE: src/test/java/cn/longer233/gamenarrator/export/FfmpegProgressParserTest.java
 
 ``java
@@ -24207,6 +24560,40 @@ class VideoPipelineEndToEndTest {
         assertThat(current.stages()).hasSize(9).allMatch(stage -> stage.status() == StageStatus.COMPLETED);
         assertThat(Path.of(current.renderedVideoPath())).isRegularFile();
         assertThat(Path.of(current.sceneManifestPath()).resolveSibling("audio-analysis.json")).isRegularFile();
+    }
+
+    @Test
+    void preparesCompleteEditableTimelineWithoutAnyAiOrAutomaticRender() throws Exception {
+        Path source = temporary.resolve("manual-five-seconds.mp4");
+        var generated = ExternalProcessRunner.run(List.of("ffmpeg",
+                "-y", "-hide_banner", "-loglevel", "error", "-f", "lavfi",
+                "-i", "color=c=green:s=320x180:d=5", "-f", "lavfi", "-i", "sine=frequency=440:duration=5",
+                "-shortest", "-c:v", "libx264", "-pix_fmt", "yuv420p", "-c:a", "aac",
+                source.toString()), Duration.ofSeconds(30));
+        assertThat(generated.exitCode()).isZero();
+
+        var command = new CreateVideoTaskCommand("manual editor e2e", "ACTION",
+                CommentaryStyle.ANIME_THEATER, 15, EditingScope.FULL_VIDEO,
+                "manual editing without AI", "", false, false, false, false, false, false);
+        var created = tasks.create(command, new MockMultipartFile("video", "manual-five-seconds.mp4",
+                "video/mp4", Files.readAllBytes(source)));
+
+        long deadline = System.nanoTime() + Duration.ofMinutes(2).toNanos();
+        var current = tasks.find(created.id());
+        while (current.timelinePath() == null && current.status() != TaskStatus.FAILED
+                && System.nanoTime() < deadline) {
+            Thread.sleep(250);
+            current = tasks.find(created.id());
+        }
+
+        assertThat(current.failureReason()).isNull();
+        assertThat(current.status()).isEqualTo(TaskStatus.READY);
+        assertThat(current.generatedScriptPath()).isNotBlank();
+        assertThat(current.voiceManifestPath()).isNotBlank();
+        assertThat(Path.of(current.timelinePath())).isRegularFile();
+        assertThat(current.renderedVideoPath()).isNull();
+        assertThat(current.stages().stream().filter(stage -> stage.status() == StageStatus.COMPLETED)).hasSize(8);
+        assertThat(current.stages().getLast().status()).isEqualTo(StageStatus.PENDING);
     }
 }
 ``

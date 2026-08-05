@@ -156,6 +156,17 @@ public class TaskWorkflowStateService {
         artifactRegistry.record(taskId, "TRANSCRIPT_DETAIL", corrected.detailJsonPath(), "application/json", false);
     }
 
+    /** Applies an optional enhancement without moving the overall task into PROCESSING or FAILED. */
+    @Transactional
+    public void applyTranscriptionEnhancement(UUID taskId, TranscriptionResult result) {
+        VideoTask task = requireTask(taskId);
+        TranscriptionResult corrected = terminologyCorrector.correct(result, task.getTerminologyGlossary());
+        task.completeTranscription(corrected.text(), corrected.textPath(), corrected.subtitlePath(), corrected.detailJsonPath());
+        artifactRegistry.record(taskId, "TRANSCRIPT_TEXT", corrected.textPath(), "text/plain", false);
+        artifactRegistry.record(taskId, "TRANSCRIPT_SUBTITLE", corrected.subtitlePath(), "application/x-subrip", false);
+        artifactRegistry.record(taskId, "TRANSCRIPT_DETAIL", corrected.detailJsonPath(), "application/json", false);
+    }
+
     @Transactional
     public void markTranscriptionFailed(UUID taskId, String reason) {
         requireTask(taskId).failTranscription(reason);

@@ -150,12 +150,6 @@ public class VideoTaskEngine {
                         taskId);
             }
 
-            if (!context.automaticGenerationEnabled()) {
-                stateService.markManualEditingReady(taskId);
-                log.info("ENGINE_READY taskId={} mode=manual mediaPrepared=true", taskId);
-                return;
-            }
-
             activeStage = "TRANSCRIPTION";
             checkCancellation(taskId);
             if (!context.transcriptionCompleted()) {
@@ -164,15 +158,15 @@ public class VideoTaskEngine {
                 if (result != null) {
                     log.info("TRANSCRIPTION_PLATFORM_SUBTITLE taskId={} subtitle={}", taskId,
                             result.subtitlePath());
-                } else if (context.hasAudio() && transcriber.runtimeAvailable()) {
+                } else if (context.automaticGenerationEnabled() && context.hasAudio() && transcriber.runtimeAvailable()) {
                     String extractedAudioPath = context.extractedAudioPath();
                     result = retryExecutor.analysis(() ->
                             transcriber.transcribe(Path.of(extractedAudioPath)));
                 } else {
                     result = new TranscriptionResult("", null, null, null);
-                    String reason = context.hasAudio() ? "whisper_unavailable" : "no_audio_track";
-                    log.warn("TRANSCRIPTION_SKIPPED taskId={} reason={} setup=.\\scripts\\setup-whisper.ps1",
-                            taskId, reason);
+                    String reason = !context.automaticGenerationEnabled() ? "manual_mode_optional_enhancement"
+                            : context.hasAudio() ? "whisper_unavailable" : "no_audio_track";
+                    log.info("TRANSCRIPTION_SKIPPED taskId={} reason={}", taskId, reason);
                 }
                 stateService.markTranscriptionCompleted(taskId, result);
                 if (result.subtitlePath() != null) {
@@ -294,6 +288,11 @@ public class VideoTaskEngine {
                 context = stateService.context(taskId);
             } else {
                 log.info("ENGINE_STAGE_SKIPPED taskId={} stage=TIMELINE_PLANNING reason=already_completed", taskId);
+            }
+            if (!context.automaticGenerationEnabled()) {
+                stateService.markManualEditingReady(taskId);
+                log.info("ENGINE_READY taskId={} mode=manual editableTimeline=true", taskId);
+                return;
             }
             activeStage = "RENDERING";
             checkCancellation(taskId);
