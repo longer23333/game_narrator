@@ -78,6 +78,20 @@ function Copy-WhisperRuntime([string]$Source, [string]$Destination) {
     $_.Name -notin @('parakeet.dll', 'SDL2.dll')
   } | Copy-Item -Destination $releaseDestination
 }
+function Stop-OwnedFrontendDevProcesses([string]$FrontendRoot) {
+  $normalizedRoot = [IO.Path]::GetFullPath($FrontendRoot)
+  $owned = @(Get-CimInstance Win32_Process -ErrorAction SilentlyContinue | Where-Object {
+    $_.Name -in @('node.exe', 'esbuild.exe') -and
+    -not [string]::IsNullOrWhiteSpace($_.CommandLine) -and
+    $_.CommandLine.IndexOf($normalizedRoot, [StringComparison]::OrdinalIgnoreCase) -ge 0 -and
+    ($_.CommandLine -match 'vite[\\/]bin[\\/]vite\.js|esbuild\.exe\s+--service')
+  })
+  foreach ($process in $owned | Sort-Object { if ($_.Name -eq 'esbuild.exe') { 0 } else { 1 } }) {
+    Write-Host "Stopping workspace frontend process PID $($process.ProcessId): $($process.Name)"
+    Stop-Process -Id $process.ProcessId -Force -ErrorAction SilentlyContinue
+  }
+  if ($owned.Count -gt 0) { Start-Sleep -Milliseconds 500 }
+}
 
 if ([string]::IsNullOrWhiteSpace($LocalDependenciesRoot)) {
   $siblingDependencies = Join-Path (Split-Path -Parent $projectRoot) 'game_narrator-local-20260803'
@@ -96,6 +110,7 @@ $frontendRoot = Join-Path $projectRoot 'frontend'
 Require-File (Join-Path $frontendRoot 'package-lock.json') 'Frontend lock file is required for reproducible builds'
 Write-Host 'Restoring locked frontend dependencies...'
 if (-not $SkipFrontendRestore) {
+  Stop-OwnedFrontendDevProcesses $frontendRoot
   & $npm --prefix $frontendRoot ci --no-audit --no-fund
   if ($LASTEXITCODE -ne 0) { throw 'Frontend dependency restore failed. Close any running Vite process or retry with -SkipFrontendRestore when the locked dependencies are already installed.' }
 } elseif (-not (Test-Path -LiteralPath (Join-Path $frontendRoot 'node_modules\vite\bin\vite.js') -PathType Leaf)) {
