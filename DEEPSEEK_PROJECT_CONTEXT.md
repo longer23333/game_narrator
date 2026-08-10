@@ -1,6 +1,6 @@
 # GameNarrator — DeepSeek 项目上下文包
 
-> 自动生成时间：2026-08-10 09:53:02 +08:00
+> 自动生成时间：2026-08-10 09:56:21 +08:00
 > 文件数量：327。本文件由 scripts/export-deepseek-context.ps1 生成，请勿手工维护生成区。
 
 ## 给 DeepSeek 的强制工作规则
@@ -24,7 +24,7 @@
 
 - `pom.xml`（2625 bytes）
 - `README.md`（4934 bytes）
-- `.gitignore`（439 bytes）
+- `.gitignore`（496 bytes）
 - `docs/ANDROID_FEATURE_PARITY.md`（11143 bytes）
 - `docs/ANDROID_MODELS.md`（1865 bytes）
 - `docs/ARCHITECTURE.md`（2726 bytes）
@@ -596,6 +596,9 @@ android-app/local.properties
 android-app/keystore/
 keystore.properties
 android-app/**/build/
+.avd/
+android-app/baseline-build.log.err
+resume_probe.py
 launcher/bin/
 launcher/obj/
 dist/
