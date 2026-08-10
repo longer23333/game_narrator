@@ -1,7 +1,7 @@
 ﻿# GameNarrator — DeepSeek 结构化项目索引
 
-> 自动生成：2026-08-10 11:14:21 +08:00；UTF-8 BOM；索引不再内嵌全部源码。
-> Git：分支 `main`，提交 `31419f1`；收录文件 577 个，分卷 8 个。
+> 自动生成：2026-08-10 11:35:05 +08:00；UTF-8 BOM；索引不再内嵌全部源码。
+> Git：分支 `main`，提交 `8aa03a6`；收录文件 589 个，分卷 8 个。
 
 ## 使用方法
 
@@ -27,21 +27,19 @@
 
 | 分卷 | 文件数 | 字符数 | 建议用途 |
 |---|---:|---:|---|
-| `deepseek-context/01-foundation.md` | 33 | 58660 | 构建、配置、资源、数据库迁移 |
-| `deepseek-context/02-backend.md` | 212 | 825161 | Spring 后端实现 |
-| `deepseek-context/03-tests.md` | 63 | 159285 | Spring 测试与行为验证 |
-| `deepseek-context/04-frontend.md` | 14 | 309979 | Vite Web 源码 |
+| `deepseek-context/01-foundation.md` | 34 | 61087 | 构建、配置、资源、数据库迁移 |
+| `deepseek-context/02-backend.md` | 222 | 853755 | Spring 后端实现 |
+| `deepseek-context/03-tests.md` | 64 | 163881 | Spring 测试与行为验证 |
+| `deepseek-context/04-frontend.md` | 14 | 316394 | Vite Web 源码 |
 | `deepseek-context/05-android-main.md` | 151 | 854568 | Android 实现、资源与 Gradle |
 | `deepseek-context/06-android-tests.md` | 55 | 131882 | Android 单元及设备测试 |
 | `deepseek-context/07-platform-release.md` | 10 | 47135 | Windows、CI/CD 与发布 |
-| `deepseek-context/08-docs-scripts.md` | 39 | 139893 | 需求、架构、维护脚本 |
+| `deepseek-context/08-docs-scripts.md` | 39 | 140937 | 需求、架构、维护脚本 |
 
 ## 当前 Git 工作区（最近修改）
 
 ```text
-M .gitignore
- M DEEPSEEK_PROJECT_CONTEXT.md
- M docs/ARCHITECTURE.md
+M docs/ARCHITECTURE.md
  M docs/DATABASE_DESIGN.md
  M docs/REQUIREMENTS.md
  M frontend/index.html
@@ -49,54 +47,23 @@ M .gitignore
  M frontend/package.json
  M frontend/public/app.css
  M frontend/public/app.js
- M frontend/public/diagnostics.js
  M frontend/public/updates.js
  M launcher/GameNarrator.Launcher.csproj
  M package.json
  M pom.xml
  M release/installer/GameNarrator-Demo-Lite.iss
  M release/installer/GameNarrator.iss
- M scripts/export-deepseek-context.ps1
- M scripts/update-deepseek-context.cmd
- M src/main/java/cn/longer233/gamenarrator/event/BossBattleKnowledgePack.java
- M src/main/java/cn/longer233/gamenarrator/event/GameEventTimelineController.java
- M src/main/java/cn/longer233/gamenarrator/event/GameEventTimelineService.java
- M src/main/java/cn/longer233/gamenarrator/observability/StorageCapacityGuard.java
- M src/main/java/cn/longer233/gamenarrator/render/RenderAudioMixBuilder.java
- M src/main/java/cn/longer233/gamenarrator/script/ScriptWorkspaceService.java
- M src/main/java/cn/longer233/gamenarrator/storage/VideoStorage.java
+ M src/main/java/cn/longer233/gamenarrator/storage/SourceMediaRegistry.java
  M src/main/java/cn/longer233/gamenarrator/task/application/VideoTaskService.java
- M src/main/resources/application.yml
- M src/main/resources/knowledge-packs/boss-battle-v1.json
+ M src/main/java/cn/longer233/gamenarrator/task/repository/VideoTaskRepository.java
  M src/main/resources/static/app.css
  M src/main/resources/static/app.js
- M src/main/resources/static/diagnostics.js
  M src/main/resources/static/index.html
  M src/main/resources/static/updates.js
- M src/test/java/cn/longer233/gamenarrator/observability/StorageCapacityGuardTest.java
- M src/test/java/cn/longer233/gamenarrator/render/RenderAudioMixBuilderTest.java
  M src/test/java/cn/longer233/gamenarrator/task/DatabaseMigrationTest.java
-?? src/main/java/cn/longer233/gamenarrator/event/BattleNarrativePlanService.java
-?? src/main/java/cn/longer233/gamenarrator/event/BattleNarrativePlanView.java
-?? src/main/java/cn/longer233/gamenarrator/event/GameKnowledgePackController.java
-?? src/main/java/cn/longer233/gamenarrator/event/GameKnowledgePackService.java
-?? src/main/java/cn/longer233/gamenarrator/event/KnowledgePackView.java
-?? src/main/java/cn/longer233/gamenarrator/event/NarrativeBeat.java
-?? src/main/java/cn/longer233/gamenarrator/event/NarrativeStage.java
-?? src/main/java/cn/longer233/gamenarrator/personalization/
-?? src/main/java/cn/longer233/gamenarrator/quality/
-?? src/main/java/cn/longer233/gamenarrator/storage/LargeUploadCapacityFilter.java
-?? src/main/java/cn/longer233/gamenarrator/storage/SourceMediaRegistry.java
-?? src/main/java/cn/longer233/gamenarrator/storage/StorageAdminController.java
-?? src/main/java/cn/longer233/gamenarrator/storage/StorageAdminService.java
-?? src/main/java/cn/longer233/gamenarrator/storage/StorageAdminView.java
-?? src/main/resources/db/migration/V24__battle_narrative_plan.sql
-?? src/main/resources/db/migration/V25__knowledge_packs_and_director_profile.sql
-?? src/main/resources/db/migration/V26__source_media_storage_tracking.sql
-?? src/test/java/cn/longer233/gamenarrator/event/BattleNarrativePlanServiceTest.java
-?? src/test/java/cn/longer233/gamenarrator/event/GameKnowledgePackServiceTest.java
-?? src/test/java/cn/longer233/gamenarrator/personalization/
-?? src/test/java/cn/longer233/gamenarrator/storage/
+?? src/main/java/cn/longer233/gamenarrator/community/
+?? src/main/resources/db/migration/V27__community_ecosystem.sql
+?? src/test/java/cn/longer233/gamenarrator/community/
 ```
 
 ## Flyway 迁移索引
@@ -127,6 +94,7 @@ M .gitignore
 - `src/main/resources/db/migration/V24__battle_narrative_plan.sql`
 - `src/main/resources/db/migration/V25__knowledge_packs_and_director_profile.sql`
 - `src/main/resources/db/migration/V26__source_media_storage_tracking.sql`
+- `src/main/resources/db/migration/V27__community_ecosystem.sql`
 
 ## 运行配置索引
 
@@ -156,6 +124,8 @@ M .gitignore
 | GET | `/api/assets/discover/featured` | `src/main/java/cn/longer233/gamenarrator/asset/AssetCatalogController.java` |
 | GET | `/api/assets/sources` | `src/main/java/cn/longer233/gamenarrator/asset/AssetCatalogController.java` |
 | GET | `/api/assets` | `src/main/java/cn/longer233/gamenarrator/asset/AssetCatalogController.java` |
+| GET | `/api/community/resources/{id}/export` | `src/main/java/cn/longer233/gamenarrator/community/CommunityResourceController.java` |
+| GET | `/api/community/resources` | `src/main/java/cn/longer233/gamenarrator/community/CommunityResourceController.java` |
 | GET | `/api/compilations/{id}` | `src/main/java/cn/longer233/gamenarrator/compilation/ClipCompilationController.java` |
 | GET | `/api/compilations` | `src/main/java/cn/longer233/gamenarrator/compilation/ClipCompilationController.java` |
 | GET | `/api/debug/health` | `src/main/java/cn/longer233/gamenarrator/diagnostics/DiagnosticsController.java` |
@@ -182,6 +152,8 @@ M .gitignore
 | GET | `/api/tasks/{id}/render-preview` | `src/main/java/cn/longer233/gamenarrator/task/web/VideoTaskController.java` |
 | GET | `/api/tasks/{id}/source` | `src/main/java/cn/longer233/gamenarrator/task/web/VideoTaskController.java` |
 | GET | `/api/tasks/{id}` | `src/main/java/cn/longer233/gamenarrator/task/web/VideoTaskController.java` |
+| GET | `/api/tasks/{taskId}/decision-report/export` | `src/main/java/cn/longer233/gamenarrator/community/EditingDecisionReportController.java` |
+| GET | `/api/tasks/{taskId}/decision-report` | `src/main/java/cn/longer233/gamenarrator/community/EditingDecisionReportController.java` |
 | GET | `/api/tasks/{taskId}/editor/revisions` | `src/main/java/cn/longer233/gamenarrator/editor/ProjectRevisionController.java` |
 | GET | `/api/tasks/{taskId}/editor/waveform` | `src/main/java/cn/longer233/gamenarrator/editor/EditorTimelineController.java` |
 | GET | `/api/tasks/{taskId}/editor` | `src/main/java/cn/longer233/gamenarrator/editor/EditorTimelineController.java` |
@@ -196,6 +168,7 @@ M .gitignore
 | GET | `/api/tasks/{taskId}/storyboard/assets` | `src/main/java/cn/longer233/gamenarrator/script/ScriptWorkspaceController.java` |
 | GET | `/api/tasks/{taskId}/storyboard/segments/{clipIndex}/thumbnail` | `src/main/java/cn/longer233/gamenarrator/script/ScriptWorkspaceController.java` |
 | GET | `/api/tasks/{taskId}/storyboard` | `src/main/java/cn/longer233/gamenarrator/script/ScriptWorkspaceController.java` |
+| GET | `/api/tasks/{taskId}/variants` | `src/main/java/cn/longer233/gamenarrator/community/CreativeVariantController.java` |
 | GET | `/api/tasks/{taskId}/voice/options` | `src/main/java/cn/longer233/gamenarrator/script/ScriptWorkspaceController.java` |
 | GET | `/api/tasks` | `src/main/java/cn/longer233/gamenarrator/task/web/VideoTaskController.java` |
 | GET | `/api/video-segments/{taskId}/{frameIndex}/thumbnail` | `src/main/java/cn/longer233/gamenarrator/vision/VideoSegmentSearchController.java` |
@@ -213,6 +186,9 @@ M .gitignore
 | POST | `/api/assets/repair/bilibili-metadata` | `src/main/java/cn/longer233/gamenarrator/asset/AssetCatalogController.java` |
 | POST | `/api/assets/upload` | `src/main/java/cn/longer233/gamenarrator/asset/AssetCatalogController.java` |
 | POST | `/api/assets` | `src/main/java/cn/longer233/gamenarrator/asset/AssetCatalogController.java` |
+| POST | `/api/community/knowledge-packs/{code}` | `src/main/java/cn/longer233/gamenarrator/community/CommunityResourceController.java` |
+| POST | `/api/community/resources/{id}/install` | `src/main/java/cn/longer233/gamenarrator/community/CommunityResourceController.java` |
+| POST | `/api/community/styles/{code}` | `src/main/java/cn/longer233/gamenarrator/community/CommunityResourceController.java` |
 | POST | `/api/compilations/{id}/items` | `src/main/java/cn/longer233/gamenarrator/compilation/ClipCompilationController.java` |
 | POST | `/api/compilations` | `src/main/java/cn/longer233/gamenarrator/compilation/ClipCompilationController.java` |
 | POST | `/api/debug/client-events` | `src/main/java/cn/longer233/gamenarrator/diagnostics/DiagnosticsController.java` |
@@ -230,6 +206,7 @@ M .gitignore
 | POST | `/api/tasks/{id}/retry` | `src/main/java/cn/longer233/gamenarrator/task/web/VideoTaskController.java` |
 | POST | `/api/tasks/{id}/start` | `src/main/java/cn/longer233/gamenarrator/task/web/VideoTaskController.java` |
 | POST | `/api/tasks/{id}/storyboard/approve` | `src/main/java/cn/longer233/gamenarrator/task/web/VideoTaskController.java` |
+| POST | `/api/tasks/{taskId}/decision-report` | `src/main/java/cn/longer233/gamenarrator/community/EditingDecisionReportController.java` |
 | POST | `/api/tasks/{taskId}/editor/commands` | `src/main/java/cn/longer233/gamenarrator/editor/EditorTimelineController.java` |
 | POST | `/api/tasks/{taskId}/editor/revisions/{revisionId}/checkout` | `src/main/java/cn/longer233/gamenarrator/editor/ProjectRevisionController.java` |
 | POST | `/api/tasks/{taskId}/enhancements/assets` | `src/main/java/cn/longer233/gamenarrator/enhancement/TaskEnhancementController.java` |
@@ -243,6 +220,8 @@ M .gitignore
 | POST | `/api/tasks/{taskId}/storyboard/assets/auto` | `src/main/java/cn/longer233/gamenarrator/script/ScriptWorkspaceController.java` |
 | POST | `/api/tasks/{taskId}/storyboard/segments/{clipIndex}/assets` | `src/main/java/cn/longer233/gamenarrator/script/ScriptWorkspaceController.java` |
 | POST | `/api/tasks/{taskId}/storyboard/segments/{clipIndex}/move` | `src/main/java/cn/longer233/gamenarrator/script/ScriptWorkspaceController.java` |
+| POST | `/api/tasks/{taskId}/variants/{variantId}/materialize` | `src/main/java/cn/longer233/gamenarrator/community/CreativeVariantController.java` |
+| POST | `/api/tasks/{taskId}/variants/generate` | `src/main/java/cn/longer233/gamenarrator/community/CreativeVariantController.java` |
 | POST | `/api/tasks/{taskId}/voice/segments/{clipIndex}/regenerate` | `src/main/java/cn/longer233/gamenarrator/script/ScriptWorkspaceController.java` |
 | POST | `/api/tasks` | `src/main/java/cn/longer233/gamenarrator/task/web/VideoTaskController.java` |
 | POST | `/api/video-segments/search-image` | `src/main/java/cn/longer233/gamenarrator/vision/VideoSegmentSearchController.java` |

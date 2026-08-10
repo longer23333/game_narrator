@@ -38,12 +38,20 @@ public class SourceMediaRegistry implements ApplicationRunner {
     }
 
     public void registerManaged(UUID taskId, Path path, String originalFilename, String contentType) {
+        register(taskId, path, originalFilename, contentType, "MANAGED");
+    }
+
+    public void registerReferenced(UUID taskId, Path path, String originalFilename, String contentType) {
+        register(taskId, path, originalFilename, contentType, "REFERENCED");
+    }
+
+    private void register(UUID taskId, Path path, String originalFilename, String contentType, String mode) {
         try {
             FileStore store = Files.getFileStore(path);
             jdbc.update("""
                     MERGE INTO source_media_storage(task_id,storage_mode,storage_path,original_filename,size_bytes,
                     content_type,filesystem_key,registered_at,last_verified_at) KEY(task_id) VALUES(?,?,?,?,?,?,?,?,?)
-                    """, taskId, "MANAGED", path.toAbsolutePath().normalize().toString(), originalFilename,
+                    """, taskId, mode, path.toAbsolutePath().normalize().toString(), originalFilename,
                     Files.size(path), contentType, store.name() + ":" + store.type(), OffsetDateTime.now(), OffsetDateTime.now());
         } catch (Exception exception) {
             throw new IllegalStateException("无法登记源视频存储信息", exception);

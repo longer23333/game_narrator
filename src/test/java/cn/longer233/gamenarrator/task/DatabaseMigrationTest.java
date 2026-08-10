@@ -67,6 +67,13 @@ class DatabaseMigrationTest {
             int sourceStorageColumns = 0;
             while (sourceStorage.next()) sourceStorageColumns++;
             assertThat(sourceStorageColumns).isEqualTo(5);
+            var ecosystemTables = statement.executeQuery("""
+                    SELECT table_name FROM information_schema.tables
+                    WHERE table_name IN ('COMMUNITY_RESOURCE','CREATIVE_VARIANT','EDITING_DECISION_REPORT')
+                    """);
+            int ecosystemTableCount = 0;
+            while (ecosystemTables.next()) ecosystemTableCount++;
+            assertThat(ecosystemTableCount).isEqualTo(3);
         }
     }
 

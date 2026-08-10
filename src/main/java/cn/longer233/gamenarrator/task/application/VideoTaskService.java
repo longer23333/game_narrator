@@ -237,14 +237,16 @@ public class VideoTaskService {
             cn.longer233.gamenarrator.common.TaskProcessRegistry.cancelAndAwait(id,
                     java.time.Duration.ofSeconds(5));
         }
-        List<String> paths = java.util.stream.Stream.of(task.getSourceVideoPath(), task.getExtractedAudioPath(),
+        boolean sharedSource = task.getSourceVideoPath() != null
+                && repository.countBySourceVideoPath(task.getSourceVideoPath()) > 1;
+        List<String> paths = java.util.stream.Stream.of(sharedSource ? null : task.getSourceVideoPath(), task.getExtractedAudioPath(),
                 task.getSceneManifestPath(), task.getTranscriptTextPath(), task.getSubtitlePath(),
                 task.getTranscriptJsonPath(), task.getVisualAnalysisPath(), task.getHighlightManifestPath(),
                 task.getGeneratedScriptPath(), task.getVoiceManifestPath(), task.getTimelinePath(),
                 task.getGeneratedSubtitlePath(), task.getRenderedVideoPath())
                 .filter(java.util.Objects::nonNull).filter(value -> !value.isBlank()).toList();
         List<String> ownedPaths = new java.util.ArrayList<>(paths);
-        if (task.getSourceVideoPath() != null) {
+        if (task.getSourceVideoPath() != null && !sharedSource) {
             Path source = Path.of(task.getSourceVideoPath());
             ownedPaths.add(source.resolveSibling(source.getFileName() + ".platform.srt").toString());
             ownedPaths.add(source.resolveSibling(source.getFileName() + ".platform.txt").toString());

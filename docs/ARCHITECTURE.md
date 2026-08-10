@@ -71,3 +71,9 @@ Groq、Together、Perplexity 和 Cerebras；Anthropic Messages 与 Google Gemini
 3. 分镜工作台通过事件 API 展示、修正和确认事件。
 4. `OllamaScriptGenerator` 只接收已确认事件及中性的片段时间范围，避免未确认的 OCR、模型描述或高光标签被写成事实。
 5. 用户触发事实约束重写后，后续配音、时间线和渲染产物按现有失效规则重新生成。
+## 社区生态与同源多版本
+
+1. `CommunityResourceService` 把知识包与剪辑风格统一封装为带作者、许可、标签和格式版本的社区资源，安装时仍调用各自领域服务进行校验，避免绕过知识包或风格规则约束。
+2. `CreativeVariantService` 为同一任务生成剧情、攻略、搞笑、复盘四种策略。策略记录不复制视频；创建独立任务时，`source_media_storage` 以 `REFERENCED` 模式登记共享源文件，各任务只生成自己的分析、文案、配音和渲染产物。
+3. 删除共享源录像关联的任务时，只有最后一个引用任务才允许清理源文件，防止删除某个衍生版本破坏其他成片任务。
+4. `EditingDecisionReportService` 汇总任务参数、确认事件、用户修改样本和多版本策略，同时生成 JSON 与 Markdown，用于可解释编辑和项目展示。

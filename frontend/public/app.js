@@ -81,7 +81,7 @@ document.querySelector('#updates-open')?.addEventListener('click', async event =
   try { await loadLazyScript('updates'); document.querySelector('#updates-dialog')?.showModal(); }
   catch (error) { window.alert(error.message); } finally { button.disabled = false; }
 });
-if (localStorage.getItem('gameNarrator.lastSeenRelease') === '2.1.6') document.querySelector('#updates-open')?.classList.remove('has-update');
+if (localStorage.getItem('gameNarrator.lastSeenRelease') === '2.1.7') document.querySelector('#updates-open')?.classList.remove('has-update');
 window.addEventListener('gamenarrator-release-jump', event => {
   const {view='studio', selector, note} = event.detail || {}; activateView(view, true);
   setTimeout(() => {
@@ -1047,6 +1047,18 @@ function renderDirectorIntelligence(profile, quality, packs) {
   </section>`;
 }
 
+function renderCommunityEcosystem(taskId, packs, resources, variants, report) {
+  const resourceCards = (resources || []).map(item => `<article><header><b>${escapeHtml(item.name)}</b><span>${escapeHtml(item.resourceType === 'KNOWLEDGE_PACK' ? '知识包' : '剪辑风格')}</span></header><p>${escapeHtml(item.description)}</p><small>${escapeHtml(item.authorName)} · ${escapeHtml(item.licenseCode)} · 安装 ${item.installCount}</small><footer><button type="button" data-community-install="${item.id}">安装</button><a href="/api/community/resources/${item.id}/export">导出</a></footer></article>`).join('');
+  const variantCards = (variants || []).map(item => `<article><header><b>${escapeHtml(item.name)}</b><span>${escapeHtml(item.status)}</span></header><p>${escapeHtml(item.strategy.narrativeFocus)}</p><small>目标 ${item.strategy.targetDurationSeconds} 秒 · 节奏 ×${Number(item.strategy.paceMultiplier).toFixed(2)} · 复用源录像</small><footer>${item.generatedTaskId ? `<button type="button" data-open-task="${item.generatedTaskId}">查看成片任务</button>` : `<button type="button" data-community-materialize="${item.id}">创建独立成片任务</button>`}</footer></article>`).join('');
+  return `<section class="community-ecosystem" data-community-task="${taskId}">
+    <header><div><small>COMMUNITY ECOSYSTEM</small><h3>创作者社区与多版本工作台</h3><p>分享知识包和剪辑规则；同一段录像规划剧情版、攻略版、搞笑版和复盘版。</p></div><div><button type="button" data-storyboard-action="variants-generate" data-task-id="${taskId}">${variants?.length ? '重新生成四版策略' : '生成四种版本'}</button><button type="button" data-storyboard-action="decision-report" data-task-id="${taskId}">生成决策报告</button><a href="/api/tasks/${taskId}/decision-report/export">导出 Markdown</a></div></header>
+    <div class="community-publish"><strong>发布到本地社区</strong>${packs.map(pack => `<button type="button" data-community-publish-pack="${escapeHtml(pack.code)}">分享 ${escapeHtml(pack.name)}</button>`).join('')}<button type="button" data-community-publish-style="HUMOROUS">分享搞笑剪辑规则</button></div>
+    <div class="creative-variant-grid">${variantCards || '<p class="empty">尚未生成多版本方案。</p>'}</div>
+    <details><summary>社区资源 ${resources?.length || 0} 项</summary><div class="community-resource-grid">${resourceCards || '<p class="empty">尚未分享资源，可先发布当前知识包或剪辑风格。</p>'}</div></details>
+    <p class="decision-report-status">${report ? `最近报告：${new Date(report.generatedAt).toLocaleString()} · 版本 ${report.reportVersion}` : '尚未生成剪辑决策报告。'}</p>
+  </section>`;
+}
+
 function renderGameEventTimeline(events, knowledgePack, narrativePlan, taskId) {
   const statusText = {AI_SUGGESTED:'AI 建议，等待确认', CONFIRMED:'已确认，可用于文案', NEEDS_REVIEW:'需要进一步核对'};
   const cards = events.map(item => `
@@ -1084,7 +1096,7 @@ async function loadStoryboardEditor(taskId) {
   clearInterval(storyboardProgressTimer);
   if (!storyboardDialog.open) storyboardDialog.showModal();
   storyboardWorkspace.innerHTML = '<p class="empty">正在读取完整分镜时间线…</p>';
-  const [storyboard, localAssets, placements, editorTimeline, waveform, revisions, gameEvents, knowledgePack, narrativePlan, directorProfile, narrativeQuality, knowledgePacks] = await Promise.all([
+  const [storyboard, localAssets, placements, editorTimeline, waveform, revisions, gameEvents, knowledgePack, narrativePlan, directorProfile, narrativeQuality, knowledgePacks, communityResources, creativeVariants, decisionReport] = await Promise.all([
     requestJson(`/api/tasks/${taskId}/storyboard`),
     requestJson('/api/assets?importStatus=DOWNLOADED&limit=100'),
     requestJson(`/api/tasks/${taskId}/storyboard/assets`),
@@ -1096,13 +1108,17 @@ async function loadStoryboardEditor(taskId) {
     requestJson(`/api/tasks/${taskId}/events/narrative-plan`),
     requestJson('/api/director-profile'),
     requestJson(`/api/tasks/${taskId}/quality/narrative-consistency`),
-    requestJson('/api/knowledge-packs')
+    requestJson('/api/knowledge-packs'),
+    requestJson('/api/community/resources'),
+    requestJson(`/api/tasks/${taskId}/variants`),
+    requestJson(`/api/tasks/${taskId}/decision-report`)
   ]);
   const totalDuration = storyboard.segments.reduce((sum, item) => sum + item.endSeconds - item.startSeconds, 0);
   storyboardWorkspace.innerHTML = `
     <section class="detail-block storyboard-editor" data-task-id="${taskId}" data-review-enabled="${storyboard.reviewEnabled}" data-approved="${storyboard.approved}">
       ${renderGameEventTimeline(gameEvents, knowledgePack, narrativePlan, taskId)}
       ${renderDirectorIntelligence(directorProfile, narrativeQuality, knowledgePacks)}
+      ${renderCommunityEcosystem(taskId, knowledgePacks, communityResources, creativeVariants, decisionReport)}
       <header class="storyboard-editor-head"><div><small>EDITOR WORKSPACE</small><h3>${escapeHtml(storyboard.title || '自由剪辑与分镜')}</h3><p>${escapeHtml(storyboard.synopsis || '')}</p></div>
       <div class="storyboard-head-actions"><button type="button" data-storyboard-action="auto-assets" data-task-id="${taskId}">自动匹配并下载素材</button>${storyboard.approved ? '<span class="storyboard-approved">已确认 / 自动模式</span>' : '<span class="storyboard-review-pending">修改后请使用底部主按钮保存并继续</span>'}</div></header>
       <div class="storyboard-stats"><span>${storyboard.segments.length} 个分镜</span><span>预计素材时长 ${formatDuration(totalDuration)}</span><span>支持拖拽排序与入点/出点修剪</span></div>
@@ -1153,6 +1169,29 @@ async function loadStoryboardEditor(taskId) {
       await loadStoryboardEditor(taskId);
     } catch (error) { window.alert(`知识包导入失败：${error.message}`); }
   });
+  storyboardWorkspace.querySelectorAll('[data-community-install]').forEach(button => button.addEventListener('click', async () => {
+    button.disabled = true;
+    try { await requestJson(`/api/community/resources/${button.dataset.communityInstall}/install`, {method:'POST'}); await loadStoryboardEditor(taskId); }
+    catch (error) { window.alert(error.message); button.disabled = false; }
+  }));
+  storyboardWorkspace.querySelectorAll('[data-community-materialize]').forEach(button => button.addEventListener('click', async () => {
+    button.disabled = true;
+    try { await requestJson(`/api/tasks/${taskId}/variants/${button.dataset.communityMaterialize}/materialize`, {method:'POST'}); await loadStoryboardEditor(taskId); }
+    catch (error) { window.alert(error.message); button.disabled = false; }
+  }));
+  storyboardWorkspace.querySelectorAll('[data-open-task]').forEach(button => button.addEventListener('click', () => {
+    clearInterval(storyboardProgressTimer); storyboardDialog.close(); openTaskDetails(button.dataset.openTask);
+  }));
+  storyboardWorkspace.querySelectorAll('[data-community-publish-pack]').forEach(button => button.addEventListener('click', async () => {
+    button.disabled = true;
+    try { await requestJson(`/api/community/knowledge-packs/${encodeURIComponent(button.dataset.communityPublishPack)}`, {method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify({authorName:'本地创作者',licenseCode:'CC-BY-4.0',tags:['游戏知识','事件识别']})}); await loadStoryboardEditor(taskId); }
+    catch (error) { window.alert(error.message); button.disabled = false; }
+  }));
+  storyboardWorkspace.querySelectorAll('[data-community-publish-style]').forEach(button => button.addEventListener('click', async () => {
+    button.disabled = true;
+    try { await requestJson(`/api/community/styles/${encodeURIComponent(button.dataset.communityPublishStyle)}`, {method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify({authorName:'本地创作者',licenseCode:'CC-BY-4.0',tags:['剪辑规则','风格配置']})}); await loadStoryboardEditor(taskId); }
+    catch (error) { window.alert(error.message); button.disabled = false; }
+  }));
   mountRevisionTree(taskId);
   storyboardWorkspace.scrollTo({top:0, behavior:'smooth'});
   await updateStoryboardProgress(taskId);
@@ -1379,6 +1418,16 @@ async function handleStoryboardAction(button) {
   const taskId = button.dataset.taskId;
   button.disabled = true;
   try {
+    if (button.dataset.storyboardAction === 'variants-generate') {
+      await requestJson(`/api/tasks/${taskId}/variants/generate`, {method:'POST'});
+      await loadStoryboardEditor(taskId);
+      return;
+    }
+    if (button.dataset.storyboardAction === 'decision-report') {
+      await requestJson(`/api/tasks/${taskId}/decision-report`, {method:'POST'});
+      await loadStoryboardEditor(taskId);
+      return;
+    }
     if (button.dataset.storyboardAction === 'narrative-generate') {
       const eventCards = [...storyboardWorkspace.querySelectorAll('[data-game-event]')];
       for (const eventCard of eventCards) await saveGameEventCard(taskId, eventCard);
@@ -1677,7 +1726,7 @@ const guideSteps = [
   {selector: '.history-panel', title: '第 5 步：从最左侧历史继续', text: '只有真正生成完成的任务才会进入页面最左侧“最近完成”列表。处理中、等待检查、失败或取消的任务都留在右侧，避免被误认为已经完成。点击已完成条目可查看生成文件、分镜、文案、时间线和最终视频。'},
   {selector: '.storyboard-review-option', title: '第 6 步：检查分镜再继续', text: '开启分镜检查后，流程会在文案与分镜生成后暂停。进入线性分镜工作台可调整顺序、起止时间、字幕、解说、素材和特效；保存全部修改后再继续配音与渲染。'},
   {selector: '.primary-nav', title: '更多工具入口', text: '“镜头搜索”使用本地语义模型寻找片段；“平台导入”负责下载并创建项目；“素材库”管理授权素材；“设置”管理云端或本地 AI。遇到问题可点击右上角“诊断日志”。'},
-  {selector: '.topbar-actions', title: '完成、诊断与再次查看', text: '任务完成后在详情中预览并导出 MP4。任何阶段失败时先查看任务详情和诊断日志；本引导可以随时从“使用引导”重新打开。当前版本为 v2.1.6。'}
+  {selector: '.topbar-actions', title: '完成、诊断与再次查看', text: '任务完成后在详情中预览并导出 MP4。任何阶段失败时先查看任务详情和诊断日志；本引导可以随时从“使用引导”重新打开。当前版本为 v2.1.7。'}
 ];
 let guideIndex = 0;
 let guideTarget = null;

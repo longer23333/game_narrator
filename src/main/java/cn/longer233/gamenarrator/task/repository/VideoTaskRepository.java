@@ -11,4 +11,5 @@ public interface VideoTaskRepository extends JpaRepository<VideoTask, UUID> {
     List<VideoTask> findByStatus(TaskStatus status);
     List<VideoTask> findByStatusIn(Collection<TaskStatus> statuses);
     long countByStatus(TaskStatus status);
+    long countBySourceVideoPath(String sourceVideoPath);
 }

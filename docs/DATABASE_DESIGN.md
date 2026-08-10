@@ -670,3 +670,8 @@ POST /api/exports/{id}/cancel                  取消导出
 - `updated_at`：记录最近一次机器生成或人工确认时间。
 
 删除视频任务时事件记录通过外键级联删除。事件按任务与时间建立索引，供分镜工作台和事实约束文案生成读取。
+## `community_resource`、`creative_variant` 与 `editing_decision_report`
+
+- `community_resource` 保存社区知识包和剪辑风格的元数据与 JSON 载荷，`resource_type + code` 唯一；作者、许可、标签、格式版本和安装次数用于分享与兼容性判断。
+- `creative_variant` 关联原始任务，保存剧情、攻略、搞笑、复盘四种版本的独立策略和生成状态。`generated_task_id` 指向实际成片任务，而源视频通过存储引用复用，不复制大文件。
+- `editing_decision_report` 保存版本化 JSON 报告和 Markdown 快照，确保后续剪辑变化后仍能追溯当时的决策说明。

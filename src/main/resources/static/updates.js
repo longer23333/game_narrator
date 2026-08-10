@@ -1,5 +1,6 @@
 const releases = [
-  {version:'2.1.6', title:'战局导演与超大视频存储', current:true, items:['按已确认事件生成五幕战局叙事并自动调整镜头、解说和音乐','新增知识包导入导出、个人导演档案与事实一致性检查','支持 40GB 级视频磁盘流式上传、容量预检和后台存储管理','将 DeepSeek 上下文改为结构化索引与按模块分卷'], jump:{view:'studio', selector:'#task-list'}},
+  {version:'2.1.7', title:'社区生态与同源多版本', current:true, items:['分享和安装游戏知识包、剪辑规则与风格配置','同一录像生成剧情版、攻略版、搞笑版和复盘版独立任务','四种版本复用源视频，避免重复占用超大文件空间','导出 JSON 与 Markdown 剪辑决策报告用于二次修改和毕业设计展示'], jump:{view:'studio', selector:'#task-list'}},
+  {version:'2.1.6', title:'战局导演与超大视频存储', items:['按已确认事件生成五幕战局叙事并自动调整镜头、解说和音乐','新增知识包导入导出、个人导演档案与事实一致性检查','支持 40GB 级视频磁盘流式上传、容量预检和后台存储管理','将 DeepSeek 上下文改为结构化索引与按模块分卷'], jump:{view:'studio', selector:'#task-list'}},
   {version:'2.1.5', title:'并发安全与可解释事件时间线', items:['统一更新 Web、Windows 与 Android 版本','修复工程修订并发覆盖风险','自动创建并同步 GitHub、Gitee 发布标签'], jump:{view:'studio', selector:'#task-list'}},
   {version:'2.1.4', title:'修复展示轻量版无法启动', items:['改用 PowerShell 启动器，避免批处理换行兼容问题','启动输出与错误写入独立日志','已使用打包目录完成真实启动健康检查'], jump:{view:'studio', selector:'#task-list'}},
   {version:'2.1.3', title:'修复 NVENC 驱动不兼容导致音画合成失败', items:['动态字幕音画合成沿用当前有效编码器','NVENC 初始化失败时自动回退 libx264 CPU 编码','清理失败的半成品后自动重试，无需重新剪辑'], jump:{view:'studio', selector:'#task-list'}},
