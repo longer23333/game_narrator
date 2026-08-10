@@ -45,12 +45,14 @@ public class RuleBasedHighlightSelector {
             List<HighlightClip> clips = highlightsOnly
                     ? buildHighlightClips(frames, videoDurationSeconds, targetDurationSeconds, hints, features)
                     : buildContinuousStoryClips(frames, videoDurationSeconds, hints, features);
-            double totalSeconds = clips.stream().mapToDouble(HighlightClip::durationSeconds).sum();
+            Path output = visualAnalysisPath.getParent().resolve("highlights.json");
+            clips = preserveManualDecisions(output, clips);
+            double totalSeconds = clips.stream().filter(clip -> !clip.excluded())
+                    .mapToDouble(HighlightClip::durationSeconds).sum();
             String summary = highlightsOnly
                     ? "已按精彩片段模式选出 %d 个片段，共 %.1f 秒".formatted(clips.size(), totalSeconds)
                     : "已将完整源视频划分为 %d 个连续叙事片段，共 %.1f 秒；高光仅用于标注重点，不裁掉普通内容"
                             .formatted(clips.size(), totalSeconds);
-            Path output = visualAnalysisPath.getParent().resolve("highlights.json");
             Map<String, Object> result = new LinkedHashMap<>();
             result.put("strategy", highlightsOnly ? "ranked-highlights-v1"
                     : (hints.isEmpty() ? "full-story-v1" : "ai-guided-full-story-v1"));
@@ -64,6 +66,7 @@ public class RuleBasedHighlightSelector {
             result.put("summary", summary);
             result.put("requestedTargetDurationSeconds", targetDurationSeconds);
             result.put("selectedDurationSeconds", totalSeconds);
+            result.put("manualDecisionCount", clips.stream().filter(clip -> clip.locked() || clip.excluded()).count());
             result.put("clips", clips);
             cn.longer233.gamenarrator.common.AtomicArtifactWriter.writeJson(objectMapper, output, result);
             log.info("HIGHLIGHT_SELECTION_SUCCESS candidates={} selected={} duration={} output={}",
@@ -74,6 +77,42 @@ public class RuleBasedHighlightSelector {
         } catch (Exception exception) {
             throw new IllegalStateException("高光筛选失败：" + exception.getMessage(), exception);
         }
+    }
+
+    /** Keeps deliberate editor choices when automatic highlight selection is run again. */
+    private List<HighlightClip> preserveManualDecisions(Path existingManifest, List<HighlightClip> generated) {
+        if (!Files.isRegularFile(existingManifest)) return generated;
+        try {
+            List<HighlightClip> previous = objectMapper.readerForListOf(HighlightClip.class)
+                    .readValue(objectMapper.readTree(existingManifest.toFile()).path("clips"));
+            List<HighlightClip> merged = new ArrayList<>();
+            for (HighlightClip candidate : generated) {
+                HighlightClip decision = previous.stream()
+                        .filter(old -> old.sourceFrameIndex() == candidate.sourceFrameIndex())
+                        .findFirst().orElse(null);
+                if (decision == null || (!decision.locked() && !decision.excluded())) {
+                    merged.add(candidate);
+                } else if (decision.locked()) {
+                    merged.add(decision);
+                } else {
+                    merged.add(withDecision(candidate, false, true));
+                }
+            }
+            previous.stream().filter(HighlightClip::locked)
+                    .filter(old -> merged.stream().noneMatch(item -> item.sourceFrameIndex() == old.sourceFrameIndex()))
+                    .forEach(merged::add);
+            return merged.stream().sorted(Comparator.comparingDouble(HighlightClip::startSeconds)).toList();
+        } catch (Exception exception) {
+            log.warn("HIGHLIGHT_MANUAL_DECISIONS_IGNORED manifest={} reason={}",
+                    existingManifest, exception.getMessage());
+            return generated;
+        }
+    }
+
+    private HighlightClip withDecision(HighlightClip clip, boolean locked, boolean excluded) {
+        return new HighlightClip(clip.sourceFrameIndex(), clip.startSeconds(), clip.endSeconds(),
+                clip.anchorSeconds(), clip.eventType(), clip.description(), clip.sourceScore(), clip.finalScore(),
+                locked, excluded);
     }
 
     private List<HighlightClip> buildHighlightClips(List<FrameUnderstanding> frames, double duration,

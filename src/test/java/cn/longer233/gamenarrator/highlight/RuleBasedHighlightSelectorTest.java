@@ -103,6 +103,31 @@ class RuleBasedHighlightSelectorTest {
         assertThat(Files.readString(Path.of(result.manifestPath()))).contains("multimodal-v2", "audioFeatureAvailable");
     }
 
+    @Test
+    void preservesLockedAndExcludedEditorDecisionsAcrossReselection() throws Exception {
+        ObjectMapper mapper = new ObjectMapper();
+        Path input = tempDir.resolve("visual-analysis.json");
+        mapper.writeValue(input.toFile(), Map.of("frames", List.of(
+                frame(1, 10, "ordinary", 20), frame(2, 45, "battle", 95), frame(3, 90, "victory", 90))));
+        Path manifest = tempDir.resolve("highlights.json");
+        HighlightClip locked = new HighlightClip(1, 2, 18, 10, "ordinary", "manual range", 20, 20, true, false);
+        HighlightClip excluded = new HighlightClip(2, 35, 55, 45, "battle", "exclude this", 95, 95, false, true);
+        mapper.writeValue(manifest.toFile(), Map.of("clips", List.of(locked, excluded)));
+
+        HighlightSelectionResult result = new RuleBasedHighlightSelector(mapper)
+                .select(input, 120, 40, "HIGHLIGHTS");
+
+        assertThat(result.clips()).anySatisfy(clip -> {
+            assertThat(clip.sourceFrameIndex()).isEqualTo(1);
+            assertThat(clip.locked()).isTrue();
+            assertThat(clip.startSeconds()).isEqualTo(2);
+            assertThat(clip.endSeconds()).isEqualTo(18);
+        });
+        assertThat(result.clips()).filteredOn(clip -> clip.sourceFrameIndex() == 2)
+                .singleElement().extracting(HighlightClip::excluded).isEqualTo(true);
+        assertThat(mapper.readTree(manifest.toFile()).path("manualDecisionCount").asInt()).isEqualTo(2);
+    }
+
     private FrameUnderstanding frame(int index, double time, String event, int score) {
         return new FrameUnderstanding(index, time, "frame.jpg", "description", event, score, "{}");
     }
