@@ -1,0 +1,5 @@
+<!doctype html><html lang="zh-CN"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>GameNarrator 后台管理</title><link rel="stylesheet" href="/admin.css"></head>
+<body><header><div><h1>GameNarrator 后台管理</h1><p>用户、项目、存储、云端 API 与同步状态</p></div><div><a href="/">返回工作台</a><button id="logout">退出登录</button></div></header>
+<main><section id="login" class="panel hidden"><h2>管理员登录</h2><form id="loginForm"><input name="username" placeholder="用户名" required><input name="password" type="password" placeholder="密码" required><button>登录</button></form><p id="loginTip"></p></section>
+<div id="app" class="hidden"><section id="summary" class="cards"></section><nav><button data-tab="users">用户</button><button data-tab="projects">项目与成片</button><button data-tab="api-usage">云端 API</button><button data-tab="cloud-sync">云同步</button><button data-tab="audit">审计日志</button></nav><section class="panel"><div id="toolbar"></div><div class="table-wrap"><table><thead id="head"></thead><tbody id="body"></tbody></table></div></section></div></main>
+<script src="/admin.js"></script></body></html>

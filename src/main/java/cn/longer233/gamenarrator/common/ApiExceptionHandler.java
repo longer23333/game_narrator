@@ -142,6 +142,12 @@ public class ApiExceptionHandler {
         );
     }
 
+    @ExceptionHandler(cn.longer233.gamenarrator.admin.AdminAccessDeniedException.class)
+    @ResponseStatus(HttpStatus.FORBIDDEN)
+    public ApiError forbidden(cn.longer233.gamenarrator.admin.AdminAccessDeniedException exception) {
+        return error("ADMIN_REQUIRED", exception.getMessage(), "请登录管理员账号后重试");
+    }
+
     public record ApiError(
             String code,
             String message,

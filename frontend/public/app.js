@@ -81,7 +81,7 @@ document.querySelector('#updates-open')?.addEventListener('click', async event =
   try { await loadLazyScript('updates'); document.querySelector('#updates-dialog')?.showModal(); }
   catch (error) { window.alert(error.message); } finally { button.disabled = false; }
 });
-if (localStorage.getItem('gameNarrator.lastSeenRelease') === '2.1.7') document.querySelector('#updates-open')?.classList.remove('has-update');
+if (localStorage.getItem('gameNarrator.lastSeenRelease') === '2.1.8') document.querySelector('#updates-open')?.classList.remove('has-update');
 window.addEventListener('gamenarrator-release-jump', event => {
   const {view='studio', selector, note} = event.detail || {}; activateView(view, true);
   setTimeout(() => {
@@ -1726,7 +1726,7 @@ const guideSteps = [
   {selector: '.history-panel', title: '第 5 步：从最左侧历史继续', text: '只有真正生成完成的任务才会进入页面最左侧“最近完成”列表。处理中、等待检查、失败或取消的任务都留在右侧，避免被误认为已经完成。点击已完成条目可查看生成文件、分镜、文案、时间线和最终视频。'},
   {selector: '.storyboard-review-option', title: '第 6 步：检查分镜再继续', text: '开启分镜检查后，流程会在文案与分镜生成后暂停。进入线性分镜工作台可调整顺序、起止时间、字幕、解说、素材和特效；保存全部修改后再继续配音与渲染。'},
   {selector: '.primary-nav', title: '更多工具入口', text: '“镜头搜索”使用本地语义模型寻找片段；“平台导入”负责下载并创建项目；“素材库”管理授权素材；“设置”管理云端或本地 AI。遇到问题可点击右上角“诊断日志”。'},
-  {selector: '.topbar-actions', title: '完成、诊断与再次查看', text: '任务完成后在详情中预览并导出 MP4。任何阶段失败时先查看任务详情和诊断日志；本引导可以随时从“使用引导”重新打开。当前版本为 v2.1.7。'}
+  {selector: '.topbar-actions', title: '完成、诊断与再次查看', text: '任务完成后在详情中预览并导出 MP4。任何阶段失败时先查看任务详情和诊断日志；本引导可以随时从“使用引导”重新打开。当前版本为 v2.1.8。'}
 ];
 let guideIndex = 0;
 let guideTarget = null;
@@ -1838,3 +1838,26 @@ document.addEventListener('keydown', event => {
 if (!guideStorage('get')) setTimeout(openGuide, 700);
 document.addEventListener('visibilitychange', () => {
 });
+
+// Account access is injected so the same Web bundle works unchanged in the Windows EXE shell.
+(function initializeAccountCenter() {
+  const actions = document.querySelector('.topbar-actions');
+  if (!actions) return;
+  const button = document.createElement('button');
+  button.className = 'diagnostics-open';
+  button.type = 'button';
+  button.textContent = '匿名使用';
+  actions.prepend(button);
+  const dialog = document.createElement('dialog');
+  dialog.className = 'task-dialog';
+  dialog.innerHTML = `<div class="dialog-shell"><header class="dialog-header"><div><small>ACCOUNT</small><h2>账号与云端数据</h2></div><button class="dialog-close" type="button">×</button></header><section class="diagnostics-content"><p data-account-state>匿名模式：项目和素材保存在当前电脑。</p><form data-account-form><label>用户名<input name="username" autocomplete="username" required></label><label>密码<input name="password" type="password" autocomplete="current-password" required></label><div class="diagnostics-actions"><button type="submit">登录</button><button type="button" data-register>注册新账号</button><button type="button" data-anonymous>切换匿名</button><a data-admin href="/admin.html" hidden>后台管理</a></div></form><p data-account-tip></p></section></div>`;
+  document.body.append(dialog);
+  const state = dialog.querySelector('[data-account-state]'), tip = dialog.querySelector('[data-account-tip]');
+  async function request(url, options={}) { const response=await fetch(url,{headers:{'Content-Type':'application/json'},...options}); const body=await response.json(); if(!response.ok) throw Error(body.message||'操作失败'); return body; }
+  async function refresh() { const me=await request('/api/auth/me'); button.textContent=me.authenticated?me.displayName:'匿名使用'; state.textContent=me.authenticated?`已登录：${me.displayName}（${me.role}），当前项目按账号隔离保存。`:'匿名模式：项目和素材仅保存在当前电脑。'; dialog.querySelector('[data-admin]').hidden=me.role!=='ADMIN'; }
+  button.onclick=()=>{refresh().catch(()=>{});dialog.showModal()}; dialog.querySelector('.dialog-close').onclick=()=>dialog.close();
+  dialog.querySelector('[data-account-form]').onsubmit=async event=>{event.preventDefault();tip.textContent='';try{const data=Object.fromEntries(new FormData(event.target));await request('/api/auth/login',{method:'POST',body:JSON.stringify(data)});location.reload()}catch(error){tip.textContent=error.message}};
+  dialog.querySelector('[data-register]').onclick=async()=>{const username=prompt('设置用户名（3-64 位字母、数字、下划线或短横线）');if(!username)return;const password=prompt('设置密码（至少 8 位）');if(!password)return;const displayName=prompt('显示名称',username);try{await request('/api/auth/register',{method:'POST',body:JSON.stringify({username,password,displayName})});location.reload()}catch(error){tip.textContent=error.message}};
+  dialog.querySelector('[data-anonymous]').onclick=async()=>{await request('/api/auth/anonymous',{method:'POST'});location.reload()};
+  refresh().catch(()=>{});
+})();

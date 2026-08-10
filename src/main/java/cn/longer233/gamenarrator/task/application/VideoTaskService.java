@@ -7,7 +7,6 @@ import cn.longer233.gamenarrator.effect.EffectSettingsRequest;
 import cn.longer233.gamenarrator.task.domain.VideoTask;
 import cn.longer233.gamenarrator.task.repository.VideoTaskRepository;
 import jakarta.transaction.Transactional;
-import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 import org.slf4j.Logger;
@@ -33,6 +32,7 @@ public class VideoTaskService {
     private final cn.longer233.gamenarrator.common.StorageCleanupService storageCleanup;
     private final cn.longer233.gamenarrator.observability.StorageCapacityGuard capacityGuard;
     private final cn.longer233.gamenarrator.storage.SourceMediaRegistry sourceMediaRegistry;
+    private final cn.longer233.gamenarrator.identity.CurrentUserContext currentUser;
 
     public VideoTaskService(
             VideoTaskRepository repository,
@@ -43,7 +43,8 @@ public class VideoTaskService {
             cn.longer233.gamenarrator.common.StorageCleanupService storageCleanup,
             @org.springframework.beans.factory.annotation.Value("${game-narrator.storage-root}") String storageRoot,
             cn.longer233.gamenarrator.observability.StorageCapacityGuard capacityGuard,
-            cn.longer233.gamenarrator.storage.SourceMediaRegistry sourceMediaRegistry
+            cn.longer233.gamenarrator.storage.SourceMediaRegistry sourceMediaRegistry,
+            cn.longer233.gamenarrator.identity.CurrentUserContext currentUser
     ) {
         this.repository = repository;
         this.storage = storage;
@@ -54,6 +55,7 @@ public class VideoTaskService {
         this.storageRoot = Path.of(storageRoot).toAbsolutePath().normalize();
         this.capacityGuard = capacityGuard;
         this.sourceMediaRegistry = sourceMediaRegistry;
+        this.currentUser = currentUser;
     }
 
     @Transactional
@@ -75,6 +77,7 @@ public class VideoTaskService {
                 videoPath,
                 command.storyboardReviewEnabled()
         );
+        task.assignOwnership(currentUser.userId());
         VideoTask savedTask = repository.saveAndFlush(task);
         sourceMediaRegistry.registerManaged(savedTask.getId(), Path.of(videoPath),
                 video.getOriginalFilename(), video.getContentType());
@@ -99,6 +102,7 @@ public class VideoTaskService {
         VideoTask task = new VideoTask(command.name(), command.gameCategory(), command.commentaryStyle(),
                 command.targetDurationSeconds(), command.taskBrief(), pendingVideoPath,
                 command.storyboardReviewEnabled());
+        task.assignOwnership(currentUser.userId());
         task.configureEditingScope(command.editingScope());
         task.configureTerminologyGlossary(command.terminologyGlossary());
         task.configureAiOptions(command.automaticGenerationEnabled(), command.cloudVisionEnabled(),
@@ -111,14 +115,14 @@ public class VideoTaskService {
 
     @Transactional
     public void updateRemoteDownloadProgress(UUID id, int progress) {
-        repository.findById(id).orElseThrow(() -> new TaskNotFoundException(id))
+        owned(id)
                 .updateStageProgress(cn.longer233.gamenarrator.task.domain.ProcessingStageType.VIDEO_INGESTION,
                         Math.max(10, Math.min(99, progress)));
     }
 
     @Transactional
     public void failRemoteDownload(UUID id, String reason) {
-        repository.findById(id).orElseThrow(() -> new TaskNotFoundException(id)).failIngestion(reason);
+        owned(id).failIngestion(reason);
     }
 
     public void startDownloadedRemote(UUID id) {
@@ -128,7 +132,7 @@ public class VideoTaskService {
     @Transactional
     public VideoTaskView find(UUID id) {
         log.debug("TASK_FIND taskId={}", id);
-        return repository.findById(id)
+        return repository.findByIdAndOwnerId(id, currentUser.userId())
                 .map(VideoTaskView::from)
                 .orElseThrow(() -> new TaskNotFoundException(id));
     }
@@ -136,7 +140,7 @@ public class VideoTaskService {
     @Transactional
     public List<VideoTaskView> findAll() {
         log.debug("TASK_LIST");
-        return repository.findAll(Sort.by(Sort.Direction.DESC, "createdAt"))
+        return repository.findAllByOwnerIdOrderByCreatedAtDesc(currentUser.userId())
                 .stream()
                 .map(VideoTaskView::from)
                 .toList();
@@ -144,7 +148,7 @@ public class VideoTaskService {
 
     @Transactional
     public VideoTaskView rename(UUID id, RenameTaskRequest request) {
-        VideoTask task = repository.findById(id).orElseThrow(() -> new TaskNotFoundException(id));
+        VideoTask task = owned(id);
         task.rename(request.name());
         projectHistoryService.renameProject(id, task.getName());
         log.info("TASK_RENAMED taskId={}", id);
@@ -152,7 +156,7 @@ public class VideoTaskService {
     }
 
     public void start(UUID id) {
-        if (!repository.existsById(id)) {
+        if (!repository.existsByIdAndOwnerId(id, currentUser.userId())) {
             throw new TaskNotFoundException(id);
         }
         log.info("TASK_MANUAL_START taskId={}", id);
@@ -161,7 +165,7 @@ public class VideoTaskService {
 
     @Transactional
     public VideoTaskView cancel(UUID id) {
-        VideoTask task = repository.findById(id).orElseThrow(() -> new TaskNotFoundException(id));
+        VideoTask task = owned(id);
         if (task.getStatus() != cn.longer233.gamenarrator.task.domain.TaskStatus.PROCESSING) {
             throw new IllegalStateException("只有正在处理的任务可以取消");
         }
@@ -172,8 +176,7 @@ public class VideoTaskService {
 
     @Transactional
     public VideoTaskView retry(UUID id) {
-        VideoTask task = repository.findById(id)
-                .orElseThrow(() -> new TaskNotFoundException(id));
+        VideoTask task = owned(id);
         task.prepareRetry();
         repository.save(task);
         log.info("TASK_RETRY_ACCEPTED taskId={}", id);
@@ -188,7 +191,7 @@ public class VideoTaskService {
 
     @Transactional
     public VideoTaskView approveStoryboard(UUID id) {
-        VideoTask task = repository.findById(id).orElseThrow(() -> new TaskNotFoundException(id));
+        VideoTask task = owned(id);
         task.approveStoryboard();
         repository.save(task);
         TransactionSynchronizationManager.registerSynchronization(new TransactionSynchronization() {
@@ -200,14 +203,14 @@ public class VideoTaskService {
     }
 
     public void rerenderEffects(UUID id, EffectSettingsRequest settings) {
-        if (!repository.existsById(id)) throw new TaskNotFoundException(id);
+        if (!repository.existsByIdAndOwnerId(id, currentUser.userId())) throw new TaskNotFoundException(id);
         log.info("TASK_EFFECT_RERENDER taskId={}", id);
         effectRerenderWorker.rerender(id, settings);
     }
 
     @Transactional
     public Path renderedVideo(UUID id) {
-        VideoTask task = repository.findById(id).orElseThrow(() -> new TaskNotFoundException(id));
+        VideoTask task = owned(id);
         if (task.getRenderedVideoPath() == null) {
             throw new IllegalStateException("该任务尚未生成最终视频");
         }
@@ -220,7 +223,7 @@ public class VideoTaskService {
 
     @Transactional
     public Path sourceVideo(UUID id) {
-        VideoTask task = repository.findById(id).orElseThrow(() -> new TaskNotFoundException(id));
+        VideoTask task = owned(id);
         Path source = Path.of(task.getSourceVideoPath()).toAbsolutePath().normalize();
         if (!source.startsWith(storageRoot) || !Files.isRegularFile(source)) {
             throw new IllegalStateException("源视频文件不存在或不属于任务存储目录");
@@ -230,7 +233,7 @@ public class VideoTaskService {
 
     @Transactional
     public void delete(UUID id) {
-        VideoTask task = repository.findById(id).orElseThrow(() -> new TaskNotFoundException(id));
+        VideoTask task = owned(id);
         if (task.getStatus() == cn.longer233.gamenarrator.task.domain.TaskStatus.READY
                 || task.getStatus() == cn.longer233.gamenarrator.task.domain.TaskStatus.PROCESSING) {
             engine.requestDeletion(id);
@@ -261,6 +264,10 @@ public class VideoTaskService {
                 log.info("TASK_DELETED taskId={} artifactCandidates={}", id, ownedPaths.size());
             }
         });
+    }
+
+    private VideoTask owned(UUID id) {
+        return repository.findByIdAndOwnerId(id, currentUser.userId()).orElseThrow(() -> new TaskNotFoundException(id));
     }
 
 }

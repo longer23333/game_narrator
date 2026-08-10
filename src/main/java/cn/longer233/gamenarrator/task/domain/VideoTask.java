@@ -17,6 +17,12 @@ public class VideoTask {
     @Column(nullable = false)
     private long version;
 
+    @Column(name = "owner_id")
+    private UUID ownerId;
+
+    @Column(name = "project_id")
+    private UUID projectId;
+
     @Column(nullable = false, length = 120)
     private String name;
 
@@ -195,6 +201,9 @@ public class VideoTask {
     }
 
     public UUID getId() { return id; }
+    public UUID getOwnerId() { return ownerId; }
+    public UUID getProjectId() { return projectId; }
+    public void assignOwnership(UUID ownerId) { this.ownerId = ownerId; }
     public String getName() { return name; }
     public String getGameCategory() { return gameCategory; }
     public CommentaryStyle getCommentaryStyle() { return commentaryStyle; }
