@@ -24,10 +24,11 @@ public class AuthController {
         return loggedIn(sessions.login(body.username(), body.password(), client(request)), request);
     }
     @PostMapping("/logout") public ResponseEntity<AuthView> logout(@CookieValue(name=AuthenticationFilter.COOKIE_NAME, required=false) String token, HttpServletRequest request) {
-        sessions.revoke(token);
+        sessions.revoke(sessionToken(token, request));
         return ResponseEntity.ok().header(HttpHeaders.SET_COOKIE, cookie("", Duration.ZERO, request).toString()).body(anonymous());
     }
-    @PostMapping("/anonymous") public ResponseEntity<AuthView> anonymous(HttpServletRequest request) {
+    @PostMapping("/anonymous") public ResponseEntity<AuthView> anonymous(@CookieValue(name=AuthenticationFilter.COOKIE_NAME, required=false) String token, HttpServletRequest request) {
+        sessions.revoke(sessionToken(token, request));
         return ResponseEntity.ok().header(HttpHeaders.SET_COOKIE, cookie("", Duration.ZERO, request).toString()).body(anonymous());
     }
     @GetMapping("/me") public AuthView me() {
@@ -41,6 +42,10 @@ public class AuthController {
         return ResponseCookie.from(AuthenticationFilter.COOKIE_NAME, value).httpOnly(true).secure(request.isSecure()).sameSite("Lax").path("/").maxAge(age).build();
     }
     private String client(HttpServletRequest request) { return request.getHeader("User-Agent"); }
+    private String sessionToken(String cookie, HttpServletRequest request) {
+        String authorization = request.getHeader(HttpHeaders.AUTHORIZATION);
+        return authorization != null && authorization.startsWith("Bearer ") ? authorization.substring(7).strip() : cookie;
+    }
     private AuthView anonymous() { return new AuthView(LocalUserContext.LOCAL_USER_ID.toString(), "local-user", "匿名使用", "USER", false, true); }
     public record RegisterRequest(@NotBlank String username, String email, String displayName, @NotBlank String password) {}
     public record LoginRequest(@NotBlank String username, @NotBlank String password) {}

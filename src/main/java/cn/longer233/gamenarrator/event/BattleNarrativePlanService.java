@@ -18,6 +18,7 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Set;
 import java.util.UUID;
+import com.fasterxml.jackson.databind.JsonNode;
 
 @Service
 public class BattleNarrativePlanService {
@@ -96,6 +97,46 @@ public class BattleNarrativePlanService {
         jdbc.update("UPDATE battle_narrative_plan SET applied=TRUE,applied_at=? WHERE task_id=?", appliedAt, taskId);
         return new BattleNarrativePlanView(plan.taskId(), plan.version(), plan.strategy(),
                 plan.confirmedEventFingerprint(), plan.beats(), true, plan.generatedAt(), appliedAt);
+    }
+
+    /** Applies reviewed AI overrides only inside the already verified five-act fact structure. */
+    @Transactional
+    public BattleNarrativePlanView applyReviewed(UUID taskId, JsonNode decision) {
+        BattleNarrativePlanView plan = find(taskId);
+        if (plan.beats().isEmpty()) plan = generate(taskId);
+        if (plan.applied()) throw new IllegalStateException("该战局叙事结构已经应用");
+        if (!fingerprint(confirmedEvents(taskId)).equals(plan.confirmedEventFingerprint())) {
+            throw new IllegalStateException("已确认事件已经变化，请重新召开导演评审会");
+        }
+        Set<Integer> availableClips = workspace.storyboard(taskId).segments().stream()
+                .map(StoryboardSegmentView::clipIndex).collect(java.util.stream.Collectors.toSet());
+        java.util.Map<String, JsonNode> overrides = new java.util.HashMap<>();
+        if (decision != null && decision.path("narrativeBeats").isArray()) {
+            decision.path("narrativeBeats").forEach(node -> overrides.put(node.path("stage").asText().toUpperCase(Locale.ROOT), node));
+        }
+        List<NarrativeBeat> reviewed = plan.beats().stream().map(beat -> {
+            JsonNode override = overrides.get(beat.stage().name());
+            if (override == null) return beat;
+            int requestedClip = override.path("clipIndex").asInt(beat.clipIndex() == null ? -1 : beat.clipIndex());
+            Integer clip = availableClips.contains(requestedClip) ? requestedClip : beat.clipIndex();
+            double pace = bounded(override.path("paceMultiplier").asDouble(beat.paceMultiplier()), .5, 1.8);
+            double music = bounded(override.path("musicIntensity").asDouble(beat.musicIntensity()), 0, 1);
+            String directive = override.path("narrationDirective").asText(beat.narrationDirective()).strip();
+            if (directive.isBlank()) directive = beat.narrationDirective();
+            if (directive.length() > 500) directive = directive.substring(0, 500);
+            return new NarrativeBeat(beat.stage(), beat.label(), beat.objective(), beat.eventId(), beat.eventType(),
+                    beat.confirmedFact(), clip, beat.sourceStartSeconds(), beat.sourceEndSeconds(), pace, music,
+                    directive, beat.structuralPlaceholder());
+        }).toList();
+        workspace.applyNarrativeStructure(taskId, reviewed);
+        OffsetDateTime appliedAt = OffsetDateTime.now();
+        jdbc.update("UPDATE battle_narrative_plan SET applied=TRUE,applied_at=? WHERE task_id=?", appliedAt, taskId);
+        return new BattleNarrativePlanView(plan.taskId(), plan.version(), "AI_DIRECTOR_REVIEWED",
+                plan.confirmedEventFingerprint(), reviewed, true, plan.generatedAt(), appliedAt);
+    }
+
+    private double bounded(double value, double minimum, double maximum) {
+        return Math.max(minimum, Math.min(maximum, value));
     }
 
     private List<GameEventView> confirmedEvents(UUID taskId) {

@@ -55,11 +55,14 @@ public class AdminManagementService {
     @Transactional
     public void updateUser(UUID id, UserUpdate update) {
         requireAdmin();
-        if (id.equals(current.userId()) && "DISABLED".equals(update.status())) throw new IllegalArgumentException("不能停用当前管理员账号");
+        if (id.equals(current.userId()) && ("DISABLED".equalsIgnoreCase(update.status()) || "USER".equalsIgnoreCase(update.role())))
+            throw new IllegalArgumentException("不能停用当前管理员或取消自己的管理员权限");
         String role = update.role() == null ? null : update.role().toUpperCase();
         String status = update.status() == null ? null : update.status().toUpperCase();
         if (role != null && !Set.of("ADMIN","USER").contains(role)) throw new IllegalArgumentException("无效角色");
         if (status != null && !Set.of("ACTIVE","DISABLED").contains(status)) throw new IllegalArgumentException("无效状态");
+        if (("USER".equals(role) || "DISABLED".equals(status)) && isLastActiveAdmin(id))
+            throw new IllegalArgumentException("系统必须至少保留一个可登录的管理员");
         Long quota = update.storageQuotaBytes();
         if (quota != null && quota < 0) throw new IllegalArgumentException("存储配额不能小于 0");
         java.math.BigDecimal budget = update.apiMonthlyBudget();
@@ -76,5 +79,10 @@ public class AdminManagementService {
     private long number(String sql) { Number value=jdbc.queryForObject(sql,Number.class); return value==null?0:value.longValue(); }
     private java.math.BigDecimal decimal(String sql) { java.math.BigDecimal value=jdbc.queryForObject(sql,java.math.BigDecimal.class); return value==null?java.math.BigDecimal.ZERO:value; }
     private void requireAdmin() { if (!current.authenticated() || !"ADMIN".equals(current.role())) throw new AdminAccessDeniedException(); }
+    private boolean isLastActiveAdmin(UUID id) {
+        Integer target = jdbc.queryForObject("SELECT COUNT(*) FROM app_user WHERE id=? AND role='ADMIN' AND status='ACTIVE'", Integer.class, id);
+        Integer active = jdbc.queryForObject("SELECT COUNT(*) FROM app_user WHERE role='ADMIN' AND status='ACTIVE' AND account_type='REGISTERED'", Integer.class);
+        return target != null && target > 0 && active != null && active <= 1;
+    }
     public record UserUpdate(String role,String status,Long storageQuotaBytes,java.math.BigDecimal apiMonthlyBudget) {}
 }

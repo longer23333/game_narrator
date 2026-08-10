@@ -7,6 +7,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Service;
+import cn.longer233.gamenarrator.identity.CurrentUserContext;
 
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
@@ -24,14 +25,16 @@ public class VideoSegmentSemanticIndex {
     private final ObjectMapper objectMapper;
     private final BgeAssetSemanticSearch embeddings;
     private final Path storageRoot;
+    private final CurrentUserContext currentUser;
 
     public VideoSegmentSemanticIndex(JdbcTemplate jdbc, ObjectMapper objectMapper,
             BgeAssetSemanticSearch embeddings,
-            @Value("${game-narrator.storage-root}") String storageRoot) {
+            @Value("${game-narrator.storage-root}") String storageRoot, CurrentUserContext currentUser) {
         this.jdbc = jdbc;
         this.objectMapper = objectMapper;
         this.embeddings = embeddings;
         this.storageRoot = Path.of(storageRoot).toAbsolutePath().normalize();
+        this.currentUser = currentUser;
     }
 
     public void index(UUID taskId, Path visualAnalysisPath) {
@@ -71,7 +74,7 @@ public class VideoSegmentSemanticIndex {
             PriorityQueue<Scored> scored = jdbc.query("""
                     SELECT e.task_id,t.name,e.frame_index,e.timestamp_seconds,e.event_type,
                     e.description,e.vector_json FROM video_segment_embedding e
-                    JOIN video_tasks t ON t.id=e.task_id WHERE e.model=?
+                    JOIN video_tasks t ON t.id=e.task_id WHERE e.model=? AND t.owner_id=?
                     """, rs -> {
                 PriorityQueue<Scored> candidates = new PriorityQueue<>(Comparator.comparingDouble(
                         item -> item.result.similarity()));
@@ -87,7 +90,7 @@ public class VideoSegmentSemanticIndex {
                             rs.getDouble("timestamp_seconds"), eventType, description, hybrid)), retainedCandidates);
                 }
                 return candidates;
-            }, embeddings.model());
+            }, embeddings.model(), currentUser.userId());
             List<VideoSegmentSearchResult> ordered = scored.stream()
                     .sorted(Comparator.comparingDouble((Scored item) -> item.result.similarity()).reversed())
                     .map(Scored::result).toList();
@@ -113,7 +116,7 @@ public class VideoSegmentSemanticIndex {
             PriorityQueue<VideoSegmentSearchResult> matches = jdbc.query("""
                     SELECT e.task_id,t.name,e.frame_index,e.timestamp_seconds,e.event_type,
                     e.description,e.image_hash FROM video_segment_embedding e
-                    JOIN video_tasks t ON t.id=e.task_id WHERE e.image_hash IS NOT NULL
+                    JOIN video_tasks t ON t.id=e.task_id WHERE e.image_hash IS NOT NULL AND t.owner_id=?
                     """, rs -> {
                 PriorityQueue<VideoSegmentSearchResult> candidates = new PriorityQueue<>(
                         Comparator.comparingDouble(VideoSegmentSearchResult::similarity));
@@ -122,7 +125,7 @@ public class VideoSegmentSemanticIndex {
                         rs.getDouble("timestamp_seconds"), rs.getString("event_type"), rs.getString("description"),
                         ImagePerceptualHash.similarity(queryHash, rs.getLong("image_hash"))), limit);
                 return candidates;
-            });
+            }, currentUser.userId());
             return matches.stream().sorted(Comparator.comparingDouble(
                     VideoSegmentSearchResult::similarity).reversed()).toList();
         } catch (IllegalArgumentException exception) {
@@ -141,8 +144,9 @@ public class VideoSegmentSemanticIndex {
         List<TaskAnalysis> missing = jdbc.query("""
                 SELECT t.id,t.visual_analysis_path FROM video_tasks t
                 WHERE t.visual_analysis_path IS NOT NULL
+                AND t.owner_id=?
                 AND NOT EXISTS (SELECT 1 FROM video_segment_embedding e WHERE e.task_id=t.id AND e.model=?)
-                """, (rs, row) -> new TaskAnalysis(rs.getObject(1, UUID.class), rs.getString(2)), embeddings.model());
+                """, (rs, row) -> new TaskAnalysis(rs.getObject(1, UUID.class), rs.getString(2)), currentUser.userId(), embeddings.model());
         for (TaskAnalysis task : missing) {
             try {
                 Path analysis = Path.of(task.path()).toAbsolutePath().normalize();
@@ -155,8 +159,9 @@ public class VideoSegmentSemanticIndex {
 
     private void backfillImageHashes() {
         List<FrameImage> missing = jdbc.query("""
-                SELECT task_id,frame_index,image_path FROM video_segment_embedding WHERE image_hash IS NULL
-                """, (rs, row) -> new FrameImage(rs.getObject(1, UUID.class), rs.getInt(2), rs.getString(3)));
+                SELECT e.task_id,e.frame_index,e.image_path FROM video_segment_embedding e
+                JOIN video_tasks t ON t.id=e.task_id WHERE e.image_hash IS NULL AND t.owner_id=?
+                """, (rs, row) -> new FrameImage(rs.getObject(1, UUID.class), rs.getInt(2), rs.getString(3)), currentUser.userId());
         for (FrameImage frame : missing) {
             try {
                 Long hash = imageHash(Path.of(frame.path()));

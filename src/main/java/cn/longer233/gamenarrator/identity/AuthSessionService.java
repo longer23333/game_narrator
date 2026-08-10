@@ -27,7 +27,7 @@ public class AuthSessionService {
     }
 
     @Transactional
-    public LoginResult register(String username, String email, String displayName, String password, String clientName) {
+    public synchronized LoginResult register(String username, String email, String displayName, String password, String clientName) {
         String normalized = normalizeUsername(username);
         validatePassword(password);
         String normalizedEmail = email == null || email.isBlank() ? null : email.strip().toLowerCase(Locale.ROOT);

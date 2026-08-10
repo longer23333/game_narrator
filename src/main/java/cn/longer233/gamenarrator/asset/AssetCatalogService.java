@@ -330,8 +330,9 @@ public class AssetCatalogService {
         };
         String sql = """
                 SELECT DISTINCT asset.id, asset.discovered_at FROM external_asset asset
+                JOIN user_external_asset user_asset ON user_asset.asset_id=asset.id AND user_asset.user_id=?
                 WHERE asset.asset_type LIKE ? AND asset.provider LIKE ? AND asset.import_status LIKE ?
-                  AND asset.archived=? AND (? IS NULL OR asset.favorite=?) AND (
+                  AND user_asset.archived=? AND (? IS NULL OR user_asset.favorite=?) AND (
                     LOWER(asset.title) LIKE ? OR LOWER(COALESCE(asset.localized_title,'')) LIKE ?
                     OR LOWER(COALESCE(asset.creator,'')) LIKE ?
                     OR EXISTS (
@@ -357,7 +358,7 @@ public class AssetCatalogService {
                     )
                 )
                 ORDER BY """ + " " + order + " LIMIT " + limit;
-        List<AssetView> results = jdbc.query(sql, (rs, n) -> find(rs.getObject(1, UUID.class)), type,
+        List<AssetView> results = jdbc.query(sql, (rs, n) -> find(rs.getObject(1, UUID.class)), currentUser.userId(), type,
                 providerFilter, statusFilter, archived, favorite, favorite,
                 "%" + text + "%", "%" + text + "%", "%" + text + "%", "%" + text + "%",
                 currentUser.userId(), currentUser.userId(), "%" + text + "%");
@@ -369,10 +370,10 @@ public class AssetCatalogService {
     public AssetView updateState(UUID assetId, AssetStateUpdateRequest request) {
         requireAsset(assetId);
         if (request.favorite() != null) {
-            jdbc.update("UPDATE external_asset SET favorite=? WHERE id=?", request.favorite(), assetId);
+            jdbc.update("UPDATE user_external_asset SET favorite=? WHERE user_id=? AND asset_id=?", request.favorite(), currentUser.userId(), assetId);
         }
         if (request.archived() != null) {
-            jdbc.update("UPDATE external_asset SET archived=? WHERE id=?", request.archived(), assetId);
+            jdbc.update("UPDATE user_external_asset SET archived=? WHERE user_id=? AND asset_id=?", request.archived(), currentUser.userId(), assetId);
         }
         return find(assetId);
     }
@@ -446,6 +447,7 @@ public class AssetCatalogService {
             jdbc.update("DELETE FROM asset_embedding WHERE asset_id=?", id);
             jdbc.update("UPDATE external_asset SET localized_title=NULL WHERE id=?", id);
         }
+        link(id);
         if (!"BILIBILI".equals(provider)) {
             assignTags(id, aiTagger.classifyFast(request.assetType(), title, platformTags),
                     "AI", 0.65, null);
@@ -497,6 +499,7 @@ public class AssetCatalogService {
                 """, id, provider, externalId, "VIDEO", title, imported.creator(), imported.sourceUrl(),
                 preview, "用户确认拥有下载和再创作所需权利", durationMs, resolvedPath.toString(),
                 "DOWNLOADED", metadata, OffsetDateTime.now(), OffsetDateTime.now());
+        link(id);
         assignTags(id, platformTags.stream().limit(20).toList(), "PLATFORM", 1.0, currentUser.userId());
         assignTags(id, originTags, "AI_ORIGIN", 0.55, null);
         assignTags(id, aiTagger.classify("VIDEO", title, platformTags), "AI", 0.65, null);
@@ -541,6 +544,7 @@ public class AssetCatalogService {
         List<String> tags = new ArrayList<>(aiTagger.classifyFast(assetType, safeName, List.of("本地上传")));
         tags.add("本地上传");
         if (greenScreen) { tags.add("绿幕"); tags.add("已抠图"); tags.add("主体素材"); }
+        link(id);
         assignTags(id, tags, greenScreen ? "AI" : "USER", greenScreen ? 0.95 : 0.8,
                 greenScreen ? null : currentUser.userId());
         return find(id);
@@ -579,8 +583,8 @@ public class AssetCatalogService {
         List<Map<String, Object>> rows = jdbc.queryForList("""
                 SELECT name,status,rendered_video_path,generated_title,game_category,commentary_style,
                        planned_output_duration_seconds
-                FROM video_tasks WHERE id=?
-                """, taskId);
+                FROM video_tasks WHERE id=? AND owner_id=?
+                """, taskId, currentUser.userId());
         if (rows.isEmpty()) throw new IllegalArgumentException("项目不存在：" + taskId);
         Map<String, Object> task = rows.getFirst();
         if (!"COMPLETED".equals(String.valueOf(task.get("STATUS")))) {
@@ -631,6 +635,7 @@ public class AssetCatalogService {
         String style = text(task, "COMMENTARY_STYLE");
         if (category != null && !category.isBlank()) tags.add(category);
         if (style != null && !style.isBlank()) tags.add(style);
+        link(assetId);
         assignTags(assetId, tags, "PROJECT", 1.0, currentUser.userId());
         assignTags(assetId, aiTagger.classifyFast("VIDEO", title, tags), "AI", 0.65, null);
         return find(assetId);
@@ -650,13 +655,17 @@ public class AssetCatalogService {
 
     @Transactional
     public AssetView download(UUID assetId) {
+        requireAsset(assetId);
         assetDownloadService.download(assetId);
         return find(assetId);
     }
 
     @Transactional
     public AssetView derive(UUID assetId, AssetDerivativeRequest request) {
-        return find(assetDownloadService.derive(assetId, request));
+        requireAsset(assetId);
+        UUID derived = assetDownloadService.derive(assetId, request);
+        link(derived);
+        return find(derived);
     }
 
     private String conciseOutput(String output) {
@@ -667,9 +676,13 @@ public class AssetCatalogService {
 
     @Transactional
     public void delete(UUID assetId) {
+        requireAsset(assetId);
         List<String> paths = jdbc.query("SELECT local_path FROM external_asset WHERE id=?",
                 (rs, n) -> rs.getString(1), assetId);
         if (paths.isEmpty()) throw new IllegalArgumentException("素材不存在：" + assetId);
+        jdbc.update("DELETE FROM user_external_asset WHERE user_id=? AND asset_id=?", currentUser.userId(), assetId);
+        Integer remaining = jdbc.queryForObject("SELECT COUNT(*) FROM user_external_asset WHERE asset_id=?", Integer.class, assetId);
+        if (remaining != null && remaining > 0) return;
         jdbc.update("DELETE FROM asset_embedding WHERE asset_id=?", assetId);
         jdbc.update("DELETE FROM asset_tag_override WHERE asset_id=?", assetId);
         jdbc.update("DELETE FROM asset_tag_assignment WHERE asset_id=?", assetId);
@@ -700,18 +713,19 @@ public class AssetCatalogService {
     }
 
     public AssetView find(UUID id) {
-        Map<String, Object> row = jdbc.queryForMap("SELECT * FROM external_asset WHERE id=?", id);
+        Map<String, Object> row = jdbc.queryForMap("SELECT asset.*,user_asset.favorite AS user_favorite,user_asset.archived AS user_archived FROM external_asset asset JOIN user_external_asset user_asset ON user_asset.asset_id=asset.id WHERE asset.id=? AND user_asset.user_id=?", id, currentUser.userId());
         return new AssetView(id, text(row, "PROVIDER"), text(row, "ASSET_TYPE"), text(row, "TITLE"),
                 text(row, "LOCALIZED_TITLE"),
                 text(row, "CREATOR"), text(row, "LANDING_URL"), text(row, "PREVIEW_URL"), text(row, "DOWNLOAD_URL"),
                 text(row, "LICENSE_CODE"), text(row, "LICENSE_URL"), text(row, "ATTRIBUTION"),
                 row.get("DURATION_MS") == null ? null : ((Number) row.get("DURATION_MS")).longValue(),
                 text(row, "IMPORT_STATUS"), text(row, "LOCAL_PATH"),
-                Boolean.TRUE.equals(row.get("FAVORITE")), Boolean.TRUE.equals(row.get("ARCHIVED")), effectiveTags(id),
+                Boolean.TRUE.equals(row.get("USER_FAVORITE")), Boolean.TRUE.equals(row.get("USER_ARCHIVED")), effectiveTags(id),
                 (OffsetDateTime) row.get("DISCOVERED_AT"));
     }
 
     public Path previewFile(UUID assetId) {
+        requireAsset(assetId);
         List<String> paths = jdbc.query("SELECT local_path FROM external_asset WHERE id=?",
                 (rs, n) -> rs.getString(1), assetId);
         if (paths.isEmpty()) throw new IllegalArgumentException("素材不存在：" + assetId);
@@ -725,6 +739,7 @@ public class AssetCatalogService {
     }
 
     public RemotePreviewSource remoteAudioPreview(UUID assetId) {
+        requireAsset(assetId);
         Map<String, Object> row = jdbc.queryForMap("""
                 SELECT asset_type,title,download_url,preview_url,local_path
                 FROM external_asset WHERE id=?
@@ -747,6 +762,7 @@ public class AssetCatalogService {
     public record RemotePreviewSource(URI uri, String title) { }
 
     public RemoteThumbnailSource remoteThumbnail(UUID assetId) {
+        requireAsset(assetId);
         Map<String, Object> row = jdbc.queryForMap("""
                 SELECT preview_url,download_url,landing_url,provider,asset_type FROM external_asset WHERE id=?
                 """, assetId);
@@ -788,6 +804,7 @@ public class AssetCatalogService {
                 item.path("attribution").asText(null), item.path("duration").isNumber()
                         ? item.path("duration").asLong() : null,
                 platformCandidate ? "REFERENCE_ONLY" : "DISCOVERED", metadata, OffsetDateTime.now());
+        link(id);
         return id;
     }
 
@@ -828,13 +845,17 @@ public class AssetCatalogService {
         if (assetIds == null || assetIds.isEmpty()) return;
         List<UUID> batch = assetIds.stream().filter(localizationQueued::add).limit(20).toList();
         if (batch.isEmpty()) return;
+        UUID ownerId = currentUser.userId();
         taskExecutor.execute(() -> {
+            cn.longer233.gamenarrator.identity.LocalUserContext local = currentUser instanceof cn.longer233.gamenarrator.identity.LocalUserContext value ? value : null;
+            if (local != null) local.begin(ownerId);
             try {
                 enrichWithChineseAi(batch);
             } catch (Exception exception) {
                 log.warn("Background asset localization failed: {}", concise(exception));
             } finally {
                 localizationQueued.removeAll(batch);
+                if (local != null) local.clear();
             }
         });
     }
@@ -882,8 +903,14 @@ public class AssetCatalogService {
     }
 
     private void requireAsset(UUID id) {
-        if (jdbc.queryForObject("SELECT COUNT(*) FROM external_asset WHERE id=?", Integer.class, id) == 0)
+        if (jdbc.queryForObject("SELECT COUNT(*) FROM user_external_asset WHERE user_id=? AND asset_id=?", Integer.class,
+                currentUser.userId(), id) == 0)
             throw new IllegalArgumentException("素材不存在");
+    }
+
+    private void link(UUID assetId) {
+        jdbc.update("MERGE INTO user_external_asset(user_id,asset_id,favorite,archived,added_at) KEY(user_id,asset_id) VALUES(?,?,FALSE,FALSE,?)",
+                currentUser.userId(), assetId, OffsetDateTime.now());
     }
 
     private void validatePublicHttps(URI uri) {
