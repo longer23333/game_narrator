@@ -24,16 +24,18 @@ public final class MobileReleaseNotes {
 
     public static List<Note> notes() {
         List<Note> notes = new ArrayList<>();
+        notes.add(new Note("0.73.0", "版本公告中文化修复",
+                "修复 Windows PowerShell 解析 UTF-8 中文模板时产生乱码的问题，并恢复近期版本的中文功能说明。"));
         notes.add(new Note("0.72.0", "使用引导自动跳转修复",
                 "使用引导会自动进入镜头搜索、平台导入、素材库或设置页面，等待功能加载后定位并高亮对应区域；目标暂不可见时可直接重试当前步骤。"));
         notes.add(new Note("0.71.0", "权限隔离与导演评审修复",
-                "Unified release workflow and project revision concurrency protection."));
+                "完善账号、项目与素材权限隔离，并修复 AI 导演评审流程中的权限和数据一致性问题。"));
         notes.add(new Note("0.70.0", "AI 导演评审会",
-                "Unified release workflow and project revision concurrency protection."));
+                "新增多角色 AI 导演评审流程，保存发言、共识与最终决策，并支持用户确认后应用到时间线。"));
         notes.add(new Note("0.69.0", "本地账号与后台管理中心",
-                "Unified release workflow and project revision concurrency protection."));
+                "新增注册、登录、匿名使用及后台管理能力，实现用户、项目和云端 API 数据互通。"));
         notes.add(new Note("0.68.0", "并发安全与可解释事件时间线",
-                "Unified release workflow and project revision concurrency protection."));
+                "修复项目修订并发覆盖风险，并增加可解释的游戏事件时间线和剪辑决策依据。"));
         notes.add(new Note("0.67.0", "本地语义检索（bge-small-zh）",
                 "镜头搜索接入纯本地语义向量检索：打包 bge-small-zh int8 ONNX（约 24MB），检测到模型后按语义匹配名称、字幕、解说和特效提示，不再只是关键词；模型未就绪时仍明确显示关键词检索。" ));
         notes.add(new Note("0.66.0", "真实云端 AI、自动流水线与增强工具",

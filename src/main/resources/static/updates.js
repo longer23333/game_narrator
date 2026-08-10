@@ -1,8 +1,9 @@
 const releases = [
-  {version:'2.2.2', title:'使用引导自动跳转修复', current:true, items:['引导步骤自动切换到对应功能页面','等待异步功能加载完成后再滚动并高亮目标','目标暂不可见时保留当前步骤并支持重试'], jump:{view:'studio', selector:'#guide-open'}},
-  {version:'2.2.1', title:'权限隔离与导演评审修复', items:['Synchronize Web, Windows and Android versions','Protect project revisions from concurrent overwrites','Create and synchronize GitHub and Gitee release tags'], jump:{view:'studio', selector:'#task-list'}},
-  {version:'2.2.0', title:'AI 导演评审会', items:['Synchronize Web, Windows and Android versions','Protect project revisions from concurrent overwrites','Create and synchronize GitHub and Gitee release tags'], jump:{view:'studio', selector:'#task-list'}},
-  {version:'2.1.8', title:'本地账号与后台管理中心', items:['Synchronize Web, Windows and Android versions','Protect project revisions from concurrent overwrites','Create and synchronize GitHub and Gitee release tags'], jump:{view:'studio', selector:'#task-list'}},
+  {version:'2.2.3', title:'版本公告中文化修复', current:true, items:['修复 Windows PowerShell 解析 UTF-8 中文模板时产生乱码的问题','将近期 Web 与 Android 英文公告恢复为对应功能的中文内容','后续自动升级默认生成中文发布信息'], jump:{view:'studio', selector:'#updates-open'}},
+  {version:'2.2.2', title:'使用引导自动跳转修复', items:['引导步骤自动切换到对应功能页面','等待异步功能加载完成后再滚动并高亮目标','目标暂不可见时保留当前步骤并支持重试'], jump:{view:'studio', selector:'#guide-open'}},
+  {version:'2.2.1', title:'权限隔离与导演评审修复', items:['完善账号与项目权限隔离','修复 AI 导演评审流程中的权限与数据问题','同步 Web、Windows 与 Android 发布版本'], jump:{view:'studio', selector:'#task-list'}},
+  {version:'2.2.0', title:'AI 导演评审会', items:['新增多角色 AI 导演评审流程','保存评审发言、共识和最终剪辑决策','支持用户确认后应用到时间线'], jump:{view:'studio', selector:'#task-list'}},
+  {version:'2.1.8', title:'本地账号与后台管理中心', items:['新增注册、登录与匿名使用模式','新增用户、项目和云端 API 管理能力','实现客户端与后台账号数据互通'], jump:{view:'studio', selector:'#task-list'}},
   {version:'2.1.7', title:'社区生态与同源多版本', items:['分享和安装游戏知识包、剪辑规则与风格配置','同一录像生成剧情版、攻略版、搞笑版和复盘版独立任务','四种版本复用源视频，避免重复占用超大文件空间','导出 JSON 与 Markdown 剪辑决策报告用于二次修改和毕业设计展示'], jump:{view:'studio', selector:'#task-list'}},
   {version:'2.1.6', title:'战局导演与超大视频存储', items:['按已确认事件生成五幕战局叙事并自动调整镜头、解说和音乐','新增知识包导入导出、个人导演档案与事实一致性检查','支持 40GB 级视频磁盘流式上传、容量预检和后台存储管理','将 DeepSeek 上下文改为结构化索引与按模块分卷'], jump:{view:'studio', selector:'#task-list'}},
   {version:'2.1.5', title:'并发安全与可解释事件时间线', items:['统一更新 Web、Windows 与 Android 版本','修复工程修订并发覆盖风险','自动创建并同步 GitHub、Gitee 发布标签'], jump:{view:'studio', selector:'#task-list'}},

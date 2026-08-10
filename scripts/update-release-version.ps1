@@ -49,7 +49,9 @@ foreach ($file in $desktopFiles) {
 foreach ($file in @('frontend/public/updates.js', 'src/main/resources/static/updates.js')) {
     $content = Read-Utf8 $file
     $content = $content -replace ', current:true', ''
-    $entry = "  {version:'$Version', title:'$Title', current:true, items:['Synchronize Web, Windows and Android versions','Protect project revisions from concurrent overwrites','Create and synchronize GitHub and Gitee release tags'], jump:{view:'studio', selector:'#task-list'}},`n"
+    # Keep non-ASCII templates encoded because Windows PowerShell 5 parses UTF-8-without-BOM scripts as ANSI.
+    $releaseItems = [Text.Encoding]::UTF8.GetString([Convert]::FromBase64String('WyflkIzmraXmm7TmlrAgV2Vi44CBV2luZG93cyDkuI4gQW5kcm9pZCDniYjmnKwnLCflrozmiJDmnKzniYjmnKzlip/og73kv67lpI3kuI7nqLPlrprmgKfmo4Dmn6UnLCfliJvlu7rlubblkIzmraUgR2l0SHVi44CBR2l0ZWUg5Y+R5biD5qCH562+J10='))
+    $entry = "  {version:'$Version', title:'$Title', current:true, items:$releaseItems, jump:{view:'studio', selector:'#task-list'}},`n"
     $content = $content -replace "const releases = \[\r?\n", "const releases = [`n$entry"
     Write-Utf8 $file $content
 }
@@ -59,8 +61,9 @@ Replace-Required 'android-app/app/build.gradle' ([regex]::Escape("versionName '$
 Replace-Required 'android-app/app/src/test/java/cn/longer233/gamenarrator/mobile/MobileReleaseNotesTest.java' ([regex]::Escape('"' + $oldAndroidVersion + '"')) ('"' + $AndroidVersion + '"')
 $notesPath = 'android-app/app/src/main/java/cn/longer233/gamenarrator/mobile/MobileReleaseNotes.java'
 $notes = Read-Utf8 $notesPath
+$androidReleaseBody = [Text.Encoding]::UTF8.GetString([Convert]::FromBase64String('5ZCM5q2l5pu05paw5ZCE5bmz5Y+w54mI5pys77yM5a6M5oiQ5a+55bqU5Yqf6IO95L+u5aSN44CB56iz5a6a5oCn5qOA5p+l5LiO5Y+R5biD6K6w5b2V44CC'))
 $note = ('        notes.add(new Note("{0}", "{1}",' + "`n" +
-        '                "Unified release workflow and project revision concurrency protection."));' + "`n") -f $AndroidVersion, $Title
+        '                "{2}"));' + "`n") -f $AndroidVersion, $Title, $androidReleaseBody
 $notes = $notes -replace '        List<Note> notes = new ArrayList<>\(\);\r?\n', "        List<Note> notes = new ArrayList<>();`n$note"
 Write-Utf8 $notesPath $notes
 
