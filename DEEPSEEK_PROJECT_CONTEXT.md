@@ -1,7 +1,7 @@
 ﻿# GameNarrator — DeepSeek 结构化项目索引
 
-> 自动生成：2026-08-10 11:57:03 +08:00；UTF-8 BOM；索引不再内嵌全部源码。
-> Git：分支 `main`，提交 `601df32`；收录文件 602 个，分卷 8 个。
+> 自动生成：2026-08-10 12:31:13 +08:00；UTF-8 BOM；索引不再内嵌全部源码。
+> Git：分支 `main`，提交 `b2e689b`；收录文件 608 个，分卷 8 个。
 
 ## 使用方法
 
@@ -27,14 +27,14 @@
 
 | 分卷 | 文件数 | 字符数 | 建议用途 |
 |---|---:|---:|---|
-| `deepseek-context/01-foundation.md` | 35 | 65332 | 构建、配置、资源、数据库迁移 |
-| `deepseek-context/02-backend.md` | 230 | 884850 | Spring 后端实现 |
-| `deepseek-context/03-tests.md` | 64 | 163881 | Spring 测试与行为验证 |
-| `deepseek-context/04-frontend.md` | 17 | 325624 | Vite Web 源码 |
-| `deepseek-context/05-android-main.md` | 151 | 854711 | Android 实现、资源与 Gradle |
+| `deepseek-context/01-foundation.md` | 36 | 68355 | 构建、配置、资源、数据库迁移 |
+| `deepseek-context/02-backend.md` | 233 | 897892 | Spring 后端实现 |
+| `deepseek-context/03-tests.md` | 65 | 167406 | Spring 测试与行为验证 |
+| `deepseek-context/04-frontend.md` | 17 | 330735 | Vite Web 源码 |
+| `deepseek-context/05-android-main.md` | 151 | 854851 | Android 实现、资源与 Gradle |
 | `deepseek-context/06-android-tests.md` | 55 | 131882 | Android 单元及设备测试 |
 | `deepseek-context/07-platform-release.md` | 10 | 47135 | Windows、CI/CD 与发布 |
-| `deepseek-context/08-docs-scripts.md` | 40 | 141884 | 需求、架构、维护脚本 |
+| `deepseek-context/08-docs-scripts.md` | 41 | 142525 | 需求、架构、维护脚本 |
 
 ## 当前 Git 工作区（最近修改）
 
@@ -45,6 +45,7 @@ M android-app/app/build.gradle
  M frontend/index.html
  M frontend/package-lock.json
  M frontend/package.json
+ M frontend/public/app.css
  M frontend/public/app.js
  M frontend/public/updates.js
  M launcher/GameNarrator.Launcher.csproj
@@ -52,31 +53,14 @@ M android-app/app/build.gradle
  M pom.xml
  M release/installer/GameNarrator-Demo-Lite.iss
  M release/installer/GameNarrator.iss
- M src/main/java/cn/longer233/gamenarrator/ai/AiSettingsService.java
- M src/main/java/cn/longer233/gamenarrator/ai/AiUsageService.java
- M src/main/java/cn/longer233/gamenarrator/common/ApiExceptionHandler.java
- M src/main/java/cn/longer233/gamenarrator/identity/CurrentUserContext.java
- M src/main/java/cn/longer233/gamenarrator/identity/LocalUserContext.java
- M src/main/java/cn/longer233/gamenarrator/task/application/VideoTaskService.java
- M src/main/java/cn/longer233/gamenarrator/task/domain/VideoTask.java
- M src/main/java/cn/longer233/gamenarrator/task/repository/VideoTaskRepository.java
+ M src/main/resources/static/app.css
  M src/main/resources/static/app.js
  M src/main/resources/static/index.html
  M src/main/resources/static/updates.js
-?? docs/ACCOUNT_ADMIN_AND_CLOUD_MIGRATION.md
-?? frontend/public/admin.css
-?? frontend/public/admin.html
-?? frontend/public/admin.js
-?? src/main/java/cn/longer233/gamenarrator/admin/
-?? src/main/java/cn/longer233/gamenarrator/identity/AuthController.java
-?? src/main/java/cn/longer233/gamenarrator/identity/AuthSessionService.java
-?? src/main/java/cn/longer233/gamenarrator/identity/AuthenticationFilter.java
-?? src/main/java/cn/longer233/gamenarrator/identity/LocalSecretCipher.java
-?? src/main/java/cn/longer233/gamenarrator/identity/PasswordHasher.java
-?? src/main/resources/db/migration/V28__local_accounts_and_admin_center.sql
-?? src/main/resources/static/admin.css
-?? src/main/resources/static/admin.html
-?? src/main/resources/static/admin.js
+?? docs/AI_DIRECTOR_REVIEW_BOARD.md
+?? src/main/java/cn/longer233/gamenarrator/director/
+?? src/main/resources/db/migration/V29__ai_director_review_board.sql
+?? src/test/java/cn/longer233/gamenarrator/director/
 ```
 
 ## Flyway 迁移索引
@@ -109,6 +93,7 @@ M android-app/app/build.gradle
 - `src/main/resources/db/migration/V26__source_media_storage_tracking.sql`
 - `src/main/resources/db/migration/V27__community_ecosystem.sql`
 - `src/main/resources/db/migration/V28__local_accounts_and_admin_center.sql`
+- `src/main/resources/db/migration/V29__ai_director_review_board.sql`
 
 ## 运行配置索引
 
@@ -175,6 +160,7 @@ M android-app/app/build.gradle
 | GET | `/api/tasks/{id}` | `src/main/java/cn/longer233/gamenarrator/task/web/VideoTaskController.java` |
 | GET | `/api/tasks/{taskId}/decision-report/export` | `src/main/java/cn/longer233/gamenarrator/community/EditingDecisionReportController.java` |
 | GET | `/api/tasks/{taskId}/decision-report` | `src/main/java/cn/longer233/gamenarrator/community/EditingDecisionReportController.java` |
+| GET | `/api/tasks/{taskId}/director-reviews` | `src/main/java/cn/longer233/gamenarrator/director/DirectorReviewController.java` |
 | GET | `/api/tasks/{taskId}/editor/revisions` | `src/main/java/cn/longer233/gamenarrator/editor/ProjectRevisionController.java` |
 | GET | `/api/tasks/{taskId}/editor/waveform` | `src/main/java/cn/longer233/gamenarrator/editor/EditorTimelineController.java` |
 | GET | `/api/tasks/{taskId}/editor` | `src/main/java/cn/longer233/gamenarrator/editor/EditorTimelineController.java` |
@@ -234,6 +220,9 @@ M android-app/app/build.gradle
 | POST | `/api/tasks/{id}/start` | `src/main/java/cn/longer233/gamenarrator/task/web/VideoTaskController.java` |
 | POST | `/api/tasks/{id}/storyboard/approve` | `src/main/java/cn/longer233/gamenarrator/task/web/VideoTaskController.java` |
 | POST | `/api/tasks/{taskId}/decision-report` | `src/main/java/cn/longer233/gamenarrator/community/EditingDecisionReportController.java` |
+| POST | `/api/tasks/{taskId}/director-reviews/{reviewId}/apply` | `src/main/java/cn/longer233/gamenarrator/director/DirectorReviewController.java` |
+| POST | `/api/tasks/{taskId}/director-reviews/{reviewId}/decision` | `src/main/java/cn/longer233/gamenarrator/director/DirectorReviewController.java` |
+| POST | `/api/tasks/{taskId}/director-reviews` | `src/main/java/cn/longer233/gamenarrator/director/DirectorReviewController.java` |
 | POST | `/api/tasks/{taskId}/editor/commands` | `src/main/java/cn/longer233/gamenarrator/editor/EditorTimelineController.java` |
 | POST | `/api/tasks/{taskId}/editor/revisions/{revisionId}/checkout` | `src/main/java/cn/longer233/gamenarrator/editor/ProjectRevisionController.java` |
 | POST | `/api/tasks/{taskId}/enhancements/assets` | `src/main/java/cn/longer233/gamenarrator/enhancement/TaskEnhancementController.java` |

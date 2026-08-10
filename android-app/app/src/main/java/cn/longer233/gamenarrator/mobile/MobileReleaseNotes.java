@@ -24,6 +24,8 @@ public final class MobileReleaseNotes {
 
     public static List<Note> notes() {
         List<Note> notes = new ArrayList<>();
+        notes.add(new Note("0.70.0", "AI 导演评审会",
+                "Unified release workflow and project revision concurrency protection."));
         notes.add(new Note("0.69.0", "本地账号与后台管理中心",
                 "Unified release workflow and project revision concurrency protection."));
         notes.add(new Note("0.68.0", "并发安全与可解释事件时间线",

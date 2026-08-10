@@ -81,7 +81,7 @@ document.querySelector('#updates-open')?.addEventListener('click', async event =
   try { await loadLazyScript('updates'); document.querySelector('#updates-dialog')?.showModal(); }
   catch (error) { window.alert(error.message); } finally { button.disabled = false; }
 });
-if (localStorage.getItem('gameNarrator.lastSeenRelease') === '2.1.8') document.querySelector('#updates-open')?.classList.remove('has-update');
+if (localStorage.getItem('gameNarrator.lastSeenRelease') === '2.2.0') document.querySelector('#updates-open')?.classList.remove('has-update');
 window.addEventListener('gamenarrator-release-jump', event => {
   const {view='studio', selector, note} = event.detail || {}; activateView(view, true);
   setTimeout(() => {
@@ -1037,6 +1037,18 @@ function renderBattleNarrativePlan(plan, taskId) {
   </section>`;
 }
 
+function renderDirectorReviewBoard(reviews, taskId) {
+  const review = reviews?.[0];
+  const messages = review?.messages || [];
+  const opinions = messages.map(message => `<article><header><b>${escapeHtml(message.roleName || '总导演主持人')}</b><span>第 ${message.roundNo} 轮 · ${(message.elapsedMs / 1000).toFixed(1)}s</span></header><p>${escapeHtml(message.content?.summary || '已提交结构化意见')}</p><small>事件 ${(message.citedEventIds || []).length} · 镜头 ${(message.citedClipIndexes || []).length} · Token ${message.inputTokens + message.outputTokens}</small></article>`).join('');
+  const waiting = review?.status === 'AWAITING_USER';
+  const actionable = ['ACCEPTED','MODIFIED'].includes(review?.status);
+  return `<section class="director-review-board">
+    <header><div><small>AI DIRECTOR REVIEW BOARD</small><h3>AI 导演评审会</h3><p>事实、剧情、节奏和受众四个角色独立评审，由总导演检查分歧与共识；结论不会自动修改时间线。</p></div><div><select data-review-rounds><option value="1">1 轮（推荐）</option><option value="2">2 轮</option></select><button type="button" data-storyboard-action="director-review-start" data-task-id="${taskId}">${review ? '重新评审' : '召开评审会'}</button></div></header>
+    ${review ? `<div class="director-metrics"><span>状态 ${escapeHtml(review.status)}</span><span>共识度 ${Math.round(review.consensusScore * 100)}%</span><span>${review.inputTokens + review.outputTokens} Token</span><span>${(review.elapsedMs / 1000).toFixed(1)} 秒</span><span>${escapeHtml(review.modelVersion || '')}</span></div><p>${escapeHtml(review.moderatorSummary || '')}</p><div class="director-review-messages">${opinions}</div><div class="diagnostics-actions">${waiting ? `<button type="button" data-storyboard-action="director-review-accept" data-task-id="${taskId}" data-review-id="${review.id}">接受</button><button type="button" data-storyboard-action="director-review-modify" data-task-id="${taskId}" data-review-id="${review.id}">修改后接受</button><button type="button" data-storyboard-action="director-review-reject" data-task-id="${taskId}" data-review-id="${review.id}">拒绝</button>` : ''}${actionable ? `<button type="button" data-storyboard-action="director-review-apply" data-task-id="${taskId}" data-review-id="${review.id}">应用到时间线</button>` : ''}</div>` : '<p class="empty">建议先确认游戏事件，再进行 1 轮评审；本地模型较慢时不要选择 2 轮。</p>'}
+  </section>`;
+}
+
 function renderDirectorIntelligence(profile, quality, packs) {
   const issues = (quality?.issues || []).map(item => `<li class="${item.severity.toLowerCase()}"><b>${escapeHtml(item.type)}</b><span>${escapeHtml(item.message)}</span><small>${item.clipIndex ? `镜头 ${item.clipIndex} · ` : ''}${escapeHtml(item.evidence || '')}</small></li>`).join('');
   return `<section class="director-intelligence">
@@ -1096,7 +1108,7 @@ async function loadStoryboardEditor(taskId) {
   clearInterval(storyboardProgressTimer);
   if (!storyboardDialog.open) storyboardDialog.showModal();
   storyboardWorkspace.innerHTML = '<p class="empty">正在读取完整分镜时间线…</p>';
-  const [storyboard, localAssets, placements, editorTimeline, waveform, revisions, gameEvents, knowledgePack, narrativePlan, directorProfile, narrativeQuality, knowledgePacks, communityResources, creativeVariants, decisionReport] = await Promise.all([
+  const [storyboard, localAssets, placements, editorTimeline, waveform, revisions, gameEvents, knowledgePack, narrativePlan, directorReviews, directorProfile, narrativeQuality, knowledgePacks, communityResources, creativeVariants, decisionReport] = await Promise.all([
     requestJson(`/api/tasks/${taskId}/storyboard`),
     requestJson('/api/assets?importStatus=DOWNLOADED&limit=100'),
     requestJson(`/api/tasks/${taskId}/storyboard/assets`),
@@ -1106,6 +1118,7 @@ async function loadStoryboardEditor(taskId) {
     requestJson(`/api/tasks/${taskId}/events`),
     requestJson(`/api/tasks/${taskId}/events/knowledge-pack`),
     requestJson(`/api/tasks/${taskId}/events/narrative-plan`),
+    requestJson(`/api/tasks/${taskId}/director-reviews`),
     requestJson('/api/director-profile'),
     requestJson(`/api/tasks/${taskId}/quality/narrative-consistency`),
     requestJson('/api/knowledge-packs'),
@@ -1117,6 +1130,7 @@ async function loadStoryboardEditor(taskId) {
   storyboardWorkspace.innerHTML = `
     <section class="detail-block storyboard-editor" data-task-id="${taskId}" data-review-enabled="${storyboard.reviewEnabled}" data-approved="${storyboard.approved}">
       ${renderGameEventTimeline(gameEvents, knowledgePack, narrativePlan, taskId)}
+      ${renderDirectorReviewBoard(directorReviews, taskId)}
       ${renderDirectorIntelligence(directorProfile, narrativeQuality, knowledgePacks)}
       ${renderCommunityEcosystem(taskId, knowledgePacks, communityResources, creativeVariants, decisionReport)}
       <header class="storyboard-editor-head"><div><small>EDITOR WORKSPACE</small><h3>${escapeHtml(storyboard.title || '自由剪辑与分镜')}</h3><p>${escapeHtml(storyboard.synopsis || '')}</p></div>
@@ -1418,6 +1432,24 @@ async function handleStoryboardAction(button) {
   const taskId = button.dataset.taskId;
   button.disabled = true;
   try {
+    if (button.dataset.storyboardAction === 'director-review-start') {
+      const rounds = Number(storyboardWorkspace.querySelector('[data-review-rounds]')?.value || 1);
+      button.textContent = 'AI 评审中，请勿关闭窗口…';
+      await requestJson(`/api/tasks/${taskId}/director-reviews`, {method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify({rounds})});
+      await loadStoryboardEditor(taskId); return;
+    }
+    if (button.dataset.storyboardAction?.startsWith('director-review-')) {
+      const action = button.dataset.storyboardAction;
+      const reviewId = button.dataset.reviewId;
+      if (action === 'director-review-apply') await requestJson(`/api/tasks/${taskId}/director-reviews/${reviewId}/apply`, {method:'POST'});
+      else {
+        const mapping = {'director-review-accept':'ACCEPTED','director-review-modify':'MODIFIED','director-review-reject':'REJECTED'};
+        const modification = action === 'director-review-modify' ? prompt('请写明你对最终决策的修改要求') : null;
+        if (action === 'director-review-modify' && !modification) { button.disabled=false; return; }
+        await requestJson(`/api/tasks/${taskId}/director-reviews/${reviewId}/decision`, {method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify({action:mapping[action], modification})});
+      }
+      await loadStoryboardEditor(taskId); return;
+    }
     if (button.dataset.storyboardAction === 'variants-generate') {
       await requestJson(`/api/tasks/${taskId}/variants/generate`, {method:'POST'});
       await loadStoryboardEditor(taskId);
@@ -1726,7 +1758,7 @@ const guideSteps = [
   {selector: '.history-panel', title: '第 5 步：从最左侧历史继续', text: '只有真正生成完成的任务才会进入页面最左侧“最近完成”列表。处理中、等待检查、失败或取消的任务都留在右侧，避免被误认为已经完成。点击已完成条目可查看生成文件、分镜、文案、时间线和最终视频。'},
   {selector: '.storyboard-review-option', title: '第 6 步：检查分镜再继续', text: '开启分镜检查后，流程会在文案与分镜生成后暂停。进入线性分镜工作台可调整顺序、起止时间、字幕、解说、素材和特效；保存全部修改后再继续配音与渲染。'},
   {selector: '.primary-nav', title: '更多工具入口', text: '“镜头搜索”使用本地语义模型寻找片段；“平台导入”负责下载并创建项目；“素材库”管理授权素材；“设置”管理云端或本地 AI。遇到问题可点击右上角“诊断日志”。'},
-  {selector: '.topbar-actions', title: '完成、诊断与再次查看', text: '任务完成后在详情中预览并导出 MP4。任何阶段失败时先查看任务详情和诊断日志；本引导可以随时从“使用引导”重新打开。当前版本为 v2.1.8。'}
+  {selector: '.topbar-actions', title: '完成、诊断与再次查看', text: '任务完成后在详情中预览并导出 MP4。任何阶段失败时先查看任务详情和诊断日志；本引导可以随时从“使用引导”重新打开。当前版本为 v2.2.0。'}
 ];
 let guideIndex = 0;
 let guideTarget = null;
