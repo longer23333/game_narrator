@@ -291,12 +291,16 @@ class VideoTaskControllerTest {
                 .andExpect(status().isOk()).andExpect(jsonPath("$[0].current").value(true)).andReturn()
                 .getResponse().getContentAsString();
         UUID revisionId = UUID.fromString(objectMapper.readTree(revisions).get(0).path("id").asText());
+        Long versionBeforeCheckout = jdbc.queryForObject(
+                "SELECT version FROM video_project WHERE id=?", Long.class, id);
 
         mockMvc.perform(patch("/api/tasks/{id}/editor/revisions/{revisionId}", id, revisionId)
                         .contentType("application/json").content("{\"label\":\"初始剪辑方案\"}"))
                 .andExpect(status().isOk()).andExpect(jsonPath("$.label").value("初始剪辑方案"));
         mockMvc.perform(post("/api/tasks/{id}/editor/revisions/{revisionId}/checkout", id, revisionId))
                 .andExpect(status().isOk()).andExpect(jsonPath("$.history.revisionCount").value(1));
+        assertEquals(versionBeforeCheckout + 1, jdbc.queryForObject(
+                "SELECT version FROM video_project WHERE id=?", Long.class, id));
     }
 
 }

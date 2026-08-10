@@ -1,0 +1,74 @@
+name: 自动更新版本并发布标签
+
+on:
+  workflow_dispatch:
+    inputs:
+      version:
+        description: 'Web/Windows 语义版本，例如 2.1.5'
+        required: true
+      android_version:
+        description: 'Android 版本，例如 0.68.0'
+        required: true
+      android_version_code:
+        description: 'Android 递增版本号，例如 68'
+        required: true
+      title:
+        description: '中文发布标题'
+        required: true
+        default: '稳定性与功能更新'
+
+permissions:
+  contents: write
+
+jobs:
+  release:
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '21'
+          cache: maven
+      - name: 检查标签不存在
+        shell: pwsh
+        run: |
+          if (git tag --list "v${{ inputs.version }}") { throw '发布标签已经存在' }
+      - name: 更新全部版本
+        shell: pwsh
+        env:
+          RELEASE_VERSION: ${{ inputs.version }}
+          ANDROID_VERSION: ${{ inputs.android_version }}
+          ANDROID_VERSION_CODE: ${{ inputs.android_version_code }}
+          RELEASE_TITLE: ${{ inputs.title }}
+        run: |
+          ./scripts/update-release-version.ps1 -Version $env:RELEASE_VERSION -AndroidVersion $env:ANDROID_VERSION -AndroidVersionCode ([int]$env:ANDROID_VERSION_CODE) -Title $env:RELEASE_TITLE
+      - name: 校验 Web 与后端
+        shell: pwsh
+        run: |
+          npm --prefix frontend install
+          npm --prefix frontend run build
+          node --check src/main/resources/static/app.js
+          node --check src/main/resources/static/updates.js
+          ./mvnw.cmd -q test
+      - name: 提交并创建中文发布标签
+        shell: pwsh
+        run: |
+          git config user.name 'GameNarrator Release Bot'
+          git config user.email 'release-bot@users.noreply.github.com'
+          git add -A
+          git commit -m "发布：GameNarrator v${{ inputs.version }}（${{ inputs.title }}）"
+          git tag -a "v${{ inputs.version }}" -m "GameNarrator v${{ inputs.version }}：${{ inputs.title }}"
+          git push origin HEAD:main
+          git push origin "v${{ inputs.version }}"
+      - name: 同步提交和标签到 Gitee
+        shell: pwsh
+        env:
+          GITEE_TOKEN: ${{ secrets.GITEE_TOKEN }}
+        run: |
+          if (-not $env:GITEE_TOKEN) { throw '未配置 GITEE_TOKEN' }
+          git remote add gitee "https://no-longer233:$env:GITEE_TOKEN@gitee.com/no-longer233/game_narrator.git"
+          git push gitee HEAD:main
+          git push gitee "v${{ inputs.version }}"

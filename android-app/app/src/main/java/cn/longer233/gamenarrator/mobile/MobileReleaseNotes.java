@@ -24,6 +24,8 @@ public final class MobileReleaseNotes {
 
     public static List<Note> notes() {
         List<Note> notes = new ArrayList<>();
+        notes.add(new Note("0.68.0", "并发安全与可解释事件时间线",
+                "Unified release workflow and project revision concurrency protection."));
         notes.add(new Note("0.67.0", "本地语义检索（bge-small-zh）",
                 "镜头搜索接入纯本地语义向量检索：打包 bge-small-zh int8 ONNX（约 24MB），检测到模型后按语义匹配名称、字幕、解说和特效提示，不再只是关键词；模型未就绪时仍明确显示关键词检索。" ));
         notes.add(new Note("0.66.0", "真实云端 AI、自动流水线与增强工具",

@@ -28,6 +28,11 @@ Groq、Together、Perplexity 和 Cerebras；Anthropic Messages 与 Google Gemini
 不记录提示词、图片或模型响应内容。每日费用写入 `data/config/ai-usage.json`，会话统计
 仅保留在当前进程内。
 
+## 并发与前端刷新
+
+- `video_project.current_revision_id` 的编辑器提交、撤销、重做、版本检出和流水线产物登记均以 `version` 条件更新；并发写入返回冲突，不允许静默覆盖另一条修订链。
+- Web 任务状态通过 SSE 推送，断线后指数退避重连，不保留无效轮询钩子。
+
 ## 下一阶段
 
 1. 增加 FFmpeg 元数据读取与镜头切分执行器。

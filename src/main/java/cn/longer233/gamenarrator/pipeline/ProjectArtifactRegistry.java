@@ -3,7 +3,9 @@ package cn.longer233.gamenarrator.pipeline;
 import cn.longer233.gamenarrator.identity.CurrentUserContext;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ObjectNode;
+import jakarta.transaction.Transactional;
 import org.springframework.jdbc.core.JdbcTemplate;
+import org.springframework.dao.OptimisticLockingFailureException;
 import org.springframework.stereotype.Component;
 
 import java.nio.file.Files;
@@ -28,6 +30,7 @@ public class ProjectArtifactRegistry {
         this.currentUser = currentUser;
     }
 
+    @Transactional
     public void record(UUID projectId, String type, String value, String mimeType, boolean temporary) {
         if (value == null || value.isBlank()) return;
         try {
@@ -38,8 +41,13 @@ public class ProjectArtifactRegistry {
             var existing = jdbc.query("SELECT id,sha256 FROM artifact WHERE storage_key=? AND deleted_at IS NULL",
                     (rs, row) -> new ExistingArtifact(rs.getObject("id", UUID.class), rs.getString("sha256")), storageKey);
             if (!existing.isEmpty() && contentHash.equals(existing.getFirst().sha256())) return;
-            UUID parent = jdbc.queryForObject("SELECT current_revision_id FROM video_project WHERE id=?", UUID.class, projectId);
-            UUID run = jdbc.queryForObject("SELECT latest_run_id FROM video_project WHERE id=?", UUID.class, projectId);
+            ProjectState project = jdbc.queryForObject("""
+                    SELECT current_revision_id,latest_run_id,version FROM video_project WHERE id=?
+                    """, (rs, row) -> new ProjectState(rs.getObject("current_revision_id", UUID.class),
+                    rs.getObject("latest_run_id", UUID.class), rs.getLong("version")), projectId);
+            if (project == null) throw new IllegalStateException("工程不存在：" + projectId);
+            UUID parent = project.currentRevisionId();
+            UUID run = project.latestRunId();
             ObjectNode manifest = (ObjectNode) mapper.readTree(jdbc.queryForObject(
                     "SELECT manifest_json FROM project_revision WHERE id=?", String.class, parent));
             UUID artifactId = existing.isEmpty() ? UUID.randomUUID() : existing.getFirst().id();
@@ -72,8 +80,13 @@ public class ProjectArtifactRegistry {
                         sha256=?,schema_version=1,temporary=?,created_at=? WHERE id=?
                         """, revision, run, type, mimeType, Files.size(path), contentHash, temporary, now, artifactId);
             }
-            jdbc.update("UPDATE video_project SET current_revision_id=?,updated_at=?,version=version+1 WHERE id=?",
-                    revision, now, projectId);
+            int changed = jdbc.update("""
+                    UPDATE video_project SET current_revision_id=?,updated_at=?,version=version+1
+                    WHERE id=? AND version=?
+                    """, revision, now, projectId, project.version());
+            if (changed != 1) {
+                throw new OptimisticLockingFailureException("工程已在产物登记期间被其他操作更新：" + projectId);
+            }
         } catch (Exception exception) {
             throw new IllegalStateException("阶段产物登记失败：" + type + "：" + exception.getMessage(), exception);
         }
@@ -96,4 +109,5 @@ public class ProjectArtifactRegistry {
     }
 
     private record ExistingArtifact(UUID id, String sha256) { }
+    private record ProjectState(UUID currentRevisionId, UUID latestRunId, long version) { }
 }

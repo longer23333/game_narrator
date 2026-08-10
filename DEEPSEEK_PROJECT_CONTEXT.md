@@ -1,7 +1,7 @@
 # GameNarrator — DeepSeek 项目上下文包
 
-> 自动生成时间：2026-08-10 09:56:21 +08:00
-> 文件数量：327。本文件由 scripts/export-deepseek-context.ps1 生成，请勿手工维护生成区。
+> 自动生成时间：2026-08-10 10:16:52 +08:00
+> 文件数量：328。本文件由 scripts/export-deepseek-context.ps1 生成，请勿手工维护生成区。
 
 ## 给 DeepSeek 的强制工作规则
 
@@ -27,7 +27,7 @@
 - `.gitignore`（496 bytes）
 - `docs/ANDROID_FEATURE_PARITY.md`（11143 bytes）
 - `docs/ANDROID_MODELS.md`（1865 bytes）
-- `docs/ARCHITECTURE.md`（2726 bytes）
+- `docs/ARCHITECTURE.md`（3067 bytes）
 - `docs/ASSET_LIBRARY_DESIGN.md`（1697 bytes）
 - `docs/CLIP_COMPILATIONS.md`（702 bytes）
 - `docs/DATABASE_DESIGN.md`（29509 bytes）
@@ -58,6 +58,7 @@
 - `scripts/setup-whisper.ps1`（2003 bytes）
 - `scripts/sync-remotes.ps1`（1785 bytes）
 - `scripts/test-windows-clean-install.ps1`（4098 bytes）
+- `scripts/update-release-version.ps1`（4010 bytes）
 - `scripts/verify-android-guardrails.ps1`（2565 bytes）
 - `scripts/verify-before-push.ps1`（1116 bytes）
 - `src/main/java/cn/longer233/gamenarrator/ai/AdaptiveAiChatClient.java`（14601 bytes）
@@ -108,7 +109,7 @@
 - `src/main/java/cn/longer233/gamenarrator/diagnostics/SystemDiagnosticsService.java`（6625 bytes）
 - `src/main/java/cn/longer233/gamenarrator/editor/EditorCommandRequest.java`（294 bytes）
 - `src/main/java/cn/longer233/gamenarrator/editor/EditorTimelineController.java`（931 bytes）
-- `src/main/java/cn/longer233/gamenarrator/editor/EditorTimelineService.java`（23612 bytes）
+- `src/main/java/cn/longer233/gamenarrator/editor/EditorTimelineService.java`（23973 bytes）
 - `src/main/java/cn/longer233/gamenarrator/editor/ProjectRevisionController.java`（1043 bytes）
 - `src/main/java/cn/longer233/gamenarrator/editor/ProjectRevisionService.java`（2940 bytes）
 - `src/main/java/cn/longer233/gamenarrator/editor/ProjectRevisionView.java`（368 bytes）
@@ -177,7 +178,7 @@
 - `src/main/java/cn/longer233/gamenarrator/pipeline/FailedVisionTaskRepair.java`（2063 bytes）
 - `src/main/java/cn/longer233/gamenarrator/pipeline/PendingTaskRecovery.java`（2188 bytes）
 - `src/main/java/cn/longer233/gamenarrator/pipeline/PipelineRunTracker.java`（5774 bytes）
-- `src/main/java/cn/longer233/gamenarrator/pipeline/ProjectArtifactRegistry.java`（5450 bytes）
+- `src/main/java/cn/longer233/gamenarrator/pipeline/ProjectArtifactRegistry.java`（6250 bytes）
 - `src/main/java/cn/longer233/gamenarrator/pipeline/TaskWorkflowStateService.java`（14872 bytes）
 - `src/main/java/cn/longer233/gamenarrator/pipeline/VideoTaskEngine.java`（21345 bytes）
 - `src/main/java/cn/longer233/gamenarrator/pipeline/WaitingTaskRetryScheduler.java`（2399 bytes）
@@ -281,7 +282,7 @@
 - `src/main/resources/db/migration/V8__video_segment_semantic_index.sql`（634 bytes）
 - `src/main/resources/db/migration/V9__video_segment_image_hash.sql`（152 bytes）
 - `src/main/resources/static/app.css`（65083 bytes）
-- `src/main/resources/static/app.js`（107466 bytes）
+- `src/main/resources/static/app.js`（107211 bytes）
 - `src/main/resources/static/asset-library.js`（39551 bytes）
 - `src/main/resources/static/diagnostics.js`（1673 bytes）
 - `src/main/resources/static/export.js`（10391 bytes）
@@ -289,7 +290,7 @@
 - `src/main/resources/static/index.html`（23733 bytes）
 - `src/main/resources/static/media-importer.css`（4474 bytes）
 - `src/main/resources/static/media-importer.js`（24293 bytes）
-- `src/main/resources/static/updates.js`（4417 bytes）
+- `src/main/resources/static/updates.js`（4680 bytes）
 - `src/test/java/cn/longer233/gamenarrator/ai/AdaptiveAiChatClientTest.java`（1725 bytes）
 - `src/test/java/cn/longer233/gamenarrator/ai/AiUsageServiceTest.java`（1164 bytes）
 - `src/test/java/cn/longer233/gamenarrator/asset/AiAssetTaggerTest.java`（2432 bytes）
@@ -340,7 +341,7 @@
 - `src/test/java/cn/longer233/gamenarrator/task/DatabaseMigrationTest.java`（6107 bytes）
 - `src/test/java/cn/longer233/gamenarrator/task/domain/VideoTaskTest.java`（4664 bytes）
 - `src/test/java/cn/longer233/gamenarrator/task/TaskLifecycleIntegrationTest.java`（3749 bytes）
-- `src/test/java/cn/longer233/gamenarrator/task/web/VideoTaskControllerTest.java`（16044 bytes）
+- `src/test/java/cn/longer233/gamenarrator/task/web/VideoTaskControllerTest.java`（16334 bytes）
 - `src/test/java/cn/longer233/gamenarrator/timeline/TimelinePlannerTest.java`（2442 bytes）
 - `src/test/java/cn/longer233/gamenarrator/timeline/TimelineValidatorTest.java`（1515 bytes）
 - `src/test/java/cn/longer233/gamenarrator/transcription/PlatformSubtitleReaderTest.java`（953 bytes）
@@ -369,7 +370,7 @@
 
     <groupId>cn.longer233.graduation</groupId>
     <artifactId>game-narrator</artifactId>
-    <version>2.1.4</version>
+    <version>2.1.5</version>
     <name>GameNarrator</name>
     <description>多模态游戏视频智能解说与自动剪辑系统</description>
 
@@ -797,6 +798,11 @@ Groq、Together、Perplexity 和 Cerebras；Anthropic Messages 与 Google Gemini
 协议适配。每次响应只记录输入、输出、缓存 Token、模型和按用户配置单价计算的费用，
 不记录提示词、图片或模型响应内容。每日费用写入 `data/config/ai-usage.json`，会话统计
 仅保留在当前进程内。
+
+## 并发与前端刷新
+
+- `video_project.current_revision_id` 的编辑器提交、撤销、重做、版本检出和流水线产物登记均以 `version` 条件更新；并发写入返回冲突，不允许静默覆盖另一条修订链。
+- Web 任务状态通过 SSE 推送，断线后指数退避重连，不保留无效轮询钩子。
 
 ## 下一阶段
 
@@ -3714,6 +3720,78 @@ if ($BackendSmoke) {
 }
 Write-Host 'Launch GameNarrator.exe and verify the first-run UI, then run:'
 Write-Host "Invoke-RestMethod http://127.0.0.1:$Port/api/debug/health"
+``
+
+### FILE: scripts/update-release-version.ps1
+
+``powershell
+param(
+    [Parameter(Mandatory = $true)][ValidatePattern('^\d+\.\d+\.\d+$')][string]$Version,
+    [Parameter(Mandatory = $true)][ValidatePattern('^\d+\.\d+\.\d+$')][string]$AndroidVersion,
+    [Parameter(Mandatory = $true)][ValidateRange(1, 2100000000)][int]$AndroidVersionCode,
+    [string]$Title = '稳定性与功能更新'
+)
+
+$ErrorActionPreference = 'Stop'
+$projectRoot = Split-Path -Parent $PSScriptRoot
+$utf8 = [System.Text.UTF8Encoding]::new($false)
+
+function Read-Utf8([string]$relativePath) {
+    return [IO.File]::ReadAllText((Join-Path $projectRoot $relativePath), [Text.Encoding]::UTF8)
+}
+
+function Write-Utf8([string]$relativePath, [string]$content) {
+    [IO.File]::WriteAllText((Join-Path $projectRoot $relativePath), $content, $utf8)
+}
+
+function Replace-Required([string]$relativePath, [string]$pattern, [string]$replacement) {
+    $content = Read-Utf8 $relativePath
+    $updated = [regex]::Replace($content, $pattern, $replacement)
+    if ($updated -eq $content) { throw "未在 $relativePath 中找到待更新版本" }
+    Write-Utf8 $relativePath $updated
+}
+
+$pom = Read-Utf8 'pom.xml'
+$match = [regex]::Match($pom, '<artifactId>game-narrator</artifactId>\s*<version>(\d+\.\d+\.\d+)</version>')
+if (-not $match.Success) { throw '无法读取当前 Web/Windows 版本' }
+$oldVersion = $match.Groups[1].Value
+$gradle = Read-Utf8 'android-app/app/build.gradle'
+$androidNameMatch = [regex]::Match($gradle, "versionName\s+'(\d+\.\d+\.\d+)'")
+$androidCodeMatch = [regex]::Match($gradle, 'versionCode\s+(\d+)')
+if (-not $androidNameMatch.Success -or -not $androidCodeMatch.Success) { throw '无法读取当前 Android 版本' }
+$oldAndroidVersion = $androidNameMatch.Groups[1].Value
+$oldAndroidCode = [int]$androidCodeMatch.Groups[1].Value
+if ($AndroidVersionCode -le $oldAndroidCode) { throw "Android versionCode 必须大于 $oldAndroidCode" }
+
+$desktopFiles = @(
+    'pom.xml', 'package.json', 'frontend/package.json', 'frontend/package-lock.json',
+    'frontend/index.html', 'frontend/public/app.js', 'src/main/resources/static/index.html',
+    'src/main/resources/static/app.js', 'launcher/GameNarrator.Launcher.csproj',
+    'release/installer/GameNarrator.iss', 'release/installer/GameNarrator-Demo-Lite.iss'
+)
+foreach ($file in $desktopFiles) {
+    Replace-Required $file ([regex]::Escape($oldVersion)) $Version
+}
+
+foreach ($file in @('frontend/public/updates.js', 'src/main/resources/static/updates.js')) {
+    $content = Read-Utf8 $file
+    $content = $content -replace ', current:true', ''
+    $entry = "  {version:'$Version', title:'$Title', current:true, items:['Synchronize Web, Windows and Android versions','Protect project revisions from concurrent overwrites','Create and synchronize GitHub and Gitee release tags'], jump:{view:'studio', selector:'#task-list'}},`n"
+    $content = $content -replace "const releases = \[\r?\n", "const releases = [`n$entry"
+    Write-Utf8 $file $content
+}
+
+Replace-Required 'android-app/app/build.gradle' "versionCode\s+$oldAndroidCode" "versionCode $AndroidVersionCode"
+Replace-Required 'android-app/app/build.gradle' ([regex]::Escape("versionName '$oldAndroidVersion'")) "versionName '$AndroidVersion'"
+Replace-Required 'android-app/app/src/test/java/cn/longer233/gamenarrator/mobile/MobileReleaseNotesTest.java' ([regex]::Escape('"' + $oldAndroidVersion + '"')) ('"' + $AndroidVersion + '"')
+$notesPath = 'android-app/app/src/main/java/cn/longer233/gamenarrator/mobile/MobileReleaseNotes.java'
+$notes = Read-Utf8 $notesPath
+$note = ('        notes.add(new Note("{0}", "{1}",' + "`n" +
+        '                "Unified release workflow and project revision concurrency protection."));' + "`n") -f $AndroidVersion, $Title
+$notes = $notes -replace '        List<Note> notes = new ArrayList<>\(\);\r?\n', "        List<Note> notes = new ArrayList<>();`n$note"
+Write-Utf8 $notesPath $notes
+
+Write-Output "Versions updated: Web/Windows $oldVersion -> $Version; Android $oldAndroidVersion ($oldAndroidCode) -> $AndroidVersion ($AndroidVersionCode)"
 ``
 
 ### FILE: scripts/verify-android-guardrails.ps1
@@ -8806,6 +8884,7 @@ import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import jakarta.transaction.Transactional;
 import org.springframework.jdbc.core.JdbcTemplate;
+import org.springframework.dao.OptimisticLockingFailureException;
 import org.springframework.stereotype.Service;
 
 import javax.sound.sampled.AudioSystem;
@@ -8840,8 +8919,7 @@ public class EditorTimelineService {
     @Transactional
     public JsonNode checkout(UUID taskId, UUID revisionId) {
         requireTask(taskId);
-        jdbc.update("UPDATE video_project SET current_revision_id=?,updated_at=CURRENT_TIMESTAMP,version=version+1 WHERE id=?",
-                revisionId, taskId);
+        updateCurrentRevision(taskId, revisionId);
         ObjectNode result = timelineFrom(currentManifest(taskId), taskId);
         syncRenderableStoryboard(taskId, result);
         attachHistory(result, taskId);
@@ -9072,7 +9150,7 @@ public class EditorTimelineService {
 
     private JsonNode undo(UUID id) {
         UUID current = currentRevision(id); UUID parent = jdbc.queryForObject("SELECT parent_revision_id FROM project_revision WHERE id=?", UUID.class, current);
-        if (parent != null) jdbc.update("UPDATE video_project SET current_revision_id=?,updated_at=CURRENT_TIMESTAMP WHERE id=?", parent, id);
+        if (parent != null) updateCurrentRevision(id, parent);
         ObjectNode result = timelineFrom(currentManifest(id), id);
         syncRenderableStoryboard(id, result);
         attachHistory(result, id);
@@ -9081,7 +9159,7 @@ public class EditorTimelineService {
     private JsonNode redo(UUID id) {
         UUID current = currentRevision(id);
         List<UUID> children = jdbc.query("SELECT id FROM project_revision WHERE project_id=? AND parent_revision_id=? ORDER BY revision_no DESC", (rs,n)->rs.getObject(1,UUID.class), id,current);
-        if (!children.isEmpty()) jdbc.update("UPDATE video_project SET current_revision_id=?,updated_at=CURRENT_TIMESTAMP WHERE id=?", children.getFirst(), id);
+        if (!children.isEmpty()) updateCurrentRevision(id, children.getFirst());
         ObjectNode result = timelineFrom(currentManifest(id), id);
         syncRenderableStoryboard(id, result);
         attachHistory(result, id);
@@ -9156,10 +9234,21 @@ public class EditorTimelineService {
             Integer no=jdbc.queryForObject("SELECT COALESCE(MAX(revision_no),0)+1 FROM project_revision WHERE project_id=?",Integer.class,id);
             jdbc.update("INSERT INTO project_revision(id,project_id,revision_no,parent_revision_id,created_by,change_type,change_summary,parameter_snapshot_json,manifest_json,manifest_schema_version,manifest_sha256,created_at) VALUES(?,?,?,?,?,?,?,?,?,?,?,?)",
                     revision,id,no,parent,currentUser.userId(),type,summary,"{}",json,3,HexFormat.of().formatHex(MessageDigest.getInstance("SHA-256").digest(json.getBytes(StandardCharsets.UTF_8))),OffsetDateTime.now());
-            jdbc.update("UPDATE video_project SET current_revision_id=?,updated_at=CURRENT_TIMESTAMP,version=version+1 WHERE id=?",revision,id);
+            updateCurrentRevision(id, revision);
         } catch(Exception e){throw new IllegalStateException("无法保存剪辑版本",e);}
     }
     private ObjectNode clip(ArrayNode clips,String id){for(JsonNode n:clips)if(id.equals(n.path("id").asText()))return(ObjectNode)n;throw new IllegalArgumentException("片段不存在");}
+    private void updateCurrentRevision(UUID id, UUID revisionId) {
+        Long expectedVersion = jdbc.queryForObject("SELECT version FROM video_project WHERE id=?", Long.class, id);
+        if (expectedVersion == null) throw new TaskNotFoundException(id);
+        int changed = jdbc.update("""
+                UPDATE video_project SET current_revision_id=?,updated_at=CURRENT_TIMESTAMP,version=version+1
+                WHERE id=? AND version=?
+                """, revisionId, id, expectedVersion);
+        if (changed != 1) {
+            throw new OptimisticLockingFailureException("工程已被其他操作更新，请刷新后重试：" + id);
+        }
+    }
     private void recalculateDuration(ObjectNode t){double end=0;for(JsonNode n:t.path("clips"))end=Math.max(end,n.path("timelineStartSeconds").asDouble()+n.path("durationSeconds").asDouble());t.put("durationSeconds",end);}
     private VideoTask requireTask(UUID id){return tasks.findById(id).orElseThrow(()->new TaskNotFoundException(id));}
     private String text(Map<String,Object>v,String k){String s=Objects.toString(v.get(k),"").trim();if(s.isEmpty())throw new IllegalArgumentException(k+"不能为空");return s;}
@@ -13667,7 +13756,9 @@ package cn.longer233.gamenarrator.pipeline;
 import cn.longer233.gamenarrator.identity.CurrentUserContext;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ObjectNode;
+import jakarta.transaction.Transactional;
 import org.springframework.jdbc.core.JdbcTemplate;
+import org.springframework.dao.OptimisticLockingFailureException;
 import org.springframework.stereotype.Component;
 
 import java.nio.file.Files;
@@ -13692,6 +13783,7 @@ public class ProjectArtifactRegistry {
         this.currentUser = currentUser;
     }
 
+    @Transactional
     public void record(UUID projectId, String type, String value, String mimeType, boolean temporary) {
         if (value == null || value.isBlank()) return;
         try {
@@ -13702,8 +13794,13 @@ public class ProjectArtifactRegistry {
             var existing = jdbc.query("SELECT id,sha256 FROM artifact WHERE storage_key=? AND deleted_at IS NULL",
                     (rs, row) -> new ExistingArtifact(rs.getObject("id", UUID.class), rs.getString("sha256")), storageKey);
             if (!existing.isEmpty() && contentHash.equals(existing.getFirst().sha256())) return;
-            UUID parent = jdbc.queryForObject("SELECT current_revision_id FROM video_project WHERE id=?", UUID.class, projectId);
-            UUID run = jdbc.queryForObject("SELECT latest_run_id FROM video_project WHERE id=?", UUID.class, projectId);
+            ProjectState project = jdbc.queryForObject("""
+                    SELECT current_revision_id,latest_run_id,version FROM video_project WHERE id=?
+                    """, (rs, row) -> new ProjectState(rs.getObject("current_revision_id", UUID.class),
+                    rs.getObject("latest_run_id", UUID.class), rs.getLong("version")), projectId);
+            if (project == null) throw new IllegalStateException("工程不存在：" + projectId);
+            UUID parent = project.currentRevisionId();
+            UUID run = project.latestRunId();
             ObjectNode manifest = (ObjectNode) mapper.readTree(jdbc.queryForObject(
                     "SELECT manifest_json FROM project_revision WHERE id=?", String.class, parent));
             UUID artifactId = existing.isEmpty() ? UUID.randomUUID() : existing.getFirst().id();
@@ -13736,8 +13833,13 @@ public class ProjectArtifactRegistry {
                         sha256=?,schema_version=1,temporary=?,created_at=? WHERE id=?
                         """, revision, run, type, mimeType, Files.size(path), contentHash, temporary, now, artifactId);
             }
-            jdbc.update("UPDATE video_project SET current_revision_id=?,updated_at=?,version=version+1 WHERE id=?",
-                    revision, now, projectId);
+            int changed = jdbc.update("""
+                    UPDATE video_project SET current_revision_id=?,updated_at=?,version=version+1
+                    WHERE id=? AND version=?
+                    """, revision, now, projectId, project.version());
+            if (changed != 1) {
+                throw new OptimisticLockingFailureException("工程已在产物登记期间被其他操作更新：" + projectId);
+            }
         } catch (Exception exception) {
             throw new IllegalStateException("阶段产物登记失败：" + type + "：" + exception.getMessage(), exception);
         }
@@ -13760,6 +13862,7 @@ public class ProjectArtifactRegistry {
     }
 
     private record ExistingArtifact(UUID id, String sha256) { }
+    private record ProjectState(UUID currentRevisionId, UUID latestRunId, long version) { }
 }
 ``
 
@@ -21642,7 +21745,7 @@ document.querySelector('#updates-open')?.addEventListener('click', async event =
   try { await loadLazyScript('updates'); document.querySelector('#updates-dialog')?.showModal(); }
   catch (error) { window.alert(error.message); } finally { button.disabled = false; }
 });
-if (localStorage.getItem('gameNarrator.lastSeenRelease') === '2.1.4') document.querySelector('#updates-open')?.classList.remove('has-update');
+if (localStorage.getItem('gameNarrator.lastSeenRelease') === '2.1.5') document.querySelector('#updates-open')?.classList.remove('has-update');
 window.addEventListener('gamenarrator-release-jump', event => {
   const {view='studio', selector, note} = event.detail || {}; activateView(view, true);
   setTimeout(() => {
@@ -21763,10 +21866,6 @@ async function loadTasks() {
   } finally {
     tasksLoading = false;
   }
-}
-
-function scheduleTaskPoll(delayMs) {
-  // Kept as a compatibility hook for older action handlers. Task state is SSE-only.
 }
 
 function connectTaskStream() {
@@ -22240,7 +22339,6 @@ detailContent.addEventListener('submit', async event => {
     if (!response.ok) throw await readApiError(response);
     status.textContent = '特效重渲染已启动，可在处理流水线查看进度。';
     button.textContent = '渲染进行中';
-    scheduleTaskPoll(1000);
     setTimeout(() => refreshTaskDetails(form.dataset.effectSettings), 1200);
   } catch (error) {
     button.disabled = false;
@@ -22933,7 +23031,6 @@ async function handleStoryboardAction(button) {
       }
       button.textContent = '已执行：等待下一阶段';
       await updateStoryboardProgress(taskId);
-      scheduleTaskPoll(1000);
       return;
     }
     if (['auto-assets','asset-remove','asset-save','move','rewrite','asset-ai','asset-manual'].includes(button.dataset.storyboardAction)) {
@@ -23181,7 +23278,6 @@ function showLoadError(error) {
 
 loadTasks().catch(error => {
   showLoadError(error);
-  scheduleTaskPoll(10000);
 }).finally(connectTaskStream);
 
 const guideSteps = [
@@ -23193,7 +23289,7 @@ const guideSteps = [
   {selector: '.history-panel', title: '第 5 步：从最左侧历史继续', text: '只有真正生成完成的任务才会进入页面最左侧“最近完成”列表。处理中、等待检查、失败或取消的任务都留在右侧，避免被误认为已经完成。点击已完成条目可查看生成文件、分镜、文案、时间线和最终视频。'},
   {selector: '.storyboard-review-option', title: '第 6 步：检查分镜再继续', text: '开启分镜检查后，流程会在文案与分镜生成后暂停。进入线性分镜工作台可调整顺序、起止时间、字幕、解说、素材和特效；保存全部修改后再继续配音与渲染。'},
   {selector: '.primary-nav', title: '更多工具入口', text: '“镜头搜索”使用本地语义模型寻找片段；“平台导入”负责下载并创建项目；“素材库”管理授权素材；“设置”管理云端或本地 AI。遇到问题可点击右上角“诊断日志”。'},
-  {selector: '.topbar-actions', title: '完成、诊断与再次查看', text: '任务完成后在详情中预览并导出 MP4。任何阶段失败时先查看任务详情和诊断日志；本引导可以随时从“使用引导”重新打开。当前版本为 v2.1.4。'}
+  {selector: '.topbar-actions', title: '完成、诊断与再次查看', text: '任务完成后在详情中预览并导出 MP4。任何阶段失败时先查看任务详情和诊断日志；本引导可以随时从“使用引导”重新打开。当前版本为 v2.1.5。'}
 ];
 let guideIndex = 0;
 let guideTarget = null;
@@ -23304,7 +23400,6 @@ document.addEventListener('keydown', event => {
 });
 if (!guideStorage('get')) setTimeout(openGuide, 700);
 document.addEventListener('visibilitychange', () => {
-  if (!document.hidden) scheduleTaskPoll(0);
 });
 ``
 
@@ -24290,14 +24385,14 @@ document.querySelector('#copy-address').onclick=async()=>{await navigator.clipbo
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>GameNarrator 2.1.4</title>
+  <title>GameNarrator 2.1.5</title>
   <link rel="stylesheet" href="/media-importer.css?v=20260729-10">
   <link rel="stylesheet" href="/app.css?v=20260803-13">
 </head>
 <body>
   <div class="aurora"></div>
   <header class="topbar">
-    <a class="brand" href="/">GAME<span>NARRATOR</span><small class="app-version">v2.1.4</small></a>
+    <a class="brand" href="/">GAME<span>NARRATOR</span><small class="app-version">v2.1.5</small></a>
     <nav class="primary-nav" aria-label="主要功能">
       <a href="/?view=studio" data-view-link="studio">剪辑任务</a>
       <a href="/?view=search" data-view-link="search">镜头搜索</a>
@@ -24570,7 +24665,7 @@ document.querySelector('#copy-address').onclick=async()=>{await navigator.clipbo
       <main id="storyboard-workspace" class="storyboard-workspace"><p class="empty">正在读取分镜…</p></main>
     </div>
   </dialog>
-  <script src="/app.js?v=20260810-1"></script>
+  <script src="/app.js?v=20260810-2"></script>
   <script src="/export.js?v=20260728-4"></script>
   <dialog id="diagnostics-dialog" class="task-dialog diagnostics-dialog">
     <div class="dialog-shell">
@@ -25042,7 +25137,8 @@ document.querySelector('#copy-address').onclick=async()=>{await navigator.clipbo
 
 ``javascript
 const releases = [
-  {version:'2.1.4', title:'修复展示轻量版无法启动', current:true, items:['改用 PowerShell 启动器，避免批处理换行兼容问题','启动输出与错误写入独立日志','已使用打包目录完成真实启动健康检查'], jump:{view:'studio', selector:'#task-list'}},
+  {version:'2.1.5', title:'并发安全与可解释事件时间线', current:true, items:['统一更新 Web、Windows 与 Android 版本','修复工程修订并发覆盖风险','自动创建并同步 GitHub、Gitee 发布标签'], jump:{view:'studio', selector:'#task-list'}},
+  {version:'2.1.4', title:'修复展示轻量版无法启动', items:['改用 PowerShell 启动器，避免批处理换行兼容问题','启动输出与错误写入独立日志','已使用打包目录完成真实启动健康检查'], jump:{view:'studio', selector:'#task-list'}},
   {version:'2.1.3', title:'修复 NVENC 驱动不兼容导致音画合成失败', items:['动态字幕音画合成沿用当前有效编码器','NVENC 初始化失败时自动回退 libx264 CPU 编码','清理失败的半成品后自动重试，无需重新剪辑'], jump:{view:'studio', selector:'#task-list'}},
   {version:'2.1.2', title:'修复安装包误装旧程序', items:['发行构建先清理历史 JAR','只打包与当前版本精确匹配的 JAR','创建安装器前校验内置前端版本，拒绝陈旧产物'], jump:{view:'studio', selector:'#task-list'}},
   {version:'2.1.1', title:'Windows 发行构建稳定性', items:['发行构建自动识别并关闭当前项目的 Vite/esbuild 文件锁','不影响其他 Node 程序','保留可复现的 npm ci 依赖恢复'], jump:{view:'studio', selector:'#task-list'}},
@@ -28135,12 +28231,16 @@ class VideoTaskControllerTest {
                 .andExpect(status().isOk()).andExpect(jsonPath("$[0].current").value(true)).andReturn()
                 .getResponse().getContentAsString();
         UUID revisionId = UUID.fromString(objectMapper.readTree(revisions).get(0).path("id").asText());
+        Long versionBeforeCheckout = jdbc.queryForObject(
+                "SELECT version FROM video_project WHERE id=?", Long.class, id);
 
         mockMvc.perform(patch("/api/tasks/{id}/editor/revisions/{revisionId}", id, revisionId)
                         .contentType("application/json").content("{\"label\":\"初始剪辑方案\"}"))
                 .andExpect(status().isOk()).andExpect(jsonPath("$.label").value("初始剪辑方案"));
         mockMvc.perform(post("/api/tasks/{id}/editor/revisions/{revisionId}/checkout", id, revisionId))
                 .andExpect(status().isOk()).andExpect(jsonPath("$.history.revisionCount").value(1));
+        assertEquals(versionBeforeCheckout + 1, jdbc.queryForObject(
+                "SELECT version FROM video_project WHERE id=?", Long.class, id));
     }
 
 }

@@ -12,6 +12,7 @@ import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import jakarta.transaction.Transactional;
 import org.springframework.jdbc.core.JdbcTemplate;
+import org.springframework.dao.OptimisticLockingFailureException;
 import org.springframework.stereotype.Service;
 
 import javax.sound.sampled.AudioSystem;
@@ -46,8 +47,7 @@ public class EditorTimelineService {
     @Transactional
     public JsonNode checkout(UUID taskId, UUID revisionId) {
         requireTask(taskId);
-        jdbc.update("UPDATE video_project SET current_revision_id=?,updated_at=CURRENT_TIMESTAMP,version=version+1 WHERE id=?",
-                revisionId, taskId);
+        updateCurrentRevision(taskId, revisionId);
         ObjectNode result = timelineFrom(currentManifest(taskId), taskId);
         syncRenderableStoryboard(taskId, result);
         attachHistory(result, taskId);
@@ -278,7 +278,7 @@ public class EditorTimelineService {
 
     private JsonNode undo(UUID id) {
         UUID current = currentRevision(id); UUID parent = jdbc.queryForObject("SELECT parent_revision_id FROM project_revision WHERE id=?", UUID.class, current);
-        if (parent != null) jdbc.update("UPDATE video_project SET current_revision_id=?,updated_at=CURRENT_TIMESTAMP WHERE id=?", parent, id);
+        if (parent != null) updateCurrentRevision(id, parent);
         ObjectNode result = timelineFrom(currentManifest(id), id);
         syncRenderableStoryboard(id, result);
         attachHistory(result, id);
@@ -287,7 +287,7 @@ public class EditorTimelineService {
     private JsonNode redo(UUID id) {
         UUID current = currentRevision(id);
         List<UUID> children = jdbc.query("SELECT id FROM project_revision WHERE project_id=? AND parent_revision_id=? ORDER BY revision_no DESC", (rs,n)->rs.getObject(1,UUID.class), id,current);
-        if (!children.isEmpty()) jdbc.update("UPDATE video_project SET current_revision_id=?,updated_at=CURRENT_TIMESTAMP WHERE id=?", children.getFirst(), id);
+        if (!children.isEmpty()) updateCurrentRevision(id, children.getFirst());
         ObjectNode result = timelineFrom(currentManifest(id), id);
         syncRenderableStoryboard(id, result);
         attachHistory(result, id);
@@ -362,10 +362,21 @@ public class EditorTimelineService {
             Integer no=jdbc.queryForObject("SELECT COALESCE(MAX(revision_no),0)+1 FROM project_revision WHERE project_id=?",Integer.class,id);
             jdbc.update("INSERT INTO project_revision(id,project_id,revision_no,parent_revision_id,created_by,change_type,change_summary,parameter_snapshot_json,manifest_json,manifest_schema_version,manifest_sha256,created_at) VALUES(?,?,?,?,?,?,?,?,?,?,?,?)",
                     revision,id,no,parent,currentUser.userId(),type,summary,"{}",json,3,HexFormat.of().formatHex(MessageDigest.getInstance("SHA-256").digest(json.getBytes(StandardCharsets.UTF_8))),OffsetDateTime.now());
-            jdbc.update("UPDATE video_project SET current_revision_id=?,updated_at=CURRENT_TIMESTAMP,version=version+1 WHERE id=?",revision,id);
+            updateCurrentRevision(id, revision);
         } catch(Exception e){throw new IllegalStateException("无法保存剪辑版本",e);}
     }
     private ObjectNode clip(ArrayNode clips,String id){for(JsonNode n:clips)if(id.equals(n.path("id").asText()))return(ObjectNode)n;throw new IllegalArgumentException("片段不存在");}
+    private void updateCurrentRevision(UUID id, UUID revisionId) {
+        Long expectedVersion = jdbc.queryForObject("SELECT version FROM video_project WHERE id=?", Long.class, id);
+        if (expectedVersion == null) throw new TaskNotFoundException(id);
+        int changed = jdbc.update("""
+                UPDATE video_project SET current_revision_id=?,updated_at=CURRENT_TIMESTAMP,version=version+1
+                WHERE id=? AND version=?
+                """, revisionId, id, expectedVersion);
+        if (changed != 1) {
+            throw new OptimisticLockingFailureException("工程已被其他操作更新，请刷新后重试：" + id);
+        }
+    }
     private void recalculateDuration(ObjectNode t){double end=0;for(JsonNode n:t.path("clips"))end=Math.max(end,n.path("timelineStartSeconds").asDouble()+n.path("durationSeconds").asDouble());t.put("durationSeconds",end);}
     private VideoTask requireTask(UUID id){return tasks.findById(id).orElseThrow(()->new TaskNotFoundException(id));}
     private String text(Map<String,Object>v,String k){String s=Objects.toString(v.get(k),"").trim();if(s.isEmpty())throw new IllegalArgumentException(k+"不能为空");return s;}
