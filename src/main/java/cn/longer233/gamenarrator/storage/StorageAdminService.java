@@ -1,6 +1,8 @@
 package cn.longer233.gamenarrator.storage;
 
 import cn.longer233.gamenarrator.common.StorageCleanupService;
+import cn.longer233.gamenarrator.admin.AdminAccessDeniedException;
+import cn.longer233.gamenarrator.identity.CurrentUserContext;
 import cn.longer233.gamenarrator.observability.StorageCapacityGuard;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.jdbc.core.JdbcTemplate;
@@ -15,14 +17,16 @@ public class StorageAdminService {
     private final JdbcTemplate jdbc;
     private final StorageCapacityGuard capacity;
     private final StorageCleanupService cleanup;
+    private final CurrentUserContext current;
 
     public StorageAdminService(@Value("${game-narrator.storage-root}") String root, JdbcTemplate jdbc,
-                               StorageCapacityGuard capacity, StorageCleanupService cleanup) {
+                               StorageCapacityGuard capacity, StorageCleanupService cleanup, CurrentUserContext current) {
         this.root = Path.of(root).toAbsolutePath().normalize(); this.jdbc = jdbc;
-        this.capacity = capacity; this.cleanup = cleanup;
+        this.capacity = capacity; this.cleanup = cleanup; this.current = current;
     }
 
     public StorageAdminView inspect() {
+        requireAdmin();
         Long sourceBytes = jdbc.queryForObject("SELECT COALESCE(SUM(size_bytes),0) FROM source_media_storage WHERE storage_mode='MANAGED'", Long.class);
         Long artifactBytes = jdbc.queryForObject("SELECT COALESCE(SUM(size_bytes),0) FROM artifact WHERE deleted_at IS NULL", Long.class);
         Integer sourceCount = jdbc.queryForObject("SELECT COUNT(*) FROM source_media_storage", Integer.class);
@@ -38,7 +42,10 @@ public class StorageAdminService {
                 sourceCount == null ? 0 : sourceCount, artifactCount == null ? 0 : artifactCount, List.copyOf(largest));
     }
 
-    public StorageAdminView cleanupAndInspect() { cleanup.cleanup(); return inspect(); }
+    public StorageAdminView cleanupAndInspect() { requireAdmin(); cleanup.cleanup(); return inspect(); }
+    private void requireAdmin() {
+        if (!current.authenticated() || !"ADMIN".equals(current.role())) throw new AdminAccessDeniedException();
+    }
     private String filesystemType() {
         try { return java.nio.file.Files.getFileStore(root).type(); }
         catch (Exception exception) { return "UNKNOWN"; }

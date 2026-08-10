@@ -6,6 +6,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.Instant;
+import java.time.LocalDate;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -29,6 +30,18 @@ public class AdminManagementService {
                 "renderedBytes", number("SELECT COALESCE(SUM(rendered_file_size_bytes),0) FROM video_tasks"),
                 "apiCostThisMonth", decimal("SELECT COALESCE(SUM(estimated_cost),0) FROM user_ai_usage_daily WHERE usage_date>=DATE_TRUNC('MONTH',CURRENT_DATE)"),
                 "pendingCloudSync", number("SELECT COUNT(*) FROM cloud_sync_item WHERE sync_status IN ('PENDING','FAILED')")
+        );
+    }
+
+    public Map<String,Object> overview() {
+        requireAdmin();
+        LocalDate from = LocalDate.now().minusDays(13);
+        return Map.of(
+                "summary", summary(),
+                "userStatus", jdbc.queryForList("SELECT status,COUNT(*) count FROM app_user WHERE account_type='REGISTERED' GROUP BY status ORDER BY status"),
+                "projectStatus", jdbc.queryForList("SELECT status,COUNT(*) count FROM video_project WHERE deleted_at IS NULL GROUP BY status ORDER BY status"),
+                "dailyUsage", jdbc.queryForList("SELECT usage_date,SUM(request_count) request_count,SUM(input_tokens+output_tokens) token_count,SUM(estimated_cost) estimated_cost FROM user_ai_usage_daily WHERE usage_date>=? GROUP BY usage_date ORDER BY usage_date", from),
+                "recentAudit", jdbc.queryForList("SELECT l.created_at,u.username,l.action,l.target_type,l.target_id FROM admin_audit_log l JOIN app_user u ON u.id=l.admin_user_id ORDER BY l.created_at DESC LIMIT 8")
         );
     }
 

@@ -24,6 +24,8 @@ public final class MobileReleaseNotes {
 
     public static List<Note> notes() {
         List<Note> notes = new ArrayList<>();
+        notes.add(new Note("0.74.0", "后台管理中心增强",
+                "新增运营总览、AI 趋势、用户与项目管理、云同步、存储和审计视图，并修复存储管理接口的权限校验。"));
         notes.add(new Note("0.73.0", "版本公告中文化修复",
                 "修复 Windows PowerShell 解析 UTF-8 中文模板时产生乱码的问题，并恢复近期版本的中文功能说明。"));
         notes.add(new Note("0.72.0", "使用引导自动跳转修复",

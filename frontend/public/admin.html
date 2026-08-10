@@ -1,5 +1,34 @@
-<!doctype html><html lang="zh-CN"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>GameNarrator 后台管理</title><link rel="stylesheet" href="/admin.css"></head>
-<body><header><div><h1>GameNarrator 后台管理</h1><p>用户、项目、存储、云端 API 与同步状态</p></div><div><a href="/">返回工作台</a><button id="logout">退出登录</button></div></header>
-<main><section id="login" class="panel hidden"><h2>管理员登录</h2><form id="loginForm"><input name="username" placeholder="用户名" required><input name="password" type="password" placeholder="密码" required><button>登录</button></form><p id="loginTip"></p></section>
-<div id="app" class="hidden"><section id="summary" class="cards"></section><nav><button data-tab="users">用户</button><button data-tab="projects">项目与成片</button><button data-tab="api-usage">云端 API</button><button data-tab="cloud-sync">云同步</button><button data-tab="audit">审计日志</button></nav><section class="panel"><div id="toolbar"></div><div class="table-wrap"><table><thead id="head"></thead><tbody id="body"></tbody></table></div></section></div></main>
-<script src="/admin.js"></script></body></html>
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>GameNarrator 管理中心</title>
+  <link rel="stylesheet" href="/admin.css">
+</head>
+<body>
+<header class="topbar">
+  <div><small>GAMENARRATOR CONSOLE</small><h1>后台管理中心</h1><p>用户、项目、AI 成本、云同步、存储与审计统一管理</p></div>
+  <div class="top-actions"><span id="adminIdentity"></span><a href="/">返回工作台</a><button id="logout" class="secondary">退出登录</button></div>
+</header>
+<main>
+  <section id="login" class="login-card hidden"><h2>管理员登录</h2><p>只有管理员账号可以访问管理中心。</p><form id="loginForm"><label>用户名<input name="username" autocomplete="username" required></label><label>密码<input name="password" type="password" autocomplete="current-password" required></label><button>登录</button></form><p id="loginTip" class="error"></p></section>
+  <div id="app" class="shell hidden">
+    <aside class="sidebar"><nav id="nav"><button data-tab="overview" class="active">总览</button><button data-tab="users">用户管理</button><button data-tab="projects">项目与成片</button><button data-tab="api-usage">AI 用量</button><button data-tab="cloud-sync">云同步</button><button data-tab="storage">存储管理</button><button data-tab="audit">审计日志</button></nav></aside>
+    <section class="content">
+      <div class="page-head"><div><small id="eyebrow">OVERVIEW</small><h2 id="pageTitle">运营总览</h2><p id="pageDescription">查看系统规模、资源使用和近期管理操作。</p></div><button id="refresh" class="secondary">刷新</button></div>
+      <section id="summary" class="cards"></section>
+      <section id="overview" class="overview-grid"></section>
+      <section id="dataPanel" class="panel hidden">
+        <div class="toolbar"><input id="search" type="search" placeholder="搜索当前列表"><select id="statusFilter"><option value="">全部状态</option></select><span id="resultCount"></span><button id="exportCsv" class="secondary">导出 CSV</button></div>
+        <div id="notice" class="notice hidden"></div>
+        <div class="table-wrap"><table><thead id="head"></thead><tbody id="body"></tbody></table></div>
+        <div class="pager"><button id="previous" class="secondary">上一页</button><span id="pageState"></span><button id="next" class="secondary">下一页</button></div>
+      </section>
+      <section id="storagePanel" class="hidden"></section>
+    </section>
+  </div>
+</main>
+<dialog id="userDialog"><form method="dialog" id="userForm"><header><h2>编辑用户</h2><button value="cancel" class="icon">×</button></header><input name="id" type="hidden"><label>角色<select name="role"><option>USER</option><option>ADMIN</option></select></label><label>状态<select name="status"><option>ACTIVE</option><option>DISABLED</option></select></label><label>存储配额（GB）<input name="quotaGb" type="number" min="0" step="1" required></label><label>每月 API 预算<input name="budget" type="number" min="0" step="0.01" required></label><footer><button value="cancel" class="secondary">取消</button><button id="saveUser" value="default">保存修改</button></footer></form></dialog>
+<script src="/admin.js"></script>
+</body></html>

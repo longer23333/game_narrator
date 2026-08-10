@@ -11,6 +11,7 @@ public class AdminManagementController {
     private final AdminManagementService service;
     public AdminManagementController(AdminManagementService service) { this.service=service; }
     @GetMapping("/summary") public Map<String,Object> summary(){return service.summary();}
+    @GetMapping("/overview") public Map<String,Object> overview(){return service.overview();}
     @GetMapping("/users") public List<Map<String,Object>> users(){return service.users();}
     @PatchMapping("/users/{id}") public Map<String,Boolean> updateUser(@PathVariable UUID id,@RequestBody AdminManagementService.UserUpdate body){service.updateUser(id,body);return Map.of("updated",true);}
     @PostMapping("/users/{id}/revoke-sessions") public Map<String,Boolean> revoke(@PathVariable UUID id){service.revokeSessions(id);return Map.of("revoked",true);}

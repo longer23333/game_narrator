@@ -1,5 +1,6 @@
 const releases = [
-  {version:'2.2.3', title:'版本公告中文化修复', current:true, items:['修复 Windows PowerShell 解析 UTF-8 中文模板时产生乱码的问题','将近期 Web 与 Android 英文公告恢复为对应功能的中文内容','后续自动升级默认生成中文发布信息'], jump:{view:'studio', selector:'#updates-open'}},
+  {version:'2.2.4', title:'后台管理中心增强', current:true, items:['新增运营总览、AI 趋势、状态分布和近期审计','完善用户、项目、云同步、存储的搜索筛选、分页与 CSV 导出','修复存储检查和清理接口缺少管理员权限校验的问题'], jump:{view:'studio', selector:'#updates-open'}},
+  {version:'2.2.3', title:'版本公告中文化修复', items:['修复 Windows PowerShell 解析 UTF-8 中文模板时产生乱码的问题','将近期 Web 与 Android 英文公告恢复为对应功能的中文内容','后续自动升级默认生成中文发布信息'], jump:{view:'studio', selector:'#updates-open'}},
   {version:'2.2.2', title:'使用引导自动跳转修复', items:['引导步骤自动切换到对应功能页面','等待异步功能加载完成后再滚动并高亮目标','目标暂不可见时保留当前步骤并支持重试'], jump:{view:'studio', selector:'#guide-open'}},
   {version:'2.2.1', title:'权限隔离与导演评审修复', items:['完善账号与项目权限隔离','修复 AI 导演评审流程中的权限与数据问题','同步 Web、Windows 与 Android 发布版本'], jump:{view:'studio', selector:'#task-list'}},
   {version:'2.2.0', title:'AI 导演评审会', items:['新增多角色 AI 导演评审流程','保存评审发言、共识和最终剪辑决策','支持用户确认后应用到时间线'], jump:{view:'studio', selector:'#task-list'}},
