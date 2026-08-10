@@ -9,10 +9,14 @@ import cn.longer233.gamenarrator.voice.VoiceSegment;
 import cn.longer233.gamenarrator.voice.VoiceOption;
 import cn.longer233.gamenarrator.voice.VoiceRegenerationRequest;
 import cn.longer233.gamenarrator.highlight.HighlightClip;
+import cn.longer233.gamenarrator.event.NarrativeBeat;
+import cn.longer233.gamenarrator.personalization.DirectorProfileService;
+import cn.longer233.gamenarrator.personalization.DirectorProfileView;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import jakarta.transaction.Transactional;
 import org.springframework.stereotype.Service;
+import org.springframework.beans.factory.annotation.Autowired;
 
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -29,13 +33,22 @@ public class ScriptWorkspaceService {
     private final ObjectMapper objectMapper;
     private final OllamaScriptGenerator scriptGenerator;
     private final VoiceGenerator voiceGenerator;
+    private final DirectorProfileService directorProfiles;
 
     public ScriptWorkspaceService(VideoTaskRepository repository, ObjectMapper objectMapper,
                                   OllamaScriptGenerator scriptGenerator, VoiceGenerator voiceGenerator) {
+        this(repository, objectMapper, scriptGenerator, voiceGenerator, null);
+    }
+
+    @Autowired
+    public ScriptWorkspaceService(VideoTaskRepository repository, ObjectMapper objectMapper,
+                                  OllamaScriptGenerator scriptGenerator, VoiceGenerator voiceGenerator,
+                                  DirectorProfileService directorProfiles) {
         this.repository = repository;
         this.objectMapper = objectMapper;
         this.scriptGenerator = scriptGenerator;
         this.voiceGenerator = voiceGenerator;
+        this.directorProfiles = directorProfiles;
     }
 
     @Transactional
@@ -53,7 +66,9 @@ public class ScriptWorkspaceService {
                 request.narration().trim(),
                 defaultText(request.subtitle(), request.narration()),
                 defaultText(request.effectCue(), current.effectCue()));
-        return saveRevision(task, document, replacement);
+        ScriptDocumentView result = saveRevision(task, document, replacement);
+        if (directorProfiles != null) directorProfiles.recordScriptEdit(taskId, current, replacement);
+        return result;
     }
 
     @Transactional
@@ -136,6 +151,10 @@ public class ScriptWorkspaceService {
         List<HighlightClip> clips = readHighlightClips(task);
         int position = positionOf(document.segments(), clipIndex);
         HighlightClip currentClip = clips.get(position);
+        StoryboardSegmentView aiSuggestion = new StoryboardSegmentView(current.clipIndex(), currentClip.startSeconds(),
+                currentClip.endSeconds(), current.narration(), current.subtitle(), current.effectCue(),
+                currentClip.eventType(), currentClip.description(), currentClip.finalScore(),
+                currentClip.locked(), currentClip.excluded());
         clips.set(position, new HighlightClip(currentClip.sourceFrameIndex(), request.startSeconds(), request.endSeconds(),
                 Math.max(request.startSeconds(), Math.min(request.endSeconds(), currentClip.anchorSeconds())),
                 currentClip.eventType(), currentClip.description(), currentClip.sourceScore(), currentClip.finalScore(),
@@ -144,7 +163,13 @@ public class ScriptWorkspaceService {
         updated.put("clips", clips);
         updated.put("selectedDurationSeconds", clips.stream().mapToDouble(HighlightClip::durationSeconds).sum());
         writeAtomically(highlightPath, updated);
-        return storyboard(taskId);
+        StoryboardView result = storyboard(taskId);
+        if (directorProfiles != null) {
+            StoryboardSegmentView finalValue = result.segments().stream()
+                    .filter(item -> item.clipIndex() == clipIndex).findFirst().orElseThrow();
+            directorProfiles.recordStoryboardEdit(taskId, aiSuggestion, finalValue);
+        }
+        return result;
     }
 
     @Transactional
@@ -181,6 +206,100 @@ public class ScriptWorkspaceService {
         writeAtomically(scriptPath, scriptOutput);
         task.applyScriptRevision(document.title(), document.synopsis(), narration, scriptPath.toString(), reindexed.size());
         return storyboard(taskId);
+    }
+
+    @Transactional
+    public StoryboardView applyNarrativeStructure(UUID taskId, List<NarrativeBeat> beats) {
+        VideoTask task = requireTask(taskId);
+        ScriptDocumentView document = readDocument(task);
+        List<ScriptSegment> scripts = new ArrayList<>(document.segments());
+        List<HighlightClip> clips = readHighlightClips(task);
+        DirectorProfileView director = directorProfiles == null ? null : directorProfiles.profile();
+        Map<Integer, NarrativeBeat> beatByClip = new LinkedHashMap<>();
+        beats.stream().filter(beat -> beat.clipIndex() != null)
+                .forEach(beat -> beatByClip.putIfAbsent(beat.clipIndex(), beat));
+        List<Integer> order = new ArrayList<>(beatByClip.keySet());
+        scripts.stream().map(ScriptSegment::clipIndex).filter(index -> !order.contains(index)).forEach(order::add);
+        Map<Integer, ScriptSegment> scriptsByIndex = new LinkedHashMap<>();
+        Map<Integer, HighlightClip> clipsByIndex = new LinkedHashMap<>();
+        for (int index = 0; index < scripts.size(); index++) {
+            scriptsByIndex.put(scripts.get(index).clipIndex(), scripts.get(index));
+            clipsByIndex.put(scripts.get(index).clipIndex(), clips.get(index));
+        }
+        List<ScriptSegment> reorderedScripts = new ArrayList<>();
+        List<HighlightClip> reorderedClips = new ArrayList<>();
+        for (int position = 0; position < order.size(); position++) {
+            int originalIndex = order.get(position);
+            ScriptSegment script = scriptsByIndex.get(originalIndex);
+            HighlightClip clip = clipsByIndex.get(originalIndex);
+            NarrativeBeat beat = beatByClip.get(originalIndex);
+            if (beat != null) {
+                double durationPreference = director == null ? 1 : director.preferredDurationRatio();
+                clip = pacedClip(clip, beat.paceMultiplier() / durationPreference, task.getDurationSeconds());
+                String preferredEffect = director == null || director.preferredEffects().isEmpty()
+                        ? script.effectCue() : defaultText(script.effectCue(), director.preferredEffects().getFirst());
+                String cue = narrativeCue(preferredEffect, beat);
+                boolean concise = director != null && director.preferredTextDensityRatio() < .90;
+                String narration = concise ? script.narration() : narrativeNarration(script.narration(), beat);
+                String subtitle = concise ? script.subtitle() : narrativeNarration(script.subtitle(), beat);
+                script = new ScriptSegment(position + 1, clip.startSeconds(), clip.endSeconds(),
+                        narration, subtitle, cue);
+            } else {
+                script = new ScriptSegment(position + 1, script.startSeconds(), script.endSeconds(),
+                        script.narration(), script.subtitle(), script.effectCue());
+            }
+            reorderedScripts.add(script);
+            reorderedClips.add(clip);
+        }
+        Path scriptPath = requireScriptPath(task);
+        Map<String, Object> scriptOutput = objectMapper.convertValue(readJson(scriptPath),
+                new com.fasterxml.jackson.core.type.TypeReference<LinkedHashMap<String, Object>>() {});
+        String narration = String.join("\n", reorderedScripts.stream().map(ScriptSegment::narration).toList());
+        scriptOutput.put("fullNarration", narration);
+        scriptOutput.put("segments", reorderedScripts);
+        Path highlightPath = requireHighlightPath(task);
+        Map<String, Object> highlightOutput = objectMapper.convertValue(readJson(highlightPath),
+                new com.fasterxml.jackson.core.type.TypeReference<LinkedHashMap<String, Object>>() {});
+        highlightOutput.put("clips", reorderedClips);
+        highlightOutput.put("selectedDurationSeconds", reorderedClips.stream()
+                .filter(item -> !item.excluded()).mapToDouble(HighlightClip::durationSeconds).sum());
+        writeAtomically(highlightPath, highlightOutput);
+        writeAtomically(scriptPath, scriptOutput);
+        task.applyScriptRevision(document.title(), document.synopsis(), narration,
+                scriptPath.toString(), reorderedScripts.size());
+        return storyboard(taskId);
+    }
+
+    private HighlightClip pacedClip(HighlightClip clip, double pace, Double sourceDuration) {
+        if (clip.locked()) return clip;
+        double duration = Math.max(1.5, clip.durationSeconds() / Math.max(.6, pace));
+        double start = Math.max(0, clip.anchorSeconds() - duration / 2);
+        double end = start + duration;
+        if (sourceDuration != null && end > sourceDuration) {
+            end = sourceDuration;
+            start = Math.max(0, end - duration);
+        }
+        return new HighlightClip(clip.sourceFrameIndex(), start, end,
+                Math.max(start, Math.min(end, clip.anchorSeconds())), clip.eventType(), clip.description(),
+                clip.sourceScore(), clip.finalScore(), clip.locked(), clip.excluded());
+    }
+
+    private String narrativeCue(String existing, NarrativeBeat beat) {
+        String marker = String.format(java.util.Locale.ROOT, "NARRATIVE_%s pace=%.2f music=%.2f",
+                beat.stage(), beat.paceMultiplier(), beat.musicIntensity());
+        return existing == null || existing.isBlank() ? marker : marker + "; " + existing;
+    }
+
+    private String narrativeNarration(String existing, NarrativeBeat beat) {
+        String bridge = switch (beat.stage()) {
+            case SETUP -> "先看局势如何展开。";
+            case CRISIS -> "危险正在逼近。";
+            case REVERSAL -> "战局从这里发生变化。";
+            case CLIMAX -> "关键时刻到了。";
+            case RESULT -> "最后回看这场战斗的结果。";
+        };
+        String safe = existing == null ? "" : existing.trim();
+        return safe.startsWith(bridge) ? safe : bridge + safe;
     }
 
     /** Applies the visual editor's ordered source ranges to the renderable storyboard artifacts. */

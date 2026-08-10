@@ -645,6 +645,28 @@ POST /api/exports/{id}/cancel                  取消导出
 - `confirmation_status`：`AI_SUGGESTED`、`CONFIRMED` 或 `NEEDS_REVIEW`。
 - `manually_edited`：区分模型初稿与用户修正结果，并阻止流水线静默覆盖人工判断。
 - `knowledge_pack_code`：记录事件由哪个游戏知识包解释。
+
+## `battle_narrative_plan`
+
+- 每个任务最多保存一份当前五幕战局叙事计划。
+- `plan_json` 保存铺垫、危机、转折、高潮、结果及其镜头、节奏、解说和音乐参数。
+- `confirmed_event_fingerprint` 用于检测计划生成后人工确认事实是否发生变化。
+- `applied`、`generated_at`、`applied_at` 记录计划生成与应用状态。
+
+## `game_knowledge_packs` 与 `director_edit_decisions`
+
+- `game_knowledge_packs` 保存知识包 code、格式版本、完整 JSON、内置/启用状态和导入时间；code 是稳定的导入导出标识。
+- `director_edit_decisions` 保存任务、镜头、决策类型、AI/修改前 JSON、用户最终 JSON，以及镜头长度比例、文案密度比例和特效偏好。
+- 删除任务时，其导演修改样本通过外键级联删除，避免保留无法追溯来源的训练偏好。
+- 个人导演档案是对决策表的实时聚合视图，不重复保存可失效的派生快照。
+
+## `source_media_storage`
+
+- 每个视频任务保存一条源媒体存储登记，主键同时是 `video_tasks` 外键。
+- `storage_mode` 区分受管文件与未来可能支持的外部引用；当前 Web 上传只产生 `MANAGED`。
+- `storage_path`、`size_bytes`、`content_type`、`filesystem_key` 用于容量统计和后台核查，数据库不保存视频二进制内容。
+- `last_verified_at` 记录最后一次确认文件存在和大小可读的时间。
+- 任务删除后登记记录级联删除；实际文件仍由事务提交后的安全存储清理边界删除。
 - `updated_at`：记录最近一次机器生成或人工确认时间。
 
 删除视频任务时事件记录通过外键级联删除。事件按任务与时间建立索引，供分镜工作台和事实约束文案生成读取。

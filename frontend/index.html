@@ -3,14 +3,14 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>GameNarrator 2.1.5</title>
+  <title>GameNarrator 2.1.6</title>
   <link rel="stylesheet" href="/media-importer.css?v=20260729-10">
   <link rel="stylesheet" href="/app.css?v=20260803-13">
 </head>
 <body>
   <div class="aurora"></div>
   <header class="topbar">
-    <a class="brand" href="/">GAME<span>NARRATOR</span><small class="app-version">v2.1.5</small></a>
+    <a class="brand" href="/">GAME<span>NARRATOR</span><small class="app-version">v2.1.6</small></a>
     <nav class="primary-nav" aria-label="主要功能">
       <a href="/?view=studio" data-view-link="studio">剪辑任务</a>
       <a href="/?view=search" data-view-link="search">镜头搜索</a>
@@ -283,14 +283,15 @@
       <main id="storyboard-workspace" class="storyboard-workspace"><p class="empty">正在读取分镜…</p></main>
     </div>
   </dialog>
-  <script src="/app.js?v=20260810-2"></script>
+  <script src="/app.js?v=20260810-5"></script>
   <script src="/export.js?v=20260728-4"></script>
   <dialog id="diagnostics-dialog" class="task-dialog diagnostics-dialog">
     <div class="dialog-shell">
       <header class="dialog-header"><div><small>SUPPORT &amp; TROUBLESHOOTING</small><h2>诊断日志</h2></div><button id="diagnostics-close" class="dialog-close" type="button">×</button></header>
       <section class="diagnostics-content">
         <p>显示最近的后端、任务和登录错误。Cookie、Token、密码与 API Key 会在读取和导出时自动隐藏。</p>
-        <div class="diagnostics-actions"><button id="diagnostics-refresh" type="button">刷新日志</button><a href="/api/debug/logs/export" download="GameNarrator-Diagnostics.zip">导出诊断包</a></div>
+        <div class="diagnostics-actions"><button id="diagnostics-refresh" type="button">刷新日志与存储</button><button id="storage-cleanup" type="button">清理过期临时文件</button><a href="/api/debug/logs/export" download="GameNarrator-Diagnostics.zip">导出诊断包</a></div>
+        <pre id="storage-report">正在读取存储状态…</pre>
         <pre id="diagnostics-log">正在读取日志…</pre>
       </section>
     </div>

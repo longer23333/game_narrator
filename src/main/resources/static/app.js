@@ -81,7 +81,7 @@ document.querySelector('#updates-open')?.addEventListener('click', async event =
   try { await loadLazyScript('updates'); document.querySelector('#updates-dialog')?.showModal(); }
   catch (error) { window.alert(error.message); } finally { button.disabled = false; }
 });
-if (localStorage.getItem('gameNarrator.lastSeenRelease') === '2.1.5') document.querySelector('#updates-open')?.classList.remove('has-update');
+if (localStorage.getItem('gameNarrator.lastSeenRelease') === '2.1.6') document.querySelector('#updates-open')?.classList.remove('has-update');
 window.addEventListener('gamenarrator-release-jump', event => {
   const {view='studio', selector, note} = event.detail || {}; activateView(view, true);
   setTimeout(() => {
@@ -1023,7 +1023,31 @@ async function loadScriptEditor(taskId) {
   detailContent.querySelector('.script-editor').scrollIntoView({behavior: 'smooth', block: 'start'});
 }
 
-function renderGameEventTimeline(events, knowledgePack, taskId) {
+function renderBattleNarrativePlan(plan, taskId) {
+  const beats = plan?.beats || [];
+  const cards = beats.map(beat => `<article class="narrative-beat ${beat.structuralPlaceholder ? 'placeholder' : ''}">
+    <header><b>${escapeHtml(beat.label)}</b><span>节奏 ×${beat.paceMultiplier.toFixed(2)} · 音乐 ${Math.round(beat.musicIntensity * 100)}%</span></header>
+    <p>${escapeHtml(beat.objective)}</p>
+    <small>${beat.structuralPlaceholder ? '结构补位：没有匹配的已确认事件，不生成事实断言' : `${escapeHtml(beat.eventType)} · 镜头 ${beat.clipIndex ?? '未匹配'} · ${escapeHtml(beat.confirmedFact)}`}</small>
+    <em>${escapeHtml(beat.narrationDirective)}</em>
+  </article>`).join('');
+  return `<section class="battle-narrative-plan">
+    <header><div><small>BATTLE NARRATIVE DIRECTOR</small><h3>五幕战局叙事结构</h3><p>依据人工确认事件规划镜头、节奏、解说与音乐强度。</p></div><div><button type="button" data-storyboard-action="narrative-generate" data-task-id="${taskId}">${beats.length ? '重新规划' : '生成五幕结构'}</button><button type="button" data-storyboard-action="narrative-apply" data-task-id="${taskId}" ${beats.length && !plan?.applied ? '' : 'disabled'}>${plan?.applied ? '已应用' : '应用到剪辑'}</button></div></header>
+    <div class="narrative-beat-list">${cards || '<p class="empty">确认事件后生成计划；生成计划不会立即修改当前剪辑。</p>'}</div>
+  </section>`;
+}
+
+function renderDirectorIntelligence(profile, quality, packs) {
+  const issues = (quality?.issues || []).map(item => `<li class="${item.severity.toLowerCase()}"><b>${escapeHtml(item.type)}</b><span>${escapeHtml(item.message)}</span><small>${item.clipIndex ? `镜头 ${item.clipIndex} · ` : ''}${escapeHtml(item.evidence || '')}</small></li>`).join('');
+  return `<section class="director-intelligence">
+    <header><div><small>PERSONAL DIRECTOR PROFILE</small><h3>个人导演档案与一致性检查</h3><p>${escapeHtml(profile.summary)}</p></div><b>${quality.score} / 100</b></header>
+    <div class="director-metrics"><span>修改样本 ${profile.decisionCount}</span><span>镜头长度 ${Math.round(profile.preferredDurationRatio * 100)}%</span><span>文案密度 ${Math.round(profile.preferredTextDensityRatio * 100)}%</span><span>偏好特效 ${escapeHtml(profile.preferredEffects.join('、') || '尚未形成')}</span></div>
+    <details ${quality.passed ? '' : 'open'}><summary>${escapeHtml(quality.summary)}</summary><ul>${issues || '<li>没有发现连续性或事实冲突。</li>'}</ul></details>
+    <div class="knowledge-pack-manager"><strong>游戏知识包</strong>${packs.map(pack => `<a href="/api/knowledge-packs/${encodeURIComponent(pack.code)}/export">导出 ${escapeHtml(pack.name)}</a>`).join('')}<label>导入知识包 JSON<input type="file" accept="application/json,.json" data-knowledge-pack-import></label></div>
+  </section>`;
+}
+
+function renderGameEventTimeline(events, knowledgePack, narrativePlan, taskId) {
   const statusText = {AI_SUGGESTED:'AI 建议，等待确认', CONFIRMED:'已确认，可用于文案', NEEDS_REVIEW:'需要进一步核对'};
   const cards = events.map(item => `
     <article class="game-event-card ${item.confirmationStatus.toLowerCase()}" data-game-event="${item.id}">
@@ -1041,6 +1065,7 @@ function renderGameEventTimeline(events, knowledgePack, taskId) {
     <header><div><small>EXPLAINABLE GAME EVENTS</small><h3>可解释游戏事件时间线</h3><p>${escapeHtml(knowledgePack.name)}：${escapeHtml(knowledgePack.description)}</p></div><button type="button" data-storyboard-action="events-regenerate-script" data-task-id="${taskId}">用已确认事件重新生成文案</button></header>
     <p class="game-event-guardrail">只有标记为“确认事实”的事件会进入文案提示词；OCR、转写和 AI 推断只作为待核对证据。</p>
     <div class="game-event-list">${cards || '<p class="empty">事件时间线尚未生成，请重新启动任务完成视觉分析与高光筛选。</p>'}</div>
+    ${renderBattleNarrativePlan(narrativePlan, taskId)}
   </section>`;
 }
 
@@ -1059,7 +1084,7 @@ async function loadStoryboardEditor(taskId) {
   clearInterval(storyboardProgressTimer);
   if (!storyboardDialog.open) storyboardDialog.showModal();
   storyboardWorkspace.innerHTML = '<p class="empty">正在读取完整分镜时间线…</p>';
-  const [storyboard, localAssets, placements, editorTimeline, waveform, revisions, gameEvents, knowledgePack] = await Promise.all([
+  const [storyboard, localAssets, placements, editorTimeline, waveform, revisions, gameEvents, knowledgePack, narrativePlan, directorProfile, narrativeQuality, knowledgePacks] = await Promise.all([
     requestJson(`/api/tasks/${taskId}/storyboard`),
     requestJson('/api/assets?importStatus=DOWNLOADED&limit=100'),
     requestJson(`/api/tasks/${taskId}/storyboard/assets`),
@@ -1067,12 +1092,17 @@ async function loadStoryboardEditor(taskId) {
     requestJson(`/api/tasks/${taskId}/editor/waveform?points=320`),
     requestJson(`/api/tasks/${taskId}/editor/revisions`),
     requestJson(`/api/tasks/${taskId}/events`),
-    requestJson(`/api/tasks/${taskId}/events/knowledge-pack`)
+    requestJson(`/api/tasks/${taskId}/events/knowledge-pack`),
+    requestJson(`/api/tasks/${taskId}/events/narrative-plan`),
+    requestJson('/api/director-profile'),
+    requestJson(`/api/tasks/${taskId}/quality/narrative-consistency`),
+    requestJson('/api/knowledge-packs')
   ]);
   const totalDuration = storyboard.segments.reduce((sum, item) => sum + item.endSeconds - item.startSeconds, 0);
   storyboardWorkspace.innerHTML = `
     <section class="detail-block storyboard-editor" data-task-id="${taskId}" data-review-enabled="${storyboard.reviewEnabled}" data-approved="${storyboard.approved}">
-      ${renderGameEventTimeline(gameEvents, knowledgePack, taskId)}
+      ${renderGameEventTimeline(gameEvents, knowledgePack, narrativePlan, taskId)}
+      ${renderDirectorIntelligence(directorProfile, narrativeQuality, knowledgePacks)}
       <header class="storyboard-editor-head"><div><small>EDITOR WORKSPACE</small><h3>${escapeHtml(storyboard.title || '自由剪辑与分镜')}</h3><p>${escapeHtml(storyboard.synopsis || '')}</p></div>
       <div class="storyboard-head-actions"><button type="button" data-storyboard-action="auto-assets" data-task-id="${taskId}">自动匹配并下载素材</button>${storyboard.approved ? '<span class="storyboard-approved">已确认 / 自动模式</span>' : '<span class="storyboard-review-pending">修改后请使用底部主按钮保存并继续</span>'}</div></header>
       <div class="storyboard-stats"><span>${storyboard.segments.length} 个分镜</span><span>预计素材时长 ${formatDuration(totalDuration)}</span><span>支持拖拽排序与入点/出点修剪</span></div>
@@ -1114,6 +1144,15 @@ async function loadStoryboardEditor(taskId) {
       <footer class="storyboard-continue-bar"><div><strong>修改完成了吗？</strong><small>点击后会先保存全部分镜，再明确启动配音、时间线规划和视频渲染。</small></div><button type="button" data-storyboard-action="save-all-continue" data-task-id="${taskId}">保存全部修改并执行下一步 →</button></footer>
     </section>`;
   mountStoryboardTimeline(taskId, editorTimeline, waveform);
+  storyboardWorkspace.querySelector('[data-knowledge-pack-import]')?.addEventListener('change', async event => {
+    const file = event.target.files?.[0];
+    if (!file) return;
+    try {
+      const body = JSON.parse(await file.text());
+      await requestJson('/api/knowledge-packs', {method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify(body)});
+      await loadStoryboardEditor(taskId);
+    } catch (error) { window.alert(`知识包导入失败：${error.message}`); }
+  });
   mountRevisionTree(taskId);
   storyboardWorkspace.scrollTo({top:0, behavior:'smooth'});
   await updateStoryboardProgress(taskId);
@@ -1340,6 +1379,19 @@ async function handleStoryboardAction(button) {
   const taskId = button.dataset.taskId;
   button.disabled = true;
   try {
+    if (button.dataset.storyboardAction === 'narrative-generate') {
+      const eventCards = [...storyboardWorkspace.querySelectorAll('[data-game-event]')];
+      for (const eventCard of eventCards) await saveGameEventCard(taskId, eventCard);
+      await requestJson(`/api/tasks/${taskId}/events/narrative-plan/generate`, {method:'POST'});
+      await loadStoryboardEditor(taskId);
+      return;
+    }
+    if (button.dataset.storyboardAction === 'narrative-apply') {
+      button.textContent = '正在应用五幕结构…';
+      await requestJson(`/api/tasks/${taskId}/events/narrative-plan/apply`, {method:'POST'});
+      await loadStoryboardEditor(taskId);
+      return;
+    }
     if (button.dataset.storyboardAction === 'event-save') {
       await saveGameEventCard(taskId, button.closest('[data-game-event]'));
       button.textContent = '事件已保存';
@@ -1625,7 +1677,7 @@ const guideSteps = [
   {selector: '.history-panel', title: '第 5 步：从最左侧历史继续', text: '只有真正生成完成的任务才会进入页面最左侧“最近完成”列表。处理中、等待检查、失败或取消的任务都留在右侧，避免被误认为已经完成。点击已完成条目可查看生成文件、分镜、文案、时间线和最终视频。'},
   {selector: '.storyboard-review-option', title: '第 6 步：检查分镜再继续', text: '开启分镜检查后，流程会在文案与分镜生成后暂停。进入线性分镜工作台可调整顺序、起止时间、字幕、解说、素材和特效；保存全部修改后再继续配音与渲染。'},
   {selector: '.primary-nav', title: '更多工具入口', text: '“镜头搜索”使用本地语义模型寻找片段；“平台导入”负责下载并创建项目；“素材库”管理授权素材；“设置”管理云端或本地 AI。遇到问题可点击右上角“诊断日志”。'},
-  {selector: '.topbar-actions', title: '完成、诊断与再次查看', text: '任务完成后在详情中预览并导出 MP4。任何阶段失败时先查看任务详情和诊断日志；本引导可以随时从“使用引导”重新打开。当前版本为 v2.1.5。'}
+  {selector: '.topbar-actions', title: '完成、诊断与再次查看', text: '任务完成后在详情中预览并导出 MP4。任何阶段失败时先查看任务详情和诊断日志；本引导可以随时从“使用引导”重新打开。当前版本为 v2.1.6。'}
 ];
 let guideIndex = 0;
 let guideTarget = null;

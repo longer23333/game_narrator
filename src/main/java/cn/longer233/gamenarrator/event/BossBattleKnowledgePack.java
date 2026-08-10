@@ -6,7 +6,8 @@ public record BossBattleKnowledgePack(
         String code,
         String name,
         String description,
-        List<EventRule> eventRules
+        List<EventRule> eventRules,
+        Integer formatVersion
 ) {
     public record EventRule(
             String code,

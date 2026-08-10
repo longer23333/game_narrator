@@ -10,6 +10,7 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import jakarta.transaction.Transactional;
 import org.springframework.core.io.ClassPathResource;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Service;
 
@@ -33,12 +34,20 @@ public class GameEventTimelineService {
     private final ObjectMapper objectMapper;
     private final VideoTaskRepository tasks;
     private final BossBattleKnowledgePack knowledgePack;
+    private final GameKnowledgePackService knowledgePacks;
 
     public GameEventTimelineService(JdbcTemplate jdbc, ObjectMapper objectMapper, VideoTaskRepository tasks) {
+        this(jdbc, objectMapper, tasks, null);
+    }
+
+    @Autowired
+    public GameEventTimelineService(JdbcTemplate jdbc, ObjectMapper objectMapper, VideoTaskRepository tasks,
+                                    GameKnowledgePackService knowledgePacks) {
         this.jdbc = jdbc;
         this.objectMapper = objectMapper;
         this.tasks = tasks;
         this.knowledgePack = loadKnowledgePack(objectMapper);
+        this.knowledgePacks = knowledgePacks;
     }
 
     @Transactional
@@ -121,7 +130,11 @@ public class GameEventTimelineService {
         String description = firstNonBlank(frame == null ? null : frame.description(), clip.description(), "待确认的游戏片段");
         String ocr = frame == null ? "" : firstNonBlank(frame.ocrText(), "");
         String combined = (description + " " + ocr + " " + clip.eventType()).toLowerCase(Locale.ROOT);
-        BossBattleKnowledgePack.EventRule rule = knowledgePack.eventRules().stream()
+        List<BossBattleKnowledgePack> available = knowledgePacks == null ? List.of(knowledgePack) : knowledgePacks.activePacks();
+        BossBattleKnowledgePack matchedPack = available.stream().filter(pack -> pack.eventRules().stream()
+                .anyMatch(candidate -> candidate.keywords().stream().map(keyword -> keyword.toLowerCase(Locale.ROOT))
+                        .anyMatch(combined::contains))).findFirst().orElse(knowledgePack);
+        BossBattleKnowledgePack.EventRule rule = matchedPack.eventRules().stream()
                 .filter(candidate -> candidate.keywords().stream()
                         .map(keyword -> keyword.toLowerCase(Locale.ROOT)).anyMatch(combined::contains))
                 .findFirst().orElse(new BossBattleKnowledgePack.EventRule(
@@ -140,7 +153,7 @@ public class GameEventTimelineService {
                 """, UUID.randomUUID(), taskId, clip.startSeconds(), clip.endSeconds(), rule.code(), confidence,
                 Math.max(rule.importance(), clip.finalScore()), description, clip.sourceFrameIndex(),
                 clip.anchorSeconds(), objectMapper.writeValueAsString(evidence), "AI_SUGGESTED", false,
-                knowledgePack.code(), OffsetDateTime.now());
+                matchedPack.code(), OffsetDateTime.now());
     }
 
     private GameEventView map(ResultSet rs) throws SQLException {

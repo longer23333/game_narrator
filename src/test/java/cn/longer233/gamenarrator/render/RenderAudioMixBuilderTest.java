@@ -28,7 +28,7 @@ class RenderAudioMixBuilderTest {
                 "[1:a]atempo=1.263,adelay=0|0[v0]",
                 "[2:a]adelay=5000|5000[v1]",
                 "[3:a]volume=0.600,adelay=1250|1250[s0]",
-                "[4:a]atrim=0:10.000,volume=0.14[x0]",
+                "[4:a]atrim=0:10.000,volume='if(between(t,0.000,5.000),0.140,if(between(t,5.000,10.000),0.140,0.140))':eval=frame[x0]",
                 "amix=inputs=4:duration=longest:normalize=0",
                 "sidechaincompress=threshold=0.02:ratio=8",
                 "[aout]");
@@ -45,6 +45,19 @@ class RenderAudioMixBuilderTest {
         assertThat(plan.filterGraph()).contains(
                 "[3:a]atrim=0:5.000,volume=0.48,adelay=5000|5000[x0]");
         assertThat(plan.subtitleInput()).isEqualTo(4);
+    }
+
+    @Test
+    void mapsNarrativeMusicIntensityToBackgroundVolumeCurve() {
+        var background = new RenderAssetResolver.RenderAsset(1, "BGM", "BACKGROUND_AUDIO", "CENTER",
+                false, Path.of("music.wav"), "music");
+        List<TimelineSegment> segments = List.of(
+                new TimelineSegment(1, 0, 4, 0, 4, "n1", "s1", "NARRATIVE_SETUP pace=.90 music=0.25", "v1", 3, false),
+                new TimelineSegment(2, 4, 8, 4, 8, "n2", "s2", "NARRATIVE_CLIMAX pace=1.28 music=1.00", "v2", 3, false));
+
+        String graph = builder.build(segments, List.of(), List.of(background), .2).filterGraph();
+
+        assertThat(graph).contains("between(t,0.000,4.000),0.100", "between(t,4.000,8.000),0.220");
     }
 
     @Test

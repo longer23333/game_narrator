@@ -17,8 +17,11 @@ spring:
     locations: classpath:db/migration
   servlet:
     multipart:
-      max-file-size: 4GB
-      max-request-size: 4GB
+      # Stream 40GB-class uploads to a managed temporary directory instead of the JVM heap.
+      file-size-threshold: 0
+      location: ${MULTIPART_TEMP_DIRECTORY:./storage/upload-temp}
+      max-file-size: ${MAX_VIDEO_UPLOAD_SIZE:100GB}
+      max-request-size: ${MAX_VIDEO_REQUEST_SIZE:101GB}
   web:
     resources:
       cache:
@@ -243,6 +246,7 @@ game-narrator:
   capacity:
     minimum-free-bytes: ${MINIMUM_FREE_STORAGE_BYTES:5368709120}
     minimum-free-percent: ${MINIMUM_FREE_STORAGE_PERCENT:5}
+    working-space-multiplier: ${VIDEO_WORKING_SPACE_MULTIPLIER:1.5}
   task-stream:
     refresh-ms: ${TASK_STREAM_REFRESH_MS:1000}
   pipeline:

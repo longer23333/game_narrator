@@ -33,6 +33,28 @@ Groq、Together、Perplexity 和 Cerebras；Anthropic Messages 与 Google Gemini
 - `video_project.current_revision_id` 的编辑器提交、撤销、重做、版本检出和流水线产物登记均以 `version` 条件更新；并发写入返回冲突，不允许静默覆盖另一条修订链。
 - Web 任务状态通过 SSE 推送，断线后指数退避重连，不保留无效轮询钩子。
 
+## 战局叙事规划
+
+1. `BattleNarrativePlanService` 从人工确认事件生成五幕结构，并将事件指纹和计划 JSON 持久化。
+2. `ScriptWorkspaceService` 在用户点击应用后同步重排高光与文案，按节奏倍率调整非锁定片段，并写入结构化叙事提示。
+3. `TimelinePlanner` 保留叙事提示，`RenderAudioMixBuilder` 将其中的音乐强度转换为分段背景音乐音量曲线。
+4. 计划生成和应用分离；确认事件变更会使旧计划失效。
+
+## 知识包与个人导演闭环
+
+1. `GameKnowledgePackService` 校验并持久化版本化 JSON 知识包，内置包和导入包通过同一读取接口参与事件识别。
+2. `DirectorProfileService` 在人工保存文案和分镜时记录建议值、最终值及长度/密度/特效差异，并按全部历史样本生成个人导演档案。
+3. `ScriptWorkspaceService` 应用叙事结构时读取导演档案，对节奏倍率、结构连接语和特效偏好进行个性化调整。
+4. `NarrativeConsistencyService` 以已确认事件为事实边界，对最终故事板执行确定性连续性与事实一致性检查；报告不直接修改用户内容。
+
+## 超大视频存储边界
+
+1. `LargeUploadCapacityFilter` 在 Servlet multipart 解析前按请求长度执行磁盘容量预检，避免磁盘写满后才拒绝任务。
+2. multipart 使用 `storage/upload-temp` 磁盘临时目录，`VideoStorage` 将完成文件转移至 `storage/sources`；二者同盘时容器可以使用移动而非完整复制。
+3. `StorageCapacityGuard` 区分上传前完整预算和上传落盘后的附加工作空间预算，默认保留源文件大小的 50% 供音频、截图和渲染使用。
+4. `source_media_storage` 只登记文件元数据；FFmpeg、Whisper 和渲染器继续通过路径流式读取文件。
+5. `StorageAdminService` 聚合文件系统容量、源视频表和 artifact 表，清理由已有 `StorageCleanupService` 与 `SecurePathGuard` 统一执行。
+
 ## 下一阶段
 
 1. 增加 FFmpeg 元数据读取与镜头切分执行器。

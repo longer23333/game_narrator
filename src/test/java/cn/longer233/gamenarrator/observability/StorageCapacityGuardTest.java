@@ -30,4 +30,11 @@ class StorageCapacityGuardTest {
                 .isInstanceOf(InsufficientStorageException.class).hasMessageContaining("磁盘可用空间不足");
         verify(cleanup).cleanup();
     }
+
+    @Test
+    void exposesReservedCapacityForAdministration() {
+        StorageCapacityGuard guard = new StorageCapacityGuard(temporary.toString(), 1024, 0,
+                mock(StorageCleanupService.class));
+        assertThat(guard.reservedBytes()).isEqualTo(1024);
+    }
 }

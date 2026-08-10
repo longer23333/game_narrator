@@ -10,6 +10,7 @@ import java.nio.file.*;
 import java.util.Set;
 import java.util.UUID;
 import cn.longer233.gamenarrator.common.SecurePathGuard;
+import jakarta.annotation.PostConstruct;
 
 @Component
 public class VideoStorage {
@@ -22,6 +23,18 @@ public class VideoStorage {
 
     public VideoStorage(@Value("${game-narrator.storage-root}") String root) {
         this.root = Path.of(root).toAbsolutePath().normalize();
+    }
+
+    @PostConstruct
+    void prepareDirectories() throws IOException {
+        Path safeRoot = SecurePathGuard.prepareRoot(root);
+        Path sources = safeRoot.resolve("sources").normalize();
+        Path temporary = safeRoot.resolve("upload-temp").normalize();
+        if (!SecurePathGuard.isOwned(sources, safeRoot) || !SecurePathGuard.isOwned(temporary, safeRoot)) {
+            throw new IOException("Invalid managed upload directories");
+        }
+        Files.createDirectories(sources);
+        Files.createDirectories(temporary);
     }
 
     public String save(MultipartFile video) throws IOException {
@@ -39,7 +52,7 @@ public class VideoStorage {
             throw new IllegalArgumentException("上传的视频文件为空");
         }
         Path safeRoot = SecurePathGuard.prepareRoot(root);
-        Path target = root.resolve(UUID.randomUUID() + "." + extension).normalize();
+        Path target = safeRoot.resolve("sources").resolve(UUID.randomUUID() + "." + extension).normalize();
         if (!SecurePathGuard.isOwned(target, safeRoot)) {
             throw new IllegalArgumentException("非法文件路径");
         }

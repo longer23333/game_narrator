@@ -11,10 +11,13 @@ import java.util.UUID;
 public class GameEventTimelineController {
     private final GameEventTimelineService service;
     private final ConfirmedEventScriptService scripts;
+    private final BattleNarrativePlanService narrativePlans;
 
-    public GameEventTimelineController(GameEventTimelineService service, ConfirmedEventScriptService scripts) {
+    public GameEventTimelineController(GameEventTimelineService service, ConfirmedEventScriptService scripts,
+                                       BattleNarrativePlanService narrativePlans) {
         this.service = service;
         this.scripts = scripts;
+        this.narrativePlans = narrativePlans;
     }
 
     @GetMapping
@@ -36,5 +39,20 @@ public class GameEventTimelineController {
     @PostMapping("/regenerate-script")
     public cn.longer233.gamenarrator.script.ScriptDocumentView regenerateScript(@PathVariable UUID taskId) {
         return scripts.regenerate(taskId);
+    }
+
+    @GetMapping("/narrative-plan")
+    public BattleNarrativePlanView narrativePlan(@PathVariable UUID taskId) {
+        return narrativePlans.find(taskId);
+    }
+
+    @PostMapping("/narrative-plan/generate")
+    public BattleNarrativePlanView generateNarrativePlan(@PathVariable UUID taskId) {
+        return narrativePlans.generate(taskId);
+    }
+
+    @PostMapping("/narrative-plan/apply")
+    public BattleNarrativePlanView applyNarrativePlan(@PathVariable UUID taskId) {
+        return narrativePlans.apply(taskId);
     }
 }

@@ -6,10 +6,12 @@ import org.springframework.stereotype.Component;
 
 import java.util.List;
 import java.util.Locale;
+import java.util.regex.Pattern;
 
 /** Builds the FFmpeg audio mix graph while leaving process and file orchestration to the renderer. */
 @Component
 public class RenderAudioMixBuilder {
+    private static final Pattern MUSIC_INTENSITY = Pattern.compile("(?:^|\\s)music=([01](?:\\.\\d+)?)");
     public AudioMixPlan build(List<TimelineSegment> segments, List<SoundCue> soundCues,
                               List<RenderAssetResolver.RenderAsset> externalAudio,
                               double sourceAudioVolume) {
@@ -47,7 +49,8 @@ public class RenderAudioMixBuilder {
                     .findFirst().orElse(segments.getFirst());
             filter.append('[').append(inputIndex).append(":a]");
             if ("BACKGROUND_AUDIO".equals(asset.placementType())) {
-                filter.append("atrim=0:").append(decimal(totalDuration)).append(",volume=0.14");
+                filter.append("atrim=0:").append(decimal(totalDuration)).append(",volume='")
+                        .append(musicVolumeExpression(segments)).append("':eval=frame");
             } else {
                 long delay = Math.round(segment.outputStartSeconds() * 1000);
                 filter.append("atrim=0:").append(decimal(segment.outputEndSeconds() - segment.outputStartSeconds()))
@@ -68,6 +71,26 @@ public class RenderAudioMixBuilder {
 
     private String decimal(double value) {
         return String.format(Locale.ROOT, "%.3f", value);
+    }
+
+    private String musicVolumeExpression(List<TimelineSegment> segments) {
+        String expression = "0.140";
+        for (int index = segments.size() - 1; index >= 0; index--) {
+            TimelineSegment segment = segments.get(index);
+            double intensity = musicIntensity(segment.effectCue());
+            double volume = .06 + .16 * intensity;
+            expression = "if(between(t," + decimal(segment.outputStartSeconds()) + ","
+                    + decimal(segment.outputEndSeconds()) + ")," + decimal(volume) + "," + expression + ")";
+        }
+        return expression;
+    }
+
+    private double musicIntensity(String cue) {
+        if (cue == null) return .5;
+        var match = MUSIC_INTENSITY.matcher(cue);
+        if (!match.find()) return .5;
+        try { return Math.max(0, Math.min(1, Double.parseDouble(match.group(1)))); }
+        catch (NumberFormatException ignored) { return .5; }
     }
 
     public record AudioMixPlan(String filterGraph, int subtitleInput) { }

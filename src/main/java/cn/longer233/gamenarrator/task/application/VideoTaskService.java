@@ -32,6 +32,7 @@ public class VideoTaskService {
     private final Path storageRoot;
     private final cn.longer233.gamenarrator.common.StorageCleanupService storageCleanup;
     private final cn.longer233.gamenarrator.observability.StorageCapacityGuard capacityGuard;
+    private final cn.longer233.gamenarrator.storage.SourceMediaRegistry sourceMediaRegistry;
 
     public VideoTaskService(
             VideoTaskRepository repository,
@@ -41,7 +42,8 @@ public class VideoTaskService {
             ProjectHistoryService projectHistoryService,
             cn.longer233.gamenarrator.common.StorageCleanupService storageCleanup,
             @org.springframework.beans.factory.annotation.Value("${game-narrator.storage-root}") String storageRoot,
-            cn.longer233.gamenarrator.observability.StorageCapacityGuard capacityGuard
+            cn.longer233.gamenarrator.observability.StorageCapacityGuard capacityGuard,
+            cn.longer233.gamenarrator.storage.SourceMediaRegistry sourceMediaRegistry
     ) {
         this.repository = repository;
         this.storage = storage;
@@ -51,6 +53,7 @@ public class VideoTaskService {
         this.storageCleanup = storageCleanup;
         this.storageRoot = Path.of(storageRoot).toAbsolutePath().normalize();
         this.capacityGuard = capacityGuard;
+        this.sourceMediaRegistry = sourceMediaRegistry;
     }
 
     @Transactional
@@ -61,7 +64,7 @@ public class VideoTaskService {
                 command.gameCategory(),
                 command.commentaryStyle(),
                 command.targetDurationSeconds());
-        capacityGuard.requireTaskCapacity(video == null ? 0 : video.getSize());
+        capacityGuard.requireWorkingCapacityAfterUpload(video == null ? 0 : video.getSize());
         String videoPath = storage.save(video);
         VideoTask task = new VideoTask(
                 command.name(),
@@ -73,6 +76,8 @@ public class VideoTaskService {
                 command.storyboardReviewEnabled()
         );
         VideoTask savedTask = repository.saveAndFlush(task);
+        sourceMediaRegistry.registerManaged(savedTask.getId(), Path.of(videoPath),
+                video.getOriginalFilename(), video.getContentType());
         savedTask.configureEditingScope(command.editingScope());
         savedTask.configureTerminologyGlossary(command.terminologyGlossary());
         savedTask.configureAiOptions(command.automaticGenerationEnabled(), command.cloudVisionEnabled(), command.aiScriptEnabled(),

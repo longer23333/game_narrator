@@ -1,4 +1,5 @@
 {
+  "formatVersion": 1,
   "code": "boss-battle-v1",
   "name": "Boss 战基础知识包",
   "description": "从画面说明、OCR 与高光分数中识别 Boss 战的阶段变化、残血危机和战斗结果。",

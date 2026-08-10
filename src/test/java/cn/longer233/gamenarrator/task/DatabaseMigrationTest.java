@@ -24,7 +24,7 @@ class DatabaseMigrationTest {
     }
 
     @Test
-    void latestMigrationAddsExplainableGameEventFields() throws Exception {
+    void latestMigrationsAddExplainableEventsNarrativePlanAndDirectorLearning() throws Exception {
         String url = "jdbc:h2:mem:event-timeline;DB_CLOSE_DELAY=-1";
         Flyway.configure().dataSource(url, "sa", "").load().migrate();
         try (var connection = DriverManager.getConnection(url, "sa", "");
@@ -44,6 +44,29 @@ class DatabaseMigrationTest {
                     """);
             assertThat(constraints.next()).isTrue();
             assertThat(constraints.getString(1)).contains("CONFIRMED").contains("NEEDS_REVIEW");
+            var narrativeColumns = statement.executeQuery("""
+                    SELECT column_name FROM information_schema.columns
+                    WHERE table_name='BATTLE_NARRATIVE_PLAN'
+                    AND column_name IN ('PLAN_JSON','CONFIRMED_EVENT_FINGERPRINT','APPLIED','GENERATED_AT','APPLIED_AT')
+                    """);
+            int narrativeCount = 0;
+            while (narrativeColumns.next()) narrativeCount++;
+            assertThat(narrativeCount).isEqualTo(5);
+            var productTables = statement.executeQuery("""
+                    SELECT table_name FROM information_schema.tables
+                    WHERE table_name IN ('GAME_KNOWLEDGE_PACKS','DIRECTOR_EDIT_DECISIONS')
+                    """);
+            int productTableCount = 0;
+            while (productTables.next()) productTableCount++;
+            assertThat(productTableCount).isEqualTo(2);
+            var sourceStorage = statement.executeQuery("""
+                    SELECT column_name FROM information_schema.columns
+                    WHERE table_name='SOURCE_MEDIA_STORAGE'
+                    AND column_name IN ('STORAGE_MODE','STORAGE_PATH','SIZE_BYTES','FILESYSTEM_KEY','LAST_VERIFIED_AT')
+                    """);
+            int sourceStorageColumns = 0;
+            while (sourceStorage.next()) sourceStorageColumns++;
+            assertThat(sourceStorageColumns).isEqualTo(5);
         }
     }
 
