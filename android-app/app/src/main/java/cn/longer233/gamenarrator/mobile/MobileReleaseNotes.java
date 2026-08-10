@@ -24,6 +24,8 @@ public final class MobileReleaseNotes {
 
     public static List<Note> notes() {
         List<Note> notes = new ArrayList<>();
+        notes.add(new Note("0.72.0", "使用引导自动跳转修复",
+                "使用引导会自动进入镜头搜索、平台导入、素材库或设置页面，等待功能加载后定位并高亮对应区域；目标暂不可见时可直接重试当前步骤。"));
         notes.add(new Note("0.71.0", "权限隔离与导演评审修复",
                 "Unified release workflow and project revision concurrency protection."));
         notes.add(new Note("0.70.0", "AI 导演评审会",

@@ -1,5 +1,6 @@
 const releases = [
-  {version:'2.2.1', title:'权限隔离与导演评审修复', current:true, items:['Synchronize Web, Windows and Android versions','Protect project revisions from concurrent overwrites','Create and synchronize GitHub and Gitee release tags'], jump:{view:'studio', selector:'#task-list'}},
+  {version:'2.2.2', title:'使用引导自动跳转修复', current:true, items:['引导步骤自动切换到对应功能页面','等待异步功能加载完成后再滚动并高亮目标','目标暂不可见时保留当前步骤并支持重试'], jump:{view:'studio', selector:'#guide-open'}},
+  {version:'2.2.1', title:'权限隔离与导演评审修复', items:['Synchronize Web, Windows and Android versions','Protect project revisions from concurrent overwrites','Create and synchronize GitHub and Gitee release tags'], jump:{view:'studio', selector:'#task-list'}},
   {version:'2.2.0', title:'AI 导演评审会', items:['Synchronize Web, Windows and Android versions','Protect project revisions from concurrent overwrites','Create and synchronize GitHub and Gitee release tags'], jump:{view:'studio', selector:'#task-list'}},
   {version:'2.1.8', title:'本地账号与后台管理中心', items:['Synchronize Web, Windows and Android versions','Protect project revisions from concurrent overwrites','Create and synchronize GitHub and Gitee release tags'], jump:{view:'studio', selector:'#task-list'}},
   {version:'2.1.7', title:'社区生态与同源多版本', items:['分享和安装游戏知识包、剪辑规则与风格配置','同一录像生成剧情版、攻略版、搞笑版和复盘版独立任务','四种版本复用源视频，避免重复占用超大文件空间','导出 JSON 与 Markdown 剪辑决策报告用于二次修改和毕业设计展示'], jump:{view:'studio', selector:'#task-list'}},
