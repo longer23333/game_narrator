@@ -1,0 +1,27 @@
+package cn.longer233.gamenarrator.mobile;
+
+import android.content.Context;
+import android.media.AudioFormat;
+import android.media.MediaCodec;
+import android.media.MediaExtractor;
+import android.media.MediaFormat;
+import android.net.Uri;
+import java.nio.ByteBuffer;
+import java.nio.ByteOrder;
+
+public final class AudioWaveformExtractor {
+    private AudioWaveformExtractor() { }
+    public static float[] extract(Context context,Uri uri,long startMs,long endMs,int pointCount){
+        float[] points=new float[Math.max(16,pointCount)];MediaExtractor extractor=new MediaExtractor();MediaCodec decoder=null;
+        try{extractor.setDataSource(context,uri,null);int track=-1;MediaFormat source=null;for(int i=0;i<extractor.getTrackCount();i++){MediaFormat candidate=extractor.getTrackFormat(i);String mime=candidate.getString(MediaFormat.KEY_MIME);if(mime!=null&&mime.startsWith("audio/")){track=i;source=candidate;break;}}if(track<0||source==null)return points;String mime=source.getString(MediaFormat.KEY_MIME);long durationUs=source.containsKey(MediaFormat.KEY_DURATION)?source.getLong(MediaFormat.KEY_DURATION):0;if(mime==null||durationUs<=0)return points;
+            long rangeStartUs=Math.max(0,startMs*1000),rangeEndUs=Math.min(durationUs,Math.max(rangeStartUs+1,endMs*1000)),rangeDurationUs=rangeEndUs-rangeStartUs;extractor.selectTrack(track);extractor.seekTo(rangeStartUs,MediaExtractor.SEEK_TO_PREVIOUS_SYNC);decoder=MediaCodec.createDecoderByType(mime);decoder.configure(source,null,null,0);decoder.start();boolean inputDone=false,outputDone=false;MediaCodec.BufferInfo info=new MediaCodec.BufferInfo();int sampleRate=source.containsKey(MediaFormat.KEY_SAMPLE_RATE)?source.getInteger(MediaFormat.KEY_SAMPLE_RATE):48000,channels=source.containsKey(MediaFormat.KEY_CHANNEL_COUNT)?source.getInteger(MediaFormat.KEY_CHANNEL_COUNT):2,encoding=AudioFormat.ENCODING_PCM_16BIT;
+            while(!outputDone&&!Thread.currentThread().isInterrupted()){
+                if(!inputDone){int index=decoder.dequeueInputBuffer(10_000);if(index>=0){ByteBuffer input=decoder.getInputBuffer(index);if(input==null)continue;input.clear();long sampleTime=extractor.getSampleTime();int size=sampleTime<0||sampleTime>=rangeEndUs?-1:extractor.readSampleData(input,0);if(size<0){decoder.queueInputBuffer(index,0,0,Math.max(0,sampleTime),MediaCodec.BUFFER_FLAG_END_OF_STREAM);inputDone=true;}else{decoder.queueInputBuffer(index,0,size,Math.max(0,sampleTime),extractor.getSampleFlags());extractor.advance();}}}
+                int outputIndex=decoder.dequeueOutputBuffer(info,10_000);if(outputIndex==MediaCodec.INFO_OUTPUT_FORMAT_CHANGED){MediaFormat output=decoder.getOutputFormat();if(output.containsKey(MediaFormat.KEY_SAMPLE_RATE))sampleRate=output.getInteger(MediaFormat.KEY_SAMPLE_RATE);if(output.containsKey(MediaFormat.KEY_CHANNEL_COUNT))channels=output.getInteger(MediaFormat.KEY_CHANNEL_COUNT);if(output.containsKey(MediaFormat.KEY_PCM_ENCODING))encoding=output.getInteger(MediaFormat.KEY_PCM_ENCODING);}else if(outputIndex>=0){ByteBuffer output=decoder.getOutputBuffer(outputIndex);if(output!=null&&info.size>0&&info.presentationTimeUs<rangeEndUs){output.position(info.offset);output.limit(info.offset+info.size);consume(output.slice().order(ByteOrder.nativeOrder()),Math.max(0,info.presentationTimeUs-rangeStartUs),rangeDurationUs,sampleRate,channels,encoding,points);}outputDone=(info.flags&MediaCodec.BUFFER_FLAG_END_OF_STREAM)!=0;decoder.releaseOutputBuffer(outputIndex,false);}
+            }
+            for(int i=0;i<points.length;i++)points[i]=(float)Math.sqrt(Math.max(0,Math.min(1,points[i])));return points;
+        }catch(Exception ignored){return points;}finally{if(decoder!=null){try{decoder.stop();}catch(Exception ignored){}decoder.release();}extractor.release();}
+    }
+    private static void consume(ByteBuffer pcm,long startUs,long durationUs,int sampleRate,int channels,int encoding,float[] points){int bytesPerSample=encoding==AudioFormat.ENCODING_PCM_FLOAT||encoding==AudioFormat.ENCODING_PCM_32BIT?4:encoding==AudioFormat.ENCODING_PCM_8BIT?1:encoding==AudioFormat.ENCODING_PCM_24BIT_PACKED?3:2;int frameBytes=Math.max(1,bytesPerSample*Math.max(1,channels)),frames=pcm.remaining()/frameBytes;if(frames<=0)return;long totalFrames=Math.max(1,durationUs*Math.max(1,sampleRate)/1_000_000);int stride=(int)Math.max(1,totalFrames/(points.length*64L));for(int frame=0;frame<frames;frame+=stride){float peak=0;int base=frame*frameBytes;for(int channel=0;channel<channels;channel++){int offset=base+channel*bytesPerSample;if(offset+bytesPerSample>pcm.limit())break;peak=Math.max(peak,amplitude(pcm,offset,encoding));}long timeUs=startUs+frame*1_000_000L/Math.max(1,sampleRate);int bucket=Math.min(points.length-1,(int)Math.max(0,timeUs*points.length/durationUs));points[bucket]=Math.max(points[bucket],peak);}}
+    private static float amplitude(ByteBuffer buffer,int offset,int encoding){if(encoding==AudioFormat.ENCODING_PCM_FLOAT)return Math.abs(buffer.getFloat(offset));if(encoding==AudioFormat.ENCODING_PCM_8BIT)return Math.abs((buffer.get(offset)&255)-128)/128f;if(encoding==AudioFormat.ENCODING_PCM_24BIT_PACKED){int value=(buffer.get(offset)&255)|((buffer.get(offset+1)&255)<<8)|(buffer.get(offset+2)<<16);return Math.abs(value/8388608f);}if(encoding==AudioFormat.ENCODING_PCM_32BIT)return Math.abs(buffer.getInt(offset)/2147483648f);return Math.abs(buffer.getShort(offset)/32768f);}
+}

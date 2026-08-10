@@ -1028,21 +1028,56 @@ async function loadScriptEditor(taskId) {
   detailContent.querySelector('.script-editor').scrollIntoView({behavior: 'smooth', block: 'start'});
 }
 
+function renderGameEventTimeline(events, knowledgePack, taskId) {
+  const statusText = {AI_SUGGESTED:'AI 建议，等待确认', CONFIRMED:'已确认，可用于文案', NEEDS_REVIEW:'需要进一步核对'};
+  const cards = events.map(item => `
+    <article class="game-event-card ${item.confirmationStatus.toLowerCase()}" data-game-event="${item.id}">
+      <header><div><strong>${formatDuration(item.startSeconds)}–${formatDuration(item.endSeconds)}</strong><small>${escapeHtml(statusText[item.confirmationStatus] || item.confirmationStatus)}</small></div><b>置信度 ${Math.round(item.confidence * 100)}%</b></header>
+      <div class="game-event-form">
+        <label>事件类型<input name="eventType" maxlength="40" value="${escapeHtml(item.eventType)}"></label>
+        <label>重要程度<input name="importance" type="number" min="0" max="100" value="${item.importance}"></label>
+        <label class="game-event-description">事实描述<textarea name="eventDescription" maxlength="500">${escapeHtml(item.description)}</textarea></label>
+        <label>确认状态<select name="confirmationStatus"><option value="AI_SUGGESTED" ${item.confirmationStatus === 'AI_SUGGESTED' ? 'selected' : ''}>尚未确认</option><option value="CONFIRMED" ${item.confirmationStatus === 'CONFIRMED' ? 'selected' : ''}>确认事实</option><option value="NEEDS_REVIEW" ${item.confirmationStatus === 'NEEDS_REVIEW' ? 'selected' : ''}>需要复核</option></select></label>
+      </div>
+      <details><summary>为什么识别为这个事件 · ${item.evidence.length} 条证据</summary><ul>${item.evidence.map(evidence => `<li><b>${escapeHtml(evidence.sourceType)}</b><span>${escapeHtml(evidence.content)}</span><small>${formatDuration(evidence.timestampSeconds)}${evidence.frameIndex == null ? '' : ` · 帧 ${evidence.frameIndex}`}</small></li>`).join('')}</ul></details>
+      <button type="button" data-storyboard-action="event-save" data-task-id="${taskId}" data-event-id="${item.id}">保存事件判断</button>
+    </article>`).join('');
+  return `<section class="game-event-timeline">
+    <header><div><small>EXPLAINABLE GAME EVENTS</small><h3>可解释游戏事件时间线</h3><p>${escapeHtml(knowledgePack.name)}：${escapeHtml(knowledgePack.description)}</p></div><button type="button" data-storyboard-action="events-regenerate-script" data-task-id="${taskId}">用已确认事件重新生成文案</button></header>
+    <p class="game-event-guardrail">只有标记为“确认事实”的事件会进入文案提示词；OCR、转写和 AI 推断只作为待核对证据。</p>
+    <div class="game-event-list">${cards || '<p class="empty">事件时间线尚未生成，请重新启动任务完成视觉分析与高光筛选。</p>'}</div>
+  </section>`;
+}
+
+async function saveGameEventCard(taskId, card) {
+  return requestJson(`/api/tasks/${taskId}/events/${card.dataset.gameEvent}`, {
+    method:'PUT', headers:{'Content-Type':'application/json'}, body:JSON.stringify({
+      eventType:card.querySelector('[name="eventType"]').value,
+      description:card.querySelector('[name="eventDescription"]').value,
+      importance:Number(card.querySelector('[name="importance"]').value),
+      confirmationStatus:card.querySelector('[name="confirmationStatus"]').value
+    })
+  });
+}
+
 async function loadStoryboardEditor(taskId) {
   clearInterval(storyboardProgressTimer);
   if (!storyboardDialog.open) storyboardDialog.showModal();
   storyboardWorkspace.innerHTML = '<p class="empty">正在读取完整分镜时间线…</p>';
-  const [storyboard, localAssets, placements, editorTimeline, waveform, revisions] = await Promise.all([
+  const [storyboard, localAssets, placements, editorTimeline, waveform, revisions, gameEvents, knowledgePack] = await Promise.all([
     requestJson(`/api/tasks/${taskId}/storyboard`),
     requestJson('/api/assets?importStatus=DOWNLOADED&limit=100'),
     requestJson(`/api/tasks/${taskId}/storyboard/assets`),
     requestJson(`/api/tasks/${taskId}/editor`),
     requestJson(`/api/tasks/${taskId}/editor/waveform?points=320`),
-    requestJson(`/api/tasks/${taskId}/editor/revisions`)
+    requestJson(`/api/tasks/${taskId}/editor/revisions`),
+    requestJson(`/api/tasks/${taskId}/events`),
+    requestJson(`/api/tasks/${taskId}/events/knowledge-pack`)
   ]);
   const totalDuration = storyboard.segments.reduce((sum, item) => sum + item.endSeconds - item.startSeconds, 0);
   storyboardWorkspace.innerHTML = `
     <section class="detail-block storyboard-editor" data-task-id="${taskId}" data-review-enabled="${storyboard.reviewEnabled}" data-approved="${storyboard.approved}">
+      ${renderGameEventTimeline(gameEvents, knowledgePack, taskId)}
       <header class="storyboard-editor-head"><div><small>EDITOR WORKSPACE</small><h3>${escapeHtml(storyboard.title || '自由剪辑与分镜')}</h3><p>${escapeHtml(storyboard.synopsis || '')}</p></div>
       <div class="storyboard-head-actions"><button type="button" data-storyboard-action="auto-assets" data-task-id="${taskId}">自动匹配并下载素材</button>${storyboard.approved ? '<span class="storyboard-approved">已确认 / 自动模式</span>' : '<span class="storyboard-review-pending">修改后请使用底部主按钮保存并继续</span>'}</div></header>
       <div class="storyboard-stats"><span>${storyboard.segments.length} 个分镜</span><span>预计素材时长 ${formatDuration(totalDuration)}</span><span>支持拖拽排序与入点/出点修剪</span></div>
@@ -1310,6 +1345,20 @@ async function handleStoryboardAction(button) {
   const taskId = button.dataset.taskId;
   button.disabled = true;
   try {
+    if (button.dataset.storyboardAction === 'event-save') {
+      await saveGameEventCard(taskId, button.closest('[data-game-event]'));
+      button.textContent = '事件已保存';
+      setTimeout(() => { button.textContent = '保存事件判断'; button.disabled = false; }, 1000);
+      return;
+    }
+    if (button.dataset.storyboardAction === 'events-regenerate-script') {
+      const eventCards = [...storyboardWorkspace.querySelectorAll('[data-game-event]')];
+      for (const eventCard of eventCards) await saveGameEventCard(taskId, eventCard);
+      button.textContent = '正在按已确认事实生成文案…';
+      await requestJson(`/api/tasks/${taskId}/events/regenerate-script`, {method:'POST'});
+      await loadStoryboardEditor(taskId);
+      return;
+    }
     if (button.dataset.storyboardAction === 'save-all-continue') {
       const editor = storyboardWorkspace.querySelector('.storyboard-editor');
       await saveAllStoryboardSegments(taskId, button);

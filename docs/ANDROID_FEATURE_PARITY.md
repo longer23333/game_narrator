@@ -1,0 +1,67 @@
+# GameNarrator Android 功能同步矩阵
+
+本文件以当前桌面本体源码、控制器、前端和迁移为验收基线。Android 必须完全独立运行；“入口存在”不等于功能完成。
+
+| 本体能力 | Android 状态 | 验收要求 |
+|---|---|---|
+| 本体新粗野主义视觉、品牌与导航 | 已完成（模拟器截图） | 视觉、品牌与导航已按桌面本体实现；模拟器首页截图见 docs/android-home-screen.png，逐页对照与正式真机验收仍建议在真机上完成 |
+| 源监视器与精确修剪 | 已完成 | 原片播放、片段定位、按真实帧率逐帧、触屏与 J/K/L、播放速度、入点/出点标记及历史持久化均已实现 |
+| 创建任务、运行中、最近完成 | 已完成 | 创建任务表单（名称/内容类别/解说风格/剪辑范围/目标时长/创作要求/术语纠错词表/分镜后暂停/自动剪辑流程）已持久化并在首页任务卡展示；多项目、重命名、复制、软删除回收站、恢复、永久清理、状态恢复、导出取消/重试，以及一键自动流水线已实现：Whisper 离线转写缺失字幕 → GPT-2 生成缺失解说文案 → 离线 TTS 批量合成配音 → 自动导出；勾选“启动自动剪辑流程”后导入视频会自动启动该流水线，勾选“分镜后暂停”时在文案生成后等待检查；端侧模型未安装时明确提示并保留可完成部分 |
+| 自由时间线、撤回/恢复、分割、连接、删除 | 已完成 | 缩放、拖拽、播放头和 50 步历史，片段左右边缘可直接拖拽调整入点/出点，以及 V1 主视频轨、V2 视频叠层轨、A1 纯音频轨多轨时间线（轨道分配、导出按轨合成、归档/分支保留轨道）均已实现 |
+| 项目版本树与历史检出 | 已完成 | 100 个 SQLite 修订快照、检出、版本命名、从任意快照建立独立分支、项目归档导出、事务化恢复、版本差异对比与分支合并（只补缺失/覆盖同名）均已实现 |
+| 分镜、字幕、解说、审阅 | 已完成 | 字幕/解说/特效提示编辑、项目级 SRT、按全局时间码真实烧录，以及与本体一致的逐分镜“通过/需修改”和 500 字备注已完成 |
+| 文案质量评审 | 已完成 | 手机离线输出 0–100 分并检查空字段、重复、明显乱码、镜头可配音时长；端侧画面一致性检查已接入（MobileNet 提取分镜画面标签，与解说文案做本地启发式比对并标注需人工复核） |
+| 分镜重新配音 | 已完成 | 读取设备实际安装的离线 TTS 音色，逐分镜保存音色、0.5–2.0 倍语速和音调；重新生成会替换旧解说轨 |
+| 画面调整 | 基础完成 | 逐片段结构化保存亮度、对比度、饱和度、红蓝通道色温、色相、25–300% 缩放和旋转，并通过 Media3 GPU 效果真实导出；曲线调色已通过 FFmpeg 导出预设（电影感曲线）可用，调色轮（HSL 色相/饱和度/明度）已可用，LUT 待接入 |
+| 关键帧 | 已完成 | 支持在播放头写入任意多个缩放、旋转、水平/垂直位置、透明度和 0–200% 音量关键帧，Media3 按帧/采样插值，音量可与基础增益及淡入淡出共同工作；关键帧曲线编辑器支持线性/缓入/缓出/缓入缓出并按曲线真实导出 |
+| 多轨、音频波形、素材放置 | 已完成 | 图片/视频素材支持位置、缩放和真实 GPU 叠加；音频素材及视频片段原声支持 0-200% 音量、等功率淡入淡出、真实 PCM 峰值、持续过载/静音告警和安全音量建议，以及轨道静音与独奏 |
+| 特效模板、动态字幕、转场 | 已完成 | 6 类提示、逐字动态字幕、片段边界淡入淡出、特效模板库（保存/应用/删除、应用时合并去重、JSON 导出/导入）和重叠交叉转场（Media3 合成器平滑 alpha 交叉淡化，支持多个转场并与视频素材叠加）均已接入真实 GPU 导出 |
+| 导出预设、任务、下载结果 | 已完成 | 任务、进度、取消、重试、播放和共享已实现；720p/1080p/原画质、自定义参数、能力探测后的 HEVC、横竖屏平台画布真实接入 Media3，预设写入任务历史；整片与单镜头导出均已接线 MOV 封装、ProRes 422 与电影感曲线（内置 arm64 FFmpeg），真机验证（FfmpegDeviceTest）已通过 |
+| 素材库、标签、派生与预览 | 已完成 | 本地导入、缩略图、名称/类型/标签检索、移除、引用关系、图片/视频/音频完整预览，以及从片段派生封面素材（自动加“派生/封面”标签）均已实现 |
+| 公共素材搜索与素材站导航 | 基础完成 | Wikimedia Commons / Openverse 匿名搜索（图片/音频、许可与作者信息、来源页跳转、复制直链）与素材站导航已实现；素材库可按当前任务名一键推荐素材；首页导航已补齐 AI 设置、公共素材、素材站导航、使用引导、更新公告入口；下载入库仍需先确认权利，Pexels/Pixabay API Key 与 Bilibili 候选素材待配置 |
+| 镜头文本/图像搜索与片段导出 | 已完成 | 镜头文本检索（名称/字幕/解说/特效提示）当前为关键词检索并明确标注，语义向量检索需另装 embedding 模型、未安装时不会宣称语义能力；镜头定位和独立片段导出已实现；图像相似度检索已接入 MobileNet 特征 + 余弦相似度（ImageSearchIndex），真机验证通过（ImageSearchDeviceTest：MobileNet 真实提取特征并正确检索匹配镜头） |
+| 平台导入与下载任务 | 基础完成 | HTTP/HTTPS 媒体直链支持手机端进度、取消、原子落盘、类型和存储检查，并可建立项目（能力状态页标记为本地可用）；网页解析（og:video、video/source）与格式选择（MP4/MOV/WEBM/MKV/音频）已实现；Bilibili 登录助手支持“本机确认（B 站 App）”直接拉起已安装 App 完成确认并自动取回会话，也保留官方扫码登录与 cookies.txt 内存会话（read/cv、opus 提取，Cookie 自动带到直链解析与下载，仍仅内存、1 小时失效）；真实账号确认后的直链下载验证与真机逐页验收仍需用户操作 |
+| 合集与片段排序 | 已完成 | 跨项目加入片段、SQLite 持久化、上下排序、移除以及生成独立剪辑项目均已实现 |
+| 转写、画面理解、文案、配音 | 已完成（本地模型） | Android 系统中文 TTS 可生成真实 WAV 并自动进入分镜混音；系统语音识别（离线可用时动态标记为本地可用）与 ML Kit 端侧图像标签已接入 AI 设置页；Whisper 自动字幕已接入片段面板与一键自动流水线（FFmpeg 抽 WAV → 端侧转写 → 写分镜字幕）；GPT-2 分镜文案生成已接入片段面板与自动流水线；MobileNet 画面分类与图像相似度检索已接入；模型随 assets/models 打包，首启自动复制 |
+| AI 设置、用量和模型检查 | 已完成 | 端侧引擎检查页只展示已安装可运行引擎，未安装能力明确标注；云端 AI 设置支持加密保存并“测试连接（真实请求所选服务商）”；离线 TTS 音色列表与项目/版本/导出/素材/数据库用量已实现 |
+| 任务启动、取消、重试与阶段恢复 | 已完成 | 项目流水线六阶段（导入/修剪/分镜/配音素材/版本/渲染）持久化并可从当前阶段恢复；导出、下载与 TTS 支持真实停止，重试创建新任务且不覆盖终态；智能增强工具箱提供“自动匹配素材（按任务推荐开放素材）”与“自动规划特效并渲染（按内容类别写入特效提示后导出）” |
+| 诊断、日志导出、存储清理 | 已完成 | 设备/CPU/内存/存储/媒体编码器诊断、无凭据报告复制与分享、安全缓存清理，以及最多 2000 条 / 1 MiB 的 JSONL 结构化运行日志查看/导出/清空均已实现 |
+| 使用引导、更新公告 | 已完成 | 首次启动引导、可重开的完整操作引导和与 Android 实际版本一致的更新公告已实现 |
+| 未来版本规划 | 已完成 | 设置页提供与本体一致的 1.0–5.0 路线图（自动剪辑、AI 剧情分镜工作台、AI 动画剧场/Meme、多创作者风格、AI 创意助手） |
+| 签名发行、升级与真机兼容 | 基础完成 | 已提供本地测试密钥的 release 签名 APK 与一键构建脚本；生产正式签名密钥与 Android 真机端到端验证仍需用户提供 |
+
+## 撤回/恢复覆盖矩阵
+
+| 操作 | 状态 | 验证 |
+|---|---|---|
+| 删除片段 | 已有 | TimelineCommandsTest.deleteUndoRedo |
+| 移动片段 | 已有 | TimelineCommandsTest.moveUndoRedo |
+| 替换 | 已有 | TimelineCommandsTest.replaceUndoRedo |
+| 分割 | 已有 | TimelineCommandsTest.splitUndoRedo |
+| 字幕编辑 | 已有 | ProjectControllerTest 与 SnapshotProjectStateTest 覆盖分镜字幕和项目级精确字幕 |
+| 音频修改 | 已有 | SnapshotProjectStateTest 与 ProjectControllerTest 覆盖音量、淡入淡出和轨道静音/独奏 |
+| 特效修改 | 已有 | SnapshotProjectStateTest 与 ProjectControllerTest 覆盖关键帧、视觉参数和特效模板 |
+
+规则保持：最多 50 步历史（CommandHistory.DEFAULT_LIMIT）；撤回/恢复只还原项目快照，不重建播放器或刷新整个交互页面。
+
+## 导出链路测试覆盖
+
+| 场景 | 测试证据 |
+|---|---|
+| 生命周期与终态保护 | ExportStateMachineTest 覆盖 prepare/run/complete/cancel/fail/reset 与终态不可覆盖 |
+| 取消 | ExportManagerTest.cancelInvokesRunnerAndReachesCancelled 真实调用 runner.cancel 并进入 CANCELLED |
+| 进度 | ExportManagerTest.reportsProgressFromRealRunner 通过 runner 轮询上报百分比 |
+| 错误状态 | ExportManagerTest.runnerErrorFailsExport 与 abortMarksInterruptedFailure 覆盖 FAILED |
+| 完成 | ExportManagerTest.runnerCompletionCompletesExport 覆盖 COMPLETED |
+| 中断恢复 | ExportManagerTest.abortMarksInterruptedFailure 与 ExportRecoveryPolicyTest 只清理中断且应用自有目录输出 |
+| 多片段时间线 | ExportTimelinePlanTest 验证 V1 主轨跨 V2/A1 片段仍按全局时间轴定位 |
+| 设备端多片段导出 | DeviceExportSmokeTest.multiClipExportCompletesOnDevice 在 API 34 模拟器上真实执行双片段 Media3 Transformer 导出并校验输出文件 |
+| 设备端取消 | DeviceExportSmokeTest.cancelStopsExportOnDevice 真实调用 Transformer.cancel，取消回调缺失时由 5 秒兜底进入 CANCELLED |
+
+设备端测试通过 `connectedDebugAndroidTest` 运行：13 tests passed（0 skipped、0 failed）。
+
+规则校验：`scripts/verify-android-guardrails.ps1` 可重复检查禁止宣称、云端/凭据模式与 50 步历史限制。
+
+能力状态统一：`AiCapabilityState` 作为唯一可信状态源，区分可用/本地可用/需要云端/未实现/禁用；UI 不再直接依赖单一 boolean。
+
+架构拆分：`MainActivityActions` 已拆为 Page/Edit/Export 三个 Actions；`TaskDialogController` 已拆为 Project/Timeline 两个对话框控制器，主类只保留装配与委托。

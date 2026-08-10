@@ -1,0 +1,85 @@
+package cn.longer233.gamenarrator.mobile;
+
+import java.util.ArrayList;
+import java.util.List;
+
+public final class MobileReleaseNotes {
+    private MobileReleaseNotes() { }
+
+    public static final class Note {
+        private final String version;
+        private final String title;
+        private final String body;
+
+        public Note(String version, String title, String body) {
+            this.version = version;
+            this.title = title;
+            this.body = body;
+        }
+
+        public String version() { return version; }
+        public String title() { return title; }
+        public String body() { return body; }
+    }
+
+    public static List<Note> notes() {
+        List<Note> notes = new ArrayList<>();
+        notes.add(new Note("0.67.0", "本地语义检索（bge-small-zh）",
+                "镜头搜索接入纯本地语义向量检索：打包 bge-small-zh int8 ONNX（约 24MB），检测到模型后按语义匹配名称、字幕、解说和特效提示，不再只是关键词；模型未就绪时仍明确显示关键词检索。" ));
+        notes.add(new Note("0.66.0", "真实云端 AI、自动流水线与增强工具",
+                "云端 AI 设置新增“测试连接”并真实请求所选服务商；创建任务导入视频后会按“启动自动剪辑流程”自动运行转写→文案→配音→导出（勾选分镜后暂停时在文案生成后等待检查）；阶段面板新增智能增强工具箱：自动匹配素材（按任务推荐开放素材）与自动规划特效并渲染（按内容类别写入特效提示后导出）；镜头搜索明确标注为关键词检索，不再虚标语义检索。" ));
+        notes.add(new Note("0.65.0", "模型状态、素材推荐、导航与自由裁剪",
+                "修正设置页与诊断报告把端侧转写/视觉/文案模型写死为“未安装”的问题，改为按实际检测；素材库新增“按当前任务推荐素材”；首页补齐 AI 设置、公共素材、素材站导航、使用引导、更新公告入口；时间线片段左右边缘可直接拖动调整入点/出点。" ));
+        notes.add(new Note("0.64.0", "Bilibili 本机确认登录",
+                "登录助手第一个入口改为“本机确认（B 站 App）”：点击后直接拉起已安装的 B 站 App 完成确认，不再显示二维码；App 内确认成功后自动取回会话 Cookie，可直接解析与下载。" ));
+        notes.add(new Note("0.63.0", "Bilibili 原生二维码登录",
+                "登录助手改用 B 站官方扫码接口：App 内直接显示二维码，可用另一台设备的 B 站 App 扫码，或在本机 B 站 App 内打开确认页；轮询成功后自动取回会话 Cookie 并直接用于解析与下载。" ));
+        notes.add(new Note("0.62.0", "B 站 App 快速确认登录",
+                "登录助手新增“B 站 App 快速确认”：已安装 Bilibili App 时一键拉起其官方登录页，确认登录后回到扫码页用同一 App 扫一下即可完成；未安装时自动提示改用扫码或 cookies.txt。" ));
+        notes.add(new Note("0.61.0", "Bilibili 扫码登录自动续接",
+                "Bilibili 登录助手打开官方扫码页后，用 B 站 App 扫码成功即可自动检测会话、关闭登录页并提示已登录，无需再手动返回；同时修正能力状态页把 HTTP/HTTPS 直链导入误标为“需要云端”的问题。" ));
+        notes.add(new Note("0.60.0", "FFmpeg 曲线转码改用硬件 H.264",
+                "内置 FFmpeg 9.0 Android 构建不包含 libx264，电影感曲线等滤镜导出此前会在真机报错；现在自动探测并使用 h264_mediacodec（回退 h264_omx/libx264）并改用码率控制，MOV/ProRes/曲线转码真机测试全部通过。" ));
+        notes.add(new Note("0.59.0", "平台导入携带登录会话",
+                "平台网页解析与媒体下载会带上已加载的 cookies.txt 会话（仍仅内存、1 小时失效），登录后可见的网页视频直链可正常请求；未登录或未加载 Cookie 的页面保持原有匿名流程。" ));
+        notes.add(new Note("0.58.0", "文案质检接入端侧画面一致性",
+                "文案质量评审新增“端侧画面一致性检查”：提取各分镜中间帧，用 MobileNet 离线分类，与解说文案中的常见对象做启发式比对并标注需人工复核；全部在手机本地完成。" ));
+        notes.add(new Note("0.57.0", "镜头导出补全 FFmpeg 预设",
+                "单镜头导出与整片导出一致支持 MOV 封装、ProRes 422 与电影感曲线预设，全部通过内置 FFmpeg 在设备上真实转码；FFmpeg 未就绪时自动隐藏这些预设。" ));
+        notes.add(new Note("0.56.0", "自动流水线接入端侧模型",
+                "一键自动流水线现在会先用 Whisper 为缺失字幕的分镜离线转写，再用 GPT-2 为缺失解说的分镜生成文案，最后用离线 TTS 合成配音并自动导出；端侧模型未安装时仍会保留原有流程并明确提示。" ));
+        notes.add(new Note("0.55.0", "端侧模型随包安装与真机 AI 能力",
+                "Whisper 转写、MobileNet 画面识别、GPT-2 文案生成与 FFmpeg 引擎随 APK 自动复制到应用模型目录；AI 设置页可查看与刷新安装状态，片段面板可单条转写或生成文案。" ));
+        notes.add(new Note("0.54.0", "Release 签名构建",
+                "提供使用本地测试密钥的 release 签名 APK 与一键构建脚本，可安装升级；生产正式签名仍需用户密钥，真机端到端验证仍需 Android 设备。"));
+        notes.add(new Note("0.53.0", "能力探测与外部限制标注",
+                "MOV 封装与 ProRes 编码按设备真实能力探测并明确标注；AI 设置、导出面板与诊断不再把不支持能力显示为可用。"));
+        notes.add(new Note("0.52.0", "V2 视频叠层轨",
+                "片段可分配到 V2 作为全屏叠加视频轨，在时间轴对应位置覆盖到主画面之上；轨道信息随项目归档与版本分支保留。"));
+        notes.add(new Note("0.51.0", "多轨时间线（V1 / A1）",
+                "片段可分配到 V1 主视频轨或 A1 纯音频轨；A1 片段按时间轴位置只混入声音，不占主画面，轨道信息随项目归档与版本分支保留。"));
+        notes.add(new Note("0.50.0", "一键自动流水线",
+                "阶段面板可一键自动继续：为缺失解说的分镜批量生成离线 TTS 配音并自动进入渲染导出；可随时取消，任务状态不覆盖终态。"));
+        notes.add(new Note("0.49.0", "重叠交叉转场",
+                "分镜可勾选“与下一片段交叉转场”，导出时通过 Media3 视频合成器在重叠区间做平滑 alpha 交叉淡化；支持多个转场并与视频素材叠加共同工作。"));
+        notes.add(new Note("0.48.0", "任务阶段恢复与真实取消",
+                "新增“剪辑任务”页与项目流水线阶段（导入/修剪/分镜/配音素材/版本/渲染），阶段状态持久化可恢复；导出、下载与 TTS 均支持真实停止，中断任务不会覆盖终态。"));
+        notes.add(new Note("0.47.0", "平台导入格式选择与网页解析",
+                "平台导入支持格式偏好（MP4/MOV/WEBM/MKV/音频），可解析常见网页中的 og:video、video/source 直链并按格式筛选；需要登录的网页仍明确标注不可用。"));
+        notes.add(new Note("0.46.0", "特效模板库",
+                "可保存当前分镜特效提示为模板并应用到任意分镜；应用时与已有提示合并且不重复，模板随数据库持久化。"));
+        notes.add(new Note("0.45.0", "素材派生与高级预览",
+                "素材库支持图片、视频、音频的完整预览；可从当前片段提取封面帧并生成带“派生/封面”标签的素材，自动进入素材库。"));
+        notes.add(new Note("0.44.0", "关键帧曲线编辑器",
+                "每个关键帧可设置线性、缓入、缓出或缓入缓出曲线，可编辑时间与数值并添加新关键帧；Media3 导出按曲线插值真实生效。"));
+        notes.add(new Note("0.43.0", "版本差异与分支合并",
+                "历史版本可一键与当前时间线对比（新增/移除/内容变化），并支持只补缺失或覆盖同名的分支合并；合并前状态仍可撤回。"));
+        notes.add(new Note("0.42.0", "端侧镜头文本搜索与独立片段导出",
+                "新增镜头文本索引与相似度检索，可离线匹配名称、字幕、解说和特效提示并一键定位或导出当前镜头；图像相似度检索仍待端侧视觉模型接入。"));
+        notes.add(new Note("0.41.0", "AI 设置、使用引导与结构化日志",
+                "新增“AI 设置 · 用量 · 模型检查”页面，只展示已安装可运行引擎并明确标注未安装能力；新增首次启动使用引导与更新公告；新增 JSONL 结构化运行日志，可查看、导出和清空。"));
+        notes.add(new Note("0.40.0", "播放头关键帧接入真实导出",
+                "缩放、旋转、水平/垂直位置、透明度与 0–200% 音量关键帧按帧或采样线性插值，并通过 Media3 GPU 真实导出；音量关键帧可与基础增益及淡入淡出共同工作。"));
+        return notes;
+    }
+}

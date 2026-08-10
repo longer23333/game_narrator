@@ -3,6 +3,7 @@ package cn.longer233.gamenarrator.script;
 import cn.longer233.gamenarrator.ai.AdaptiveAiChatClient;
 import cn.longer233.gamenarrator.ai.AiContentRejectedException;
 import cn.longer233.gamenarrator.highlight.HighlightClip;
+import cn.longer233.gamenarrator.event.GameEventFact;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.slf4j.Logger;
@@ -54,13 +55,21 @@ public class OllamaScriptGenerator {
 
     public GeneratedScript generate(Path highlightPath, String category, String style,
                                     String taskBrief, String transcript) {
-        if (adaptiveChat != null) return generateAdaptive(highlightPath, category, style, taskBrief, transcript);
+        return generate(highlightPath, category, style, taskBrief, transcript, List.of());
+    }
+
+    public GeneratedScript generate(Path highlightPath, String category, String style,
+                                    String taskBrief, String transcript, List<GameEventFact> confirmedFacts) {
+        List<GameEventFact> safeFacts = confirmedFacts == null ? List.of() : List.copyOf(confirmedFacts);
+        if (adaptiveChat != null) {
+            return generateAdaptive(highlightPath, category, style, taskBrief, transcript, safeFacts);
+        }
         try {
             JsonNode highlightDocument = objectMapper.readTree(highlightPath.toFile());
             List<HighlightClip> clips = objectMapper.readerForListOf(HighlightClip.class)
                     .readValue(highlightDocument.path("clips"));
             if (clips.isEmpty()) throw new IllegalStateException("高光清单中没有可写作文案的片段");
-            String prompt = buildPrompt(clips, category, style, taskBrief, transcript);
+            String prompt = buildPrompt(clips, category, style, taskBrief, transcript, safeFacts);
             log.info("SCRIPT_GENERATION_BEGIN model={} clipCount={} promptChars={}", model, clips.size(), prompt.length());
             Map<String, Object> requestBody = Map.of(
                     "model", model, "stream", false, "format", "json",
@@ -174,14 +183,16 @@ public class OllamaScriptGenerator {
     }
 
     private GeneratedScript generateAdaptive(Path highlightPath, String category, String style,
-                                             String taskBrief, String transcript) {
+                                             String taskBrief, String transcript,
+                                             List<GameEventFact> confirmedFacts) {
         try {
             JsonNode highlightDocument = objectMapper.readTree(highlightPath.toFile());
             List<HighlightClip> clips = objectMapper.readerForListOf(HighlightClip.class)
                     .readValue(highlightDocument.path("clips"));
             if (clips.isEmpty()) throw new IllegalStateException("高光清单中没有可生成文案的片段");
             JsonNode generated = adaptiveChat.chatJson(
-                    buildPrompt(clips, category, style, taskBrief, transcript), List.of(), false, Duration.ofMinutes(5));
+                    buildPrompt(clips, category, style, taskBrief, transcript, confirmedFacts),
+                    List.of(), false, Duration.ofMinutes(5));
             String title = generated.path("title").asText("游戏高光剧场");
             String synopsis = generated.path("synopsis").asText("根据高光镜头生成的解说剧场");
             List<ScriptSegment> segments = alignSegments(generated.path("segments"), clips);
@@ -271,6 +282,35 @@ public class OllamaScriptGenerator {
                 "issues", issues,
                 "summary", review.path("summary").asText(issues.isEmpty() ? "文案结构完整" : "文案需要人工复核")
         );
+    }
+
+    String buildPrompt(List<HighlightClip> clips, String category, String style,
+                       String brief, String transcript,
+                       List<GameEventFact> confirmedFacts) throws Exception {
+        String transcriptHint = transcript == null ? "" : transcript.substring(0, Math.min(900, transcript.length()));
+        List<Map<String, Object>> clipRanges = new ArrayList<>();
+        for (int index = 0; index < clips.size(); index++) {
+            HighlightClip clip = clips.get(index);
+            clipRanges.add(Map.of(
+                    "clipIndex", index + 1,
+                    "startSeconds", clip.startSeconds(),
+                    "endSeconds", clip.endSeconds(),
+                    "attentionScore", clip.finalScore()));
+        }
+        return """
+                你是原创游戏视频剧场编剧。请根据片段范围与用户已经确认的事件事实写中文解说，只返回 JSON，不使用 Markdown。
+                内容类别：%s
+                风格：%s。可以有鲜明节奏，但不得模仿具体创作者的独特措辞。
+                创作要求：%s
+                原视频语音参考（可能识别错误，只能帮助理解语气，不得作为事实来源或逐句复制）：%s
+                可写入文案的已确认事件事实：%s
+                片段时间范围（只表示素材位置，不代表其中发生了何种事实）：%s
+                事实约束：只能把“已确认事件事实”中的内容写成确定事实。OCR、转写、高光分数、片段描述和模型常识都不能用于补充角色名、胜负、阶段、装备、数值或因果。没有已确认事实时，只能使用中性画面描述，不得断言具体结果。
+                JSON 格式：{"title":"原创标题","synopsis":"剧情概述","segments":[{"clipIndex":1,"narration":"适合配音的台词","subtitle":"精简字幕","effectCue":"转场或屏幕特效建议"}],"qualityReview":{"score":0,"passed":true,"issues":[],"summary":"简短结论"}}
+                segments 数量必须与片段数量完全一致并保持原顺序。每段台词约 25 到 55 个汉字，口语自然、前后连贯；subtitle 和 effectCue 均不得为空。质量检查必须包含事实一致性与可配音性。
+                """.formatted(category, style, brief, transcriptHint,
+                objectMapper.writeValueAsString(confirmedFacts == null ? List.of() : confirmedFacts),
+                objectMapper.writeValueAsString(clipRanges));
     }
 
     private String buildPrompt(List<HighlightClip> clips, String category, String style,

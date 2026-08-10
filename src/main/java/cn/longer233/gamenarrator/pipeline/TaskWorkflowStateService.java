@@ -276,8 +276,15 @@ public class TaskWorkflowStateService {
 
     @Transactional
     public void markTimelinePlanningCompleted(UUID taskId, TimelinePlanningResult result) {
-        requireTask(taskId).completeTimelinePlanning(
+        markTimelinePlanningCompleted(taskId, result, false);
+    }
+
+    @Transactional
+    public void markTimelinePlanningCompleted(UUID taskId, TimelinePlanningResult result, boolean manualEditingReady) {
+        VideoTask task = requireTask(taskId);
+        task.completeTimelinePlanning(
                 result.timelinePath(), result.outputDurationSeconds(), result.overflowCount());
+        if (manualEditingReady) task.readyForManualEditing();
         runTracker.completed(taskId, "TIMELINE_PLANNING", java.util.Map.of(
                 "outputDurationSeconds", result.outputDurationSeconds(), "overflowCount", result.overflowCount()));
         artifactRegistry.record(taskId, "TIMELINE_MANIFEST", result.timelinePath(), "application/json", false);

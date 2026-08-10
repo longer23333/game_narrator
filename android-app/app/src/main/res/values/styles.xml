@@ -1,9 +1,13 @@
 <resources>
     <style name="Theme.GameNarrator" parent="Theme.MaterialComponents.DayNight.NoActionBar">
-        <item name="colorPrimary">#7C5CFF</item>
-        <item name="colorSecondary">#20D3A2</item>
-        <item name="android:navigationBarColor">#11131A</item>
+        <item name="colorPrimary">@color/brand</item>
+        <item name="colorSecondary">@color/accent</item>
+        <item name="android:windowBackground">@color/canvas</item>
+        <item name="android:colorAccent">@color/accent</item>
+        <item name="android:statusBarColor">@color/canvas</item>
+        <item name="android:navigationBarColor">@color/canvas</item>
         <item name="android:windowLightStatusBar">false</item>
-        <item name="android:fontFamily">sans</item>
+        <item name="android:fontFamily">sans-serif</item>
+        <item name="android:windowActionModeOverlay">true</item>
     </style>
 </resources>

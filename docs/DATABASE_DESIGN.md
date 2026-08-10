@@ -636,3 +636,15 @@ POST /api/exports/{id}/cancel                  取消导出
 - H2 回滚 V20 时，应先停止后台任务，再执行 `ALTER TABLE video_tasks DROP COLUMN version`。生产数据回滚前必须备份；Flyway 已执行的迁移文件不得修改。
 - 外部进程并发、临时文件保留时间、SSE 刷新周期和缩略图 TTL 属于运行配置，不是数据库字段。
 - 到期导出清理会删除物理文件，将 `artifact.deleted_at` 写为清理时间，并把 `export_job.status` 更新为 `EXPIRED`；任务和参数快照继续保留，可重新导出。
+# 可解释事件数据
+
+`game_events` 是视觉分析与文案生成之间的事实层。V23 在原有事件表上增加：
+
+- `source_frame_index`、`anchor_seconds`：定位证据帧和事件锚点。
+- `evidence_json`：结构化保存画面说明、OCR 和评分证据。
+- `confirmation_status`：`AI_SUGGESTED`、`CONFIRMED` 或 `NEEDS_REVIEW`。
+- `manually_edited`：区分模型初稿与用户修正结果，并阻止流水线静默覆盖人工判断。
+- `knowledge_pack_code`：记录事件由哪个游戏知识包解释。
+- `updated_at`：记录最近一次机器生成或人工确认时间。
+
+删除视频任务时事件记录通过外键级联删除。事件按任务与时间建立索引，供分镜工作台和事实约束文案生成读取。

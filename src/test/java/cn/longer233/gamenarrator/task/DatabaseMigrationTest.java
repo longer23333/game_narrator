@@ -24,6 +24,30 @@ class DatabaseMigrationTest {
     }
 
     @Test
+    void latestMigrationAddsExplainableGameEventFields() throws Exception {
+        String url = "jdbc:h2:mem:event-timeline;DB_CLOSE_DELAY=-1";
+        Flyway.configure().dataSource(url, "sa", "").load().migrate();
+        try (var connection = DriverManager.getConnection(url, "sa", "");
+             var statement = connection.createStatement()) {
+            var columns = statement.executeQuery("""
+                    SELECT column_name FROM information_schema.columns
+                    WHERE table_name='GAME_EVENTS'
+                    AND column_name IN ('EVIDENCE_JSON','CONFIRMATION_STATUS','MANUALLY_EDITED',
+                                        'KNOWLEDGE_PACK_CODE','ANCHOR_SECONDS')
+                    """);
+            int count = 0;
+            while (columns.next()) count++;
+            assertThat(count).isEqualTo(5);
+            var constraints = statement.executeQuery("""
+                    SELECT check_clause FROM information_schema.check_constraints
+                    WHERE constraint_name='CK_GAME_EVENT_CONFIRMATION_STATUS'
+                    """);
+            assertThat(constraints.next()).isTrue();
+            assertThat(constraints.getString(1)).contains("CONFIRMED").contains("NEEDS_REVIEW");
+        }
+    }
+
+    @Test
     void v11RepairsBilibiliInterfaceTextAndRemovesDerivedTags() throws Exception {
         String url = "jdbc:h2:mem:bilibili-title-repair;DB_CLOSE_DELAY=-1";
         Flyway.configure().dataSource(url, "sa", "").target("10").load().migrate();

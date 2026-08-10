@@ -1,7 +1,7 @@
 # GameNarrator — DeepSeek 项目上下文包
 
-> 自动生成时间：2026-08-05 12:47:12 +08:00
-> 文件数量：303。本文件由 scripts/export-deepseek-context.ps1 生成，请勿手工维护生成区。
+> 自动生成时间：2026-08-10 09:53:02 +08:00
+> 文件数量：327。本文件由 scripts/export-deepseek-context.ps1 生成，请勿手工维护生成区。
 
 ## 给 DeepSeek 的强制工作规则
 
@@ -24,28 +24,41 @@
 
 - `pom.xml`（2625 bytes）
 - `README.md`（4934 bytes）
-- `.gitignore`（397 bytes）
-- `docs/ARCHITECTURE.md`（2049 bytes）
+- `.gitignore`（439 bytes）
+- `docs/ANDROID_FEATURE_PARITY.md`（11143 bytes）
+- `docs/ANDROID_MODELS.md`（1865 bytes）
+- `docs/ARCHITECTURE.md`（2726 bytes）
 - `docs/ASSET_LIBRARY_DESIGN.md`（1697 bytes）
 - `docs/CLIP_COMPILATIONS.md`（702 bytes）
-- `docs/DATABASE_DESIGN.md`（28746 bytes）
+- `docs/DATABASE_DESIGN.md`（29509 bytes）
 - `docs/FRONTEND_DEVELOPMENT.md`（1853 bytes）
 - `docs/MANUAL_EDITOR_PARITY.md`（4286 bytes）
 - `docs/OBSERVABILITY.md`（1109 bytes）
 - `docs/PERFORMANCE_PORTABILITY_AUDIT.md`（10763 bytes）
-- `docs/REQUIREMENTS.md`（21961 bytes）
+- `docs/REQUIREMENTS.md`（23033 bytes）
 - `docs/STYLE_TEMPLATE_STORE.md`（1190 bytes）
 - `docs/VERSIONING.md`（687 bytes）
+- `scripts/android-ai-rules.zh-CN.md`（1922 bytes）
+- `scripts/android-device-export-check.ps1`（2090 bytes）
+- `scripts/build-android-apk.ps1`（2200 bytes）
+- `scripts/build-android-release-signed.ps1`（1784 bytes）
+- `scripts/build-android-whisper-cli.ps1`（4242 bytes）
 - `scripts/build-windows-demo-lite.ps1`（2907 bytes）
 - `scripts/build-windows-release.ps1`（14349 bytes）
+- `scripts/capture-android-pages.ps1`（8547 bytes）
+- `scripts/export-android-ai-context.ps1`（3389 bytes）
 - `scripts/export-deepseek-context.ps1`（5568 bytes）
+- `scripts/fetch-onnx-models.ps1`（1942 bytes）
 - `scripts/generate-app-icon.ps1`（1832 bytes）
+- `scripts/install-android-fast.ps1`（1505 bytes）
+- `scripts/install-models.ps1`（3340 bytes）
 - `scripts/setup-media-importer.ps1`（1038 bytes）
 - `scripts/setup-piper.ps1`（1322 bytes）
 - `scripts/setup-vision-model.ps1`（931 bytes）
 - `scripts/setup-whisper.ps1`（2003 bytes）
 - `scripts/sync-remotes.ps1`（1785 bytes）
 - `scripts/test-windows-clean-install.ps1`（4098 bytes）
+- `scripts/verify-android-guardrails.ps1`（2565 bytes）
 - `scripts/verify-before-push.ps1`（1116 bytes）
 - `src/main/java/cn/longer233/gamenarrator/ai/AdaptiveAiChatClient.java`（14601 bytes）
 - `src/main/java/cn/longer233/gamenarrator/ai/AiContentRejectedException.java`（187 bytes）
@@ -112,6 +125,14 @@
 - `src/main/java/cn/longer233/gamenarrator/enhancement/EnhancementJobView.java`（148 bytes）
 - `src/main/java/cn/longer233/gamenarrator/enhancement/TaskEnhancementController.java`（1808 bytes）
 - `src/main/java/cn/longer233/gamenarrator/enhancement/TaskEnhancementService.java`（6099 bytes）
+- `src/main/java/cn/longer233/gamenarrator/event/BossBattleKnowledgePack.java`（406 bytes）
+- `src/main/java/cn/longer233/gamenarrator/event/ConfirmedEventScriptService.java`（3191 bytes）
+- `src/main/java/cn/longer233/gamenarrator/event/GameEventEvidence.java`（192 bytes）
+- `src/main/java/cn/longer233/gamenarrator/event/GameEventFact.java`（210 bytes）
+- `src/main/java/cn/longer233/gamenarrator/event/GameEventTimelineController.java`（1295 bytes）
+- `src/main/java/cn/longer233/gamenarrator/event/GameEventTimelineService.java`（9800 bytes）
+- `src/main/java/cn/longer233/gamenarrator/event/GameEventView.java`（562 bytes）
+- `src/main/java/cn/longer233/gamenarrator/event/UpdateGameEventRequest.java`（562 bytes）
 - `src/main/java/cn/longer233/gamenarrator/export/CreateExportRequest.java`（471 bytes）
 - `src/main/java/cn/longer233/gamenarrator/export/ExportController.java`（1876 bytes）
 - `src/main/java/cn/longer233/gamenarrator/export/ExportJobView.java`（510 bytes）
@@ -157,8 +178,8 @@
 - `src/main/java/cn/longer233/gamenarrator/pipeline/PendingTaskRecovery.java`（2188 bytes）
 - `src/main/java/cn/longer233/gamenarrator/pipeline/PipelineRunTracker.java`（5774 bytes）
 - `src/main/java/cn/longer233/gamenarrator/pipeline/ProjectArtifactRegistry.java`（5450 bytes）
-- `src/main/java/cn/longer233/gamenarrator/pipeline/TaskWorkflowStateService.java`（14571 bytes）
-- `src/main/java/cn/longer233/gamenarrator/pipeline/VideoTaskEngine.java`（20766 bytes）
+- `src/main/java/cn/longer233/gamenarrator/pipeline/TaskWorkflowStateService.java`（14872 bytes）
+- `src/main/java/cn/longer233/gamenarrator/pipeline/VideoTaskEngine.java`（21345 bytes）
 - `src/main/java/cn/longer233/gamenarrator/pipeline/WaitingTaskRetryScheduler.java`（2399 bytes）
 - `src/main/java/cn/longer233/gamenarrator/render/FfmpegVideoRenderer.java`（22652 bytes）
 - `src/main/java/cn/longer233/gamenarrator/render/RenderAssetResolver.java`（2211 bytes）
@@ -170,7 +191,7 @@
 - `src/main/java/cn/longer233/gamenarrator/script/GeneratedScript.java`（245 bytes）
 - `src/main/java/cn/longer233/gamenarrator/script/ManualScriptReviewRequest.java`（341 bytes）
 - `src/main/java/cn/longer233/gamenarrator/script/MoveStoryboardSegmentRequest.java`（195 bytes）
-- `src/main/java/cn/longer233/gamenarrator/script/OllamaScriptGenerator.java`（19230 bytes）
+- `src/main/java/cn/longer233/gamenarrator/script/OllamaScriptGenerator.java`（22390 bytes）
 - `src/main/java/cn/longer233/gamenarrator/script/PlaceStoryboardAssetRequest.java`（307 bytes）
 - `src/main/java/cn/longer233/gamenarrator/script/RegenerateScriptSegmentRequest.java`（174 bytes）
 - `src/main/java/cn/longer233/gamenarrator/script/ScriptDocumentView.java`（264 bytes）
@@ -251,6 +272,7 @@
 - `src/main/resources/db/migration/V20__video_task_optimistic_lock.sql`（70 bytes）
 - `src/main/resources/db/migration/V21__clip_compilations.sql`（890 bytes）
 - `src/main/resources/db/migration/V22__project_revision_tree.sql`（163 bytes）
+- `src/main/resources/db/migration/V23__explainable_game_event_timeline.sql`（1197 bytes）
 - `src/main/resources/db/migration/V3__external_asset_catalog.sql`（2371 bytes）
 - `src/main/resources/db/migration/V4__asset_library_organization.sql`（270 bytes）
 - `src/main/resources/db/migration/V5__asset_semantic_embeddings.sql`（430 bytes）
@@ -258,13 +280,13 @@
 - `src/main/resources/db/migration/V7__storyboard_review.sql`（207 bytes）
 - `src/main/resources/db/migration/V8__video_segment_semantic_index.sql`（634 bytes）
 - `src/main/resources/db/migration/V9__video_segment_image_hash.sql`（152 bytes）
-- `src/main/resources/static/app.css`（63306 bytes）
-- `src/main/resources/static/app.js`（103195 bytes）
+- `src/main/resources/static/app.css`（65083 bytes）
+- `src/main/resources/static/app.js`（107466 bytes）
 - `src/main/resources/static/asset-library.js`（39551 bytes）
 - `src/main/resources/static/diagnostics.js`（1673 bytes）
 - `src/main/resources/static/export.js`（10391 bytes）
 - `src/main/resources/static/extension-install.html`（3410 bytes）
-- `src/main/resources/static/index.html`（23734 bytes）
+- `src/main/resources/static/index.html`（23733 bytes）
 - `src/main/resources/static/media-importer.css`（4474 bytes）
 - `src/main/resources/static/media-importer.js`（24293 bytes）
 - `src/main/resources/static/updates.js`（4417 bytes）
@@ -292,6 +314,8 @@
 - `src/test/java/cn/longer233/gamenarrator/effect/EffectPresetCatalogTest.java`（2318 bytes）
 - `src/test/java/cn/longer233/gamenarrator/effect/SemanticEffectPlannerTest.java`（1359 bytes）
 - `src/test/java/cn/longer233/gamenarrator/enhancement/TaskEnhancementServiceTest.java`（4256 bytes）
+- `src/test/java/cn/longer233/gamenarrator/event/ConfirmedEventScriptServiceTest.java`（3697 bytes）
+- `src/test/java/cn/longer233/gamenarrator/event/GameEventTimelineServiceTest.java`（3706 bytes）
 - `src/test/java/cn/longer233/gamenarrator/export/FfmpegProgressParserTest.java`（1550 bytes）
 - `src/test/java/cn/longer233/gamenarrator/highlight/RuleBasedHighlightSelectorTest.java`（5608 bytes）
 - `src/test/java/cn/longer233/gamenarrator/identity/LocalUserContextTest.java`（396 bytes）
@@ -309,11 +333,11 @@
 - `src/test/java/cn/longer233/gamenarrator/render/RenderPreviewServiceTest.java`（2115 bytes）
 - `src/test/java/cn/longer233/gamenarrator/render/RenderVideoFilterBuilderTest.java`（2457 bytes）
 - `src/test/java/cn/longer233/gamenarrator/script/ManualNarrationValidationTest.java`（1115 bytes）
-- `src/test/java/cn/longer233/gamenarrator/script/OllamaScriptGeneratorTest.java`（2300 bytes）
+- `src/test/java/cn/longer233/gamenarrator/script/OllamaScriptGeneratorTest.java`（3272 bytes）
 - `src/test/java/cn/longer233/gamenarrator/script/ScriptWorkspaceServiceTest.java`（6442 bytes）
 - `src/test/java/cn/longer233/gamenarrator/script/StoryboardAssetPlacementServiceTest.java`（918 bytes）
 - `src/test/java/cn/longer233/gamenarrator/subtitle/AssSubtitleBuilderTest.java`（771 bytes）
-- `src/test/java/cn/longer233/gamenarrator/task/DatabaseMigrationTest.java`（4843 bytes）
+- `src/test/java/cn/longer233/gamenarrator/task/DatabaseMigrationTest.java`（6107 bytes）
 - `src/test/java/cn/longer233/gamenarrator/task/domain/VideoTaskTest.java`（4664 bytes）
 - `src/test/java/cn/longer233/gamenarrator/task/TaskLifecycleIntegrationTest.java`（3749 bytes）
 - `src/test/java/cn/longer233/gamenarrator/task/web/VideoTaskControllerTest.java`（16044 bytes）
@@ -569,6 +593,8 @@ frontend/dist/
 android-app/.gradle/
 android-app/.gradle-dist/
 android-app/local.properties
+android-app/keystore/
+keystore.properties
 android-app/**/build/
 launcher/bin/
 launcher/obj/
@@ -588,6 +614,152 @@ logs/
 tools/
 models/
 tools/yt-dlp/
+``
+
+### FILE: docs/ANDROID_FEATURE_PARITY.md
+
+``text
+# GameNarrator Android 功能同步矩阵
+
+本文件以当前桌面本体源码、控制器、前端和迁移为验收基线。Android 必须完全独立运行；“入口存在”不等于功能完成。
+
+| 本体能力 | Android 状态 | 验收要求 |
+|---|---|---|
+| 本体新粗野主义视觉、品牌与导航 | 已完成（模拟器截图） | 视觉、品牌与导航已按桌面本体实现；模拟器首页截图见 docs/android-home-screen.png，逐页对照与正式真机验收仍建议在真机上完成 |
+| 源监视器与精确修剪 | 已完成 | 原片播放、片段定位、按真实帧率逐帧、触屏与 J/K/L、播放速度、入点/出点标记及历史持久化均已实现 |
+| 创建任务、运行中、最近完成 | 已完成 | 创建任务表单（名称/内容类别/解说风格/剪辑范围/目标时长/创作要求/术语纠错词表/分镜后暂停/自动剪辑流程）已持久化并在首页任务卡展示；多项目、重命名、复制、软删除回收站、恢复、永久清理、状态恢复、导出取消/重试，以及一键自动流水线已实现：Whisper 离线转写缺失字幕 → GPT-2 生成缺失解说文案 → 离线 TTS 批量合成配音 → 自动导出；勾选“启动自动剪辑流程”后导入视频会自动启动该流水线，勾选“分镜后暂停”时在文案生成后等待检查；端侧模型未安装时明确提示并保留可完成部分 |
+| 自由时间线、撤回/恢复、分割、连接、删除 | 已完成 | 缩放、拖拽、播放头和 50 步历史，片段左右边缘可直接拖拽调整入点/出点，以及 V1 主视频轨、V2 视频叠层轨、A1 纯音频轨多轨时间线（轨道分配、导出按轨合成、归档/分支保留轨道）均已实现 |
+| 项目版本树与历史检出 | 已完成 | 100 个 SQLite 修订快照、检出、版本命名、从任意快照建立独立分支、项目归档导出、事务化恢复、版本差异对比与分支合并（只补缺失/覆盖同名）均已实现 |
+| 分镜、字幕、解说、审阅 | 已完成 | 字幕/解说/特效提示编辑、项目级 SRT、按全局时间码真实烧录，以及与本体一致的逐分镜“通过/需修改”和 500 字备注已完成 |
+| 文案质量评审 | 已完成 | 手机离线输出 0–100 分并检查空字段、重复、明显乱码、镜头可配音时长；端侧画面一致性检查已接入（MobileNet 提取分镜画面标签，与解说文案做本地启发式比对并标注需人工复核） |
+| 分镜重新配音 | 已完成 | 读取设备实际安装的离线 TTS 音色，逐分镜保存音色、0.5–2.0 倍语速和音调；重新生成会替换旧解说轨 |
+| 画面调整 | 基础完成 | 逐片段结构化保存亮度、对比度、饱和度、红蓝通道色温、色相、25–300% 缩放和旋转，并通过 Media3 GPU 效果真实导出；曲线调色已通过 FFmpeg 导出预设（电影感曲线）可用，调色轮（HSL 色相/饱和度/明度）已可用，LUT 待接入 |
+| 关键帧 | 已完成 | 支持在播放头写入任意多个缩放、旋转、水平/垂直位置、透明度和 0–200% 音量关键帧，Media3 按帧/采样插值，音量可与基础增益及淡入淡出共同工作；关键帧曲线编辑器支持线性/缓入/缓出/缓入缓出并按曲线真实导出 |
+| 多轨、音频波形、素材放置 | 已完成 | 图片/视频素材支持位置、缩放和真实 GPU 叠加；音频素材及视频片段原声支持 0-200% 音量、等功率淡入淡出、真实 PCM 峰值、持续过载/静音告警和安全音量建议，以及轨道静音与独奏 |
+| 特效模板、动态字幕、转场 | 已完成 | 6 类提示、逐字动态字幕、片段边界淡入淡出、特效模板库（保存/应用/删除、应用时合并去重、JSON 导出/导入）和重叠交叉转场（Media3 合成器平滑 alpha 交叉淡化，支持多个转场并与视频素材叠加）均已接入真实 GPU 导出 |
+| 导出预设、任务、下载结果 | 已完成 | 任务、进度、取消、重试、播放和共享已实现；720p/1080p/原画质、自定义参数、能力探测后的 HEVC、横竖屏平台画布真实接入 Media3，预设写入任务历史；整片与单镜头导出均已接线 MOV 封装、ProRes 422 与电影感曲线（内置 arm64 FFmpeg），真机验证（FfmpegDeviceTest）已通过 |
+| 素材库、标签、派生与预览 | 已完成 | 本地导入、缩略图、名称/类型/标签检索、移除、引用关系、图片/视频/音频完整预览，以及从片段派生封面素材（自动加“派生/封面”标签）均已实现 |
+| 公共素材搜索与素材站导航 | 基础完成 | Wikimedia Commons / Openverse 匿名搜索（图片/音频、许可与作者信息、来源页跳转、复制直链）与素材站导航已实现；素材库可按当前任务名一键推荐素材；首页导航已补齐 AI 设置、公共素材、素材站导航、使用引导、更新公告入口；下载入库仍需先确认权利，Pexels/Pixabay API Key 与 Bilibili 候选素材待配置 |
+| 镜头文本/图像搜索与片段导出 | 已完成 | 镜头文本检索（名称/字幕/解说/特效提示）当前为关键词检索并明确标注，语义向量检索需另装 embedding 模型、未安装时不会宣称语义能力；镜头定位和独立片段导出已实现；图像相似度检索已接入 MobileNet 特征 + 余弦相似度（ImageSearchIndex），真机验证通过（ImageSearchDeviceTest：MobileNet 真实提取特征并正确检索匹配镜头） |
+| 平台导入与下载任务 | 基础完成 | HTTP/HTTPS 媒体直链支持手机端进度、取消、原子落盘、类型和存储检查，并可建立项目（能力状态页标记为本地可用）；网页解析（og:video、video/source）与格式选择（MP4/MOV/WEBM/MKV/音频）已实现；Bilibili 登录助手支持“本机确认（B 站 App）”直接拉起已安装 App 完成确认并自动取回会话，也保留官方扫码登录与 cookies.txt 内存会话（read/cv、opus 提取，Cookie 自动带到直链解析与下载，仍仅内存、1 小时失效）；真实账号确认后的直链下载验证与真机逐页验收仍需用户操作 |
+| 合集与片段排序 | 已完成 | 跨项目加入片段、SQLite 持久化、上下排序、移除以及生成独立剪辑项目均已实现 |
+| 转写、画面理解、文案、配音 | 已完成（本地模型） | Android 系统中文 TTS 可生成真实 WAV 并自动进入分镜混音；系统语音识别（离线可用时动态标记为本地可用）与 ML Kit 端侧图像标签已接入 AI 设置页；Whisper 自动字幕已接入片段面板与一键自动流水线（FFmpeg 抽 WAV → 端侧转写 → 写分镜字幕）；GPT-2 分镜文案生成已接入片段面板与自动流水线；MobileNet 画面分类与图像相似度检索已接入；模型随 assets/models 打包，首启自动复制 |
+| AI 设置、用量和模型检查 | 已完成 | 端侧引擎检查页只展示已安装可运行引擎，未安装能力明确标注；云端 AI 设置支持加密保存并“测试连接（真实请求所选服务商）”；离线 TTS 音色列表与项目/版本/导出/素材/数据库用量已实现 |
+| 任务启动、取消、重试与阶段恢复 | 已完成 | 项目流水线六阶段（导入/修剪/分镜/配音素材/版本/渲染）持久化并可从当前阶段恢复；导出、下载与 TTS 支持真实停止，重试创建新任务且不覆盖终态；智能增强工具箱提供“自动匹配素材（按任务推荐开放素材）”与“自动规划特效并渲染（按内容类别写入特效提示后导出）” |
+| 诊断、日志导出、存储清理 | 已完成 | 设备/CPU/内存/存储/媒体编码器诊断、无凭据报告复制与分享、安全缓存清理，以及最多 2000 条 / 1 MiB 的 JSONL 结构化运行日志查看/导出/清空均已实现 |
+| 使用引导、更新公告 | 已完成 | 首次启动引导、可重开的完整操作引导和与 Android 实际版本一致的更新公告已实现 |
+| 未来版本规划 | 已完成 | 设置页提供与本体一致的 1.0–5.0 路线图（自动剪辑、AI 剧情分镜工作台、AI 动画剧场/Meme、多创作者风格、AI 创意助手） |
+| 签名发行、升级与真机兼容 | 基础完成 | 已提供本地测试密钥的 release 签名 APK 与一键构建脚本；生产正式签名密钥与 Android 真机端到端验证仍需用户提供 |
+
+## 撤回/恢复覆盖矩阵
+
+| 操作 | 状态 | 验证 |
+|---|---|---|
+| 删除片段 | 已有 | TimelineCommandsTest.deleteUndoRedo |
+| 移动片段 | 已有 | TimelineCommandsTest.moveUndoRedo |
+| 替换 | 已有 | TimelineCommandsTest.replaceUndoRedo |
+| 分割 | 已有 | TimelineCommandsTest.splitUndoRedo |
+| 字幕编辑 | 已有 | ProjectControllerTest 与 SnapshotProjectStateTest 覆盖分镜字幕和项目级精确字幕 |
+| 音频修改 | 已有 | SnapshotProjectStateTest 与 ProjectControllerTest 覆盖音量、淡入淡出和轨道静音/独奏 |
+| 特效修改 | 已有 | SnapshotProjectStateTest 与 ProjectControllerTest 覆盖关键帧、视觉参数和特效模板 |
+
+规则保持：最多 50 步历史（CommandHistory.DEFAULT_LIMIT）；撤回/恢复只还原项目快照，不重建播放器或刷新整个交互页面。
+
+## 导出链路测试覆盖
+
+| 场景 | 测试证据 |
+|---|---|
+| 生命周期与终态保护 | ExportStateMachineTest 覆盖 prepare/run/complete/cancel/fail/reset 与终态不可覆盖 |
+| 取消 | ExportManagerTest.cancelInvokesRunnerAndReachesCancelled 真实调用 runner.cancel 并进入 CANCELLED |
+| 进度 | ExportManagerTest.reportsProgressFromRealRunner 通过 runner 轮询上报百分比 |
+| 错误状态 | ExportManagerTest.runnerErrorFailsExport 与 abortMarksInterruptedFailure 覆盖 FAILED |
+| 完成 | ExportManagerTest.runnerCompletionCompletesExport 覆盖 COMPLETED |
+| 中断恢复 | ExportManagerTest.abortMarksInterruptedFailure 与 ExportRecoveryPolicyTest 只清理中断且应用自有目录输出 |
+| 多片段时间线 | ExportTimelinePlanTest 验证 V1 主轨跨 V2/A1 片段仍按全局时间轴定位 |
+| 设备端多片段导出 | DeviceExportSmokeTest.multiClipExportCompletesOnDevice 在 API 34 模拟器上真实执行双片段 Media3 Transformer 导出并校验输出文件 |
+| 设备端取消 | DeviceExportSmokeTest.cancelStopsExportOnDevice 真实调用 Transformer.cancel，取消回调缺失时由 5 秒兜底进入 CANCELLED |
+
+设备端测试通过 `connectedDebugAndroidTest` 运行：13 tests passed（0 skipped、0 failed）。
+
+规则校验：`scripts/verify-android-guardrails.ps1` 可重复检查禁止宣称、云端/凭据模式与 50 步历史限制。
+
+能力状态统一：`AiCapabilityState` 作为唯一可信状态源，区分可用/本地可用/需要云端/未实现/禁用；UI 不再直接依赖单一 boolean。
+
+架构拆分：`MainActivityActions` 已拆为 Page/Edit/Export 三个 Actions；`TaskDialogController` 已拆为 Project/Timeline 两个对话框控制器，主类只保留装配与委托。
+``
+
+### FILE: docs/ANDROID_MODELS.md
+
+``text
+# Android 端侧模型部署
+
+## 模型目录
+
+设备端实际读取目录是应用的 `getExternalFilesDir("models")`：
+
+```text
+/storage/emulated/0/Android/data/cn.longer233.gamenarrator.mobile/files/models/
+```
+
+打包进 APK 时放在：
+
+```text
+android-app/app/src/main/assets/models/
+```
+
+首次启动会把 `assets/models/` 里的以下文件复制到设备模型目录：
+
+- `whisper-*.bin`：Whisper.cpp 转写模型
+- `whisper-cli` 或 `whisper-cli.exe`：whisper.cpp 可执行引擎（Android 真机请用 `whisper-cli`）
+- `vision-*.onnx`：端侧画面语义理解模型
+- `text-*.onnx`：端侧文案/分镜生成模型
+
+## Whisper
+
+下载 tiny 模型并直接推送到设备：
+
+```powershell
+.\scripts\install-models.ps1 -Device <serial> -Whisper
+```
+
+下载模型、推送到设备并同时复制进 `assets/models/`：
+
+```powershell
+.\scripts\install-models.ps1 -Whisper -Bundle
+```
+
+Android 版 `whisper-cli` 没有官方预编译产物，需要按设备 ABI 编译：
+
+```powershell
+.\scripts\build-android-whisper-cli.ps1 -Abi arm64-v8a
+```
+
+产物在 `dist\whisper-android\arm64-v8a\whisper-cli`，可用 `install-models.ps1 -EnginePath <路径>` 推送，或直接复制到 `assets/models/`。
+
+## ONNX
+
+`vision-*.onnx` 与 `text-*.onnx` 需要指定具体模型和输入输出约定，不能随便拿文件冒充可用。确认模型来源、许可证与输入输出后：
+
+一键下载推荐模型（MobileNetV2 视觉 + GPT-2 量化文案）：
+
+```powershell
+.\scripts\fetch-onnx-models.ps1
+```
+
+只下载其中一个：
+
+```powershell
+.\scripts\fetch-onnx-models.ps1 -VisionOnly
+.\scripts\fetch-onnx-models.ps1 -TextOnly
+```
+
+或手动部署：
+
+```powershell
+.\scripts\install-models.ps1 -Device <serial> -Vision -VisionPath <本地文件> -Text -TextPath <本地文件>
+```
+
+或直接放入 `assets/models/` 后重新构建 APK。
 ``
 
 ### FILE: docs/ARCHITECTURE.md
@@ -630,6 +802,15 @@ Groq、Together、Perplexity 和 Cerebras；Anthropic Messages 与 Google Gemini
 3. 实现高光评分与候选片段去重。
 4. 实现文案时间预算和配音对齐。
 5. 使用异步任务线程池与 SSE 推送进度。
+# 可解释事件层
+
+高光筛选与文案生成之间新增独立的事件事实层：
+
+1. `GameEventTimelineService` 读取视觉分析和高光清单，并按可配置知识包生成候选事件及证据。
+2. 候选事件以 `AI_SUGGESTED` 状态写入 `game_events`，人工修正后保留，不被后续自动重建静默覆盖。
+3. 分镜工作台通过事件 API 展示、修正和确认事件。
+4. `OllamaScriptGenerator` 只接收已确认事件及中性的片段时间范围，避免未确认的 OCR、模型描述或高光标签被写成事实。
+5. 用户触发事实约束重写后，后续配音、时间线和渲染产物按现有失效规则重新生成。
 ``
 
 ### FILE: docs/ASSET_LIBRARY_DESIGN.md
@@ -1340,6 +1521,18 @@ POST /api/exports/{id}/cancel                  取消导出
 - H2 回滚 V20 时，应先停止后台任务，再执行 `ALTER TABLE video_tasks DROP COLUMN version`。生产数据回滚前必须备份；Flyway 已执行的迁移文件不得修改。
 - 外部进程并发、临时文件保留时间、SSE 刷新周期和缩略图 TTL 属于运行配置，不是数据库字段。
 - 到期导出清理会删除物理文件，将 `artifact.deleted_at` 写为清理时间，并把 `export_job.status` 更新为 `EXPIRED`；任务和参数快照继续保留，可重新导出。
+# 可解释事件数据
+
+`game_events` 是视觉分析与文案生成之间的事实层。V23 在原有事件表上增加：
+
+- `source_frame_index`、`anchor_seconds`：定位证据帧和事件锚点。
+- `evidence_json`：结构化保存画面说明、OCR 和评分证据。
+- `confirmation_status`：`AI_SUGGESTED`、`CONFIRMED` 或 `NEEDS_REVIEW`。
+- `manually_edited`：区分模型初稿与用户修正结果，并阻止流水线静默覆盖人工判断。
+- `knowledge_pack_code`：记录事件由哪个游戏知识包解释。
+- `updated_at`：记录最近一次机器生成或人工确认时间。
+
+删除视频任务时事件记录通过外键级联删除。事件按任务与时间建立索引，供分镜工作台和事实约束文案生成读取。
 ``
 
 ### FILE: docs/FRONTEND_DEVELOPMENT.md
@@ -2048,6 +2241,15 @@ storage/tasks/{taskId}/
 - 相关单元测试或集成测试通过。
 - 使用文档和配置说明已更新。
 - 不引入未经授权的素材、模型或声音。
+# 可解释游戏事件时间线（第一阶段）
+
+- 高光筛选完成后，系统必须从视觉帧、OCR 与多模态高光评分生成独立的游戏事件时间线。
+- 每个事件必须保存时间范围、锚点、事件类型、置信度、重要程度、证据列表、知识包来源和确认状态。
+- AI 识别结果初始状态必须为 `AI_SUGGESTED`，不得自动当作用户确认事实。
+- 用户可以修改事件类型、事实描述和重要程度，并将事件标记为 `CONFIRMED` 或 `NEEDS_REVIEW`。
+- AI 文案生成只能把 `CONFIRMED` 事件作为确定事实；OCR、转写、片段描述、高光分数和模型常识不得单独成为胜负、角色、阶段、装备、数值或因果断言的依据。
+- 分镜工作台必须展示事件证据与置信度，并提供“用已确认事件重新生成文案”的明确操作。
+- 第一版内置 `boss-battle-v1` 知识包，至少覆盖 Boss 被击败、阶段转换、玩家危险状态和一般 Boss 战斗事件；知识规则保存在资源文件中，不硬编码在界面。
 ``
 
 ### FILE: docs/STYLE_TEMPLATE_STORE.md
@@ -2089,6 +2291,281 @@ GameNarrator 使用 `主版本.功能版本.修复版本` 三段式版本号。
 - 发生不兼容变更或达到下一代产品标准时，递增第一位并将后两位归零，例如 `1.9.3` → `2.0.0`。
 
 每次发布必须同步更新 Maven、前端包、网站、Windows 启动器和安装程序版本。安装程序文件名使用 `GameNarrator-Setup-版本号.exe`。
+``
+
+### FILE: scripts/android-ai-rules.zh-CN.md
+
+``text
+## 给 AI 的强制工作规则
+
+你正在维护 GameNarrator 的 Android 独立版本。它必须完全在 Android 手机本地运行，不依赖桌面端、局域网后端或云端服务才能完成基础剪辑。
+
+1. Android 的品牌、颜色、粗黑描边、硬阴影、信息层级、功能命名和操作流程必须以本体 frontend 的实际源码为准，不得另造一套通用剪辑器风格。
+2. 本体主导航为剪辑任务、镜头搜索、平台导入、素材库、设置；编辑器核心操作包括撤回、恢复、刀片分割、连接右侧、删除片段、缩放、字幕、解说、素材和特效。
+3. 对触屏和小屏幕进行重新排版，但不能通过删掉本体功能来假装适配完成。暂未实现的端侧能力必须明确标注，不能显示为可用。
+4. 所有媒体选择、项目状态、缩略图、字幕、音频和导出文件都留在设备本地。不得上传媒体、记录凭据或硬编码本机 SDK、存储目录和模型路径。
+5. 使用系统 Storage Access Framework 和持久 URI 权限；不要索取不必要的整个媒体库权限。
+6. Media3 Transformer/Composition 属于需要显式 opt-in 的 API。多片段导出、取消、中断、进度和错误状态必须有真实处理。
+7. 重要编辑操作必须进入最多 50 步的撤回/恢复历史。不得用刷新整个交互页面的方式破坏播放器位置、选择、滚动或输入内容。
+8. 不要声称字幕烧录、转场、音频混合、平台下载、端侧转写或 AI 已可用，除非已有真实实现并在设备或测试中验证。
+9. 修改后运行 android-app\gradlew.bat lintDebug testDebugUnitTest assembleDebug，并报告真实结果。不能以编译通过代替真机触控和导出验证。
+10. 不覆盖无关改动，不执行破坏性 Git 操作。回答使用简洁中文，先说明实际完成内容，再列出验证结果和剩余限制。
+``
+
+### FILE: scripts/android-device-export-check.ps1
+
+``powershell
+param(
+    [string]$ApkPath = ""
+)
+
+$ErrorActionPreference = "Stop"
+$projectRoot = (Resolve-Path (Join-Path $PSScriptRoot "..")).Path
+if ([string]::IsNullOrWhiteSpace($ApkPath)) {
+    $ApkPath = Join-Path $projectRoot "android-app\app\build\outputs\apk\debug\app-debug.apk"
+}
+if (-not (Test-Path -LiteralPath $ApkPath)) {
+    throw "APK not found: $ApkPath (run assembleDebug first)"
+}
+
+$adb = $null
+$candidateAdb = Get-Command adb -ErrorAction SilentlyContinue
+if ($candidateAdb) {
+    $adb = $candidateAdb.Source
+} elseif ($env:ANDROID_HOME) {
+    $adb = Join-Path $env:ANDROID_HOME "platform-tools\adb.exe"
+} elseif (Test-Path "G:\DevData\Android\Sdk\platform-tools\adb.exe") {
+    $adb = "G:\DevData\Android\Sdk\platform-tools\adb.exe"
+} elseif ($env:LOCALAPPDATA) {
+    $adb = Join-Path $env:LOCALAPPDATA "Android\Sdk\platform-tools\adb.exe"
+}
+if (-not $adb -or -not (Test-Path -LiteralPath $adb)) {
+    throw "adb not found; connect a device or set ANDROID_HOME"
+}
+
+$deviceCount = (& $adb devices | Select-String "`tdevice$").Count
+if ($deviceCount -lt 1) {
+    Write-Host "NO_DEVICE: connect an Android device or start an emulator first"
+    exit 2
+}
+
+Write-Host "Installing $ApkPath"
+& $adb install -r $ApkPath
+if ($LASTEXITCODE -ne 0) { throw "adb install failed" }
+
+& $adb logcat -c
+$package = "cn.longer233.gamenarrator.mobile"
+$activity = "$package/.MainActivity"
+Write-Host "Launching $activity"
+& $adb shell am start -n $activity
+if ($LASTEXITCODE -ne 0) { throw "am start failed" }
+
+Start-Sleep -Seconds 4
+$pid = (& $adb shell pidof $package).Trim()
+if ([string]::IsNullOrWhiteSpace($pid)) {
+    Write-Host "FAIL: app process is not running"
+    & $adb logcat -d -s AndroidRuntime:E
+    exit 1
+}
+
+$fatal = & $adb logcat -d -s AndroidRuntime:E | Select-String "FATAL EXCEPTION"
+if ($fatal) {
+    Write-Host "FAIL: fatal exception detected"
+    $fatal | Select-Object -First 20
+    exit 1
+}
+
+Write-Host "PASS: app launched (pid=$pid) without fatal exception"
+Write-Host "Next: manually import video, create project, edit timeline, export, and play the output on the device"
+``
+
+### FILE: scripts/build-android-apk.ps1
+
+``powershell
+param([switch]$Release, [switch]$SkipLint, [switch]$SkipTests)
+$ErrorActionPreference = "Stop"
+$projectRoot = (Resolve-Path (Join-Path $PSScriptRoot "..")).Path
+$androidRoot = Join-Path $projectRoot "android-app"
+$gradle = Join-Path $androidRoot "gradlew.bat"
+$buildFile = Join-Path $androidRoot "app\build.gradle"
+$dist = Join-Path $projectRoot "dist"
+if (-not (Test-Path -LiteralPath $gradle)) { throw "Gradle wrapper not found: $gradle" }
+if (-not (Test-Path -LiteralPath $buildFile)) { throw "Android build file not found: $buildFile" }
+
+$buildText = [IO.File]::ReadAllText($buildFile, [Text.Encoding]::UTF8)
+$match = [regex]::Match($buildText, 'versionName\s+[''"]([^''"]+)[''"]')
+if (-not $match.Success) { throw "Unable to read versionName from $buildFile" }
+$version = $match.Groups[1].Value
+$tasks = [Collections.Generic.List[string]]::new()
+if (-not $SkipLint) { $tasks.Add("lintDebug") }
+if (-not $SkipTests) { $tasks.Add("testDebugUnitTest") }
+$tasks.Add($(if ($Release) { "assembleRelease" } else { "assembleDebug" }))
+
+$variant = $(if ($Release) { "release" } else { "debug" })
+Write-Host "Building GameNarrator Android $version ($variant)"
+Push-Location $androidRoot
+try {
+    & $gradle @tasks
+    if ($LASTEXITCODE -ne 0) { throw "Android build failed with exit code $LASTEXITCODE" }
+} finally { Pop-Location }
+
+$sourceApk = Join-Path $androidRoot "app\build\outputs\apk\$variant\app-$variant.apk"
+if (-not (Test-Path -LiteralPath $sourceApk)) {
+    $sourceApk = Join-Path $androidRoot "app\build\outputs\apk\$variant\app-$variant-unsigned.apk"
+}
+if (-not (Test-Path -LiteralPath $sourceApk)) { throw "APK not generated: $sourceApk" }
+New-Item -ItemType Directory -Path $dist -Force | Out-Null
+$outputName = "GameNarrator-Android-$version-$variant"
+if ($sourceApk -like '*unsigned*') { $outputName += "-unsigned" }
+$outputApk = Join-Path $dist "$outputName.apk"
+Copy-Item -LiteralPath $sourceApk -Destination $outputApk -Force
+$file = Get-Item -LiteralPath $outputApk
+$hash = Get-FileHash -LiteralPath $outputApk -Algorithm SHA256
+Write-Host ""
+Write-Host "SUCCESS: $($file.FullName)"
+Write-Host "SIZE: $([math]::Round($file.Length / 1MB, 2)) MiB"
+Write-Host "SHA-256: $($hash.Hash)"
+``
+
+### FILE: scripts/build-android-release-signed.ps1
+
+``powershell
+param([switch]$SkipTests)
+$ErrorActionPreference = "Stop"
+$projectRoot = (Resolve-Path (Join-Path $PSScriptRoot "..")).Path
+$androidRoot = Join-Path $projectRoot "android-app"
+$gradle = Join-Path $androidRoot ".gradle-dist\gradle-9.5.0\bin\gradle.bat"
+$buildFile = Join-Path $androidRoot "app\build.gradle"
+$dist = Join-Path $projectRoot "dist"
+if (-not (Test-Path -LiteralPath $gradle)) { throw "Gradle not found: $gradle" }
+if (-not (Test-Path -LiteralPath $buildFile)) { throw "Android build file not found: $buildFile" }
+
+$buildText = [IO.File]::ReadAllText($buildFile, [Text.Encoding]::UTF8)
+$match = [regex]::Match($buildText, 'versionName\s+[''"]([^''"]+)[''"]')
+if (-not $match.Success) { throw "Unable to read versionName from $buildFile" }
+$version = $match.Groups[1].Value
+$tasks = @("assembleRelease")
+if (-not $SkipTests) { $tasks = @("testDebugUnitTest") + $tasks }
+
+Write-Host "Building signed GameNarrator Android $version (local test keystore)"
+Push-Location $androidRoot
+try {
+    & $gradle @tasks
+    if ($LASTEXITCODE -ne 0) { throw "Android release build failed with exit code $LASTEXITCODE" }
+} finally { Pop-Location }
+
+$sourceApk = Join-Path $androidRoot "app\build\outputs\apk\release\app-release.apk"
+if (-not (Test-Path -LiteralPath $sourceApk)) { throw "Release APK not generated: $sourceApk" }
+New-Item -ItemType Directory -Path $dist -Force | Out-Null
+$outputApk = Join-Path $dist "GameNarrator-Android-$version-release-signed.apk"
+Copy-Item -LiteralPath $sourceApk -Destination $outputApk -Force
+$file = Get-Item -LiteralPath $outputApk
+$hash = Get-FileHash -LiteralPath $outputApk -Algorithm SHA256
+Write-Host ""
+Write-Host "SUCCESS: $($file.FullName)"
+Write-Host "SIZE: $([math]::Round($file.Length / 1MB, 2)) MiB"
+Write-Host "SHA-256: $($hash.Hash)"
+``
+
+### FILE: scripts/build-android-whisper-cli.ps1
+
+``powershell
+param(
+    [string]$Abi = "arm64-v8a",
+    [string]$Version = "v1.9.2",
+    [string]$SdkRoot = ""
+)
+$ErrorActionPreference = "Stop"
+$projectRoot = (Resolve-Path (Join-Path $PSScriptRoot "..")).Path
+if ($SdkRoot) {
+    $sdk = $SdkRoot
+} elseif ($env:ANDROID_HOME) {
+    $sdk = $env:ANDROID_HOME
+} elseif ($env:ANDROID_SDK_ROOT) {
+    $sdk = $env:ANDROID_SDK_ROOT
+} else {
+    $sdk = $null
+    foreach ($candidate in @((Join-Path $env:LOCALAPPDATA "Android\Sdk"), "G:\DevData\Android\Sdk")) {
+        if (Test-Path (Join-Path $candidate "cmdline-tools\latest\bin\sdkmanager.bat")) {
+            $sdk = $candidate
+            break
+        }
+    }
+    if (-not $sdk) {
+        $adbCommand = Get-Command adb -ErrorAction SilentlyContinue
+        if ($adbCommand) { $sdk = Split-Path (Split-Path $adbCommand.Source -Parent) -Parent }
+    }
+}
+if (-not $sdk -or -not (Test-Path $sdk)) { throw "Android SDK 未找到，请用 -SdkRoot 指定路径" }
+
+$ndkVersion = "27.2.12479018"
+$cmakeVersion = "3.22.1"
+$ndk = Join-Path $sdk "ndk\$ndkVersion"
+$cmakeDir = Join-Path $sdk "cmake\$cmakeVersion"
+$ndkToolchain = Join-Path $ndk "build\cmake\android.toolchain.cmake"
+$sdkmanager = Join-Path $sdk "cmdline-tools\latest\bin\sdkmanager.bat"
+if (-not (Test-Path $sdkmanager)) { throw "sdkmanager 未找到: $sdkmanager" }
+
+if (-not (Test-Path $ndkToolchain) -or -not (Test-Path $cmakeDir)) {
+    if ((Test-Path $ndk) -and (Test-Path (Join-Path $ndk ".installer"))) {
+        $resolvedNdk = [IO.Path]::GetFullPath($ndk)
+        $resolvedSdk = [IO.Path]::GetFullPath($sdk)
+        if ($resolvedNdk.StartsWith($resolvedSdk, [StringComparison]::OrdinalIgnoreCase)) {
+            Remove-Item -LiteralPath $ndk -Recurse -Force
+        }
+    }
+    Write-Host "安装 NDK $ndkVersion 与 CMake $cmakeVersion（首次需要几分钟）…"
+    "y`n" * 20 | & $sdkmanager --licenses | Out-Null
+    & $sdkmanager "ndk;$ndkVersion" "cmake;$cmakeVersion"
+    if ($LASTEXITCODE -ne 0) { throw "NDK/CMake 安装失败" }
+    if (-not (Test-Path $ndkToolchain)) { throw "NDK 安装后工具链仍不存在: $ndkToolchain" }
+}
+
+$cmake = Join-Path $cmakeDir "bin\cmake.exe"
+if (-not (Test-Path $cmake)) { throw "cmake 未找到: $cmake" }
+
+$sourceDir = Join-Path $projectRoot "tools\whisper-android"
+if (-not (Test-Path (Join-Path $sourceDir "CMakeLists.txt"))) {
+    git clone --depth 1 --branch $Version https://github.com/ggerganov/whisper.cpp.git $sourceDir
+    if ($LASTEXITCODE -ne 0) { throw "whisper.cpp 克隆失败" }
+}
+
+$buildDir = Join-Path $sourceDir "build-android-$Abi"
+$resolvedBuild = [IO.Path]::GetFullPath($buildDir)
+$resolvedSource = [IO.Path]::GetFullPath($sourceDir)
+if (-not $resolvedBuild.StartsWith($resolvedSource, [StringComparison]::OrdinalIgnoreCase)) {
+    throw "拒绝清理工作区外目录: $resolvedBuild"
+}
+if (Test-Path (Join-Path $buildDir "CMakeCache.txt")) {
+    Remove-Item -LiteralPath $buildDir -Recurse -Force
+}
+if (-not (Test-Path $ndkToolchain)) { throw "NDK 工具链未找到: $ndkToolchain" }
+$ninja = Join-Path $cmakeDir "bin\ninja.exe"
+if (-not (Test-Path $ninja)) { throw "Ninja 未找到: $ninja" }
+& $cmake -B $buildDir -S $sourceDir -G Ninja `
+    "-DCMAKE_TOOLCHAIN_FILE=$ndkToolchain" `
+    "-DANDROID_ABI=$Abi" `
+    "-DANDROID_PLATFORM=android-29" `
+    "-DCMAKE_BUILD_TYPE=Release" `
+    "-DCMAKE_MAKE_PROGRAM=$ninja"
+if ($LASTEXITCODE -ne 0) { throw "CMake 配置失败" }
+& $cmake --build $buildDir --target whisper-cli --config Release
+if ($LASTEXITCODE -ne 0) { throw "whisper-cli 编译失败" }
+
+$candidates = @(
+    (Join-Path $buildDir "bin\whisper-cli"),
+    (Join-Path $buildDir "Release\whisper-cli.exe"),
+    (Join-Path $buildDir "whisper-cli")
+)
+$binary = $candidates | Where-Object { Test-Path $_ } | Select-Object -First 1
+if (-not $binary) { throw "未找到编译产物: $buildDir" }
+
+$outDir = Join-Path $projectRoot "dist\whisper-android\$Abi"
+New-Item -ItemType Directory -Path $outDir -Force | Out-Null
+$outBinary = Join-Path $outDir "whisper-cli"
+Copy-Item -LiteralPath $binary -Destination $outBinary -Force
+Write-Host "SUCCESS: $outBinary"
+Write-Host "下一步：把 whisper-*.bin 与 whisper-cli 放进 android-app/app/src/main/assets/models/，或 adb push 到设备模型目录。"
 ``
 
 ### FILE: scripts/build-windows-demo-lite.ps1
@@ -2381,6 +2858,269 @@ Require-File $setup 'Installer was not generated'
 Write-Host "SUCCESS: $setup"
 ``
 
+### FILE: scripts/capture-android-pages.ps1
+
+``powershell
+param(
+    [string]$Device = "",
+    [string]$OutDir = "docs\screenshots"
+)
+$ErrorActionPreference = "Stop"
+
+$adbCommand = Get-Command adb -ErrorAction SilentlyContinue
+if ($adbCommand) {
+    $adb = $adbCommand.Source
+} else {
+    $candidate = $null
+    foreach ($path in @((Join-Path $env:LOCALAPPDATA "Android\Sdk\platform-tools\adb.exe"),
+                        "G:\DevData\Android\Sdk\platform-tools\adb.exe")) {
+        if (Test-Path $path) { $candidate = $path; break }
+    }
+    if (-not $candidate) { throw "未找到 adb" }
+    $adb = $candidate
+}
+
+$out = Join-Path $PSScriptRoot "..\$OutDir"
+New-Item -ItemType Directory -Path $out -Force | Out-Null
+
+function Invoke-Adb([string[]]$arguments) {
+    $psi = New-Object System.Diagnostics.ProcessStartInfo
+    $psi.FileName = $adb
+    $psi.Arguments = ($arguments -join ' ')
+    $psi.UseShellExecute = $false
+    $psi.RedirectStandardOutput = $true
+    $psi.RedirectStandardError = $true
+    $process = [System.Diagnostics.Process]::Start($psi)
+    $stdout = $process.StandardOutput.ReadToEnd()
+    $stderr = $process.StandardError.ReadToEnd()
+    $process.WaitForExit()
+    if ($process.ExitCode -ne 0 -and $stderr) { Write-Host $stderr }
+    return $stdout
+}
+
+function Capture-AdbScreen([string]$name) {
+    Start-Sleep -Seconds 2
+    $args = @()
+    if ($Device) { $args += "-s"; $args += $Device }
+    $args += "exec-out"; $args += "screencap"; $args += "-p"
+    $psi = New-Object System.Diagnostics.ProcessStartInfo
+    $psi.FileName = $adb
+    $psi.Arguments = ($args -join ' ')
+    $psi.UseShellExecute = $false
+    $psi.RedirectStandardOutput = $true
+    $psi.RedirectStandardError = $true
+    $process = [System.Diagnostics.Process]::Start($psi)
+    $stream = [System.IO.File]::Create((Join-Path $out "$name.png"))
+    try {
+        $process.StandardOutput.BaseStream.CopyTo($stream)
+    } finally {
+        $stream.Dispose()
+        $process.WaitForExit()
+    }
+    Write-Host "已截图: $name.png"
+}
+
+function Tap-Text([string]$text) {
+    for ($i = 0; $i -lt 3; $i++) {
+        $dumpArgs = @()
+        if ($Device) { $dumpArgs += "-s"; $dumpArgs += $Device }
+        $dumpArgs += "shell"; $dumpArgs += "uiautomator"; $dumpArgs += "dump"; $dumpArgs += "/sdcard/ui.xml"
+        Invoke-Adb $dumpArgs | Out-Null
+        $pullArgs = @()
+        if ($Device) { $pullArgs += "-s"; $pullArgs += $Device }
+        $pullArgs += "pull"; $pullArgs += "/sdcard/ui.xml"; $pullArgs += (Join-Path $env:TEMP "ui.xml")
+        Invoke-Adb $pullArgs | Out-Null
+        $xml = $null
+        try { $xml = [System.IO.File]::ReadAllText((Join-Path $env:TEMP "ui.xml"), [System.Text.Encoding]::UTF8) } catch { }
+        if ($xml) {
+            $pattern = 'text="' + [regex]::Escape($text) + '"[^>]*bounds="\[(\d+),(\d+)\]\[(\d+),(\d+)\]"'
+            $match = [regex]::Match($xml, $pattern)
+            if ($match.Success) {
+                $x = [int](([int]$match.Groups[1].Value + [int]$match.Groups[3].Value) / 2)
+                $y = [int](([int]$match.Groups[2].Value + [int]$match.Groups[4].Value) / 2)
+                $tapArgs = @()
+                if ($Device) { $tapArgs += "-s"; $tapArgs += $Device }
+                $tapArgs += "shell"; $tapArgs += "input"; $tapArgs += "tap"; $tapArgs += $x; $tapArgs += $y
+                Invoke-Adb $tapArgs | Out-Null
+                return
+            }
+        }
+        Start-Sleep -Seconds 3
+    }
+    for ($attempt = 0; $attempt -lt 4; $attempt++) {
+        $dumpArgs = @()
+        if ($Device) { $dumpArgs += "-s"; $dumpArgs += $Device }
+        $dumpArgs += "shell"; $dumpArgs += "uiautomator"; $dumpArgs += "dump"; $dumpArgs += "/sdcard/ui.xml"
+        Invoke-Adb $dumpArgs | Out-Null
+        $pullArgs = @()
+        if ($Device) { $pullArgs += "-s"; $pullArgs += $Device }
+        $pullArgs += "pull"; $pullArgs += "/sdcard/ui.xml"; $pullArgs += (Join-Path $env:TEMP "ui.xml")
+        Invoke-Adb $pullArgs | Out-Null
+        $xml = $null
+        try { $xml = [System.IO.File]::ReadAllText((Join-Path $env:TEMP "ui.xml"), [System.Text.Encoding]::UTF8) } catch { }
+        $match = $null
+        if ($xml) {
+            $pattern = 'text="' + [regex]::Escape($text) + '"[^>]*bounds="\[(\d+),(\d+)\]\[(\d+),(\d+)\]"'
+            $match = [regex]::Match($xml, $pattern)
+        }
+        if ($match -and $match.Success) {
+            $x = [int](([int]$match.Groups[1].Value + [int]$match.Groups[3].Value) / 2)
+            $y = [int](([int]$match.Groups[2].Value + [int]$match.Groups[4].Value) / 2)
+            $tapArgs = @()
+            if ($Device) { $tapArgs += "-s"; $tapArgs += $Device }
+            $tapArgs += "shell"; $tapArgs += "input"; $tapArgs += "tap"; $tapArgs += $x; $tapArgs += $y
+            Invoke-Adb $tapArgs | Out-Null
+            return
+        }
+        $row = $null
+        if ($xml) {
+            $rowMatch = [regex]::Match($xml,
+                    'class="android.widget.HorizontalScrollView"[^>]*bounds="\[(\d+),(\d+)\]\[(\d+),(\d+)\]"')
+            if ($rowMatch.Success) {
+                $x1 = [int]$rowMatch.Groups[1].Value
+                $y1 = [int]$rowMatch.Groups[2].Value
+                $x2 = [int]$rowMatch.Groups[3].Value
+                $y2 = [int]$rowMatch.Groups[4].Value
+                $row = @{ X1 = $x1; X2 = $x2; Y = [int](($y1 + $y2) / 2) }
+            }
+        }
+        $fromX = if ($row) { $row.X2 - 80 } else { 900 }
+        $toX = if ($row) { $row.X1 + 80 } else { 100 }
+        $swipeY = if ($row) { $row.Y } else { 650 }
+        $swipeArgs = @()
+        if ($Device) { $swipeArgs += "-s"; $swipeArgs += $Device }
+        $swipeArgs += "shell"; $swipeArgs += "input"; $swipeArgs += "swipe"
+        $swipeArgs += $fromX; $swipeArgs += $swipeY; $swipeArgs += $toX; $swipeArgs += $swipeY; $swipeArgs += "400"
+        Invoke-Adb $swipeArgs | Out-Null
+        Start-Sleep -Seconds 3
+    }
+    Write-Host "未找到导航按钮: $text"
+}
+
+$startArgs = @()
+if ($Device) { $startArgs += "-s"; $startArgs += $Device }
+$startArgs += "shell"; $startArgs += "am"; $startArgs += "force-stop"; $startArgs += "cn.longer233.gamenarrator.mobile"
+Invoke-Adb $startArgs | Out-Null
+$startArgs = @()
+if ($Device) { $startArgs += "-s"; $startArgs += $Device }
+$startArgs += "shell"; $startArgs += "am"; $startArgs += "start"; $startArgs += "-n"; $startArgs += "cn.longer233.gamenarrator.mobile/.MainActivity"
+Invoke-Adb $startArgs | Out-Null
+Start-Sleep -Seconds 6
+Capture-AdbScreen "home"
+
+foreach ($page in @("剪辑任务", "平台导入", "素材库", "设置")) {
+    $stopArgs = @()
+    if ($Device) { $stopArgs += "-s"; $stopArgs += $Device }
+    $stopArgs += "shell"; $stopArgs += "am"; $stopArgs += "force-stop"; $stopArgs += "cn.longer233.gamenarrator.mobile"
+    Invoke-Adb $stopArgs | Out-Null
+    $relaunchArgs = @()
+    if ($Device) { $relaunchArgs += "-s"; $relaunchArgs += $Device }
+    $relaunchArgs += "shell"; $relaunchArgs += "am"; $relaunchArgs += "start"; $relaunchArgs += "-n"; $relaunchArgs += "cn.longer233.gamenarrator.mobile/.MainActivity"
+    Invoke-Adb $relaunchArgs | Out-Null
+    Start-Sleep -Seconds 6
+    Tap-Text $page
+    Capture-AdbScreen ($page -replace "[^\w]", "_")
+}
+
+foreach ($secondary in @("镜头搜索", "切片合集")) {
+    $stopArgs = @()
+    if ($Device) { $stopArgs += "-s"; $stopArgs += $Device }
+    $stopArgs += "shell"; $stopArgs += "am"; $stopArgs += "force-stop"; $stopArgs += "cn.longer233.gamenarrator.mobile"
+    Invoke-Adb $stopArgs | Out-Null
+    $relaunchArgs = @()
+    if ($Device) { $relaunchArgs += "-s"; $relaunchArgs += $Device }
+    $relaunchArgs += "shell"; $relaunchArgs += "am"; $relaunchArgs += "start"; $relaunchArgs += "-n"; $relaunchArgs += "cn.longer233.gamenarrator.mobile/.MainActivity"
+    Invoke-Adb $relaunchArgs | Out-Null
+    Start-Sleep -Seconds 6
+    Tap-Text $secondary
+    Capture-AdbScreen ($secondary -replace "[^\w]", "_")
+}
+
+$stopArgs = @()
+if ($Device) { $stopArgs += "-s"; $stopArgs += $Device }
+$stopArgs += "shell"; $stopArgs += "am"; $stopArgs += "force-stop"; $stopArgs += "cn.longer233.gamenarrator.mobile"
+Invoke-Adb $stopArgs | Out-Null
+$relaunchArgs = @()
+if ($Device) { $relaunchArgs += "-s"; $relaunchArgs += $Device }
+$relaunchArgs += "shell"; $relaunchArgs += "am"; $relaunchArgs += "start"; $relaunchArgs += "-n"; $relaunchArgs += "cn.longer233.gamenarrator.mobile/.MainActivity"
+Invoke-Adb $relaunchArgs | Out-Null
+Start-Sleep -Seconds 6
+Tap-Text "设置"
+Start-Sleep -Seconds 2
+Tap-Text "打开 AI 设置 · 用量 · 模型检查"
+Capture-AdbScreen "AI_设置"
+
+Write-Host "完成。截图目录: $out"
+``
+
+### FILE: scripts/export-android-ai-context.ps1
+
+``powershell
+param([string]$OutputPath = "ANDROID_AI_CONTEXT.md")
+$ErrorActionPreference = "Stop"
+$projectRoot = (Resolve-Path (Join-Path $PSScriptRoot "..")).Path
+$androidRoot = Join-Path $projectRoot "android-app"
+$rulesPath = Join-Path $PSScriptRoot "android-ai-rules.zh-CN.md"
+$resolvedOutput = Join-Path $projectRoot $OutputPath
+$utf8NoBom = [System.Text.UTF8Encoding]::new($false)
+if (-not (Test-Path -LiteralPath (Join-Path $androidRoot "settings.gradle"))) { throw "Android project not found: $androidRoot" }
+if (-not (Test-Path -LiteralPath $rulesPath)) { throw "Android AI rules not found: $rulesPath" }
+
+function Get-AndroidContextFiles {
+    $extensions = @(".java", ".kt", ".xml", ".gradle", ".properties", ".md", ".pro")
+    $files = Get-ChildItem -LiteralPath $androidRoot -Recurse -File | Where-Object {
+        $extensions -contains $_.Extension.ToLowerInvariant() -and
+        $_.FullName -notmatch "[\\/](build|\.gradle|\.gradle-dist)[\\/]" -and
+        $_.Name -ne "local.properties"
+    }
+    foreach ($relative in @("frontend/index.html", "frontend/public/app.css", "frontend/public/app.js", "README.md", ".gitignore", "scripts/build-android-apk.ps1", "scripts/export-android-ai-context.ps1", "scripts/android-ai-rules.zh-CN.md")) {
+        $path = Join-Path $projectRoot $relative
+        if (Test-Path -LiteralPath $path) { Get-Item -LiteralPath $path }
+    }
+    $files | Sort-Object FullName -Unique
+}
+function Get-Language([string]$extension) {
+    switch ($extension.ToLowerInvariant()) {
+        ".java" { "java" }; ".kt" { "kotlin" }; ".xml" { "xml" }; ".gradle" { "groovy" }
+        ".properties" { "properties" }; ".ps1" { "powershell" }; ".js" { "javascript" }
+        ".css" { "css" }; ".html" { "html" }; default { "text" }
+    }
+}
+
+$files = @(Get-AndroidContextFiles)
+$rules = [IO.File]::ReadAllText($rulesPath, [Text.Encoding]::UTF8)
+$builder = [System.Text.StringBuilder]::new()
+[void]$builder.AppendLine("# GameNarrator Android - AI Context Bundle")
+[void]$builder.AppendLine()
+[void]$builder.AppendLine("> Generated: $([DateTimeOffset]::Now.ToString('yyyy-MM-dd HH:mm:ss zzz'))")
+[void]$builder.AppendLine("> Files: $($files.Count). Generated by scripts/export-android-ai-context.ps1.")
+[void]$builder.AppendLine()
+[void]$builder.AppendLine($rules)
+[void]$builder.AppendLine()
+[void]$builder.AppendLine("## File manifest")
+[void]$builder.AppendLine()
+foreach ($file in $files) {
+    $relative = $file.FullName.Substring($projectRoot.Length).TrimStart("\").Replace("\", "/")
+    [void]$builder.AppendLine("- $relative ($($file.Length) bytes)")
+}
+[void]$builder.AppendLine()
+[void]$builder.AppendLine("## Project sources")
+[void]$builder.AppendLine()
+foreach ($file in $files) {
+    $relative = $file.FullName.Substring($projectRoot.Length).TrimStart("\").Replace("\", "/")
+    $content = [IO.File]::ReadAllText($file.FullName, [Text.Encoding]::UTF8)
+    [void]$builder.AppendLine("### FILE: $relative")
+    [void]$builder.AppendLine()
+    [void]$builder.AppendLine("~~~~$(Get-Language $file.Extension)")
+    [void]$builder.Append($content)
+    if (-not $content.EndsWith([Environment]::NewLine)) { [void]$builder.AppendLine() }
+    [void]$builder.AppendLine("~~~~")
+    [void]$builder.AppendLine()
+}
+[IO.File]::WriteAllText($resolvedOutput, $builder.ToString(), $utf8NoBom)
+Write-Host "Android AI context updated: $resolvedOutput ($($builder.Length) characters)"
+``
+
 ### FILE: scripts/export-deepseek-context.ps1
 
 ``powershell
@@ -2493,6 +3233,52 @@ if ($Watch) {
 }
 ``
 
+### FILE: scripts/fetch-onnx-models.ps1
+
+``powershell
+param(
+    [switch]$VisionOnly,
+    [switch]$TextOnly
+)
+$ErrorActionPreference = "Stop"
+$projectRoot = (Resolve-Path (Join-Path $PSScriptRoot "..")).Path
+$target = Join-Path $projectRoot "android-app\app\src\main\assets\models"
+New-Item -ItemType Directory -Path $target -Force | Out-Null
+
+$visionUrl = "https://media.githubusercontent.com/media/onnx/models/main/validated/vision/classification/mobilenet/model/mobilenetv2-7.onnx"
+$textUrl = "https://hf-mirror.com/Xenova/gpt2/resolve/main/onnx/decoder_model_merged_quantized.onnx"
+
+if (-not $TextOnly) {
+    Write-Host "下载 vision-mobilenetv2.onnx（约 13.6 MiB）…"
+    curl.exe -L --fail --retry 5 -o (Join-Path $target "vision-mobilenetv2.onnx") $visionUrl
+    if ($LASTEXITCODE -ne 0) { throw "vision 模型下载失败" }
+    curl.exe -L --fail --retry 5 -o (Join-Path $target "imagenet_labels.json") "https://cdn.jsdelivr.net/gh/anishathalye/imagenet-simple-labels@master/imagenet-simple-labels.json"
+    if ($LASTEXITCODE -ne 0) { throw "ImageNet 标签下载失败" }
+}
+if (-not $VisionOnly) {
+    Write-Host "下载 text-gpt2.onnx（约 122 MiB）…"
+    curl.exe -L --fail --retry 5 -o (Join-Path $target "text-gpt2.onnx") $textUrl
+    if ($LASTEXITCODE -ne 0) { throw "text 模型下载失败" }
+    $tokenizerFiles = @(
+        "tokenizer.json",
+        "vocab.json",
+        "merges.txt",
+        "config.json",
+        "tokenizer_config.json",
+        "generation_config.json",
+        "special_tokens_map.json"
+    )
+    foreach ($name in $tokenizerFiles) {
+        Write-Host "下载 GPT-2 tokenizer: $name"
+        curl.exe -L --fail --retry 5 -o (Join-Path $target $name) ("https://hf-mirror.com/Xenova/gpt2/resolve/main/" + $name)
+        if ($LASTEXITCODE -ne 0) { throw "tokenizer 文件下载失败: $name" }
+    }
+}
+
+Get-ChildItem $target -Filter *.onnx | Select-Object Name,Length | Format-Table -AutoSize
+Write-Host "完成：ONNX 文件已放入 $target"
+``
+
 ### FILE: scripts/generate-app-icon.ps1
 
 ``powershell
@@ -2529,6 +3315,133 @@ try {
   [IconNative]::DestroyIcon($handle) | Out-Null
 }
 Write-Host "GameNarrator icon generated: $target"
+``
+
+### FILE: scripts/install-android-fast.ps1
+
+``powershell
+param(
+    [string]$Device = "",
+    [string]$Apk = ""
+)
+$ErrorActionPreference = "Stop"
+$projectRoot = (Resolve-Path (Join-Path $PSScriptRoot "..")).Path
+
+$adb = $null
+$candidateAdb = Get-Command adb -ErrorAction SilentlyContinue
+if ($candidateAdb) {
+    $adb = $candidateAdb.Source
+} else {
+    foreach ($path in @((Join-Path $env:LOCALAPPDATA "Android\Sdk\platform-tools\adb.exe"),
+                        "G:\DevData\Android\Sdk\platform-tools\adb.exe")) {
+        if (Test-Path $path) { $adb = $path; break }
+    }
+}
+if (-not $adb) { throw "adb 未找到" }
+
+$resolvedApk = $null
+if ($Apk) {
+    $resolvedApk = if ([IO.Path]::IsPathRooted($Apk)) { $Apk } else { Join-Path $projectRoot $Apk }
+} else {
+    $latest = Get-ChildItem (Join-Path $projectRoot "dist\GameNarrator-Android-*-release.apk") -ErrorAction SilentlyContinue |
+        Sort-Object LastWriteTime -Descending | Select-Object -First 1
+    if ($latest) { $resolvedApk = $latest.FullName }
+}
+if (-not $resolvedApk -or -not (Test-Path $resolvedApk)) { throw "APK 不存在: $resolvedApk" }
+
+$adbArgs = @()
+if ($Device) { $adbArgs += "-s"; $adbArgs += $Device }
+& $adb @adbArgs shell settings put global verifier_verify_adb_installs 0 | Out-Null
+& $adb @adbArgs shell settings put global package_verifier_enable 0 | Out-Null
+& $adb @adbArgs shell settings put secure install_non_market_apps 1 | Out-Null
+& $adb @adbArgs install -r -g $resolvedApk
+if ($LASTEXITCODE -ne 0) { throw "安装失败" }
+Write-Host "安装完成: $resolvedApk"
+``
+
+### FILE: scripts/install-models.ps1
+
+``powershell
+param(
+    [string]$Device = "",
+    [switch]$Whisper,
+    [switch]$Vision,
+    [string]$VisionPath = "",
+    [switch]$Text,
+    [string]$TextPath = "",
+    [string]$EnginePath = "",
+    [switch]$Bundle
+)
+$ErrorActionPreference = "Stop"
+$projectRoot = (Resolve-Path (Join-Path $PSScriptRoot "..")).Path
+$assetsModels = Join-Path $projectRoot "android-app\app\src\main\assets\models"
+
+$adbCommand = Get-Command adb -ErrorAction SilentlyContinue
+if ($adbCommand) {
+    $adb = $adbCommand.Source
+} else {
+    $candidate = $null
+    foreach ($path in @((Join-Path $env:LOCALAPPDATA "Android\Sdk\platform-tools\adb.exe"),
+                        "G:\DevData\Android\Sdk\platform-tools\adb.exe")) {
+        if (Test-Path $path) { $candidate = $path; break }
+    }
+    if (-not $candidate) { throw "未找到 adb，请安装 Android SDK 平台工具" }
+    $adb = $candidate
+}
+$adbArgs = @()
+if ($Device) { $adbArgs += @("-s", $Device) }
+
+$modelsDir = "/sdcard/Android/data/cn.longer233.gamenarrator.mobile/files/models"
+$tmp = Join-Path $env:TEMP "gamenarrator-models"
+New-Item -ItemType Directory -Path $tmp -Force | Out-Null
+
+function Push-Model([string]$local, [string]$name) {
+    if (-not (Test-Path $local)) { throw "模型文件不存在: $local" }
+    & $adb @adbArgs shell mkdir -p $modelsDir
+    if ($LASTEXITCODE -ne 0) { throw "无法创建设备模型目录" }
+    & $adb @adbArgs push $local "$modelsDir/$name"
+    if ($LASTEXITCODE -ne 0) { throw "模型推送失败: $name" }
+    Write-Host "已安装: $name"
+}
+
+function Copy-ToAssets([string]$local, [string]$name) {
+    if (-not (Test-Path $local)) { throw "模型文件不存在: $local" }
+    New-Item -ItemType Directory -Path $assetsModels -Force | Out-Null
+    Copy-Item -LiteralPath $local -Destination (Join-Path $assetsModels $name) -Force
+    Write-Host "已放入 assets/models: $name"
+}
+
+if ($Whisper) {
+    $whisperFile = Join-Path $tmp "whisper-tiny.bin"
+    if (-not (Test-Path $whisperFile)) {
+        Write-Host "下载 Whisper tiny 模型（约 75 MB）…"
+        Invoke-WebRequest -Uri "https://huggingface.co/ggerganov/whisper.cpp/resolve/main/ggml-tiny.bin" -OutFile $whisperFile
+    }
+    Push-Model $whisperFile "whisper-tiny.bin"
+    if ($Bundle) { Copy-ToAssets $whisperFile "whisper-tiny.bin" }
+}
+if ($Vision) {
+    $visionName = Split-Path -Leaf $VisionPath
+    Push-Model $VisionPath $visionName
+    if ($Bundle) { Copy-ToAssets $VisionPath $visionName }
+}
+if ($Text) {
+    $textName = Split-Path -Leaf $TextPath
+    Push-Model $TextPath $textName
+    if ($Bundle) { Copy-ToAssets $TextPath $textName }
+}
+if ($EnginePath) {
+    Push-Model $EnginePath "whisper-cli"
+    if ($Bundle) { Copy-ToAssets $EnginePath "whisper-cli" }
+}
+
+if (-not $Whisper -and -not $Vision -and -not $Text -and -not $EnginePath) {
+    Write-Host "用法：install-models.ps1 [-Device <serial>] [-Whisper] [-Vision -VisionPath <file>] [-Text -TextPath <file>] [-EnginePath <whisper-cli>] [-Bundle]"
+    Write-Host "也可以把 whisper-*.bin / vision-*.onnx / text-*.onnx 放入 android-app/app/src/main/assets/models/ 后直接构建 APK，首次启动会自动复制。"
+    Write-Host "Whisper 转写还需要 whisper-cli（whisper.cpp Android 可执行文件）与模型放在同一模型目录。"
+} else {
+    Write-Host "完成。设备模型目录: $modelsDir"
+}
 ``
 
 ### FILE: scripts/setup-media-importer.ps1
@@ -2798,6 +3711,82 @@ if ($BackendSmoke) {
 }
 Write-Host 'Launch GameNarrator.exe and verify the first-run UI, then run:'
 Write-Host "Invoke-RestMethod http://127.0.0.1:$Port/api/debug/health"
+``
+
+### FILE: scripts/verify-android-guardrails.ps1
+
+``powershell
+param()
+$ErrorActionPreference = "Stop"
+$projectRoot = (Resolve-Path (Join-Path $PSScriptRoot "..")).Path
+$androidRoot = Join-Path $projectRoot "android-app"
+$main = Join-Path $androidRoot "app\src\main"
+$test = Join-Path $androidRoot "app\src\test"
+$failures = [Collections.Generic.List[string]]::new()
+
+function Test-ForbiddenClaims([string]$Root, [string]$Label) {
+    $patterns = @(
+        'AI 已可用',
+        '字幕烧录完成',
+        '自动混音完成',
+        '平台下载完成',
+        '端侧转写完成'
+    )
+    foreach ($pattern in $patterns) {
+        $hits = Get-ChildItem -LiteralPath $Root -Recurse -File |
+            Where-Object { $_.Extension -in @(".java", ".kt", ".xml", ".txt", ".md") } |
+            Select-String -SimpleMatch -Pattern $pattern
+        foreach ($hit in $hits) {
+            $failures.Add("$Label forbidden claim: $($hit.Path):$($hit.LineNumber) -> $pattern")
+        }
+    }
+}
+
+function Test-ForbiddenCloudCredentials([string]$Root, [string]$Label) {
+    $patterns = @(
+        'setRequestMethod\("POST"\)',
+        'multipart/form-data',
+        'client_secret',
+        'api[_-]?key\s*=',
+        'password\s*=',
+        'access_token\s*='
+    )
+    $files = Get-ChildItem -LiteralPath $Root -Recurse -File |
+        Where-Object { $_.Extension -in @(".java", ".kt", ".xml", ".properties") }
+    foreach ($file in $files) {
+        $content = [IO.File]::ReadAllText($file.FullName, [Text.Encoding]::UTF8)
+        foreach ($pattern in $patterns) {
+            if ($content -match $pattern) {
+                $failures.Add("$Label cloud/credential pattern: $($file.FullName) -> $pattern")
+            }
+        }
+    }
+}
+
+function Test-HistoryLimit([string]$Root, [string]$Label) {
+    $history = Join-Path $Root "java\cn\longer233\gamenarrator\mobile\CommandHistory.java"
+    if (-not (Test-Path -LiteralPath $history)) {
+        $failures.Add("$Label CommandHistory.java not found")
+        return
+    }
+    $text = [IO.File]::ReadAllText($history, [Text.Encoding]::UTF8)
+    if ($text -notmatch 'DEFAULT_LIMIT\s*=\s*50') {
+        $failures.Add("$Label CommandHistory.DEFAULT_LIMIT is not 50")
+    }
+}
+
+Test-ForbiddenClaims $main "main"
+Test-ForbiddenClaims $test "test"
+Test-ForbiddenCloudCredentials $main "main"
+Test-HistoryLimit $main "main"
+
+if ($failures.Count -gt 0) {
+    Write-Host "FAIL: $($failures.Count) guardrail violation(s)"
+    $failures | ForEach-Object { Write-Host "  $_" }
+    exit 1
+}
+
+Write-Host "PASS: no forbidden AI claims, no cloud/credential patterns, history limit is 50"
 ``
 
 ### FILE: scripts/verify-before-push.ps1
@@ -8973,6 +9962,404 @@ public class TaskEnhancementService {
 }
 ``
 
+### FILE: src/main/java/cn/longer233/gamenarrator/event/BossBattleKnowledgePack.java
+
+``java
+package cn.longer233.gamenarrator.event;
+
+import java.util.List;
+
+public record BossBattleKnowledgePack(
+        String code,
+        String name,
+        String description,
+        List<EventRule> eventRules
+) {
+    public record EventRule(
+            String code,
+            String name,
+            List<String> keywords,
+            double baseConfidence,
+            int importance
+    ) {
+    }
+}
+``
+
+### FILE: src/main/java/cn/longer233/gamenarrator/event/ConfirmedEventScriptService.java
+
+``java
+package cn.longer233.gamenarrator.event;
+
+import cn.longer233.gamenarrator.script.GeneratedScript;
+import cn.longer233.gamenarrator.script.OllamaScriptGenerator;
+import cn.longer233.gamenarrator.script.ScriptDocumentView;
+import cn.longer233.gamenarrator.script.ScriptQualityReview;
+import cn.longer233.gamenarrator.task.application.TaskNotFoundException;
+import cn.longer233.gamenarrator.task.domain.VideoTask;
+import cn.longer233.gamenarrator.task.repository.VideoTaskRepository;
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import org.springframework.stereotype.Service;
+
+import java.nio.file.Path;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.UUID;
+
+@Service
+public class ConfirmedEventScriptService {
+    private final VideoTaskRepository tasks;
+    private final GameEventTimelineService events;
+    private final OllamaScriptGenerator generator;
+    private final ObjectMapper objectMapper;
+
+    public ConfirmedEventScriptService(VideoTaskRepository tasks, GameEventTimelineService events,
+                                       OllamaScriptGenerator generator, ObjectMapper objectMapper) {
+        this.tasks = tasks;
+        this.events = events;
+        this.generator = generator;
+        this.objectMapper = objectMapper;
+    }
+
+    public ScriptDocumentView regenerate(UUID taskId) {
+        VideoTask task = tasks.findById(taskId).orElseThrow(() -> new TaskNotFoundException(taskId));
+        List<GameEventFact> facts = events.confirmedFacts(taskId);
+        if (facts.isEmpty()) throw new IllegalStateException("请先确认至少一个游戏事件，再生成事实约束文案");
+        if (task.getHighlightManifestPath() == null) throw new IllegalStateException("任务尚未生成分镜");
+        GeneratedScript result = generator.generate(Path.of(task.getHighlightManifestPath()), task.getGameCategory(),
+                task.getCommentaryStyle().name(), task.getTaskBrief(), task.getTranscriptText(), facts);
+        task.applyScriptRevision(result.title(), result.synopsis(), result.fullNarration(),
+                result.scriptPath(), result.segments().size());
+        tasks.save(task);
+        return read(result);
+    }
+
+    private ScriptDocumentView read(GeneratedScript script) {
+        try {
+            JsonNode root = objectMapper.readTree(Path.of(script.scriptPath()).toFile());
+            JsonNode review = root.path("qualityReview");
+            List<String> issues = new ArrayList<>();
+            review.path("issues").forEach(item -> issues.add(item.asText()));
+            ScriptQualityReview quality = review.isObject()
+                    ? new ScriptQualityReview(review.path("score").asInt(), review.path("passed").asBoolean(),
+                        List.copyOf(issues), review.path("summary").asText())
+                    : ScriptQualityReview.unavailable();
+            return new ScriptDocumentView(script.title(), script.synopsis(), script.fullNarration(), quality,
+                    script.segments());
+        } catch (Exception exception) {
+            throw new IllegalStateException("无法读取事实约束文案", exception);
+        }
+    }
+}
+``
+
+### FILE: src/main/java/cn/longer233/gamenarrator/event/GameEventEvidence.java
+
+``java
+package cn.longer233.gamenarrator.event;
+
+public record GameEventEvidence(
+        String sourceType,
+        String content,
+        double timestampSeconds,
+        Integer frameIndex
+) {
+}
+``
+
+### FILE: src/main/java/cn/longer233/gamenarrator/event/GameEventFact.java
+
+``java
+package cn.longer233.gamenarrator.event;
+
+public record GameEventFact(
+        String eventType,
+        String description,
+        double startSeconds,
+        double endSeconds,
+        int importance
+) {
+}
+``
+
+### FILE: src/main/java/cn/longer233/gamenarrator/event/GameEventTimelineController.java
+
+``java
+package cn.longer233.gamenarrator.event;
+
+import jakarta.validation.Valid;
+import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
+import java.util.UUID;
+
+@RestController
+@RequestMapping("/api/tasks/{taskId}/events")
+public class GameEventTimelineController {
+    private final GameEventTimelineService service;
+    private final ConfirmedEventScriptService scripts;
+
+    public GameEventTimelineController(GameEventTimelineService service, ConfirmedEventScriptService scripts) {
+        this.service = service;
+        this.scripts = scripts;
+    }
+
+    @GetMapping
+    public List<GameEventView> list(@PathVariable UUID taskId) {
+        return service.list(taskId);
+    }
+
+    @GetMapping("/knowledge-pack")
+    public BossBattleKnowledgePack knowledgePack() {
+        return service.knowledgePack();
+    }
+
+    @PutMapping("/{eventId}")
+    public GameEventView update(@PathVariable UUID taskId, @PathVariable UUID eventId,
+                                @Valid @RequestBody UpdateGameEventRequest request) {
+        return service.update(taskId, eventId, request);
+    }
+
+    @PostMapping("/regenerate-script")
+    public cn.longer233.gamenarrator.script.ScriptDocumentView regenerateScript(@PathVariable UUID taskId) {
+        return scripts.regenerate(taskId);
+    }
+}
+``
+
+### FILE: src/main/java/cn/longer233/gamenarrator/event/GameEventTimelineService.java
+
+``java
+package cn.longer233.gamenarrator.event;
+
+import cn.longer233.gamenarrator.highlight.HighlightClip;
+import cn.longer233.gamenarrator.task.application.TaskNotFoundException;
+import cn.longer233.gamenarrator.task.domain.VideoTask;
+import cn.longer233.gamenarrator.task.repository.VideoTaskRepository;
+import cn.longer233.gamenarrator.vision.FrameUnderstanding;
+import com.fasterxml.jackson.core.type.TypeReference;
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import jakarta.transaction.Transactional;
+import org.springframework.core.io.ClassPathResource;
+import org.springframework.jdbc.core.JdbcTemplate;
+import org.springframework.stereotype.Service;
+
+import java.io.InputStream;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.time.OffsetDateTime;
+import java.util.ArrayList;
+import java.util.Comparator;
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Locale;
+import java.util.Map;
+import java.util.UUID;
+
+@Service
+public class GameEventTimelineService {
+    private final JdbcTemplate jdbc;
+    private final ObjectMapper objectMapper;
+    private final VideoTaskRepository tasks;
+    private final BossBattleKnowledgePack knowledgePack;
+
+    public GameEventTimelineService(JdbcTemplate jdbc, ObjectMapper objectMapper, VideoTaskRepository tasks) {
+        this.jdbc = jdbc;
+        this.objectMapper = objectMapper;
+        this.tasks = tasks;
+        this.knowledgePack = loadKnowledgePack(objectMapper);
+    }
+
+    @Transactional
+    public List<GameEventView> rebuild(UUID taskId, Path visualAnalysisPath, Path highlightManifestPath) {
+        requireTask(taskId);
+        Integer manualCount = jdbc.queryForObject(
+                "SELECT COUNT(*) FROM game_events WHERE task_id=? AND manually_edited=TRUE", Integer.class, taskId);
+        if (manualCount != null && manualCount > 0) return query(taskId);
+        jdbc.update("DELETE FROM game_events WHERE task_id=?", taskId);
+        try {
+            JsonNode visual = objectMapper.readTree(visualAnalysisPath.toFile());
+            JsonNode highlights = objectMapper.readTree(highlightManifestPath.toFile());
+            List<FrameUnderstanding> frames = objectMapper.readerForListOf(FrameUnderstanding.class)
+                    .readValue(visual.path("frames"));
+            List<HighlightClip> clips = objectMapper.readerForListOf(HighlightClip.class)
+                    .readValue(highlights.path("clips"));
+            Map<Integer, FrameUnderstanding> byIndex = new LinkedHashMap<>();
+            frames.forEach(frame -> byIndex.put(frame.index(), frame));
+            for (HighlightClip clip : clips) insertDetectedEvent(taskId, clip, byIndex.get(clip.sourceFrameIndex()));
+            return query(taskId);
+        } catch (Exception exception) {
+            throw new IllegalStateException("无法建立游戏事件时间线：" + exception.getMessage(), exception);
+        }
+    }
+
+    @Transactional
+    public List<GameEventView> list(UUID taskId) {
+        VideoTask task = requireTask(taskId);
+        List<GameEventView> existing = query(taskId);
+        if (!existing.isEmpty()) return existing;
+        if (task.getVisualAnalysisPath() != null && task.getHighlightManifestPath() != null) {
+            Path visual = Path.of(task.getVisualAnalysisPath()).toAbsolutePath().normalize();
+            Path highlights = Path.of(task.getHighlightManifestPath()).toAbsolutePath().normalize();
+            if (Files.isRegularFile(visual) && Files.isRegularFile(highlights)) {
+                return rebuild(taskId, visual, highlights);
+            }
+        }
+        return List.of();
+    }
+
+    private List<GameEventView> query(UUID taskId) {
+        return jdbc.query("""
+                SELECT id,task_id,start_seconds,end_seconds,anchor_seconds,event_type,confidence,
+                       highlight_score,description,evidence_json,confirmation_status,manually_edited,
+                       knowledge_pack_code,updated_at
+                FROM game_events WHERE task_id=? ORDER BY start_seconds,id
+                """, (rs, rowNum) -> map(rs), taskId);
+    }
+
+    @Transactional
+    public GameEventView update(UUID taskId, UUID eventId, UpdateGameEventRequest request) {
+        requireTask(taskId);
+        int changed = jdbc.update("""
+                UPDATE game_events SET event_type=?,description=?,highlight_score=?,confirmation_status=?,
+                    manually_edited=TRUE,updated_at=? WHERE id=? AND task_id=?
+                """, request.eventType().trim(), request.description().trim(), request.importance(),
+                request.confirmationStatus(), OffsetDateTime.now(), eventId, taskId);
+        if (changed == 0) throw new IllegalArgumentException("游戏事件不存在");
+        return jdbc.query("""
+                SELECT id,task_id,start_seconds,end_seconds,anchor_seconds,event_type,confidence,
+                       highlight_score,description,evidence_json,confirmation_status,manually_edited,
+                       knowledge_pack_code,updated_at FROM game_events WHERE id=? AND task_id=?
+                """, (rs, rowNum) -> map(rs), eventId, taskId).getFirst();
+    }
+
+    @Transactional
+    public List<GameEventFact> confirmedFacts(UUID taskId) {
+        return list(taskId).stream()
+                .filter(event -> "CONFIRMED".equals(event.confirmationStatus()))
+                .map(event -> new GameEventFact(event.eventType(), event.description(), event.startSeconds(),
+                        event.endSeconds(), event.importance()))
+                .toList();
+    }
+
+    public BossBattleKnowledgePack knowledgePack() {
+        return knowledgePack;
+    }
+
+    private void insertDetectedEvent(UUID taskId, HighlightClip clip, FrameUnderstanding frame) throws Exception {
+        String description = firstNonBlank(frame == null ? null : frame.description(), clip.description(), "待确认的游戏片段");
+        String ocr = frame == null ? "" : firstNonBlank(frame.ocrText(), "");
+        String combined = (description + " " + ocr + " " + clip.eventType()).toLowerCase(Locale.ROOT);
+        BossBattleKnowledgePack.EventRule rule = knowledgePack.eventRules().stream()
+                .filter(candidate -> candidate.keywords().stream()
+                        .map(keyword -> keyword.toLowerCase(Locale.ROOT)).anyMatch(combined::contains))
+                .findFirst().orElse(new BossBattleKnowledgePack.EventRule(
+                        "GAME_EVENT", "一般游戏事件", List.of(), .55, Math.max(30, clip.finalScore())));
+        double confidence = Math.min(.98, rule.baseConfidence() + Math.max(0, clip.finalScore() - 70) / 500.0);
+        List<GameEventEvidence> evidence = new ArrayList<>();
+        evidence.add(new GameEventEvidence("FRAME_DESCRIPTION", description, clip.anchorSeconds(), clip.sourceFrameIndex()));
+        if (!ocr.isBlank()) evidence.add(new GameEventEvidence("OCR", ocr, clip.anchorSeconds(), clip.sourceFrameIndex()));
+        evidence.add(new GameEventEvidence("HIGHLIGHT_SCORE", "多模态高光评分 " + clip.finalScore() + "/100",
+                clip.anchorSeconds(), clip.sourceFrameIndex()));
+        jdbc.update("""
+                INSERT INTO game_events(id,task_id,start_seconds,end_seconds,event_type,confidence,
+                    highlight_score,description,source_frame_index,anchor_seconds,evidence_json,
+                    confirmation_status,manually_edited,knowledge_pack_code,updated_at)
+                VALUES(?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)
+                """, UUID.randomUUID(), taskId, clip.startSeconds(), clip.endSeconds(), rule.code(), confidence,
+                Math.max(rule.importance(), clip.finalScore()), description, clip.sourceFrameIndex(),
+                clip.anchorSeconds(), objectMapper.writeValueAsString(evidence), "AI_SUGGESTED", false,
+                knowledgePack.code(), OffsetDateTime.now());
+    }
+
+    private GameEventView map(ResultSet rs) throws SQLException {
+        try {
+            List<GameEventEvidence> evidence = objectMapper.readValue(rs.getString("evidence_json"),
+                    new TypeReference<>() {});
+            Double anchor = (Double) rs.getObject("anchor_seconds");
+            return new GameEventView((UUID) rs.getObject("id"), (UUID) rs.getObject("task_id"),
+                    rs.getDouble("start_seconds"), rs.getDouble("end_seconds"),
+                    anchor == null ? rs.getDouble("start_seconds") : anchor,
+                    rs.getString("event_type"), rs.getDouble("confidence"),
+                    (int) Math.round(rs.getDouble("highlight_score")), rs.getString("description"),
+                    List.copyOf(evidence), rs.getString("confirmation_status"), rs.getBoolean("manually_edited"),
+                    rs.getString("knowledge_pack_code"), rs.getObject("updated_at", OffsetDateTime.class));
+        } catch (Exception exception) {
+            throw new SQLException("无法读取事件证据", exception);
+        }
+    }
+
+    private VideoTask requireTask(UUID taskId) {
+        return tasks.findById(taskId).orElseThrow(() -> new TaskNotFoundException(taskId));
+    }
+
+    private static BossBattleKnowledgePack loadKnowledgePack(ObjectMapper mapper) {
+        try (InputStream input = new ClassPathResource("knowledge-packs/boss-battle-v1.json").getInputStream()) {
+            return mapper.readValue(input, BossBattleKnowledgePack.class);
+        } catch (Exception exception) {
+            throw new IllegalStateException("无法加载 Boss 战知识包", exception);
+        }
+    }
+
+    private static String firstNonBlank(String... values) {
+        for (String value : values) if (value != null && !value.isBlank()) return value.trim();
+        return "";
+    }
+}
+``
+
+### FILE: src/main/java/cn/longer233/gamenarrator/event/GameEventView.java
+
+``java
+package cn.longer233.gamenarrator.event;
+
+import java.time.OffsetDateTime;
+import java.util.List;
+import java.util.UUID;
+
+public record GameEventView(
+        UUID id,
+        UUID taskId,
+        double startSeconds,
+        double endSeconds,
+        double anchorSeconds,
+        String eventType,
+        double confidence,
+        int importance,
+        String description,
+        List<GameEventEvidence> evidence,
+        String confirmationStatus,
+        boolean manuallyEdited,
+        String knowledgePackCode,
+        OffsetDateTime updatedAt
+) {
+}
+``
+
+### FILE: src/main/java/cn/longer233/gamenarrator/event/UpdateGameEventRequest.java
+
+``java
+package cn.longer233.gamenarrator.event;
+
+import jakarta.validation.constraints.Max;
+import jakarta.validation.constraints.Min;
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.Pattern;
+import jakarta.validation.constraints.Size;
+
+public record UpdateGameEventRequest(
+        @NotBlank @Size(max = 40) String eventType,
+        @NotBlank @Size(max = 500) String description,
+        @Min(0) @Max(100) int importance,
+        @NotBlank @Pattern(regexp = "AI_SUGGESTED|CONFIRMED|NEEDS_REVIEW") String confirmationStatus
+) {
+}
+``
+
 ### FILE: src/main/java/cn/longer233/gamenarrator/export/CreateExportRequest.java
 
 ``java
@@ -12654,8 +14041,15 @@ public class TaskWorkflowStateService {
 
     @Transactional
     public void markTimelinePlanningCompleted(UUID taskId, TimelinePlanningResult result) {
-        requireTask(taskId).completeTimelinePlanning(
+        markTimelinePlanningCompleted(taskId, result, false);
+    }
+
+    @Transactional
+    public void markTimelinePlanningCompleted(UUID taskId, TimelinePlanningResult result, boolean manualEditingReady) {
+        VideoTask task = requireTask(taskId);
+        task.completeTimelinePlanning(
                 result.timelinePath(), result.outputDurationSeconds(), result.overflowCount());
+        if (manualEditingReady) task.readyForManualEditing();
         runTracker.completed(taskId, "TIMELINE_PLANNING", java.util.Map.of(
                 "outputDurationSeconds", result.outputDurationSeconds(), "overflowCount", result.overflowCount()));
         artifactRegistry.record(taskId, "TIMELINE_MANIFEST", result.timelinePath(), "application/json", false);
@@ -12726,6 +14120,7 @@ import cn.longer233.gamenarrator.render.RenderResult;
 import cn.longer233.gamenarrator.effect.EffectPresetCatalog;
 import cn.longer233.gamenarrator.effect.EffectSettingsRequest;
 import cn.longer233.gamenarrator.task.domain.ProcessingStageType;
+import cn.longer233.gamenarrator.event.GameEventTimelineService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.slf4j.MDC;
@@ -12760,6 +14155,7 @@ public class VideoTaskEngine {
     private final FfmpegVideoRenderer videoRenderer;
     private final EffectPresetCatalog effectPresetCatalog;
     private final StoryboardAssetPlacementService storyboardAssets;
+    private final GameEventTimelineService gameEvents;
     private final Set<UUID> deletionRequested = ConcurrentHashMap.newKeySet();
     private final Set<UUID> activeTasks = ConcurrentHashMap.newKeySet();
 
@@ -12789,7 +14185,8 @@ public class VideoTaskEngine {
             TimelinePlanner timelinePlanner,
             FfmpegVideoRenderer videoRenderer,
             EffectPresetCatalog effectPresetCatalog,
-            StoryboardAssetPlacementService storyboardAssets
+            StoryboardAssetPlacementService storyboardAssets,
+            GameEventTimelineService gameEvents
     ) {
         this.stateService = stateService;
         this.mediaProbe = mediaProbe;
@@ -12808,6 +14205,7 @@ public class VideoTaskEngine {
         this.videoRenderer = videoRenderer;
         this.effectPresetCatalog = effectPresetCatalog;
         this.storyboardAssets = storyboardAssets;
+        this.gameEvents = gameEvents;
     }
 
     @Async
@@ -12916,6 +14314,7 @@ public class VideoTaskEngine {
                 HighlightSelectionResult result = highlightSelector.select(
                         Path.of(context.visualAnalysisPath()), context.durationSeconds(),
                         context.targetDurationSeconds(), context.editingScope());
+                gameEvents.rebuild(taskId, Path.of(context.visualAnalysisPath()), Path.of(result.manifestPath()));
                 stateService.markHighlightSelectionCompleted(taskId, result);
                 log.info("ENGINE_STAGE_COMPLETED taskId={} stage=HIGHLIGHT_SELECTION clipCount={}",
                         taskId, result.clips().size());
@@ -12924,6 +14323,10 @@ public class VideoTaskEngine {
                 log.info("ENGINE_STAGE_SKIPPED taskId={} stage=HIGHLIGHT_SELECTION reason=already_completed",
                         taskId);
             }
+            if (gameEvents.list(taskId).isEmpty()) {
+                gameEvents.rebuild(taskId, Path.of(context.visualAnalysisPath()),
+                        Path.of(context.highlightManifestPath()));
+            }
             activeStage = "SCRIPT_GENERATION";
             checkCancellation(taskId);
             if (!context.scriptGenerationCompleted()) {
@@ -12931,7 +14334,8 @@ public class VideoTaskEngine {
                 EngineTaskContext generationContext = context;
                 GeneratedScript result = retryExecutor.generation(() -> generationContext.aiScriptEnabled()
                         ? scriptGenerator.generate(Path.of(generationContext.highlightManifestPath()),
-                            generationContext.gameCategory(), generationContext.commentaryStyle(), generationContext.taskBrief(), generationContext.transcriptText())
+                            generationContext.gameCategory(), generationContext.commentaryStyle(), generationContext.taskBrief(),
+                            generationContext.transcriptText(), gameEvents.confirmedFacts(taskId))
                         : scriptGenerator.generateWithoutAi(Path.of(generationContext.highlightManifestPath())));
                 stateService.markScriptGenerationCompleted(taskId, result);
                 log.info("ENGINE_STAGE_COMPLETED taskId={} stage=SCRIPT_GENERATION segmentCount={}",
@@ -12981,7 +14385,7 @@ public class VideoTaskEngine {
                 TimelinePlanningResult result = timelinePlanner.plan(
                         Path.of(context.highlightManifestPath()), Path.of(context.generatedScriptPath()),
                         Path.of(context.voiceManifestPath()));
-                stateService.markTimelinePlanningCompleted(taskId, result);
+                stateService.markTimelinePlanningCompleted(taskId, result, !context.automaticGenerationEnabled());
                 log.info("ENGINE_STAGE_COMPLETED taskId={} stage=TIMELINE_PLANNING segmentCount={} duration={}",
                         taskId, result.segments().size(), result.outputDurationSeconds());
                 context = stateService.context(taskId);
@@ -12989,7 +14393,6 @@ public class VideoTaskEngine {
                 log.info("ENGINE_STAGE_SKIPPED taskId={} stage=TIMELINE_PLANNING reason=already_completed", taskId);
             }
             if (!context.automaticGenerationEnabled()) {
-                stateService.markManualEditingReady(taskId);
                 log.info("ENGINE_READY taskId={} mode=manual editableTimeline=true", taskId);
                 return;
             }
@@ -13927,6 +15330,7 @@ package cn.longer233.gamenarrator.script;
 import cn.longer233.gamenarrator.ai.AdaptiveAiChatClient;
 import cn.longer233.gamenarrator.ai.AiContentRejectedException;
 import cn.longer233.gamenarrator.highlight.HighlightClip;
+import cn.longer233.gamenarrator.event.GameEventFact;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.slf4j.Logger;
@@ -13978,13 +15382,21 @@ public class OllamaScriptGenerator {
 
     public GeneratedScript generate(Path highlightPath, String category, String style,
                                     String taskBrief, String transcript) {
-        if (adaptiveChat != null) return generateAdaptive(highlightPath, category, style, taskBrief, transcript);
+        return generate(highlightPath, category, style, taskBrief, transcript, List.of());
+    }
+
+    public GeneratedScript generate(Path highlightPath, String category, String style,
+                                    String taskBrief, String transcript, List<GameEventFact> confirmedFacts) {
+        List<GameEventFact> safeFacts = confirmedFacts == null ? List.of() : List.copyOf(confirmedFacts);
+        if (adaptiveChat != null) {
+            return generateAdaptive(highlightPath, category, style, taskBrief, transcript, safeFacts);
+        }
         try {
             JsonNode highlightDocument = objectMapper.readTree(highlightPath.toFile());
             List<HighlightClip> clips = objectMapper.readerForListOf(HighlightClip.class)
                     .readValue(highlightDocument.path("clips"));
             if (clips.isEmpty()) throw new IllegalStateException("高光清单中没有可写作文案的片段");
-            String prompt = buildPrompt(clips, category, style, taskBrief, transcript);
+            String prompt = buildPrompt(clips, category, style, taskBrief, transcript, safeFacts);
             log.info("SCRIPT_GENERATION_BEGIN model={} clipCount={} promptChars={}", model, clips.size(), prompt.length());
             Map<String, Object> requestBody = Map.of(
                     "model", model, "stream", false, "format", "json",
@@ -14098,14 +15510,16 @@ public class OllamaScriptGenerator {
     }
 
     private GeneratedScript generateAdaptive(Path highlightPath, String category, String style,
-                                             String taskBrief, String transcript) {
+                                             String taskBrief, String transcript,
+                                             List<GameEventFact> confirmedFacts) {
         try {
             JsonNode highlightDocument = objectMapper.readTree(highlightPath.toFile());
             List<HighlightClip> clips = objectMapper.readerForListOf(HighlightClip.class)
                     .readValue(highlightDocument.path("clips"));
             if (clips.isEmpty()) throw new IllegalStateException("高光清单中没有可生成文案的片段");
             JsonNode generated = adaptiveChat.chatJson(
-                    buildPrompt(clips, category, style, taskBrief, transcript), List.of(), false, Duration.ofMinutes(5));
+                    buildPrompt(clips, category, style, taskBrief, transcript, confirmedFacts),
+                    List.of(), false, Duration.ofMinutes(5));
             String title = generated.path("title").asText("游戏高光剧场");
             String synopsis = generated.path("synopsis").asText("根据高光镜头生成的解说剧场");
             List<ScriptSegment> segments = alignSegments(generated.path("segments"), clips);
@@ -14195,6 +15609,35 @@ public class OllamaScriptGenerator {
                 "issues", issues,
                 "summary", review.path("summary").asText(issues.isEmpty() ? "文案结构完整" : "文案需要人工复核")
         );
+    }
+
+    String buildPrompt(List<HighlightClip> clips, String category, String style,
+                       String brief, String transcript,
+                       List<GameEventFact> confirmedFacts) throws Exception {
+        String transcriptHint = transcript == null ? "" : transcript.substring(0, Math.min(900, transcript.length()));
+        List<Map<String, Object>> clipRanges = new ArrayList<>();
+        for (int index = 0; index < clips.size(); index++) {
+            HighlightClip clip = clips.get(index);
+            clipRanges.add(Map.of(
+                    "clipIndex", index + 1,
+                    "startSeconds", clip.startSeconds(),
+                    "endSeconds", clip.endSeconds(),
+                    "attentionScore", clip.finalScore()));
+        }
+        return """
+                你是原创游戏视频剧场编剧。请根据片段范围与用户已经确认的事件事实写中文解说，只返回 JSON，不使用 Markdown。
+                内容类别：%s
+                风格：%s。可以有鲜明节奏，但不得模仿具体创作者的独特措辞。
+                创作要求：%s
+                原视频语音参考（可能识别错误，只能帮助理解语气，不得作为事实来源或逐句复制）：%s
+                可写入文案的已确认事件事实：%s
+                片段时间范围（只表示素材位置，不代表其中发生了何种事实）：%s
+                事实约束：只能把“已确认事件事实”中的内容写成确定事实。OCR、转写、高光分数、片段描述和模型常识都不能用于补充角色名、胜负、阶段、装备、数值或因果。没有已确认事实时，只能使用中性画面描述，不得断言具体结果。
+                JSON 格式：{"title":"原创标题","synopsis":"剧情概述","segments":[{"clipIndex":1,"narration":"适合配音的台词","subtitle":"精简字幕","effectCue":"转场或屏幕特效建议"}],"qualityReview":{"score":0,"passed":true,"issues":[],"summary":"简短结论"}}
+                segments 数量必须与片段数量完全一致并保持原顺序。每段台词约 25 到 55 个汉字，口语自然、前后连贯；subtitle 和 effectCue 均不得为空。质量检查必须包含事实一致性与可配音性。
+                """.formatted(category, style, brief, transcriptHint,
+                objectMapper.writeValueAsString(confirmedFacts == null ? List.of() : confirmedFacts),
+                objectMapper.writeValueAsString(clipRanges));
     }
 
     private String buildPrompt(List<HighlightClip> clips, String category, String style,
@@ -19718,6 +21161,29 @@ ALTER TABLE project_revision ADD COLUMN revision_label VARCHAR(100);
 CREATE INDEX idx_project_revision_parent ON project_revision(project_id, parent_revision_id);
 ``
 
+### FILE: src/main/resources/db/migration/V23__explainable_game_event_timeline.sql
+
+``sql
+ALTER TABLE game_events ADD COLUMN IF NOT EXISTS source_frame_index INTEGER;
+ALTER TABLE game_events ADD COLUMN IF NOT EXISTS anchor_seconds DOUBLE PRECISION;
+ALTER TABLE game_events ADD COLUMN IF NOT EXISTS evidence_json CLOB NOT NULL DEFAULT '[]';
+ALTER TABLE game_events ADD COLUMN IF NOT EXISTS confirmation_status VARCHAR(24) NOT NULL DEFAULT 'AI_SUGGESTED';
+ALTER TABLE game_events ADD COLUMN IF NOT EXISTS manually_edited BOOLEAN NOT NULL DEFAULT FALSE;
+ALTER TABLE game_events ADD COLUMN IF NOT EXISTS knowledge_pack_code VARCHAR(80) NOT NULL DEFAULT 'boss-battle-v1';
+ALTER TABLE game_events ADD COLUMN IF NOT EXISTS updated_at TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT CURRENT_TIMESTAMP;
+
+ALTER TABLE game_events DROP CONSTRAINT IF EXISTS ck_game_event_confirmation_status;
+ALTER TABLE game_events ADD CONSTRAINT ck_game_event_confirmation_status CHECK (
+    confirmation_status IN ('AI_SUGGESTED', 'CONFIRMED', 'NEEDS_REVIEW')
+);
+
+ALTER TABLE game_events ADD CONSTRAINT IF NOT EXISTS fk_game_event_task
+    FOREIGN KEY (task_id) REFERENCES video_tasks(id) ON DELETE CASCADE;
+
+CREATE INDEX IF NOT EXISTS idx_game_events_task_time
+    ON game_events(task_id, start_seconds, end_seconds);
+``
+
 ### FILE: src/main/resources/db/migration/V3__external_asset_catalog.sql
 
 ``sql
@@ -20084,6 +21550,7 @@ button:disabled{color:#4b4b4b;background:#d5d5d5;opacity:1}
 .revision-tree-panel{margin:14px 0;padding:12px;border:3px solid #111;background:#f7f8fb;color:#111}.revision-tree-panel summary{cursor:pointer;font-weight:800}.revision-tree-list{display:grid;gap:7px;margin-top:10px}.revision-tree-item{display:grid;grid-template-columns:minmax(220px,1fr) auto auto auto;gap:8px;align-items:center;margin-left:calc(var(--revision-depth) * 18px);padding:8px;border:2px solid #111;background:#fff}.revision-tree-item.current{background:#d9ffd7;box-shadow:3px 3px 0 #111}.revision-tree-item span b,.revision-tree-item span small{display:block}.revision-tree-item span small{color:#596273}.revision-tree-item i{font-size:11px}@media(max-width:760px){.revision-tree-item{grid-template-columns:1fr 1fr}.revision-tree-item span{grid-column:1/-1}}
 .editor-source-monitor{display:grid;grid-template-columns:minmax(320px,2fr) minmax(180px,1fr);gap:14px;align-items:center;margin:14px 0;padding:12px;border:3px solid #111;background:#101522;color:#fff}.editor-source-monitor video{width:100%;max-height:52vh;background:#000}.editor-source-monitor strong,.editor-source-monitor small{display:block}.editor-source-monitor small{margin-top:7px;color:#b8c3d8}@media(max-width:760px){.editor-source-monitor{grid-template-columns:1fr}}
 .diagnostics-open.has-update{position:relative}.diagnostics-open.has-update:after{content:"";position:absolute;right:3px;top:3px;width:8px;height:8px;border-radius:50%;background:#ff3158;box-shadow:0 0 0 2px #fff}.updates-dialog .dialog-shell{max-width:880px}.updates-list{display:grid;gap:14px;padding:18px;max-height:75vh;overflow:auto}.release-card{padding:16px;border:2px solid #26324a;border-radius:14px;background:#0b1324}.release-card.current{border-color:#75e6a4;box-shadow:0 0 0 2px rgba(117,230,164,.18)}.release-card header{display:flex;align-items:center;gap:10px}.release-card header b{color:#75e6a4}.release-card header h3{margin:0;flex:1}.release-card header i{font-size:11px;color:#111;background:#75e6a4;padding:3px 7px;border-radius:999px}.release-card ul{margin:12px 0;padding-left:22px;color:#c7d2e5}.release-card button{margin-top:4px}.release-highlight{animation:release-highlight 2.6s ease}@keyframes release-highlight{0%,100%{outline:0 solid transparent}20%,70%{outline:6px solid #ffe548;outline-offset:6px}}
+.game-event-timeline{margin:14px 0;padding:16px;color:#111;background:#fff4ad;border:4px solid #111;box-shadow:6px 6px 0 #111}.game-event-timeline>header{display:flex;justify-content:space-between;gap:16px;align-items:flex-start}.game-event-timeline h3{margin:2px 0 5px;font-size:22px}.game-event-timeline p{margin:0;color:#46505c}.game-event-guardrail{margin:12px 0!important;padding:9px;color:#111!important;background:#d9f5ff;border:2px solid #111;font-weight:700}.game-event-list{display:grid;gap:10px}.game-event-card{padding:12px;background:#fff;border:3px solid #111}.game-event-card.confirmed{background:#dcf9df}.game-event-card.needs_review{background:#ffe1e7}.game-event-card>header{display:flex;justify-content:space-between;gap:12px;align-items:center}.game-event-card>header small{display:block;color:#46505c}.game-event-form{display:grid;grid-template-columns:minmax(150px,1fr) 130px minmax(260px,2fr) 190px;gap:9px;margin:10px 0}.game-event-form label{display:grid;gap:4px;font-size:11px;font-weight:800}.game-event-form input,.game-event-form select,.game-event-form textarea{width:100%;box-sizing:border-box}.game-event-form textarea{min-height:72px;resize:vertical}.game-event-card details{margin:8px 0}.game-event-card summary{cursor:pointer;font-weight:800}.game-event-card ul{display:grid;gap:5px;margin:8px 0;padding:0;list-style:none}.game-event-card li{display:grid;grid-template-columns:140px 1fr auto;gap:8px;padding:7px;background:#f1f3f6;border:1px solid #596273}.game-event-card li small{color:#46505c}@media(max-width:900px){.game-event-timeline>header{display:grid}.game-event-form{grid-template-columns:1fr 1fr}.game-event-description{grid-column:1/-1}.game-event-card li{grid-template-columns:1fr}.game-event-card li small{justify-self:start}}
 ``
 
 ### FILE: src/main/resources/static/app.js
@@ -21119,21 +22586,56 @@ async function loadScriptEditor(taskId) {
   detailContent.querySelector('.script-editor').scrollIntoView({behavior: 'smooth', block: 'start'});
 }
 
+function renderGameEventTimeline(events, knowledgePack, taskId) {
+  const statusText = {AI_SUGGESTED:'AI 建议，等待确认', CONFIRMED:'已确认，可用于文案', NEEDS_REVIEW:'需要进一步核对'};
+  const cards = events.map(item => `
+    <article class="game-event-card ${item.confirmationStatus.toLowerCase()}" data-game-event="${item.id}">
+      <header><div><strong>${formatDuration(item.startSeconds)}–${formatDuration(item.endSeconds)}</strong><small>${escapeHtml(statusText[item.confirmationStatus] || item.confirmationStatus)}</small></div><b>置信度 ${Math.round(item.confidence * 100)}%</b></header>
+      <div class="game-event-form">
+        <label>事件类型<input name="eventType" maxlength="40" value="${escapeHtml(item.eventType)}"></label>
+        <label>重要程度<input name="importance" type="number" min="0" max="100" value="${item.importance}"></label>
+        <label class="game-event-description">事实描述<textarea name="eventDescription" maxlength="500">${escapeHtml(item.description)}</textarea></label>
+        <label>确认状态<select name="confirmationStatus"><option value="AI_SUGGESTED" ${item.confirmationStatus === 'AI_SUGGESTED' ? 'selected' : ''}>尚未确认</option><option value="CONFIRMED" ${item.confirmationStatus === 'CONFIRMED' ? 'selected' : ''}>确认事实</option><option value="NEEDS_REVIEW" ${item.confirmationStatus === 'NEEDS_REVIEW' ? 'selected' : ''}>需要复核</option></select></label>
+      </div>
+      <details><summary>为什么识别为这个事件 · ${item.evidence.length} 条证据</summary><ul>${item.evidence.map(evidence => `<li><b>${escapeHtml(evidence.sourceType)}</b><span>${escapeHtml(evidence.content)}</span><small>${formatDuration(evidence.timestampSeconds)}${evidence.frameIndex == null ? '' : ` · 帧 ${evidence.frameIndex}`}</small></li>`).join('')}</ul></details>
+      <button type="button" data-storyboard-action="event-save" data-task-id="${taskId}" data-event-id="${item.id}">保存事件判断</button>
+    </article>`).join('');
+  return `<section class="game-event-timeline">
+    <header><div><small>EXPLAINABLE GAME EVENTS</small><h3>可解释游戏事件时间线</h3><p>${escapeHtml(knowledgePack.name)}：${escapeHtml(knowledgePack.description)}</p></div><button type="button" data-storyboard-action="events-regenerate-script" data-task-id="${taskId}">用已确认事件重新生成文案</button></header>
+    <p class="game-event-guardrail">只有标记为“确认事实”的事件会进入文案提示词；OCR、转写和 AI 推断只作为待核对证据。</p>
+    <div class="game-event-list">${cards || '<p class="empty">事件时间线尚未生成，请重新启动任务完成视觉分析与高光筛选。</p>'}</div>
+  </section>`;
+}
+
+async function saveGameEventCard(taskId, card) {
+  return requestJson(`/api/tasks/${taskId}/events/${card.dataset.gameEvent}`, {
+    method:'PUT', headers:{'Content-Type':'application/json'}, body:JSON.stringify({
+      eventType:card.querySelector('[name="eventType"]').value,
+      description:card.querySelector('[name="eventDescription"]').value,
+      importance:Number(card.querySelector('[name="importance"]').value),
+      confirmationStatus:card.querySelector('[name="confirmationStatus"]').value
+    })
+  });
+}
+
 async function loadStoryboardEditor(taskId) {
   clearInterval(storyboardProgressTimer);
   if (!storyboardDialog.open) storyboardDialog.showModal();
   storyboardWorkspace.innerHTML = '<p class="empty">正在读取完整分镜时间线…</p>';
-  const [storyboard, localAssets, placements, editorTimeline, waveform, revisions] = await Promise.all([
+  const [storyboard, localAssets, placements, editorTimeline, waveform, revisions, gameEvents, knowledgePack] = await Promise.all([
     requestJson(`/api/tasks/${taskId}/storyboard`),
     requestJson('/api/assets?importStatus=DOWNLOADED&limit=100'),
     requestJson(`/api/tasks/${taskId}/storyboard/assets`),
     requestJson(`/api/tasks/${taskId}/editor`),
     requestJson(`/api/tasks/${taskId}/editor/waveform?points=320`),
-    requestJson(`/api/tasks/${taskId}/editor/revisions`)
+    requestJson(`/api/tasks/${taskId}/editor/revisions`),
+    requestJson(`/api/tasks/${taskId}/events`),
+    requestJson(`/api/tasks/${taskId}/events/knowledge-pack`)
   ]);
   const totalDuration = storyboard.segments.reduce((sum, item) => sum + item.endSeconds - item.startSeconds, 0);
   storyboardWorkspace.innerHTML = `
     <section class="detail-block storyboard-editor" data-task-id="${taskId}" data-review-enabled="${storyboard.reviewEnabled}" data-approved="${storyboard.approved}">
+      ${renderGameEventTimeline(gameEvents, knowledgePack, taskId)}
       <header class="storyboard-editor-head"><div><small>EDITOR WORKSPACE</small><h3>${escapeHtml(storyboard.title || '自由剪辑与分镜')}</h3><p>${escapeHtml(storyboard.synopsis || '')}</p></div>
       <div class="storyboard-head-actions"><button type="button" data-storyboard-action="auto-assets" data-task-id="${taskId}">自动匹配并下载素材</button>${storyboard.approved ? '<span class="storyboard-approved">已确认 / 自动模式</span>' : '<span class="storyboard-review-pending">修改后请使用底部主按钮保存并继续</span>'}</div></header>
       <div class="storyboard-stats"><span>${storyboard.segments.length} 个分镜</span><span>预计素材时长 ${formatDuration(totalDuration)}</span><span>支持拖拽排序与入点/出点修剪</span></div>
@@ -21401,6 +22903,20 @@ async function handleStoryboardAction(button) {
   const taskId = button.dataset.taskId;
   button.disabled = true;
   try {
+    if (button.dataset.storyboardAction === 'event-save') {
+      await saveGameEventCard(taskId, button.closest('[data-game-event]'));
+      button.textContent = '事件已保存';
+      setTimeout(() => { button.textContent = '保存事件判断'; button.disabled = false; }, 1000);
+      return;
+    }
+    if (button.dataset.storyboardAction === 'events-regenerate-script') {
+      const eventCards = [...storyboardWorkspace.querySelectorAll('[data-game-event]')];
+      for (const eventCard of eventCards) await saveGameEventCard(taskId, eventCard);
+      button.textContent = '正在按已确认事实生成文案…';
+      await requestJson(`/api/tasks/${taskId}/events/regenerate-script`, {method:'POST'});
+      await loadStoryboardEditor(taskId);
+      return;
+    }
     if (button.dataset.storyboardAction === 'save-all-continue') {
       const editor = storyboardWorkspace.querySelector('.storyboard-editor');
       await saveAllStoryboardSegments(taskId, button);
@@ -23051,7 +24567,7 @@ document.querySelector('#copy-address').onclick=async()=>{await navigator.clipbo
       <main id="storyboard-workspace" class="storyboard-workspace"><p class="empty">正在读取分镜…</p></main>
     </div>
   </dialog>
-  <script src="/app.js?v=20260803-10"></script>
+  <script src="/app.js?v=20260810-1"></script>
   <script src="/export.js?v=20260728-4"></script>
   <dialog id="diagnostics-dialog" class="task-dialog diagnostics-dialog">
     <div class="dialog-shell">
@@ -24662,6 +26178,165 @@ class TaskEnhancementServiceTest {
 }
 ``
 
+### FILE: src/test/java/cn/longer233/gamenarrator/event/ConfirmedEventScriptServiceTest.java
+
+``java
+package cn.longer233.gamenarrator.event;
+
+import cn.longer233.gamenarrator.script.GeneratedScript;
+import cn.longer233.gamenarrator.script.OllamaScriptGenerator;
+import cn.longer233.gamenarrator.task.domain.CommentaryStyle;
+import cn.longer233.gamenarrator.task.domain.VideoTask;
+import cn.longer233.gamenarrator.task.repository.VideoTaskRepository;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.io.TempDir;
+
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.util.List;
+import java.util.Optional;
+import java.util.UUID;
+
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
+
+class ConfirmedEventScriptServiceTest {
+    @TempDir Path temp;
+
+    @Test
+    void refusesGenerationWhenNoEventWasConfirmed() {
+        UUID taskId = UUID.randomUUID();
+        VideoTaskRepository tasks = mock(VideoTaskRepository.class);
+        GameEventTimelineService events = mock(GameEventTimelineService.class);
+        OllamaScriptGenerator generator = mock(OllamaScriptGenerator.class);
+        VideoTask task = mock(VideoTask.class);
+        when(tasks.findById(taskId)).thenReturn(Optional.of(task));
+        when(events.confirmedFacts(taskId)).thenReturn(List.of());
+        ConfirmedEventScriptService service = new ConfirmedEventScriptService(
+                tasks, events, generator, new ObjectMapper());
+
+        assertThatThrownBy(() -> service.regenerate(taskId))
+                .isInstanceOf(IllegalStateException.class);
+
+        verify(generator, never()).generate(any(), any(), any(), any(), any(), any());
+        verify(tasks, never()).save(any());
+    }
+
+    @Test
+    void persistsTaskOnlyAfterConfirmedFactScriptWasGenerated() throws Exception {
+        UUID taskId = UUID.randomUUID();
+        Path highlights = temp.resolve("highlights.json");
+        Path script = temp.resolve("script.json");
+        Files.writeString(highlights, "{\"clips\":[]}");
+        Files.writeString(script, "{\"qualityReview\":{\"score\":90,\"passed\":true,\"issues\":[],\"summary\":\"ok\"}}");
+        VideoTaskRepository tasks = mock(VideoTaskRepository.class);
+        GameEventTimelineService events = mock(GameEventTimelineService.class);
+        OllamaScriptGenerator generator = mock(OllamaScriptGenerator.class);
+        VideoTask task = mock(VideoTask.class);
+        GameEventFact fact = new GameEventFact("BOSS_DEFEATED", "Boss defeated", 10, 20, 100);
+        when(tasks.findById(taskId)).thenReturn(Optional.of(task));
+        when(events.confirmedFacts(taskId)).thenReturn(List.of(fact));
+        when(task.getHighlightManifestPath()).thenReturn(highlights.toString());
+        when(task.getGameCategory()).thenReturn("ACTION");
+        when(task.getCommentaryStyle()).thenReturn(CommentaryStyle.ANIME_THEATER);
+        when(task.getTaskBrief()).thenReturn("brief");
+        when(generator.generate(eq(highlights), eq("ACTION"), eq("ANIME_THEATER"),
+                eq("brief"), any(), eq(List.of(fact))))
+                .thenReturn(new GeneratedScript("title", "synopsis", "narration", script.toString(), List.of()));
+        ConfirmedEventScriptService service = new ConfirmedEventScriptService(
+                tasks, events, generator, new ObjectMapper());
+
+        service.regenerate(taskId);
+
+        verify(task).applyScriptRevision("title", "synopsis", "narration", script.toString(), 0);
+        verify(tasks).save(task);
+    }
+}
+``
+
+### FILE: src/test/java/cn/longer233/gamenarrator/event/GameEventTimelineServiceTest.java
+
+``java
+package cn.longer233.gamenarrator.event;
+
+import cn.longer233.gamenarrator.task.domain.CommentaryStyle;
+import cn.longer233.gamenarrator.task.domain.VideoTask;
+import cn.longer233.gamenarrator.task.repository.VideoTaskRepository;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import org.flywaydb.core.Flyway;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.io.TempDir;
+import org.springframework.jdbc.core.JdbcTemplate;
+import org.springframework.jdbc.datasource.DriverManagerDataSource;
+
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.sql.Timestamp;
+import java.time.Instant;
+import java.util.Optional;
+import java.util.UUID;
+
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
+
+class GameEventTimelineServiceTest {
+    @TempDir Path temp;
+
+    @Test
+    void buildsExplainableBossEventAndRequiresManualConfirmation() throws Exception {
+        String url = "jdbc:h2:mem:event-service;DB_CLOSE_DELAY=-1";
+        DriverManagerDataSource dataSource = new DriverManagerDataSource(url, "sa", "");
+        Flyway.configure().dataSource(dataSource).load().migrate();
+        JdbcTemplate jdbc = new JdbcTemplate(dataSource);
+        UUID taskId = UUID.randomUUID();
+        jdbc.update("""
+                INSERT INTO video_tasks(id,name,game_category,commentary_style,target_duration_seconds,
+                    task_brief,source_video_path,status,created_at)
+                VALUES(?,?,?,?,?,?,?,?,?)
+                """, taskId, "Boss test", "ACTION", "ANIME_THEATER", 60,
+                "test", temp.resolve("source.mp4").toString(), "READY", Timestamp.from(Instant.now()));
+        VideoTaskRepository repository = mock(VideoTaskRepository.class);
+        when(repository.findById(taskId)).thenReturn(Optional.of(new VideoTask(
+                "Boss test", "ACTION", CommentaryStyle.ANIME_THEATER, 60, "test", "source.mp4")));
+        ObjectMapper mapper = new ObjectMapper();
+        Path visual = temp.resolve("visual.json");
+        Path highlights = temp.resolve("highlights.json");
+        Files.writeString(visual, """
+                {"frames":[{"index":3,"timestampSeconds":42.0,"imagePath":"frame.jpg",
+                "description":"画面显示 Boss defeated，进入结算界面","eventType":"战斗","excitementScore":92,
+                "ocrText":"VICTORY","rawJson":"{}"}]}
+                """);
+        Files.writeString(highlights, """
+                {"clips":[{"sourceFrameIndex":3,"startSeconds":36.0,"endSeconds":48.0,
+                "anchorSeconds":42.0,"eventType":"战斗","description":"Boss 战结束","sourceScore":92,
+                "finalScore":95,"locked":false,"excluded":false}]}
+                """);
+        GameEventTimelineService service = new GameEventTimelineService(jdbc, mapper, repository);
+
+        var events = service.rebuild(taskId, visual, highlights);
+
+        assertThat(events).hasSize(1);
+        assertThat(events.getFirst().eventType()).isEqualTo("BOSS_DEFEATED");
+        assertThat(events.getFirst().confirmationStatus()).isEqualTo("AI_SUGGESTED");
+        assertThat(events.getFirst().evidence()).extracting(GameEventEvidence::sourceType)
+                .contains("FRAME_DESCRIPTION", "OCR", "HIGHLIGHT_SCORE");
+        assertThat(service.confirmedFacts(taskId)).isEmpty();
+
+        service.update(taskId, events.getFirst().id(), new UpdateGameEventRequest(
+                "BOSS_DEFEATED", "Boss 已被击败并进入结算", 100, "CONFIRMED"));
+        assertThat(service.confirmedFacts(taskId)).singleElement()
+                .satisfies(fact -> assertThat(fact.description()).contains("进入结算"));
+    }
+}
+``
+
 ### FILE: src/test/java/cn/longer233/gamenarrator/export/FfmpegProgressParserTest.java
 
 ``java
@@ -25580,6 +27255,7 @@ class ManualNarrationValidationTest {
 package cn.longer233.gamenarrator.script;
 
 import cn.longer233.gamenarrator.highlight.HighlightClip;
+import cn.longer233.gamenarrator.event.GameEventFact;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.Test;
 
@@ -25623,6 +27299,21 @@ class OllamaScriptGeneratorTest {
 
         assertThat(review).containsEntry("score", 100).containsEntry("summary", "建议复核");
         assertThat(review.get("issues")).isEqualTo(List.of("字幕略长"));
+    }
+
+    @Test
+    void promptExposesOnlyConfirmedFactsAndHidesUnreviewedClipDescriptions() throws Exception {
+        ObjectMapper mapper = new ObjectMapper();
+        OllamaScriptGenerator generator = new OllamaScriptGenerator(mapper,
+                "http://localhost:11434", "test-model");
+        HighlightClip unreviewed = new HighlightClip(1, 10, 20, 15,
+                "BOSS_DEFEATED", "未经确认的角色完成击杀", 80, 90);
+
+        String prompt = generator.buildPrompt(List.of(unreviewed), "ACTION", "ANIME_THEATER", "保持连贯", "",
+                List.of(new GameEventFact("PHASE_TRANSITION", "Boss 进入第二阶段", 12, 16, 85)));
+
+        assertThat(prompt).contains("Boss 进入第二阶段").contains("只能把“已确认事件事实”中的内容写成确定事实");
+        assertThat(prompt).doesNotContain("未经确认的角色完成击杀").doesNotContain("BOSS_DEFEATED");
     }
 
     private HighlightClip clip(int index, double start, double end) {
@@ -25830,6 +27521,30 @@ class DatabaseMigrationTest {
                      """)) {
             assertThat(columns.next()).isTrue();
             assertThat(columns.getInt(1)).isEqualTo(1);
+        }
+    }
+
+    @Test
+    void latestMigrationAddsExplainableGameEventFields() throws Exception {
+        String url = "jdbc:h2:mem:event-timeline;DB_CLOSE_DELAY=-1";
+        Flyway.configure().dataSource(url, "sa", "").load().migrate();
+        try (var connection = DriverManager.getConnection(url, "sa", "");
+             var statement = connection.createStatement()) {
+            var columns = statement.executeQuery("""
+                    SELECT column_name FROM information_schema.columns
+                    WHERE table_name='GAME_EVENTS'
+                    AND column_name IN ('EVIDENCE_JSON','CONFIRMATION_STATUS','MANUALLY_EDITED',
+                                        'KNOWLEDGE_PACK_CODE','ANCHOR_SECONDS')
+                    """);
+            int count = 0;
+            while (columns.next()) count++;
+            assertThat(count).isEqualTo(5);
+            var constraints = statement.executeQuery("""
+                    SELECT check_clause FROM information_schema.check_constraints
+                    WHERE constraint_name='CK_GAME_EVENT_CONFIRMATION_STATUS'
+                    """);
+            assertThat(constraints.next()).isTrue();
+            assertThat(constraints.getString(1)).contains("CONFIRMED").contains("NEEDS_REVIEW");
         }
     }
 

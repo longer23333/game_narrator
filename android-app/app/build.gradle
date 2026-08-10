@@ -2,6 +2,16 @@ plugins {
     id 'com.android.application'
 }
 
+def keystorePropertiesFile = rootProject.file('keystore.properties')
+def keystoreProperties = new Properties()
+if (keystorePropertiesFile.exists()) {
+    keystoreProperties.load(new FileInputStream(keystorePropertiesFile))
+}
+def releaseStoreFile = System.getenv('GN_KEYSTORE') ?: keystoreProperties.getProperty('storeFile')
+def releaseStorePassword = System.getenv('GN_KEYSTORE_PASSWORD') ?: keystoreProperties.getProperty('storePassword')
+def releaseKeyAlias = System.getenv('GN_KEY_ALIAS') ?: keystoreProperties.getProperty('keyAlias')
+def releaseKeyPassword = System.getenv('GN_KEY_PASSWORD') ?: keystoreProperties.getProperty('keyPassword')
+
 android {
     namespace 'cn.longer233.gamenarrator.mobile'
     compileSdk 37
@@ -10,11 +20,41 @@ android {
         applicationId 'cn.longer233.gamenarrator.mobile'
         minSdk 29
         targetSdk 37
-        versionCode 1
-        versionName '0.1.0'
+        versionCode 67
+        versionName '0.67.0'
+        testInstrumentationRunner 'androidx.test.runner.AndroidJUnitRunner'
     }
     buildFeatures { buildConfig true }
-    packaging { resources.excludes += ['/META-INF/{AL2.0,LGPL2.1}'] }
+    packaging {
+        resources.excludes += ['/META-INF/{AL2.0,LGPL2.1}']
+        jniLibs {
+            useLegacyPackaging = true
+        }
+    }
+    testOptions { unitTests.returnDefaultValues = true }
+    signingConfigs {
+        release {
+            if (releaseStoreFile) {
+                storeFile rootProject.file(releaseStoreFile)
+                storePassword releaseStorePassword
+                keyAlias releaseKeyAlias
+                keyPassword releaseKeyPassword
+            }
+        }
+    }
+    buildTypes {
+        debug {
+            if (releaseStoreFile) {
+                signingConfig signingConfigs.release
+            }
+        }
+        release {
+            if (releaseStoreFile) {
+                signingConfig signingConfigs.release
+            }
+            minifyEnabled false
+        }
+    }
 }
 
 dependencies {
@@ -24,5 +64,16 @@ dependencies {
     implementation 'androidx.media3:media3-ui:1.10.1'
     implementation 'androidx.media3:media3-transformer:1.10.1'
     implementation 'androidx.media3:media3-effect:1.10.1'
+    implementation 'androidx.work:work-runtime:2.10.0'
+    implementation 'androidx.room:room-runtime:2.7.1'
+    annotationProcessor 'androidx.room:room-compiler:2.7.1'
+    implementation 'androidx.security:security-crypto:1.1.0-alpha06'
+    implementation 'com.google.mlkit:image-labeling:17.0.9'
+    implementation 'com.microsoft.onnxruntime:onnxruntime-android:1.20.0'
+    implementation 'com.google.zxing:core:3.5.3'
     testImplementation 'junit:junit:4.13.2'
+    testImplementation 'org.json:json:20240303'
+    androidTestImplementation 'androidx.test:core:1.6.1'
+    androidTestImplementation 'androidx.test.ext:junit:1.2.1'
+    androidTestImplementation 'androidx.test:runner:1.6.2'
 }

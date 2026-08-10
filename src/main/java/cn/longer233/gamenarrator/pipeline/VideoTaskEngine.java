@@ -27,6 +27,7 @@ import cn.longer233.gamenarrator.render.RenderResult;
 import cn.longer233.gamenarrator.effect.EffectPresetCatalog;
 import cn.longer233.gamenarrator.effect.EffectSettingsRequest;
 import cn.longer233.gamenarrator.task.domain.ProcessingStageType;
+import cn.longer233.gamenarrator.event.GameEventTimelineService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.slf4j.MDC;
@@ -61,6 +62,7 @@ public class VideoTaskEngine {
     private final FfmpegVideoRenderer videoRenderer;
     private final EffectPresetCatalog effectPresetCatalog;
     private final StoryboardAssetPlacementService storyboardAssets;
+    private final GameEventTimelineService gameEvents;
     private final Set<UUID> deletionRequested = ConcurrentHashMap.newKeySet();
     private final Set<UUID> activeTasks = ConcurrentHashMap.newKeySet();
 
@@ -90,7 +92,8 @@ public class VideoTaskEngine {
             TimelinePlanner timelinePlanner,
             FfmpegVideoRenderer videoRenderer,
             EffectPresetCatalog effectPresetCatalog,
-            StoryboardAssetPlacementService storyboardAssets
+            StoryboardAssetPlacementService storyboardAssets,
+            GameEventTimelineService gameEvents
     ) {
         this.stateService = stateService;
         this.mediaProbe = mediaProbe;
@@ -109,6 +112,7 @@ public class VideoTaskEngine {
         this.videoRenderer = videoRenderer;
         this.effectPresetCatalog = effectPresetCatalog;
         this.storyboardAssets = storyboardAssets;
+        this.gameEvents = gameEvents;
     }
 
     @Async
@@ -217,6 +221,7 @@ public class VideoTaskEngine {
                 HighlightSelectionResult result = highlightSelector.select(
                         Path.of(context.visualAnalysisPath()), context.durationSeconds(),
                         context.targetDurationSeconds(), context.editingScope());
+                gameEvents.rebuild(taskId, Path.of(context.visualAnalysisPath()), Path.of(result.manifestPath()));
                 stateService.markHighlightSelectionCompleted(taskId, result);
                 log.info("ENGINE_STAGE_COMPLETED taskId={} stage=HIGHLIGHT_SELECTION clipCount={}",
                         taskId, result.clips().size());
@@ -225,6 +230,10 @@ public class VideoTaskEngine {
                 log.info("ENGINE_STAGE_SKIPPED taskId={} stage=HIGHLIGHT_SELECTION reason=already_completed",
                         taskId);
             }
+            if (gameEvents.list(taskId).isEmpty()) {
+                gameEvents.rebuild(taskId, Path.of(context.visualAnalysisPath()),
+                        Path.of(context.highlightManifestPath()));
+            }
             activeStage = "SCRIPT_GENERATION";
             checkCancellation(taskId);
             if (!context.scriptGenerationCompleted()) {
@@ -232,7 +241,8 @@ public class VideoTaskEngine {
                 EngineTaskContext generationContext = context;
                 GeneratedScript result = retryExecutor.generation(() -> generationContext.aiScriptEnabled()
                         ? scriptGenerator.generate(Path.of(generationContext.highlightManifestPath()),
-                            generationContext.gameCategory(), generationContext.commentaryStyle(), generationContext.taskBrief(), generationContext.transcriptText())
+                            generationContext.gameCategory(), generationContext.commentaryStyle(), generationContext.taskBrief(),
+                            generationContext.transcriptText(), gameEvents.confirmedFacts(taskId))
                         : scriptGenerator.generateWithoutAi(Path.of(generationContext.highlightManifestPath())));
                 stateService.markScriptGenerationCompleted(taskId, result);
                 log.info("ENGINE_STAGE_COMPLETED taskId={} stage=SCRIPT_GENERATION segmentCount={}",
@@ -282,7 +292,7 @@ public class VideoTaskEngine {
                 TimelinePlanningResult result = timelinePlanner.plan(
                         Path.of(context.highlightManifestPath()), Path.of(context.generatedScriptPath()),
                         Path.of(context.voiceManifestPath()));
-                stateService.markTimelinePlanningCompleted(taskId, result);
+                stateService.markTimelinePlanningCompleted(taskId, result, !context.automaticGenerationEnabled());
                 log.info("ENGINE_STAGE_COMPLETED taskId={} stage=TIMELINE_PLANNING segmentCount={} duration={}",
                         taskId, result.segments().size(), result.outputDurationSeconds());
                 context = stateService.context(taskId);
@@ -290,7 +300,6 @@ public class VideoTaskEngine {
                 log.info("ENGINE_STAGE_SKIPPED taskId={} stage=TIMELINE_PLANNING reason=already_completed", taskId);
             }
             if (!context.automaticGenerationEnabled()) {
-                stateService.markManualEditingReady(taskId);
                 log.info("ENGINE_READY taskId={} mode=manual editableTimeline=true", taskId);
                 return;
             }

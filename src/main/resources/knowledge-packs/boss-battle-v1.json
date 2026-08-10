@@ -1,0 +1,35 @@
+{
+  "code": "boss-battle-v1",
+  "name": "Boss 战基础知识包",
+  "description": "从画面说明、OCR 与高光分数中识别 Boss 战的阶段变化、残血危机和战斗结果。",
+  "eventRules": [
+    {
+      "code": "BOSS_DEFEATED",
+      "name": "Boss 被击败",
+      "keywords": ["boss defeated", "victory", "胜利", "击败", "战斗胜利", "通关", "结算"],
+      "baseConfidence": 0.84,
+      "importance": 100
+    },
+    {
+      "code": "PHASE_TRANSITION",
+      "name": "Boss 阶段转换",
+      "keywords": ["phase 2", "second phase", "二阶段", "第二阶段", "阶段转换", "形态变化", "转阶段"],
+      "baseConfidence": 0.78,
+      "importance": 85
+    },
+    {
+      "code": "PLAYER_CRITICAL",
+      "name": "玩家进入危险状态",
+      "keywords": ["low health", "critical health", "残血", "濒死", "血量过低", "危险状态"],
+      "baseConfidence": 0.74,
+      "importance": 82
+    },
+    {
+      "code": "BOSS_BATTLE",
+      "name": "Boss 战斗",
+      "keywords": ["boss", "首领", "战斗", "攻击", "闪避", "格挡", "技能"],
+      "baseConfidence": 0.68,
+      "importance": 70
+    }
+  ]
+}
