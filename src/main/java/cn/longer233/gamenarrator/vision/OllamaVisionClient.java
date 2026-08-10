@@ -60,7 +60,7 @@ public class OllamaVisionClient {
     public VideoUnderstandingResult analyze(Path manifestPath, String transcriptText, IntConsumer progress) {
         try {
             List<SceneFrame> allFrames = objectMapper.readerForListOf(SceneFrame.class).readValue(manifestPath.toFile());
-            List<SceneFrame> selectedFrames = sample(allFrames);
+            List<SceneFrame> selectedFrames = AdaptiveFrameSampler.sample(allFrames, maxFrames);
             if (selectedFrames.isEmpty()) throw new IllegalStateException("场景清单中没有可分析的截图");
             log.info("VIDEO_UNDERSTANDING_BEGIN model={} totalFrames={} selectedFrames={}", model, allFrames.size(), selectedFrames.size());
             List<FrameUnderstanding> analyses = new ArrayList<>();
@@ -214,21 +214,6 @@ public class OllamaVisionClient {
                 Objects.toString(analysis.overview(), "未生成内容概述"),
                 analysis.topics() == null ? "未识别" : String.join("、", analysis.topics()),
                 Objects.toString(analysis.tone(), "未识别"), Objects.toString(analysis.highlightStrategy(), "按事件强度筛选"));
-    }
-
-    private List<SceneFrame> sample(List<SceneFrame> frames) {
-        // 0 means every detected scene frame. The pipeline blocks here until the
-        // complete manifest has been inspected, so downstream writing can never
-        // accidentally be based on only the opening frame.
-        if (maxFrames == 0) return frames;
-        if (frames.size() <= maxFrames) return frames;
-        if (maxFrames == 1) return List.of(frames.getFirst());
-        List<SceneFrame> selected = new ArrayList<>();
-        for (int index = 0; index < maxFrames; index++) {
-            int sourceIndex = (int) Math.round(index * (frames.size() - 1.0) / (maxFrames - 1.0));
-            if (!selected.contains(frames.get(sourceIndex))) selected.add(frames.get(sourceIndex));
-        }
-        return selected;
     }
 
     private String abbreviate(String value, int limit) {

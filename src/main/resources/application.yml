@@ -267,6 +267,8 @@ game-narrator:
     vision-model: ${OLLAMA_VISION_MODEL:qwen2.5vl:3b}
     script-model: ${OLLAMA_SCRIPT_MODEL:${OLLAMA_VISION_MODEL:qwen2.5vl:3b}}
     # 0 = inspect every detected scene frame before highlight/script generation.
+    # 0 enables duration-aware sampling (5/10/15-second density, up to 720 frames).
+    # A positive value is an operator-defined upper ceiling for constrained hardware.
     max-frames: ${OLLAMA_MAX_FRAMES:0}
   media-import:
     local-authentication-discovery: ${MEDIA_IMPORT_LOCAL_AUTH_DISCOVERY:false}
