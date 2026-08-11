@@ -1265,6 +1265,10 @@ async function loadStoryboardEditor(taskId) {
       <section class="storyboard-visual-timeline" data-visual-timeline>
         <header><div><strong>自由剪辑时间线</strong><small>单击选择片段或定位播放头；剪断后可与右侧连续片段重新连接</small></div><div class="timeline-toolbar"><button type="button" data-editor-history="UNDO">撤回上一步</button><button type="button" data-editor-history="REDO">恢复撤回</button><button type="button" data-editor-action="SPLIT" disabled>刀片分割</button><button type="button" data-editor-action="MERGE" disabled>连接右侧片段</button><button type="button" data-editor-action="DELETE" disabled>删除片段</button><label>缩放 <input type="range" min="24" max="120" value="54" data-timeline-zoom></label><b data-history-count></b></div></header>
         <div class="timeline-selection-status" data-timeline-selection>请选择片段；点击片段内部可设置分割位置</div>
+        <section class="timeline-track-manager" data-track-manager>
+          <form data-track-add-form><select name="trackType"><option value="OVERLAY">叠加轨道</option><option value="AUDIO">音频轨道</option><option value="SUBTITLE">字幕轨道</option></select><input name="trackName" maxlength="60" placeholder="新轨道名称" required><button type="submit">新增轨道</button></form>
+          <div data-track-list></div>
+        </section>
         <div class="storyboard-waveform" data-storyboard-waveform></div>
         <div class="storyboard-track-scroll"><div class="storyboard-track" data-storyboard-track></div></div>
       </section>
@@ -1376,6 +1380,7 @@ function mountStoryboardTimeline(taskId, timeline, waveform) {
   if (!panel) return;
   panel._timeline = timeline;
   panel._waveform = waveform;
+  mountTrackManager(panel, taskId);
   const zoom = panel.querySelector('[data-timeline-zoom]');
   const draw = () => drawStoryboardTimeline(panel, taskId, Number(zoom.value));
   zoom.addEventListener('input', draw);
@@ -1406,6 +1411,69 @@ function mountStoryboardTimeline(taskId, timeline, waveform) {
     }
   }));
   draw();
+}
+
+function mountTrackManager(panel, taskId) {
+  const manager = panel.querySelector('[data-track-manager]');
+  if (!manager) return;
+  const tracks = [...(panel._timeline.tracks || [])].sort((left, right) => left.order - right.order);
+  manager.querySelector('[data-track-list]').innerHTML = tracks.map((track, index) => `<article data-editor-track="${escapeHtml(track.id)}">
+    <span><b>${escapeHtml(track.name)}</b><small>${escapeHtml(track.type)}</small></span>
+    <label><input type="checkbox" data-track-muted ${track.muted ? 'checked' : ''}>静音</label>
+    <label><input type="checkbox" data-track-solo ${track.solo ? 'checked' : ''}>独奏</label>
+    <button type="button" data-track-move="UP" ${index === 0 ? 'disabled' : ''}>上移</button>
+    <button type="button" data-track-move="DOWN" ${index === tracks.length - 1 ? 'disabled' : ''}>下移</button>
+    <button type="button" data-track-delete ${track.id === 'video-1' ? 'disabled title="主视频轨道不能删除"' : ''}>删除</button>
+  </article>`).join('');
+  manager.querySelector('[data-track-add-form]').addEventListener('submit', async event => {
+    event.preventDefault();
+    const form = event.currentTarget;
+    const button = form.querySelector('button');
+    form.elements.trackName.setCustomValidity('');
+    button.disabled = true;
+    try {
+      await editorTimelineCommand(taskId, 'TRACK_ADD', {
+        trackType:form.elements.trackType.value, name:form.elements.trackName.value.trim()
+      });
+      await loadStoryboardEditor(taskId);
+    } catch (error) {
+      form.elements.trackName.setCustomValidity(error.message);
+      form.reportValidity();
+      button.disabled = false;
+    }
+  });
+  const list = manager.querySelector('[data-track-list]');
+  list.addEventListener('change', async event => {
+    if (!event.target.matches('[data-track-muted],[data-track-solo]')) return;
+    const row = event.target.closest('[data-editor-track]');
+    row.querySelectorAll('input,button').forEach(control => { control.disabled = true; });
+    try {
+      await editorTimelineCommand(taskId, 'TRACK_STATE', {trackId:row.dataset.editorTrack,
+        muted:row.querySelector('[data-track-muted]').checked,
+        solo:row.querySelector('[data-track-solo]').checked});
+      await loadStoryboardEditor(taskId);
+    } catch (error) {
+      row.title = error.message;
+      row.querySelectorAll('input,button').forEach(control => { control.disabled = false; });
+    }
+  });
+  list.addEventListener('click', async event => {
+    const move = event.target.closest('[data-track-move]');
+    const remove = event.target.closest('[data-track-delete]');
+    if ((!move && !remove) || event.target.disabled) return;
+    const row = event.target.closest('[data-editor-track]');
+    if (remove && !window.confirm(`删除空轨道“${row.querySelector('b').textContent}”？`)) return;
+    row.querySelectorAll('input,button').forEach(control => { control.disabled = true; });
+    try {
+      await editorTimelineCommand(taskId, remove ? 'TRACK_DELETE' : 'TRACK_MOVE', remove
+        ? {trackId:row.dataset.editorTrack}
+        : {trackId:row.dataset.editorTrack, direction:move.dataset.trackMove});
+      await loadStoryboardEditor(taskId);
+    } catch (error) {
+      row.title = error.message;
+      row.querySelectorAll('input,button').forEach(control => { control.disabled = false; });
+    }
+  });
 }
 
 function drawStoryboardTimeline(panel, taskId, pixelsPerSecond) {

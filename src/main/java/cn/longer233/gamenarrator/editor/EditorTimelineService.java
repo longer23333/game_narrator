@@ -75,6 +75,9 @@ public class EditorTimelineService {
                     number(values, "sourceEndSeconds"));
             case "TRACK_STATE" -> trackState(timeline, text(values, "trackId"),
                     bool(values, "muted", false), bool(values, "solo", false));
+            case "TRACK_ADD" -> addManagedTrack(timeline, text(values, "trackType"), text(values, "name"));
+            case "TRACK_MOVE" -> moveTrack(timeline, text(values, "trackId"), text(values, "direction"));
+            case "TRACK_DELETE" -> deleteTrack(timeline, text(values, "trackId"));
             case "KEYFRAME_SET" -> keyframe(timeline, text(values, "clipId"), text(values, "property"),
                     number(values, "timeSeconds"), number(values, "value"));
             case "COLOR_SET" -> color(timeline, text(values, "clipId"), values);
@@ -264,6 +267,59 @@ public class EditorTimelineService {
             ((ObjectNode) item).put("muted", muted).put("solo", solo); return;
         }
         throw new IllegalArgumentException("轨道不存在");
+    }
+
+    void addManagedTrack(ObjectNode timeline, String rawType, String rawName) {
+        String type = rawType.trim().toUpperCase(Locale.ROOT);
+        if (!Set.of("OVERLAY", "AUDIO", "SUBTITLE").contains(type)) {
+            throw new IllegalArgumentException("只能新增叠加、音频或字幕轨道");
+        }
+        ArrayNode tracks = timeline.withArray("tracks");
+        if (tracks.size() >= 12) throw new IllegalArgumentException("一个项目最多允许 12 条轨道");
+        String name = rawName.trim();
+        if (name.isBlank() || name.length() > 60) throw new IllegalArgumentException("轨道名称需要 1–60 个字符");
+        String prefix = switch (type) {
+            case "OVERLAY" -> "overlay";
+            case "AUDIO" -> "audio";
+            default -> "subtitle";
+        };
+        addTrack(tracks, prefix + "-" + UUID.randomUUID(), type, name, tracks.size());
+    }
+
+    void moveTrack(ObjectNode timeline, String id, String rawDirection) {
+        ArrayNode tracks = timeline.withArray("tracks");
+        int from = trackIndex(tracks, id);
+        String direction = rawDirection.trim().toUpperCase(Locale.ROOT);
+        int to = switch (direction) {
+            case "UP" -> from - 1;
+            case "DOWN" -> from + 1;
+            default -> throw new IllegalArgumentException("轨道移动方向只能是 UP 或 DOWN");
+        };
+        if (to < 0 || to >= tracks.size()) return;
+        JsonNode moving = tracks.remove(from);
+        tracks.insert(to, moving);
+        normalizeTrackOrder(tracks);
+    }
+
+    void deleteTrack(ObjectNode timeline, String id) {
+        if ("video-1".equals(id)) throw new IllegalArgumentException("主视频轨道不能删除");
+        boolean occupied = java.util.stream.StreamSupport.stream(timeline.path("clips").spliterator(), false)
+                .anyMatch(clip -> id.equals(clip.path("trackId").asText()));
+        if (occupied) throw new IllegalArgumentException("请先移走轨道中的片段再删除轨道");
+        ArrayNode tracks = timeline.withArray("tracks");
+        tracks.remove(trackIndex(tracks, id));
+        normalizeTrackOrder(tracks);
+    }
+
+    private int trackIndex(ArrayNode tracks, String id) {
+        for (int index = 0; index < tracks.size(); index++) {
+            if (id.equals(tracks.get(index).path("id").asText())) return index;
+        }
+        throw new IllegalArgumentException("轨道不存在");
+    }
+
+    private void normalizeTrackOrder(ArrayNode tracks) {
+        for (int index = 0; index < tracks.size(); index++) ((ObjectNode) tracks.get(index)).put("order", index);
     }
 
     private void keyframe(ObjectNode timeline, String id, String property, double time, double value) {
