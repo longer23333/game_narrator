@@ -1,5 +1,7 @@
 # GameNarrator
 
+环境变量、默认值和敏感配置说明见 [配置参考](docs/CONFIGURATION_REFERENCE.md)。
+
 多模态游戏视频智能解说与自动剪辑系统。项目使用 Java 21 与 Spring Boot 3.2 从零实现，
 不复制其他业务项目的源码、页面、数据库迁移或静态素材。
 

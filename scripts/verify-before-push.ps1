@@ -4,6 +4,9 @@ $projectRoot = (Resolve-Path (Join-Path $PSScriptRoot '..')).Path
 $npm = (Get-Command npm.cmd -ErrorAction Stop).Source
 $frontendRoot = Join-Path $projectRoot 'frontend'
 
+Write-Host 'Checking generated configuration reference...'
+& (Join-Path $projectRoot 'scripts\update-configuration-reference.ps1') -Check
+
 Write-Host 'Restoring exact frontend dependencies...'
 & $npm --prefix $frontendRoot ci --no-audit --no-fund
 if ($LASTEXITCODE -ne 0) { throw 'npm ci failed' }
