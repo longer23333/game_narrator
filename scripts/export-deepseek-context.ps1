@@ -321,6 +321,8 @@ function Write-ContextBundle {
 }
 
 Write-ContextBundle
+Write-Host ""
+Write-Host "DeepSeek 项目上下文已是最新状态。"
 if ($Watch) {
     Write-Host "正在监视项目变化，按 Ctrl+C 停止。"
     while ($true) {
