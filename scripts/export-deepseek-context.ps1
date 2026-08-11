@@ -11,6 +11,7 @@ if (-not $scriptRoot) { throw "Cannot resolve context script directory" }
 $projectRoot = (Resolve-Path (Join-Path $scriptRoot "..")).Path
 $resolvedOutput = Join-Path $projectRoot $OutputPath
 $resolvedVolumes = Join-Path $projectRoot $VolumeDirectory
+$manifestPath = Join-Path $resolvedVolumes ".context-manifest.json"
 if (-not $resolvedVolumes.StartsWith($projectRoot + [IO.Path]::DirectorySeparatorChar, [StringComparison]::OrdinalIgnoreCase) -or
     $resolvedVolumes -eq $projectRoot) { throw "VolumeDirectory must be a child of the project root" }
 $utf8Bom = [System.Text.UTF8Encoding]::new($true)
@@ -111,12 +112,119 @@ function Get-ApiIndex([IO.FileInfo[]]$files) {
     return $rows | Sort-Object -Unique
 }
 
+function Get-PreviousManifest {
+    if (-not (Test-Path -LiteralPath $manifestPath)) { return $null }
+    try {
+        $value = [IO.File]::ReadAllText($manifestPath, [Text.Encoding]::UTF8) | ConvertFrom-Json
+        if ($value.version -ne 1 -or $null -eq $value.files) { return $null }
+        return $value
+    } catch {
+        Write-Warning "Cannot read previous context manifest; this run will create a new baseline: $($_.Exception.Message)"
+        return $null
+    }
+}
+
+function Get-SourceManifest([IO.FileInfo[]]$files) {
+    return @($files | ForEach-Object {
+        $relative = Get-RelativePath $_.FullName
+        [pscustomobject]@{
+            path = $relative
+            volume = Get-VolumeName $relative
+            sha256 = (Get-FileHash -LiteralPath $_.FullName -Algorithm SHA256).Hash.ToLowerInvariant()
+        }
+    } | Sort-Object path)
+}
+
+function Compare-SourceManifest($previous, [object[]]$current) {
+    $oldByPath = @{}
+    if ($null -ne $previous) {
+        foreach ($item in $previous.files) { $oldByPath[[string]$item.path] = $item }
+    }
+    $currentByPath = @{}
+    foreach ($item in $current) { $currentByPath[[string]$item.path] = $item }
+    $changes = [Collections.Generic.List[object]]::new()
+    foreach ($item in $current) {
+        $old = $oldByPath[[string]$item.path]
+        if ($null -eq $old) {
+            $changes.Add([pscustomobject]@{ Type = "ADDED"; Path = $item.path; Volume = $item.volume })
+        } elseif ([string]$old.sha256 -ne [string]$item.sha256 -or [string]$old.volume -ne [string]$item.volume) {
+            $changes.Add([pscustomobject]@{ Type = "MODIFIED"; Path = $item.path; Volume = $item.volume })
+            if ([string]$old.volume -ne [string]$item.volume) {
+                $changes.Add([pscustomobject]@{ Type = "MOVED_FROM"; Path = $item.path; Volume = $old.volume })
+            }
+        }
+    }
+    foreach ($old in @($oldByPath.Values)) {
+        if (-not $currentByPath.ContainsKey([string]$old.path)) {
+            $changes.Add([pscustomobject]@{ Type = "DELETED"; Path = $old.path; Volume = $old.volume })
+        }
+    }
+    return @($changes | Sort-Object Volume, Path, Type)
+}
+
+function Write-Manifest([object[]]$files) {
+    $manifest = [ordered]@{
+        version = 1
+        generatedAt = [DateTimeOffset]::Now.ToString("o")
+        files = $files
+    }
+    $temporary = "$manifestPath.tmp"
+    [IO.File]::WriteAllText($temporary, ($manifest | ConvertTo-Json -Depth 5), $utf8Bom)
+    Move-Item -LiteralPath $temporary -Destination $manifestPath -Force
+}
+
+function Get-NormalizedGeneratedContent([string]$content) {
+    return [regex]::Replace($content, '(?m)^> (?:自动生成|生成时间)：[^；\r\n]+；', '> 生成标记：<ignored>；')
+}
+
+function Test-WriteChangedFile([string]$path, [string]$content) {
+    if (Test-Path -LiteralPath $path) {
+        $previous = [IO.File]::ReadAllText($path, [Text.Encoding]::UTF8)
+        if ((Get-NormalizedGeneratedContent $previous) -eq (Get-NormalizedGeneratedContent $content)) {
+            return $false
+        }
+    }
+    [IO.File]::WriteAllText($path, $content, $utf8Bom)
+    return $true
+}
+
+function Write-ChangeSummary($previous, [object[]]$changes, [string[]]$allVolumes,
+                             [string[]]$changedOutputVolumes, [bool]$indexChanged) {
+    Write-Host ""
+    if ($null -eq $previous) {
+        Write-Host "Changes since previous export: no previous manifest; baseline created."
+        Write-Host "  Upload this time: DEEPSEEK_PROJECT_CONTEXT.md and all volumes."
+        return
+    }
+    Write-Host "Changes since previous export: $($changes.Count) source file(s)."
+    foreach ($change in $changes) {
+        $marker = switch ($change.Type) { "ADDED" { "+" }; "MODIFIED" { "M" }; "DELETED" { "-" }; default { ">" } }
+        Write-Host "  [$marker] $($change.Path) -> $VolumeDirectory/$($change.Volume)"
+    }
+    $changedVolumes = @($changedOutputVolumes | Sort-Object -Unique)
+    $unchangedVolumes = @($allVolumes | Where-Object { $changedVolumes -notcontains $_ } | Sort-Object)
+    $upload = [Collections.Generic.List[string]]::new()
+    if ($indexChanged) { $upload.Add("DEEPSEEK_PROJECT_CONTEXT.md") }
+    foreach ($volume in $changedVolumes) { $upload.Add("$VolumeDirectory/$volume") }
+    if ($upload.Count -eq 0) {
+        Write-Host "  Upload recommendation: no source content changed; no context file needs re-uploading."
+    } else {
+        Write-Host "  Upload recommendation: $($upload -join ', ')."
+    }
+    if ($unchangedVolumes.Count -gt 0) {
+        Write-Host "  Unchanged volumes (skip upload): $($unchangedVolumes -join ', ')."
+    }
+}
+
 function Write-ContextBundle {
     $files = @(Get-ContextFiles)
     if (-not (Test-Path -LiteralPath $resolvedVolumes)) { New-Item -ItemType Directory -Path $resolvedVolumes | Out-Null }
-    Get-ChildItem -LiteralPath $resolvedVolumes -File -Filter "*.md" | Remove-Item -Force
+    $previousManifest = Get-PreviousManifest
+    $sourceManifest = @(Get-SourceManifest $files)
+    $changes = @(Compare-SourceManifest $previousManifest $sourceManifest)
     $groups = $files | Group-Object { Get-VolumeName (Get-RelativePath $_.FullName) }
     $volumeStats = [Collections.Generic.List[object]]::new()
+    $changedOutputVolumes = [Collections.Generic.List[string]]::new()
     foreach ($group in $groups) {
         $builder = [Text.StringBuilder]::new()
         [void]$builder.AppendLine("# GameNarrator DeepSeek 分卷：$($group.Name)")
@@ -126,8 +234,15 @@ function Write-ContextBundle {
         [void]$builder.AppendLine()
         foreach ($file in $group.Group) { Add-FileContent $builder $file }
         $path = Join-Path $resolvedVolumes $group.Name
-        [IO.File]::WriteAllText($path, $builder.ToString(), $utf8Bom)
+        if (Test-WriteChangedFile $path $builder.ToString()) { $changedOutputVolumes.Add($group.Name) }
         $volumeStats.Add([pscustomobject]@{ Name = $group.Name; Files = $group.Count; Characters = $builder.Length })
+    }
+    $currentVolumeNames = @($groups | Select-Object -ExpandProperty Name)
+    foreach ($stale in Get-ChildItem -LiteralPath $resolvedVolumes -File -Filter "*.md") {
+        if ($currentVolumeNames -notcontains $stale.Name) {
+            Remove-Item -LiteralPath $stale.FullName -Force
+            $changedOutputVolumes.Add($stale.Name)
+        }
     }
 
     $status = Get-GitValue @("status", "--short") "clean or unavailable"
@@ -197,9 +312,12 @@ function Write-ContextBundle {
     [void]$index.AppendLine("- 单文件默认上限为 $MaxFileBytes bytes；大型词表、生成数据等不进入全文分卷，可用 ``-MaxFileBytes`` 显式调整。")
     [void]$index.AppendLine("- 排除 target/build/dist/bin/obj/node_modules、缓存、模型、媒体、Cookie、密钥、local.properties、环境文件及重复 static 构建产物。")
     [void]$index.AppendLine("- 本工具不修复源文件中已经存在的乱码；乱码应在权威源文件中单独修复，避免导出时猜测替换。")
-    [IO.File]::WriteAllText($resolvedOutput, $index.ToString(), $utf8Bom)
+    $indexChanged = Test-WriteChangedFile $resolvedOutput $index.ToString()
+    Write-Manifest $sourceManifest
     Write-Host "DeepSeek structured index updated: $resolvedOutput ($($index.Length) characters)"
     foreach ($item in $volumeStats | Sort-Object Name) { Write-Host "  $($item.Name): $($item.Files) files, $($item.Characters) characters" }
+    Write-ChangeSummary $previousManifest $changes @($volumeStats | Select-Object -ExpandProperty Name) `
+        @($changedOutputVolumes) $indexChanged
 }
 
 Write-ContextBundle

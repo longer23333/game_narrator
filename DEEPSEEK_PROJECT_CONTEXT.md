@@ -1,7 +1,7 @@
 ﻿# GameNarrator — DeepSeek 结构化项目索引
 
-> 自动生成：2026-08-11 10:17:48 +08:00；UTF-8 BOM；索引不再内嵌全部源码。
-> Git：分支 `main`，提交 `11f7b96`；收录文件 683 个，分卷 8 个。
+> 自动生成：2026-08-11 10:27:14 +08:00；UTF-8 BOM；索引不再内嵌全部源码。
+> Git：分支 `main`，提交 `0c733a7`；收录文件 684 个，分卷 8 个。
 
 ## 使用方法
 
@@ -34,24 +34,14 @@
 | `deepseek-context/05-android-main.md` | 151 | 855263 | Android 实现、资源与 Gradle |
 | `deepseek-context/06-android-tests.md` | 55 | 131882 | Android 单元及设备测试 |
 | `deepseek-context/07-platform-release.md` | 10 | 47337 | Windows、CI/CD 与发布 |
-| `deepseek-context/08-docs-scripts.md` | 43 | 149467 | 需求、架构、维护脚本 |
+| `deepseek-context/08-docs-scripts.md` | 44 | 155560 | 需求、架构、维护脚本 |
 
 ## 当前 Git 工作区（最近修改）
 
 ```text
 M DEEPSEEK_PROJECT_CONTEXT.md
- M docs/ASSET_LIBRARY_DESIGN.md
- M docs/DATABASE_DESIGN.md
- M docs/PERFORMANCE_PORTABILITY_AUDIT.md
- M frontend/public/asset-library.js
- M src/main/java/cn/longer233/gamenarrator/asset/AssetCatalogController.java
- M src/main/java/cn/longer233/gamenarrator/asset/AssetCatalogService.java
- M src/main/java/cn/longer233/gamenarrator/asset/AssetDownloadService.java
- M src/main/resources/static/asset-library.js
- M src/test/java/cn/longer233/gamenarrator/asset/AssetDownloadServiceTest.java
-?? src/main/java/cn/longer233/gamenarrator/asset/AssetDownloadStatus.java
-?? src/main/resources/db/migration-postgresql/V35__resumable_asset_downloads.sql
-?? src/main/resources/db/migration/V35__resumable_asset_downloads.sql
+ M scripts/export-deepseek-context.ps1
+?? docs/DEEPSEEK_CONTEXT_EXPORT.md
 ```
 
 ## Flyway 迁移索引
