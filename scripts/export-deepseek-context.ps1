@@ -192,11 +192,11 @@ function Write-ChangeSummary($previous, [object[]]$changes, [string[]]$allVolume
                              [string[]]$changedOutputVolumes, [bool]$indexChanged) {
     Write-Host ""
     if ($null -eq $previous) {
-        Write-Host "Changes since previous export: no previous manifest; baseline created."
-        Write-Host "  Upload this time: DEEPSEEK_PROJECT_CONTEXT.md and all volumes."
+        Write-Host "与上次导出相比：未找到历史清单，已建立首次比较基线。"
+        Write-Host "  本次建议上传：DEEPSEEK_PROJECT_CONTEXT.md 和全部分卷。"
         return
     }
-    Write-Host "Changes since previous export: $($changes.Count) source file(s)."
+    Write-Host "与上次导出相比：共有 $($changes.Count) 个源文件发生变化。"
     foreach ($change in $changes) {
         $marker = switch ($change.Type) { "ADDED" { "+" }; "MODIFIED" { "M" }; "DELETED" { "-" }; default { ">" } }
         Write-Host "  [$marker] $($change.Path) -> $VolumeDirectory/$($change.Volume)"
@@ -207,12 +207,12 @@ function Write-ChangeSummary($previous, [object[]]$changes, [string[]]$allVolume
     if ($indexChanged) { $upload.Add("DEEPSEEK_PROJECT_CONTEXT.md") }
     foreach ($volume in $changedVolumes) { $upload.Add("$VolumeDirectory/$volume") }
     if ($upload.Count -eq 0) {
-        Write-Host "  Upload recommendation: no source content changed; no context file needs re-uploading."
+        Write-Host "  上传建议：源文件内容没有变化，无需重新上传上下文文件。"
     } else {
-        Write-Host "  Upload recommendation: $($upload -join ', ')."
+        Write-Host "  上传建议：$($upload -join '、')。"
     }
     if ($unchangedVolumes.Count -gt 0) {
-        Write-Host "  Unchanged volumes (skip upload): $($unchangedVolumes -join ', ')."
+        Write-Host "  未变化分卷（无需上传）：$($unchangedVolumes -join '、')。"
     }
 }
 
@@ -314,15 +314,15 @@ function Write-ContextBundle {
     [void]$index.AppendLine("- 本工具不修复源文件中已经存在的乱码；乱码应在权威源文件中单独修复，避免导出时猜测替换。")
     $indexChanged = Test-WriteChangedFile $resolvedOutput $index.ToString()
     Write-Manifest $sourceManifest
-    Write-Host "DeepSeek structured index updated: $resolvedOutput ($($index.Length) characters)"
-    foreach ($item in $volumeStats | Sort-Object Name) { Write-Host "  $($item.Name): $($item.Files) files, $($item.Characters) characters" }
+    Write-Host "DeepSeek 结构化索引已更新：$resolvedOutput（$($index.Length) 个字符）"
+    foreach ($item in $volumeStats | Sort-Object Name) { Write-Host "  $($item.Name)：$($item.Files) 个文件，$($item.Characters) 个字符" }
     Write-ChangeSummary $previousManifest $changes @($volumeStats | Select-Object -ExpandProperty Name) `
         @($changedOutputVolumes) $indexChanged
 }
 
 Write-ContextBundle
 if ($Watch) {
-    Write-Host "Watching project changes. Press Ctrl+C to stop."
+    Write-Host "正在监视项目变化，按 Ctrl+C 停止。"
     while ($true) {
         Start-Sleep -Seconds 2
         $latest = (Get-ContextFiles | Measure-Object LastWriteTimeUtc -Maximum).Maximum
