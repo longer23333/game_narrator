@@ -59,6 +59,7 @@ public class WhisperCppTranscriber {
         return readResult(outputPrefix, output);
     }
 
+
     private List<String> command(Path audioPath, Path outputPrefix, WhisperChunkSupport.Chunk chunk) {
         List<String> command = new java.util.ArrayList<>(List.of(
                 executable.toString(),

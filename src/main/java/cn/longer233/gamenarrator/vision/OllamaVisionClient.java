@@ -130,6 +130,7 @@ public class OllamaVisionClient {
         } catch (Exception ignored) { return false; }
     }
 
+
     public String model() { return adaptiveChat.activeModel(true); }
     public URI baseUri() { return baseUri; }
 

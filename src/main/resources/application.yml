@@ -87,6 +87,11 @@ game-narrator:
     executable: ${TESSERACT_EXECUTABLE:tesseract}
     languages: ${TESSERACT_LANGUAGES:chi_sim+eng}
   ai:
+    # 各能力通过独立适配器选择；新增引擎只需提供对应接口实现，无需修改流水线业务代码。
+    asr-engine: ${AI_ASR_ENGINE:whisper-cpp}
+    vlm-engine: ${AI_VLM_ENGINE:ollama}
+    llm-engine: ${AI_LLM_ENGINE:adaptive-chat}
+    tts-engine: ${AI_TTS_ENGINE:piper}
     # DashScope 对原始游戏截图审核较严；默认本地优先，未安装本地视觉模型时使用规则降级，不上传图片。
     cloud-image-policy: ${CLOUD_IMAGE_POLICY:CLOUD_ALLOWED}
     retry:

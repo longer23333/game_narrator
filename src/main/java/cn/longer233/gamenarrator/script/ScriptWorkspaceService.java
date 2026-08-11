@@ -4,7 +4,7 @@ import cn.longer233.gamenarrator.task.application.TaskNotFoundException;
 import cn.longer233.gamenarrator.common.AtomicArtifactWriter;
 import cn.longer233.gamenarrator.task.domain.VideoTask;
 import cn.longer233.gamenarrator.task.repository.VideoTaskRepository;
-import cn.longer233.gamenarrator.voice.VoiceGenerator;
+import cn.longer233.gamenarrator.voice.VoiceSynthesizer;
 import cn.longer233.gamenarrator.voice.VoiceSegment;
 import cn.longer233.gamenarrator.voice.VoiceOption;
 import cn.longer233.gamenarrator.voice.VoiceRegenerationRequest;
@@ -31,18 +31,18 @@ import java.util.UUID;
 public class ScriptWorkspaceService {
     private final VideoTaskRepository repository;
     private final ObjectMapper objectMapper;
-    private final OllamaScriptGenerator scriptGenerator;
-    private final VoiceGenerator voiceGenerator;
+    private final TextGenerator scriptGenerator;
+    private final VoiceSynthesizer voiceGenerator;
     private final DirectorProfileService directorProfiles;
 
     public ScriptWorkspaceService(VideoTaskRepository repository, ObjectMapper objectMapper,
-                                  OllamaScriptGenerator scriptGenerator, VoiceGenerator voiceGenerator) {
+                                  TextGenerator scriptGenerator, VoiceSynthesizer voiceGenerator) {
         this(repository, objectMapper, scriptGenerator, voiceGenerator, null);
     }
 
     @Autowired
     public ScriptWorkspaceService(VideoTaskRepository repository, ObjectMapper objectMapper,
-                                  OllamaScriptGenerator scriptGenerator, VoiceGenerator voiceGenerator,
+                                  TextGenerator scriptGenerator, VoiceSynthesizer voiceGenerator,
                                   DirectorProfileService directorProfiles) {
         this.repository = repository;
         this.objectMapper = objectMapper;

@@ -5,19 +5,19 @@ import cn.longer233.gamenarrator.media.FfmpegMediaProbe;
 import cn.longer233.gamenarrator.media.MediaMetadata;
 import cn.longer233.gamenarrator.media.MediaPreparationResult;
 import cn.longer233.gamenarrator.transcription.TranscriptionResult;
-import cn.longer233.gamenarrator.transcription.WhisperCppTranscriber;
+import cn.longer233.gamenarrator.transcription.Transcriber;
 import cn.longer233.gamenarrator.transcription.PlatformSubtitleReader;
 import cn.longer233.gamenarrator.transcription.SubtitleChunkAnalysisService;
 import cn.longer233.gamenarrator.common.PhaseRetryExecutor;
-import cn.longer233.gamenarrator.vision.OllamaVisionClient;
+import cn.longer233.gamenarrator.vision.VisionAnalyzer;
 import cn.longer233.gamenarrator.vision.VideoUnderstandingResult;
 import cn.longer233.gamenarrator.vision.VideoSegmentSemanticIndex;
 import cn.longer233.gamenarrator.highlight.HighlightSelectionResult;
 import cn.longer233.gamenarrator.highlight.RuleBasedHighlightSelector;
 import cn.longer233.gamenarrator.script.GeneratedScript;
-import cn.longer233.gamenarrator.script.OllamaScriptGenerator;
+import cn.longer233.gamenarrator.script.TextGenerator;
 import cn.longer233.gamenarrator.script.StoryboardAssetPlacementService;
-import cn.longer233.gamenarrator.voice.VoiceGenerator;
+import cn.longer233.gamenarrator.voice.VoiceSynthesizer;
 import cn.longer233.gamenarrator.voice.VoiceGenerationResult;
 import cn.longer233.gamenarrator.voice.SilentVoiceGenerator;
 import cn.longer233.gamenarrator.timeline.TimelinePlanner;
@@ -48,15 +48,15 @@ public class VideoTaskEngine {
     private final TaskWorkflowStateService stateService;
     private final FfmpegMediaProbe mediaProbe;
     private final FfmpegMediaPreprocessor mediaPreprocessor;
-    private final WhisperCppTranscriber transcriber;
+    private final Transcriber transcriber;
     private final PlatformSubtitleReader platformSubtitleReader;
     private final SubtitleChunkAnalysisService subtitleChunkAnalysis;
     private final PhaseRetryExecutor retryExecutor;
-    private final OllamaVisionClient visionClient;
+    private final VisionAnalyzer visionClient;
     private final VideoSegmentSemanticIndex segmentSemanticIndex;
     private final RuleBasedHighlightSelector highlightSelector;
-    private final OllamaScriptGenerator scriptGenerator;
-    private final VoiceGenerator voiceGenerator;
+    private final TextGenerator scriptGenerator;
+    private final VoiceSynthesizer voiceGenerator;
     private final SilentVoiceGenerator silentVoiceGenerator;
     private final TimelinePlanner timelinePlanner;
     private final FfmpegVideoRenderer videoRenderer;
@@ -79,15 +79,15 @@ public class VideoTaskEngine {
             TaskWorkflowStateService stateService,
             FfmpegMediaProbe mediaProbe,
             FfmpegMediaPreprocessor mediaPreprocessor,
-            WhisperCppTranscriber transcriber,
+            Transcriber transcriber,
             PlatformSubtitleReader platformSubtitleReader,
             SubtitleChunkAnalysisService subtitleChunkAnalysis,
             PhaseRetryExecutor retryExecutor,
-            OllamaVisionClient visionClient,
+            VisionAnalyzer visionClient,
             VideoSegmentSemanticIndex segmentSemanticIndex,
             RuleBasedHighlightSelector highlightSelector,
-            OllamaScriptGenerator scriptGenerator,
-            VoiceGenerator voiceGenerator,
+            TextGenerator scriptGenerator,
+            VoiceSynthesizer voiceGenerator,
             SilentVoiceGenerator silentVoiceGenerator,
             TimelinePlanner timelinePlanner,
             FfmpegVideoRenderer videoRenderer,
@@ -162,7 +162,7 @@ public class VideoTaskEngine {
                 if (result != null) {
                     log.info("TRANSCRIPTION_PLATFORM_SUBTITLE taskId={} subtitle={}", taskId,
                             result.subtitlePath());
-                } else if (context.automaticGenerationEnabled() && context.hasAudio() && transcriber.runtimeAvailable()) {
+                } else if (context.automaticGenerationEnabled() && context.hasAudio() && transcriber.available()) {
                     String extractedAudioPath = context.extractedAudioPath();
                     result = retryExecutor.analysis(() ->
                             transcriber.transcribe(Path.of(extractedAudioPath)));

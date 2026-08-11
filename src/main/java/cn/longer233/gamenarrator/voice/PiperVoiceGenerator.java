@@ -20,7 +20,7 @@ import java.util.concurrent.TimeUnit;
 import java.util.function.IntConsumer;
 
 @Component
-public class PiperVoiceGenerator implements VoiceGenerator {
+public class PiperVoiceGenerator {
     private static final Logger log = LoggerFactory.getLogger(PiperVoiceGenerator.class);
     private final ObjectMapper objectMapper;
     private final Path executable;
@@ -48,27 +48,22 @@ public class PiperVoiceGenerator implements VoiceGenerator {
                 ? properties.getDefaultVoice() : configured.keySet().iterator().next();
     }
 
-    @Override
     public String engineId() { return "piper"; }
 
-    @Override
     public boolean available() {
         return Files.isRegularFile(executable) && voices.values().stream().anyMatch(voice -> Files.isRegularFile(voice.model()));
     }
 
-    @Override
     public List<VoiceOption> options() {
         return voices.values().stream().map(voice -> new VoiceOption(voice.id(), voice.name(),
                 Files.isRegularFile(executable) && Files.isRegularFile(voice.model()),
                 voice.id().equals(defaultVoiceId))).toList();
     }
 
-    @Override
     public VoiceGenerationResult generate(Path scriptPath) {
         return generate(scriptPath, ignored -> { });
     }
 
-    @Override
     public VoiceGenerationResult generate(Path scriptPath, IntConsumer progress) {
         if (!available()) {
             throw new IllegalStateException("等待本地 Piper 配音引擎；请执行 .\\scripts\\setup-piper.ps1");
@@ -108,12 +103,10 @@ public class PiperVoiceGenerator implements VoiceGenerator {
         }
     }
 
-    @Override
     public VoiceSegment regenerateSegment(Path scriptPath, int clipIndex) {
         return regenerateSegment(scriptPath, clipIndex, defaultVoiceId, 1.0);
     }
 
-    @Override
     public VoiceSegment regenerateSegment(Path scriptPath, int clipIndex, String voiceId, double speed) {
         if (!available()) {
             throw new IllegalStateException("Piper is not available");

@@ -4,7 +4,7 @@ import cn.longer233.gamenarrator.pipeline.TaskWorkflowStateService;
 import cn.longer233.gamenarrator.transcription.PlatformSubtitleReader;
 import cn.longer233.gamenarrator.transcription.SubtitleChunkAnalysisService;
 import cn.longer233.gamenarrator.transcription.TranscriptionResult;
-import cn.longer233.gamenarrator.transcription.WhisperCppTranscriber;
+import cn.longer233.gamenarrator.transcription.Transcriber;
 import cn.longer233.gamenarrator.task.domain.TaskStatus;
 import cn.longer233.gamenarrator.task.repository.VideoTaskRepository;
 import org.slf4j.Logger;
@@ -23,14 +23,14 @@ public class TaskEnhancementService {
     private static final Logger log = LoggerFactory.getLogger(TaskEnhancementService.class);
     private final TaskWorkflowStateService state;
     private final PlatformSubtitleReader platformSubtitles;
-    private final WhisperCppTranscriber transcriber;
+    private final Transcriber transcriber;
     private final SubtitleChunkAnalysisService subtitleAnalysis;
     private final Executor executor;
     private final VideoTaskRepository repository;
     private final ConcurrentHashMap<UUID, EnhancementJobView> transcriptionJobs = new ConcurrentHashMap<>();
 
     public TaskEnhancementService(TaskWorkflowStateService state, PlatformSubtitleReader platformSubtitles,
-                                  WhisperCppTranscriber transcriber,
+                                  Transcriber transcriber,
                                   SubtitleChunkAnalysisService subtitleAnalysis,
                                   VideoTaskRepository repository,
                                   @Qualifier("taskExecutor") Executor executor) {
@@ -86,7 +86,7 @@ public class TaskEnhancementService {
             var context = state.context(taskId);
             TranscriptionResult result = platformSubtitles.read(Path.of(context.sourceVideoPath()));
             if (result == null) {
-                if (!transcriber.runtimeAvailable()) throw new IllegalStateException("Whisper 尚未安装或不可用");
+                if (!transcriber.available()) throw new IllegalStateException("语音转写引擎尚未安装或不可用");
                 result = transcriber.transcribe(Path.of(context.extractedAudioPath()));
             }
             state.applyTranscriptionEnhancement(taskId, result);

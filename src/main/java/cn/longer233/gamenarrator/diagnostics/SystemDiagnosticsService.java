@@ -4,8 +4,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
-import cn.longer233.gamenarrator.transcription.WhisperCppTranscriber;
-import cn.longer233.gamenarrator.vision.OllamaVisionClient;
+import cn.longer233.gamenarrator.transcription.Transcriber;
+import cn.longer233.gamenarrator.vision.VisionAnalyzer;
 import cn.longer233.gamenarrator.importer.YtDlpMediaImporter;
 import cn.longer233.gamenarrator.asset.BgeAssetSemanticSearch;
 
@@ -27,16 +27,16 @@ public class SystemDiagnosticsService {
 
     private final Path storageRoot;
     private final String ffmpegCommand;
-    private final WhisperCppTranscriber transcriber;
-    private final OllamaVisionClient visionClient;
+    private final Transcriber transcriber;
+    private final VisionAnalyzer visionClient;
     private final YtDlpMediaImporter mediaImporter;
     private final BgeAssetSemanticSearch semanticSearch;
 
     public SystemDiagnosticsService(
             @Value("${game-narrator.storage-root}") String storageRoot,
             @Value("${game-narrator.ffmpeg-command}") String ffmpegCommand,
-            WhisperCppTranscriber transcriber,
-            OllamaVisionClient visionClient,
+            Transcriber transcriber,
+            VisionAnalyzer visionClient,
             YtDlpMediaImporter mediaImporter,
             BgeAssetSemanticSearch semanticSearch
     ) {
@@ -59,10 +59,14 @@ public class SystemDiagnosticsService {
         report.put("storageWritable", storageWritable());
         report.put("ffmpegCommand", ffmpegCommand);
         report.put("ffmpegAvailable", commandAvailable(ffmpegCommand, "-version"));
-        report.put("whisperExecutable", transcriber.executable().toString());
-        report.put("whisperModel", transcriber.model().toString());
-        report.put("whisperAvailable", transcriber.runtimeAvailable());
-        report.put("ollamaUrl", visionClient.baseUri().toString());
+        Map<String, Object> asr = transcriber.diagnostics();
+        Map<String, Object> vlm = visionClient.diagnostics();
+        report.put("asrEngine", transcriber.engineId());
+        report.put("whisperExecutable", asr.getOrDefault("executable", ""));
+        report.put("whisperModel", asr.getOrDefault("model", ""));
+        report.put("whisperAvailable", transcriber.available());
+        report.put("vlmEngine", visionClient.engineId());
+        report.put("ollamaUrl", vlm.getOrDefault("url", ""));
         report.put("visionModel", visionClient.model());
         report.put("visionModelAvailable", visionClient.available());
         report.put("semanticModel", semanticSearch.model());
@@ -85,12 +89,12 @@ public class SystemDiagnosticsService {
         if (!Boolean.TRUE.equals(report.get("whisperAvailable"))) {
             log.warn("SYSTEM_REQUIREMENT_MISSING component=whisper executable={} model={} "
                             + "impact=transcription_unavailable",
-                    transcriber.executable(), transcriber.model());
+                    report.get("whisperExecutable"), report.get("whisperModel"));
         }
         if (!Boolean.TRUE.equals(report.get("visionModelAvailable"))) {
             log.warn("SYSTEM_REQUIREMENT_MISSING component=vision_model url={} model={} "
                             + "impact=video_understanding_unavailable",
-                    visionClient.baseUri(), visionClient.model());
+                    report.get("ollamaUrl"), visionClient.model());
         }
         if (!Boolean.TRUE.equals(report.get("mediaImporterAvailable"))) {
             log.warn("SYSTEM_REQUIREMENT_MISSING component=media_importer executable={} "
@@ -106,7 +110,7 @@ public class SystemDiagnosticsService {
         boolean needsWhisper = task.isAutomaticGenerationEnabled()
                 && task.getExtractedAudioPath() != null
                 && !task.isStageCompleted(ProcessingStageType.TRANSCRIPTION);
-        if (needsWhisper && !transcriber.runtimeAvailable()) blockers.add("whisper");
+        if (needsWhisper && !transcriber.available()) blockers.add("asr-engine");
         boolean needsVision = task.isAutomaticGenerationEnabled() && task.isCloudVisionEnabled()
                 && !task.isStageCompleted(ProcessingStageType.VIDEO_UNDERSTANDING);
         if (needsVision && !visionClient.available()) blockers.add("vision-model");

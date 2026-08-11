@@ -1,7 +1,7 @@
 package cn.longer233.gamenarrator.event;
 
 import cn.longer233.gamenarrator.script.GeneratedScript;
-import cn.longer233.gamenarrator.script.OllamaScriptGenerator;
+import cn.longer233.gamenarrator.script.TextGenerator;
 import cn.longer233.gamenarrator.task.domain.CommentaryStyle;
 import cn.longer233.gamenarrator.task.domain.VideoTask;
 import cn.longer233.gamenarrator.task.repository.VideoTaskRepository;
@@ -31,7 +31,7 @@ class ConfirmedEventScriptServiceTest {
         UUID taskId = UUID.randomUUID();
         VideoTaskRepository tasks = mock(VideoTaskRepository.class);
         GameEventTimelineService events = mock(GameEventTimelineService.class);
-        OllamaScriptGenerator generator = mock(OllamaScriptGenerator.class);
+        TextGenerator generator = mock(TextGenerator.class);
         VideoTask task = mock(VideoTask.class);
         when(tasks.findById(taskId)).thenReturn(Optional.of(task));
         when(events.confirmedFacts(taskId)).thenReturn(List.of());
@@ -54,7 +54,7 @@ class ConfirmedEventScriptServiceTest {
         Files.writeString(script, "{\"qualityReview\":{\"score\":90,\"passed\":true,\"issues\":[],\"summary\":\"ok\"}}");
         VideoTaskRepository tasks = mock(VideoTaskRepository.class);
         GameEventTimelineService events = mock(GameEventTimelineService.class);
-        OllamaScriptGenerator generator = mock(OllamaScriptGenerator.class);
+        TextGenerator generator = mock(TextGenerator.class);
         VideoTask task = mock(VideoTask.class);
         GameEventFact fact = new GameEventFact("BOSS_DEFEATED", "Boss defeated", 10, 20, 100);
         when(tasks.findById(taskId)).thenReturn(Optional.of(task));

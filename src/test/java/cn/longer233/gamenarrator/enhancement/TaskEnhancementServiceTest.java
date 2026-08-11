@@ -8,7 +8,7 @@ import cn.longer233.gamenarrator.task.repository.VideoTaskRepository;
 import cn.longer233.gamenarrator.transcription.PlatformSubtitleReader;
 import cn.longer233.gamenarrator.transcription.SubtitleChunkAnalysisService;
 import cn.longer233.gamenarrator.transcription.TranscriptionResult;
-import cn.longer233.gamenarrator.transcription.WhisperCppTranscriber;
+import cn.longer233.gamenarrator.transcription.Transcriber;
 import org.junit.jupiter.api.Test;
 
 import java.nio.file.Path;
@@ -22,7 +22,7 @@ import static org.mockito.Mockito.*;
 class TaskEnhancementServiceTest {
     private final TaskWorkflowStateService state = mock(TaskWorkflowStateService.class);
     private final PlatformSubtitleReader platform = mock(PlatformSubtitleReader.class);
-    private final WhisperCppTranscriber transcriber = mock(WhisperCppTranscriber.class);
+    private final Transcriber transcriber = mock(Transcriber.class);
     private final SubtitleChunkAnalysisService analysis = mock(SubtitleChunkAnalysisService.class);
     private final VideoTaskRepository repository = mock(VideoTaskRepository.class);
     private final TaskEnhancementService service = new TaskEnhancementService(
@@ -36,7 +36,7 @@ class TaskEnhancementServiceTest {
         when(repository.findById(taskId)).thenReturn(Optional.of(task));
         when(state.context(taskId)).thenReturn(context());
         when(platform.read(Path.of("source.mp4"))).thenReturn(null);
-        when(transcriber.runtimeAvailable()).thenReturn(true);
+        when(transcriber.available()).thenReturn(true);
         TranscriptionResult result = new TranscriptionResult("识别文本", "transcript.txt", "subtitle.srt", "detail.json");
         when(transcriber.transcribe(Path.of("speech.wav"))).thenReturn(result);
 
@@ -56,7 +56,7 @@ class TaskEnhancementServiceTest {
         when(repository.findById(taskId)).thenReturn(Optional.of(task));
         when(state.context(taskId)).thenReturn(context());
         when(platform.read(any())).thenReturn(null);
-        when(transcriber.runtimeAvailable()).thenReturn(false);
+        when(transcriber.available()).thenReturn(false);
 
         service.startTranscription(taskId);
 

@@ -128,6 +128,7 @@ public class OllamaScriptGenerator {
         }
     }
 
+
     public ScriptSegment regenerateSegment(ScriptSegment current, String instruction,
                                            String previousNarration, String nextNarration) {
         if (adaptiveChat != null) return regenerateAdaptive(current, instruction, previousNarration, nextNarration);

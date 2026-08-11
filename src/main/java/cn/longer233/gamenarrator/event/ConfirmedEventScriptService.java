@@ -1,7 +1,7 @@
 package cn.longer233.gamenarrator.event;
 
 import cn.longer233.gamenarrator.script.GeneratedScript;
-import cn.longer233.gamenarrator.script.OllamaScriptGenerator;
+import cn.longer233.gamenarrator.script.TextGenerator;
 import cn.longer233.gamenarrator.script.ScriptDocumentView;
 import cn.longer233.gamenarrator.script.ScriptQualityReview;
 import cn.longer233.gamenarrator.task.application.TaskNotFoundException;
@@ -20,11 +20,11 @@ import java.util.UUID;
 public class ConfirmedEventScriptService {
     private final VideoTaskRepository tasks;
     private final GameEventTimelineService events;
-    private final OllamaScriptGenerator generator;
+    private final TextGenerator generator;
     private final ObjectMapper objectMapper;
 
     public ConfirmedEventScriptService(VideoTaskRepository tasks, GameEventTimelineService events,
-                                       OllamaScriptGenerator generator, ObjectMapper objectMapper) {
+                                       TextGenerator generator, ObjectMapper objectMapper) {
         this.tasks = tasks;
         this.events = events;
         this.generator = generator;

@@ -7,7 +7,7 @@ import cn.longer233.gamenarrator.task.domain.StageStatus;
 import cn.longer233.gamenarrator.task.domain.TaskStatus;
 import cn.longer233.gamenarrator.task.domain.VideoTask;
 import cn.longer233.gamenarrator.task.repository.VideoTaskRepository;
-import cn.longer233.gamenarrator.voice.VoiceGenerator;
+import cn.longer233.gamenarrator.voice.VoiceSynthesizer;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.JsonNode;
 import org.junit.jupiter.api.Test;
@@ -53,7 +53,7 @@ class ScriptWorkspaceServiceTest {
         VideoTaskRepository repository = mock(VideoTaskRepository.class);
         when(repository.findById(task.getId())).thenReturn(Optional.of(task));
         ScriptWorkspaceService service = new ScriptWorkspaceService(
-                repository, mapper, mock(OllamaScriptGenerator.class), mock(VoiceGenerator.class));
+                repository, mapper, mock(TextGenerator.class), mock(VoiceSynthesizer.class));
 
         ScriptDocumentView result = service.update(task.getId(), 2,
                 new UpdateScriptSegmentRequest("revised", "new subtitle", "shake"));
@@ -92,7 +92,7 @@ class ScriptWorkspaceServiceTest {
         VideoTaskRepository repository = mock(VideoTaskRepository.class);
         when(repository.findById(task.getId())).thenReturn(Optional.of(task));
         ScriptWorkspaceService service = new ScriptWorkspaceService(repository, mapper,
-                mock(OllamaScriptGenerator.class), mock(VoiceGenerator.class));
+                mock(TextGenerator.class), mock(VoiceSynthesizer.class));
 
         service.updateStoryboard(task.getId(), 1,
                 new UpdateStoryboardSegmentRequest(0, 10, "text", "subtitle", "cut", false, true));
@@ -118,7 +118,7 @@ class ScriptWorkspaceServiceTest {
         VideoTaskRepository repository = mock(VideoTaskRepository.class);
         when(repository.findById(task.getId())).thenReturn(Optional.of(task));
         ScriptWorkspaceService service = new ScriptWorkspaceService(repository, mapper,
-                mock(OllamaScriptGenerator.class), mock(VoiceGenerator.class));
+                mock(TextGenerator.class), mock(VoiceSynthesizer.class));
 
         service.review(task.getId(), 1, new ManualScriptReviewRequest("NEEDS_CHANGES", "角色名称不准确"));
 
@@ -143,11 +143,11 @@ class ScriptWorkspaceServiceTest {
         task.completeScriptGeneration("title", "synopsis", "text", scriptPath.toString(), 1);
         VideoTaskRepository repository = mock(VideoTaskRepository.class);
         when(repository.findById(task.getId())).thenReturn(Optional.of(task));
-        OllamaScriptGenerator generator = mock(OllamaScriptGenerator.class);
+        TextGenerator generator = mock(TextGenerator.class);
         when(generator.reviewQuality(any(), anyMap())).thenReturn(new ScriptQualityReview(
                 58, false, List.of("片段 1：事实不准确，请核对"), "需要修改"));
         ScriptWorkspaceService service = new ScriptWorkspaceService(repository, mapper,
-                generator, mock(VoiceGenerator.class));
+                generator, mock(VoiceSynthesizer.class));
 
         ScriptDocumentView result = service.qualityReview(task.getId());
 
@@ -178,11 +178,11 @@ class ScriptWorkspaceServiceTest {
         task.completeScriptGeneration("title", "synopsis", "old", scriptPath.toString(), 1);
         VideoTaskRepository repository = mock(VideoTaskRepository.class);
         when(repository.findById(task.getId())).thenReturn(Optional.of(task));
-        OllamaScriptGenerator generator = mock(OllamaScriptGenerator.class);
+        TextGenerator generator = mock(TextGenerator.class);
         when(generator.regenerateSegment(any(), any(), any(), any())).thenReturn(
                 new ScriptSegment(1, 0, 8, "new", "new subtitle", "cut"));
         ScriptWorkspaceService service = new ScriptWorkspaceService(repository, mapper,
-                generator, mock(VoiceGenerator.class));
+                generator, mock(VoiceSynthesizer.class));
 
         service.regenerate(task.getId(), 1, new RegenerateScriptSegmentRequest(""));
 
@@ -203,7 +203,7 @@ class ScriptWorkspaceServiceTest {
         VideoTaskRepository repository = mock(VideoTaskRepository.class);
         when(repository.findById(task.getId())).thenReturn(Optional.of(task));
         ScriptWorkspaceService service = new ScriptWorkspaceService(repository, mapper,
-                mock(OllamaScriptGenerator.class), mock(VoiceGenerator.class));
+                mock(TextGenerator.class), mock(VoiceSynthesizer.class));
 
         assertThatThrownBy(() -> service.review(task.getId(), 99,
                 new ManualScriptReviewRequest("APPROVED", "not present")))

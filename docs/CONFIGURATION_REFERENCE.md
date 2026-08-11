@@ -9,12 +9,16 @@
 - 桌面安装版会自动设置运行目录、端口和并发参数，普通用户不需要手工配置这些项目。
 - PostgreSQL、对象存储和云部署的操作步骤另见 `docs/POSTGRESQL_AND_CLOUD_SYNC.md`。
 
-## 完整清单（123 项）
+## 完整清单（127 项）
 
 | 环境变量 | Spring 配置路径/用途 | 默认值 | 敏感 | 来源 |
 |---|---|---|---|---|
+| `AI_ASR_ENGINE` | game-narrator.ai.asr-engine | `whisper-cpp` | 否 | application.yml |
+| `AI_LLM_ENGINE` | game-narrator.ai.llm-engine | `adaptive-chat` | 否 | application.yml |
 | `AI_RETRY_INITIAL_BACKOFF_MS` | game-narrator.ai.retry.initial-backoff-ms | `250` | 否 | application.yml |
 | `AI_RETRY_MAX_ATTEMPTS` | game-narrator.ai.retry.max-attempts | `3` | 否 | application.yml |
+| `AI_TTS_ENGINE` | game-narrator.ai.tts-engine | `piper` | 否 | application.yml |
+| `AI_VLM_ENGINE` | game-narrator.ai.vlm-engine | `ollama` | 否 | application.yml |
 | `ANALYSIS_RETRY_ATTEMPTS` | game-narrator.retry.analysis-attempts | `2` | 否 | application.yml |
 | `ASSET_FEATURED_PAGE_SIZE` | game-narrator.asset-library.featured-page-size | `3` | 否 | application.yml |
 | `ASSET_LIBRARY_REQUEST_TIMEOUT_SECONDS` | game-narrator.asset-library.request-timeout-seconds | `4` | 否 | application.yml |

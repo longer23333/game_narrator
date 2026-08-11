@@ -17,6 +17,14 @@
 
 ## 模型服务边界
 
+所有推理能力统一继承 `ModelAdapter`，业务层只依赖四个标准接口：ASR 的 `Transcriber`、VLM 的
+`VisionAnalyzer`、LLM 的 `TextGenerator` 和 TTS 的 `VoiceSynthesizer`。Whisper.cpp、Ollama 视觉、
+自适应文案与 Piper 均通过独立适配器接入，分别由 `game-narrator.ai.asr-engine`、`vlm-engine`、
+`llm-engine`、`tts-engine` 选择。增加新引擎时只新增接口实现和配置，不修改 `VideoTaskEngine`。
+
+`AdaptiveAiChatClient` 仅决定本地/云端路由与活动模型；Ollama、OpenAI 兼容协议、Anthropic 和
+Gemini 的请求构造、调用、响应解析分别位于协议后端中，路由器不执行具体推理协议。
+
 Spring Boot 负责业务状态、任务编排、实验记录和文件管理。ASR、VLM、LLM、TTS
 以独立本地推理进程运行，通过标准 HTTP 适配器接入。这样既方便替换免费开源模型，
 也避免 Python/CUDA 依赖污染 Java 主工程。

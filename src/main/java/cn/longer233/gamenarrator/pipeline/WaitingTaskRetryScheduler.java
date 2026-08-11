@@ -1,7 +1,7 @@
 package cn.longer233.gamenarrator.pipeline;
 
-import cn.longer233.gamenarrator.vision.OllamaVisionClient;
-import cn.longer233.gamenarrator.voice.VoiceGenerator;
+import cn.longer233.gamenarrator.vision.VisionAnalyzer;
+import cn.longer233.gamenarrator.voice.VoiceSynthesizer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.jdbc.core.JdbcTemplate;
@@ -15,11 +15,11 @@ public class WaitingTaskRetryScheduler {
     private static final Logger log = LoggerFactory.getLogger(WaitingTaskRetryScheduler.class);
     private final JdbcTemplate jdbc;
     private final VideoTaskEngine engine;
-    private final OllamaVisionClient visionClient;
-    private final VoiceGenerator voiceGenerator;
+    private final VisionAnalyzer visionClient;
+    private final VoiceSynthesizer voiceGenerator;
 
     public WaitingTaskRetryScheduler(JdbcTemplate jdbc, VideoTaskEngine engine,
-                                     OllamaVisionClient visionClient, VoiceGenerator voiceGenerator) {
+                                     VisionAnalyzer visionClient, VoiceSynthesizer voiceGenerator) {
         this.jdbc = jdbc;
         this.engine = engine;
         this.visionClient = visionClient;
