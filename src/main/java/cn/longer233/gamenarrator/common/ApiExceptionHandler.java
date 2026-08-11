@@ -133,13 +133,31 @@ public class ApiExceptionHandler {
     }
 
     private ApiError error(String code, String message, String suggestion) {
+        ErrorGuidance guidance = guidanceFor(code);
         return new ApiError(
                 code,
                 message,
                 suggestion,
+                guidance.category(),
+                guidance.retryable(),
+                guidance.action(),
                 MDC.get(RequestTraceFilter.TRACE_ID),
                 Instant.now().toString()
         );
+    }
+
+    private ErrorGuidance guidanceFor(String code) {
+        return switch (code) {
+            case "MISSING_PARAMETER", "INVALID_REQUEST", "INVALID_FIELD_TYPE", "UNSUPPORTED_MEDIA_TYPE",
+                    "VIDEO_TOO_LARGE" -> new ErrorGuidance("INPUT", false, "CHECK_INPUT");
+            case "TASK_NOT_FOUND", "RESOURCE_NOT_FOUND" -> new ErrorGuidance("NOT_FOUND", false, "REFRESH");
+            case "ADMIN_REQUIRED" -> new ErrorGuidance("AUTHORIZATION", false, "LOGIN");
+            case "CONCURRENT_MODIFICATION" -> new ErrorGuidance("CONFLICT", true, "REFRESH");
+            case "INSUFFICIENT_STORAGE" -> new ErrorGuidance("STORAGE", true, "OPEN_DIAGNOSTICS");
+            case "EXTERNAL_SERVICE_UNAVAILABLE" -> new ErrorGuidance("NETWORK", true, "OPEN_DIAGNOSTICS");
+            case "OPERATION_UNAVAILABLE" -> new ErrorGuidance("DEPENDENCY", true, "OPEN_DIAGNOSTICS");
+            default -> new ErrorGuidance("SYSTEM", true, "OPEN_DIAGNOSTICS");
+        };
     }
 
     @ExceptionHandler(cn.longer233.gamenarrator.admin.AdminAccessDeniedException.class)
@@ -152,8 +170,14 @@ public class ApiExceptionHandler {
             String code,
             String message,
             String suggestion,
+            String category,
+            boolean retryable,
+            String action,
             String traceId,
             String timestamp
     ) {
+    }
+
+    private record ErrorGuidance(String category, boolean retryable, String action) {
     }
 }

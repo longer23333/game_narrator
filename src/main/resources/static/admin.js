@@ -1,5 +1,5 @@
 const $=selector=>document.querySelector(selector);
-const api=async(url,options={})=>{const response=await fetch(url,{headers:{'Content-Type':'application/json',...(options.headers||{})},...options});if(!response.ok){const error=await response.json().catch(()=>({message:response.statusText}));throw Error(error.message||'请求失败')}return response.status===204?null:response.json()};
+const api=async(url,options={})=>{const response=await fetch(url,{headers:{'Content-Type':'application/json',...(options.headers||{})},...options});if(!response.ok){const error=await response.json().catch(()=>({message:response.statusText}));const details=[error.message||'请求失败',error.suggestion?`解决建议：${error.suggestion}`:'',error.traceId?`追踪号：${error.traceId}`:''].filter(Boolean);throw Error(details.join('；'))}return response.status===204?null:response.json()};
 const esc=value=>String(value??'').replace(/[&<>'"]/g,char=>({'&':'&amp;','<':'&lt;','>':'&gt;',"'":'&#39;','"':'&quot;'}[char]));
 const bytes=value=>{let n=Number(value||0);if(n<1024)return `${n} B`;const units=['KB','MB','GB','TB'];let i=-1;do{n/=1024;i++}while(n>=1024&&i<3);return `${n.toFixed(2)} ${units[i]}`};
 const money=value=>`¥${Number(value||0).toFixed(4)}`;

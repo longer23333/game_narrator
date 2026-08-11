@@ -435,9 +435,7 @@ taskForm.addEventListener('submit', async event => {
     await loadTasks();
   } catch (error) {
     console.error('[GameNarrator] 任务创建失败', error);
-    const traceHint = error.traceId ? `（追踪号：${error.traceId}）` : '';
-    const suggestion = error.suggestion ? `；建议：${error.suggestion}` : '';
-    message.textContent = `${error.message || '创建失败'}${traceHint}${suggestion}`;
+    message.textContent = error.message || '创建失败';
   }
 });
 
@@ -638,6 +636,11 @@ detailDialog.addEventListener('click', event => {
 });
 detailDialog.addEventListener('close', () => { activeTaskId = null; });
 detailContent.addEventListener('click', async event => {
+  const diagnosticsButton = event.target.closest('[data-open-error-diagnostics]');
+  if (diagnosticsButton) {
+    document.querySelector('#diagnostics-open')?.click();
+    return;
+  }
   const retryButton = event.target.closest('[data-retry-task]');
   const addAssetButton = event.target.closest('[data-add-project-asset]');
   const enhancementButton = event.target.closest('[data-task-enhancement]');
@@ -867,7 +870,7 @@ function renderTaskDetails(task) {
       </dl>
       <p class="detail-brief">${escapeHtml(task.taskBrief)}</p>
     </section>
-    ${task.failureReason ? `<section class="detail-block"><h3>失败原因</h3><div class="task-error">${escapeHtml(task.failureReason)}</div></section>` : ''}
+    ${task.failureReason ? `<section class="detail-block"><h3>失败原因</h3>${taskFailureHtml(task.failureReason)}<div class="task-operations"><button type="button" data-open-error-diagnostics>打开诊断日志</button></div></section>` : ''}
     <section class="detail-block">
       <h3>处理流水线</h3>
       <div class="stage-details">${task.stages.map(stage => `
@@ -1790,9 +1793,14 @@ async function readApiError(response) {
   const traceId = response.headers.get('X-Trace-Id');
   try {
     const payload = await response.json();
-    return Object.assign(new Error(payload.message || `请求失败：HTTP ${response.status}`), {
+    const rawMessage = payload.message || `请求失败：HTTP ${response.status}`;
+    return Object.assign(new Error(formatGuidedError(rawMessage, payload.suggestion, payload.traceId || traceId)), {
+      rawMessage,
       code: payload.code,
       suggestion: payload.suggestion,
+      category: payload.category,
+      retryable: payload.retryable,
+      action: payload.action,
       traceId: payload.traceId || traceId,
       status: response.status
     });
@@ -1801,6 +1809,27 @@ async function readApiError(response) {
       traceId, status: response.status, cause: parseError
     });
   }
+}
+
+function formatGuidedError(message, suggestion, traceId) {
+  const parts = [message || '操作失败'];
+  if (suggestion && !parts[0].includes(suggestion)) parts.push(`解决建议：${suggestion}`);
+  if (traceId) parts.push(`追踪号：${traceId}`);
+  return parts.join('；');
+}
+
+function taskFailureGuidance(message) {
+  const text = String(message || '');
+  if (/(磁盘|空间不足|no space|insufficient storage)/i.test(text)) return '请在“诊断日志”中检查存储空间，清理临时文件后重试。';
+  if (/(ffmpeg|ffprobe|编码器|encoder)/i.test(text)) return '请打开“诊断日志”检查 FFmpeg 与硬件编码器，再重试失败阶段。';
+  if (/(ollama|模型|model|whisper|piper)/i.test(text)) return '请确认本地模型服务和依赖已启动，可在“诊断日志”查看详细状态。';
+  if (/(timeout|timed out|超时|connection|连接|网络)/i.test(text)) return '请检查网络或本地服务状态，稍后重试失败阶段。';
+  if (/(登录|认证|cookie|unauthorized|forbidden)/i.test(text)) return '请重新登录或更新内容平台授权后再试。';
+  return '可先重试失败阶段；若仍失败，请打开“诊断日志”并按追踪号定位原因。';
+}
+
+function taskFailureHtml(message) {
+  return `<div class="task-error"><strong>${escapeHtml(message)}</strong><small>解决建议：${escapeHtml(taskFailureGuidance(message))}</small></div>`;
 }
 
 function showLoadError(error) {

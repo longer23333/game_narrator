@@ -168,6 +168,9 @@ class VideoTaskControllerTest {
                 .andExpect(jsonPath("$.code").value("INVALID_REQUEST"))
                 .andExpect(jsonPath("$.message").value("仅支持 mp4、mov、mkv、webm 视频"))
                 .andExpect(jsonPath("$.suggestion").isNotEmpty())
+                .andExpect(jsonPath("$.category").value("INPUT"))
+                .andExpect(jsonPath("$.retryable").value(false))
+                .andExpect(jsonPath("$.action").value("CHECK_INPUT"))
                 .andExpect(jsonPath("$.traceId").isNotEmpty());
     }
 
