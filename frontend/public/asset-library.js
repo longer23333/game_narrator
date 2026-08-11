@@ -18,8 +18,8 @@ import {mergeTagViews} from './asset-tag-state.js';
   const localInput = document.querySelector('#local-asset-input');
   const localBrowse = document.querySelector('#local-asset-browse');
   const providerSettings = document.querySelector('#asset-provider-settings');
-  const searchPreferencesKey = 'gameNarrator.publicAssetSearch';
-  const recommendationSyncKey = 'gameNarrator.bilibiliRecommendationSyncAt';
+  const searchPreferencesKey = 'assetSearch';
+  const recommendationSyncKey = 'bilibiliRecommendationSync';
   let translationNotice = '';
   let discoveryState = {query:'', assetType:'', provider:'', sort:'RELEVANCE', page:1, pageSize:9, commercialUse:true, allowModification:true, loading:false};
 
@@ -538,7 +538,7 @@ import {mergeTagViews} from './asset-tag-state.js';
       provider:String(values.get('provider') || ''), sort:String(values.get('sort') || 'RELEVANCE'),
       page:1, pageSize:9,
       commercialUse:values.get('commercialUse') === 'on', allowModification:values.get('allowModification') === 'on', loading:false};
-    localStorage.setItem(searchPreferencesKey, JSON.stringify({...discoveryState, loading:undefined, page:undefined}));
+    window.gameNarratorPreferences?.set(searchPreferencesKey, {...discoveryState, loading:undefined, page:undefined});
     loadMore.hidden = true;
     await refreshTranslationNotice();
     await discoverPublicAssets(1);
@@ -621,7 +621,7 @@ import {mergeTagViews} from './asset-tag-state.js';
   });
 
   try {
-    const saved = JSON.parse(localStorage.getItem(searchPreferencesKey) || '{}');
+    const saved = window.gameNarratorPreferences?.get(searchPreferencesKey, {}) || {};
     for (const name of ['query', 'assetType', 'provider', 'sort']) {
       if (saved[name] !== undefined && form.elements[name]) form.elements[name].value = String(saved[name]);
     }
@@ -630,7 +630,7 @@ import {mergeTagViews} from './asset-tag-state.js';
       if (typeof saved[name] === 'boolean' && form.elements[name]) form.elements[name].checked = saved[name];
     }
   } catch (error) {
-    localStorage.removeItem(searchPreferencesKey);
+    window.gameNarratorPreferences?.remove(searchPreferencesKey);
   }
 
   list.addEventListener("submit", async event => {
@@ -811,7 +811,7 @@ import {mergeTagViews} from './asset-tag-state.js';
   }
 
   function syncBilibiliRecommendations(force = false) {
-    const previous = Number(localStorage.getItem(recommendationSyncKey) || 0);
+    const previous = Number(window.gameNarratorPreferences?.get(recommendationSyncKey, 0) || 0);
     if (!force && Date.now() - previous < 10 * 60 * 1000) return;
     const requestId = crypto.randomUUID();
     const desktopBridge = window.chrome?.webview;
@@ -822,7 +822,7 @@ import {mergeTagViews} from './asset-tag-state.js';
         console.info('[GameNarrator] Bilibili 推荐内容暂未同步：', event.detail.error);
         return;
       }
-      localStorage.setItem(recommendationSyncKey, String(Date.now()));
+      window.gameNarratorPreferences?.set(recommendationSyncKey, Date.now());
       if (event.detail.count > 0) {
         message.textContent = `已从当前 Bilibili 账号同步 ${event.detail.count} 项首页推荐记录（尚未下载）。`;
         await load();
@@ -833,7 +833,7 @@ import {mergeTagViews} from './asset-tag-state.js';
       desktopBridge.removeEventListener('message', receiveDesktop);
       if (event.data.error) { console.info('[GameNarrator] Bilibili 推荐内容暂未同步：', event.data.error); return; }
       const assets = await registerBilibiliItems(event.data.items || []);
-      localStorage.setItem(recommendationSyncKey, String(Date.now()));
+      window.gameNarratorPreferences?.set(recommendationSyncKey, Date.now());
       if (assets.length) { message.textContent = `已从当前 Bilibili 账号同步 ${assets.length} 项首页推荐记录（尚未下载）。`; await load(); }
     };
     if (desktopBridge) {

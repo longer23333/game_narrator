@@ -57,4 +57,14 @@ npm run build
 .\mvnw.cmd package
 ```
 
-只在 `frontend/index.html` 和 `frontend/public/` 修改前端源码。`src/main/resources/static/` 是生产构建产物，会被 `npm run build` 重新生成。
+前端源码位于 `frontend/index.html`、`frontend/src/` 和 `frontend/public/`。`src/main/resources/static/` 是生产构建产物，会被 `npm run build` 重新生成。
+
+## 渐进式 Vue 架构
+
+- `frontend/src/main.js` 是统一入口，创建 Vue 3 应用和共享 Pinia 实例。
+- `stores/tasks.js` 是任务列表与活动队列的唯一状态源；`services/task-stream.js` 独立处理 SSE 快照、增量消息和指数退避重连。
+- `TaskList.vue`、`ActiveTaskQueue.vue` 和 `TaskCard.vue` 负责任务 UI，旧 `app.js` 只保留详情、分镜等尚未迁移的交互，并通过 `window.gameNarratorTasks` 刷新 store。
+- 素材库与平台导入分别由 `AssetLibraryBoundary.vue`、`MediaImporterBoundary.vue` 按需加载，Vite 会生成独立 chunk；边界内暂时加载原有功能脚本，后续可逐块替换而不改变入口契约。
+- `stores/preferences.js` 配合 `pinia-plugin-persistedstate` 统一持久化任务草稿、素材搜索和平台导入偏好，并在首次启动时迁移旧的 localStorage 键。
+
+修改 `.vue`、store 或服务后运行 `npm test` 和 `npm run build`。修改普通 JavaScript 后还需逐个运行 `node --check`。

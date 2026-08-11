@@ -9,11 +9,10 @@
   let resolvedMedia = null;
   let autoDownloadRequested = false;
   let autoPreviewRequested = false;
-  const authenticationPreferencesKey = 'gameNarrator.mediaAuthenticationPreferences';
-  const mediaPreferencesKey = 'gameNarrator.mediaImportPreferences';
+  const authenticationPreferencesKey = 'mediaAuthentication';
+  const mediaPreferencesKey = 'mediaImport';
   const readJsonPreference = (key, fallback = {}) => {
-    try { return JSON.parse(localStorage.getItem(key) || '') || fallback; }
-    catch { return fallback; }
+    return window.gameNarratorPreferences?.get(key, fallback) || fallback;
   };
   const sourcePlatform = sourceUrl => {
     try { return new URL(sourceUrl).hostname.toLowerCase().replace(/^www\./, ''); }
@@ -23,9 +22,9 @@
   const rememberAuthentication = sourceUrl => {
     const platform = sourcePlatform(sourceUrl);
     if (!platform) return;
-    localStorage.setItem(authenticationPreferencesKey, JSON.stringify({
+    window.gameNarratorPreferences?.set(authenticationPreferencesKey, {
       ...readJsonPreference(authenticationPreferencesKey), [platform]:true
-    }));
+    });
   };
   const escapeHtml = value => String(value ?? "").replace(/[&<>"']/g, char => ({
     "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;"
@@ -181,7 +180,7 @@
         platformTags:["Bilibili专栏","专栏图片","待权利确认"]
       })));
       box.className = "bilibili-article-result";
-      box.innerHTML = `<h4>${escapeHtml(article.title || "未命名专栏")}</h4><small>${escapeHtml(article.author || "未知作者")} · 已提取 ${images.length} 张图片</small><p>${escapeHtml(article.text || "未提取到正文")}</p><div class="bilibili-article-images">${images.map(url => `<img src="${escapeHtml(url)}" loading="lazy" referrerpolicy="no-referrer">`).join("")}</div>`;
+      box.innerHTML = `<h4>${escapeHtml(article.title || "未命名专栏")}</h4><small>${escapeHtml(article.author || "未知作者")} · 已提取 ${images.length} 张图片</small><p>${escapeHtml(article.text || "未提取到正文")}</p><div class="bilibili-article-images">${images.map((url, index) => `<img src="${escapeHtml(url)}" alt="专栏图片 ${index + 1}" loading="lazy" referrerpolicy="no-referrer">`).join("")}</div>`;
       document.dispatchEvent(new CustomEvent("asset-library-updated"));
     } catch (error) {
       box.textContent = `${error.message}。如内容需要登录，请先完成上方 Bilibili 登录。`;
@@ -211,9 +210,9 @@
     if (coverImage) coverImage.addEventListener("error", () =>
       coverImage.closest(".media-cover").classList.add("cover-error"), {once:true});
     message.textContent = `解析成功：找到 ${media.variants.length} 种格式。`;
-    localStorage.setItem(mediaPreferencesKey, JSON.stringify({
+    window.gameNarratorPreferences?.set(mediaPreferencesKey, {
       rightsConfirmed:Boolean(form.elements.rightsConfirmed?.checked)
-    }));
+    });
     if (autoDownloadRequested) {
       autoDownloadRequested = false;
       queueMicrotask(() => result.querySelector('#media-download')?.click());

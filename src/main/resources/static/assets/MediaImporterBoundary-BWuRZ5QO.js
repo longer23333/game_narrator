@@ -1,0 +1,1 @@
+import{Q as t,P as r,F as s,H as o,J as c,r as n,E as m}from"./legacy-script-CLD-0yWn.js";const p={key:0,class:"empty"},_={__name:"MediaImporterBoundary",setup(i){const e=n("");return t(async()=>{try{await r("/media-importer.js")}catch(a){e.value=a.message}}),(a,l)=>e.value?(m(),s("p",p,"平台导入模块加载失败："+o(e.value),1)):c("",!0)}};export{_ as default};

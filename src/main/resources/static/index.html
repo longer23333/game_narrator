@@ -6,6 +6,11 @@
   <title>GameNarrator 2.2.4</title>
   <link rel="stylesheet" href="/media-importer.css?v=20260729-10">
   <link rel="stylesheet" href="/app.css?v=20260803-13">
+  <link rel="stylesheet" href="/ui-refresh.css?v=20260811-1">
+  <script type="module" crossorigin src="/assets/index-VmAsMjl9.js"></script>
+  <link rel="modulepreload" crossorigin href="/assets/legacy-script-CLD-0yWn.js">
+  <link rel="modulepreload" crossorigin href="/assets/memphis-motion.js">
+  <link rel="stylesheet" crossorigin href="/assets/memphis-theme.css">
 </head>
 <body>
   <div class="aurora"></div>
@@ -18,7 +23,18 @@
       <a href="/?view=assets" data-view-link="assets">素材库</a>
       <a href="/?view=settings" data-view-link="settings">设置</a>
     </nav>
-    <div class="topbar-actions"><button id="runtime-restart" class="diagnostics-open" type="button" hidden>重新运行</button><button id="updates-open" class="diagnostics-open has-update" type="button">更新公告</button><button id="guide-open" class="diagnostics-open guide-open" type="button">使用引导</button><button id="diagnostics-open" class="diagnostics-open" type="button">诊断日志</button><div class="system-state"><i></i> 本地推理工作台</div></div>
+    <div class="topbar-actions">
+      <div class="system-state"><i></i> 服务正常</div>
+      <details class="utility-menu">
+        <summary>帮助与系统</summary>
+        <div>
+          <button id="runtime-restart" class="diagnostics-open" type="button" hidden>重新运行</button>
+          <button id="updates-open" class="diagnostics-open has-update" type="button">更新公告</button>
+          <button id="guide-open" class="diagnostics-open guide-open" type="button">使用引导</button>
+          <button id="diagnostics-open" class="diagnostics-open" type="button">诊断日志</button>
+        </div>
+      </details>
+    </div>
   </header>
 
   <main>
@@ -79,17 +95,22 @@
           </div>
           <div class="grid">
             <label>剪辑范围<select name="editingScope"><option value="FULL_VIDEO">完整视频（默认）</option><option value="HIGHLIGHTS">仅精彩片段</option></select><small>完整视频保留全部内容；精彩片段会按目标时长筛选。</small></label>
-            <label>目标时长（秒）<input name="targetDurationSeconds" type="number" min="15" max="3600" value="90"><small>仅“精彩片段”模式用于控制成片长度。</small></label>
+            <label data-target-duration>目标时长（秒）<input name="targetDurationSeconds" type="number" min="15" max="3600" value="90"><small>仅“精彩片段”模式用于控制成片长度。</small></label>
           </div>
           <label>创作要求<textarea name="taskBrief" maxlength="500" required placeholder="描述希望重点保留的玩法、节奏和表达方式"></textarea></label>
-          <details class="glossary-editor"><summary>游戏术语纠错词表（可选）</summary><label>每行填写“错误词=正确词”<textarea name="terminologyGlossary" maxlength="4000" placeholder="躲避=闪避&#10;大龙=纳什男爵"></textarea></label></details>
-          <label class="effect-toggle storyboard-review-option"><input name="storyboardReviewEnabled" type="checkbox" value="true" checked> AI 生成文案和分镜后暂停，等待我检查和修改</label>
-          <label class="effect-toggle"><input name="automaticGenerationEnabled" type="checkbox" value="true" checked> 启动自动剪辑流程</label>
-          <label class="effect-toggle"><input name="cloudVisionEnabled" type="checkbox" value="true" checked> 云端理解完整视频场景</label>
-          <label class="effect-toggle"><input name="aiScriptEnabled" type="checkbox" value="true" checked> AI 生成文案与字幕初稿</label>
-          <label class="effect-toggle"><input name="aiVoiceEnabled" type="checkbox" value="true" checked> AI 生成解说语音</label>
-          <label class="effect-toggle"><input name="autoAssetsEnabled" type="checkbox" value="true" checked> AI 自动选择补充素材</label>
-          <small class="storyboard-review-hint">四项 AI 能力可独立开关；关闭的环节使用空轨道或规则流程，手动剪辑始终可用。</small>
+          <details class="advanced-options">
+            <summary><span>高级流程选项</span><small>默认配置已适合大多数任务</small></summary>
+            <div class="advanced-options-body">
+              <details class="glossary-editor"><summary>游戏术语纠错词表（可选）</summary><label>每行填写“错误词=正确词”<textarea name="terminologyGlossary" maxlength="4000" placeholder="躲避=闪避&#10;大龙=纳什男爵"></textarea></label></details>
+              <label class="effect-toggle storyboard-review-option"><input name="storyboardReviewEnabled" type="checkbox" value="true" checked> AI 生成文案和分镜后暂停，等待我检查和修改</label>
+              <label class="effect-toggle"><input name="automaticGenerationEnabled" type="checkbox" value="true" checked> 启动自动剪辑流程</label>
+              <label class="effect-toggle"><input name="cloudVisionEnabled" type="checkbox" value="true" checked> 云端理解完整视频场景</label>
+              <label class="effect-toggle"><input name="aiScriptEnabled" type="checkbox" value="true" checked> AI 生成文案与字幕初稿</label>
+              <label class="effect-toggle"><input name="aiVoiceEnabled" type="checkbox" value="true" checked> AI 生成解说语音</label>
+              <label class="effect-toggle"><input name="autoAssetsEnabled" type="checkbox" value="true" checked> AI 自动选择补充素材</label>
+              <small class="storyboard-review-hint">各项 AI 能力可独立开关；关闭后仍可手动剪辑。</small>
+            </div>
+          </details>
           <label class="dropzone">选择游戏视频<input name="video" type="file" accept="video/*" required><span>MP4 / MOV / MKV / WEBM</span></label>
           <button type="submit">建立分析任务 <b>→</b></button>
           <p id="form-message"></p>
@@ -101,7 +122,7 @@
           <div><small>LIVE MISSION</small><h2>运行中任务</h2></div>
           <span class="step">LIVE</span>
         </div>
-        <section id="active-task" class="active-task" aria-live="polite"><p class="empty">当前没有正在进行的任务</p></section>
+        <section id="active-task" class="active-task" aria-live="polite"><p class="empty">正在加载任务队列…</p></section>
       </article>
 
       <article class="history-panel">
@@ -113,7 +134,7 @@
       </article>
     </section>
 
-    <dialog id="task-trash-dialog"><div class="dialog-content"><div class="section-title"><div><small>RECYCLE BIN</small><h2>任务回收站</h2></div><button type="button" data-close-task-trash class="icon-button">×</button></div><p>任务文件会一直保留到永久删除。</p><div id="task-trash-list" class="task-list"><p class="empty">正在读取回收站…</p></div></div></dialog>
+    <dialog id="task-trash-dialog"><div class="dialog-content"><div class="section-title"><div><small>RECYCLE BIN</small><h2>任务回收站</h2></div><button type="button" data-close-task-trash class="icon-button" aria-label="关闭任务回收站">×</button></div><p>任务文件会一直保留到永久删除。</p><div id="task-trash-list" class="task-list"><p class="empty">正在读取回收站…</p></div></div></dialog>
 
     <section class="segment-search-panel" data-page="search">
       <div class="section-title">
@@ -136,13 +157,14 @@
     </section>
 
     <section class="media-importer" data-page="import">
+      <div data-feature-mount="import" aria-live="polite"></div>
       <div class="section-title">
         <div><small>AUTHORIZED MEDIA IMPORT</small><h2>平台素材导入</h2></div>
         <span class="step">URL</span>
       </div>
       <p class="asset-library-note">粘贴 Bilibili、YouTube、抖音或 TikTok 链接，解析可用视频、音频与字幕。仅用于本人创作、已获授权或平台明确允许下载的内容。</p>
       <form id="media-resolve-form" class="media-resolve-form">
-        <div class="auto-auth-state"><strong>自动浏览器认证</strong><small>安装并连接一次登录助手后，平台要求登录时会自动读取当前用户的浏览器登录状态。<a href="/extension-install.html" target="_blank">安装登录助手</a></small></div>
+        <div class="auto-auth-state"><strong>自动浏览器认证</strong><small>安装并连接一次登录助手后，平台要求登录时会自动读取当前用户的浏览器登录状态。<a href="/extension-install.html" target="_blank" rel="noopener">安装登录助手</a></small></div>
         <section class="bilibili-login-panel" aria-label="Bilibili 账号连接">
           <div><strong>Bilibili 账号连接</strong><small>登录在 B站官方页面完成；GameNarrator 不接触或保存账号密码。</small></div>
           <button type="button" data-bilibili-login="QR">扫码登录</button>
@@ -167,6 +189,7 @@
     </section>
 
     <section class="asset-library" data-page="assets">
+      <div data-feature-mount="assets" aria-live="polite"></div>
       <div class="section-title">
         <div><small>UNIFIED ASSET LIBRARY</small><h2>统一素材库</h2></div>
         <span class="step">LIB</span>
@@ -305,11 +328,9 @@
       <main id="storyboard-workspace" class="storyboard-workspace"><p class="empty">正在读取分镜…</p></main>
     </div>
   </dialog>
-  <script src="/app.js?v=20260811-7"></script>
-  <script src="/export.js?v=20260728-4"></script>
   <dialog id="diagnostics-dialog" class="task-dialog diagnostics-dialog">
     <div class="dialog-shell">
-      <header class="dialog-header"><div><small>SUPPORT &amp; TROUBLESHOOTING</small><h2>诊断日志</h2></div><button id="diagnostics-close" class="dialog-close" type="button">×</button></header>
+      <header class="dialog-header"><div><small>SUPPORT &amp; TROUBLESHOOTING</small><h2>诊断日志</h2></div><button id="diagnostics-close" class="dialog-close" type="button" aria-label="关闭诊断日志">×</button></header>
       <section class="diagnostics-content">
         <p>显示最近的后端、任务和登录错误。Cookie、Token、密码与 API Key 会在读取和导出时自动隐藏。</p>
         <div class="diagnostics-actions"><button id="diagnostics-refresh" type="button">刷新日志与存储</button><button id="storage-cleanup" type="button">清理过期临时文件</button><a href="/api/debug/logs/export" download="GameNarrator-Diagnostics.zip">导出诊断包</a></div>
@@ -318,6 +339,6 @@
       </section>
     </div>
   </dialog>
-  <dialog id="updates-dialog" class="task-dialog updates-dialog"><div class="dialog-shell"><header class="dialog-header"><div><small>RELEASE HISTORY</small><h2>更新公告</h2></div><button id="updates-close" class="dialog-close" type="button">×</button></header><section id="updates-list" class="updates-list"><p class="empty">正在读取更新历史…</p></section></div></dialog>
+  <dialog id="updates-dialog" class="task-dialog updates-dialog"><div class="dialog-shell"><header class="dialog-header"><div><small>RELEASE HISTORY</small><h2>更新公告</h2></div><button id="updates-close" class="dialog-close" type="button" aria-label="关闭更新公告">×</button></header><section id="updates-list" class="updates-list"><p class="empty">正在读取更新历史…</p></section></div></dialog>
 </body>
 </html>

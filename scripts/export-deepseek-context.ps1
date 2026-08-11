@@ -17,7 +17,7 @@ if (-not $resolvedVolumes.StartsWith($projectRoot + [IO.Path]::DirectorySeparato
 $utf8Bom = [System.Text.UTF8Encoding]::new($true)
 $markdownFence = '```'
 $allowedExtensions = @(
-    ".java", ".kt", ".cs", ".js", ".ts", ".css", ".html", ".yml", ".yaml", ".sql", ".md", ".xml",
+    ".java", ".kt", ".cs", ".js", ".ts", ".vue", ".css", ".html", ".yml", ".yaml", ".sql", ".md", ".xml",
     ".json", ".gradle", ".properties", ".cmd", ".bat", ".ps1", ".csproj", ".sln", ".iss", ".toml"
 )
 $roots = @("src", "docs", "scripts", "frontend", "android-app", "launcher", "release", ".github")
@@ -57,7 +57,7 @@ function Get-ContextFiles {
 
 function Get-Language([string]$extension) {
     switch ($extension.ToLowerInvariant()) {
-        ".java" { "java" }; ".kt" { "kotlin" }; ".cs" { "csharp" }; ".js" { "javascript" }; ".ts" { "typescript" }
+        ".java" { "java" }; ".kt" { "kotlin" }; ".cs" { "csharp" }; ".js" { "javascript" }; ".ts" { "typescript" }; ".vue" { "vue" }
         ".css" { "css" }; ".html" { "html" }; ".yml" { "yaml" }; ".yaml" { "yaml" }; ".sql" { "sql" }
         ".xml" { "xml" }; ".json" { "json" }; ".ps1" { "powershell" }; ".cmd" { "batch" }; ".bat" { "batch" }
         ".gradle" { "groovy" }; ".properties" { "properties" }; ".toml" { "toml" }; default { "text" }

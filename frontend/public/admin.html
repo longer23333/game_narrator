@@ -1,10 +1,10 @@
 <!doctype html>
 <html lang="zh-CN">
-<head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>GameNarrator 管理中心</title><link rel="stylesheet" href="/admin.css"></head>
+<head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>GameNarrator 管理中心</title><link rel="stylesheet" href="/admin.css"><link rel="stylesheet" href="/admin-refresh.css?v=20260811-1"><link rel="stylesheet" href="/assets/memphis-theme.css"></head>
 <body>
 <header class="topbar"><div><small>GAMENARRATOR CONSOLE</small><h1>后台管理中心</h1><p>用户、项目、AI 成本、云同步、存储与审计统一管理</p></div><div class="top-actions"><span id="adminIdentity"></span><a href="/">返回工作台</a><button id="logout" class="secondary">退出登录</button></div></header>
 <main>
-  <section id="login" class="login-card hidden"><h2>管理员登录</h2><form id="loginForm"><label>用户名<input name="username" autocomplete="username" required></label><label>密码<input name="password" type="password" autocomplete="current-password" required></label><label><span><input name="rememberMe" type="checkbox" value="true" checked> 在这台电脑上保持登录 30 天</span></label><button>登录</button></form><p id="loginTip" class="error"></p></section>
+  <section id="login" class="login-card hidden"><h2>管理员登录</h2><form id="loginForm"><label>用户名<input name="username" autocomplete="username" required></label><label>密码<input name="password" type="password" autocomplete="current-password" required></label><label><span><input name="rememberMe" type="checkbox" value="true" checked> 在这台电脑上保持登录 30 天</span></label><button>登录</button></form><p id="loginTip" class="error" role="alert" aria-live="polite"></p></section>
   <div id="app" class="shell hidden">
     <aside class="sidebar"><nav id="nav"><button data-tab="overview" class="active">总览</button><button data-tab="users">用户管理</button><button data-tab="projects">项目管理</button><button data-tab="api-usage">AI 用量</button><button data-tab="cloud-sync">云同步</button><button data-tab="storage">存储管理</button><button data-tab="audit">审计日志</button></nav></aside>
     <section class="content">
@@ -19,6 +19,6 @@
     </section>
   </div>
 </main>
-<dialog id="userDialog"><form id="userForm"><header><h2>编辑用户</h2><button type="button" data-close class="icon">×</button></header><input name="id" type="hidden"><label>角色<select name="role"><option>USER</option><option>ADMIN</option></select></label><label>状态<select name="status"><option>ACTIVE</option><option>DISABLED</option></select></label><label>存储配额（GB）<input name="quotaGb" type="number" min="0" step="1" required></label><label>每月 API 预算<input name="budget" type="number" min="0" step="0.01" required></label><footer><button type="button" data-close class="secondary">取消</button><button>保存修改</button></footer></form></dialog>
-<dialog id="detailDialog"><div class="detail"><header><h2 id="detailTitle">详情</h2><button type="button" data-close class="icon">×</button></header><div id="detailBody"></div></div></dialog>
-<script src="/admin.js"></script></body></html>
+<dialog id="userDialog"><form id="userForm"><header><h2>编辑用户</h2><button type="button" data-close class="icon" aria-label="关闭编辑用户窗口">×</button></header><input name="id" type="hidden"><label>角色<select name="role"><option>USER</option><option>ADMIN</option></select></label><label>状态<select name="status"><option>ACTIVE</option><option>DISABLED</option></select></label><label>存储配额（GB）<input name="quotaGb" type="number" min="0" step="1" required></label><label>每月 API 预算<input name="budget" type="number" min="0" step="0.01" required></label><footer><button type="button" data-close class="secondary">取消</button><button>保存修改</button></footer></form></dialog>
+<dialog id="detailDialog"><div class="detail"><header><h2 id="detailTitle">详情</h2><button type="button" data-close class="icon" aria-label="关闭详情窗口">×</button></header><div id="detailBody"></div></div></dialog>
+<script type="module" src="/assets/memphis-motion.js"></script><script src="/admin.js"></script></body></html>

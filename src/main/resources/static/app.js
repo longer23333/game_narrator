@@ -4,10 +4,9 @@ const validViews = new Set(['studio', 'search', 'import', 'assets', 'settings'])
 const lazyScriptPromises = new Map();
 const loadedLazyFeatures = new Set();
 const lazyScriptUrls = {
-  assets:'/asset-library.js?v=20260805-1',
-  import:'/media-importer.js?v=20260805-1',
-  diagnostics:'/diagnostics.js?v=20260811-1'
-  ,updates:'/updates.js?v=20260811-1'
+  diagnostics:'/diagnostics.js?v=20260811-1',
+  updates:'/updates.js?v=20260811-1',
+  export:'/export.js?v=20260728-4'
 };
 
 const runtimeRestartButton = document.querySelector('#runtime-restart');
@@ -48,11 +47,7 @@ function loadLazyScript(key) {
 }
 
 async function ensureViewScripts(view) {
-  if (view === 'import') await loadLazyScript('import');
-  if (view === 'assets') {
-    await loadLazyScript('import');
-    await loadLazyScript('assets');
-  }
+  if (view === 'import' || view === 'assets') await window.gameNarratorModules?.load(view);
 }
 
 function activateView(view, updateHistory = false) {
@@ -83,6 +78,16 @@ document.querySelector('.primary-nav')?.addEventListener('click', event => {
   activateView(link.dataset.viewLink, true);
 });
 window.addEventListener('popstate', () => activateView(new URLSearchParams(location.search).get('view')));
+const utilityMenu = document.querySelector('.utility-menu');
+utilityMenu?.addEventListener('click', event => {
+  if (event.target.closest('button')) utilityMenu.open = false;
+});
+document.addEventListener('click', event => {
+  if (utilityMenu?.open && !utilityMenu.contains(event.target)) utilityMenu.open = false;
+});
+document.addEventListener('keydown', event => {
+  if (event.key === 'Escape' && utilityMenu?.open) utilityMenu.open = false;
+});
 document.querySelector('#diagnostics-open')?.addEventListener('click', async event => {
   if (loadedLazyFeatures.has('diagnostics')) return;
   event.preventDefault();
@@ -183,6 +188,15 @@ aiSettingsForm?.addEventListener('submit', async event => {
 });
 loadAiSettings().catch(error=>{if(aiKeyState)aiKeyState.textContent=`配置读取失败：${error.message}`;});
 const taskForm = document.querySelector('#task-form');
+const editingScopeSelect = taskForm?.elements.editingScope;
+const targetDurationField = taskForm?.querySelector('[data-target-duration]');
+function syncTargetDurationVisibility() {
+  if (!editingScopeSelect || !targetDurationField) return;
+  const highlightsOnly = editingScopeSelect.value === 'HIGHLIGHTS';
+  targetDurationField.hidden = !highlightsOnly;
+}
+editingScopeSelect?.addEventListener('change', syncTargetDurationVisibility);
+syncTargetDurationVisibility();
 const message = document.querySelector('#form-message');
 const detailDialog = document.querySelector('#task-detail-dialog');
 const detailTitle = document.querySelector('#detail-title');
@@ -190,11 +204,6 @@ const detailContent = document.querySelector('#detail-content');
 const storyboardDialog = document.querySelector('#storyboard-dialog');
 const storyboardWorkspace = document.querySelector('#storyboard-workspace');
 let activeTaskId = null;
-let tasksLoading = false;
-let taskEventStream = null;
-let taskStreamConnected = false;
-let taskStreamRetryMs = 1000;
-const taskStreamSnapshot = new Map();
 let effectPresets = [];
 let storyboardProgressTimer = null;
 const segmentSearchForm = document.querySelector('#segment-search-form');
@@ -215,20 +224,7 @@ const stageNames = {
 };
 
 async function loadTasks() {
-  if (tasksLoading) return;
-  tasksLoading = true;
-  console.debug('[GameNarrator] GET /api/tasks');
-  try {
-    const response = await fetch('/api/tasks');
-    if (!response.ok) throw await readApiError(response);
-    const tasks = await response.json();
-    taskStreamSnapshot.clear();
-    tasks.forEach(task => taskStreamSnapshot.set(task.id, task));
-    reconcileTaskCards(tasks);
-    return tasks;
-  } finally {
-    tasksLoading = false;
-  }
+  return window.gameNarratorTasks.refresh();
 }
 
 async function loadTaskTrash() {
@@ -273,116 +269,6 @@ document.querySelector('#task-trash-list')?.addEventListener('click', async even
   }
 });
 
-function connectTaskStream() {
-  if (!window.EventSource || taskEventStream) return;
-  taskEventStream = new EventSource('/api/tasks/stream');
-  taskEventStream.onopen = () => {
-    taskStreamConnected = true;
-    taskStreamRetryMs = 1000;
-    clearInterval(storyboardProgressTimer);
-  };
-  taskEventStream.onmessage = event => {
-    try {
-      const payload = JSON.parse(event.data);
-      if (Array.isArray(payload)) {
-        taskStreamSnapshot.clear();
-        payload.forEach(task => taskStreamSnapshot.set(task.id, task));
-      } else if (payload.type === 'snapshot') {
-        taskStreamSnapshot.clear();
-        (payload.tasks || []).forEach(task => taskStreamSnapshot.set(task.id, task));
-      } else if (payload.type === 'delta') {
-        (payload.tasks || []).forEach(task => taskStreamSnapshot.set(task.id, task));
-        (payload.removedIds || []).forEach(id => taskStreamSnapshot.delete(id));
-      } else if (payload.type === 'heartbeat') {
-        return;
-      } else {
-        throw new Error('unknown task stream payload');
-      }
-      const tasks = [...taskStreamSnapshot.values()]
-        .sort((left, right) => new Date(right.createdAt) - new Date(left.createdAt));
-      reconcileTaskCards(tasks);
-      window.dispatchEvent(new CustomEvent('gamenarrator:tasks', {detail:tasks}));
-    } catch (error) {
-      console.warn('[GameNarrator] SSE payload ignored', error);
-    }
-  };
-  taskEventStream.onerror = () => {
-    taskStreamConnected = false;
-    taskEventStream?.close();
-    taskEventStream = null;
-    const retry = taskStreamRetryMs;
-    taskStreamRetryMs = Math.min(30000, taskStreamRetryMs * 2);
-    setTimeout(connectTaskStream, retry);
-  };
-}
-
-function taskCardHtml(task) {
-  return `
-      <div class="task-head"><strong>${escapeHtml(task.name)}</strong><div class="task-card-actions"><span>${task.status}</span><button type="button" class="task-card-rename" data-rename-list-task="${task.id}" data-task-name="${escapeHtml(task.name)}">重命名</button><button type="button" class="task-card-delete" data-delete-list-task="${task.id}" data-task-name="${escapeHtml(task.name)}" aria-label="删除任务 ${escapeHtml(task.name)}">删除</button></div></div>
-      <div class="tags"><i>${escapeHtml(task.gameCategory)}</i><i>${task.editingScope === 'HIGHLIGHTS' ? '精彩片段' : '完整视频'}</i><i>${escapeHtml(formatDate(task.createdAt))}</i></div>
-      ${task.failureReason ? `<div class="task-error">${escapeHtml(task.failureReason)}</div>` : ''}
-      <div class="stage-line">${task.stages.map(stage =>
-        `<span class="${stage.status.toLowerCase()}" title="${escapeHtml(stageTitle(stage))}"></span>`
-      ).join('')}</div>
-      <div class="stage-caption">${escapeHtml(currentStageText(task))}</div>`;
-}
-
-function createTaskCard(task) {
-  const card = document.createElement('div');
-  card.className = 'task-card';
-  card.dataset.taskId = task.id;
-  card.setAttribute('role', 'button');
-  card.setAttribute('tabindex', '0');
-  card.setAttribute('aria-label', `查看任务 ${task.name} 的详情`);
-  card.innerHTML = taskCardHtml(task);
-  return card;
-}
-
-function reconcileTaskCards(tasks) {
-  const activeTasks = tasks.filter(task => task.status !== 'COMPLETED');
-  renderActiveTask(activeTasks);
-  const recentTasks = tasks.filter(task => task.status === 'COMPLETED').slice(0, 8);
-  if (!recentTasks.length) {
-    const empty = taskList.querySelector('.empty');
-    if (empty && taskList.children.length === 1) empty.textContent = '还没有已完成的任务。';
-    else taskList.innerHTML = '<p class="empty">还没有已完成的任务。</p>';
-    return;
-  }
-  taskList.querySelector('.empty')?.remove();
-  const incomingIds = new Set(recentTasks.map(task => task.id));
-  taskList.querySelectorAll('.task-card').forEach(card => {
-    if (!incomingIds.has(card.dataset.taskId)) card.remove();
-  });
-  recentTasks.forEach(task => {
-    let card = Array.from(taskList.children).find(item => item.dataset?.taskId === task.id);
-    if (card) updateTaskCard(card, task);
-    else card = createTaskCard(task);
-    taskList.appendChild(card);
-  });
-}
-
-function renderActiveTask(activeTasks) {
-  if (!activeTasks.length) {
-    activeTaskPanel.innerHTML = '<p class="empty">当前没有正在进行的任务</p>';
-    return;
-  }
-  activeTaskPanel.innerHTML = `<small>ACTIVE QUEUE · ${activeTasks.length}</small>${activeTasks.map(task => {
-    const running = task.stages.find(stage => stage.status === 'RUNNING');
-    const progress = running?.progress ?? (task.status === 'WAITING_REVIEW' ? 100 : 0);
-    const completedStages = task.stages.filter(stage => stage.status === 'COMPLETED').length;
-    return `<div class="active-task-item"><button type="button" class="active-task-card" data-open-active-task="${task.id}">
-    <span><strong>${escapeHtml(task.name)}</strong><i>${escapeHtml(task.status)}</i></span>
-    <span class="active-task-meta"><i>${escapeHtml(task.gameCategory)}</i><i>${task.editingScope === 'HIGHLIGHTS' ? '精彩片段' : '完整视频'}</i><i>${completedStages} / ${task.stages.length} 阶段</i></span>
-    <b>${escapeHtml(currentStageText(task))}</b>
-    <span class="active-progress"><i style="width:${Math.max(0, Math.min(100, progress))}%"></i></span>
-    <span class="active-stage-line">${task.stages.map(stage => `<i class="${stage.status.toLowerCase()}" title="${escapeHtml(stageTitle(stage))}"></i>`).join('')}</span>
-    ${running?.type === 'VOICE_GENERATION' ? `<em>${escapeHtml(voiceProgressText(task, running))}</em>` : ''}
-    ${running?.type === 'RENDERING' ? `<em>${escapeHtml(renderingProgressText(task, running))}</em>` : ''}
-    ${missingToolGuidance(task) ? `<em class="tool-guidance">${escapeHtml(missingToolGuidance(task))}</em>` : ''}
-  </button>${task.status === 'PROCESSING' ? `<button type="button" class="task-cancel" data-cancel-task="${task.id}">取消当前任务</button>` : ''}</div>`;
-  }).join('')}`;
-}
-
 function voiceProgressText(task, stage) {
   const total = Math.max(1, task.generatedScriptSegmentCount || 1);
   const completed = Math.min(total, Math.max(0, Math.floor((Math.max(10, stage.progress) - 10) / 85 * total)));
@@ -403,35 +289,6 @@ function missingToolGuidance(task) {
   if (/whisper/i.test(reason)) return '缺少 Whisper：请运行 .\\scripts\\setup-whisper.ps1，完成后任务会自动重试。';
   if (/piper/i.test(reason)) return '缺少 Piper：请运行 .\\scripts\\setup-piper.ps1，完成后任务会自动重试。';
   return '';
-}
-
-function updateTaskCard(card, task) {
-  card.setAttribute('aria-label', `查看任务 ${task.name} 的详情`);
-  card.querySelector('.task-head strong').textContent = task.name;
-  card.querySelectorAll('[data-task-name]').forEach(button => { button.dataset.taskName = task.name; });
-  card.querySelector('.task-head span').textContent = task.status;
-  let error = card.querySelector('.task-error');
-  if (task.failureReason) {
-    if (!error) {
-      error = document.createElement('div');
-      error.className = 'task-error';
-      card.querySelector('.tags').insertAdjacentElement('afterend', error);
-    }
-    error.textContent = task.failureReason;
-  } else {
-    error?.remove();
-  }
-
-  const stageLine = card.querySelector('.stage-line');
-  if (stageLine.children.length !== task.stages.length) {
-    stageLine.innerHTML = task.stages.map(stage => '<span></span>').join('');
-  }
-  task.stages.forEach((stage, index) => {
-    const marker = stageLine.children[index];
-    marker.className = stage.status.toLowerCase();
-    marker.title = stageTitle(stage);
-  });
-  card.querySelector('.stage-caption').textContent = currentStageText(task);
 }
 
 function stageTitle(stage) {
@@ -870,6 +727,7 @@ async function openTaskDetails(taskId) {
   detailTitle.textContent = '任务详情';
   detailContent.innerHTML = '<p class="empty">正在读取任务详情…</p>';
   if (!detailDialog.open) detailDialog.showModal();
+  await loadLazyScript('export').catch(error => console.warn(error.message));
   await refreshTaskDetails(taskId);
 }
 
@@ -1188,14 +1046,18 @@ function renderBattleNarrativePlan(plan, taskId) {
   </section>`;
 }
 
-function renderDirectorReviewBoard(reviews, taskId) {
+function renderDirectorReviewBoard(reviews, taskId, aiRuntime) {
   const review = reviews?.[0];
   const messages = review?.messages || [];
   const opinions = messages.map(message => `<article><header><b>${escapeHtml(message.roleName || '总导演主持人')}</b><span>第 ${message.roundNo} 轮 · ${(message.elapsedMs / 1000).toFixed(1)}s</span></header><p>${escapeHtml(message.content?.summary || '已提交结构化意见')}</p><small>事件 ${(message.citedEventIds || []).length} · 镜头 ${(message.citedClipIndexes || []).length} · Token ${message.inputTokens + message.outputTokens}</small></article>`).join('');
   const waiting = review?.status === 'AWAITING_USER';
   const actionable = ['ACCEPTED','MODIFIED'].includes(review?.status);
+  const currentModel = aiRuntime?.activeTextModel || '读取中';
+  const engineLabel = aiRuntime?.local ? `本地 Ollama · ${currentModel}` : `云端 ${aiRuntime?.provider || ''} · ${currentModel}`;
+  const historicalCloudFailure = aiRuntime?.local && review?.status === 'FAILED'
+    && /API Key/i.test(review?.moderatorSummary || '');
   return `<section class="director-review-board">
-    <header><div><small>AI DIRECTOR REVIEW BOARD</small><h3>AI 导演评审会</h3><p>事实、剧情、节奏和受众四个角色独立评审，由总导演检查分歧与共识；结论不会自动修改时间线。</p></div><div><select data-review-rounds><option value="1">1 轮（推荐）</option><option value="2">2 轮</option></select><button type="button" data-storyboard-action="director-review-start" data-task-id="${taskId}">${review ? '重新评审' : '召开评审会'}</button></div></header>
+    <header><div><small>AI DIRECTOR REVIEW BOARD</small><h3>AI 导演评审会</h3><p>事实、剧情、节奏和受众四个角色独立评审，由总导演检查分歧与共识；结论不会自动修改时间线。</p><p class="director-runtime"><b>当前评审引擎</b><span>${escapeHtml(engineLabel)}</span>${review ? `<small>当前记录使用：${escapeHtml(review.modelVersion || '未知模型')}</small>` : ''}</p>${historicalCloudFailure ? '<p class="director-runtime-tip">这是一条切换到本地模式之前留下的云端失败记录；点击“重新评审”将使用本地模型，不需要云端 API Key。</p>' : ''}</div><div><select data-review-rounds><option value="1">1 轮（推荐）</option><option value="2">2 轮</option></select><button type="button" data-storyboard-action="director-review-start" data-task-id="${taskId}">${review ? '重新评审' : '召开评审会'}</button></div></header>
     ${review ? `<div class="director-metrics"><span>状态 ${escapeHtml(review.status)}</span><span>共识度 ${Math.round(review.consensusScore * 100)}%</span><span>${review.inputTokens + review.outputTokens} Token</span><span>${(review.elapsedMs / 1000).toFixed(1)} 秒</span><span>${escapeHtml(review.modelVersion || '')}</span></div><p>${escapeHtml(review.moderatorSummary || '')}</p><div class="director-review-messages">${opinions}</div><div class="diagnostics-actions">${waiting ? `<button type="button" data-storyboard-action="director-review-accept" data-task-id="${taskId}" data-review-id="${review.id}">接受</button><button type="button" data-storyboard-action="director-review-modify" data-task-id="${taskId}" data-review-id="${review.id}">修改后接受</button><button type="button" data-storyboard-action="director-review-reject" data-task-id="${taskId}" data-review-id="${review.id}">拒绝</button>` : ''}${actionable ? `<button type="button" data-storyboard-action="director-review-apply" data-task-id="${taskId}" data-review-id="${review.id}">应用到时间线</button>` : ''}</div>` : '<p class="empty">建议先确认游戏事件，再进行 1 轮评审；本地模型较慢时不要选择 2 轮。</p>'}
   </section>`;
 }
@@ -1255,11 +1117,55 @@ async function saveGameEventCard(taskId, card) {
   });
 }
 
+function captureStoryboardViewState(taskId) {
+  const currentTaskId = storyboardWorkspace?.querySelector('[data-task-id]')?.dataset.taskId;
+  if (currentTaskId !== taskId) return null;
+  const active = document.activeElement;
+  const activeCard = active?.closest?.('[data-storyboard-segment]');
+  const source = storyboardWorkspace.querySelector('[data-editor-preview]');
+  return {
+    dialogScrollTop: storyboardDialog.scrollTop,
+    pageScrollY: window.scrollY,
+    sourceTime: source?.currentTime || 0,
+    sourceWasPlaying: Boolean(source && !source.paused),
+    activeName: active?.name || null,
+    activeClip: activeCard?.dataset.storyboardSegment || null,
+    selectionStart: typeof active?.selectionStart === 'number' ? active.selectionStart : null,
+    openDetails: [...storyboardWorkspace.querySelectorAll('details[open]')]
+      .map(item => item.className).filter(Boolean)
+  };
+}
+
+function restoreStoryboardViewState(state) {
+  if (!state) return;
+  storyboardDialog.scrollTop = state.dialogScrollTop;
+  window.scrollTo({top:state.pageScrollY, behavior:'instant'});
+  const source = storyboardWorkspace.querySelector('[data-editor-preview]');
+  if (source) {
+    source.currentTime = state.sourceTime;
+    if (state.sourceWasPlaying) source.play().catch(() => {});
+  }
+  state.openDetails.forEach(className => {
+    const selector = `details.${className.trim().split(/\s+/).join('.')}`;
+    storyboardWorkspace.querySelector(selector)?.setAttribute('open', '');
+  });
+  if (!state.activeName) return;
+  const scope = state.activeClip
+    ? storyboardWorkspace.querySelector(`[data-storyboard-segment="${state.activeClip}"]`)
+    : storyboardWorkspace;
+  const target = [...(scope?.querySelectorAll(`[name="${state.activeName}"]`) || [])][0];
+  target?.focus({preventScroll:true});
+  if (target && state.selectionStart !== null && typeof target.setSelectionRange === 'function') {
+    target.setSelectionRange(state.selectionStart, state.selectionStart);
+  }
+}
+
 async function loadStoryboardEditor(taskId) {
+  const viewState = captureStoryboardViewState(taskId);
   clearInterval(storyboardProgressTimer);
   if (!storyboardDialog.open) storyboardDialog.showModal();
-  storyboardWorkspace.innerHTML = '<p class="empty">正在读取完整分镜时间线…</p>';
-  const [storyboard, localAssets, placements, editorTimeline, waveform, revisions, gameEvents, knowledgePack, narrativePlan, directorReviews, directorProfile, narrativeQuality, knowledgePacks, communityResources, creativeVariants, decisionReport] = await Promise.all([
+  if (!viewState) storyboardWorkspace.innerHTML = '<p class="empty">正在读取完整分镜时间线…</p>';
+  const [storyboard, localAssets, placements, editorTimeline, waveform, revisions, gameEvents, knowledgePack, narrativePlan, directorReviews, directorProfile, narrativeQuality, knowledgePacks, communityResources, creativeVariants, decisionReport, aiRuntime] = await Promise.all([
     requestJson(`/api/tasks/${taskId}/storyboard`),
     requestJson('/api/assets?importStatus=DOWNLOADED&limit=100'),
     requestJson(`/api/tasks/${taskId}/storyboard/assets`),
@@ -1275,13 +1181,14 @@ async function loadStoryboardEditor(taskId) {
     requestJson('/api/knowledge-packs'),
     requestJson('/api/community/resources'),
     requestJson(`/api/tasks/${taskId}/variants`),
-    requestJson(`/api/tasks/${taskId}/decision-report`)
+    requestJson(`/api/tasks/${taskId}/decision-report`),
+    requestJson('/api/ai-settings/runtime')
   ]);
   const totalDuration = storyboard.segments.reduce((sum, item) => sum + item.endSeconds - item.startSeconds, 0);
   storyboardWorkspace.innerHTML = `
     <section class="detail-block storyboard-editor" data-task-id="${taskId}" data-review-enabled="${storyboard.reviewEnabled}" data-approved="${storyboard.approved}">
       ${renderGameEventTimeline(gameEvents, knowledgePack, narrativePlan, taskId)}
-      ${renderDirectorReviewBoard(directorReviews, taskId)}
+      ${renderDirectorReviewBoard(directorReviews, taskId, aiRuntime)}
       ${renderDirectorIntelligence(directorProfile, narrativeQuality, knowledgePacks)}
       ${renderCommunityEcosystem(taskId, knowledgePacks, communityResources, creativeVariants, decisionReport)}
       <header class="storyboard-editor-head"><div><small>EDITOR WORKSPACE</small><h3>${escapeHtml(storyboard.title || '自由剪辑与分镜')}</h3><p>${escapeHtml(storyboard.synopsis || '')}</p></div>
@@ -1329,6 +1236,7 @@ async function loadStoryboardEditor(taskId) {
       <footer class="storyboard-continue-bar"><div><strong>修改完成了吗？</strong><small>点击后会先保存全部分镜，再明确启动配音、时间线规划和视频渲染。</small></div><button type="button" data-storyboard-action="save-all-continue" data-task-id="${taskId}">保存全部修改并执行下一步 →</button></footer>
     </section>`;
   mountStoryboardTimeline(taskId, editorTimeline, waveform);
+  restoreStoryboardViewState(viewState);
   storyboardWorkspace.querySelector('[data-knowledge-pack-import]')?.addEventListener('change', async event => {
     const file = event.target.files?.[0];
     if (!file) return;
@@ -1777,25 +1685,23 @@ async function handleStoryboardAction(button) {
       await loadStoryboardEditor(taskId);
       return;
     }
-    await requestJson(`/api/tasks/${taskId}/storyboard/segments/${button.dataset.clipIndex}`, {
-      method:'PUT', headers:{'Content-Type':'application/json'}, body:JSON.stringify({
-        startSeconds:Number(card.querySelector('[name="startSeconds"]').value),
-        endSeconds:Number(card.querySelector('[name="endSeconds"]').value),
-        narration:card.querySelector('[name="narration"]').value,
-        subtitle:card.querySelector('[name="subtitle"]').value,
-        effectCue:card.querySelector('[name="effectCue"]').value,
-        locked:card.querySelector('[name="locked"]').checked,
-        excluded:card.querySelector('[name="excluded"]').checked
-      })
+    await saveStoryboardSegment(taskId, card, retry => {
+      button.textContent = `检测到后台更新，自动重试 ${retry} / 3…`;
     });
     button.textContent = '已保存';
     setTimeout(() => { button.textContent = '保存此分镜'; button.disabled = false; }, 1000);
   } catch (error) {
     button.disabled = false;
     button.title = error.message;
-    if (error.code === 'CONCURRENT_MODIFICATION' || error.status === 409) {
-      window.alert('任务已被后台流程或其他编辑操作更新，正在重新加载分镜，请确认后再重试。');
-      await loadStoryboardEditor(taskId);
+    if (button.dataset.storyboardAction === 'director-review-apply') {
+      button.textContent = '再次应用评审结论';
+      const trace = error.traceId ? `\n追踪号：${error.traceId}` : '';
+      window.alert(`评审结论没有应用成功，现有分镜未被修改。\n\n你可以直接再次点击“应用到时间线”；如果仍然失败，再打开诊断日志。${trace}`);
+    } else if (error.code === 'CONCURRENT_MODIFICATION') {
+      const activity = await describeTaskActivity(taskId);
+      button.textContent = button.dataset.storyboardAction === 'save-all-continue'
+        ? '保存被后台更新打断，点击重试 →' : '再次保存此分镜';
+      window.alert(`保存连续 3 次遇到后台更新，当前编辑内容已保留，没有重新加载。\n\n${activity}\n你可以等待几秒后直接再次点击保存。${error.traceId ? `\n追踪号：${error.traceId}` : ''}`);
     } else {
       window.alert(error.message);
     }
@@ -1807,18 +1713,50 @@ async function saveAllStoryboardSegments(taskId, progressButton = null) {
   if (progressButton) progressButton.textContent = `正在保存 0 / ${cards.length}…`;
   for (let index = 0; index < cards.length; index++) {
     const card = cards[index];
-    await requestJson(`/api/tasks/${taskId}/storyboard/segments/${card.dataset.storyboardSegment}`, {
-      method:'PUT', headers:{'Content-Type':'application/json'}, body:JSON.stringify({
-        startSeconds:Number(card.querySelector('[name="startSeconds"]').value),
-        endSeconds:Number(card.querySelector('[name="endSeconds"]').value),
-        narration:card.querySelector('[name="narration"]').value,
-        subtitle:card.querySelector('[name="subtitle"]').value,
-        effectCue:card.querySelector('[name="effectCue"]').value,
-        locked:card.querySelector('[name="locked"]').checked,
-        excluded:card.querySelector('[name="excluded"]').checked
-      })
+    await saveStoryboardSegment(taskId, card, retry => {
+      if (progressButton) progressButton.textContent = `第 ${index + 1} 个分镜遇到后台更新，自动重试 ${retry} / 3…`;
     });
     if (progressButton) progressButton.textContent = `正在保存 ${index + 1} / ${cards.length}…`;
+  }
+}
+
+function storyboardSegmentPayload(card) {
+  return {
+    startSeconds:Number(card.querySelector('[name="startSeconds"]').value),
+    endSeconds:Number(card.querySelector('[name="endSeconds"]').value),
+    narration:card.querySelector('[name="narration"]').value,
+    subtitle:card.querySelector('[name="subtitle"]').value,
+    effectCue:card.querySelector('[name="effectCue"]').value,
+    locked:card.querySelector('[name="locked"]').checked,
+    excluded:card.querySelector('[name="excluded"]').checked
+  };
+}
+
+async function saveStoryboardSegment(taskId, card, onRetry = null) {
+  const clipIndex = card.dataset.storyboardSegment;
+  const body = JSON.stringify(storyboardSegmentPayload(card));
+  for (let attempt = 0; attempt < 3; attempt++) {
+    try {
+      return await requestJson(`/api/tasks/${taskId}/storyboard/segments/${clipIndex}`, {
+        method:'PUT', headers:{'Content-Type':'application/json'}, body
+      });
+    } catch (error) {
+      if (error.code !== 'CONCURRENT_MODIFICATION' || attempt === 2) throw error;
+      onRetry?.(attempt + 1);
+      await new Promise(resolve => setTimeout(resolve, 180 * (attempt + 1)));
+    }
+  }
+}
+
+async function describeTaskActivity(taskId) {
+  try {
+    const task = await requestJson(`/api/tasks/${taskId}`);
+    const running = task.stages?.find(stage => stage.status === 'RUNNING');
+    if (running) return `后台当前正在执行：${stageNames[running.type] || running.type}（${running.progress || 0}%）`;
+    if (task.status === 'WAITING_REVIEW') return '后台当前状态：等待分镜确认，没有运行中的处理阶段。';
+    return `后台当前状态：${task.status || '未知'}，没有运行中的处理阶段。可能是另一个页面或刚结束的后台写入。`;
+  } catch (statusError) {
+    return `无法读取后台当前阶段：${statusError.rawMessage || statusError.message}`;
   }
 }
 
@@ -1990,9 +1928,7 @@ function showLoadError(error) {
   taskList.innerHTML = `<p class="empty">任务加载失败：${escapeHtml(error.message)}</p>`;
 }
 
-loadTasks().catch(error => {
-  showLoadError(error);
-}).finally(connectTaskStream);
+loadTasks().catch(showLoadError);
 
 const guideSteps = [
   {selector: '.hero', title: '先认识完整工作流', text: '从录像到成片依次经过素材读取、镜头检测、字幕或 Whisper 转写、画面理解、分镜、高光与文案、配音、时间轴和渲染。平台字幕存在时会优先使用，AI 与自动素材都可以独立关闭。'},
@@ -2027,11 +1963,10 @@ let guideTarget = null;
 let guideRoot = null;
 let guideRequestId = 0;
 
-function guideStorage(action, value) {
+function saveGuideState(value) {
   try {
-    if (action === 'get') return localStorage.getItem('game-narrator-guide-v4');
     localStorage.setItem('game-narrator-guide-v4', value);
-  } catch (_) { return null; }
+  } catch (_) { /* Private browsing may disable storage; the guide still works. */ }
 }
 
 function ensureGuideRoot() {
@@ -2164,7 +2099,7 @@ function closeGuide(completed) {
     if (guideRoot.open) guideRoot.close();
     guideRoot.hidden = true;
   }
-  guideStorage('set', completed ? 'completed' : 'dismissed');
+  saveGuideState(completed ? 'completed' : 'dismissed');
   document.querySelector('#guide-open')?.focus({preventScroll: true});
 }
 
@@ -2174,10 +2109,6 @@ window.addEventListener('scroll', positionGuideCard, {passive: true});
 document.addEventListener('keydown', event => {
   if (event.key === 'Escape' && guideRoot && !guideRoot.hidden) closeGuide(false);
 });
-if (!guideStorage('get')) setTimeout(openGuide, 700);
-document.addEventListener('visibilitychange', () => {
-});
-
 // Account access is injected so the same Web bundle works unchanged in the Windows EXE shell.
 (function initializeAccountCenter() {
   const actions = document.querySelector('.topbar-actions');
@@ -2189,14 +2120,17 @@ document.addEventListener('visibilitychange', () => {
   actions.prepend(button);
   const dialog = document.createElement('dialog');
   dialog.className = 'task-dialog';
-  dialog.innerHTML = `<div class="dialog-shell"><header class="dialog-header"><div><small>ACCOUNT</small><h2>账号与云端数据</h2></div><button class="dialog-close" type="button">×</button></header><section class="diagnostics-content"><p data-account-state>匿名模式：项目和素材保存在当前电脑。</p><form data-account-form><label>用户名<input name="username" autocomplete="username" required></label><label>密码<input name="password" type="password" autocomplete="current-password" required></label><label class="remember-login"><input name="rememberMe" type="checkbox" value="true" checked> 在这台电脑上保持登录 30 天</label><div class="diagnostics-actions"><button type="submit">登录</button><button type="button" data-register>注册新账号</button><button type="button" data-anonymous>切换匿名</button><a data-admin href="/admin.html" hidden>后台管理</a></div></form><p data-account-tip></p></section></div>`;
+  dialog.innerHTML = `<div class="dialog-shell"><header class="dialog-header"><div><small>ACCOUNT</small><h2>账号与云端数据</h2></div><button class="dialog-close" type="button" aria-label="关闭账号窗口">×</button></header><section class="diagnostics-content"><p data-account-state>匿名模式：项目和素材保存在当前电脑。</p><form data-account-form><label>用户名<input name="username" autocomplete="username" required></label><label>密码<input name="password" type="password" autocomplete="current-password" required></label><label data-register-only hidden>显示名称<input name="displayName" autocomplete="name" maxlength="80"></label><label class="remember-login"><input name="rememberMe" type="checkbox" value="true" checked> 在这台电脑上保持登录 30 天</label><div class="diagnostics-actions"><button type="submit" data-account-submit>登录</button><button type="button" data-register>注册新账号</button><button type="button" data-anonymous>切换匿名</button><a data-admin href="/admin.html" hidden>后台管理</a></div></form><p data-account-tip role="status" aria-live="polite"></p></section></div>`;
   document.body.append(dialog);
   const state = dialog.querySelector('[data-account-state]'), tip = dialog.querySelector('[data-account-tip]');
   async function request(url, options={}) { const response=await fetch(url,{headers:{'Content-Type':'application/json'},...options}); const body=await response.json(); if(!response.ok) throw Error(body.message||'操作失败'); return body; }
   async function refresh() { const me=await request('/api/auth/me'); button.textContent=me.authenticated?me.displayName:'匿名使用'; state.textContent=me.authenticated?`已登录：${me.displayName}（${me.role}），当前项目按账号隔离保存。`:'匿名模式：项目和素材仅保存在当前电脑。'; dialog.querySelector('[data-admin]').hidden=me.role!=='ADMIN'; }
   button.onclick=()=>{refresh().catch(()=>{});dialog.showModal()}; dialog.querySelector('.dialog-close').onclick=()=>dialog.close();
-  dialog.querySelector('[data-account-form]').onsubmit=async event=>{event.preventDefault();tip.textContent='';try{const data=Object.fromEntries(new FormData(event.target));await request('/api/auth/login',{method:'POST',body:JSON.stringify(data)});location.reload()}catch(error){tip.textContent=error.message}};
-  dialog.querySelector('[data-register]').onclick=async()=>{const username=prompt('设置用户名（3-64 位字母、数字、下划线或短横线）');if(!username)return;const password=prompt('设置密码（至少 8 位）');if(!password)return;const displayName=prompt('显示名称',username);const rememberMe=dialog.querySelector('[name="rememberMe"]').checked;try{await request('/api/auth/register',{method:'POST',body:JSON.stringify({username,password,displayName,rememberMe})});location.reload()}catch(error){tip.textContent=error.message}};
+  let registrationMode=false;
+  const form=dialog.querySelector('[data-account-form]'), registerOnly=form.querySelector('[data-register-only]'), passwordInput=form.elements.password, submitButton=form.querySelector('[data-account-submit]'), registerButton=form.querySelector('[data-register]');
+  function setRegistrationMode(enabled){registrationMode=enabled;registerOnly.hidden=!enabled;registerOnly.querySelector('input').required=enabled;passwordInput.minLength=enabled?8:0;passwordInput.autocomplete=enabled?'new-password':'current-password';submitButton.textContent=enabled?'创建账号并登录':'登录';registerButton.textContent=enabled?'返回登录':'注册新账号';tip.textContent=enabled?'请填写用户名、至少 8 位密码和显示名称。':'';}
+  form.onsubmit=async event=>{event.preventDefault();tip.textContent='';try{const data=Object.fromEntries(new FormData(form));if(!registrationMode)delete data.displayName;await request(registrationMode?'/api/auth/register':'/api/auth/login',{method:'POST',body:JSON.stringify(data)});location.reload()}catch(error){tip.textContent=error.message}};
+  registerButton.onclick=()=>{setRegistrationMode(!registrationMode);(registrationMode?registerOnly.querySelector('input'):form.elements.username).focus()};
   dialog.querySelector('[data-anonymous]').onclick=async()=>{await request('/api/auth/anonymous',{method:'POST'});location.reload()};
   refresh().catch(()=>{});
 })();
