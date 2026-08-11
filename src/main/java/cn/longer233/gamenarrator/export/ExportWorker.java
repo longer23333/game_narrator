@@ -7,6 +7,7 @@ import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Component;
 import cn.longer233.gamenarrator.media.FfmpegMediaProbe;
+import cn.longer233.gamenarrator.render.FfmpegEncoderCapabilities;
 
 import java.io.BufferedReader;
 import java.io.InputStreamReader;
@@ -28,13 +29,16 @@ public class ExportWorker {
     private final JdbcTemplate jdbc;
     private final String ffmpegCommand;
     private final FfmpegMediaProbe mediaProbe;
+    private final FfmpegEncoderCapabilities encoderCapabilities;
 
     public ExportWorker(JdbcTemplate jdbc,
                         @Value("${game-narrator.ffmpeg-command}") String ffmpegCommand,
-                        FfmpegMediaProbe mediaProbe) {
+                        FfmpegMediaProbe mediaProbe,
+                        FfmpegEncoderCapabilities encoderCapabilities) {
         this.jdbc = jdbc;
         this.ffmpegCommand = ffmpegCommand;
         this.mediaProbe = mediaProbe;
+        this.encoderCapabilities = encoderCapabilities;
     }
 
     @Async
@@ -100,7 +104,8 @@ public class ExportWorker {
         }
         if (!filters.isEmpty()) command.addAll(List.of("-vf", String.join(",", filters)));
         if (frameRate != null) command.addAll(List.of("-r", trim(frameRate)));
-        String encoder = encoder(preset.videoCodec(), preset.hardwareEncoder());
+        String requestedEncoder = encoder(preset.videoCodec(), preset.hardwareEncoder());
+        String encoder = encoderCapabilities.resolve(requestedEncoder, softwareEncoder(preset.videoCodec()));
         command.addAll(List.of("-c:v", encoder));
         Integer quality = request.qualityValue() != null ? request.qualityValue() : preset.qualityValue();
         Integer bitrate = request.targetBitrateKbps() != null ? request.targetBitrateKbps() : preset.targetBitrateKbps();
@@ -126,6 +131,10 @@ public class ExportWorker {
 
     private String encoder(String codec, String hardware) {
         if (hardware != null && !hardware.isBlank()) return hardware.toLowerCase();
+        return softwareEncoder(codec);
+    }
+
+    private String softwareEncoder(String codec) {
         return switch (codec.toUpperCase()) {
             case "HEVC" -> "libx265";
             case "AV1" -> "libsvtav1";

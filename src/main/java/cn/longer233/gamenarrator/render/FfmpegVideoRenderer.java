@@ -31,6 +31,7 @@ public class FfmpegVideoRenderer {
     private final ObjectMapper objectMapper;
     private final String ffmpegCommand;
     private final String preferredEncoder;
+    private final FfmpegEncoderCapabilities encoderCapabilities;
     private final SemanticEffectPlanner effectPlanner;
     private final AssSubtitleBuilder assSubtitleBuilder;
     private final ProceduralSoundEffectLibrary soundEffectLibrary;
@@ -45,6 +46,7 @@ public class FfmpegVideoRenderer {
             RenderAssetResolver renderAssetResolver,
             RenderVideoFilterBuilder videoFilterBuilder,
             RenderAudioMixBuilder audioMixBuilder,
+            FfmpegEncoderCapabilities encoderCapabilities,
             @Value("${game-narrator.ffmpeg-command}") String ffmpegCommand,
             @Value("${game-narrator.render.video-encoder:h264_nvenc}") String preferredEncoder) {
         this.objectMapper = objectMapper;
@@ -54,6 +56,7 @@ public class FfmpegVideoRenderer {
         this.renderAssetResolver = renderAssetResolver;
         this.videoFilterBuilder = videoFilterBuilder;
         this.audioMixBuilder = audioMixBuilder;
+        this.encoderCapabilities = encoderCapabilities;
         this.ffmpegCommand = ffmpegCommand;
         this.preferredEncoder = preferredEncoder;
     }
@@ -93,7 +96,7 @@ public class FfmpegVideoRenderer {
             List<Path> clips = new ArrayList<>();
             List<java.util.Map<String, Object>> effectManifest = new ArrayList<>();
             List<EffectPlan> effectPlans = new ArrayList<>();
-            String encoder = preferredEncoder;
+            String encoder = encoderCapabilities.resolve(preferredEncoder, "libx264");
             for (int index = 0; index < segments.size(); index++) {
                 int clipPosition = index;
                 Path clip = workDirectory.resolve("clip-%02d.mp4".formatted(index + 1));
