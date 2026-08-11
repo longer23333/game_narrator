@@ -30,11 +30,14 @@ public class EditorTimelineService {
     private final VideoTaskRepository tasks;
     private final ScriptWorkspaceService workspace;
     private final CurrentUserContext currentUser;
+    private final AudioWaveformCache waveformCache;
 
     public EditorTimelineService(JdbcTemplate jdbc, ObjectMapper mapper, VideoTaskRepository tasks,
-                                 ScriptWorkspaceService workspace, CurrentUserContext currentUser) {
+                                 ScriptWorkspaceService workspace, CurrentUserContext currentUser,
+                                 AudioWaveformCache waveformCache) {
         this.jdbc = jdbc; this.mapper = mapper; this.tasks = tasks; this.workspace = workspace;
         this.currentUser = currentUser;
+        this.waveformCache = waveformCache;
     }
 
     @Transactional
@@ -92,6 +95,10 @@ public class EditorTimelineService {
         if (task.getExtractedAudioPath() == null) return Map.of("points", List.of(), "available", false);
         Path audio = Path.of(task.getExtractedAudioPath()).toAbsolutePath().normalize();
         if (!Files.isRegularFile(audio)) return Map.of("points", List.of(), "available", false);
+        return waveformCache.get(audio, target, () -> decodeWaveform(audio, target));
+    }
+
+    private Map<String, Object> decodeWaveform(Path audio, int target) {
         try (var input = AudioSystem.getAudioInputStream(audio.toFile())) {
             int frameSize = Math.max(1, input.getFormat().getFrameSize());
             long expectedFrames = input.getFrameLength();

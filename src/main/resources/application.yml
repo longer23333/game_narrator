@@ -236,6 +236,9 @@ game-narrator:
       enabled: ${PIXABAY_ENABLED:true}
       base-url: ${PIXABAY_BASE_URL:https://pixabay.com}
       api-key: ${PIXABAY_API_KEY:}
+  editor:
+    waveform-cache:
+      maximum-entries: ${EDITOR_WAVEFORM_CACHE_MAXIMUM_ENTRIES:128}
   async:
     core-pool-size: ${ASYNC_CORE_POOL_SIZE:2}
     # Video/vision jobs are memory-heavy; two concurrent jobs avoid multiplying frame/model peaks.
