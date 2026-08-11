@@ -143,7 +143,12 @@ public class VideoTaskService {
     @Transactional
     public List<VideoTaskView> findAll() {
         log.debug("TASK_LIST");
-        return repository.findAllByOwnerIdOrderByCreatedAtDesc(currentUser.userId())
+        return findAllForOwner(currentUser.userId());
+    }
+
+    @Transactional
+    public List<VideoTaskView> findAllForOwner(UUID ownerId) {
+        return repository.findAllByOwnerIdOrderByCreatedAtDesc(ownerId)
                 .stream()
                 .map(VideoTaskView::from)
                 .toList();
