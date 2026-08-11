@@ -271,6 +271,9 @@ game-narrator:
     model: "${WHISPER_MODEL:./models/ggml-base.bin}"
     language: ${WHISPER_LANGUAGE:auto}
     threads: ${WHISPER_THREADS:8}
+    long-audio-threshold-minutes: ${WHISPER_LONG_AUDIO_THRESHOLD_MINUTES:30}
+    chunk-minutes: ${WHISPER_CHUNK_MINUTES:20}
+    chunk-timeout-minutes: ${WHISPER_CHUNK_TIMEOUT_MINUTES:45}
   ollama:
     base-url: ${OLLAMA_BASE_URL:http://localhost:11434}
     vision-model: ${OLLAMA_VISION_MODEL:qwen2.5vl:3b}
