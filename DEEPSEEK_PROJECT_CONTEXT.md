@@ -1,7 +1,7 @@
 ﻿# GameNarrator — DeepSeek 结构化项目索引
 
-> 自动生成：2026-08-11 12:04:46 +08:00；UTF-8 BOM；索引不再内嵌全部源码。
-> Git：分支 `main`，提交 `b2d05b4`；收录文件 704 个，分卷 8 个。
+> 自动生成：2026-08-11 12:10:46 +08:00；UTF-8 BOM；索引不再内嵌全部源码。
+> Git：分支 `main`，提交 `7c7a3f0`；收录文件 706 个，分卷 8 个。
 
 ## 使用方法
 
@@ -30,23 +30,22 @@
 | `deepseek-context/01-foundation.md` | 80 | 121091 | 构建、配置、资源、数据库迁移 |
 | `deepseek-context/02-backend.md` | 260 | 1033326 | Spring 后端实现 |
 | `deepseek-context/03-tests.md` | 83 | 235136 | Spring 测试与行为验证 |
-| `deepseek-context/04-frontend.md` | 17 | 361253 | Vite Web 源码 |
+| `deepseek-context/04-frontend.md` | 19 | 364178 | Vite Web 源码 |
 | `deepseek-context/05-android-main.md` | 151 | 855263 | Android 实现、资源与 Gradle |
 | `deepseek-context/06-android-tests.md` | 55 | 131882 | Android 单元及设备测试 |
 | `deepseek-context/07-platform-release.md` | 10 | 49452 | Windows、CI/CD 与发布 |
-| `deepseek-context/08-docs-scripts.md` | 48 | 178329 | 需求、架构、维护脚本 |
+| `deepseek-context/08-docs-scripts.md` | 48 | 178503 | 需求、架构、维护脚本 |
 
 ## 当前 Git 工作区（最近修改）
 
 ```text
-M frontend/index.html
+M frontend/package.json
  M frontend/public/asset-library.js
- M src/main/java/cn/longer233/gamenarrator/asset/AssetCatalogController.java
- M src/main/java/cn/longer233/gamenarrator/asset/AssetCatalogService.java
+ M scripts/verify-before-push.ps1
  M src/main/resources/static/asset-library.js
- M src/main/resources/static/index.html
- M src/test/java/cn/longer233/gamenarrator/task/web/VideoTaskControllerTest.java
-?? src/main/java/cn/longer233/gamenarrator/asset/AssetBatchUpdateRequest.java
+?? frontend/public/asset-tag-state.js
+?? frontend/test/
+?? src/main/resources/static/asset-tag-state.js
 ```
 
 ## Flyway 迁移索引

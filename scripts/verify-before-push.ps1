@@ -17,12 +17,16 @@ if ($LASTEXITCODE -ne 0) { throw 'Frontend build failed' }
 
 Write-Host 'Checking browser JavaScript syntax...'
 $javascriptFiles = @(
-  'app.js', 'asset-library.js', 'diagnostics.js', 'export.js', 'media-importer.js'
+  'app.js', 'asset-library.js', 'asset-tag-state.js', 'diagnostics.js', 'export.js', 'media-importer.js'
 )
 foreach ($name in $javascriptFiles) {
   & node --check (Join-Path $frontendRoot "public\$name")
   if ($LASTEXITCODE -ne 0) { throw "JavaScript syntax check failed: $name" }
 }
+
+Write-Host 'Running frontend behavior tests...'
+& $npm --prefix $frontendRoot test
+if ($LASTEXITCODE -ne 0) { throw 'Frontend behavior tests failed' }
 
 Write-Host 'Running backend tests...'
 & (Join-Path $projectRoot 'mvnw.cmd') test

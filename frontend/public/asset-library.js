@@ -1,3 +1,5 @@
+import {mergeTagViews} from './asset-tag-state.js';
+
 (() => {
   const form = document.querySelector("#asset-search-form");
   const list = document.querySelector("#asset-list");
@@ -307,7 +309,7 @@
     const existing = new Set([...list.querySelectorAll('.asset-card')].map(card => card.dataset.id));
     const fresh = append ? assets.filter(asset => !existing.has(String(asset.id))) : assets;
     const markup = fresh.map(asset => `
-      <article class="asset-card" data-id="${asset.id}">
+      <article class="asset-card" data-id="${asset.id}" data-tags="${escapeHtml(JSON.stringify(asset.tags || []))}">
         ${mediaMarkup(asset)}
         <div class="asset-card-body">
           <div class="asset-card-head">
@@ -555,6 +557,16 @@
   const selectedCards = () => [...list.querySelectorAll('.asset-card')]
     .filter(card => card.querySelector('[data-select-asset]')?.checked);
 
+  function cardTags(card) {
+    try { return JSON.parse(card.dataset.tags || '[]'); } catch (error) { return []; }
+  }
+
+  function updateCardTags(card, tags) {
+    const safeTags = Array.isArray(tags) ? tags : [];
+    card.dataset.tags = JSON.stringify(safeTags);
+    card.querySelector('.asset-tags').innerHTML = safeTags.map(tagMarkup).join('');
+  }
+
   async function batchAssets(cards, operation, progressText) {
     const controls = [favoriteSelected, tagSelected, deleteSelected, selectAll].filter(Boolean);
     controls.forEach(control => { control.disabled = true; });
@@ -591,8 +603,8 @@
     if (!tag?.trim()) return;
     try {
       const affected = await batchAssets(cards, {addTags:[tag.trim()]}, `正在为 ${cards.length} 项素材添加标签…`);
+      cards.forEach(card => updateCardTags(card, mergeTagViews(cardTags(card), [tag.trim()], [])));
       message.textContent = `已为 ${affected} 项素材添加“${tag.trim()}”标签。`;
-      await load(false);
     } catch (error) { message.textContent = error.message; }
   });
 
@@ -627,7 +639,15 @@
     const card = event.target.closest(".asset-card");
     const input = event.target.elements.tag;
     if (!input.value.trim()) return;
-    await updateTags(card.dataset.id, [input.value.trim()], []);
+    const button = event.target.querySelector('button[type="submit"]');
+    button.disabled = true;
+    try {
+      await updateTags(card.dataset.id, [input.value.trim()], []);
+    } catch (error) {
+      message.textContent = error.message;
+    } finally {
+      button.disabled = false;
+    }
   });
 
   list.addEventListener("click", async event => {
@@ -715,6 +735,7 @@
       }
     } catch (error) {
       message.textContent = error.message;
+      if (event.target.matches('[data-remove-tag]')) return;
       await load();
     }
   });
@@ -737,13 +758,18 @@
   });
 
   async function updateTags(id, add, remove) {
-    await request(`/api/assets/${id}/tags`, {
+    const asset = await request(`/api/assets/${id}/tags`, {
       method: "PUT",
       headers: {"Content-Type": "application/json"},
       body: JSON.stringify({add, remove})
     });
+    const card = list.querySelector(`.asset-card[data-id="${CSS.escape(String(id))}"]`);
+    if (card) {
+      updateCardTags(card, asset.tags || mergeTagViews(cardTags(card), add, remove));
+      const input = card.querySelector('.asset-tag-form [name="tag"]');
+      if (input) input.value = '';
+    }
     message.textContent = "用户标签已保存，并覆盖默认分类结果。";
-    await load();
   }
 
   refresh?.addEventListener("click", loadFeatured);
