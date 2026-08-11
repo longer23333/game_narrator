@@ -46,4 +46,23 @@ class DiagnosticLogServiceTest {
         assertThat(recent).contains(target.toString(), "complete ffmpeg output", "renderer.call", "Authorization=***")
                 .doesNotContain(another.toString(), "secret-token");
     }
+
+    @Test
+    void filtersLogsForAllTasksOwnedByOneAccount() throws Exception {
+        UUID first = UUID.randomUUID();
+        UUID second = UUID.randomUUID();
+        UUID foreign = UUID.randomUUID();
+        Path log = tempDir.resolve("game-narrator.log");
+        Files.writeString(log, "ENGINE_FAILED taskId=" + foreign + " message=foreign-secret\n"
+                + "foreign stack detail\n"
+                + "ENGINE_START taskId=" + first + "\n"
+                + "ENGINE_FAILED taskId=" + second + " message=owned failure\n"
+                + "owned stack detail\n");
+        var service = new DiagnosticLogService(log.toString());
+
+        String recent = service.recentForTasks(java.util.List.of(first, second), 100);
+
+        assertThat(recent).contains(first.toString(), second.toString(), "owned stack detail")
+                .doesNotContain(foreign.toString(), "foreign-secret", "foreign stack detail");
+    }
 }

@@ -9,6 +9,7 @@ import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.Comparator;
+import java.util.Collection;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Set;
@@ -52,24 +53,39 @@ public class DiagnosticLogService {
 
     public String recentForTask(UUID taskId, int requestedLines) {
         if (taskId == null) return recent(requestedLines);
+        return recentMatching(Set.of("taskId=" + taskId), requestedLines,
+                "当前日志尾部没有该任务的记录。任务编号：" + taskId);
+    }
+
+    public String recentForTasks(Collection<UUID> taskIds, int requestedLines) {
+        Set<String> markers = taskIds == null ? Set.of() : taskIds.stream()
+                .filter(java.util.Objects::nonNull)
+                .map(taskId -> "taskId=" + taskId)
+                .collect(java.util.stream.Collectors.toUnmodifiableSet());
+        if (markers.isEmpty()) return "当前账号还没有可显示的任务日志。";
+        return recentMatching(markers, requestedLines, "当前日志尾部没有该账号任务的记录。");
+    }
+
+    private String recentMatching(Set<String> markers, int requestedLines, String emptyMessage) {
         int lines = Math.max(20, Math.min(1000, requestedLines));
         if (!Files.isRegularFile(applicationLog)) return "日志文件尚未生成：" + applicationLog.getFileName();
         try {
             List<String> values = new String(readTail(applicationLog, MAX_TAIL_BYTES), StandardCharsets.UTF_8)
                     .lines().toList();
-            String marker = "taskId=" + taskId;
             Set<Integer> selected = new LinkedHashSet<>();
             for (int index = 0; index < values.size(); index++) {
-                if (!values.get(index).contains(marker)) continue;
-                int from = Math.max(0, index - 2);
+                String marker = matchingMarker(values.get(index), markers);
+                if (marker == null) continue;
+                int from = index;
                 int to = Math.min(values.size(), index + 13);
                 for (int context = from; context < to; context++) {
                     String candidate = values.get(context);
-                    if (context > index && candidate.contains("taskId=") && !candidate.contains(marker)) break;
+                    if (context > index && candidate.contains("taskId=")
+                            && matchingMarker(candidate, markers) == null) break;
                     selected.add(context);
                 }
             }
-            if (selected.isEmpty()) return "当前日志尾部没有该任务的记录。任务编号：" + taskId;
+            if (selected.isEmpty()) return emptyMessage;
             List<Integer> indexes = selected.stream().toList();
             return indexes.stream().skip(Math.max(0, indexes.size() - lines))
                     .map(index -> sanitize(values.get(index)))
@@ -77,6 +93,11 @@ public class DiagnosticLogService {
         } catch (Exception exception) {
             throw new IllegalStateException("无法读取任务诊断日志：" + exception.getMessage(), exception);
         }
+    }
+
+    private String matchingMarker(String line, Set<String> markers) {
+        if (line == null || !line.contains("taskId=")) return null;
+        return markers.stream().filter(line::contains).findFirst().orElse(null);
     }
 
     public byte[] export() {

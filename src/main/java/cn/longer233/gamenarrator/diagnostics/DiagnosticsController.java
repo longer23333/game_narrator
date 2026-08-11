@@ -1,5 +1,8 @@
 package cn.longer233.gamenarrator.diagnostics;
 
+import cn.longer233.gamenarrator.identity.CurrentUserContext;
+import cn.longer233.gamenarrator.task.application.TaskNotFoundException;
+import cn.longer233.gamenarrator.task.repository.VideoTaskRepository;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -21,11 +24,16 @@ public class DiagnosticsController {
 
     private final SystemDiagnosticsService diagnostics;
     private final DiagnosticLogService logs;
+    private final VideoTaskRepository tasks;
+    private final CurrentUserContext current;
     private static final Logger log = LoggerFactory.getLogger(DiagnosticsController.class);
 
-    public DiagnosticsController(SystemDiagnosticsService diagnostics, DiagnosticLogService logs) {
+    public DiagnosticsController(SystemDiagnosticsService diagnostics, DiagnosticLogService logs,
+                                 VideoTaskRepository tasks, CurrentUserContext current) {
         this.diagnostics = diagnostics;
         this.logs = logs;
+        this.tasks = tasks;
+        this.current = current;
     }
 
     @GetMapping("/health")
@@ -36,8 +44,19 @@ public class DiagnosticsController {
     @GetMapping(value = "/logs", produces = MediaType.TEXT_PLAIN_VALUE)
     public String logs(@RequestParam(defaultValue = "300") int lines,
                        @RequestParam(required = false) UUID taskId) {
-        return taskId == null ? logs.recent(lines) : logs.recentForTask(taskId, lines);
+        if (taskId != null) {
+            if (!isAdmin() && !tasks.existsByIdAndOwnerId(taskId, current.userId())) {
+                throw new TaskNotFoundException(taskId);
+            }
+            return logs.recentForTask(taskId, lines);
+        }
+        if (current.authenticated() && !isAdmin()) {
+            return logs.recentForTasks(tasks.findIdsByOwnerIdOrderByCreatedAtDesc(current.userId()), lines);
+        }
+        return logs.recent(lines);
     }
+
+    private boolean isAdmin() { return current.authenticated() && "ADMIN".equals(current.role()); }
 
     @GetMapping(value = "/logs/export", produces = "application/zip")
     public ResponseEntity<byte[]> exportLogs() {

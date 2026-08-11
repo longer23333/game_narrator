@@ -1,7 +1,7 @@
 ﻿# GameNarrator — DeepSeek 结构化项目索引
 
-> 自动生成：2026-08-11 13:01:30 +08:00；UTF-8 BOM；索引不再内嵌全部源码。
-> Git：分支 `main`，提交 `92aa37f`；收录文件 712 个，分卷 8 个。
+> 自动生成：2026-08-11 13:08:13 +08:00；UTF-8 BOM；索引不再内嵌全部源码。
+> Git：分支 `main`，提交 `95474c3`；收录文件 713 个，分卷 8 个。
 
 ## 使用方法
 
@@ -28,8 +28,8 @@
 | 分卷 | 文件数 | 字符数 | 建议用途 |
 |---|---:|---:|---|
 | `deepseek-context/01-foundation.md` | 81 | 121654 | 构建、配置、资源、数据库迁移 |
-| `deepseek-context/02-backend.md` | 263 | 1052665 | Spring 后端实现 |
-| `deepseek-context/03-tests.md` | 85 | 248894 | Spring 测试与行为验证 |
+| `deepseek-context/02-backend.md` | 263 | 1054750 | Spring 后端实现 |
+| `deepseek-context/03-tests.md` | 86 | 252498 | Spring 测试与行为验证 |
 | `deepseek-context/04-frontend.md` | 19 | 372975 | Vite Web 源码 |
 | `deepseek-context/05-android-main.md` | 151 | 855263 | Android 实现、资源与 Gradle |
 | `deepseek-context/06-android-tests.md` | 55 | 131882 | Android 单元及设备测试 |
@@ -39,13 +39,11 @@
 ## 当前 Git 工作区（最近修改）
 
 ```text
-M frontend/public/app.js
- M frontend/public/diagnostics.js
- M src/main/java/cn/longer233/gamenarrator/diagnostics/DiagnosticLogService.java
+M src/main/java/cn/longer233/gamenarrator/diagnostics/DiagnosticLogService.java
  M src/main/java/cn/longer233/gamenarrator/diagnostics/DiagnosticsController.java
- M src/main/resources/static/app.js
- M src/main/resources/static/diagnostics.js
+ M src/main/java/cn/longer233/gamenarrator/task/repository/VideoTaskRepository.java
  M src/test/java/cn/longer233/gamenarrator/diagnostics/DiagnosticLogServiceTest.java
+?? src/test/java/cn/longer233/gamenarrator/diagnostics/DiagnosticsControllerTest.java
 ```
 
 ## Flyway 迁移索引

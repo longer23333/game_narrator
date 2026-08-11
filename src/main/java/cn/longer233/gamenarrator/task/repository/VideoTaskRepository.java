@@ -19,6 +19,9 @@ public interface VideoTaskRepository extends JpaRepository<VideoTask, UUID> {
     Optional<VideoTask> findByIdAndOwnerId(UUID id, UUID ownerId);
     boolean existsByIdAndOwnerId(UUID id, UUID ownerId);
 
+    @Query("select task.id from VideoTask task where task.ownerId = :ownerId order by task.createdAt desc")
+    List<UUID> findIdsByOwnerIdOrderByCreatedAtDesc(@Param("ownerId") UUID ownerId);
+
     @Query("""
             select new cn.longer233.gamenarrator.task.repository.TaskListRevision(
                 count(distinct task.id), max(task.updatedAt), max(stage.updatedAt))
