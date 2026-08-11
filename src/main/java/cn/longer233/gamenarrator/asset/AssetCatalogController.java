@@ -224,6 +224,11 @@ public class AssetCatalogController {
         return service.download(id);
     }
 
+    @GetMapping("/{id}/download-status")
+    public AssetDownloadStatus downloadStatus(@PathVariable UUID id) {
+        return service.downloadStatus(id);
+    }
+
     @PostMapping("/{id}/derive")
     @ResponseStatus(HttpStatus.CREATED)
     public AssetView derive(@PathVariable UUID id, @Valid @RequestBody AssetDerivativeRequest request) {

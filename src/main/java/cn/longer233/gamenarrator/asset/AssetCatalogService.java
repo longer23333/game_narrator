@@ -658,11 +658,15 @@ public class AssetCatalogService {
         return find(assetId);
     }
 
-    @Transactional
     public AssetView download(UUID assetId) {
         requireAsset(assetId);
-        assetDownloadService.download(assetId);
+        assetDownloadService.enqueue(assetId);
         return find(assetId);
+    }
+
+    public AssetDownloadStatus downloadStatus(UUID assetId) {
+        requireAsset(assetId);
+        return assetDownloadService.status(assetId);
     }
 
     @Transactional

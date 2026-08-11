@@ -2,17 +2,19 @@ package cn.longer233.gamenarrator.asset;
 
 import cn.longer233.gamenarrator.common.ExternalProcessRunner;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.io.InputStream;
 import java.net.HttpURLConnection;
-import java.net.InetAddress;
 import java.net.URI;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.nio.file.StandardCopyOption;
+import java.nio.file.StandardOpenOption;
 import java.time.Duration;
 import java.time.OffsetDateTime;
 import java.util.ArrayList;
@@ -21,6 +23,8 @@ import java.util.Locale;
 import java.util.Map;
 import java.util.Set;
 import java.util.UUID;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.Executor;
 
 @Service
 public class AssetDownloadService {
@@ -32,52 +36,230 @@ public class AssetDownloadService {
     private final SafeRemoteHttpConnector remoteConnector;
     private final Path storageRoot;
     private final String ffmpegCommand;
+    private final Executor taskExecutor;
+    private final Set<UUID> activeDownloads = ConcurrentHashMap.newKeySet();
 
     public AssetDownloadService(JdbcTemplate jdbc, SafeRemoteHttpConnector remoteConnector,
                                 @Value("${game-narrator.storage-root}") String storageRoot,
-                                @Value("${game-narrator.ffmpeg-command}") String ffmpegCommand) {
+                                @Value("${game-narrator.ffmpeg-command}") String ffmpegCommand,
+                                @Qualifier("taskExecutor") Executor taskExecutor) {
         this.jdbc = jdbc;
         this.remoteConnector = remoteConnector;
         this.storageRoot = Path.of(storageRoot).toAbsolutePath().normalize();
         this.ffmpegCommand = ffmpegCommand;
+        this.taskExecutor = taskExecutor;
     }
 
-    @Transactional
-    public void download(UUID assetId) {
-        Map<String, Object> row = jdbc.queryForMap(
-                "SELECT download_url,license_code FROM external_asset WHERE id=?", assetId);
-        String license = String.valueOf(row.get("LICENSE_CODE")).toLowerCase(Locale.ROOT);
-        if (!DOWNLOAD_LICENSES.contains(license)) {
-            throw new IllegalStateException("该素材许可证不在自动下载白名单中，请在原始页面人工确认");
+    public AssetDownloadStatus enqueue(UUID assetId) {
+        validateDownloadRequest(assetId);
+        if (activeDownloads.add(assetId)) {
+            jdbc.update("""
+                    UPDATE external_asset SET import_status='QUEUED',download_error=NULL,download_started_at=? WHERE id=?
+                    """, OffsetDateTime.now(), assetId);
+            try {
+                taskExecutor.execute(() -> {
+                    try { downloadInternal(assetId); }
+                    finally { activeDownloads.remove(assetId); }
+                });
+            } catch (RuntimeException failure) {
+                activeDownloads.remove(assetId);
+                recordFailure(assetId, failure);
+                throw failure;
+            }
         }
+        return status(assetId);
+    }
+
+    public void download(UUID assetId) {
+        if (!activeDownloads.add(assetId)) {
+            throw new IllegalStateException("该素材正在下载，请等待完成后再提取或重试");
+        }
+        try { downloadInternal(assetId); }
+        finally { activeDownloads.remove(assetId); }
+    }
+
+    private void downloadInternal(UUID assetId) {
+        Map<String, Object> row = validateDownloadRequest(assetId);
         URI uri = URI.create(String.valueOf(row.get("DOWNLOAD_URL")));
-        validatePublicHttps(uri);
         try {
             Path directory = storageRoot.resolve("library").resolve(assetId.toString()).normalize();
             if (!directory.startsWith(storageRoot)) throw new IllegalStateException("素材目录不在授权存储范围内");
             Files.createDirectories(directory);
             Path output = directory.resolve("source." + extension(uri.getPath())).normalize();
-            HttpURLConnection connection = remoteConnector.open(uri, Map.of("User-Agent", "GameNarrator/0.1"), 3);
-            int status = connection.getResponseCode();
-            if (status < 200 || status >= 300) throw new IllegalStateException("素材下载返回 HTTP " + status);
-            long length = connection.getContentLengthLong();
-            if (length > MAX_DOWNLOAD_BYTES) throw new IllegalStateException("素材超过 100MB 自动下载限制");
-            try (InputStream input = connection.getInputStream(); var outputStream = Files.newOutputStream(output)) {
-                byte[] buffer = new byte[64 * 1024];
-                long total = 0;
-                int count;
-                while ((count = input.read(buffer)) >= 0) {
-                    total += count;
-                    if (total > MAX_DOWNLOAD_BYTES) throw new IllegalStateException("素材超过 100MB 自动下载限制");
-                    outputStream.write(buffer, 0, count);
-                }
+            Path partial = directory.resolve(output.getFileName() + ".part").normalize();
+            long existing = Files.isRegularFile(partial) ? Files.size(partial) : 0;
+            if (existing > MAX_DOWNLOAD_BYTES) {
+                Files.deleteIfExists(partial);
+                existing = 0;
             }
-            jdbc.update("UPDATE external_asset SET local_path=?,import_status='DOWNLOADED',downloaded_at=? WHERE id=?",
-                    output.toString(), OffsetDateTime.now(), assetId);
-        } catch (java.io.IOException exception) {
-            throw new IllegalStateException("素材下载失败：" + exception.getMessage(), exception);
+            jdbc.update("""
+                    UPDATE external_asset SET import_status='DOWNLOADING',download_bytes=?,download_error=NULL,
+                    download_started_at=COALESCE(download_started_at,?) WHERE id=?
+                    """, existing, OffsetDateTime.now(), assetId);
+            transfer(assetId, uri, partial, output, existing, text(row.get("DOWNLOAD_ETAG")),
+                    text(row.get("DOWNLOAD_LAST_MODIFIED")));
+        } catch (Exception failure) {
+            recordFailure(assetId, failure);
+            if (failure instanceof RuntimeException runtime) throw runtime;
+            throw new IllegalStateException("素材下载失败：" + failure.getMessage(), failure);
         }
     }
+
+    public AssetDownloadStatus status(UUID assetId) {
+        return jdbc.queryForObject("""
+                SELECT id,import_status,download_bytes,download_total_bytes,download_error,download_started_at
+                FROM external_asset WHERE id=?
+                """, (rs, row) -> {
+            long downloaded = rs.getLong("download_bytes");
+            Long total = rs.getObject("download_total_bytes", Long.class);
+            int progress = total == null || total <= 0 ? 0 : (int) Math.min(100, downloaded * 100 / total);
+            String state = rs.getString("import_status");
+            return new AssetDownloadStatus(rs.getObject("id", UUID.class), state, downloaded, total,
+                    "DOWNLOADED".equals(state) ? 100 : progress,
+                    downloaded > 0 && !"DOWNLOADED".equals(state), rs.getString("download_error"),
+                    rs.getObject("download_started_at", OffsetDateTime.class));
+        }, assetId);
+    }
+
+    private Map<String, Object> validateDownloadRequest(UUID assetId) {
+        Map<String, Object> row = jdbc.queryForMap(
+                "SELECT download_url,license_code,download_etag,download_last_modified FROM external_asset WHERE id=?",
+                assetId);
+        String license = String.valueOf(row.get("LICENSE_CODE")).toLowerCase(Locale.ROOT);
+        if (!DOWNLOAD_LICENSES.contains(license)) {
+            throw new IllegalStateException("该素材许可证不在自动下载白名单中，请在原始页面人工确认");
+        }
+        URI uri = URI.create(String.valueOf(row.get("DOWNLOAD_URL")));
+        remoteConnector.validatePublicHttps(uri);
+        return row;
+    }
+
+    private void transfer(UUID assetId, URI uri, Path partial, Path output, long existing,
+                          String storedEtag, String storedLastModified) throws Exception {
+        long offset = existing;
+        for (int requestNo = 0; requestNo < 2; requestNo++) {
+            Map<String, String> headers = new java.util.LinkedHashMap<>();
+            headers.put("User-Agent", "GameNarrator/0.1");
+            if (offset > 0) {
+                headers.put("Range", "bytes=" + offset + "-");
+                String validator = !storedEtag.isBlank() ? storedEtag : storedLastModified;
+                if (!validator.isBlank()) headers.put("If-Range", validator);
+            }
+            HttpURLConnection connection = remoteConnector.open(uri, headers, 3);
+            try {
+                int response = connection.getResponseCode();
+                if (response == 416 && offset > 0) {
+                    Long total = unsatisfiedTotal(connection.getHeaderField("Content-Range"));
+                    if (total != null && total == offset) {
+                        finish(assetId, partial, output, offset, total);
+                        return;
+                    }
+                    Files.deleteIfExists(partial);
+                    offset = 0;
+                    continue;
+                }
+                if (response != HttpURLConnection.HTTP_OK && response != HttpURLConnection.HTTP_PARTIAL) {
+                    throw new IllegalStateException("素材下载返回 HTTP " + response);
+                }
+                boolean append = offset > 0 && response == HttpURLConnection.HTTP_PARTIAL;
+                if (append && !validContentRange(connection.getHeaderField("Content-Range"), offset)) {
+                    throw new IllegalStateException("远程服务器返回了不匹配的 Content-Range，已保留断点等待重试");
+                }
+                if (!append) offset = 0;
+                Long total = responseTotal(connection, offset);
+                if (total != null && total > MAX_DOWNLOAD_BYTES) throw new IllegalStateException("素材超过 100MB 自动下载限制");
+                String etag = text(connection.getHeaderField("ETag"));
+                String lastModified = text(connection.getHeaderField("Last-Modified"));
+                jdbc.update("""
+                        UPDATE external_asset SET download_total_bytes=?,download_etag=?,download_last_modified=? WHERE id=?
+                        """, total, blankToNull(etag), blankToNull(lastModified), assetId);
+                long written = stream(assetId, connection.getInputStream(), partial, offset, append, total);
+                finish(assetId, partial, output, written, total);
+                return;
+            } finally { connection.disconnect(); }
+        }
+        throw new IllegalStateException("远程断点已失效，重新下载初始化失败");
+    }
+
+    private long stream(UUID assetId, InputStream input, Path partial, long offset,
+                        boolean append, Long expectedTotal) throws Exception {
+        StandardOpenOption[] options = append
+                ? new StandardOpenOption[]{StandardOpenOption.CREATE, StandardOpenOption.WRITE, StandardOpenOption.APPEND}
+                : new StandardOpenOption[]{StandardOpenOption.CREATE, StandardOpenOption.WRITE, StandardOpenOption.TRUNCATE_EXISTING};
+        long total = offset;
+        long lastReported = offset;
+        try (input; var output = Files.newOutputStream(partial, options)) {
+            byte[] buffer = new byte[64 * 1024];
+            int count;
+            while ((count = input.read(buffer)) >= 0) {
+                total += count;
+                if (total > MAX_DOWNLOAD_BYTES) throw new IllegalStateException("素材超过 100MB 自动下载限制");
+                output.write(buffer, 0, count);
+                if (total - lastReported >= 512 * 1024) {
+                    jdbc.update("UPDATE external_asset SET download_bytes=? WHERE id=?", total, assetId);
+                    lastReported = total;
+                }
+            }
+            output.flush();
+        }
+        if (expectedTotal != null && total != expectedTotal) {
+            throw new IllegalStateException("远程素材未下载完整：已收到 " + total + " / " + expectedTotal + " 字节");
+        }
+        jdbc.update("UPDATE external_asset SET download_bytes=? WHERE id=?", total, assetId);
+        return total;
+    }
+
+    private void finish(UUID assetId, Path partial, Path output, long bytes, Long expectedTotal) throws Exception {
+        if (!Files.isRegularFile(partial) || Files.size(partial) != bytes || bytes <= 0) {
+            throw new IllegalStateException("下载临时文件不完整，不能写入素材库");
+        }
+        if (expectedTotal != null && bytes != expectedTotal) throw new IllegalStateException("下载文件大小校验失败");
+        try { Files.move(partial, output, StandardCopyOption.ATOMIC_MOVE, StandardCopyOption.REPLACE_EXISTING); }
+        catch (java.nio.file.AtomicMoveNotSupportedException ignored) {
+            Files.move(partial, output, StandardCopyOption.REPLACE_EXISTING);
+        }
+        jdbc.update("""
+                UPDATE external_asset SET local_path=?,import_status='DOWNLOADED',download_bytes=?,
+                download_total_bytes=?,download_error=NULL,downloaded_at=? WHERE id=?
+                """, output.toString(), bytes, expectedTotal == null ? bytes : expectedTotal,
+                OffsetDateTime.now(), assetId);
+    }
+
+    private void recordFailure(UUID assetId, Throwable failure) {
+        String message = failure.getMessage() == null ? failure.getClass().getSimpleName() : failure.getMessage();
+        long bytes = 0;
+        try {
+            URI uri = URI.create(String.valueOf(jdbc.queryForMap("SELECT download_url FROM external_asset WHERE id=?", assetId)
+                    .get("DOWNLOAD_URL")));
+            Path partial = storageRoot.resolve("library").resolve(assetId.toString())
+                    .resolve("source." + extension(uri.getPath()) + ".part").normalize();
+            if (partial.startsWith(storageRoot) && Files.isRegularFile(partial)) bytes = Files.size(partial);
+        } catch (Exception ignored) { }
+        jdbc.update("""
+                UPDATE external_asset SET import_status='PARTIAL',download_bytes=?,download_error=? WHERE id=?
+                """, bytes, message.substring(0, Math.min(1000, message.length())), assetId);
+    }
+
+    private Long responseTotal(HttpURLConnection connection, long offset) {
+        String contentRange = connection.getHeaderField("Content-Range");
+        if (contentRange != null && contentRange.matches("bytes \\d+-\\d+/\\d+")) {
+            return Long.parseLong(contentRange.substring(contentRange.lastIndexOf('/') + 1));
+        }
+        long length = connection.getContentLengthLong();
+        return length < 0 ? null : offset + length;
+    }
+
+    private boolean validContentRange(String value, long offset) {
+        return value != null && value.matches("bytes " + offset + "-\\d+/\\d+");
+    }
+
+    private Long unsatisfiedTotal(String value) {
+        return value != null && value.matches("bytes \\*/\\d+")
+                ? Long.parseLong(value.substring(value.indexOf('/') + 1)) : null;
+    }
+
+    private String text(Object value) { return value == null ? "" : String.valueOf(value).trim(); }
+    private String blankToNull(String value) { return value == null || value.isBlank() ? null : value; }
 
     @Transactional
     public UUID derive(UUID assetId, AssetDerivativeRequest request) {
@@ -133,22 +315,6 @@ public class AssetDownloadService {
                 output.toString(), "DOWNLOADED", "{\"derivedFrom\":\"" + assetId + "\",\"mode\":\"" + mode + "\"}",
                 OffsetDateTime.now(), OffsetDateTime.now());
         return derivedId;
-    }
-
-    private void validatePublicHttps(URI uri) {
-        if (!"https".equalsIgnoreCase(uri.getScheme()) || uri.getHost() == null) {
-            throw new IllegalArgumentException("下载地址必须是公网 HTTPS 地址");
-        }
-        try {
-            for (InetAddress address : InetAddress.getAllByName(uri.getHost())) {
-                if (address.isAnyLocalAddress() || address.isLoopbackAddress() || address.isLinkLocalAddress()
-                        || address.isSiteLocalAddress() || address.isMulticastAddress()) {
-                    throw new IllegalArgumentException("下载地址不能指向本机或内网");
-                }
-            }
-        } catch (java.net.UnknownHostException exception) {
-            throw new IllegalArgumentException("下载地址无法解析", exception);
-        }
     }
 
     private String extension(String path) {

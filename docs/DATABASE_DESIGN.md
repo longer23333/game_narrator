@@ -675,6 +675,12 @@ POST /api/exports/{id}/cancel                  取消导出
 - `api_key_ciphertext` 只保存 AES-GCM 密文，`api_key_hint` 只用于页面显示末四位，任何查询接口均不返回凭据本体。
 - 删除账号时通过外键级联删除凭据；环境变量只作为没有账号配置时的部署级后备值，不写入数据库。
 
+## 远程素材下载状态
+
+- V35 为 `external_asset` 增加 `download_bytes`、`download_total_bytes`、`download_etag`、`download_last_modified`、`download_error` 和 `download_started_at`。
+- `QUEUED`、`DOWNLOADING`、`PARTIAL`、`DOWNLOADED` 表示后台下载生命周期；进程退出后 `PARTIAL` 文件和数据库校验器仍可用于恢复。
+- 正式 `local_path` 只在完整性校验和原子移动成功后更新，失败下载不会被误认为可用素材。
+
 删除视频任务时事件记录通过外键级联删除。事件按任务与时间建立索引，供分镜工作台和事实约束文案生成读取。
 ## `community_resource`、`creative_variant` 与 `editing_decision_report`
 

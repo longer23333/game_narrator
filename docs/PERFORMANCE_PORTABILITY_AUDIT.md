@@ -76,6 +76,7 @@
 - Task-owned segment clips, pending import files, task directories, and explicitly registered `PROJECT` assets are removed; unrelated shared library assets are retained.
 - Script segments support persisted manual `APPROVED` / `NEEDS_CHANGES` reviews and notes without overwriting the AI quality review. The editor highlights segment-specific AI issues and likely narration-duration overflow.
 - Script quality now supports an independent model review after generation or editing. Manual `NEEDS_CHANGES` notes take priority in the review prompt and automatically guide segment regeneration when no custom instruction is supplied; any edit invalidates the previous score without deleting the manual review trail.
+- Remote asset downloads run in the background with persistent byte progress and resume validators. Interrupted `.part` files resume through HTTP Range, while servers that ignore Range trigger a safe full restart before the completed file is atomically published.
 - FFmpeg clip encoding emits `-progress pipe:1`; normalized encoding time updates both the task stage and stage-run record and reaches the browser over SSE.
 
 ## 2026-08-04 incremental render preview pass

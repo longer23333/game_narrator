@@ -60,6 +60,23 @@
     return body;
   }
 
+  const wait = milliseconds => new Promise(resolve => setTimeout(resolve, milliseconds));
+  async function waitForAssetDownload(assetId, button) {
+    for (;;) {
+      const status = await request(`/api/assets/${assetId}/download-status`);
+      const size = status.totalBytes
+        ? `${(status.downloadedBytes / 1048576).toFixed(1)} / ${(status.totalBytes / 1048576).toFixed(1)} MB`
+        : `${(status.downloadedBytes / 1048576).toFixed(1)} MB`;
+      button.textContent = status.status === 'QUEUED' ? '等待下载…' : `下载 ${status.progress}%`;
+      message.textContent = `${status.resumable ? '正在从断点续传' : '正在下载'}：${size}`;
+      if (status.status === 'DOWNLOADED') return status;
+      if (status.status === 'PARTIAL') {
+        throw new Error(`${status.error || '下载中断'}；已保留 ${size}，再次点击可从断点继续`);
+      }
+      await wait(500);
+    }
+  }
+
   async function refreshTranslationNotice() {
     try {
       const settings = await request('/api/ai-settings');
@@ -620,8 +637,9 @@
         message.textContent = '已确认权利，正在通过现有 Bilibili 下载器解析并下载。';
       } else if (event.target.matches("[data-download]")) {
         event.target.disabled = true;
-        event.target.textContent = "下载中…";
+        event.target.textContent = "正在加入队列…";
         await request(`/api/assets/${card.dataset.id}/download`, {method: "POST"});
+        await waitForAssetDownload(card.dataset.id, event.target);
         message.textContent = "素材已下载到本地素材库。";
         await load();
       } else if (event.target.matches("[data-derive]")) {

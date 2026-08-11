@@ -1,7 +1,7 @@
 ﻿# GameNarrator — DeepSeek 结构化项目索引
 
-> 自动生成：2026-08-11 10:03:34 +08:00；UTF-8 BOM；索引不再内嵌全部源码。
-> Git：分支 `main`，提交 `c4ca9c2`；收录文件 680 个，分卷 8 个。
+> 自动生成：2026-08-11 10:17:48 +08:00；UTF-8 BOM；索引不再内嵌全部源码。
+> Git：分支 `main`，提交 `11f7b96`；收录文件 683 个，分卷 8 个。
 
 ## 使用方法
 
@@ -27,37 +27,31 @@
 
 | 分卷 | 文件数 | 字符数 | 建议用途 |
 |---|---:|---:|---|
-| `deepseek-context/01-foundation.md` | 76 | 117897 | 构建、配置、资源、数据库迁移 |
-| `deepseek-context/02-backend.md` | 252 | 991534 | Spring 后端实现 |
-| `deepseek-context/03-tests.md` | 76 | 205987 | Spring 测试与行为验证 |
-| `deepseek-context/04-frontend.md` | 17 | 356866 | Vite Web 源码 |
+| `deepseek-context/01-foundation.md` | 78 | 119175 | 构建、配置、资源、数据库迁移 |
+| `deepseek-context/02-backend.md` | 253 | 1001274 | Spring 后端实现 |
+| `deepseek-context/03-tests.md` | 76 | 211709 | Spring 测试与行为验证 |
+| `deepseek-context/04-frontend.md` | 17 | 357777 | Vite Web 源码 |
 | `deepseek-context/05-android-main.md` | 151 | 855263 | Android 实现、资源与 Gradle |
 | `deepseek-context/06-android-tests.md` | 55 | 131882 | Android 单元及设备测试 |
 | `deepseek-context/07-platform-release.md` | 10 | 47337 | Windows、CI/CD 与发布 |
-| `deepseek-context/08-docs-scripts.md` | 43 | 148470 | 需求、架构、维护脚本 |
+| `deepseek-context/08-docs-scripts.md` | 43 | 149467 | 需求、架构、维护脚本 |
 
 ## 当前 Git 工作区（最近修改）
 
 ```text
-M docs/ASSET_LIBRARY_DESIGN.md
+M DEEPSEEK_PROJECT_CONTEXT.md
+ M docs/ASSET_LIBRARY_DESIGN.md
  M docs/DATABASE_DESIGN.md
- M frontend/index.html
- M frontend/public/app.css
+ M docs/PERFORMANCE_PORTABILITY_AUDIT.md
  M frontend/public/asset-library.js
+ M src/main/java/cn/longer233/gamenarrator/asset/AssetCatalogController.java
  M src/main/java/cn/longer233/gamenarrator/asset/AssetCatalogService.java
- M src/main/java/cn/longer233/gamenarrator/asset/PexelsAssetClient.java
- M src/main/java/cn/longer233/gamenarrator/asset/PixabayAssetClient.java
- M src/main/resources/static/app.css
+ M src/main/java/cn/longer233/gamenarrator/asset/AssetDownloadService.java
  M src/main/resources/static/asset-library.js
- M src/main/resources/static/index.html
-?? src/main/java/cn/longer233/gamenarrator/asset/AssetProviderCredentialController.java
-?? src/main/java/cn/longer233/gamenarrator/asset/AssetProviderCredentialRequest.java
-?? src/main/java/cn/longer233/gamenarrator/asset/AssetProviderCredentialService.java
-?? src/main/java/cn/longer233/gamenarrator/asset/AssetProviderCredentialView.java
-?? src/main/resources/db/migration-postgresql/V34__asset_provider_credentials.sql
-?? src/main/resources/db/migration/V34__asset_provider_credentials.sql
-?? src/test/java/cn/longer233/gamenarrator/asset/AssetProviderCredentialControllerTest.java
-?? src/test/java/cn/longer233/gamenarrator/asset/AssetProviderCredentialServiceTest.java
+ M src/test/java/cn/longer233/gamenarrator/asset/AssetDownloadServiceTest.java
+?? src/main/java/cn/longer233/gamenarrator/asset/AssetDownloadStatus.java
+?? src/main/resources/db/migration-postgresql/V35__resumable_asset_downloads.sql
+?? src/main/resources/db/migration/V35__resumable_asset_downloads.sql
 ```
 
 ## Flyway 迁移索引
@@ -96,6 +90,7 @@ M docs/ASSET_LIBRARY_DESIGN.md
 - `src/main/resources/db/migration/V32__task_recycle_bin.sql`
 - `src/main/resources/db/migration/V33__cloud_sync_retry_policy.sql`
 - `src/main/resources/db/migration/V34__asset_provider_credentials.sql`
+- `src/main/resources/db/migration/V35__resumable_asset_downloads.sql`
 
 ## 运行配置索引
 
@@ -129,6 +124,7 @@ M docs/ASSET_LIBRARY_DESIGN.md
 | GET | `/api/admin/storage` | `src/main/java/cn/longer233/gamenarrator/storage/StorageAdminController.java` |
 | GET | `/api/ai-settings/usage` | `src/main/java/cn/longer233/gamenarrator/ai/AiSettingsController.java` |
 | GET | `/api/ai-settings` | `src/main/java/cn/longer233/gamenarrator/ai/AiSettingsController.java` |
+| GET | `/api/assets/{id}/download-status` | `src/main/java/cn/longer233/gamenarrator/asset/AssetCatalogController.java` |
 | GET | `/api/assets/{id}/preview` | `src/main/java/cn/longer233/gamenarrator/asset/AssetCatalogController.java` |
 | GET | `/api/assets/{id}/remote-preview` | `src/main/java/cn/longer233/gamenarrator/asset/AssetCatalogController.java` |
 | GET | `/api/assets/{id}/similar` | `src/main/java/cn/longer233/gamenarrator/asset/AssetCatalogController.java` |
