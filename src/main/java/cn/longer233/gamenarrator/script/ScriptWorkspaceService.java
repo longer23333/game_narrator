@@ -180,13 +180,18 @@ public class ScriptWorkspaceService {
                 currentClip.endSeconds(), current.narration(), current.subtitle(), current.effectCue(),
                 currentClip.eventType(), currentClip.description(), currentClip.finalScore(),
                 currentClip.locked(), currentClip.excluded());
-        clips.set(position, new HighlightClip(currentClip.sourceFrameIndex(), request.startSeconds(), request.endSeconds(),
+        HighlightClip changedClip = new HighlightClip(currentClip.sourceFrameIndex(), request.startSeconds(), request.endSeconds(),
                 Math.max(request.startSeconds(), Math.min(request.endSeconds(), currentClip.anchorSeconds())),
                 currentClip.eventType(), currentClip.description(), currentClip.sourceScore(), currentClip.finalScore(),
-                request.locked(), request.excluded()));
+                request.locked(), request.excluded());
+        clips.set(position, changedClip);
         Map<String, Object> updated = objectMapper.convertValue(root, new com.fasterxml.jackson.core.type.TypeReference<LinkedHashMap<String, Object>>() {});
         updated.put("clips", clips);
-        updated.put("selectedDurationSeconds", clips.stream().mapToDouble(HighlightClip::durationSeconds).sum());
+        List<HighlightClip> manualDecisions = mergeManualDecisions(root, changedClip);
+        updated.put("manualDecisions", manualDecisions);
+        updated.put("manualDecisionCount", manualDecisions.size());
+        updated.put("selectedDurationSeconds", clips.stream().filter(clip -> !clip.excluded())
+                .mapToDouble(HighlightClip::durationSeconds).sum());
         writeAtomically(highlightPath, updated);
         StoryboardView result = storyboard(taskId);
         if (directorProfiles != null) {
@@ -195,6 +200,26 @@ public class ScriptWorkspaceService {
             directorProfiles.recordStoryboardEdit(taskId, aiSuggestion, finalValue);
         }
         return result;
+    }
+
+    private List<HighlightClip> mergeManualDecisions(JsonNode manifest, HighlightClip changedClip) {
+        JsonNode source = manifest.path("manualDecisions").isArray()
+                ? manifest.path("manualDecisions") : manifest.path("clips");
+        List<HighlightClip> saved;
+        try {
+            saved = objectMapper.readerForListOf(HighlightClip.class).readValue(source);
+        } catch (Exception exception) {
+            throw new IllegalStateException("无法读取人工高光决定：" + exception.getMessage(), exception);
+        }
+        Map<Integer, HighlightClip> byFrame = saved.stream()
+                .filter(clip -> clip.locked() || clip.excluded())
+                .collect(java.util.stream.Collectors.toMap(HighlightClip::sourceFrameIndex,
+                        clip -> clip, (first, replacement) -> replacement, LinkedHashMap::new));
+        byFrame.remove(changedClip.sourceFrameIndex());
+        if (changedClip.locked() || changedClip.excluded()) {
+            byFrame.put(changedClip.sourceFrameIndex(), changedClip);
+        }
+        return List.copyOf(byFrame.values());
     }
 
     @Transactional

@@ -46,7 +46,8 @@ public class RuleBasedHighlightSelector {
                     ? buildHighlightClips(frames, videoDurationSeconds, targetDurationSeconds, hints, features)
                     : buildContinuousStoryClips(frames, videoDurationSeconds, hints, features);
             Path output = visualAnalysisPath.getParent().resolve("highlights.json");
-            clips = preserveManualDecisions(output, clips);
+            ManualDecisionMerge manualMerge = preserveManualDecisions(output, clips);
+            clips = manualMerge.clips();
             double totalSeconds = clips.stream().filter(clip -> !clip.excluded())
                     .mapToDouble(HighlightClip::durationSeconds).sum();
             String summary = highlightsOnly
@@ -66,7 +67,8 @@ public class RuleBasedHighlightSelector {
             result.put("summary", summary);
             result.put("requestedTargetDurationSeconds", targetDurationSeconds);
             result.put("selectedDurationSeconds", totalSeconds);
-            result.put("manualDecisionCount", clips.stream().filter(clip -> clip.locked() || clip.excluded()).count());
+            result.put("manualDecisionCount", manualMerge.decisions().size());
+            result.put("manualDecisions", manualMerge.decisions());
             result.put("clips", clips);
             cn.longer233.gamenarrator.common.AtomicArtifactWriter.writeJson(objectMapper, output, result);
             log.info("HIGHLIGHT_SELECTION_SUCCESS candidates={} selected={} duration={} output={}",
@@ -80,14 +82,21 @@ public class RuleBasedHighlightSelector {
     }
 
     /** Keeps deliberate editor choices when automatic highlight selection is run again. */
-    private List<HighlightClip> preserveManualDecisions(Path existingManifest, List<HighlightClip> generated) {
-        if (!Files.isRegularFile(existingManifest)) return generated;
+    private ManualDecisionMerge preserveManualDecisions(Path existingManifest, List<HighlightClip> generated) {
+        if (!Files.isRegularFile(existingManifest)) return new ManualDecisionMerge(generated, List.of());
         try {
+            JsonNode previousManifest = objectMapper.readTree(existingManifest.toFile());
+            JsonNode savedDecisions = previousManifest.path("manualDecisions");
             List<HighlightClip> previous = objectMapper.readerForListOf(HighlightClip.class)
-                    .readValue(objectMapper.readTree(existingManifest.toFile()).path("clips"));
+                    .readValue(savedDecisions.isArray() ? savedDecisions : previousManifest.path("clips"));
+            List<HighlightClip> decisions = previous.stream()
+                    .filter(clip -> clip.locked() || clip.excluded())
+                    .collect(java.util.stream.Collectors.toMap(HighlightClip::sourceFrameIndex,
+                            clip -> clip, (first, replacement) -> replacement, LinkedHashMap::new))
+                    .values().stream().toList();
             List<HighlightClip> merged = new ArrayList<>();
             for (HighlightClip candidate : generated) {
-                HighlightClip decision = previous.stream()
+                HighlightClip decision = decisions.stream()
                         .filter(old -> old.sourceFrameIndex() == candidate.sourceFrameIndex())
                         .findFirst().orElse(null);
                 if (decision == null || (!decision.locked() && !decision.excluded())) {
@@ -98,16 +107,20 @@ public class RuleBasedHighlightSelector {
                     merged.add(withDecision(candidate, false, true));
                 }
             }
-            previous.stream().filter(HighlightClip::locked)
+            decisions.stream().filter(HighlightClip::locked)
                     .filter(old -> merged.stream().noneMatch(item -> item.sourceFrameIndex() == old.sourceFrameIndex()))
                     .forEach(merged::add);
-            return merged.stream().sorted(Comparator.comparingDouble(HighlightClip::startSeconds)).toList();
+            return new ManualDecisionMerge(
+                    merged.stream().sorted(Comparator.comparingDouble(HighlightClip::startSeconds)).toList(),
+                    decisions);
         } catch (Exception exception) {
             log.warn("HIGHLIGHT_MANUAL_DECISIONS_IGNORED manifest={} reason={}",
                     existingManifest, exception.getMessage());
-            return generated;
+            return new ManualDecisionMerge(generated, List.of());
         }
     }
+
+    private record ManualDecisionMerge(List<HighlightClip> clips, List<HighlightClip> decisions) { }
 
     private HighlightClip withDecision(HighlightClip clip, boolean locked, boolean excluded) {
         return new HighlightClip(clip.sourceFrameIndex(), clip.startSeconds(), clip.endSeconds(),

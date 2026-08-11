@@ -1,5 +1,6 @@
 package cn.longer233.gamenarrator.script;
 
+import cn.longer233.gamenarrator.highlight.HighlightClip;
 import cn.longer233.gamenarrator.task.domain.CommentaryStyle;
 import cn.longer233.gamenarrator.task.domain.ProcessingStageType;
 import cn.longer233.gamenarrator.task.domain.StageStatus;
@@ -67,6 +68,40 @@ class ScriptWorkspaceServiceTest {
         assertThat(stage(task, ProcessingStageType.RENDERING)).isEqualTo(StageStatus.PENDING);
         assertThat(mapper.readTree(scriptPath.toFile()).path("segments").get(1)
                 .path("narration").asText()).isEqualTo("revised");
+    }
+
+    @Test
+    void storyboardDecisionKeepsHiddenCandidateLedgerAndExcludesDuration() throws Exception {
+        ObjectMapper mapper = new ObjectMapper();
+        Path scriptPath = temporaryDirectory.resolve("decision-script.json");
+        Path highlightPath = temporaryDirectory.resolve("decision-highlights.json");
+        ScriptSegment segment = new ScriptSegment(1, 0, 10, "text", "subtitle", "cut");
+        HighlightClip visible = new HighlightClip(1, 0, 10, 5,
+                "ACTION", "visible", 80, 90, false, false);
+        HighlightClip hiddenDecision = new HighlightClip(99, 40, 50, 45,
+                "ACTION", "hidden", 70, 80, false, true);
+        mapper.writeValue(scriptPath.toFile(), Map.of("title", "title", "synopsis", "synopsis",
+                "fullNarration", "text", "segments", List.of(segment)));
+        mapper.writeValue(highlightPath.toFile(), Map.of("clips", List.of(visible),
+                "manualDecisions", List.of(hiddenDecision), "manualDecisionCount", 1,
+                "selectedDurationSeconds", 10));
+        VideoTask task = new VideoTask("demo", "ACTION", CommentaryStyle.ANIME_THEATER,
+                30, "brief", temporaryDirectory.resolve("source.mp4").toString());
+        task.completeHighlightSelection("one", highlightPath.toString(), 1);
+        task.completeScriptGeneration("title", "synopsis", "text", scriptPath.toString(), 1);
+        VideoTaskRepository repository = mock(VideoTaskRepository.class);
+        when(repository.findById(task.getId())).thenReturn(Optional.of(task));
+        ScriptWorkspaceService service = new ScriptWorkspaceService(repository, mapper,
+                mock(OllamaScriptGenerator.class), mock(VoiceGenerator.class));
+
+        service.updateStoryboard(task.getId(), 1,
+                new UpdateStoryboardSegmentRequest(0, 10, "text", "subtitle", "cut", false, true));
+
+        JsonNode stored = mapper.readTree(highlightPath.toFile());
+        assertThat(stored.path("manualDecisions")).hasSize(2);
+        assertThat(stored.path("manualDecisions").toString()).contains("\"sourceFrameIndex\":99");
+        assertThat(stored.path("manualDecisionCount").asInt()).isEqualTo(2);
+        assertThat(stored.path("selectedDurationSeconds").asDouble()).isZero();
     }
 
     @Test

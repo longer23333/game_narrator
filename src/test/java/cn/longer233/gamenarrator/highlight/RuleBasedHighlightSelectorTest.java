@@ -128,6 +128,33 @@ class RuleBasedHighlightSelectorTest {
         assertThat(mapper.readTree(manifest.toFile()).path("manualDecisionCount").asInt()).isEqualTo(2);
     }
 
+    @Test
+    void remembersExcludedCandidateEvenWhenItTemporarilyDropsOutOfSelection() throws Exception {
+        ObjectMapper mapper = new ObjectMapper();
+        Path input = tempDir.resolve("visual-analysis.json");
+        Path manifest = tempDir.resolve("highlights.json");
+        HighlightClip excluded = new HighlightClip(2, 35, 55, 45,
+                "battle", "exclude this", 95, 95, false, true);
+        mapper.writeValue(manifest.toFile(), Map.of("clips", List.of(excluded)));
+        RuleBasedHighlightSelector selector = new RuleBasedHighlightSelector(mapper);
+
+        mapper.writeValue(input.toFile(), Map.of("frames", List.of(
+                frame(2, 45, "battle", 10), frame(3, 90, "victory", 100))));
+        HighlightSelectionResult firstRun = selector.select(input, 120, 15, "HIGHLIGHTS");
+        assertThat(firstRun.clips()).extracting(HighlightClip::sourceFrameIndex).containsExactly(3);
+        assertThat(mapper.readTree(manifest.toFile()).path("manualDecisions")).hasSize(1);
+
+        mapper.writeValue(input.toFile(), Map.of("frames", List.of(
+                frame(2, 45, "battle", 100), frame(3, 90, "victory", 10))));
+        HighlightSelectionResult secondRun = selector.select(input, 120, 15, "HIGHLIGHTS");
+
+        assertThat(secondRun.clips()).singleElement().satisfies(clip -> {
+            assertThat(clip.sourceFrameIndex()).isEqualTo(2);
+            assertThat(clip.excluded()).isTrue();
+        });
+        assertThat(mapper.readTree(manifest.toFile()).path("manualDecisionCount").asInt()).isEqualTo(1);
+    }
+
     private FrameUnderstanding frame(int index, double time, String event, int score) {
         return new FrameUnderstanding(index, time, "frame.jpg", "description", event, score, "{}");
     }
