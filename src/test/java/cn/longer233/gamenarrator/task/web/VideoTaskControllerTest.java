@@ -12,6 +12,8 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import cn.longer233.gamenarrator.pipeline.VideoTaskEngine;
 import cn.longer233.gamenarrator.pipeline.PipelineRunTracker;
 import java.util.UUID;
+import java.util.List;
+import java.util.Map;
 import java.nio.file.Files;
 import java.nio.file.Path;
 
@@ -207,6 +209,36 @@ class VideoTaskControllerTest {
         assertEquals(false,Files.exists(taskDirectory));
         assertEquals("COMPLETED", jdbc.queryForObject(
                 "SELECT status FROM task_file_cleanup_job WHERE task_id=?", String.class, id));
+    }
+
+    @Test
+    void assetsCanBeTaggedFavoritedAndDeletedInOneAtomicBatch() throws Exception {
+        MockMultipartFile first = new MockMultipartFile("file", "batch-one.png", "image/png", new byte[]{1, 2, 3});
+        MockMultipartFile second = new MockMultipartFile("file", "batch-two.png", "image/png", new byte[]{4, 5, 6});
+        UUID firstId = UUID.fromString(objectMapper.readTree(mockMvc.perform(multipart("/api/assets/upload").file(first))
+                .andExpect(status().isCreated()).andReturn().getResponse().getContentAsString()).path("id").asText());
+        UUID secondId = UUID.fromString(objectMapper.readTree(mockMvc.perform(multipart("/api/assets/upload").file(second))
+                .andExpect(status().isCreated()).andReturn().getResponse().getContentAsString()).path("id").asText());
+
+        mockMvc.perform(post("/api/assets/batch").contentType("application/json")
+                        .content(objectMapper.writeValueAsBytes(Map.of(
+                                "assetIds", List.of(firstId, secondId), "favorite", true,
+                                "addTags", List.of("批量标签")))))
+                .andExpect(status().isOk()).andExpect(jsonPath("$.affectedCount").value(2));
+        assertEquals(2, jdbc.queryForObject(
+                "SELECT COUNT(*) FROM user_external_asset WHERE asset_id IN (?,?) AND favorite=TRUE",
+                Integer.class, firstId, secondId));
+        assertEquals(2, jdbc.queryForObject("""
+                SELECT COUNT(*) FROM asset_tag_override o JOIN asset_tag t ON t.id=o.tag_id
+                WHERE o.asset_id IN (?,?) AND t.display_name='批量标签' AND o.action='ADD'
+                """, Integer.class, firstId, secondId));
+
+        mockMvc.perform(post("/api/assets/batch").contentType("application/json")
+                        .content(objectMapper.writeValueAsBytes(Map.of(
+                                "assetIds", List.of(firstId, secondId), "delete", true))))
+                .andExpect(status().isOk()).andExpect(jsonPath("$.affectedCount").value(2));
+        assertEquals(0, jdbc.queryForObject("SELECT COUNT(*) FROM external_asset WHERE id IN (?,?)",
+                Integer.class, firstId, secondId));
     }
 
     @Test

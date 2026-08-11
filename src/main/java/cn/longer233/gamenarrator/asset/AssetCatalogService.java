@@ -384,6 +384,27 @@ public class AssetCatalogService {
     }
 
     @Transactional
+    public int batchUpdate(AssetBatchUpdateRequest request) {
+        List<UUID> ids = request.assetIds().stream().distinct().toList();
+        if (request.favorite() == null && request.archived() == null
+                && (request.addTags() == null || request.addTags().isEmpty()) && !request.delete()) {
+            throw new IllegalArgumentException("批量操作至少需要选择收藏、归档、标签或删除中的一项");
+        }
+        // Validate every item before changing anything so a mixed-owner request cannot partially succeed.
+        ids.forEach(this::requireAsset);
+        for (UUID id : ids) {
+            if (request.favorite() != null || request.archived() != null) {
+                updateState(id, new AssetStateUpdateRequest(request.favorite(), request.archived()));
+            }
+            if (request.addTags() != null && !request.addTags().isEmpty()) {
+                updateTags(id, new AssetTagUpdateRequest(request.addTags(), List.of()));
+            }
+            if (request.delete()) delete(id);
+        }
+        return ids.size();
+    }
+
+    @Transactional
     public AssetView registerReference(AssetReferenceRequest request) {
         URI sourceUri = URI.create(request.sourceUrl());
         validatePublicHttps(sourceUri);

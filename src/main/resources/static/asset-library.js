@@ -10,6 +10,8 @@
   const pageIndicator = document.querySelector('#asset-page-indicator');
   const selectAll = document.querySelector('#asset-select-all');
   const favoriteSelected = document.querySelector('#asset-favorite-selected');
+  const tagSelected = document.querySelector('#asset-tag-selected');
+  const deleteSelected = document.querySelector('#asset-delete-selected');
   const localDropzone = document.querySelector('#local-asset-dropzone');
   const localInput = document.querySelector('#local-asset-input');
   const localBrowse = document.querySelector('#local-asset-browse');
@@ -550,28 +552,60 @@
     selectAll.textContent = shouldSelect ? '取消全选' : '全选当前结果';
   });
 
+  const selectedCards = () => [...list.querySelectorAll('.asset-card')]
+    .filter(card => card.querySelector('[data-select-asset]')?.checked);
+
+  async function batchAssets(cards, operation, progressText) {
+    const controls = [favoriteSelected, tagSelected, deleteSelected, selectAll].filter(Boolean);
+    controls.forEach(control => { control.disabled = true; });
+    message.textContent = progressText;
+    try {
+      const result = await request('/api/assets/batch', {
+        method:'POST', headers:{'Content-Type':'application/json'},
+        body:JSON.stringify({assetIds:cards.map(card => card.dataset.id), ...operation})
+      });
+      return result.affectedCount || cards.length;
+    } finally {
+      controls.forEach(control => { control.disabled = false; });
+    }
+  }
+
   favoriteSelected?.addEventListener('click', async () => {
-    const cards = [...list.querySelectorAll('.asset-card')]
-      .filter(card => card.querySelector('[data-select-asset]')?.checked);
+    const cards = selectedCards();
     if (!cards.length) {
       message.textContent = '请先选择要收藏的公共素材。';
       return;
     }
-    favoriteSelected.disabled = true;
-    const results = await Promise.allSettled(cards.map(card => request(`/api/assets/${card.dataset.id}/state`, {
-      method:'PATCH', headers:{'Content-Type':'application/json'}, body:JSON.stringify({favorite:true})
-    })));
-    const succeeded = results.filter(result => result.status === 'fulfilled').length;
-    cards.forEach((card, index) => {
-      if (results[index].status === 'fulfilled') {
-        const star = card.querySelector('[data-favorite]');
-        if (star) star.textContent = '★';
-        card.querySelector('[data-select-asset]').checked = false;
-      }
-    });
-    favoriteSelected.disabled = false;
-    selectAll.textContent = '全选当前结果';
-    message.textContent = `已收藏 ${succeeded} 项素材${succeeded < cards.length ? `，${cards.length - succeeded} 项失败` : ''}。`;
+    try {
+      const affected = await batchAssets(cards, {favorite:true}, `正在收藏 ${cards.length} 项素材…`);
+      cards.forEach(card => { card.querySelector('[data-favorite]').textContent = '★'; card.querySelector('[data-select-asset]').checked = false; });
+      selectAll.textContent = '全选当前结果';
+      message.textContent = `已收藏 ${affected} 项素材。`;
+    } catch (error) { message.textContent = error.message; }
+  });
+
+  tagSelected?.addEventListener('click', async () => {
+    const cards = selectedCards();
+    if (!cards.length) { message.textContent = '请先选择要添加标签的素材。'; return; }
+    const tag = window.prompt(`给选中的 ${cards.length} 项素材添加标签（最多 100 字）`);
+    if (!tag?.trim()) return;
+    try {
+      const affected = await batchAssets(cards, {addTags:[tag.trim()]}, `正在为 ${cards.length} 项素材添加标签…`);
+      message.textContent = `已为 ${affected} 项素材添加“${tag.trim()}”标签。`;
+      await load(false);
+    } catch (error) { message.textContent = error.message; }
+  });
+
+  deleteSelected?.addEventListener('click', async () => {
+    const cards = selectedCards();
+    if (!cards.length) { message.textContent = '请先选择要删除的素材。'; return; }
+    if (!window.confirm(`确定删除选中的 ${cards.length} 项素材吗？已下载的本地文件也会被清理，此操作无法恢复。`)) return;
+    try {
+      const affected = await batchAssets(cards, {delete:true}, `正在删除并清理 ${cards.length} 项素材…`);
+      cards.forEach(card => card.remove());
+      selectAll.textContent = '全选当前结果';
+      message.textContent = `已删除 ${affected} 项素材。`;
+    } catch (error) { message.textContent = error.message; }
   });
 
   try {

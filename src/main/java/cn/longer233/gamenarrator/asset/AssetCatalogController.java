@@ -247,6 +247,13 @@ public class AssetCatalogController {
         return service.updateState(id, request);
     }
 
+    @PostMapping("/batch")
+    public BatchOperationView batch(@Valid @RequestBody AssetBatchUpdateRequest request) {
+        return new BatchOperationView(service.batchUpdate(request));
+    }
+
+    public record BatchOperationView(int affectedCount) { }
+
     public record DomesticSourceView(String id, String name, String url, String searchUrl, String assetTypes,
                                      String region, int priority, String rightsPolicy) { }
 }
