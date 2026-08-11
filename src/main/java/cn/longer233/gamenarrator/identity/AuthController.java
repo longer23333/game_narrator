@@ -18,10 +18,10 @@ public class AuthController {
     public AuthController(AuthSessionService sessions, CurrentUserContext current) { this.sessions = sessions; this.current = current; }
 
     @PostMapping("/register") public ResponseEntity<AuthView> register(@Valid @RequestBody RegisterRequest body, HttpServletRequest request) {
-        return loggedIn(sessions.register(body.username(), body.email(), body.displayName(), body.password(), client(request)), request);
+        return loggedIn(sessions.register(body.username(), body.email(), body.displayName(), body.password(), client(request), body.rememberMe()), body.rememberMe(), request);
     }
     @PostMapping("/login") public ResponseEntity<AuthView> login(@Valid @RequestBody LoginRequest body, HttpServletRequest request) {
-        return loggedIn(sessions.login(body.username(), body.password(), client(request)), request);
+        return loggedIn(sessions.login(body.username(), body.password(), client(request), body.rememberMe()), body.rememberMe(), request);
     }
     @PostMapping("/logout") public ResponseEntity<AuthView> logout(@CookieValue(name=AuthenticationFilter.COOKIE_NAME, required=false) String token, HttpServletRequest request) {
         sessions.revoke(sessionToken(token, request));
@@ -35,11 +35,15 @@ public class AuthController {
         if (!current.authenticated()) return anonymous();
         return AuthView.from(sessions.account(current.userId()), true);
     }
-    private ResponseEntity<AuthView> loggedIn(AuthSessionService.LoginResult result, HttpServletRequest request) {
-        return ResponseEntity.ok().header(HttpHeaders.SET_COOKIE, cookie(result.token(), Duration.ofDays(30), request).toString()).body(AuthView.from(result.account(), true));
+    private ResponseEntity<AuthView> loggedIn(AuthSessionService.LoginResult result, boolean rememberMe, HttpServletRequest request) {
+        Duration persistentAge = rememberMe ? Duration.ofDays(30) : null;
+        return ResponseEntity.ok().header(HttpHeaders.SET_COOKIE, cookie(result.token(), persistentAge, request).toString()).body(AuthView.from(result.account(), true));
     }
     private ResponseCookie cookie(String value, Duration age, HttpServletRequest request) {
-        return ResponseCookie.from(AuthenticationFilter.COOKIE_NAME, value).httpOnly(true).secure(request.isSecure()).sameSite("Lax").path("/").maxAge(age).build();
+        ResponseCookie.ResponseCookieBuilder builder = ResponseCookie.from(AuthenticationFilter.COOKIE_NAME, value)
+                .httpOnly(true).secure(request.isSecure()).sameSite("Lax").path("/");
+        if (age != null) builder.maxAge(age);
+        return builder.build();
     }
     private String client(HttpServletRequest request) { return request.getHeader("User-Agent"); }
     private String sessionToken(String cookie, HttpServletRequest request) {
@@ -47,8 +51,9 @@ public class AuthController {
         return authorization != null && authorization.startsWith("Bearer ") ? authorization.substring(7).strip() : cookie;
     }
     private AuthView anonymous() { return new AuthView(LocalUserContext.LOCAL_USER_ID.toString(), "local-user", "匿名使用", "USER", false, true); }
-    public record RegisterRequest(@NotBlank String username, String email, String displayName, @NotBlank String password) {}
-    public record LoginRequest(@NotBlank String username, @NotBlank String password) {}
+    public record RegisterRequest(@NotBlank String username, String email, String displayName,
+                                  @NotBlank String password, boolean rememberMe) {}
+    public record LoginRequest(@NotBlank String username, @NotBlank String password, boolean rememberMe) {}
     public record AuthView(String id, String username, String displayName, String role, boolean authenticated, boolean anonymous) {
         static AuthView from(AuthSessionService.Account a, boolean authenticated) { return new AuthView(a.id().toString(), a.username(), a.displayName(), a.role(), authenticated, false); }
     }

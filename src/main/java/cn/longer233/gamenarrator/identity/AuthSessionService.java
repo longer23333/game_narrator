@@ -9,7 +9,7 @@ import java.nio.charset.StandardCharsets;
 import java.security.MessageDigest;
 import java.security.SecureRandom;
 import java.time.Instant;
-import java.time.temporal.ChronoUnit;
+import java.time.Duration;
 import java.util.Base64;
 import java.util.List;
 import java.util.Locale;
@@ -27,7 +27,8 @@ public class AuthSessionService {
     }
 
     @Transactional
-    public synchronized LoginResult register(String username, String email, String displayName, String password, String clientName) {
+    public synchronized LoginResult register(String username, String email, String displayName, String password,
+                                             String clientName, boolean rememberMe) {
         String normalized = normalizeUsername(username);
         validatePassword(password);
         String normalizedEmail = email == null || email.isBlank() ? null : email.strip().toLowerCase(Locale.ROOT);
@@ -43,11 +44,11 @@ public class AuthSessionService {
         } catch (DuplicateKeyException exception) {
             throw new IllegalArgumentException("用户名或邮箱已被使用");
         }
-        return createSession(new Account(id, normalized, shownName, role, "ACTIVE", "REGISTERED"), clientName);
+        return createSession(new Account(id, normalized, shownName, role, "ACTIVE", "REGISTERED"), clientName, rememberMe);
     }
 
     @Transactional
-    public LoginResult login(String username, String password, String clientName) {
+    public LoginResult login(String username, String password, String clientName, boolean rememberMe) {
         String normalized = normalizeUsername(username);
         List<AccountWithPassword> matches = jdbc.query("SELECT id,username,display_name,role,status,account_type,password_hash FROM app_user WHERE LOWER(username)=?",
                 (rs, row) -> new AccountWithPassword(new Account(rs.getObject("id", UUID.class), rs.getString("username"),
@@ -59,16 +60,17 @@ public class AuthSessionService {
         }
         Instant now = Instant.now();
         jdbc.update("UPDATE app_user SET last_login_at=?,last_seen_at=?,updated_at=? WHERE id=?", now, now, now, matches.getFirst().account().id());
-        return createSession(matches.getFirst().account(), clientName);
+        return createSession(matches.getFirst().account(), clientName, rememberMe);
     }
 
     @Transactional
-    public LoginResult createSession(Account account, String clientName) {
+    public LoginResult createSession(Account account, String clientName, boolean rememberMe) {
         byte[] bytes = new byte[32]; random.nextBytes(bytes);
         String token = Base64.getUrlEncoder().withoutPadding().encodeToString(bytes);
         Instant now = Instant.now();
         jdbc.update("INSERT INTO user_session(id,user_id,token_sha256,client_name,created_at,expires_at,last_seen_at) VALUES(?,?,?,?,?,?,?)",
-                UUID.randomUUID(), account.id(), sha256(token), safeClient(clientName), now, now.plus(30, ChronoUnit.DAYS), now);
+                UUID.randomUUID(), account.id(), sha256(token), safeClient(clientName), now,
+                now.plus(sessionLifetime(rememberMe)), now);
         return new LoginResult(token, account);
     }
 
@@ -104,6 +106,9 @@ public class AuthSessionService {
         if (value == null || value.length() < 8 || value.length() > 128) throw new IllegalArgumentException("密码长度需为 8-128 位");
     }
     private String safeClient(String value) { return value == null || value.isBlank() ? "GameNarrator" : value.strip().substring(0, Math.min(120, value.strip().length())); }
+    static Duration sessionLifetime(boolean rememberMe) {
+        return rememberMe ? Duration.ofDays(30) : Duration.ofHours(12);
+    }
     private String sha256(String value) {
         try { return java.util.HexFormat.of().formatHex(MessageDigest.getInstance("SHA-256").digest(value.getBytes(StandardCharsets.UTF_8))); }
         catch (Exception exception) { throw new IllegalStateException("无法生成会话摘要", exception); }

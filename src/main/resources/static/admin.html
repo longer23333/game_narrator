@@ -4,7 +4,7 @@
 <body>
 <header class="topbar"><div><small>GAMENARRATOR CONSOLE</small><h1>后台管理中心</h1><p>用户、项目、AI 成本、云同步、存储与审计统一管理</p></div><div class="top-actions"><span id="adminIdentity"></span><a href="/">返回工作台</a><button id="logout" class="secondary">退出登录</button></div></header>
 <main>
-  <section id="login" class="login-card hidden"><h2>管理员登录</h2><form id="loginForm"><label>用户名<input name="username" autocomplete="username" required></label><label>密码<input name="password" type="password" autocomplete="current-password" required></label><button>登录</button></form><p id="loginTip" class="error"></p></section>
+  <section id="login" class="login-card hidden"><h2>管理员登录</h2><form id="loginForm"><label>用户名<input name="username" autocomplete="username" required></label><label>密码<input name="password" type="password" autocomplete="current-password" required></label><label><span><input name="rememberMe" type="checkbox" value="true" checked> 在这台电脑上保持登录 30 天</span></label><button>登录</button></form><p id="loginTip" class="error"></p></section>
   <div id="app" class="shell hidden">
     <aside class="sidebar"><nav id="nav"><button data-tab="overview" class="active">总览</button><button data-tab="users">用户管理</button><button data-tab="projects">项目管理</button><button data-tab="api-usage">AI 用量</button><button data-tab="cloud-sync">云同步</button><button data-tab="storage">存储管理</button><button data-tab="audit">审计日志</button></nav></aside>
     <section class="content">

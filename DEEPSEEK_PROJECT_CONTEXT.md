@@ -1,7 +1,7 @@
 ﻿# GameNarrator — DeepSeek 结构化项目索引
 
-> 自动生成：2026-08-11 11:41:08 +08:00；UTF-8 BOM；索引不再内嵌全部源码。
-> Git：分支 `main`，提交 `296ea03`；收录文件 698 个，分卷 8 个。
+> 自动生成：2026-08-11 11:47:41 +08:00；UTF-8 BOM；索引不再内嵌全部源码。
+> Git：分支 `main`，提交 `6921f0f`；收录文件 699 个，分卷 8 个。
 
 ## 使用方法
 
@@ -28,9 +28,9 @@
 | 分卷 | 文件数 | 字符数 | 建议用途 |
 |---|---:|---:|---|
 | `deepseek-context/01-foundation.md` | 78 | 119990 | 构建、配置、资源、数据库迁移 |
-| `deepseek-context/02-backend.md` | 258 | 1027135 | Spring 后端实现 |
-| `deepseek-context/03-tests.md` | 81 | 227199 | Spring 测试与行为验证 |
-| `deepseek-context/04-frontend.md` | 17 | 359257 | Vite Web 源码 |
+| `deepseek-context/02-backend.md` | 258 | 1027766 | Spring 后端实现 |
+| `deepseek-context/03-tests.md` | 82 | 230274 | Spring 测试与行为验证 |
+| `deepseek-context/04-frontend.md` | 17 | 359559 | Vite Web 源码 |
 | `deepseek-context/05-android-main.md` | 151 | 855263 | Android 实现、资源与 Gradle |
 | `deepseek-context/06-android-tests.md` | 55 | 131882 | Android 单元及设备测试 |
 | `deepseek-context/07-platform-release.md` | 10 | 49452 | Windows、CI/CD 与发布 |
@@ -39,11 +39,13 @@
 ## 当前 Git 工作区（最近修改）
 
 ```text
-M README.md
- M docker-compose.postgresql.yml
- M docs/POSTGRESQL_AND_CLOUD_SYNC.md
-?? scripts/start-local-cloud.cmd
-?? scripts/start-local-cloud.ps1
+M frontend/public/admin.html
+ M frontend/public/app.js
+ M src/main/java/cn/longer233/gamenarrator/identity/AuthController.java
+ M src/main/java/cn/longer233/gamenarrator/identity/AuthSessionService.java
+ M src/main/resources/static/admin.html
+ M src/main/resources/static/app.js
+?? src/test/java/cn/longer233/gamenarrator/identity/AuthControllerTest.java
 ```
 
 ## Flyway 迁移索引
