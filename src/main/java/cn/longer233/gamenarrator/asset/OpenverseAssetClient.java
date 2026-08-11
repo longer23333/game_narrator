@@ -13,10 +13,12 @@ import java.time.Duration;
 public class OpenverseAssetClient {
     private final RestClient client;
     private final boolean enabled;
+    private final AssetSearchResilience resilience;
 
     public OpenverseAssetClient(@Value("${game-narrator.asset-library.openverse.base-url:https://api.openverse.org/v1}") String baseUrl,
                                 @Value("${game-narrator.asset-library.openverse.enabled:true}") boolean enabled,
-                                @Value("${game-narrator.asset-library.request-timeout-seconds:6}") int timeoutSeconds) {
+                                @Value("${game-narrator.asset-library.request-timeout-seconds:6}") int timeoutSeconds,
+                                AssetSearchResilience resilience) {
         SimpleClientHttpRequestFactory requestFactory = new SimpleClientHttpRequestFactory();
         requestFactory.setConnectTimeout(Duration.ofSeconds(timeoutSeconds));
         requestFactory.setReadTimeout(Duration.ofSeconds(timeoutSeconds));
@@ -26,6 +28,7 @@ public class OpenverseAssetClient {
                 .defaultHeader("User-Agent", "GameNarrator/0.1 graduation-project")
                 .build();
         this.enabled = enabled;
+        this.resilience = resilience;
     }
 
     public boolean supports(String assetType) {
@@ -50,6 +53,7 @@ public class OpenverseAssetClient {
             uri.queryParam("license_type", "modification");
         }
         String target = uri.build().encode().toUriString();
-        return client.get().uri(target).retrieve().body(JsonNode.class);
+        return resilience.execute("OPENVERSE", target,
+                () -> client.get().uri(target).retrieve().body(JsonNode.class));
     }
 }

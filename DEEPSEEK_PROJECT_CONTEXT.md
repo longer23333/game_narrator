@@ -1,7 +1,7 @@
 ﻿# GameNarrator — DeepSeek 结构化项目索引
 
-> 自动生成：2026-08-11 10:27:14 +08:00；UTF-8 BOM；索引不再内嵌全部源码。
-> Git：分支 `main`，提交 `0c733a7`；收录文件 684 个，分卷 8 个。
+> 自动生成：2026-08-11 10:42:22 +08:00；UTF-8 BOM；索引不再内嵌全部源码。
+> Git：分支 `main`，提交 `505946b`；收录文件 686 个，分卷 8 个。
 
 ## 使用方法
 
@@ -27,9 +27,9 @@
 
 | 分卷 | 文件数 | 字符数 | 建议用途 |
 |---|---:|---:|---|
-| `deepseek-context/01-foundation.md` | 78 | 119175 | 构建、配置、资源、数据库迁移 |
-| `deepseek-context/02-backend.md` | 253 | 1001274 | Spring 后端实现 |
-| `deepseek-context/03-tests.md` | 76 | 211709 | Spring 测试与行为验证 |
+| `deepseek-context/01-foundation.md` | 78 | 119515 | 构建、配置、资源、数据库迁移 |
+| `deepseek-context/02-backend.md` | 254 | 1007751 | Spring 后端实现 |
+| `deepseek-context/03-tests.md` | 77 | 215327 | Spring 测试与行为验证 |
 | `deepseek-context/04-frontend.md` | 17 | 357777 | Vite Web 源码 |
 | `deepseek-context/05-android-main.md` | 151 | 855263 | Android 实现、资源与 Gradle |
 | `deepseek-context/06-android-tests.md` | 55 | 131882 | Android 单元及设备测试 |
@@ -40,8 +40,11 @@
 
 ```text
 M DEEPSEEK_PROJECT_CONTEXT.md
- M scripts/export-deepseek-context.ps1
-?? docs/DEEPSEEK_CONTEXT_EXPORT.md
+ M src/main/java/cn/longer233/gamenarrator/asset/OpenverseAssetClient.java
+ M src/main/java/cn/longer233/gamenarrator/asset/WikimediaAssetClient.java
+ M src/main/resources/application.yml
+?? src/main/java/cn/longer233/gamenarrator/asset/AssetSearchResilience.java
+?? src/test/java/cn/longer233/gamenarrator/asset/AssetSearchResilienceTest.java
 ```
 
 ## Flyway 迁移索引

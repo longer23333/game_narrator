@@ -135,6 +135,12 @@ game-narrator:
       - { id: soundgator, name: SoundGator, url: "https://www.soundgator.com/", asset-types: "音效", region: INTERNATIONAL, priority: 210 }
       - { id: audionautix, name: Audionautix, url: "https://audionautix.com/", asset-types: "配乐", region: INTERNATIONAL, priority: 210 }
     request-timeout-seconds: ${ASSET_LIBRARY_REQUEST_TIMEOUT_SECONDS:4}
+    search-resilience:
+      max-attempts: ${ASSET_SEARCH_MAX_ATTEMPTS:3}
+      initial-backoff-millis: ${ASSET_SEARCH_INITIAL_BACKOFF_MILLIS:200}
+      fresh-ttl-minutes: ${ASSET_SEARCH_CACHE_FRESH_MINUTES:10}
+      stale-if-error-hours: ${ASSET_SEARCH_CACHE_STALE_HOURS:6}
+      maximum-entries: ${ASSET_SEARCH_CACHE_MAXIMUM_ENTRIES:256}
     featured-page-size: ${ASSET_FEATURED_PAGE_SIZE:3}
     featured-searches:
       - asset-type: MEME

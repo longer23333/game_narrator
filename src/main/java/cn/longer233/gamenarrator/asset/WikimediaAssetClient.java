@@ -19,13 +19,16 @@ public class WikimediaAssetClient {
     private final RestClient client;
     private final ObjectMapper objectMapper;
     private final boolean enabled;
+    private final AssetSearchResilience resilience;
 
     public WikimediaAssetClient(ObjectMapper objectMapper,
                                 @Value("${game-narrator.asset-library.wikimedia.base-url:https://commons.wikimedia.org}") String baseUrl,
                                 @Value("${game-narrator.asset-library.wikimedia.enabled:true}") boolean enabled,
-                                @Value("${game-narrator.asset-library.wikimedia.request-timeout-seconds:${game-narrator.asset-library.request-timeout-seconds:3}}") int timeoutSeconds) {
+                                @Value("${game-narrator.asset-library.wikimedia.request-timeout-seconds:${game-narrator.asset-library.request-timeout-seconds:3}}") int timeoutSeconds,
+                                AssetSearchResilience resilience) {
         this.objectMapper = objectMapper;
         this.enabled = enabled;
+        this.resilience = resilience;
         SimpleClientHttpRequestFactory requestFactory = new SimpleClientHttpRequestFactory();
         Duration timeout = Duration.ofSeconds(Math.max(1, Math.min(10, timeoutSeconds)));
         requestFactory.setConnectTimeout(timeout);
@@ -57,6 +60,10 @@ public class WikimediaAssetClient {
                 .queryParam("format", "json")
                 .queryParam("formatversion", 2)
                 .build().encode().toUriString();
+        return resilience.execute("WIKIMEDIA", target, () -> fetchAndNormalize(request, target));
+    }
+
+    private JsonNode fetchAndNormalize(AssetSearchRequest request, String target) {
         JsonNode response = client.get().uri(target).retrieve().body(JsonNode.class);
         ObjectNode normalized = objectMapper.createObjectNode();
         ArrayNode results = normalized.putArray("results");
