@@ -45,11 +45,13 @@ internal static class Program {
     private sealed class StartupForm : Form {
         private readonly Label status = new() { AutoSize=false, Dock=DockStyle.Top, Height=70, TextAlign=ContentAlignment.MiddleCenter };
         private readonly ProgressBar progress = new() { Dock=DockStyle.Top, Height=18, Style=ProgressBarStyle.Marquee };
-        private readonly Button retry = new() { Text="重试", Dock=DockStyle.Bottom, Height=42, Visible=false };
+        private readonly Button retry = new() { Text="重新运行", Dock=DockStyle.Bottom, Height=42, Visible=false };
         private readonly WebView2 webView = new() { Dock=DockStyle.Fill, Visible=false };
         private readonly NotifyIcon tray;
         private CoreWebView2Environment? webViewEnvironment;
         private bool bilibiliLoginRunning;
+        private bool startupRunning;
+        private bool? requestedLocalAi;
 
         internal StartupForm() {
             Text=$"GameNarrator {AppVersion}"; Width=520; Height=210; StartPosition=FormStartPosition.CenterScreen;
@@ -59,12 +61,16 @@ internal static class Program {
             var appIcon=Icon.ExtractAssociatedIcon(Application.ExecutablePath) ?? SystemIcons.Application;
             Icon=appIcon;
             tray=new NotifyIcon{Icon=appIcon,Text=$"GameNarrator {AppVersion}",ContextMenuStrip=menu,Visible=true}; tray.DoubleClick+=(_,_)=>ShowDesktopWindow();
-            retry.Click += async (_, _) => await StartAsync();
+            retry.Click += async (_, _) => await StartAsync(requestedLocalAi);
             Shown += async (_, _) => await StartAsync();
         }
 
-        private async Task StartAsync() {
-            retry.Visible=false; progress.Visible=true;
+        private async Task StartAsync(bool? localAiOverride=null) {
+            if (startupRunning) return;
+            startupRunning=true;
+            if (localAiOverride.HasValue) requestedLocalAi=localAiOverride;
+            webView.Visible=false; status.Visible=true; status.Text="正在重新运行 GameNarrator 及所需服务……";
+            retry.Enabled=false; retry.Visible=false; progress.Visible=true;
             try {
                 StopChildren();
                 var root=AppContext.BaseDirectory.TrimEnd(Path.DirectorySeparatorChar);
@@ -97,9 +103,9 @@ internal static class Program {
                 File.WriteAllText(Path.Combine(data,"config","runtime.json"),JsonSerializer.Serialize(new {
                     version=AppVersion,appRoot=root,dataRoot=data,storageRoot=Path.Combine(data,"storage"),appPort=AppPort,ollamaPort=OllamaPort
                 },new JsonSerializerOptions{WriteIndented=true}));
-                status.Text="首次运行：正在安装本地 AI 引擎（支持断点续传）…";
-                status.Text = WantsLocalAi(data) ? "正在准备本地 AI…" : "正在使用云端 AI 启动…";
-                if (WantsLocalAi(data)) {
+                var wantsLocalAi=requestedLocalAi ?? WantsLocalAi(data);
+                status.Text = wantsLocalAi ? "正在准备本地 AI…" : "正在使用云端 AI 启动…";
+                if (wantsLocalAi) {
                 if (!File.Exists(Path.Combine(data,"tools","ollama","ollama.exe")) &&
                     MessageBox.Show("本地 AI 尚未安装，需要联网下载约 2GB。现在安装吗？","安装本地 AI",
                         MessageBoxButtons.YesNo,MessageBoxIcon.Question)!=DialogResult.Yes)
@@ -134,7 +140,9 @@ internal static class Program {
                 tray.ShowBalloonTip(2500,"GameNarrator 正在运行","桌面应用已启动，可通过右下角托盘图标重新打开。",ToolTipIcon.Info);
             } catch(Exception ex) {
                 DesktopLog($"STARTUP_FAILED type={ex.GetType().Name} message={ex.Message}");
-                progress.Visible=false; retry.Visible=true; status.Text="启动失败："+ex.Message+"\n日志位于安装目录的 data\\logs";
+                progress.Visible=false; retry.Enabled=true; retry.Visible=true; status.Text="启动失败："+ex.Message+"\n点击“重新运行”会自动重新启动所需服务；日志位于安装目录的 data\\logs";
+            } finally {
+                startupRunning=false;
             }
         }
 
@@ -168,6 +176,12 @@ internal static class Program {
                 var root=message.RootElement;
                 if (!root.TryGetProperty("type",out var type)) return;
                 requestId=root.GetProperty("requestId").GetString();
+                if (type.GetString()=="restartApplication") {
+                    var localAi=root.TryGetProperty("localAi",out var requestedMode) && requestedMode.GetBoolean();
+                    DesktopLog($"RUNTIME_RESTART_REQUEST localAi={localAi}");
+                    BeginInvoke(new Action(async () => await StartAsync(localAi)));
+                    return;
+                }
                 if (type.GetString()=="bilibiliAssets") {
                     var assetRequestMode=root.TryGetProperty("mode",out var assetMode) ? assetMode.GetString() : "RECOMMEND";
                     var query=root.TryGetProperty("query",out var assetQuery) ? assetQuery.GetString() : null;

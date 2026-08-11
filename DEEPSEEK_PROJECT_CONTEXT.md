@@ -1,7 +1,7 @@
 ﻿# GameNarrator — DeepSeek 结构化项目索引
 
-> 自动生成：2026-08-11 13:15:21 +08:00；UTF-8 BOM；索引不再内嵌全部源码。
-> Git：分支 `main`，提交 `739b5de`；收录文件 713 个，分卷 8 个。
+> 自动生成：2026-08-11 13:24:15 +08:00；UTF-8 BOM；索引不再内嵌全部源码。
+> Git：分支 `main`，提交 `b28c266`；收录文件 715 个，分卷 8 个。
 
 ## 使用方法
 
@@ -30,18 +30,23 @@
 | `deepseek-context/01-foundation.md` | 81 | 121654 | 构建、配置、资源、数据库迁移 |
 | `deepseek-context/02-backend.md` | 263 | 1054750 | Spring 后端实现 |
 | `deepseek-context/03-tests.md` | 86 | 252498 | Spring 测试与行为验证 |
-| `deepseek-context/04-frontend.md` | 19 | 373326 | Vite Web 源码 |
+| `deepseek-context/04-frontend.md` | 19 | 374021 | Vite Web 源码 |
 | `deepseek-context/05-android-main.md` | 151 | 855263 | Android 实现、资源与 Gradle |
 | `deepseek-context/06-android-tests.md` | 55 | 131882 | Android 单元及设备测试 |
-| `deepseek-context/07-platform-release.md` | 10 | 49452 | Windows、CI/CD 与发布 |
-| `deepseek-context/08-docs-scripts.md` | 48 | 179251 | 需求、架构、维护脚本 |
+| `deepseek-context/07-platform-release.md` | 10 | 50333 | Windows、CI/CD 与发布 |
+| `deepseek-context/08-docs-scripts.md` | 50 | 181972 | 需求、架构、维护脚本 |
 
 ## 当前 Git 工作区（最近修改）
 
 ```text
-M frontend/public/app.js
- M scripts/verify-before-push.ps1
+M docs/FRONTEND_DEVELOPMENT.md
+ M frontend/index.html
+ M frontend/public/app.js
+ M launcher/Program.cs
  M src/main/resources/static/app.js
+ M src/main/resources/static/index.html
+?? scripts/start-development.cmd
+?? scripts/start-development.ps1
 ```
 
 ## Flyway 迁移索引

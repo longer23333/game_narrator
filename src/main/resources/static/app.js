@@ -10,6 +10,22 @@ const lazyScriptUrls = {
   ,updates:'/updates.js?v=20260811-1'
 };
 
+const runtimeRestartButton = document.querySelector('#runtime-restart');
+const desktopBridge = window.chrome?.webview;
+if (runtimeRestartButton && desktopBridge) {
+  runtimeRestartButton.hidden = false;
+  runtimeRestartButton.addEventListener('click', () => {
+    runtimeRestartButton.disabled = true;
+    runtimeRestartButton.textContent = '正在重新运行…';
+    const localAi = document.querySelector('#ai-settings-form [name="mode"]')?.value === 'LOCAL';
+    desktopBridge.postMessage({
+      type:'restartApplication',
+      requestId:crypto.randomUUID?.() || String(Date.now()),
+      localAi
+    });
+  });
+}
+
 function lazyScriptFailureMessage(key, error) {
   const detail = String(error?.message || error || '未知错误');
   if (/failed to fetch|fetch dynamically imported module|networkerror/i.test(detail)) {
