@@ -182,6 +182,22 @@
         </ol>
         <p><strong>为什么某些来源没有结果？</strong> Pexels/Pixabay 需要各自 API Key；Openverse/Wikimedia 无需登录，但可能因网络连接失败暂时不可用。系统会明确提示回退状态，不再用 Bilibili 缓存冒充开放搜索结果。</p>
       </details>
+      <details class="asset-provider-settings">
+        <summary>Pexels / Pixabay API Key 设置</summary>
+        <p>Key 以当前账号加密保存；页面只显示末四位。部署环境变量仍可作为所有账号的后备配置。</p>
+        <div id="asset-provider-settings">
+          <article data-provider-setting="PEXELS">
+            <label>Pexels API Key<input name="PEXELS" type="password" maxlength="500" autocomplete="new-password" placeholder="尚未配置"></label>
+            <span data-provider-status>正在读取状态…</span>
+            <div><button type="button" data-provider-save="PEXELS">保存</button><button type="button" data-provider-test="PEXELS">测试连接</button><button type="button" data-provider-delete="PEXELS" class="icon-button">清除账号配置</button></div>
+          </article>
+          <article data-provider-setting="PIXABAY">
+            <label>Pixabay API Key<input name="PIXABAY" type="password" maxlength="500" autocomplete="new-password" placeholder="尚未配置"></label>
+            <span data-provider-status>正在读取状态…</span>
+            <div><button type="button" data-provider-save="PIXABAY">保存</button><button type="button" data-provider-test="PIXABAY">测试连接</button><button type="button" data-provider-delete="PIXABAY" class="icon-button">清除账号配置</button></div>
+          </article>
+        </div>
+      </details>
       <div id="local-asset-dropzone" class="local-asset-dropzone" tabindex="0">
         <strong>拖拽上传本地素材</strong>
         <span>支持视频、图片、音频；绿幕/green screen 视频会自动抠出主体</span>
@@ -210,6 +226,8 @@
             <option value="OPENVERSE">Openverse</option>
             <option value="WIKIMEDIA">Wikimedia Commons</option>
             <option value="BILIBILI">Bilibili 候选素材</option>
+            <option value="PEXELS" data-requires-provider-key="PEXELS" disabled>Pexels（未配置 API Key）</option>
+            <option value="PIXABAY" data-requires-provider-key="PIXABAY" disabled>Pixabay（未配置 API Key）</option>
           </select>
         </label>
         <label>每页数量

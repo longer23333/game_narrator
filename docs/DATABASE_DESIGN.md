@@ -669,6 +669,12 @@ POST /api/exports/{id}/cancel                  取消导出
 - 任务删除后登记记录级联删除；实际文件仍由事务提交后的安全存储清理边界删除。
 - `updated_at`：记录最近一次机器生成或人工确认时间。
 
+## `user_asset_provider_config`
+
+- V34 按 `user_id + provider` 保存 Pexels/Pixabay 账号级 API Key。
+- `api_key_ciphertext` 只保存 AES-GCM 密文，`api_key_hint` 只用于页面显示末四位，任何查询接口均不返回凭据本体。
+- 删除账号时通过外键级联删除凭据；环境变量只作为没有账号配置时的部署级后备值，不写入数据库。
+
 删除视频任务时事件记录通过外键级联删除。事件按任务与时间建立索引，供分镜工作台和事实约束文案生成读取。
 ## `community_resource`、`creative_variant` 与 `editing_decision_report`
 

@@ -36,25 +36,38 @@ public class PexelsAssetClient {
     }
 
     public boolean configured() { return enabled && !apiKey.isBlank(); }
+    public boolean configured(String accountApiKey) { return enabled && !effectiveKey(accountApiKey).isBlank(); }
 
     public boolean supports(String assetType) {
         return configured() && ("VIDEO".equalsIgnoreCase(assetType) || "IMAGE".equalsIgnoreCase(assetType));
     }
 
+    public boolean supports(String assetType, String accountApiKey) {
+        return configured(accountApiKey) && ("VIDEO".equalsIgnoreCase(assetType) || "IMAGE".equalsIgnoreCase(assetType));
+    }
+
     public JsonNode search(AssetSearchRequest request) {
+        return search(request, apiKey);
+    }
+
+    public JsonNode search(AssetSearchRequest request, String accountApiKey) {
         boolean video = "VIDEO".equalsIgnoreCase(request.assetType());
         String uri = UriComponentsBuilder.fromPath(video ? "/videos/search" : "/v1/search")
                 .queryParam("query", request.query())
                 .queryParam("page", request.page() == null ? 1 : request.page())
                 .queryParam("per_page", request.pageSize() == null ? 20 : request.pageSize())
                 .build().encode().toUriString();
-        JsonNode response = client.get().uri(uri).header("Authorization", apiKey)
+        JsonNode response = client.get().uri(uri).header("Authorization", effectiveKey(accountApiKey))
                 .retrieve().body(JsonNode.class);
         ObjectNode normalized = mapper.createObjectNode();
         ArrayNode results = normalized.putArray("results");
         JsonNode entries = response == null ? mapper.createArrayNode() : response.path(video ? "videos" : "photos");
         for (JsonNode item : entries) results.add(video ? normalizeVideo(item) : normalizePhoto(item));
         return normalized;
+    }
+
+    private String effectiveKey(String accountApiKey) {
+        return accountApiKey == null || accountApiKey.isBlank() ? apiKey : accountApiKey.trim();
     }
 
     private ObjectNode normalizePhoto(JsonNode item) {

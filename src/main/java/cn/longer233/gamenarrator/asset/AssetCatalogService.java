@@ -38,6 +38,7 @@ public class AssetCatalogService {
     private final PlatformAssetMetadataResolver platformMetadataResolver;
     private final PexelsAssetClient pexels;
     private final PixabayAssetClient pixabay;
+    private final AssetProviderCredentialService providerCredentials;
     private final AiAssetTagger aiTagger;
     private final ChineseAssetQueryExpander queryExpander;
     private final AssetLibraryProperties assetLibraryProperties;
@@ -53,7 +54,8 @@ public class AssetCatalogService {
                                OpenverseAssetClient openverse, WikimediaAssetClient wikimedia,
                                BilibiliAssetClient bilibili, PlatformAssetMetadataResolver platformMetadataResolver,
                                PexelsAssetClient pexels,
-                               PixabayAssetClient pixabay, AiAssetTagger aiTagger,
+                               PixabayAssetClient pixabay, AssetProviderCredentialService providerCredentials,
+                               AiAssetTagger aiTagger,
                                ChineseAssetQueryExpander queryExpander, AssetLibraryProperties assetLibraryProperties,
                                BgeAssetSemanticSearch semanticSearch,
                                @Qualifier("taskExecutor") Executor taskExecutor,
@@ -69,6 +71,7 @@ public class AssetCatalogService {
         this.platformMetadataResolver = platformMetadataResolver;
         this.pexels = pexels;
         this.pixabay = pixabay;
+        this.providerCredentials = providerCredentials;
         this.aiTagger = aiTagger;
         this.queryExpander = queryExpander;
         this.assetLibraryProperties = assetLibraryProperties;
@@ -110,6 +113,8 @@ public class AssetCatalogService {
         Set<UUID> ids = Collections.synchronizedSet(new LinkedHashSet<>());
         List<String> failures = Collections.synchronizedList(new ArrayList<>());
         List<CompletableFuture<Void>> searches = new ArrayList<>();
+        String pexelsKey = providerCredentials.effectiveKey("PEXELS");
+        String pixabayKey = providerCredentials.effectiveKey("PIXABAY");
         int attemptedProviders = 0;
         // Bilibili is a rights-review platform candidate, not an open-license source.
         // It must be selected explicitly and must never crowd out open results.
@@ -134,20 +139,20 @@ public class AssetCatalogService {
                     taskExecutor));
         }
         if (providerSelected(request.provider(), "PEXELS")
-                && pexels.supports(request.assetType())) {
+                && pexels.supports(request.assetType(), pexelsKey)) {
             attemptedProviders++;
             searches.add(CompletableFuture.runAsync(() ->
-                    discoverFrom("PEXELS", () -> pexels.search(providerRequest), request, expansion, ids, failures),
+                    discoverFrom("PEXELS", () -> pexels.search(providerRequest, pexelsKey), request, expansion, ids, failures),
                     taskExecutor));
         }
         if (providerSelected(request.provider(), "PIXABAY")
-                && pixabay.supports(request.assetType())) {
+                && pixabay.supports(request.assetType(), pixabayKey)) {
             attemptedProviders++;
             searches.add(CompletableFuture.runAsync(() ->
-                    discoverFrom("PIXABAY", () -> pixabay.search(providerRequest), request, expansion, ids, failures),
+                    discoverFrom("PIXABAY", () -> pixabay.search(providerRequest, pixabayKey), request, expansion, ids, failures),
                     taskExecutor));
         }
-        requireConfiguredProvider(request);
+        requireConfiguredProvider(request, pexelsKey, pixabayKey);
         CompletableFuture.allOf(searches.toArray(CompletableFuture[]::new)).join();
         if (attemptedProviders == 0 || failures.size() == attemptedProviders) {
             List<AssetView> cached = lexicalList(request.assetType(), request.query(), request.provider(), null, null, false, "newest");
@@ -175,18 +180,18 @@ public class AssetCatalogService {
             case "OPENVERSE" -> openverse.supports(assetType);
             case "WIKIMEDIA" -> wikimedia.supports(assetType);
             case "BILIBILI" -> bilibili.supports(assetType);
-            case "PEXELS" -> pexels.supports(assetType);
-            case "PIXABAY" -> pixabay.supports(assetType);
+            case "PEXELS" -> pexels.supports(assetType, providerCredentials.effectiveKey("PEXELS"));
+            case "PIXABAY" -> pixabay.supports(assetType, providerCredentials.effectiveKey("PIXABAY"));
             default -> false;
         };
     }
 
-    private void requireConfiguredProvider(AssetSearchRequest request) {
-        if ("PEXELS".equalsIgnoreCase(request.provider()) && !pexels.configured()) {
-            throw new IllegalStateException("Pexels 搜索尚未配置：请设置 PEXELS_API_KEY");
+    private void requireConfiguredProvider(AssetSearchRequest request, String pexelsKey, String pixabayKey) {
+        if ("PEXELS".equalsIgnoreCase(request.provider()) && !pexels.configured(pexelsKey)) {
+            throw new IllegalStateException("Pexels 搜索尚未配置：请在素材库中填写 API Key");
         }
-        if ("PIXABAY".equalsIgnoreCase(request.provider()) && !pixabay.configured()) {
-            throw new IllegalStateException("Pixabay 搜索尚未配置：请设置 PIXABAY_API_KEY");
+        if ("PIXABAY".equalsIgnoreCase(request.provider()) && !pixabay.configured(pixabayKey)) {
+            throw new IllegalStateException("Pixabay 搜索尚未配置：请在素材库中填写 API Key");
         }
     }
 

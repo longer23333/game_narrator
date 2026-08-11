@@ -35,15 +35,24 @@ public class PixabayAssetClient {
     }
 
     public boolean configured() { return enabled && !apiKey.isBlank(); }
+    public boolean configured(String accountApiKey) { return enabled && !effectiveKey(accountApiKey).isBlank(); }
 
     public boolean supports(String assetType) {
         return configured() && ("VIDEO".equalsIgnoreCase(assetType) || "IMAGE".equalsIgnoreCase(assetType));
     }
 
+    public boolean supports(String assetType, String accountApiKey) {
+        return configured(accountApiKey) && ("VIDEO".equalsIgnoreCase(assetType) || "IMAGE".equalsIgnoreCase(assetType));
+    }
+
     public JsonNode search(AssetSearchRequest request) {
+        return search(request, apiKey);
+    }
+
+    public JsonNode search(AssetSearchRequest request, String accountApiKey) {
         boolean video = "VIDEO".equalsIgnoreCase(request.assetType());
         String uri = UriComponentsBuilder.fromPath(video ? "/api/videos/" : "/api/")
-                .queryParam("key", apiKey).queryParam("q", request.query())
+                .queryParam("key", effectiveKey(accountApiKey)).queryParam("q", request.query())
                 .queryParam("page", request.page() == null ? 1 : request.page())
                 .queryParam("per_page", request.pageSize() == null ? 20 : request.pageSize())
                 .queryParam("safesearch", true).build().encode().toUriString();
@@ -52,6 +61,10 @@ public class PixabayAssetClient {
         ArrayNode results = normalized.putArray("results");
         if (response != null) for (JsonNode item : response.path("hits")) results.add(normalize(item, video));
         return normalized;
+    }
+
+    private String effectiveKey(String accountApiKey) {
+        return accountApiKey == null || accountApiKey.isBlank() ? apiKey : accountApiKey.trim();
     }
 
     private ObjectNode normalize(JsonNode item, boolean video) {
