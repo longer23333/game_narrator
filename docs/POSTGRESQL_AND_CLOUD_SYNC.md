@@ -59,7 +59,9 @@ HTTPS 地址。云端应关闭 path-style 时设置 `OBJECT_STORAGE_PATH_STYLE=f
 ## 同步语义
 
 - 新上传源视频以及新登记的流水线产物会进入 `PENDING`，后台最多每批上传 5 个文件。
-- 大于 64 MiB 的文件默认以 16 MiB 分片上传；失败会记录原因并在 5 分钟后重试。
+- 大于 64 MiB 的文件默认以 16 MiB 分片上传；失败会记录原因，并按 30 秒起步、最长 1 小时的指数退避加抖动重试。
+- 默认连续失败 8 次后进入 `PERMANENT_FAILURE`，不再无限请求对象存储；用户可调用 `POST /api/cloud-sync/{id}/retry`，管理员也可在后台重新排队。
+- 可用 `CLOUD_SYNC_MAX_ATTEMPTS`、`CLOUD_SYNC_RETRY_BASE_SECONDS`、`CLOUD_SYNC_RETRY_MAX_SECONDS`、`CLOUD_SYNC_RETRY_JITTER_RATIO` 调整重试策略。
 - 成功后状态为 `SYNCED`。`GET /api/cloud-sync` 只返回当前登录用户的同步记录。
 - 下载先写同目录临时文件，SHA-256 一致后再原子替换目标文件。
 - 源视频恢复后会更新该设备使用的任务路径，然后才启动流水线。

@@ -23,14 +23,17 @@ public class CloudSyncService {
     private final ObjectProvider<CloudObjectStore> objectStore;
     private final CurrentUserContext currentUser;
     private final Path storageRoot;
+    private final CloudSyncRetryPolicy retryPolicy;
 
     public CloudSyncService(JdbcTemplate jdbc, ObjectProvider<CloudObjectStore> objectStore,
                             CurrentUserContext currentUser,
-                            @Value("${game-narrator.storage-root}") String storageRoot) {
+                            @Value("${game-narrator.storage-root}") String storageRoot,
+                            CloudSyncRetryPolicy retryPolicy) {
         this.jdbc = jdbc;
         this.objectStore = objectStore;
         this.currentUser = currentUser;
         this.storageRoot = Path.of(storageRoot).toAbsolutePath().normalize();
+        this.retryPolicy = retryPolicy;
     }
 
     @Transactional
@@ -42,7 +45,7 @@ public class CloudSyncService {
         String objectKey = userId + "/" + itemType.toLowerCase() + "/" + localId + "/" + normalized.getFileName();
         int changed = jdbc.update("""
                 UPDATE cloud_sync_item SET local_path=?,object_key=?,content_sha256=?,size_bytes=?,sync_status='PENDING',
-                last_error=NULL,updated_at=?,next_attempt_at=NULL WHERE user_id=? AND item_type=? AND local_id=?
+                attempt_count=0,last_error=NULL,updated_at=?,next_attempt_at=NULL WHERE user_id=? AND item_type=? AND local_id=?
                 """, normalized.toString(), objectKey, sha256, size, now(), userId, itemType, localId);
         if (changed == 0) jdbc.update("""
                 INSERT INTO cloud_sync_item(id,user_id,item_type,local_id,local_path,object_key,content_sha256,size_bytes,
@@ -52,7 +55,8 @@ public class CloudSyncService {
 
     public List<Map<String,Object>> mine() {
         return jdbc.queryForList("""
-                SELECT id,item_type,local_id,object_key,size_bytes,sync_status,last_error,updated_at,synced_at
+                SELECT id,item_type,local_id,object_key,size_bytes,sync_status,attempt_count,last_error,
+                       next_attempt_at,last_attempt_at,updated_at,synced_at
                 FROM cloud_sync_item WHERE user_id=? ORDER BY updated_at DESC
                 """, currentUser.userId());
     }
@@ -62,11 +66,11 @@ public class CloudSyncService {
         CloudObjectStore store = objectStore.getIfAvailable();
         if (store == null) return;
         var rows = jdbc.query("""
-                SELECT id,local_path,object_key,content_sha256 FROM cloud_sync_item
+                SELECT id,local_path,object_key,content_sha256,attempt_count FROM cloud_sync_item
                 WHERE sync_status IN ('PENDING','FAILED') AND (next_attempt_at IS NULL OR next_attempt_at<=?)
                 ORDER BY updated_at LIMIT 5
                 """, (rs, index) -> new PendingItem(rs.getObject("id", UUID.class), rs.getString("local_path"),
-                rs.getString("object_key"), rs.getString("content_sha256")), now());
+                rs.getString("object_key"), rs.getString("content_sha256"), rs.getInt("attempt_count")), now());
         for (var row : rows) upload(store, row);
     }
 
@@ -87,6 +91,16 @@ public class CloudSyncService {
         } catch (Exception exception) {
             throw new IllegalStateException("Unable to restore cloud object: " + exception.getMessage(), exception);
         }
+    }
+
+    @Transactional
+    public void retry(UUID id) {
+        int changed = jdbc.update("""
+                UPDATE cloud_sync_item SET sync_status='PENDING',attempt_count=0,last_error=NULL,
+                    next_attempt_at=NULL,updated_at=? WHERE id=? AND user_id=?
+                    AND sync_status IN ('FAILED','PERMANENT_FAILURE','LOCAL_ONLY')
+                """, now(), id, currentUser.userId());
+        if (changed == 0) throw new IllegalArgumentException("同步项不存在、无权访问或当前状态不可重试");
     }
 
     @Transactional
@@ -121,18 +135,24 @@ public class CloudSyncService {
             Path source = Path.of(row.localPath()).toAbsolutePath().normalize();
             if (!source.startsWith(storageRoot) || !Files.isRegularFile(source)) throw new IllegalStateException("Local file is unavailable");
             store.upload(row.objectKey(), source, Files.probeContentType(source), row.sha256());
-            jdbc.update("UPDATE cloud_sync_item SET sync_status='SYNCED',last_error=NULL,synced_at=?,updated_at=? WHERE id=?",
-                    now(), now(), id);
+            jdbc.update("""
+                    UPDATE cloud_sync_item SET sync_status='SYNCED',last_error=NULL,next_attempt_at=NULL,
+                    last_attempt_at=?,synced_at=?,updated_at=? WHERE id=?
+                    """, now(), now(), now(), id);
         } catch (Exception failure) {
             String message = failure.getMessage() == null ? failure.getClass().getSimpleName() : failure.getMessage();
+            int attemptCount = row.attemptCount() + 1;
+            boolean exhausted = retryPolicy.exhausted(attemptCount);
+            OffsetDateTime nextAttempt = exhausted ? null : now().plus(retryPolicy.delay(attemptCount, id));
             jdbc.update("""
-                    UPDATE cloud_sync_item SET sync_status='FAILED',attempt_count=attempt_count+1,last_error=?,
-                    next_attempt_at=?,updated_at=? WHERE id=?
-                    """, message.substring(0, Math.min(1000, message.length())), now().plusMinutes(5), now(), id);
+                    UPDATE cloud_sync_item SET sync_status=?,attempt_count=?,last_error=?,next_attempt_at=?,
+                    last_attempt_at=?,updated_at=? WHERE id=?
+                    """, exhausted ? "PERMANENT_FAILURE" : "FAILED", attemptCount,
+                    message.substring(0, Math.min(1000, message.length())), nextAttempt, now(), now(), id);
         }
     }
 
     private OffsetDateTime now() { return OffsetDateTime.now(ZoneOffset.UTC); }
-    private record PendingItem(UUID id, String localPath, String objectKey, String sha256) {}
+    private record PendingItem(UUID id, String localPath, String objectKey, String sha256, int attemptCount) {}
     private record RemoteObject(String objectKey, String sha256) {}
 }

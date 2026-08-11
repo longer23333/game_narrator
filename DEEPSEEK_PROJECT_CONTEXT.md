@@ -1,7 +1,7 @@
 ﻿# GameNarrator — DeepSeek 结构化项目索引
 
-> 自动生成：2026-08-11 09:28:10 +08:00；UTF-8 BOM；索引不再内嵌全部源码。
-> Git：分支 `main`，提交 `0cf8ac8`；收录文件 669 个，分卷 8 个。
+> 自动生成：2026-08-11 09:43:10 +08:00；UTF-8 BOM；索引不再内嵌全部源码。
+> Git：分支 `main`，提交 `17e7e17`；收录文件 672 个，分卷 8 个。
 
 ## 使用方法
 
@@ -27,20 +27,29 @@
 
 | 分卷 | 文件数 | 字符数 | 建议用途 |
 |---|---:|---:|---|
-| `deepseek-context/01-foundation.md` | 72 | 115855 | 构建、配置、资源、数据库迁移 |
-| `deepseek-context/02-backend.md` | 247 | 971587 | Spring 后端实现 |
-| `deepseek-context/03-tests.md` | 74 | 192945 | Spring 测试与行为验证 |
-| `deepseek-context/04-frontend.md` | 17 | 351762 | Vite Web 源码 |
+| `deepseek-context/01-foundation.md` | 74 | 116747 | 构建、配置、资源、数据库迁移 |
+| `deepseek-context/02-backend.md` | 248 | 975168 | Spring 后端实现 |
+| `deepseek-context/03-tests.md` | 74 | 195826 | Spring 测试与行为验证 |
+| `deepseek-context/04-frontend.md` | 17 | 351822 | Vite Web 源码 |
 | `deepseek-context/05-android-main.md` | 151 | 855263 | Android 实现、资源与 Gradle |
 | `deepseek-context/06-android-tests.md` | 55 | 131882 | Android 单元及设备测试 |
 | `deepseek-context/07-platform-release.md` | 10 | 47337 | Windows、CI/CD 与发布 |
-| `deepseek-context/08-docs-scripts.md` | 43 | 147339 | 需求、架构、维护脚本 |
+| `deepseek-context/08-docs-scripts.md` | 43 | 147592 | 需求、架构、维护脚本 |
 
 ## 当前 Git 工作区（最近修改）
 
 ```text
-M src/main/java/cn/longer233/gamenarrator/subtitle/AssSubtitleBuilder.java
- M src/test/java/cn/longer233/gamenarrator/subtitle/AssSubtitleBuilderTest.java
+M docs/POSTGRESQL_AND_CLOUD_SYNC.md
+ M frontend/public/admin.js
+ M src/main/java/cn/longer233/gamenarrator/admin/AdminManagementService.java
+ M src/main/java/cn/longer233/gamenarrator/cloud/CloudSyncController.java
+ M src/main/java/cn/longer233/gamenarrator/cloud/CloudSyncService.java
+ M src/main/resources/application-postgresql.yml
+ M src/main/resources/static/admin.js
+ M src/test/java/cn/longer233/gamenarrator/cloud/CloudSyncServiceTest.java
+?? src/main/java/cn/longer233/gamenarrator/cloud/CloudSyncRetryPolicy.java
+?? src/main/resources/db/migration-postgresql/V33__cloud_sync_retry_policy.sql
+?? src/main/resources/db/migration/V33__cloud_sync_retry_policy.sql
 ```
 
 ## Flyway 迁移索引
@@ -77,6 +86,7 @@ M src/main/java/cn/longer233/gamenarrator/subtitle/AssSubtitleBuilder.java
 - `src/main/resources/db/migration/V30__per_user_asset_library.sql`
 - `src/main/resources/db/migration/V31__cloud_sync_execution.sql`
 - `src/main/resources/db/migration/V32__task_recycle_bin.sql`
+- `src/main/resources/db/migration/V33__cloud_sync_retry_policy.sql`
 
 ## 运行配置索引
 
@@ -190,6 +200,7 @@ M src/main/java/cn/longer233/gamenarrator/subtitle/AssSubtitleBuilder.java
 | POST | `/api/auth/login` | `src/main/java/cn/longer233/gamenarrator/identity/AuthController.java` |
 | POST | `/api/auth/logout` | `src/main/java/cn/longer233/gamenarrator/identity/AuthController.java` |
 | POST | `/api/auth/register` | `src/main/java/cn/longer233/gamenarrator/identity/AuthController.java` |
+| POST | `/api/cloud-sync/{id}/retry` | `src/main/java/cn/longer233/gamenarrator/cloud/CloudSyncController.java` |
 | POST | `/api/community/knowledge-packs/{code}` | `src/main/java/cn/longer233/gamenarrator/community/CommunityResourceController.java` |
 | POST | `/api/community/resources/{id}/install` | `src/main/java/cn/longer233/gamenarrator/community/CommunityResourceController.java` |
 | POST | `/api/community/styles/{code}` | `src/main/java/cn/longer233/gamenarrator/community/CommunityResourceController.java` |
