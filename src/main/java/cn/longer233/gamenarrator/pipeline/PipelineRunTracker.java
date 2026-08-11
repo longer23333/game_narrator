@@ -7,6 +7,7 @@ import org.springframework.stereotype.Component;
 
 import java.time.OffsetDateTime;
 import java.time.ZoneOffset;
+import java.time.Duration;
 import java.util.Map;
 import java.util.UUID;
 
@@ -88,12 +89,18 @@ public class PipelineRunTracker {
     private void updateStage(UUID taskId, String stageType, String status, int progress,
                              String summary, String error) {
         UUID runId = activeRun(taskId);
+        OffsetDateTime finished = now();
+        Long elapsed = jdbc.query("""
+                SELECT started_at FROM stage_run WHERE generation_run_id=? AND stage_type=?
+                ORDER BY attempt_no DESC LIMIT 1
+                """, rs -> rs.next() && rs.getObject(1, OffsetDateTime.class) != null
+                ? Duration.between(rs.getObject(1, OffsetDateTime.class), finished).toMillis() : null, runId, stageType);
         int changed = jdbc.update("""
                 UPDATE stage_run SET status=?,progress=?,output_summary_json=?,finished_at=?,
-                elapsed_ms=DATEDIFF('MILLISECOND',started_at,?),error_message=?
+                elapsed_ms=?,error_message=?
                 WHERE id=(SELECT id FROM stage_run WHERE generation_run_id=? AND stage_type=?
                 ORDER BY attempt_no DESC LIMIT 1)
-                """, status, progress, summary, now(), now(), error, runId, stageType);
+                """, status, progress, summary, finished, elapsed, error, runId, stageType);
         if (changed == 0) {
             running(taskId, stageType);
             updateStage(taskId, stageType, status, progress, summary, error);
@@ -102,10 +109,14 @@ public class PipelineRunTracker {
 
     private void finishRun(UUID taskId, String status, String error) {
         UUID runId = activeRun(taskId);
+        OffsetDateTime finished = now();
+        Long elapsed = jdbc.query("SELECT started_at FROM generation_run WHERE id=?",
+                rs -> rs.next() && rs.getObject(1, OffsetDateTime.class) != null
+                        ? Duration.between(rs.getObject(1, OffsetDateTime.class), finished).toMillis() : null, runId);
         jdbc.update("""
-                UPDATE generation_run SET status=?,finished_at=?,elapsed_ms=DATEDIFF('MILLISECOND',started_at,?),
+                UPDATE generation_run SET status=?,finished_at=?,elapsed_ms=?,
                 failure_message=? WHERE id=?
-                """, status, now(), now(), error, runId);
+                """, status, finished, elapsed, error, runId);
         jdbc.update("UPDATE video_project SET status=?,updated_at=? WHERE id=?",
                 "COMPLETED".equals(status) ? "READY" : status, now(), taskId);
     }

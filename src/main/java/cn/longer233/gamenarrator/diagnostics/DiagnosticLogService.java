@@ -19,9 +19,13 @@ public class DiagnosticLogService {
     private static final int MAX_TAIL_BYTES = 512 * 1024;
     private static final int MAX_EXPORT_BYTES_PER_FILE = 5 * 1024 * 1024;
     private static final Pattern BEARER = Pattern.compile("(?i)Bearer\\s+[A-Za-z0-9._~+/-]+=*");
-    private static final Pattern SECRET = Pattern.compile(
-            "(?i)(api[-_ ]?key|authorization|cookie|password|secret|access[-_ ]?token|refresh[-_ ]?token)" +
-                    "(\\s*[=:]\\s*|\\\"?\\s*:\\s*\\\")([^\\s,;}\\\"]+)");
+    private static final Pattern HEADER_SECRET = Pattern.compile("(?im)^(authorization|cookie)\\s*[:=]\\s*[^\\r\\n]*");
+    private static final String SENSITIVE_KEY =
+            "(?:api[-_ ]?key|authorization|cookie|password|secret|client[-_ ]?secret|access[-_ ]?token|refresh[-_ ]?token|session[-_ ]?token)";
+    private static final Pattern JSON_SECRET = Pattern.compile(
+            "(?i)(\\\"" + SENSITIVE_KEY + "\\\"\\s*:\\s*\\\")([^\\\"]*)(\\\")");
+    private static final Pattern ASSIGNMENT_SECRET = Pattern.compile(
+            "(?i)(" + SENSITIVE_KEY + ")(\\s*[=:]\\s*)([^\\s,;}]+)");
     private final Path logDirectory;
     private final Path applicationLog;
 
@@ -69,7 +73,10 @@ public class DiagnosticLogService {
 
     public String sanitize(String value) {
         if (value == null) return "";
-        return SECRET.matcher(BEARER.matcher(value).replaceAll("Bearer ***")).replaceAll("$1=***");
+        String safe = HEADER_SECRET.matcher(value).replaceAll("$1=***");
+        safe = BEARER.matcher(safe).replaceAll("Bearer ***");
+        safe = JSON_SECRET.matcher(safe).replaceAll("$1***$3");
+        return ASSIGNMENT_SECRET.matcher(safe).replaceAll("$1$2***");
     }
 
     private byte[] readTail(Path path, int maximumBytes) throws Exception {

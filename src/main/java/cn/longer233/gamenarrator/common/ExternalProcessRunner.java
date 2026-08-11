@@ -26,6 +26,7 @@ public final class ExternalProcessRunner {
             Thread.ofVirtual().name("external-output-", 0).factory());
     private static final Map<ProcessType, Semaphore> LIMITS = new ConcurrentHashMap<>();
     private static final Map<ProcessType, AtomicInteger> ACTIVE = new ConcurrentHashMap<>();
+    private static final Map<ProcessType, Integer> CONFIGURED_LIMITS = new ConcurrentHashMap<>();
     static { configureLimits(1, 1, 2); }
     private ExternalProcessRunner() { }
 
@@ -90,12 +91,20 @@ public final class ExternalProcessRunner {
         if (ffmpeg < 1 || whisper < 1 || other < 1) {
             throw new IllegalArgumentException("External process limits must be at least 1");
         }
+        if (CONFIGURED_LIMITS.getOrDefault(ProcessType.FFMPEG, 0) == ffmpeg
+                && CONFIGURED_LIMITS.getOrDefault(ProcessType.WHISPER, 0) == whisper
+                && CONFIGURED_LIMITS.getOrDefault(ProcessType.OTHER, 0) == other) {
+            return;
+        }
         if (ACTIVE.values().stream().anyMatch(value -> value.get() > 0)) {
             throw new IllegalStateException("Cannot reconfigure external process limits while processes are active");
         }
         LIMITS.put(ProcessType.FFMPEG, new Semaphore(ffmpeg, true));
         LIMITS.put(ProcessType.WHISPER, new Semaphore(whisper, true));
         LIMITS.put(ProcessType.OTHER, new Semaphore(other, true));
+        CONFIGURED_LIMITS.put(ProcessType.FFMPEG, ffmpeg);
+        CONFIGURED_LIMITS.put(ProcessType.WHISPER, whisper);
+        CONFIGURED_LIMITS.put(ProcessType.OTHER, other);
         for (ProcessType type : ProcessType.values()) ACTIVE.putIfAbsent(type, new AtomicInteger());
     }
 

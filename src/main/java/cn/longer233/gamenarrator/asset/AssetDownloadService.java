@@ -122,12 +122,12 @@ public class AssetDownloadService {
                 .getBytes(StandardCharsets.UTF_8));
         String derivedType = "FRAME".equals(mode) ? "IMAGE" : "SFX";
         String title = row.get("TITLE") + ("FRAME".equals(mode) ? " · 单帧" : " · 音轨");
-        jdbc.update("""
+        cn.longer233.gamenarrator.common.PortableUpsert.update(jdbc, """
                 MERGE INTO external_asset(id,provider,external_id,asset_type,title,creator,landing_url,
                 preview_url,download_url,license_code,license_url,attribution,duration_ms,local_path,
                 import_status,metadata_json,discovered_at,downloaded_at) KEY(provider,external_id)
                 VALUES(?,?,?,?,?,?,?,?,NULL,?,?,?,?,?,?,?, ?,?)
-                """, derivedId, "LOCAL_DERIVED", assetId + ":" + mode + ":" + timestamp, derivedType,
+                """, "provider,external_id", derivedId, "LOCAL_DERIVED", assetId + ":" + mode + ":" + timestamp, derivedType,
                 title, row.get("CREATOR"), row.get("LANDING_URL"), null, row.get("LICENSE_CODE"),
                 row.get("LICENSE_URL"), row.get("ATTRIBUTION"), "FRAME".equals(mode) ? null : row.get("DURATION_MS"),
                 output.toString(), "DOWNLOADED", "{\"derivedFrom\":\"" + assetId + "\",\"mode\":\"" + mode + "\"}",

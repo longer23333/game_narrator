@@ -1,0 +1,1 @@
+﻿-- Clean PostgreSQL installations have no legacy H2 rows to backfill.

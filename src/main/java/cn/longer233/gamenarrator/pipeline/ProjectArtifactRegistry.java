@@ -16,6 +16,7 @@ import java.time.ZoneOffset;
 import java.util.HexFormat;
 import java.util.UUID;
 import java.io.InputStream;
+import cn.longer233.gamenarrator.cloud.CloudSyncService;
 
 /** Records pipeline files in the V2 artifact model and advances the project manifest revision. */
 @Component
@@ -23,11 +24,14 @@ public class ProjectArtifactRegistry {
     private final JdbcTemplate jdbc;
     private final ObjectMapper mapper;
     private final CurrentUserContext currentUser;
+    private final CloudSyncService cloudSync;
 
-    public ProjectArtifactRegistry(JdbcTemplate jdbc, ObjectMapper mapper, CurrentUserContext currentUser) {
+    public ProjectArtifactRegistry(JdbcTemplate jdbc, ObjectMapper mapper, CurrentUserContext currentUser,
+                                   CloudSyncService cloudSync) {
         this.jdbc = jdbc;
         this.mapper = mapper;
         this.currentUser = currentUser;
+        this.cloudSync = cloudSync;
     }
 
     @Transactional
@@ -87,6 +91,8 @@ public class ProjectArtifactRegistry {
             if (changed != 1) {
                 throw new OptimisticLockingFailureException("工程已在产物登记期间被其他操作更新：" + projectId);
             }
+            cloudSync.enqueue(currentUser.userId(), "ARTIFACT", artifactId, path, mimeType,
+                    contentHash, Files.size(path));
         } catch (Exception exception) {
             throw new IllegalStateException("阶段产物登记失败：" + type + "：" + exception.getMessage(), exception);
         }

@@ -170,6 +170,7 @@ let tasksLoading = false;
 let taskEventStream = null;
 let taskStreamConnected = false;
 let taskStreamRetryMs = 1000;
+const taskStreamSnapshot = new Map();
 let effectPresets = [];
 let storyboardProgressTimer = null;
 const segmentSearchForm = document.querySelector('#segment-search-form');
@@ -197,12 +198,44 @@ async function loadTasks() {
     const response = await fetch('/api/tasks');
     if (!response.ok) throw await readApiError(response);
     const tasks = await response.json();
+    taskStreamSnapshot.clear();
+    tasks.forEach(task => taskStreamSnapshot.set(task.id, task));
     reconcileTaskCards(tasks);
     return tasks;
   } finally {
     tasksLoading = false;
   }
 }
+
+async function loadTaskTrash() {
+  const list = document.querySelector('#task-trash-list');
+  const tasks = await requestJson('/api/tasks/trash');
+  list.innerHTML = tasks.length ? tasks.map(task => `<article class="task-card" data-trash-id="${task.id}">
+    <div class="task-head"><strong>${escapeHtml(task.name)}</strong><span>${escapeHtml(task.status)}</span></div>
+    <div class="tags"><i>删除于 ${escapeHtml(formatDate(task.deletedAt))}</i></div>
+    <div class="task-card-actions"><button type="button" data-restore-task="${task.id}">恢复</button>
+    <button type="button" class="task-card-delete" data-purge-task="${task.id}" data-task-name="${escapeHtml(task.name)}">永久删除</button></div>
+  </article>`).join('') : '<p class="empty">回收站为空</p>';
+}
+
+document.querySelector('#task-trash-open')?.addEventListener('click', async () => {
+  const dialog = document.querySelector('#task-trash-dialog'); dialog.showModal();
+  try { await loadTaskTrash(); } catch (error) { document.querySelector('#task-trash-list').innerHTML=`<p class="empty">${escapeHtml(error.message)}</p>`; }
+});
+document.querySelector('[data-close-task-trash]')?.addEventListener('click', () => document.querySelector('#task-trash-dialog').close());
+document.querySelector('#task-trash-list')?.addEventListener('click', async event => {
+  const restore = event.target.closest('[data-restore-task]');
+  const purge = event.target.closest('[data-purge-task]');
+  try {
+    if (restore) await requestJson(`/api/tasks/trash/${restore.dataset.restoreTask}/restore`, {method:'POST'});
+    if (purge) {
+      if (!window.confirm(`永久删除“${purge.dataset.taskName}”及全部关联文件？此操作无法恢复。`)) return;
+      const response = await fetch(`/api/tasks/trash/${purge.dataset.purgeTask}`, {method:'DELETE'});
+      if (!response.ok) throw await readApiError(response);
+    }
+    await Promise.all([loadTaskTrash(), loadTasks()]);
+  } catch (error) { window.alert(error.message); }
+});
 
 function connectTaskStream() {
   if (!window.EventSource || taskEventStream) return;
@@ -214,7 +247,23 @@ function connectTaskStream() {
   };
   taskEventStream.onmessage = event => {
     try {
-      const tasks = JSON.parse(event.data);
+      const payload = JSON.parse(event.data);
+      if (Array.isArray(payload)) {
+        taskStreamSnapshot.clear();
+        payload.forEach(task => taskStreamSnapshot.set(task.id, task));
+      } else if (payload.type === 'snapshot') {
+        taskStreamSnapshot.clear();
+        (payload.tasks || []).forEach(task => taskStreamSnapshot.set(task.id, task));
+      } else if (payload.type === 'delta') {
+        (payload.tasks || []).forEach(task => taskStreamSnapshot.set(task.id, task));
+        (payload.removedIds || []).forEach(id => taskStreamSnapshot.delete(id));
+      } else if (payload.type === 'heartbeat') {
+        return;
+      } else {
+        throw new Error('unknown task stream payload');
+      }
+      const tasks = [...taskStreamSnapshot.values()]
+        .sort((left, right) => new Date(right.createdAt) - new Date(left.createdAt));
       reconcileTaskCards(tasks);
       window.dispatchEvent(new CustomEvent('gamenarrator:tasks', {detail:tasks}));
     } catch (error) {
@@ -565,6 +614,16 @@ async function deleteTaskFromList(button) {
   }
 }
 
+deleteTaskFromList = async function(button) {
+  if (!window.confirm(`将任务“${button.dataset.taskName}”移入回收站吗？项目记录和文件会保留，可稍后恢复。`)) return;
+  button.disabled = true; button.textContent = '正在移入…';
+  try {
+    const response = await fetch(`/api/tasks/${button.dataset.deleteListTask}`, {method:'DELETE'});
+    if (!response.ok) throw await readApiError(response);
+    button.closest('.task-card')?.remove(); await loadTasks();
+  } catch (error) { button.disabled=false; button.textContent='移入回收站'; button.title=error.message; }
+};
+
 taskList.addEventListener('keydown', event => {
   if (event.key !== 'Enter' && event.key !== ' ') return;
   const card = event.target.closest('[data-task-id]');
@@ -774,7 +833,7 @@ function renderTaskDetails(task) {
   const overallProgress = Math.round(task.stages.reduce((sum, stage) => sum + stage.progress, 0) / task.stages.length);
   detailContent.innerHTML = `
     <section class="detail-block task-operations"><button type="button" data-rename-task="${task.id}" data-task-name="${escapeHtml(task.name)}">重命名任务</button><small>只修改显示名称，不影响正在处理的阶段和已有文件。</small></section>
-    <section class="detail-block task-operations task-delete-operation"><button type="button" data-delete-task="${task.id}" data-task-name="${escapeHtml(task.name)}">删除任务及数据</button><small>同时删除任务记录、源视频、输出视频及 data 中的全部处理文件；不可撤销。</small></section>
+    <section class="detail-block task-operations task-delete-operation"><button type="button" data-delete-task="${task.id}" data-task-name="${escapeHtml(task.name)}">移入回收站</button><small>任务及关联文件会保留，可在回收站恢复或永久删除。</small></section>
     ${task.status === 'PROCESSING' ? `<section class="detail-block task-operations"><button type="button" data-cancel-task="${task.id}">取消当前任务</button><small>立即终止当前外部进程，保留已完成阶段，清理未完成的临时文件。</small></section>` : ''}
     ${['FAILED','CANCELLED'].includes(task.status) ? `<section class="detail-block task-operations"><button type="button" data-retry-task="${task.id}">${task.status === 'CANCELLED' ? '从取消处继续' : '重试失败阶段'}</button><small>已完成阶段会保留，从中断位置继续处理。</small></section>` : ''}
     ${task.generatedScriptPath ? `<section class="detail-block task-operations storyboard-launch"><button type="button" data-open-storyboard="${task.id}">进入线性分镜工作台 →</button><small>${task.storyboardReviewEnabled && !task.storyboardApproved ? '需要在独立分镜时间线中检查并确认后才能继续生成。' : '按镜头顺序编辑画面、起止时间、文案、字幕、素材和特效。'}</small></section>` : ''}
@@ -940,7 +999,7 @@ detailContent.addEventListener('click', async event => {
   }
   const button = event.target.closest('[data-delete-task]');
   if (!button) return;
-  if (!window.confirm(`确定删除任务“${button.dataset.taskName}”吗？任务记录、源视频、输出视频和 data 中的处理文件都会永久删除。`)) return;
+  if (!window.confirm(`确定将任务“${button.dataset.taskName}”移入回收站吗？之后可以恢复。`)) return;
   button.disabled = true;
   button.textContent = '正在删除…';
   try {
@@ -951,7 +1010,7 @@ detailContent.addEventListener('click', async event => {
     await loadTasks();
   } catch (error) {
     button.disabled = false;
-    button.textContent = '删除任务';
+    button.textContent = '移入回收站';
     button.title = error.message;
   }
 });

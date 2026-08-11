@@ -11,10 +11,16 @@ final class LocalOnlyServerBindingGuard implements ApplicationContextInitializer
 
     @Override
     public void initialize(ConfigurableApplicationContext context) {
-        validate(context.getEnvironment().getProperty("server.address", "127.0.0.1"));
+        validate(context.getEnvironment().getProperty("server.address", "127.0.0.1"),
+                context.getEnvironment().getProperty("game-narrator.auth.require-login", Boolean.class, false));
     }
 
     static void validate(String configuredAddress) {
+        validate(configuredAddress, false);
+    }
+
+    static void validate(String configuredAddress, boolean authenticatedApi) {
+        if (authenticatedApi) return;
         String address = configuredAddress == null ? "" : configuredAddress.trim();
         if (address.startsWith("[") && address.endsWith("]")) {
             address = address.substring(1, address.length() - 1);

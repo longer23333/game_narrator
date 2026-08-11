@@ -5,10 +5,11 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
-import java.io.IOException;
 import java.net.ConnectException;
+import java.net.SocketException;
 import java.net.SocketTimeoutException;
 import java.net.UnknownHostException;
+import java.net.http.HttpTimeoutException;
 import java.util.concurrent.Callable;
 
 @Component
@@ -63,8 +64,8 @@ public class PhaseRetryExecutor {
     static boolean isTransient(Throwable error) {
         for (Throwable current = error; current != null; current = current.getCause()) {
             if (current instanceof SocketTimeoutException || current instanceof ConnectException
+                    || current instanceof HttpTimeoutException || current instanceof SocketException
                     || current instanceof UnknownHostException) return true;
-            if (current instanceof IOException) return true;
             String message = String.valueOf(current.getMessage()).toLowerCase();
             if (message.contains("timeout") || message.contains("timed out")
                     || message.contains("connection reset") || message.contains("temporarily unavailable")

@@ -4,6 +4,9 @@
   "version": "2.2.4",
   "scripts": {
     "dev": "npm --prefix frontend run dev",
+    "dev:frontend": "npm --prefix frontend run dev",
+    "dev:backend": ".\\mvnw.cmd spring-boot:run",
+    "dev:backend:postgresql": ".\\mvnw.cmd spring-boot:run -Dspring-boot.run.profiles=postgresql",
     "build": "npm --prefix frontend run build",
     "preview": "npm --prefix frontend run preview",
     "install:frontend": "npm --prefix frontend install"

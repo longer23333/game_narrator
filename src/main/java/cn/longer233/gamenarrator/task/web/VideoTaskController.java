@@ -25,12 +25,14 @@ public class VideoTaskController {
     private final VideoTaskService service;
     private final TaskEventStreamService eventStream;
     private final cn.longer233.gamenarrator.render.RenderPreviewService renderPreviews;
+    private final TaskTrashService trash;
 
     public VideoTaskController(VideoTaskService service, TaskEventStreamService eventStream,
-            cn.longer233.gamenarrator.render.RenderPreviewService renderPreviews) {
+            cn.longer233.gamenarrator.render.RenderPreviewService renderPreviews, TaskTrashService trash) {
         this.service = service;
         this.eventStream = eventStream;
         this.renderPreviews = renderPreviews;
+        this.trash = trash;
     }
 
     @GetMapping
@@ -60,13 +62,25 @@ public class VideoTaskController {
         service.delete(id);
     }
 
+    @GetMapping("/trash")
+    public List<TaskTrashService.TrashedTask> trash() { return trash.list(); }
+
+    @PostMapping("/trash/{id}/restore")
+    public VideoTaskView restore(@PathVariable UUID id) { return trash.restore(id); }
+
+    @DeleteMapping("/trash/{id}")
+    @ResponseStatus(HttpStatus.NO_CONTENT)
+    public void purge(@PathVariable UUID id) { trash.purge(id); }
+
     @GetMapping("/{id}/output")
     public ResponseEntity<FileSystemResource> downloadOutput(@PathVariable UUID id) {
         var path = service.renderedVideo(id);
+        String name = service.find(id).name().replaceAll("[\\r\\n\\\"\\\\/:*?<>|]", "_");
         return ResponseEntity.ok()
                 .contentType(MediaType.parseMediaType("video/mp4"))
                 .contentLength(path.toFile().length())
-                .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=game-narrator-" + id + ".mp4")
+                .header(HttpHeaders.CONTENT_DISPOSITION, org.springframework.http.ContentDisposition.attachment()
+                        .filename(name + ".mp4", java.nio.charset.StandardCharsets.UTF_8).build().toString())
                 .body(new FileSystemResource(path));
     }
 

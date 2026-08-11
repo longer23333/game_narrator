@@ -96,12 +96,12 @@ public class CommunityResourceService {
             UUID id = jdbc.query("SELECT id FROM community_resource WHERE resource_type=? AND code=?",
                     rs -> rs.next() ? rs.getObject(1, UUID.class) : UUID.randomUUID(), type, code);
             OffsetDateTime now = OffsetDateTime.now();
-            jdbc.update("""
+            cn.longer233.gamenarrator.common.PortableUpsert.update(jdbc, """
                     MERGE INTO community_resource(id,resource_type,code,name,description,author_name,license_code,
                     tags_json,payload_json,format_version,install_count,published_at,updated_at) KEY(resource_type,code)
                     VALUES(?,?,?,?,?,?,?,?,?,?,COALESCE((SELECT install_count FROM community_resource WHERE resource_type=? AND code=?),0),
                     COALESCE((SELECT published_at FROM community_resource WHERE resource_type=? AND code=?),?),?)
-                    """, id, type, code, name, description, author, license, mapper.writeValueAsString(tags),
+                    """, "resource_type,code", id, type, code, name, description, author, license, mapper.writeValueAsString(tags),
                     mapper.writeValueAsString(payload), formatVersion, type, code, type, code, now, now);
             return list(type).stream().filter(item -> item.code().equals(code)).findFirst().orElseThrow();
         } catch (RuntimeException exception) { throw exception; }

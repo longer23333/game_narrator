@@ -131,10 +131,10 @@ public class BgeAssetSemanticSearch {
     }
 
     private void save(UUID assetId, String contentHash, double[] vector) throws Exception {
-        jdbc.update("""
+        cn.longer233.gamenarrator.common.PortableUpsert.update(jdbc, """
                 MERGE INTO asset_embedding(asset_id,model,dimensions,content_hash,vector_json,embedded_at)
                 KEY(asset_id) VALUES(?,?,?,?,?,?)
-                """, assetId, model, vector.length, contentHash,
+                """, "asset_id", assetId, model, vector.length, contentHash,
                 objectMapper.writeValueAsString(vector), OffsetDateTime.now());
     }
 

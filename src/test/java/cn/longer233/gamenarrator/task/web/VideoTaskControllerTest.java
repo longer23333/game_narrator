@@ -172,7 +172,7 @@ class VideoTaskControllerTest {
     }
 
     @Test
-    void existingTaskCanBeDeleted() throws Exception {
+    void taskCanBeMovedToTrashRestoredAndPermanentlyDeleted() throws Exception {
         MockMultipartFile video = new MockMultipartFile("video", "delete-me.mp4", "video/mp4",
                 "temporary-video".getBytes());
         var created = mockMvc.perform(multipart("/api/tasks").file(video)
@@ -188,11 +188,20 @@ class VideoTaskControllerTest {
 
         mockMvc.perform(delete("/api/tasks/{id}", id)).andExpect(status().isNoContent());
 
-        assertEquals(0, jdbc.queryForObject("SELECT COUNT(*) FROM video_tasks WHERE id=?",
+        assertEquals(1, jdbc.queryForObject("SELECT COUNT(*) FROM video_tasks WHERE id=? AND deleted_at IS NOT NULL",
                 Integer.class, id));
-        assertEquals(0, jdbc.queryForObject("SELECT COUNT(*) FROM processing_stages WHERE task_id=?",
-                Integer.class, id));
-        assertEquals(false, Files.exists(taskDirectory));
+        assertEquals(true, Files.exists(taskDirectory));
+        mockMvc.perform(get("/api/tasks/trash")).andExpect(status().isOk())
+                .andExpect(jsonPath("$[0].id").value(id.toString()));
+
+        mockMvc.perform(post("/api/tasks/trash/{id}/restore",id)).andExpect(status().isOk());
+        assertEquals(0,jdbc.queryForObject("SELECT COUNT(*) FROM video_tasks WHERE id=? AND deleted_at IS NOT NULL",Integer.class,id));
+
+        mockMvc.perform(delete("/api/tasks/{id}",id)).andExpect(status().isNoContent());
+        mockMvc.perform(delete("/api/tasks/trash/{id}",id)).andExpect(status().isNoContent());
+        assertEquals(0,jdbc.queryForObject("SELECT COUNT(*) FROM video_tasks WHERE id=?",Integer.class,id));
+        assertEquals(0,jdbc.queryForObject("SELECT COUNT(*) FROM processing_stages WHERE task_id=?",Integer.class,id));
+        assertEquals(false,Files.exists(taskDirectory));
     }
 
     @Test

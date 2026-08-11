@@ -1,0 +1,24 @@
+spring:
+  datasource:
+    url: ${POSTGRES_URL:jdbc:postgresql://127.0.0.1:5432/game_narrator}
+    username: ${POSTGRES_USER:game_narrator}
+    password: ${POSTGRES_PASSWORD:game_narrator}
+    driver-class-name: org.postgresql.Driver
+  flyway:
+    locations: classpath:db/migration-postgresql
+
+# Activate with: --spring.profiles.active=postgresql
+game-narrator:
+  auth:
+    require-login: ${REQUIRE_LOGIN:true}
+  cloud-sync:
+    enabled: ${CLOUD_SYNC_ENABLED:false}
+    endpoint: ${OBJECT_STORAGE_ENDPOINT:}
+    region: ${OBJECT_STORAGE_REGION:us-east-1}
+    bucket: ${OBJECT_STORAGE_BUCKET:game-narrator}
+    access-key: ${OBJECT_STORAGE_ACCESS_KEY:}
+    secret-key: ${OBJECT_STORAGE_SECRET_KEY:}
+    path-style: ${OBJECT_STORAGE_PATH_STYLE:true}
+    interval-ms: ${CLOUD_SYNC_INTERVAL_MS:5000}
+    multipart-threshold-bytes: ${CLOUD_SYNC_MULTIPART_THRESHOLD_BYTES:67108864}
+    multipart-part-bytes: ${CLOUD_SYNC_MULTIPART_PART_BYTES:16777216}

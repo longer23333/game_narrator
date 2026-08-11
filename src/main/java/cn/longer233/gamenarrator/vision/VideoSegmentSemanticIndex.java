@@ -49,11 +49,11 @@ public class VideoSegmentSemanticIndex {
             for (int index = 0; index < frames.size(); index++) {
                 FrameUnderstanding frame = frames.get(index);
                 String text = texts.get(index);
-                jdbc.update("""
+                cn.longer233.gamenarrator.common.PortableUpsert.update(jdbc, """
                         MERGE INTO video_segment_embedding(task_id,frame_index,timestamp_seconds,event_type,
                         description,image_path,image_hash,model,content_hash,vector_json,indexed_at) KEY(task_id,frame_index)
                         VALUES(?,?,?,?,?,?,?,?,?,?,?)
-                        """, taskId, frame.index(), frame.timestampSeconds(), frame.eventType(), frame.description(),
+                        """, "task_id,frame_index", taskId, frame.index(), frame.timestampSeconds(), frame.eventType(), frame.description(),
                         frame.imagePath(), imageHash(Path.of(frame.imagePath())), embeddings.model(), sha256(text),
                         objectMapper.writeValueAsString(vectors.get(index)), OffsetDateTime.now());
             }

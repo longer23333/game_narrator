@@ -424,12 +424,12 @@ public class AssetCatalogService {
         } catch (Exception exception) {
             metadata = "{}";
         }
-        jdbc.update("""
+        cn.longer233.gamenarrator.common.PortableUpsert.update(jdbc, """
                 MERGE INTO external_asset(id,provider,external_id,asset_type,title,creator,landing_url,
                 preview_url,download_url,license_code,license_url,attribution,duration_ms,local_path,
                 import_status,metadata_json,discovered_at,downloaded_at) KEY(provider,external_id)
                 VALUES(?,?,?,?,?,?,?,?,?,?,?,?,?,NULL,?,?,?,NULL)
-                """, id, provider, externalId, request.assetType(), title, creator,
+                """, "provider,external_id", id, provider, externalId, request.assetType(), title, creator,
                 request.sourceUrl(), previewUrl, request.downloadUrl(), request.licenseCode(), request.licenseUrl(),
                 request.attribution(), durationMs, request.downloadUrl() == null ? "REFERENCE_ONLY" : "DISCOVERED",
                 metadata, OffsetDateTime.now());
@@ -491,12 +491,12 @@ public class AssetCatalogService {
         }
         Long durationMs = imported.durationSeconds() == null ? null
                 : Math.max(0L, Math.round(imported.durationSeconds() * 1000));
-        jdbc.update("""
+        cn.longer233.gamenarrator.common.PortableUpsert.update(jdbc, """
                 MERGE INTO external_asset(id,provider,external_id,asset_type,title,creator,landing_url,
                 preview_url,download_url,license_code,license_url,attribution,duration_ms,local_path,
                 import_status,metadata_json,discovered_at,downloaded_at) KEY(provider,external_id)
                 VALUES(?,?,?,?,?,?,?,?,NULL,'USER_AUTHORIZED',NULL,?,?,?,?,?,?,?)
-                """, id, provider, externalId, "VIDEO", title, imported.creator(), imported.sourceUrl(),
+                """, "provider,external_id", id, provider, externalId, "VIDEO", title, imported.creator(), imported.sourceUrl(),
                 preview, "用户确认拥有下载和再创作所需权利", durationMs, resolvedPath.toString(),
                 "DOWNLOADED", metadata, OffsetDateTime.now(), OffsetDateTime.now());
         link(id);
@@ -622,12 +622,12 @@ public class AssetCatalogService {
         } catch (Exception exception) {
             throw new IllegalStateException("无法保存项目素材元数据", exception);
         }
-        jdbc.update("""
+        cn.longer233.gamenarrator.common.PortableUpsert.update(jdbc, """
                 MERGE INTO external_asset(id,provider,external_id,asset_type,title,creator,landing_url,
                 preview_url,download_url,license_code,license_url,attribution,duration_ms,local_path,
                 import_status,metadata_json,discovered_at,downloaded_at) KEY(provider,external_id)
                 VALUES(?,'PROJECT',?,'VIDEO',?,'GameNarrator',?,NULL,NULL,'USER_AUTHORIZED',NULL,?,?,?,?,?,?,?)
-                """, assetId, externalId, title, "/api/tasks/" + taskId + "/preview",
+                """, "provider,external_id", assetId, externalId, title, "/api/tasks/" + taskId + "/preview",
                 "用户创建并加入素材库的已完成项目", durationMs, destination.toString(), "DOWNLOADED",
                 metadata, OffsetDateTime.now(), OffsetDateTime.now());
         List<String> tags = new ArrayList<>(List.of("已完成项目"));
@@ -792,12 +792,12 @@ public class AssetCatalogService {
         try { metadata = objectMapper.writeValueAsString(item); }
         catch (Exception exception) { metadata = "{}"; }
         boolean platformCandidate = Set.of("BILIBILI", "DOUYIN", "YOUTUBE", "TIKTOK").contains(provider);
-        jdbc.update("""
+        cn.longer233.gamenarrator.common.PortableUpsert.update(jdbc, """
                 MERGE INTO external_asset(id,provider,external_id,asset_type,title,creator,landing_url,
                 preview_url,download_url,license_code,license_url,attribution,duration_ms,local_path,
                 import_status,metadata_json,discovered_at,downloaded_at) KEY(provider,external_id)
                 VALUES(?,?,?,?,?,?,?,?,?,?,?,?,?,NULL,?,?,?,NULL)
-                """, id, provider, externalId, assetType, item.path("title").asText("未命名素材"),
+                """, "provider,external_id", id, provider, externalId, assetType, item.path("title").asText("未命名素材"),
                 item.path("creator").asText(null), item.path("foreign_landing_url").asText(),
                 first(item, "thumbnail", "url"), platformCandidate ? null : item.path("url").asText(null),
                 item.path("license").asText("unknown"), item.path("license_url").asText(null),
@@ -813,10 +813,10 @@ public class AssetCatalogService {
             String normalized = normalize(raw);
             if (normalized.isBlank()) continue;
             UUID tagId = ensureTag(normalized, raw.trim());
-            jdbc.update("""
+            cn.longer233.gamenarrator.common.PortableUpsert.update(jdbc, """
                     MERGE INTO asset_tag_assignment(id,asset_id,tag_id,tag_source,confidence,created_by,created_at)
                     KEY(asset_id,tag_id,tag_source) VALUES(?,?,?,?,?,?,?)
-                    """, UUID.randomUUID(), assetId, tagId, source, confidence, userId, OffsetDateTime.now());
+                    """, "asset_id,tag_id,tag_source", UUID.randomUUID(), assetId, tagId, source, confidence, userId, OffsetDateTime.now());
         }
     }
 
@@ -864,10 +864,10 @@ public class AssetCatalogService {
         String normalized = normalize(raw);
         if (normalized.isBlank()) return;
         UUID tagId = ensureTag(normalized, raw.trim());
-        jdbc.update("""
+        cn.longer233.gamenarrator.common.PortableUpsert.update(jdbc, """
                 MERGE INTO asset_tag_override(id,asset_id,tag_id,action,user_id,created_at)
                 KEY(asset_id,tag_id,user_id) VALUES(?,?,?,?,?,?)
-                """, UUID.randomUUID(), assetId, tagId, action, currentUser.userId(), OffsetDateTime.now());
+                """, "asset_id,tag_id,user_id", UUID.randomUUID(), assetId, tagId, action, currentUser.userId(), OffsetDateTime.now());
     }
 
     private List<AssetView.TagView> effectiveTags(UUID assetId) {
@@ -909,8 +909,9 @@ public class AssetCatalogService {
     }
 
     private void link(UUID assetId) {
-        jdbc.update("MERGE INTO user_external_asset(user_id,asset_id,favorite,archived,added_at) KEY(user_id,asset_id) VALUES(?,?,FALSE,FALSE,?)",
-                currentUser.userId(), assetId, OffsetDateTime.now());
+        cn.longer233.gamenarrator.common.PortableUpsert.update(jdbc,
+                "MERGE INTO user_external_asset(user_id,asset_id,favorite,archived,added_at) KEY(user_id,asset_id) VALUES(?,?,FALSE,FALSE,?)",
+                "user_id,asset_id", currentUser.userId(), assetId, OffsetDateTime.now());
     }
 
     private void validatePublicHttps(URI uri) {

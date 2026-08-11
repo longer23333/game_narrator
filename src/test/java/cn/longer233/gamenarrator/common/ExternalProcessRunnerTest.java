@@ -7,10 +7,27 @@ import java.nio.file.Path;
 import java.time.Duration;
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.CountDownLatch;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
 class ExternalProcessRunnerTest {
+    @Test
+    void allowsIdempotentConfigurationWhileAProcessIsActive() throws Exception {
+        ExternalProcessRunner.configureLimits(1, 1, 2);
+        String java = Path.of(System.getProperty("java.home"), "bin", "java").toString();
+        String classpath = Path.of("target", "test-classes") + File.pathSeparator + Path.of("target", "classes");
+        CountDownLatch started = new CountDownLatch(1);
+        CompletableFuture<Void> running = CompletableFuture.runAsync(() -> {
+            started.countDown();
+            run(List.of(java, "-cp", classpath, ProcessSleeper.class.getName(), "400"));
+        });
+        started.await();
+        while (ExternalProcessRunner.activeCounts().get("other") == 0) Thread.onSpinWait();
+        ExternalProcessRunner.configureLimits(1, 1, 2);
+        running.join();
+    }
+
     @Test
     void serializesProcessesWithinTheConfiguredTypeLimit() {
         ExternalProcessRunner.configureLimits(1, 1, 1);

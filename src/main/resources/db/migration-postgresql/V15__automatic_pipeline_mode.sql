@@ -1,0 +1,1 @@
+﻿ALTER TABLE video_tasks ADD COLUMN IF NOT EXISTS automatic_generation_enabled BOOLEAN NOT NULL DEFAULT TRUE;

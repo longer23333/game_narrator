@@ -57,10 +57,10 @@ public class BattleNarrativePlanService {
         BattleNarrativePlanView plan = new BattleNarrativePlanView(taskId, 1,
                 "CONFIRMED_EVENT_FIVE_ACT", fingerprint, beats, false, now, null);
         try {
-            jdbc.update("""
+            cn.longer233.gamenarrator.common.PortableUpsert.update(jdbc, """
                     MERGE INTO battle_narrative_plan(task_id,plan_json,confirmed_event_fingerprint,applied,generated_at,applied_at)
                     KEY(task_id) VALUES(?,?,?,?,?,NULL)
-                    """, taskId, mapper.writeValueAsString(plan), fingerprint, false, now);
+                    """, "task_id", taskId, mapper.writeValueAsString(plan), fingerprint, false, now);
             return plan;
         } catch (Exception exception) {
             throw new IllegalStateException("无法保存战局叙事结构", exception);

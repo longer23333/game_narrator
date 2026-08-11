@@ -69,6 +69,10 @@ public class ProjectHistoryService {
                 name, projectId);
     }
 
+    public void moveProjectToTrash(UUID projectId) {
+        jdbc.update("UPDATE video_project SET deleted_at=CURRENT_TIMESTAMP,updated_at=CURRENT_TIMESTAMP,version=version+1 WHERE id=?", projectId);
+    }
+
     private String json(Object value) {
         try {
             return objectMapper.writeValueAsString(value);

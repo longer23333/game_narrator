@@ -14,13 +14,16 @@ class DiagnosticLogServiceTest {
     @Test
     void tailsLogsAndRedactsCredentials() throws Exception {
         Path log = tempDir.resolve("game-narrator.log");
-        Files.writeString(log, "normal line\nAuthorization: Bearer abc.def\napiKey=private-value\nCookie: SESSDATA=secret\n");
+        Files.writeString(log, "normal line\nAuthorization: Bearer abc.def\napiKey=private-value\nCookie: SESSDATA=secret\n"
+                + "{\"client_secret\":\"json-secret with spaces\",\"access_token\":\"access-value\"}\n"
+                + "refresh_token=refresh-value session-token=session-value\n");
         var service = new DiagnosticLogService(log.toString());
 
         String recent = service.recent(100);
 
         assertThat(recent).contains("normal line", "Authorization=***", "apiKey=***", "Cookie=***")
-                .doesNotContain("abc.def", "private-value", "SESSDATA=secret");
+                .doesNotContain("abc.def", "private-value", "SESSDATA=secret", "json-secret with spaces",
+                        "access-value", "refresh-value", "session-value");
         assertThat(service.export()).isNotEmpty();
     }
 }

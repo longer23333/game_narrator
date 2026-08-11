@@ -107,11 +107,13 @@
       <article class="history-panel">
         <div class="section-title">
           <div><small>MISSION HISTORY</small><h2>最近完成</h2></div>
-          <button id="refresh" class="icon-button" type="button">↻</button>
+          <div><button id="task-trash-open" class="secondary-button" type="button">回收站</button> <button id="refresh" class="icon-button" type="button">↻</button></div>
         </div>
         <div id="task-list" class="task-list"><p class="empty">正在读取任务…</p></div>
       </article>
     </section>
+
+    <dialog id="task-trash-dialog"><div class="dialog-content"><div class="section-title"><div><small>RECYCLE BIN</small><h2>任务回收站</h2></div><button type="button" data-close-task-trash class="icon-button">×</button></div><p>任务文件会一直保留到永久删除。</p><div id="task-trash-list" class="task-list"><p class="empty">正在读取回收站…</p></div></div></dialog>
 
     <section class="segment-search-panel" data-page="search">
       <div class="section-title">

@@ -122,11 +122,11 @@ public class CreativeVariantService {
             OffsetDateTime now = OffsetDateTime.now();
             UUID id = jdbc.query("SELECT id FROM creative_variant WHERE source_task_id=? AND variant_type=?",
                     rs -> rs.next() ? rs.getObject(1, UUID.class) : UUID.randomUUID(), task.getId(), type);
-            jdbc.update("""
+            cn.longer233.gamenarrator.common.PortableUpsert.update(jdbc, """
                     MERGE INTO creative_variant(id,source_task_id,variant_type,name,strategy_json,status,created_at,updated_at)
                     KEY(source_task_id,variant_type) VALUES(?,?,?,?,?,'PLANNED',
                     COALESCE((SELECT created_at FROM creative_variant WHERE source_task_id=? AND variant_type=?),?),?)
-                    """, id, task.getId(), type, task.getName() + " · " + suffix,
+                    """, "source_task_id,variant_type", id, task.getId(), type, task.getName() + " · " + suffix,
                     mapper.writeValueAsString(strategy), task.getId(), type, now, now);
         } catch (Exception exception) { throw new IllegalStateException("无法生成创作版本策略", exception); }
     }

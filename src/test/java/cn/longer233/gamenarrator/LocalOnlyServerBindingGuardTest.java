@@ -22,6 +22,11 @@ class LocalOnlyServerBindingGuardTest {
         assertRejected(" ");
     }
 
+    @Test
+    void acceptsExternalBindingWhenApiAuthenticationIsRequired() {
+        LocalOnlyServerBindingGuard.validate("0.0.0.0", true);
+    }
+
     private void assertRejected(String address) {
         assertThatThrownBy(() -> LocalOnlyServerBindingGuard.validate(address))
                 .isInstanceOf(IllegalStateException.class)

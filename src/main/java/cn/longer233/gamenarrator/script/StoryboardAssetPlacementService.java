@@ -59,11 +59,11 @@ public class StoryboardAssetPlacementService {
         String position = inferPosition(instruction, placementType);
         boolean cutout = asset.tags().stream().anyMatch(tag -> tag.name().contains("已抠图"));
         UUID id = UUID.randomUUID();
-        jdbc.update("""
+        cn.longer233.gamenarrator.common.PortableUpsert.update(jdbc, """
                 MERGE INTO storyboard_asset_placement(id,task_id,clip_index,asset_id,placement_type,
                 position_name,instruction,ai_assigned,cutout_applied,created_at) KEY(task_id,clip_index,asset_id)
                 VALUES(?,?,?,?,?,?,?,?,?,?)
-                """, id, taskId, clip, asset.id(), placementType, position, instruction,
+                """, "task_id,clip_index,asset_id", id, taskId, clip, asset.id(), placementType, position, instruction,
                 request.aiAssign(), cutout, OffsetDateTime.now());
         return list(taskId).stream().filter(item -> item.assetId().equals(asset.id()) && item.clipIndex() == clip)
                 .findFirst().orElseThrow();

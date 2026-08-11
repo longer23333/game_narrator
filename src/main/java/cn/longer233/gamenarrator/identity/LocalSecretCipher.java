@@ -21,8 +21,16 @@ public class LocalSecretCipher {
             if (override != null && !override.isBlank()) bytes = Base64.getDecoder().decode(override.strip());
             else {
                 Path file=Path.of(root).toAbsolutePath().normalize().resolve("config/local-master.key");
-                if(Files.isRegularFile(file)) bytes=Base64.getDecoder().decode(Files.readString(file).strip());
-                else { bytes=new byte[32];random.nextBytes(bytes);Files.createDirectories(file.getParent());Files.writeString(file,Base64.getEncoder().encodeToString(bytes)); }
+                Path marker=file.resolveSibling("local-master.key.initialized");
+                if(Files.isRegularFile(file)) {
+                    bytes=Base64.getDecoder().decode(Files.readString(file).strip());
+                    if(!Files.exists(marker)) Files.writeString(marker,"v1");
+                } else {
+                    if(Files.exists(marker)) throw new IllegalStateException("本地主密钥已丢失，请从备份恢复 local-master.key，或重新配置所有加密凭据");
+                    bytes=new byte[32];random.nextBytes(bytes);Files.createDirectories(file.getParent());
+                    Files.writeString(file,Base64.getEncoder().encodeToString(bytes));
+                    Files.writeString(marker,"v1");
+                }
             }
             if(bytes.length!=32) throw new IllegalArgumentException("主密钥必须是 32 字节 Base64");
             key=new SecretKeySpec(bytes,"AES");

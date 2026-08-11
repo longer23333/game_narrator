@@ -47,11 +47,17 @@ public class GameKnowledgePackService {
             normalizedSource.put("formatVersion", FORMAT_VERSION);
             BossBattleKnowledgePack pack = mapper.treeToValue(normalizedSource, BossBattleKnowledgePack.class);
             String normalized = mapper.writeValueAsString(pack);
-            jdbc.update("""
-                    MERGE INTO game_knowledge_packs(code,name,description,format_version,pack_json,built_in,active,imported_at)
-                    KEY(code) VALUES(?,?,?,?,?,?,TRUE,?)
-                    """, pack.code().trim(), pack.name().trim(), pack.description() == null ? "" : pack.description().trim(),
-                    FORMAT_VERSION, normalized, builtIn, OffsetDateTime.now());
+            String code = pack.code().trim();
+            String description = pack.description() == null ? "" : pack.description().trim();
+            OffsetDateTime importedAt = OffsetDateTime.now();
+            int changed = jdbc.update("""
+                    UPDATE game_knowledge_packs SET name=?,description=?,format_version=?,pack_json=?,built_in=?,
+                    active=TRUE,imported_at=? WHERE code=?
+                    """, pack.name().trim(), description, FORMAT_VERSION, normalized, builtIn, importedAt, code);
+            if (changed == 0) jdbc.update("""
+                    INSERT INTO game_knowledge_packs(code,name,description,format_version,pack_json,built_in,active,imported_at)
+                    VALUES(?,?,?,?,?,?,TRUE,?)
+                    """, code, pack.name().trim(), description, FORMAT_VERSION, normalized, builtIn, importedAt);
             return pack;
         } catch (Exception exception) {
             throw new IllegalArgumentException("知识包 JSON 无法解析", exception);

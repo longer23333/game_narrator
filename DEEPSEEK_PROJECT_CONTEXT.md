@@ -1,7 +1,7 @@
 ﻿# GameNarrator — DeepSeek 结构化项目索引
 
-> 自动生成：2026-08-10 14:54:04 +08:00；UTF-8 BOM；索引不再内嵌全部源码。
-> Git：分支 `main`，提交 `41a3711`；收录文件 612 个，分卷 8 个。
+> 自动生成：2026-08-11 09:20:51 +08:00；UTF-8 BOM；索引不再内嵌全部源码。
+> Git：分支 `main`，提交 `cbb795e`；收录文件 669 个，分卷 8 个。
 
 ## 使用方法
 
@@ -27,45 +27,78 @@
 
 | 分卷 | 文件数 | 字符数 | 建议用途 |
 |---|---:|---:|---|
-| `deepseek-context/01-foundation.md` | 37 | 69259 | 构建、配置、资源、数据库迁移 |
-| `deepseek-context/02-backend.md` | 234 | 909975 | Spring 后端实现 |
-| `deepseek-context/03-tests.md` | 67 | 171130 | Spring 测试与行为验证 |
-| `deepseek-context/04-frontend.md` | 17 | 347789 | Vite Web 源码 |
+| `deepseek-context/01-foundation.md` | 72 | 115856 | 构建、配置、资源、数据库迁移 |
+| `deepseek-context/02-backend.md` | 247 | 968307 | Spring 后端实现 |
+| `deepseek-context/03-tests.md` | 74 | 191894 | Spring 测试与行为验证 |
+| `deepseek-context/04-frontend.md` | 17 | 351762 | Vite Web 源码 |
 | `deepseek-context/05-android-main.md` | 151 | 855263 | Android 实现、资源与 Gradle |
 | `deepseek-context/06-android-tests.md` | 55 | 131882 | Android 单元及设备测试 |
-| `deepseek-context/07-platform-release.md` | 10 | 47135 | Windows、CI/CD 与发布 |
-| `deepseek-context/08-docs-scripts.md` | 41 | 143508 | 需求、架构、维护脚本 |
+| `deepseek-context/07-platform-release.md` | 10 | 47337 | Windows、CI/CD 与发布 |
+| `deepseek-context/08-docs-scripts.md` | 43 | 147339 | 需求、架构、维护脚本 |
 
 ## 当前 Git 工作区（最近修改）
 
 ```text
-M android-app/app/build.gradle
- M android-app/app/src/main/java/cn/longer233/gamenarrator/mobile/MobileReleaseNotes.java
- M android-app/app/src/test/java/cn/longer233/gamenarrator/mobile/MobileReleaseNotesTest.java
+M DEEPSEEK_PROJECT_CONTEXT.md
  M docs/ACCOUNT_ADMIN_AND_CLOUD_MIGRATION.md
+ M docs/FRONTEND_DEVELOPMENT.md
  M frontend/index.html
- M frontend/package-lock.json
- M frontend/package.json
- M frontend/public/admin.css
  M frontend/public/admin.html
  M frontend/public/admin.js
  M frontend/public/app.js
- M frontend/public/updates.js
- M launcher/GameNarrator.Launcher.csproj
+ M frontend/vite.config.js
  M package.json
  M pom.xml
- M release/installer/GameNarrator-Demo-Lite.iss
- M release/installer/GameNarrator.iss
+ M src/main/java/cn/longer233/gamenarrator/LocalOnlyServerBindingGuard.java
  M src/main/java/cn/longer233/gamenarrator/admin/AdminManagementController.java
  M src/main/java/cn/longer233/gamenarrator/admin/AdminManagementService.java
- M src/main/java/cn/longer233/gamenarrator/storage/StorageAdminService.java
- M src/main/resources/static/admin.css
+ M src/main/java/cn/longer233/gamenarrator/asset/AssetCatalogService.java
+ M src/main/java/cn/longer233/gamenarrator/asset/AssetDownloadService.java
+ M src/main/java/cn/longer233/gamenarrator/asset/BgeAssetSemanticSearch.java
+ M src/main/java/cn/longer233/gamenarrator/common/ExternalProcessRunner.java
+ M src/main/java/cn/longer233/gamenarrator/common/PhaseRetryExecutor.java
+ M src/main/java/cn/longer233/gamenarrator/community/CommunityResourceService.java
+ M src/main/java/cn/longer233/gamenarrator/community/CreativeVariantService.java
+ M src/main/java/cn/longer233/gamenarrator/diagnostics/DiagnosticLogService.java
+ M src/main/java/cn/longer233/gamenarrator/event/BattleNarrativePlanService.java
+ M src/main/java/cn/longer233/gamenarrator/event/GameKnowledgePackService.java
+ M src/main/java/cn/longer233/gamenarrator/identity/AuthenticationFilter.java
+ M src/main/java/cn/longer233/gamenarrator/identity/LocalSecretCipher.java
+ M src/main/java/cn/longer233/gamenarrator/pipeline/PipelineRunTracker.java
+ M src/main/java/cn/longer233/gamenarrator/pipeline/ProjectArtifactRegistry.java
+ M src/main/java/cn/longer233/gamenarrator/script/StoryboardAssetPlacementService.java
+ M src/main/java/cn/longer233/gamenarrator/storage/SourceMediaRegistry.java
+ M src/main/java/cn/longer233/gamenarrator/task/application/ProjectHistoryService.java
+ M src/main/java/cn/longer233/gamenarrator/task/application/VideoTaskService.java
+ M src/main/java/cn/longer233/gamenarrator/task/web/TaskEventStreamService.java
+ M src/main/java/cn/longer233/gamenarrator/task/web/VideoTaskController.java
+ M src/main/java/cn/longer233/gamenarrator/vision/VideoSegmentSemanticIndex.java
  M src/main/resources/static/admin.html
  M src/main/resources/static/admin.js
  M src/main/resources/static/app.js
  M src/main/resources/static/index.html
- M src/main/resources/static/updates.js
-?? src/test/java/cn/longer233/gamenarrator/storage/StorageAdminServiceAccessTest.java
+ M src/test/java/cn/longer233/gamenarrator/LocalOnlyServerBindingGuardTest.java
+ M src/test/java/cn/longer233/gamenarrator/common/ExternalProcessRunnerTest.java
+ M src/test/java/cn/longer233/gamenarrator/diagnostics/DiagnosticLogServiceTest.java
+ M src/test/java/cn/longer233/gamenarrator/task/web/VideoTaskControllerTest.java
+?? docker-compose.postgresql.yml
+?? docs/POSTGRESQL_AND_CLOUD_SYNC.md
+?? scripts/build-postgresql-migrations.ps1
+?? src/main/java/cn/longer233/gamenarrator/admin/AdminPage.java
+?? src/main/java/cn/longer233/gamenarrator/cloud/
+?? src/main/java/cn/longer233/gamenarrator/common/PortableUpsert.java
+?? src/main/java/cn/longer233/gamenarrator/task/application/TaskTrashService.java
+?? src/main/java/cn/longer233/gamenarrator/task/web/TaskStreamMessage.java
+?? src/main/resources/application-postgresql.yml
+?? src/main/resources/db/migration-postgresql/
+?? src/main/resources/db/migration/V31__cloud_sync_execution.sql
+?? src/main/resources/db/migration/V32__task_recycle_bin.sql
+?? src/test/java/cn/longer233/gamenarrator/admin/
+?? src/test/java/cn/longer233/gamenarrator/cloud/
+?? src/test/java/cn/longer233/gamenarrator/common/PhaseRetryExecutorTest.java
+?? src/test/java/cn/longer233/gamenarrator/common/PortableUpsertTest.java
+?? src/test/java/cn/longer233/gamenarrator/identity/LocalSecretCipherTest.java
+?? src/test/java/cn/longer233/gamenarrator/task/web/TaskEventStreamServiceTest.java
 ```
 
 ## Flyway 迁移索引
@@ -100,6 +133,8 @@ M android-app/app/build.gradle
 - `src/main/resources/db/migration/V28__local_accounts_and_admin_center.sql`
 - `src/main/resources/db/migration/V29__ai_director_review_board.sql`
 - `src/main/resources/db/migration/V30__per_user_asset_library.sql`
+- `src/main/resources/db/migration/V31__cloud_sync_execution.sql`
+- `src/main/resources/db/migration/V32__task_recycle_bin.sql`
 
 ## 运行配置索引
 
@@ -110,6 +145,7 @@ M android-app/app/build.gradle
 - `android-app/gradle/wrapper/gradle-wrapper.properties`
 - `src/main/resources/application.yml`
 - `src/main/resources/application-lite.yml`
+- `src/main/resources/application-postgresql.yml`
 - `src/main/resources/application-release.yml`
 
 ## API 路由索引（按 Controller 注解静态提取）
@@ -119,12 +155,14 @@ M android-app/app/build.gradle
 | DELETE | `/api/assets/{id}` | `src/main/java/cn/longer233/gamenarrator/asset/AssetCatalogController.java` |
 | DELETE | `/api/tasks/{id}` | `src/main/java/cn/longer233/gamenarrator/task/web/VideoTaskController.java` |
 | DELETE | `/api/tasks/{taskId}/storyboard/assets/{placementId}` | `src/main/java/cn/longer233/gamenarrator/script/ScriptWorkspaceController.java` |
+| DELETE | `/api/tasks/trash/{id}` | `src/main/java/cn/longer233/gamenarrator/task/web/VideoTaskController.java` |
 | GET | `/api/admin/management/api-usage` | `src/main/java/cn/longer233/gamenarrator/admin/AdminManagementController.java` |
 | GET | `/api/admin/management/audit` | `src/main/java/cn/longer233/gamenarrator/admin/AdminManagementController.java` |
 | GET | `/api/admin/management/cloud-sync` | `src/main/java/cn/longer233/gamenarrator/admin/AdminManagementController.java` |
 | GET | `/api/admin/management/overview` | `src/main/java/cn/longer233/gamenarrator/admin/AdminManagementController.java` |
+| GET | `/api/admin/management/projects/{id}` | `src/main/java/cn/longer233/gamenarrator/admin/AdminManagementController.java` |
 | GET | `/api/admin/management/projects` | `src/main/java/cn/longer233/gamenarrator/admin/AdminManagementController.java` |
-| GET | `/api/admin/management/summary` | `src/main/java/cn/longer233/gamenarrator/admin/AdminManagementController.java` |
+| GET | `/api/admin/management/users/{id}` | `src/main/java/cn/longer233/gamenarrator/admin/AdminManagementController.java` |
 | GET | `/api/admin/management/users` | `src/main/java/cn/longer233/gamenarrator/admin/AdminManagementController.java` |
 | GET | `/api/admin/storage` | `src/main/java/cn/longer233/gamenarrator/storage/StorageAdminController.java` |
 | GET | `/api/ai-settings/usage` | `src/main/java/cn/longer233/gamenarrator/ai/AiSettingsController.java` |
@@ -137,6 +175,7 @@ M android-app/app/build.gradle
 | GET | `/api/assets/sources` | `src/main/java/cn/longer233/gamenarrator/asset/AssetCatalogController.java` |
 | GET | `/api/assets` | `src/main/java/cn/longer233/gamenarrator/asset/AssetCatalogController.java` |
 | GET | `/api/auth/me` | `src/main/java/cn/longer233/gamenarrator/identity/AuthController.java` |
+| GET | `/api/cloud-sync` | `src/main/java/cn/longer233/gamenarrator/cloud/CloudSyncController.java` |
 | GET | `/api/community/resources/{id}/export` | `src/main/java/cn/longer233/gamenarrator/community/CommunityResourceController.java` |
 | GET | `/api/community/resources` | `src/main/java/cn/longer233/gamenarrator/community/CommunityResourceController.java` |
 | GET | `/api/compilations/{id}` | `src/main/java/cn/longer233/gamenarrator/compilation/ClipCompilationController.java` |
@@ -184,6 +223,7 @@ M android-app/app/build.gradle
 | GET | `/api/tasks/{taskId}/storyboard` | `src/main/java/cn/longer233/gamenarrator/script/ScriptWorkspaceController.java` |
 | GET | `/api/tasks/{taskId}/variants` | `src/main/java/cn/longer233/gamenarrator/community/CreativeVariantController.java` |
 | GET | `/api/tasks/{taskId}/voice/options` | `src/main/java/cn/longer233/gamenarrator/script/ScriptWorkspaceController.java` |
+| GET | `/api/tasks/trash` | `src/main/java/cn/longer233/gamenarrator/task/web/VideoTaskController.java` |
 | GET | `/api/tasks` | `src/main/java/cn/longer233/gamenarrator/task/web/VideoTaskController.java` |
 | GET | `/api/video-segments/{taskId}/{frameIndex}/thumbnail` | `src/main/java/cn/longer233/gamenarrator/vision/VideoSegmentSearchController.java` |
 | GET | `/api/video-segments/{taskId}/clip` | `src/main/java/cn/longer233/gamenarrator/vision/VideoSegmentSearchController.java` |
@@ -192,6 +232,8 @@ M android-app/app/build.gradle
 | PATCH | `/api/assets/{id}/state` | `src/main/java/cn/longer233/gamenarrator/asset/AssetCatalogController.java` |
 | PATCH | `/api/tasks/{id}/name` | `src/main/java/cn/longer233/gamenarrator/task/web/VideoTaskController.java` |
 | PATCH | `/api/tasks/{taskId}/editor/revisions/{revisionId}` | `src/main/java/cn/longer233/gamenarrator/editor/ProjectRevisionController.java` |
+| POST | `/api/admin/management/cloud-sync/{id}/retry` | `src/main/java/cn/longer233/gamenarrator/admin/AdminManagementController.java` |
+| POST | `/api/admin/management/projects/{id}/archive` | `src/main/java/cn/longer233/gamenarrator/admin/AdminManagementController.java` |
 | POST | `/api/admin/management/users/{id}/revoke-sessions` | `src/main/java/cn/longer233/gamenarrator/admin/AdminManagementController.java` |
 | POST | `/api/admin/storage/cleanup` | `src/main/java/cn/longer233/gamenarrator/storage/StorageAdminController.java` |
 | POST | `/api/ai-settings/test` | `src/main/java/cn/longer233/gamenarrator/ai/AiSettingsController.java` |
@@ -246,6 +288,7 @@ M android-app/app/build.gradle
 | POST | `/api/tasks/{taskId}/variants/{variantId}/materialize` | `src/main/java/cn/longer233/gamenarrator/community/CreativeVariantController.java` |
 | POST | `/api/tasks/{taskId}/variants/generate` | `src/main/java/cn/longer233/gamenarrator/community/CreativeVariantController.java` |
 | POST | `/api/tasks/{taskId}/voice/segments/{clipIndex}/regenerate` | `src/main/java/cn/longer233/gamenarrator/script/ScriptWorkspaceController.java` |
+| POST | `/api/tasks/trash/{id}/restore` | `src/main/java/cn/longer233/gamenarrator/task/web/VideoTaskController.java` |
 | POST | `/api/tasks` | `src/main/java/cn/longer233/gamenarrator/task/web/VideoTaskController.java` |
 | POST | `/api/video-segments/search-image` | `src/main/java/cn/longer233/gamenarrator/vision/VideoSegmentSearchController.java` |
 | PUT | `/api/ai-settings` | `src/main/java/cn/longer233/gamenarrator/ai/AiSettingsController.java` |
