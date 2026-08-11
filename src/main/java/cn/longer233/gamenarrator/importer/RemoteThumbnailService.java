@@ -10,52 +10,48 @@ import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
 import java.time.Duration;
-import java.time.Instant;
-import java.util.LinkedHashMap;
 import java.util.Locale;
-import java.util.Map;
 
 @Service
 public class RemoteThumbnailService {
     private final int maxBytes;
-    private final int maxCacheEntries;
-    private final Duration cacheTtl;
-    private final Map<String, CachedThumbnail> cache;
+    private final ThumbnailMemoryCache cache;
     private final HttpClient client;
     private final RemoteThumbnailFetchPolicy fetchPolicy;
 
     public RemoteThumbnailService(
             @Value("${game-narrator.media-preview.thumbnail-max-bytes:1572864}") int maxBytes,
-            @Value("${game-narrator.media-preview.thumbnail-cache-entries:24}") int maxCacheEntries,
+            @Value("${game-narrator.media-preview.thumbnail-cache-entries:96}") int maxCacheEntries,
             @Value("${game-narrator.media-preview.thumbnail-cache-minutes:10}") int cacheMinutes,
             @Value("${game-narrator.media-preview.thumbnail-max-concurrent:4}") int maxConcurrent,
             @Value("${game-narrator.media-preview.thumbnail-acquire-timeout-ms:500}") long acquireTimeoutMs,
             @Value("${game-narrator.media-preview.thumbnail-failure-cache-seconds:90}") int failureCacheSeconds) {
         this.maxBytes = Math.max(128 * 1024, Math.min(5 * 1024 * 1024, maxBytes));
-        this.maxCacheEntries = Math.max(4, Math.min(128, maxCacheEntries));
-        this.cacheTtl = Duration.ofMinutes(Math.max(1, Math.min(60, cacheMinutes)));
-        this.cache = java.util.Collections.synchronizedMap(
-            new LinkedHashMap<>(this.maxCacheEntries, 0.75f, true) {
-                @Override protected boolean removeEldestEntry(Map.Entry<String, CachedThumbnail> eldest) {
-                    return size() > RemoteThumbnailService.this.maxCacheEntries;
-                }
-            });
+        int cacheEntries = Math.max(4, Math.min(512, maxCacheEntries));
+        Duration cacheTtl = Duration.ofMinutes(Math.max(1, Math.min(60, cacheMinutes)));
+        this.cache = new ThumbnailMemoryCache(cacheEntries, cacheTtl);
         this.client = HttpClient.newBuilder()
                 .connectTimeout(Duration.ofSeconds(8))
                 .followRedirects(HttpClient.Redirect.NEVER)
                 .build();
         this.fetchPolicy = new RemoteThumbnailFetchPolicy(maxConcurrent, acquireTimeoutMs,
-                this.maxCacheEntries * 4, Duration.ofSeconds(Math.max(5, Math.min(600, failureCacheSeconds))));
+                cacheEntries * 4, Duration.ofSeconds(Math.max(5, Math.min(600, failureCacheSeconds))));
     }
 
     public ThumbnailContent fetch(String thumbnailUrl, String sourceUrl) {
         try {
             URI uri = requirePublicHttps(thumbnailUrl);
             String cacheKey = uri + "\n" + (sourceUrl == null ? "" : sourceUrl);
-            CachedThumbnail cached = cache.get(cacheKey);
-            if (cached != null && cached.expiresAt().isAfter(Instant.now())) return cached.content();
-            if (cached != null) cache.remove(cacheKey);
-            try (var ignored = fetchPolicy.acquire(cacheKey)) {
+            return cache.get(cacheKey, () -> fetchUncached(uri, sourceUrl, cacheKey));
+        } catch (IllegalArgumentException | IllegalStateException exception) {
+            throw exception;
+        } catch (Exception exception) {
+            throw new IllegalStateException("无法读取视频封面：" + exception.getMessage(), exception);
+        }
+    }
+
+    private ThumbnailContent fetchUncached(URI uri, String sourceUrl, String cacheKey) {
+        try (var ignored = fetchPolicy.acquire(cacheKey)) {
                 try {
                     HttpResponse<InputStream> response = fetchFollowingRedirects(uri, sourceUrl);
                     if (response.statusCode() < 200 || response.statusCode() >= 300) {
@@ -72,7 +68,6 @@ public class RemoteThumbnailService {
                         byte[] bytes = input.readNBytes(maxBytes + 1);
                         if (bytes.length > maxBytes) throw new IllegalStateException("封面图片超过缓存大小限制");
                         ThumbnailContent content = new ThumbnailContent(contentType, bytes);
-                        cache.put(cacheKey, new CachedThumbnail(content, Instant.now().plus(cacheTtl)));
                         fetchPolicy.succeeded(cacheKey);
                         return content;
                     }
@@ -84,9 +79,6 @@ public class RemoteThumbnailService {
                     fetchPolicy.failed(cacheKey, wrapped);
                     throw wrapped;
                 }
-            }
-        } catch (IllegalArgumentException | IllegalStateException exception) {
-            throw exception;
         } catch (Exception exception) {
             throw new IllegalStateException("无法读取视频封面：" + exception.getMessage(), exception);
         }
@@ -137,5 +129,4 @@ public class RemoteThumbnailService {
     }
 
     public record ThumbnailContent(String contentType, byte[] bytes) { }
-    private record CachedThumbnail(ThumbnailContent content, Instant expiresAt) { }
 }

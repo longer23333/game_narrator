@@ -94,9 +94,9 @@ game-narrator:
       initial-backoff-ms: ${AI_RETRY_INITIAL_BACKOFF_MS:250}
   storage-root: ./storage
   media-preview:
-    # Keep the in-heap preview cache bounded (default worst case is about 48 MiB).
+    # Keep the in-heap preview cache bounded (default worst case is about 144 MiB).
     thumbnail-max-bytes: ${THUMBNAIL_MAX_BYTES:1572864}
-    thumbnail-cache-entries: ${THUMBNAIL_CACHE_ENTRIES:32}
+    thumbnail-cache-entries: ${THUMBNAIL_CACHE_ENTRIES:96}
     thumbnail-cache-minutes: ${THUMBNAIL_CACHE_MINUTES:30}
     thumbnail-max-concurrent: ${THUMBNAIL_MAX_CONCURRENT:4}
     thumbnail-acquire-timeout-ms: ${THUMBNAIL_ACQUIRE_TIMEOUT_MS:500}

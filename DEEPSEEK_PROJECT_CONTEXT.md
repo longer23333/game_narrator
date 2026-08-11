@@ -1,7 +1,7 @@
 ﻿# GameNarrator — DeepSeek 结构化项目索引
 
-> 自动生成：2026-08-11 10:51:04 +08:00；UTF-8 BOM；索引不再内嵌全部源码。
-> Git：分支 `main`，提交 `f236cbe`；收录文件 688 个，分卷 8 个。
+> 自动生成：2026-08-11 10:57:57 +08:00；UTF-8 BOM；索引不再内嵌全部源码。
+> Git：分支 `main`，提交 `df10021`；收录文件 690 个，分卷 8 个。
 
 ## 使用方法
 
@@ -27,9 +27,9 @@
 
 | 分卷 | 文件数 | 字符数 | 建议用途 |
 |---|---:|---:|---|
-| `deepseek-context/01-foundation.md` | 78 | 119613 | 构建、配置、资源、数据库迁移 |
-| `deepseek-context/02-backend.md` | 255 | 1011226 | Spring 后端实现 |
-| `deepseek-context/03-tests.md` | 78 | 218934 | Spring 测试与行为验证 |
+| `deepseek-context/01-foundation.md` | 78 | 119614 | 构建、配置、资源、数据库迁移 |
+| `deepseek-context/02-backend.md` | 256 | 1013689 | Spring 后端实现 |
+| `deepseek-context/03-tests.md` | 79 | 222123 | Spring 测试与行为验证 |
 | `deepseek-context/04-frontend.md` | 17 | 357777 | Vite Web 源码 |
 | `deepseek-context/05-android-main.md` | 151 | 855263 | Android 实现、资源与 Gradle |
 | `deepseek-context/06-android-tests.md` | 55 | 131882 | Android 单元及设备测试 |
@@ -39,12 +39,10 @@
 ## 当前 Git 工作区（最近修改）
 
 ```text
-M scripts/export-deepseek-context.ps1
- M scripts/update-deepseek-context.cmd
- M src/main/java/cn/longer233/gamenarrator/editor/EditorTimelineService.java
+M src/main/java/cn/longer233/gamenarrator/importer/RemoteThumbnailService.java
  M src/main/resources/application.yml
-?? src/main/java/cn/longer233/gamenarrator/editor/AudioWaveformCache.java
-?? src/test/java/cn/longer233/gamenarrator/editor/
+?? src/main/java/cn/longer233/gamenarrator/importer/ThumbnailMemoryCache.java
+?? src/test/java/cn/longer233/gamenarrator/importer/ThumbnailMemoryCacheTest.java
 ```
 
 ## Flyway 迁移索引
