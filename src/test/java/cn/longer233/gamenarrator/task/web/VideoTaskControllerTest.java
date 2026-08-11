@@ -242,6 +242,30 @@ class VideoTaskControllerTest {
     }
 
     @Test
+    void taskColorLutCanBeUploadedInspectedAndCleared() throws Exception {
+        MockMultipartFile video = new MockMultipartFile("video", "lut-task.mp4", "video/mp4", "video".getBytes());
+        UUID taskId = UUID.fromString(objectMapper.readTree(mockMvc.perform(multipart("/api/tasks").file(video)
+                        .param("name", "调色任务").param("gameCategory", "ACTION")
+                        .param("commentaryStyle", "ANIME_THEATER").param("targetDurationSeconds", "60")
+                        .param("taskBrief", "验证 LUT"))
+                .andExpect(status().isCreated()).andReturn().getResponse().getContentAsString()).path("id").asText());
+        String cube = "LUT_3D_SIZE 2\n0 0 0\n0 0 1\n0 1 0\n0 1 1\n1 0 0\n1 0 1\n1 1 0\n1 1 1\n";
+        MockMultipartFile lut = new MockMultipartFile("file", "cinema.cube", "text/plain", cube.getBytes());
+
+        mockMvc.perform(multipart("/api/tasks/{id}/color-lut", taskId).file(lut))
+                .andExpect(status().isCreated())
+                .andExpect(jsonPath("$.configured").value(true))
+                .andExpect(jsonPath("$.originalName").value("cinema.cube"))
+                .andExpect(jsonPath("$.dimension").value(2));
+        assertEquals(true, Files.isRegularFile(Path.of("target/test-storage/tasks").resolve(taskId.toString()).resolve("color-lut.cube")));
+        mockMvc.perform(get("/api/tasks/{id}/color-lut", taskId)).andExpect(status().isOk())
+                .andExpect(jsonPath("$.configured").value(true));
+        mockMvc.perform(delete("/api/tasks/{id}/color-lut", taskId)).andExpect(status().isNoContent());
+        mockMvc.perform(get("/api/tasks/{id}/color-lut", taskId)).andExpect(status().isOk())
+                .andExpect(jsonPath("$.configured").value(false));
+    }
+
+    @Test
     void taskRenameAlsoUpdatesItsProjectName() throws Exception {
         MockMultipartFile video = new MockMultipartFile("video", "rename.mp4", "video/mp4",
                 "temporary-video".getBytes());

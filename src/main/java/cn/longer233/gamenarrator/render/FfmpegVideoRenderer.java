@@ -85,6 +85,11 @@ public class FfmpegVideoRenderer {
                     .readValue(root.path("segments"));
             if (segments.isEmpty()) throw new IllegalStateException("剪辑时间线为空");
             Path taskDirectory = timelinePath.getParent();
+            Path lutPath = Boolean.TRUE.equals(settings == null ? false : settings.useLut())
+                    ? taskDirectory.resolve("color-lut.cube") : null;
+            if (lutPath != null && !Files.isRegularFile(lutPath)) {
+                throw new IllegalStateException("已启用 LUT，但任务尚未上传 .cube 文件");
+            }
             Files.createDirectories(workDirectory);
             Path previewDirectory = taskDirectory.resolve("render-preview");
             preparePreviewDirectory(previewDirectory);
@@ -106,14 +111,14 @@ public class FfmpegVideoRenderer {
                 effectPlans.add(effectPlan);
                 try {
                     encodeClip(sourceVideo, segment, clip, hasSourceAudio, encoder, effectPlan, preset,
-                            visualAssets(storyboardAssets, segment.sequence()), fraction -> progressConsumer.accept(
+                            settings, lutPath, visualAssets(storyboardAssets, segment.sequence()), fraction -> progressConsumer.accept(
                                     10 + (int) Math.floor((clipPosition + fraction) / segments.size() * 65)));
                 } catch (IllegalStateException exception) {
                     if (index == 0 && !"libx264".equals(encoder)) {
                         log.warn("RENDER_ENCODER_FALLBACK from={} to=libx264 reason={}", encoder, exception.getMessage());
                         encoder = "libx264";
                         encodeClip(sourceVideo, segment, clip, hasSourceAudio, encoder, effectPlan, preset,
-                                visualAssets(storyboardAssets, segment.sequence()), fraction -> progressConsumer.accept(
+                                settings, lutPath, visualAssets(storyboardAssets, segment.sequence()), fraction -> progressConsumer.accept(
                                         10 + (int) Math.floor((clipPosition + fraction) / segments.size() * 65)));
                     } else {
                         throw exception;
@@ -137,6 +142,12 @@ public class FfmpegVideoRenderer {
                             "intensity", preset == null ? 0.75 : preset.defaultIntensity(),
                             "subtitleTheme", preset == null ? "DEFAULT" : preset.subtitleTheme(),
                             "sourceAudioVolume", preset == null ? 0.20 : preset.sourceAudioVolume(),
+                            "colorGrading", java.util.Map.of(
+                                    "brightness", settings == null || settings.brightness() == null ? 0 : settings.brightness(),
+                                    "contrast", settings == null || settings.contrast() == null ? 1 : settings.contrast(),
+                                    "saturation", settings == null || settings.saturation() == null ? 1 : settings.saturation(),
+                                    "temperature", settings == null || settings.temperature() == null ? 0 : settings.temperature(),
+                                    "lutEnabled", lutPath != null),
                             "segments", effectManifest));
 
             Path concatList = workDirectory.resolve("concat.txt");
@@ -190,6 +201,7 @@ public class FfmpegVideoRenderer {
 
     private void encodeClip(Path source, TimelineSegment segment, Path output,
                             boolean hasAudio, String encoder, EffectPlan effectPlan, EffectPreset preset,
+                            EffectSettingsRequest settings, Path lutPath,
                             List<RenderAssetResolver.RenderAsset> assets,
                             java.util.function.DoubleConsumer progressConsumer) {
         List<String> command = new ArrayList<>(List.of(ffmpegCommand, "-y", "-hide_banner",
@@ -207,9 +219,9 @@ public class FfmpegVideoRenderer {
         }
         command.addAll(List.of("-map", assets.isEmpty() ? "0:v:0" : "[vout]",
                 "-map", hasAudio ? "0:a:0" : "1:a:0"));
-        if (assets.isEmpty()) command.addAll(List.of("-vf", videoFilterBuilder.video(segment, effectPlan, preset)));
+        if (assets.isEmpty()) command.addAll(List.of("-vf", videoFilterBuilder.video(segment, effectPlan, preset, settings, lutPath)));
         else command.addAll(List.of("-filter_complex", videoFilterBuilder.storyboard(segment, effectPlan, preset,
-                assets, hasAudio ? 1 : 2)));
+                assets, hasAudio ? 1 : 2, settings, lutPath)));
         command.addAll(List.of("-c:v", encoder));
         if ("h264_nvenc".equals(encoder)) command.addAll(List.of("-preset", "p4", "-cq", "24"));
         else command.addAll(List.of("-preset", "veryfast", "-crf", "23"));

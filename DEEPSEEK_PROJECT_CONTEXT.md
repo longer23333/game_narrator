@@ -1,7 +1,7 @@
 ﻿# GameNarrator — DeepSeek 结构化项目索引
 
-> 自动生成：2026-08-11 12:10:46 +08:00；UTF-8 BOM；索引不再内嵌全部源码。
-> Git：分支 `main`，提交 `7c7a3f0`；收录文件 706 个，分卷 8 个。
+> 自动生成：2026-08-11 12:22:17 +08:00；UTF-8 BOM；索引不再内嵌全部源码。
+> Git：分支 `main`，提交 `1e06e01`；收录文件 709 个，分卷 8 个。
 
 ## 使用方法
 
@@ -28,9 +28,9 @@
 | 分卷 | 文件数 | 字符数 | 建议用途 |
 |---|---:|---:|---|
 | `deepseek-context/01-foundation.md` | 80 | 121091 | 构建、配置、资源、数据库迁移 |
-| `deepseek-context/02-backend.md` | 260 | 1033326 | Spring 后端实现 |
-| `deepseek-context/03-tests.md` | 83 | 235136 | Spring 测试与行为验证 |
-| `deepseek-context/04-frontend.md` | 19 | 364178 | Vite Web 源码 |
+| `deepseek-context/02-backend.md` | 262 | 1043616 | Spring 后端实现 |
+| `deepseek-context/03-tests.md` | 84 | 238846 | Spring 测试与行为验证 |
+| `deepseek-context/04-frontend.md` | 19 | 367834 | Vite Web 源码 |
 | `deepseek-context/05-android-main.md` | 151 | 855263 | Android 实现、资源与 Gradle |
 | `deepseek-context/06-android-tests.md` | 55 | 131882 | Android 单元及设备测试 |
 | `deepseek-context/07-platform-release.md` | 10 | 49452 | Windows、CI/CD 与发布 |
@@ -39,13 +39,17 @@
 ## 当前 Git 工作区（最近修改）
 
 ```text
-M frontend/package.json
- M frontend/public/asset-library.js
- M scripts/verify-before-push.ps1
- M src/main/resources/static/asset-library.js
-?? frontend/public/asset-tag-state.js
-?? frontend/test/
-?? src/main/resources/static/asset-tag-state.js
+M frontend/public/app.js
+ M src/main/java/cn/longer233/gamenarrator/effect/EffectSettingsRequest.java
+ M src/main/java/cn/longer233/gamenarrator/pipeline/VideoTaskEngine.java
+ M src/main/java/cn/longer233/gamenarrator/render/FfmpegVideoRenderer.java
+ M src/main/java/cn/longer233/gamenarrator/render/RenderVideoFilterBuilder.java
+ M src/main/resources/static/app.js
+ M src/test/java/cn/longer233/gamenarrator/render/RenderVideoFilterBuilderTest.java
+ M src/test/java/cn/longer233/gamenarrator/task/web/VideoTaskControllerTest.java
+?? src/main/java/cn/longer233/gamenarrator/effect/ColorLutController.java
+?? src/main/java/cn/longer233/gamenarrator/effect/ColorLutService.java
+?? src/test/java/cn/longer233/gamenarrator/effect/ColorLutServiceTest.java
 ```
 
 ## Flyway 迁移索引
@@ -106,6 +110,7 @@ M frontend/package.json
 | DELETE | `/api/assets/{id}` | `src/main/java/cn/longer233/gamenarrator/asset/AssetCatalogController.java` |
 | DELETE | `/api/assets/provider-settings/{provider}` | `src/main/java/cn/longer233/gamenarrator/asset/AssetProviderCredentialController.java` |
 | DELETE | `/api/tasks/{id}` | `src/main/java/cn/longer233/gamenarrator/task/web/VideoTaskController.java` |
+| DELETE | `/api/tasks/{taskId}/color-lut` | `src/main/java/cn/longer233/gamenarrator/effect/ColorLutController.java` |
 | DELETE | `/api/tasks/{taskId}/storyboard/assets/{placementId}` | `src/main/java/cn/longer233/gamenarrator/script/ScriptWorkspaceController.java` |
 | DELETE | `/api/tasks/trash/{id}` | `src/main/java/cn/longer233/gamenarrator/task/web/VideoTaskController.java` |
 | GET | `/api/admin/management/api-usage` | `src/main/java/cn/longer233/gamenarrator/admin/AdminManagementController.java` |
@@ -158,6 +163,7 @@ M frontend/package.json
 | GET | `/api/tasks/{id}/render-preview` | `src/main/java/cn/longer233/gamenarrator/task/web/VideoTaskController.java` |
 | GET | `/api/tasks/{id}/source` | `src/main/java/cn/longer233/gamenarrator/task/web/VideoTaskController.java` |
 | GET | `/api/tasks/{id}` | `src/main/java/cn/longer233/gamenarrator/task/web/VideoTaskController.java` |
+| GET | `/api/tasks/{taskId}/color-lut` | `src/main/java/cn/longer233/gamenarrator/effect/ColorLutController.java` |
 | GET | `/api/tasks/{taskId}/decision-report/export` | `src/main/java/cn/longer233/gamenarrator/community/EditingDecisionReportController.java` |
 | GET | `/api/tasks/{taskId}/decision-report` | `src/main/java/cn/longer233/gamenarrator/community/EditingDecisionReportController.java` |
 | GET | `/api/tasks/{taskId}/director-reviews` | `src/main/java/cn/longer233/gamenarrator/director/DirectorReviewController.java` |
@@ -225,6 +231,7 @@ M frontend/package.json
 | POST | `/api/tasks/{id}/retry` | `src/main/java/cn/longer233/gamenarrator/task/web/VideoTaskController.java` |
 | POST | `/api/tasks/{id}/start` | `src/main/java/cn/longer233/gamenarrator/task/web/VideoTaskController.java` |
 | POST | `/api/tasks/{id}/storyboard/approve` | `src/main/java/cn/longer233/gamenarrator/task/web/VideoTaskController.java` |
+| POST | `/api/tasks/{taskId}/color-lut` | `src/main/java/cn/longer233/gamenarrator/effect/ColorLutController.java` |
 | POST | `/api/tasks/{taskId}/decision-report` | `src/main/java/cn/longer233/gamenarrator/community/EditingDecisionReportController.java` |
 | POST | `/api/tasks/{taskId}/director-reviews/{reviewId}/apply` | `src/main/java/cn/longer233/gamenarrator/director/DirectorReviewController.java` |
 | POST | `/api/tasks/{taskId}/director-reviews/{reviewId}/decision` | `src/main/java/cn/longer233/gamenarrator/director/DirectorReviewController.java` |

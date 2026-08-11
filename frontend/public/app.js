@@ -701,6 +701,8 @@ detailContent.addEventListener('input', event => {
     event.target.closest('label')?.querySelector('output').replaceChildren(`${Number(event.target.value).toFixed(2)}×`);
   } else if (event.target.matches('[name="intensity"]')) {
     event.target.closest('label')?.querySelector('output').replaceChildren(`${Math.round(Number(event.target.value) * 100)}%`);
+  } else if (event.target.matches('[data-color-control]')) {
+    event.target.closest('label')?.querySelector('output').replaceChildren(Number(event.target.value).toFixed(2));
   }
 });
 detailContent.addEventListener('change', event => {
@@ -727,7 +729,12 @@ detailContent.addEventListener('submit', async event => {
         presetCode:String(values.get('presetCode')),
         intensity:Number(values.get('intensity')),
         dynamicSubtitles:values.get('dynamicSubtitles') === 'on',
-        soundEffects:values.get('soundEffects') === 'on'
+        soundEffects:values.get('soundEffects') === 'on',
+        brightness:Number(values.get('brightness')),
+        contrast:Number(values.get('contrast')),
+        saturation:Number(values.get('saturation')),
+        temperature:Number(values.get('temperature')),
+        useLut:values.get('useLut') === 'on'
       })
     });
     if (!response.ok) throw await readApiError(response);
@@ -739,6 +746,34 @@ detailContent.addEventListener('submit', async event => {
     button.textContent = '应用特效并重新渲染';
     status.textContent = error.message;
   }
+});
+detailContent.addEventListener('click', async event => {
+  const upload = event.target.closest('[data-upload-color-lut]');
+  const clear = event.target.closest('[data-clear-color-lut]');
+  if (!upload && !clear) return;
+  const form = event.target.closest('[data-effect-settings]');
+  const status = form.querySelector('[data-color-lut-status]');
+  const taskId = form.dataset.effectSettings;
+  event.target.disabled = true;
+  try {
+    if (upload) {
+      const file = form.querySelector('[name="lutFile"]').files?.[0];
+      if (!file) throw new Error('请先选择 .cube LUT 文件');
+      const body = new FormData(); body.append('file', file);
+      const response = await fetch(`/api/tasks/${taskId}/color-lut`, {method:'POST', body});
+      if (!response.ok) throw await readApiError(response);
+      const value = await response.json();
+      form.querySelector('[name="useLut"]').checked = true;
+      status.textContent = `已上传 ${value.originalName} · ${value.dimension}×${value.dimension}×${value.dimension}`;
+    } else {
+      const response = await fetch(`/api/tasks/${taskId}/color-lut`, {method:'DELETE'});
+      if (!response.ok) throw await readApiError(response);
+      form.querySelector('[name="useLut"]').checked = false;
+      form.querySelector('[name="lutFile"]').value = '';
+      status.textContent = '尚未上传 LUT';
+    }
+  } catch (error) { status.textContent = error.message; }
+  finally { event.target.disabled = false; }
 });
 detailContent.addEventListener('click', async event => {
   const storyboardButton = event.target.closest('[data-open-storyboard]');
@@ -889,7 +924,23 @@ function renderTaskDetails(task) {
     ${renderedVideoSection(task)}
     ${task.transcriptText ? `<section class="detail-block"><h3>语音转写</h3><pre class="transcript-text">${escapeHtml(task.transcriptText)}</pre></section>` : ''}
   `;
-  if (task.timelinePath) refreshRenderPreview(task.id);
+  if (task.timelinePath) {
+    refreshRenderPreview(task.id);
+    refreshColorLutStatus(task.id);
+  }
+}
+
+async function refreshColorLutStatus(taskId) {
+  const form = detailContent.querySelector(`[data-effect-settings="${taskId}"]`);
+  if (!form) return;
+  const status = form.querySelector('[data-color-lut-status]');
+  try {
+    const value = await requestJson(`/api/tasks/${taskId}/color-lut`);
+    form.querySelector('[name="useLut"]').checked = Boolean(value.configured);
+    status.textContent = value.configured
+      ? `已配置 ${value.originalName} · ${value.dimension || '?'}³ · ${(Number(value.sizeBytes || 0) / 1024).toFixed(1)} KB`
+      : '尚未上传 LUT';
+  } catch (error) { status.textContent = `LUT 状态读取失败：${error.message}`; }
 }
 
 async function pollEnhancementStatus(taskId) {
@@ -970,6 +1021,18 @@ function effectSettingsSection(task) {
       </details>
       <label class="effect-toggle"><input name="dynamicSubtitles" type="checkbox" checked>启用动态 ASS 字幕主题</label>
       <label class="effect-toggle"><input name="soundEffects" type="checkbox">加入冲击、转场和喜剧提示音</label>
+      <details class="color-grading-panel" open>
+        <summary>调色轮与 LUT</summary>
+        <div class="grid">
+          <label>亮度 <output>0.00</output><input data-color-control name="brightness" type="range" min="-1" max="1" step="0.05" value="0"></label>
+          <label>对比度 <output>1.00</output><input data-color-control name="contrast" type="range" min="0" max="3" step="0.05" value="1"></label>
+          <label>饱和度 <output>1.00</output><input data-color-control name="saturation" type="range" min="0" max="3" step="0.05" value="1"></label>
+          <label>色温 <output>0.00</output><input data-color-control name="temperature" type="range" min="-1" max="1" step="0.05" value="0"></label>
+        </div>
+        <div class="lut-upload-row"><input name="lutFile" type="file" accept=".cube,text/plain"><button type="button" data-upload-color-lut>上传 LUT</button><button type="button" data-clear-color-lut>清除 LUT</button></div>
+        <label class="effect-toggle"><input name="useLut" type="checkbox">渲染时应用已上传的 3D LUT</label>
+        <small data-color-lut-status>正在读取 LUT 状态…</small>
+      </details>
       <p class="effect-note">参考 Premiere 常见的运动、模糊、颜色、风格化和转场效果；系统只显示当前 FFmpeg 渲染器能够实际输出的类型。</p>
       <button type="submit">应用特效并重新渲染</button>
       <span class="effect-message" aria-live="polite"></span>

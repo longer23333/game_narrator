@@ -2,6 +2,7 @@ package cn.longer233.gamenarrator.render;
 
 import cn.longer233.gamenarrator.effect.EffectPlan;
 import cn.longer233.gamenarrator.effect.EffectPreset;
+import cn.longer233.gamenarrator.effect.EffectSettingsRequest;
 import cn.longer233.gamenarrator.effect.TransitionType;
 import cn.longer233.gamenarrator.effect.VisualEffectType;
 import cn.longer233.gamenarrator.timeline.TimelineSegment;
@@ -10,13 +11,20 @@ import org.springframework.stereotype.Component;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
+import java.nio.file.Path;
 
 /** Builds deterministic FFmpeg video-filter graphs independently from render process orchestration. */
 @Component
 public class RenderVideoFilterBuilder {
     public String storyboard(TimelineSegment segment, EffectPlan plan, EffectPreset preset,
                              List<RenderAssetResolver.RenderAsset> assets, int firstInput) {
-        StringBuilder graph = new StringBuilder("[0:v]").append(video(segment, plan, preset)).append("[base];");
+        return storyboard(segment, plan, preset, assets, firstInput, null, null);
+    }
+
+    public String storyboard(TimelineSegment segment, EffectPlan plan, EffectPreset preset,
+                             List<RenderAssetResolver.RenderAsset> assets, int firstInput,
+                             EffectSettingsRequest settings, Path lutPath) {
+        StringBuilder graph = new StringBuilder("[0:v]").append(video(segment, plan, preset, settings, lutPath)).append("[base];");
         String previous = "base";
         for (int index = 0; index < assets.size(); index++) {
             RenderAssetResolver.RenderAsset asset = assets.get(index);
@@ -42,6 +50,11 @@ public class RenderVideoFilterBuilder {
     }
 
     public String video(TimelineSegment segment, EffectPlan plan, EffectPreset preset) {
+        return video(segment, plan, preset, null, null);
+    }
+
+    public String video(TimelineSegment segment, EffectPlan plan, EffectPreset preset,
+                        EffectSettingsRequest settings, Path lutPath) {
         double duration = Math.max(0.5, segment.sourceEndSeconds() - segment.sourceStartSeconds());
         double intensity = preset == null ? 0.75 : preset.defaultIntensity();
         double transitionDuration = preset == null ? 0.28 : preset.transitionDurationSeconds();
@@ -98,6 +111,21 @@ public class RenderVideoFilterBuilder {
         }
         if (plan.effects().contains(VisualEffectType.LENS_DISTORTION))
             filters.add("lenscorrection=k1=" + decimal(-0.12 * intensity) + ":k2=" + decimal(0.04 * intensity));
+        if (settings != null) {
+            double brightness = settings.brightness() == null ? 0 : settings.brightness();
+            double contrast = settings.contrast() == null ? 1 : settings.contrast();
+            double saturation = settings.saturation() == null ? 1 : settings.saturation();
+            if (brightness != 0 || contrast != 1 || saturation != 1) {
+                filters.add("eq=brightness=" + decimal(brightness) + ":contrast=" + decimal(contrast)
+                        + ":saturation=" + decimal(saturation));
+            }
+            double temperature = settings.temperature() == null ? 0 : settings.temperature();
+            if (temperature != 0) filters.add("colorbalance=rs=" + decimal(temperature * 0.12)
+                    + ":bs=" + decimal(temperature * -0.12));
+            if (Boolean.TRUE.equals(settings.useLut()) && lutPath != null) {
+                filters.add("lut3d=file='" + filterPath(lutPath) + "'");
+            }
+        }
         if (plan.transition() == TransitionType.FADE || plan.transition() == TransitionType.DISSOLVE) {
             filters.add("fade=t=in:st=0:d=" + decimal(transitionDuration));
             filters.add("fade=t=out:st=" + decimal(Math.max(0, duration - transitionDuration)) + ":d=" + decimal(transitionDuration));
@@ -124,5 +152,9 @@ public class RenderVideoFilterBuilder {
 
     private String decimal(double value) {
         return String.format(Locale.ROOT, "%.3f", value);
+    }
+
+    private String filterPath(Path path) {
+        return path.toAbsolutePath().toString().replace('\\', '/').replace(":", "\\:").replace("'", "\\'");
     }
 }

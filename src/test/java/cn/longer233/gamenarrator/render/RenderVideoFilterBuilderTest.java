@@ -3,6 +3,7 @@ package cn.longer233.gamenarrator.render;
 import cn.longer233.gamenarrator.effect.EffectPlan;
 import cn.longer233.gamenarrator.effect.TransitionType;
 import cn.longer233.gamenarrator.effect.VisualEffectType;
+import cn.longer233.gamenarrator.effect.EffectSettingsRequest;
 import cn.longer233.gamenarrator.timeline.TimelineSegment;
 import org.junit.jupiter.api.Test;
 
@@ -48,5 +49,20 @@ class RenderVideoFilterBuilderTest {
 
         assertThat(filterBuilder.video(segment, plan)).contains("gblur=", "vignette=", "colorbalance=",
                 "rgbashift=", "flags=neighbor", "lenscorrection=", "fade=t=in");
+    }
+
+    @Test
+    void appliesColorWheelAndEscapedCubeLut() {
+        TimelineSegment segment = new TimelineSegment(1, 0, 8, 0, 8,
+                "调色", "调色", "", "voice.wav", 2, false);
+        EffectSettingsRequest settings = new EffectSettingsRequest(
+                "ANIME_THEATER", .5, true, false, .1, 1.2, .8, -.5, true);
+
+        String filter = filterBuilder.video(segment,
+                new EffectPlan(List.of(), TransitionType.HARD_CUT, "test"), null, settings,
+                Path.of("C:/project/color-lut.cube"));
+
+        assertThat(filter).contains("eq=brightness=0.100:contrast=1.200:saturation=0.800",
+                "colorbalance=rs=-0.060:bs=0.060", "lut3d=file='C\\:/project/color-lut.cube'");
     }
 }

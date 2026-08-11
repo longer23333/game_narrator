@@ -308,7 +308,7 @@ public class VideoTaskEngine {
             if (!context.renderingCompleted()) {
                 stateService.markRenderingRunning(taskId);
                 var preset = effectPresetCatalog.require(context.commentaryStyle());
-                var settings = new EffectSettingsRequest(preset.code(), null, true, false);
+                var settings = new EffectSettingsRequest(preset.code(), null, true, false, 0d, 1d, 1d, 0d, false);
                 RenderResult result = videoRenderer.render(sourcePath, Path.of(context.timelinePath()),
                         context.hasAudio(), preset, settings,
                         progress -> stateService.updateStageProgress(taskId,
