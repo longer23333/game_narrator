@@ -764,7 +764,10 @@ detailContent.addEventListener('click', async event => {
   const clipIndex = actionButton.dataset.clipIndex;
   actionButton.disabled = true;
   try {
-    if (actionButton.dataset.scriptAction === 'save') {
+    if (actionButton.dataset.scriptAction === 'quality-review') {
+      actionButton.textContent = 'AI 正在独立评审…';
+      await requestJson(`/api/tasks/${taskId}/script/quality-review`, {method: 'POST'});
+    } else if (actionButton.dataset.scriptAction === 'save') {
       const payload = {
         narration: card.querySelector('[name="narration"]').value,
         subtitle: card.querySelector('[name="subtitle"]').value,
@@ -1052,6 +1055,7 @@ async function loadScriptEditor(taskId) {
         <strong>文案质量 ${script.qualityReview?.score ?? 0} / 100</strong>
         <span>${escapeHtml(script.qualityReview?.summary || '尚未生成质量评审')}</span>
         ${script.qualityReview?.issues?.length ? `<ul>${script.qualityReview.issues.map(issue => `<li>${escapeHtml(issue)}</li>`).join('')}</ul>` : ''}
+        <button type="button" data-script-action="quality-review" data-task-id="${taskId}">AI 独立复评</button>
       </aside>
       <div class="script-segment-list">${script.segments.map(segment => {
         const manual = manualReviews[String(segment.clipIndex)] || {};

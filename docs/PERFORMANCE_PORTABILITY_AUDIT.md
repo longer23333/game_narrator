@@ -75,6 +75,7 @@
 - Task deletion cancels registered process trees, waits up to five seconds, then delegates physical cleanup to one `StorageCleanupService` boundary guarded by `SecurePathGuard`.
 - Task-owned segment clips, pending import files, task directories, and explicitly registered `PROJECT` assets are removed; unrelated shared library assets are retained.
 - Script segments support persisted manual `APPROVED` / `NEEDS_CHANGES` reviews and notes without overwriting the AI quality review. The editor highlights segment-specific AI issues and likely narration-duration overflow.
+- Script quality now supports an independent model review after generation or editing. Manual `NEEDS_CHANGES` notes take priority in the review prompt and automatically guide segment regeneration when no custom instruction is supplied; any edit invalidates the previous score without deleting the manual review trail.
 - FFmpeg clip encoding emits `-progress pipe:1`; normalized encoding time updates both the task stage and stage-run record and reaches the browser over SSE.
 
 ## 2026-08-04 incremental render preview pass

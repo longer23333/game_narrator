@@ -33,6 +33,11 @@ public class ScriptWorkspaceController {
         return service.reviews(taskId);
     }
 
+    @PostMapping("/script/quality-review")
+    public ScriptDocumentView qualityReview(@PathVariable("taskId") UUID taskId) {
+        return service.qualityReview(taskId);
+    }
+
     @PutMapping("/script/segments/{clipIndex}/review")
     public java.util.Map<String, Object> review(@PathVariable("taskId") UUID taskId,
             @PathVariable("clipIndex") int clipIndex,

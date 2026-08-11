@@ -182,6 +182,74 @@ public class OllamaScriptGenerator {
         }
     }
 
+    public ScriptQualityReview reviewQuality(ScriptDocumentView document, Map<String, Object> manualReviews) {
+        try {
+            String prompt = buildQualityReviewPrompt(document, manualReviews);
+            JsonNode generated;
+            if (adaptiveChat != null) {
+                generated = adaptiveChat.chatJson(prompt, List.of(), false, Duration.ofMinutes(3));
+            } else {
+                Map<String, Object> requestBody = Map.of(
+                        "model", model, "stream", false, "format", "json",
+                        "messages", List.of(Map.of("role", "user", "content", prompt)),
+                        "options", Map.of("temperature", 0.2));
+                HttpRequest request = HttpRequest.newBuilder(baseUri.resolve("/api/chat"))
+                        .timeout(Duration.ofMinutes(3)).header("Content-Type", "application/json")
+                        .POST(HttpRequest.BodyPublishers.ofByteArray(objectMapper.writeValueAsBytes(requestBody))).build();
+                HttpResponse<String> response = httpClient.send(request,
+                        HttpResponse.BodyHandlers.ofString(StandardCharsets.UTF_8));
+                if (response.statusCode() != 200) {
+                    throw new IllegalStateException("Ollama 文案质量评审返回 HTTP " + response.statusCode());
+                }
+                generated = objectMapper.readTree(
+                        objectMapper.readTree(response.body()).path("message").path("content").asText());
+            }
+            JsonNode review = generated.path("qualityReview").isObject()
+                    ? generated.path("qualityReview") : generated;
+            return parseQualityReview(review, document.segments());
+        } catch (IllegalStateException exception) {
+            throw exception;
+        } catch (Exception exception) {
+            throw new IllegalStateException("AI 文案质量评审失败：" + exception.getMessage(), exception);
+        }
+    }
+
+    String buildQualityReviewPrompt(ScriptDocumentView document, Map<String, Object> manualReviews) throws Exception {
+        return """
+                你是独立的中文游戏视频文案审校员。只返回 JSON，不要输出 Markdown，也不要重写文案。
+                检查每个片段的前后连贯、事实一致性、口语自然度、可配音时长、字幕精炼度和明显乱码。
+                人工评审是最高优先级证据；不得忽略人工标记的“需修改”意见。
+                每条可定位的问题必须以“片段 N：”开头，并给出可直接用于重写的具体建议。
+                文案：%s
+                人工评审：%s
+                返回格式：{"score":0到100,"passed":true或false,"issues":["片段 1：具体问题与修改建议"],"summary":"总体结论"}
+                score 低于 75 或存在任何未解决问题时，passed 必须为 false；issues 最多 12 条。
+                """.formatted(objectMapper.writeValueAsString(document),
+                objectMapper.writeValueAsString(manualReviews == null ? Map.of() : manualReviews));
+    }
+
+    ScriptQualityReview parseQualityReview(JsonNode review, List<ScriptSegment> segments) {
+        List<String> issues = new ArrayList<>();
+        review.path("issues").forEach(issue -> {
+            String value = issue.asText().trim();
+            if (!value.isBlank() && issues.size() < 12) issues.add(value);
+        });
+        for (ScriptSegment segment : segments) {
+            double duration = Math.max(.1, segment.endSeconds() - segment.startSeconds());
+            if (segment.narration().isBlank() || segment.subtitle().isBlank()) {
+                issues.add("片段 " + segment.clipIndex() + "：解说或字幕为空，请补充完整");
+            } else if (segment.narration().codePointCount(0, segment.narration().length()) > duration * 6) {
+                issues.add("片段 " + segment.clipIndex() + "：解说可能超过可配音时长，请精简");
+            }
+        }
+        List<String> finalIssues = issues.stream().distinct().limit(12).toList();
+        int score = Math.max(0, Math.min(100, review.path("score").asInt(finalIssues.isEmpty() ? 85 : 65)));
+        boolean passed = review.path("passed").asBoolean(score >= 75 && finalIssues.isEmpty())
+                && score >= 75 && finalIssues.isEmpty();
+        return new ScriptQualityReview(score, passed, List.copyOf(finalIssues),
+                review.path("summary").asText(finalIssues.isEmpty() ? "文案通过独立质量评审" : "文案需要按反馈修改"));
+    }
+
     private GeneratedScript generateAdaptive(Path highlightPath, String category, String style,
                                              String taskBrief, String transcript,
                                              List<GameEventFact> confirmedFacts) {

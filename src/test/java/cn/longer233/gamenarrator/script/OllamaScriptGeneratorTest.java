@@ -6,6 +6,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.Test;
 
 import java.util.List;
+import java.util.Map;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -45,6 +46,25 @@ class OllamaScriptGeneratorTest {
 
         assertThat(review).containsEntry("score", 100).containsEntry("summary", "建议复核");
         assertThat(review.get("issues")).isEqualTo(List.of("字幕略长"));
+    }
+
+    @Test
+    void independentReviewPromptContainsManualFeedbackAndLocalDurationCheckCannotPass() throws Exception {
+        ObjectMapper mapper = new ObjectMapper();
+        OllamaScriptGenerator generator = new OllamaScriptGenerator(mapper,
+                "http://localhost:11434", "test-model");
+        ScriptDocumentView document = new ScriptDocumentView("title", "summary", "very long narration",
+                ScriptQualityReview.unavailable(), List.of(new ScriptSegment(1, 0, 1,
+                "这是一段明显超过一秒钟可配音长度的中文解说文案", "字幕", "转场")));
+
+        String prompt = generator.buildQualityReviewPrompt(document,
+                Map.of("1", Map.of("status", "NEEDS_CHANGES", "note", "角色名错误")));
+        ScriptQualityReview review = generator.parseQualityReview(mapper.readTree(
+                "{\"score\":95,\"passed\":true,\"issues\":[],\"summary\":\"模型误判通过\"}"), document.segments());
+
+        assertThat(prompt).contains("角色名错误", "人工评审是最高优先级证据", "片段 N：");
+        assertThat(review.passed()).isFalse();
+        assertThat(review.issues()).anyMatch(issue -> issue.contains("可配音时长"));
     }
 
     @Test

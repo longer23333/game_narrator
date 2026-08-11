@@ -82,12 +82,37 @@ public class ScriptWorkspaceService {
         if (position < clips.size() && clips.get(position).locked()) {
             throw new IllegalStateException("该分镜已锁定，请先取消锁定再使用 AI 重写");
         }
+        String instruction = request == null ? null : request.instruction();
+        if (instruction == null || instruction.isBlank()) {
+            instruction = feedbackInstruction(task, document, clipIndex);
+        }
         ScriptSegment replacement = scriptGenerator.regenerateSegment(
                 segments.get(position),
-                request == null ? null : request.instruction(),
+                instruction,
                 position == 0 ? null : segments.get(position - 1).narration(),
                 position + 1 >= segments.size() ? null : segments.get(position + 1).narration());
         return saveRevision(task, document, replacement);
+    }
+
+    @Transactional
+    public ScriptDocumentView qualityReview(UUID taskId) {
+        VideoTask task = requireTask(taskId);
+        ScriptDocumentView document = readDocument(task);
+        Path path = requireScriptPath(task);
+        JsonNode root = readJson(path);
+        Map<String, Object> manualReviews = root.path("manualReviews").isObject()
+                ? objectMapper.convertValue(root.path("manualReviews"),
+                    new com.fasterxml.jackson.core.type.TypeReference<LinkedHashMap<String, Object>>() {})
+                : Map.of();
+        ScriptQualityReview review = scriptGenerator.reviewQuality(document, manualReviews);
+        Map<String, Object> output = objectMapper.convertValue(root,
+                new com.fasterxml.jackson.core.type.TypeReference<LinkedHashMap<String, Object>>() {});
+        output.put("qualityReview", review);
+        output.put("qualityReviewSource", "AI_INDEPENDENT_REVIEW");
+        output.put("qualityReviewedAt", java.time.Instant.now().toString());
+        writeAtomically(path, output);
+        return new ScriptDocumentView(document.title(), document.synopsis(), document.fullNarration(), review,
+                document.segments());
     }
 
     @Transactional
@@ -391,20 +416,37 @@ public class ScriptWorkspaceService {
         segments.set(position, replacement);
         String fullNarration = String.join("\n", segments.stream().map(ScriptSegment::narration).toList());
         ScriptDocumentView revised = new ScriptDocumentView(
-                current.title(), current.synopsis(), fullNarration, current.qualityReview(), List.copyOf(segments));
+                current.title(), current.synopsis(), fullNarration, ScriptQualityReview.stale(), List.copyOf(segments));
         Path scriptPath = requireScriptPath(task);
-        Map<String, Object> output = new LinkedHashMap<>();
         JsonNode existing = readJson(scriptPath);
-        if (existing.hasNonNull("model")) output.put("model", existing.path("model").asText());
+        Map<String, Object> output = objectMapper.convertValue(existing,
+                new com.fasterxml.jackson.core.type.TypeReference<LinkedHashMap<String, Object>>() {});
         output.put("title", revised.title());
         output.put("synopsis", revised.synopsis());
         output.put("fullNarration", revised.fullNarration());
         output.put("qualityReview", revised.qualityReview());
+        output.remove("qualityReviewSource");
+        output.remove("qualityReviewedAt");
         output.put("segments", revised.segments());
         writeAtomically(scriptPath, output);
         task.applyScriptRevision(revised.title(), revised.synopsis(), revised.fullNarration(),
                 scriptPath.toString(), revised.segments().size());
         return revised;
+    }
+
+    private String feedbackInstruction(VideoTask task, ScriptDocumentView document, int clipIndex) {
+        JsonNode root = readJson(requireScriptPath(task));
+        List<String> feedback = new ArrayList<>();
+        JsonNode manual = root.path("manualReviews").path(Integer.toString(clipIndex));
+        if ("NEEDS_CHANGES".equals(manual.path("status").asText()) && !manual.path("note").asText().isBlank()) {
+            feedback.add("人工评审：" + manual.path("note").asText().trim());
+        }
+        String marker = Integer.toString(clipIndex);
+        document.qualityReview().issues().stream()
+                .filter(issue -> issue.matches("(?is).*(?:片段|分镜|clip)\\s*" + marker + "(?:\\D.*|$)"))
+                .forEach(issue -> feedback.add("AI 评审：" + issue));
+        return feedback.isEmpty() ? "提高连贯性、事实一致性、可配音性和字幕精炼度"
+                : String.join("；", feedback);
     }
 
     @Transactional

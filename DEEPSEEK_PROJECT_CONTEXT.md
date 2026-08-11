@@ -1,7 +1,7 @@
 ﻿# GameNarrator — DeepSeek 结构化项目索引
 
-> 自动生成：2026-08-11 09:43:10 +08:00；UTF-8 BOM；索引不再内嵌全部源码。
-> Git：分支 `main`，提交 `17e7e17`；收录文件 672 个，分卷 8 个。
+> 自动生成：2026-08-11 09:52:06 +08:00；UTF-8 BOM；索引不再内嵌全部源码。
+> Git：分支 `main`，提交 `a65605d`；收录文件 672 个，分卷 8 个。
 
 ## 使用方法
 
@@ -28,28 +28,27 @@
 | 分卷 | 文件数 | 字符数 | 建议用途 |
 |---|---:|---:|---|
 | `deepseek-context/01-foundation.md` | 74 | 116747 | 构建、配置、资源、数据库迁移 |
-| `deepseek-context/02-backend.md` | 248 | 975168 | Spring 后端实现 |
-| `deepseek-context/03-tests.md` | 74 | 195826 | Spring 测试与行为验证 |
-| `deepseek-context/04-frontend.md` | 17 | 351822 | Vite Web 源码 |
+| `deepseek-context/02-backend.md` | 248 | 981944 | Spring 后端实现 |
+| `deepseek-context/03-tests.md` | 74 | 201523 | Spring 测试与行为验证 |
+| `deepseek-context/04-frontend.md` | 17 | 352139 | Vite Web 源码 |
 | `deepseek-context/05-android-main.md` | 151 | 855263 | Android 实现、资源与 Gradle |
 | `deepseek-context/06-android-tests.md` | 55 | 131882 | Android 单元及设备测试 |
 | `deepseek-context/07-platform-release.md` | 10 | 47337 | Windows、CI/CD 与发布 |
-| `deepseek-context/08-docs-scripts.md` | 43 | 147592 | 需求、架构、维护脚本 |
+| `deepseek-context/08-docs-scripts.md` | 43 | 147947 | 需求、架构、维护脚本 |
 
 ## 当前 Git 工作区（最近修改）
 
 ```text
-M docs/POSTGRESQL_AND_CLOUD_SYNC.md
- M frontend/public/admin.js
- M src/main/java/cn/longer233/gamenarrator/admin/AdminManagementService.java
- M src/main/java/cn/longer233/gamenarrator/cloud/CloudSyncController.java
- M src/main/java/cn/longer233/gamenarrator/cloud/CloudSyncService.java
- M src/main/resources/application-postgresql.yml
- M src/main/resources/static/admin.js
- M src/test/java/cn/longer233/gamenarrator/cloud/CloudSyncServiceTest.java
-?? src/main/java/cn/longer233/gamenarrator/cloud/CloudSyncRetryPolicy.java
-?? src/main/resources/db/migration-postgresql/V33__cloud_sync_retry_policy.sql
-?? src/main/resources/db/migration/V33__cloud_sync_retry_policy.sql
+M docs/PERFORMANCE_PORTABILITY_AUDIT.md
+ M docs/REQUIREMENTS.md
+ M frontend/public/app.js
+ M src/main/java/cn/longer233/gamenarrator/script/OllamaScriptGenerator.java
+ M src/main/java/cn/longer233/gamenarrator/script/ScriptQualityReview.java
+ M src/main/java/cn/longer233/gamenarrator/script/ScriptWorkspaceController.java
+ M src/main/java/cn/longer233/gamenarrator/script/ScriptWorkspaceService.java
+ M src/main/resources/static/app.js
+ M src/test/java/cn/longer233/gamenarrator/script/OllamaScriptGeneratorTest.java
+ M src/test/java/cn/longer233/gamenarrator/script/ScriptWorkspaceServiceTest.java
 ```
 
 ## Flyway 迁移索引
@@ -234,6 +233,7 @@ M docs/POSTGRESQL_AND_CLOUD_SYNC.md
 | POST | `/api/tasks/{taskId}/events/narrative-plan/generate` | `src/main/java/cn/longer233/gamenarrator/event/GameEventTimelineController.java` |
 | POST | `/api/tasks/{taskId}/events/regenerate-script` | `src/main/java/cn/longer233/gamenarrator/event/GameEventTimelineController.java` |
 | POST | `/api/tasks/{taskId}/exports` | `src/main/java/cn/longer233/gamenarrator/export/ExportController.java` |
+| POST | `/api/tasks/{taskId}/script/quality-review` | `src/main/java/cn/longer233/gamenarrator/script/ScriptWorkspaceController.java` |
 | POST | `/api/tasks/{taskId}/script/segments/{clipIndex}/regenerate` | `src/main/java/cn/longer233/gamenarrator/script/ScriptWorkspaceController.java` |
 | POST | `/api/tasks/{taskId}/storyboard/assets/auto` | `src/main/java/cn/longer233/gamenarrator/script/ScriptWorkspaceController.java` |
 | POST | `/api/tasks/{taskId}/storyboard/segments/{clipIndex}/assets` | `src/main/java/cn/longer233/gamenarrator/script/ScriptWorkspaceController.java` |
