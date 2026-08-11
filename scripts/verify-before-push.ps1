@@ -4,12 +4,24 @@ $projectRoot = (Resolve-Path (Join-Path $PSScriptRoot '..')).Path
 $npm = (Get-Command npm.cmd -ErrorAction Stop).Source
 $frontendRoot = Join-Path $projectRoot 'frontend'
 
+function Test-WorkspaceViteRunning([string]$Root) {
+  $escapedRoot = [Regex]::Escape((Resolve-Path $Root).Path)
+  return [bool](Get-CimInstance Win32_Process -ErrorAction SilentlyContinue | Where-Object {
+    $_.Name -eq 'node.exe' -and $_.CommandLine -match $escapedRoot -and
+    $_.CommandLine -match 'vite[\\/]bin[\\/]vite\.js'
+  } | Select-Object -First 1)
+}
+
 Write-Host 'Checking generated configuration reference...'
 & (Join-Path $projectRoot 'scripts\update-configuration-reference.ps1') -Check
 
-Write-Host 'Restoring exact frontend dependencies...'
-& $npm --prefix $frontendRoot ci --no-audit --no-fund
-if ($LASTEXITCODE -ne 0) { throw 'npm ci failed' }
+if (Test-WorkspaceViteRunning $frontendRoot) {
+  Write-Host 'Workspace Vite is running; keeping its node_modules unchanged during verification.'
+} else {
+  Write-Host 'Restoring exact frontend dependencies...'
+  & $npm --prefix $frontendRoot ci --no-audit --no-fund
+  if ($LASTEXITCODE -ne 0) { throw 'npm ci failed' }
+}
 
 Write-Host 'Building frontend...'
 & $npm --prefix $frontendRoot run build
@@ -17,7 +29,8 @@ if ($LASTEXITCODE -ne 0) { throw 'Frontend build failed' }
 
 Write-Host 'Checking browser JavaScript syntax...'
 $javascriptFiles = @(
-  'app.js', 'asset-library.js', 'asset-tag-state.js', 'diagnostics.js', 'export.js', 'media-importer.js'
+  'app.js', 'asset-library.js', 'asset-tag-state.js', 'diagnostics.js', 'export.js', 'media-importer.js',
+  'updates.js'
 )
 foreach ($name in $javascriptFiles) {
   & node --check (Join-Path $frontendRoot "public\$name")

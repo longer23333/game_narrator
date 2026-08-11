@@ -7,8 +7,16 @@ const lazyScriptUrls = {
   assets:'/asset-library.js?v=20260805-1',
   import:'/media-importer.js?v=20260805-1',
   diagnostics:'/diagnostics.js?v=20260811-1'
-  ,updates:'/updates.js?v=20260805-1'
+  ,updates:'/updates.js?v=20260811-1'
 };
+
+function lazyScriptFailureMessage(key, error) {
+  const detail = String(error?.message || error || '未知错误');
+  if (/failed to fetch|fetch dynamically imported module|networkerror/i.test(detail)) {
+    return `无法加载${key}功能脚本：前端开发服务器可能已经停止。请在项目目录运行 npm run dev:frontend，确认 http://127.0.0.1:5173 可访问后刷新页面。`;
+  }
+  return `无法加载${key}功能脚本：${detail}`;
+}
 
 function loadLazyScript(key) {
   if (lazyScriptPromises.has(key)) return lazyScriptPromises.get(key);
@@ -17,7 +25,7 @@ function loadLazyScript(key) {
     return module;
   }).catch(error => {
     lazyScriptPromises.delete(key);
-    throw new Error(`无法加载${key}功能脚本：${error.message}`);
+    throw new Error(lazyScriptFailureMessage(key, error));
   });
   lazyScriptPromises.set(key, promise);
   return promise;
