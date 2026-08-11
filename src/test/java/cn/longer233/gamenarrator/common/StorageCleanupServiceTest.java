@@ -17,6 +17,7 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
+import cn.longer233.gamenarrator.task.domain.ProcessingStageType;
 
 class StorageCleanupServiceTest {
     @TempDir Path temporary;
@@ -61,5 +62,29 @@ class StorageCleanupServiceTest {
 
         assertThat(clip).doesNotExist();
         assertThat(imported).doesNotExist();
+    }
+
+    @Test
+    void retryCleanupRemovesOnlyTheFailedStageAndTemporaryArtifacts() throws Exception {
+        JdbcTemplate jdbc = mock(JdbcTemplate.class);
+        UUID taskId = UUID.randomUUID();
+        Path task = temporary.resolve("tasks").resolve(taskId.toString());
+        Path completedScript = task.resolve("generated-script.json");
+        Path partialVoice = task.resolve("voice/voice-00.wav");
+        Path partialManifest = task.resolve("voice-manifest.json");
+        Path temporaryPart = task.resolve("voice/chunk.part");
+        Files.createDirectories(partialVoice.getParent());
+        Files.writeString(completedScript, "keep");
+        Files.writeString(partialVoice, "partial");
+        Files.writeString(partialManifest, "partial");
+        Files.writeString(temporaryPart, "partial");
+
+        new StorageCleanupService(temporary.toString(), 24, jdbc)
+                .cleanupRetryArtifacts(taskId, ProcessingStageType.VOICE_GENERATION);
+
+        assertThat(completedScript).exists();
+        assertThat(partialVoice).doesNotExist();
+        assertThat(partialManifest).doesNotExist();
+        assertThat(temporaryPart).doesNotExist();
     }
 }

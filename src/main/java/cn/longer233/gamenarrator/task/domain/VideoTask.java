@@ -348,6 +348,21 @@ public class VideoTask {
         this.failureReason = null;
     }
 
+    public ProcessingStageType retryStage() {
+        if (status == TaskStatus.CANCELLED) {
+            return stages.stream()
+                    .filter(item -> item.getStatus() == StageStatus.PENDING && item.getErrorMessage() != null)
+                    .map(ProcessingStage::getStageType).findFirst()
+                    .orElseThrow(() -> new IllegalStateException("Cancelled task has no resumable stage"));
+        }
+        if (status != TaskStatus.FAILED) {
+            throw new IllegalStateException("Only a failed or cancelled task can be retried");
+        }
+        return stages.stream().filter(item -> item.getStatus() == StageStatus.FAILED)
+                .map(ProcessingStage::getStageType).findFirst()
+                .orElseThrow(() -> new IllegalStateException("Failed task has no failed stage"));
+    }
+
     public void startSceneDetection() {
         this.status = TaskStatus.PROCESSING;
         this.failureReason = null;

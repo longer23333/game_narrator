@@ -39,6 +39,7 @@ class VideoTaskTest {
         task.startSceneDetection();
         task.failSceneDetection("ffmpeg failed");
 
+        assertThat(task.retryStage()).isEqualTo(ProcessingStageType.SCENE_DETECTION);
         task.prepareRetry();
 
         assertThat(task.getStatus()).isEqualTo(TaskStatus.READY);

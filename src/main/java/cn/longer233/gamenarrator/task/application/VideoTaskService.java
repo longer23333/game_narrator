@@ -181,9 +181,11 @@ public class VideoTaskService {
     @Transactional
     public VideoTaskView retry(UUID id) {
         VideoTask task = owned(id);
+        var retryStage = task.retryStage();
+        storageCleanup.cleanupRetryArtifacts(id, retryStage);
         task.prepareRetry();
         repository.save(task);
-        log.info("TASK_RETRY_ACCEPTED taskId={}", id);
+        log.info("TASK_RETRY_ACCEPTED taskId={} stage={} residualArtifactsCleaned=true", id, retryStage);
         TransactionSynchronizationManager.registerSynchronization(new TransactionSynchronization() {
             @Override
             public void afterCommit() {

@@ -21,6 +21,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 import java.util.Collection;
+import cn.longer233.gamenarrator.task.domain.ProcessingStageType;
 
 @Component
 @Order(30)
@@ -78,16 +79,72 @@ public class StorageCleanupService implements ApplicationRunner {
                     "SELECT id,local_path FROM external_asset WHERE provider='PROJECT' AND external_id=?",
                     taskId.toString());
             for (Map<String, Object> asset : projectAssets) {
-                Object localPath = asset.get("LOCAL_PATH");
+                Object localPath = column(asset, "local_path");
                 if (localPath != null) deleteOwned(Path.of(localPath.toString()).toAbsolutePath().normalize(), root);
-                jdbc.update("DELETE FROM asset_tag_override WHERE asset_id=?", asset.get("ID"));
-                jdbc.update("DELETE FROM asset_tag_assignment WHERE asset_id=?", asset.get("ID"));
-                jdbc.update("DELETE FROM external_asset WHERE id=?", asset.get("ID"));
+                Object assetId = column(asset, "id");
+                jdbc.update("DELETE FROM asset_tag_override WHERE asset_id=?", assetId);
+                jdbc.update("DELETE FROM asset_tag_assignment WHERE asset_id=?", assetId);
+                jdbc.update("DELETE FROM external_asset WHERE id=?", assetId);
             }
             log.info("TASK_STORAGE_CLEANUP taskId={} knownArtifacts={}", taskId,
                     knownArtifacts == null ? 0 : knownArtifacts.size());
         } catch (Exception exception) {
             log.warn("TASK_STORAGE_CLEANUP_FAILED taskId={} reason={}", taskId, exception.getMessage());
+        }
+    }
+
+    public void cleanupRetryArtifacts(UUID taskId, ProcessingStageType stage) {
+        try {
+            Path root = SecurePathGuard.prepareRoot(storageRoot);
+            Path taskDirectory = root.resolve("tasks").resolve(taskId.toString()).normalize();
+            if (!SecurePathGuard.isOwned(taskDirectory, root)) {
+                throw new IllegalStateException("Task workspace is outside the configured storage root");
+            }
+            switch (stage) {
+                case VIDEO_INGESTION -> deleteTemporaryArtifacts(taskDirectory, root);
+                case SCENE_DETECTION -> {
+                    deleteOwnedTree(taskDirectory.resolve("scenes"), root);
+                    deleteNames(taskDirectory, root, "speech-16k.wav", "scenes.json", "audio-analysis.json");
+                }
+                case TRANSCRIPTION -> deleteNames(taskDirectory, root,
+                        "transcript.json", "transcript.txt", "transcript.srt", "transcript.vtt");
+                case VIDEO_UNDERSTANDING -> deleteNames(taskDirectory, root, "visual-analysis.json");
+                case HIGHLIGHT_SELECTION -> deleteNames(taskDirectory, root, "highlights.json");
+                case SCRIPT_GENERATION -> deleteNames(taskDirectory, root, "generated-script.json");
+                case VOICE_GENERATION -> {
+                    deleteOwnedTree(taskDirectory.resolve("voice"), root);
+                    deleteNames(taskDirectory, root, "voice-manifest.json");
+                    cleanupTaskNamedFiles(taskDirectory, root, "silence-");
+                }
+                case TIMELINE_PLANNING -> {
+                    deleteNames(taskDirectory, root, "timeline.json");
+                    deleteOwnedTree(taskDirectory.resolve("render-preview"), root);
+                }
+                case RENDERING -> {
+                    deleteOwnedTree(taskDirectory.resolve("render-work"), root);
+                    deleteOwnedTree(taskDirectory.resolve("render-preview"), root);
+                    deleteNames(taskDirectory, root, "effects-manifest.json", "sound-effects-manifest.json",
+                            "generated-subtitles.srt", "generated-subtitles.ass", "final-video.mp4");
+                }
+            }
+            deleteTemporaryArtifacts(taskDirectory, root);
+            log.info("TASK_RETRY_STORAGE_CLEANUP taskId={} stage={}", taskId, stage);
+        } catch (Exception exception) {
+            throw new IllegalStateException("无法清理失败阶段的残留文件：" + exception.getMessage(), exception);
+        }
+    }
+
+    private void deleteNames(Path directory, Path root, String... names) throws Exception {
+        for (String name : names) deleteOwned(directory.resolve(name), root);
+    }
+
+    private void deleteTemporaryArtifacts(Path directory, Path root) throws Exception {
+        if (!Files.isDirectory(directory, LinkOption.NOFOLLOW_LINKS)) return;
+        try (var paths = Files.walk(directory)) {
+            for (Path path : paths.filter(Files::isRegularFile)
+                    .filter(candidate -> candidate.getFileName().toString().endsWith(".tmp")
+                            || candidate.getFileName().toString().endsWith(".part"))
+                    .toList()) deleteOwned(path, root);
         }
     }
 
@@ -171,5 +228,12 @@ public class StorageCleanupService implements ApplicationRunner {
     private boolean deleteOwned(Path path, Path root) throws Exception {
         if (!SecurePathGuard.isOwned(path, root)) return false;
         return Files.deleteIfExists(path);
+    }
+
+    private Object column(Map<String,Object> row,String name) {
+        for (Map.Entry<String,Object> entry : row.entrySet()) {
+            if (entry.getKey().equalsIgnoreCase(name)) return entry.getValue();
+        }
+        return null;
     }
 }
