@@ -26,14 +26,21 @@ services:
       - "9001:9001"
     volumes:
       - game_narrator_objects:/data
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:9000/minio/health/live"]
+      interval: 5s
+      timeout: 3s
+      retries: 20
 
   minio-init:
     image: minio/mc:latest
     depends_on:
-      - minio
+      minio:
+        condition: service_healthy
     entrypoint: >
       /bin/sh -c "until mc alias set local http://minio:9000 game_narrator change-this-local-password; do sleep 2; done;
-      mc mb --ignore-existing local/game-narrator"
+      mc mb --ignore-existing local/game-narrator;
+      mc anonymous set none local/game-narrator"
 
 volumes:
   game_narrator_postgres:

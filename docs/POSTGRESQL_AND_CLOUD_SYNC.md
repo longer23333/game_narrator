@@ -12,7 +12,20 @@
 
 ## 本地 PostgreSQL
 
-启动 PostgreSQL：
+推荐直接运行一键启动脚本。它会检查 Docker Desktop、校验 Compose 配置、启动
+PostgreSQL 与 MinIO、等待健康状态、创建私有存储桶，并以前台方式启动后端：
+
+```powershell
+.\scripts\start-local-cloud.cmd
+```
+
+只启动基础设施、不启动后端：
+
+```powershell
+.\scripts\start-local-cloud.ps1
+```
+
+也可以手动只启动 PostgreSQL：
 
 ```powershell
 docker compose -f docker-compose.postgresql.yml up -d postgres
