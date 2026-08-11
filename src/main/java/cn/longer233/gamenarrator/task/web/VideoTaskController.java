@@ -56,6 +56,12 @@ public class VideoTaskController {
         return service.rename(id, request);
     }
 
+    @PatchMapping("/{id}/priority")
+    public VideoTaskView changePriority(@PathVariable UUID id,
+            @Valid @RequestBody ChangeTaskPriorityRequest request) {
+        return service.changePriority(id, request);
+    }
+
     @DeleteMapping("/{id}")
     @ResponseStatus(HttpStatus.NO_CONTENT)
     public void delete(@PathVariable UUID id) {

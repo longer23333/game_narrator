@@ -1,7 +1,7 @@
 ﻿# GameNarrator — DeepSeek 结构化项目索引
 
-> 自动生成：2026-08-11 16:28:50 +08:00；UTF-8 BOM；索引不再内嵌全部源码。
-> Git：分支 `main`，提交 `b56de8f`；收录文件 735 个，分卷 8 个。
+> 自动生成：2026-08-11 17:00:31 +08:00；UTF-8 BOM；索引不再内嵌全部源码。
+> Git：分支 `main`，提交 `4b07a1b`；收录文件 744 个，分卷 8 个。
 
 ## 使用方法
 
@@ -27,21 +27,21 @@
 
 | 分卷 | 文件数 | 字符数 | 建议用途 |
 |---|---:|---:|---|
-| `deepseek-context/01-foundation.md` | 81 | 121905 | 构建、配置、资源、数据库迁移 |
-| `deepseek-context/02-backend.md` | 275 | 1066262 | Spring 后端实现 |
-| `deepseek-context/03-tests.md` | 88 | 258212 | Spring 测试与行为验证 |
+| `deepseek-context/01-foundation.md` | 83 | 123218 | 构建、配置、资源、数据库迁移 |
+| `deepseek-context/02-backend.md` | 280 | 1086182 | Spring 后端实现 |
+| `deepseek-context/03-tests.md` | 90 | 265648 | Spring 测试与行为验证 |
 | `deepseek-context/04-frontend.md` | 25 | 455102 | Vite Web 源码 |
 | `deepseek-context/05-android-main.md` | 151 | 855263 | Android 实现、资源与 Gradle |
 | `deepseek-context/06-android-tests.md` | 55 | 131882 | Android 单元及设备测试 |
 | `deepseek-context/07-platform-release.md` | 10 | 50333 | Windows、CI/CD 与发布 |
-| `deepseek-context/08-docs-scripts.md` | 50 | 182726 | 需求、架构、维护脚本 |
+| `deepseek-context/08-docs-scripts.md` | 50 | 184125 | 需求、架构、维护脚本 |
 
 ## 当前 Git 工作区（最近修改）
 
 ```text
-M DEEPSEEK_PROJECT_CONTEXT.md
- M docs/ARCHITECTURE.md
- M docs/CONFIGURATION_REFERENCE.md
+M  DEEPSEEK_PROJECT_CONTEXT.md
+M  docs/ARCHITECTURE.md
+M  docs/CONFIGURATION_REFERENCE.md
  M frontend/index.html
  M frontend/package-lock.json
  M frontend/package.json
@@ -50,56 +50,44 @@ M DEEPSEEK_PROJECT_CONTEXT.md
  M frontend/public/extension-install.html
  M frontend/public/media-importer.js
  M frontend/vite.config.js
- M src/main/java/cn/longer233/gamenarrator/ai/AdaptiveAiChatClient.java
  M src/main/java/cn/longer233/gamenarrator/ai/AiSettingsController.java
- M src/main/java/cn/longer233/gamenarrator/diagnostics/SystemDiagnosticsService.java
+A  src/main/java/cn/longer233/gamenarrator/common/ResourceAdmissionException.java
+M  src/main/java/cn/longer233/gamenarrator/common/TaskProcessRegistry.java
  M src/main/java/cn/longer233/gamenarrator/editor/EditorTimelineService.java
- M src/main/java/cn/longer233/gamenarrator/enhancement/TaskEnhancementService.java
  M src/main/java/cn/longer233/gamenarrator/event/BattleNarrativePlanService.java
- M src/main/java/cn/longer233/gamenarrator/event/ConfirmedEventScriptService.java
+M  src/main/java/cn/longer233/gamenarrator/observability/GameNarratorMetrics.java
+A  src/main/java/cn/longer233/gamenarrator/observability/TaskAdmissionController.java
+A  src/main/java/cn/longer233/gamenarrator/observability/TaskResourceBudgetManager.java
+A  src/main/java/cn/longer233/gamenarrator/pipeline/PrioritizedTaskExecutor.java
  M src/main/java/cn/longer233/gamenarrator/pipeline/ProjectArtifactRegistry.java
- M src/main/java/cn/longer233/gamenarrator/pipeline/VideoTaskEngine.java
- M src/main/java/cn/longer233/gamenarrator/pipeline/WaitingTaskRetryScheduler.java
- M src/main/java/cn/longer233/gamenarrator/script/OllamaScriptGenerator.java
- M src/main/java/cn/longer233/gamenarrator/script/ScriptWorkspaceService.java
- M src/main/java/cn/longer233/gamenarrator/transcription/WhisperCppTranscriber.java
- M src/main/java/cn/longer233/gamenarrator/vision/OllamaVisionClient.java
- M src/main/java/cn/longer233/gamenarrator/voice/PiperVoiceGenerator.java
- D src/main/java/cn/longer233/gamenarrator/voice/VoiceGenerator.java
- M src/main/resources/application.yml
+M  src/main/java/cn/longer233/gamenarrator/pipeline/VideoTaskEngine.java
+A  src/main/java/cn/longer233/gamenarrator/task/application/ChangeTaskPriorityRequest.java
+M  src/main/java/cn/longer233/gamenarrator/task/application/VideoTaskService.java
+M  src/main/java/cn/longer233/gamenarrator/task/application/VideoTaskView.java
+M  src/main/java/cn/longer233/gamenarrator/task/domain/VideoTask.java
+M  src/main/java/cn/longer233/gamenarrator/task/web/VideoTaskController.java
+MM src/main/resources/application.yml
+A  src/main/resources/db/migration-postgresql/V38__task_processing_priority.sql
+A  src/main/resources/db/migration/V38__task_processing_priority.sql
  M src/main/resources/static/admin.html
  M src/main/resources/static/app.js
  M src/main/resources/static/extension-install.html
  M src/main/resources/static/index.html
  M src/main/resources/static/media-importer.js
- M src/test/java/cn/longer233/gamenarrator/ai/AdaptiveAiChatClientTest.java
- M src/test/java/cn/longer233/gamenarrator/enhancement/TaskEnhancementServiceTest.java
+A  src/test/java/cn/longer233/gamenarrator/common/TaskResourceBudgetTest.java
  M src/test/java/cn/longer233/gamenarrator/event/BattleNarrativePlanServiceTest.java
- M src/test/java/cn/longer233/gamenarrator/event/ConfirmedEventScriptServiceTest.java
- M src/test/java/cn/longer233/gamenarrator/script/ScriptWorkspaceServiceTest.java
+A  src/test/java/cn/longer233/gamenarrator/pipeline/PrioritizedTaskExecutorTest.java
+M  src/test/java/cn/longer233/gamenarrator/task/DatabaseMigrationTest.java
+M  src/test/java/cn/longer233/gamenarrator/task/web/VideoTaskControllerTest.java
 ?? frontend/postcss.config.js
 ?? frontend/public/admin-refresh.css
 ?? frontend/public/ui-refresh.css
 ?? frontend/src/
 ?? frontend/tailwind.config.js
-?? src/main/java/cn/longer233/gamenarrator/ai/AiChatBackend.java
-?? src/main/java/cn/longer233/gamenarrator/ai/AiResponseJson.java
-?? src/main/java/cn/longer233/gamenarrator/ai/CloudAiChatBackend.java
-?? src/main/java/cn/longer233/gamenarrator/ai/ModelAdapter.java
-?? src/main/java/cn/longer233/gamenarrator/ai/OllamaChatBackend.java
-?? src/main/java/cn/longer233/gamenarrator/script/AdaptiveTextGeneratorAdapter.java
-?? src/main/java/cn/longer233/gamenarrator/script/TextGenerator.java
-?? src/main/java/cn/longer233/gamenarrator/transcription/Transcriber.java
-?? src/main/java/cn/longer233/gamenarrator/transcription/WhisperCppTranscriberAdapter.java
-?? src/main/java/cn/longer233/gamenarrator/vision/OllamaVisionAnalyzerAdapter.java
-?? src/main/java/cn/longer233/gamenarrator/vision/VisionAnalyzer.java
-?? src/main/java/cn/longer233/gamenarrator/voice/PiperVoiceSynthesizerAdapter.java
-?? src/main/java/cn/longer233/gamenarrator/voice/VoiceSynthesizer.java
 ?? src/main/resources/static/admin-refresh.css
 ?? src/main/resources/static/assets/
 ?? src/main/resources/static/ui-refresh.css
 ?? src/test/java/cn/longer233/gamenarrator/StaticResourceCompressionTest.java
-?? src/test/java/cn/longer233/gamenarrator/ai/AdaptiveAiChatRoutingTest.java
 ```
 
 ## Flyway 迁移索引
@@ -141,6 +129,7 @@ M DEEPSEEK_PROJECT_CONTEXT.md
 - `src/main/resources/db/migration/V35__resumable_asset_downloads.sql`
 - `src/main/resources/db/migration/V36__durable_task_file_cleanup.sql`
 - `src/main/resources/db/migration/V37__task_stream_change_tracking.sql`
+- `src/main/resources/db/migration/V38__task_processing_priority.sql`
 
 ## 运行配置索引
 
@@ -243,6 +232,7 @@ M DEEPSEEK_PROJECT_CONTEXT.md
 | PATCH | `/api/admin/management/users/{id}` | `src/main/java/cn/longer233/gamenarrator/admin/AdminManagementController.java` |
 | PATCH | `/api/assets/{id}/state` | `src/main/java/cn/longer233/gamenarrator/asset/AssetCatalogController.java` |
 | PATCH | `/api/tasks/{id}/name` | `src/main/java/cn/longer233/gamenarrator/task/web/VideoTaskController.java` |
+| PATCH | `/api/tasks/{id}/priority` | `src/main/java/cn/longer233/gamenarrator/task/web/VideoTaskController.java` |
 | PATCH | `/api/tasks/{taskId}/editor/revisions/{revisionId}` | `src/main/java/cn/longer233/gamenarrator/editor/ProjectRevisionController.java` |
 | POST | `/api/admin/management/cloud-sync/{id}/retry` | `src/main/java/cn/longer233/gamenarrator/admin/AdminManagementController.java` |
 | POST | `/api/admin/management/projects/{id}/archive` | `src/main/java/cn/longer233/gamenarrator/admin/AdminManagementController.java` |

@@ -168,6 +168,18 @@ public class VideoTaskService {
         return VideoTaskView.from(task);
     }
 
+    @Transactional
+    public VideoTaskView changePriority(UUID id, ChangeTaskPriorityRequest request) {
+        VideoTask task = owned(id);
+        task.changePriority(request.priority());
+        repository.saveAndFlush(task);
+        TransactionSynchronizationManager.registerSynchronization(new TransactionSynchronization() {
+            @Override public void afterCommit() { engine.reprioritize(id, task.getPriority()); }
+        });
+        log.info("TASK_PRIORITY_CHANGED taskId={} priority={}", id, task.getPriority());
+        return VideoTaskView.from(task);
+    }
+
     public void start(UUID id) {
         if (!repository.existsByIdAndOwnerId(id, currentUser.userId())) {
             throw new TaskNotFoundException(id);

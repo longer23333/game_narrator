@@ -169,4 +169,25 @@ class DatabaseMigrationTest {
             assertThat(constraints.next()).isFalse();
         }
     }
+
+    @Test
+    void v38AddsPersistentProcessingPriorityAndQueueIndex() throws Exception {
+        String url = "jdbc:h2:mem:task-priority;DB_CLOSE_DELAY=-1";
+        Flyway.configure().dataSource(url, "sa", "").load().migrate();
+        try (var connection = DriverManager.getConnection(url, "sa", "");
+             var statement = connection.createStatement()) {
+            var column = statement.executeQuery("""
+                    SELECT column_default FROM information_schema.columns
+                    WHERE table_name='VIDEO_TASKS' AND column_name='PROCESSING_PRIORITY'
+                    """);
+            assertThat(column.next()).isTrue();
+            assertThat(column.getString(1)).contains("0");
+            var index = statement.executeQuery("""
+                    SELECT COUNT(*) FROM information_schema.indexes
+                    WHERE table_name='VIDEO_TASKS' AND index_name='IDX_VIDEO_TASKS_PROCESSING_PRIORITY'
+                    """);
+            assertThat(index.next()).isTrue();
+            assertThat(index.getInt(1)).isEqualTo(1);
+        }
+    }
 }

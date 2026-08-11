@@ -63,6 +63,17 @@ Groq、Together、Perplexity 和 Cerebras；Anthropic Messages 与 Google Gemini
 4. `source_media_storage` 只登记文件元数据；FFmpeg、Whisper 和渲染器继续通过路径流式读取文件。
 5. `StorageAdminService` 聚合文件系统容量、源视频表和 artifact 表，清理由已有 `StorageCleanupService` 与 `SecurePathGuard` 统一执行。
 
+## 全局资源预算与优先队列
+
+完整视频流水线不再直接进入通用异步线程池，而是提交到 `PrioritizedTaskExecutor`。任务优先级持久化在
+`video_tasks.processing_priority`，用户可通过 `PATCH /api/tasks/{id}/priority` 在 -100 到 100 范围内
+调整；尚未运行及正在等待资源的任务都会立即重新排序，同优先级保持先进先出。
+
+`TaskProcessRegistry` 除管理外部进程和取消状态外，还管理任务级 CPU、内存和显存租约。
+`TaskAdmissionController` 先调用 `StorageCapacityGuard` 检查源文件及工作空间，再按优先级等待全局计算
+预算。租约覆盖视觉分析、文案生成、配音和渲染整个流水线，并在成功、失败或取消时统一释放，避免本地
+模型与 FFmpeg 同时超额占用资源。预算、预留量、活动数、等待数及流水线队列均通过 Micrometer 暴露。
+
 ## 下一阶段
 
 1. 增加 FFmpeg 元数据读取与镜头切分执行器。

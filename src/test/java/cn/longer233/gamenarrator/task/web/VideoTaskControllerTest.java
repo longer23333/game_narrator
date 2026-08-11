@@ -287,6 +287,25 @@ class VideoTaskControllerTest {
     }
 
     @Test
+    void taskPriorityCanBeChangedAndPersisted() throws Exception {
+        MockMultipartFile video = new MockMultipartFile("video", "priority.mp4", "video/mp4", "video".getBytes());
+        var created = mockMvc.perform(multipart("/api/tasks").file(video)
+                        .param("name", "优先任务").param("gameCategory", "ACTION")
+                        .param("commentaryStyle", "ANIME_THEATER")
+                        .param("targetDurationSeconds", "30").param("taskBrief", "优先完成短视频"))
+                .andExpect(status().isCreated()).andExpect(jsonPath("$.priority").value(0)).andReturn();
+        UUID id = UUID.fromString(objectMapper.readTree(created.getResponse().getContentAsString()).path("id").asText());
+
+        mockMvc.perform(patch("/api/tasks/{id}/priority", id)
+                        .contentType("application/json").content("{\"priority\":80}"))
+                .andExpect(status().isOk()).andExpect(jsonPath("$.priority").value(80));
+
+        assertEquals(80, jdbc.queryForObject("SELECT processing_priority FROM video_tasks WHERE id=?",
+                Integer.class, id));
+        org.mockito.Mockito.verify(videoTaskEngine).reprioritize(id, 80);
+    }
+
+    @Test
     void pipelineStagesAreMirroredIntoVersionedRunTables() throws Exception {
         MockMultipartFile video = new MockMultipartFile("video", "tracked.mp4", "video/mp4",
                 "tracked-video".getBytes());

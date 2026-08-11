@@ -9,7 +9,7 @@
 - 桌面安装版会自动设置运行目录、端口和并发参数，普通用户不需要手工配置这些项目。
 - PostgreSQL、对象存储和云部署的操作步骤另见 `docs/POSTGRESQL_AND_CLOUD_SYNC.md`。
 
-## 完整清单（127 项）
+## 完整清单（135 项）
 
 | 环境变量 | Spring 配置路径/用途 | 默认值 | 敏感 | 来源 |
 |---|---|---|---|---|
@@ -107,6 +107,14 @@
 | `POSTGRES_URL` | spring.datasource.url | `jdbc:postgresql://127.0.0.1:5432/game_narrator` | 否 | application-postgresql.yml |
 | `POSTGRES_USER` | spring.datasource.username | `game_narrator` | 否 | application-postgresql.yml |
 | `REQUIRE_LOGIN` | game-narrator.auth.require-login | `true` | 否 | application-postgresql.yml |
+| `RESOURCE_CPU_UNITS` | game-narrator.resources.cpu-units | `${ASYNC_MAX_POOL_SIZE:4` | 否 | application.yml |
+| `RESOURCE_GPU_MEMORY_BYTES` | game-narrator.resources.gpu-memory-bytes | `7516192768` | 否 | application.yml |
+| `RESOURCE_MEMORY_BYTES` | game-narrator.resources.memory-bytes | `0` | 否 | application.yml |
+| `RESOURCE_TASK_BASE_MEMORY_BYTES` | game-narrator.resources.per-task.base-memory-bytes | `1073741824` | 否 | application.yml |
+| `RESOURCE_TASK_CPU_UNITS` | game-narrator.resources.per-task.cpu-units | `1` | 否 | application.yml |
+| `RESOURCE_TASK_GPU_MEMORY_BYTES` | game-narrator.resources.per-task.local-ai-gpu-memory-bytes | `4294967296` | 否 | application.yml |
+| `RESOURCE_TASK_MAX_MEMORY_BYTES` | game-narrator.resources.per-task.maximum-memory-bytes | `4294967296` | 否 | application.yml |
+| `RESOURCE_TASK_SOURCE_MEMORY_MULTIPLIER` | game-narrator.resources.per-task.source-memory-multiplier | `0.05` | 否 | application.yml |
 | `SCENE_ANALYSIS_FPS` | game-narrator.scene-analysis-fps | `6` | 否 | application.yml |
 | `SCENE_THRESHOLD` | game-narrator.scene-threshold | `0.35` | 否 | application.yml |
 | `SCENE_TIMEOUT_MINUTES` | game-narrator.scene-timeout-minutes | `20` | 否 | application.yml |

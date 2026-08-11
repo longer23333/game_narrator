@@ -41,6 +41,9 @@ public class VideoTask {
     @Column(nullable = false)
     private int targetDurationSeconds;
 
+    @Column(name = "processing_priority", nullable = false)
+    private int priority;
+
     @Enumerated(EnumType.STRING)
     @Column(nullable = false, length = 24)
     private EditingScope editingScope = EditingScope.FULL_VIDEO;
@@ -219,6 +222,7 @@ public class VideoTask {
     public String getGameCategory() { return gameCategory; }
     public CommentaryStyle getCommentaryStyle() { return commentaryStyle; }
     public int getTargetDurationSeconds() { return targetDurationSeconds; }
+    public int getPriority() { return priority; }
     public EditingScope getEditingScope() { return editingScope; }
     public String getTaskBrief() { return taskBrief; }
     public String getTerminologyGlossary() { return terminologyGlossary; }
@@ -292,6 +296,13 @@ public class VideoTask {
             throw new IllegalArgumentException("任务名称长度必须为 1 到 120 个字符");
         }
         this.name = normalized;
+    }
+
+    public void changePriority(int priority) {
+        if (priority < -100 || priority > 100) {
+            throw new IllegalArgumentException("任务优先级必须在 -100 到 100 之间");
+        }
+        this.priority = priority;
     }
 
     public void startIngestion() {

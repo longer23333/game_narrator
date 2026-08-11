@@ -31,7 +31,6 @@ import cn.longer233.gamenarrator.event.GameEventTimelineService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.slf4j.MDC;
-import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 
 import java.nio.file.Path;
@@ -63,15 +62,20 @@ public class VideoTaskEngine {
     private final EffectPresetCatalog effectPresetCatalog;
     private final StoryboardAssetPlacementService storyboardAssets;
     private final GameEventTimelineService gameEvents;
+    private final PrioritizedTaskExecutor prioritizedTasks;
+    private final cn.longer233.gamenarrator.task.repository.VideoTaskRepository taskRepository;
+    private final cn.longer233.gamenarrator.observability.TaskAdmissionController admission;
     private final Set<UUID> deletionRequested = ConcurrentHashMap.newKeySet();
     private final Set<UUID> activeTasks = ConcurrentHashMap.newKeySet();
 
     public void requestDeletion(UUID taskId) {
         deletionRequested.add(taskId);
+        prioritizedTasks.cancelQueued(taskId);
         TaskProcessRegistry.cancel(taskId);
     }
 
     public void requestCancellation(UUID taskId) {
+        prioritizedTasks.cancelQueued(taskId);
         TaskProcessRegistry.cancel(taskId);
     }
 
@@ -93,7 +97,10 @@ public class VideoTaskEngine {
             FfmpegVideoRenderer videoRenderer,
             EffectPresetCatalog effectPresetCatalog,
             StoryboardAssetPlacementService storyboardAssets,
-            GameEventTimelineService gameEvents
+            GameEventTimelineService gameEvents,
+            PrioritizedTaskExecutor prioritizedTasks,
+            cn.longer233.gamenarrator.task.repository.VideoTaskRepository taskRepository,
+            cn.longer233.gamenarrator.observability.TaskAdmissionController admission
     ) {
         this.stateService = stateService;
         this.mediaProbe = mediaProbe;
@@ -113,10 +120,24 @@ public class VideoTaskEngine {
         this.effectPresetCatalog = effectPresetCatalog;
         this.storyboardAssets = storyboardAssets;
         this.gameEvents = gameEvents;
+        this.prioritizedTasks = prioritizedTasks;
+        this.taskRepository = taskRepository;
+        this.admission = admission;
     }
 
-    @Async
     public void start(UUID taskId) {
+        int priority = taskRepository.findById(taskId).map(task -> task.getPriority()).orElse(0);
+        if (!prioritizedTasks.submit(taskId, priority, () -> process(taskId))) {
+            log.debug("ENGINE_SUBMISSION_DUPLICATE_IGNORED taskId={}", taskId);
+        }
+    }
+
+    public void reprioritize(UUID taskId, int priority) {
+        prioritizedTasks.reprioritize(taskId, priority);
+        TaskProcessRegistry.reprioritizeResources(taskId, priority);
+    }
+
+    private void process(UUID taskId) {
         if (!activeTasks.add(taskId)) {
             log.debug("ENGINE_DUPLICATE_IGNORED taskId={}", taskId);
             return;
@@ -124,10 +145,16 @@ public class VideoTaskEngine {
         MDC.put("traceId", "task-" + taskId.toString().substring(0, 8));
         log.info("ENGINE_START taskId={}", taskId);
         String activeStage = "VIDEO_INGESTION";
+        TaskProcessRegistry.ResourceLease resourceLease = null;
         try (TaskProcessRegistry.Scope ignored = TaskProcessRegistry.open(taskId)) {
             checkCancellation(taskId);
             EngineTaskContext context = stateService.context(taskId);
             Path sourcePath = Path.of(context.sourceVideoPath());
+            long sourceBytes;
+            try { sourceBytes = java.nio.file.Files.size(sourcePath); }
+            catch (Exception ignoredSize) { sourceBytes = 0; }
+            int priority = taskRepository.findById(taskId).map(task -> task.getPriority()).orElse(0);
+            resourceLease = admission.admit(taskId, priority, context, sourceBytes);
             if (!context.ingestionCompleted()) {
                 stateService.markIngestionRunning(taskId);
                 MediaMetadata metadata = mediaProbe.inspect(sourcePath);
@@ -355,6 +382,7 @@ public class VideoTaskEngine {
                 stateService.markIngestionFailed(taskId, reason);
             }
         } finally {
+            if (resourceLease != null) resourceLease.close();
             activeTasks.remove(taskId);
             deletionRequested.remove(taskId);
             MDC.remove("traceId");
