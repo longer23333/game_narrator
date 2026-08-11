@@ -66,6 +66,7 @@ internal static class Program {
         private async Task StartAsync() {
             retry.Visible=false; progress.Visible=true;
             try {
+                StopChildren();
                 var root=AppContext.BaseDirectory.TrimEnd(Path.DirectorySeparatorChar);
                 var data=Path.Combine(root,"data");
                 Directory.CreateDirectory(Path.Combine(data,"logs")); Directory.CreateDirectory(Path.Combine(data,"storage"));
@@ -107,8 +108,10 @@ internal static class Program {
                 var downloadProgress=new Progress<int>(value=>{progress.Value=Math.Clamp(value,0,100);status.Text=$"首次运行：正在安装本地 AI 引擎… {value}%";});
                 var ollama = await EnsureOllama(data,downloadProgress);
                 status.Text="正在启动本地 AI 服务…";
-                StartChild(ollama, "serve", root, Path.Combine(data,"logs","ollama.log"));
-                await WaitHttp($"http://127.0.0.1:{OllamaPort}/api/version", TimeSpan.FromSeconds(30));
+                var ollamaLog=Path.Combine(data,"logs","ollama.log");
+                var ollamaProcess=StartChild(ollama, "serve", root, ollamaLog);
+                await WaitHttp($"http://127.0.0.1:{OllamaPort}/api/version", TimeSpan.FromSeconds(30),
+                    "本地 AI 服务", ollamaProcess, ollamaLog);
                 if (!await HasModel()) {
                     status.Text="首次运行：正在下载视觉与文案模型（约 2GB，可断点续传）…";
                     progress.Value=0;
@@ -121,8 +124,10 @@ internal static class Program {
                 }
                 var java=Path.Combine(root,"runtime","bin","java.exe");
                 var jar=Directory.GetFiles(Path.Combine(root,"app"),"*.jar").Single();
-                StartChild(java, $"-Xms64m -Xmx{javaHeapMb}m -XX:+UseG1GC -XX:MaxGCPauseMillis=200 -Dfile.encoding=UTF-8 -jar \"{jar}\" --spring.profiles.active=release", root, Path.Combine(data,"logs","application-console.log"));
-                await WaitHttp($"http://127.0.0.1:{AppPort}/api/debug/health", TimeSpan.FromSeconds(90));
+                var applicationLog=Path.Combine(data,"logs","application-console.log");
+                var applicationProcess=StartChild(java, $"-Xms64m -Xmx{javaHeapMb}m -XX:+UseG1GC -XX:MaxGCPauseMillis=200 -Dfile.encoding=UTF-8 -jar \"{jar}\" --spring.profiles.active=release", root, applicationLog);
+                await WaitHttp($"http://127.0.0.1:{AppPort}/api/debug/health", TimeSpan.FromSeconds(90),
+                    "GameNarrator 后端", applicationProcess, applicationLog);
                 DesktopLog("BACKEND_READY");
                 await OpenDesktopAsync(data);
                 DesktopLog("DESKTOP_READY");
@@ -399,16 +404,33 @@ internal static class Program {
     }
 
     private static async Task PullModel(IProgress<int> progress,string data) {
-        using var client=new HttpClient{Timeout=TimeSpan.FromHours(3)};
+        Exception? last=null;
+        for(var attempt=1;attempt<=3;attempt++) {
+            try { await PullModelOnce(progress,data); return; }
+            catch(Exception ex) {
+                last=ex; DesktopLog($"OLLAMA_PULL_RETRY attempt={attempt} reason={ex.Message}");
+                if(attempt<3) await Task.Delay(TimeSpan.FromSeconds(attempt*3));
+            }
+        }
+        throw new InvalidOperationException("模型下载连续失败 3 次；已保留 Ollama 的分片缓存，重试会继续下载。最后错误："+last?.Message,last);
+    }
+
+    private static async Task PullModelOnce(IProgress<int> progress,string data) {
+        using var totalTimeout=new CancellationTokenSource(TimeSpan.FromHours(3));
+        using var client=new HttpClient{Timeout=Timeout.InfiniteTimeSpan};
         using var request=new HttpRequestMessage(HttpMethod.Post,$"http://127.0.0.1:{OllamaPort}/api/pull") {
             Content=JsonContent.Create(new {name=Model,stream=true})
         };
-        using var response=await client.SendAsync(request,HttpCompletionOption.ResponseHeadersRead);
+        using var response=await client.SendAsync(request,HttpCompletionOption.ResponseHeadersRead,totalTimeout.Token);
         response.EnsureSuccessStatusCode();
-        await using var stream=await response.Content.ReadAsStreamAsync();
+        await using var stream=await response.Content.ReadAsStreamAsync(totalTimeout.Token);
         using var reader=new StreamReader(stream);
         await using var log=new StreamWriter(Path.Combine(data,"logs","model-install.log"),true,Encoding.UTF8){AutoFlush=true};
-        while(await reader.ReadLineAsync() is { } line) {
+        while(true) {
+            string? line;
+            try { line=await reader.ReadLineAsync(totalTimeout.Token).AsTask().WaitAsync(TimeSpan.FromMinutes(5),totalTimeout.Token); }
+            catch(TimeoutException ex) { throw new TimeoutException("模型下载连续 5 分钟没有收到进度，可能是网络中断",ex); }
+            if(line==null) break;
             await log.WriteLineAsync(line);
             using var json=JsonDocument.Parse(line); var root=json.RootElement;
             if(root.TryGetProperty("error",out var error)) throw new InvalidOperationException(error.GetString());
@@ -447,10 +469,22 @@ internal static class Program {
         return exe;
     }
 
-    private static async Task WaitHttp(string url,TimeSpan timeout) {
+    private static async Task WaitHttp(string url,TimeSpan timeout,string service,Process process,string logPath) {
         using var client=new HttpClient{Timeout=TimeSpan.FromSeconds(3)}; var until=DateTime.UtcNow+timeout;
-        while(DateTime.UtcNow<until){try{using var response=await client.GetAsync(url);if(response.IsSuccessStatusCode)return;}catch{} await Task.Delay(700);}
-        throw new TimeoutException("服务启动超时");
+        while(DateTime.UtcNow<until){
+            if(process.HasExited) throw new InvalidOperationException($"{service}启动后立即退出（退出码 {process.ExitCode}）。日志：{TailLog(logPath)}");
+            try{using var response=await client.GetAsync(url);if(response.IsSuccessStatusCode)return;}catch{} await Task.Delay(700);
+        }
+        var port=new Uri(url).Port;
+        throw new TimeoutException($"{service}在 {timeout.TotalSeconds:0} 秒内未就绪（端口 {port}）。可能原因：端口被其他程序抢占、进程卡死或运行组件损坏。日志：{TailLog(logPath)}");
+    }
+    private static string TailLog(string path) {
+        try {
+            if(!File.Exists(path)) return "尚未生成日志";
+            using var stream=new FileStream(path,FileMode.Open,FileAccess.Read,FileShare.ReadWrite);
+            var length=(int)Math.Min(2000,stream.Length); stream.Seek(-length,SeekOrigin.End);
+            using var reader=new StreamReader(stream,Encoding.UTF8,true); return reader.ReadToEnd().ReplaceLineEndings(" ").Trim();
+        } catch(Exception ex) { return "无法读取日志："+ex.Message; }
     }
     private static int FindFreePort(int preferred,params int[] excluded) {
         for(var port=preferred;port<preferred+100;port++) {
