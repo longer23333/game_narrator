@@ -4,6 +4,7 @@ import cn.longer233.gamenarrator.timeline.TimelineSegment;
 import org.springframework.stereotype.Component;
 
 import java.util.List;
+import java.util.ArrayList;
 
 @Component
 public class AssSubtitleBuilder {
@@ -42,9 +43,74 @@ public class AssSubtitleBuilder {
             ass.append("Dialogue: 0,").append(time(segment.outputStartSeconds()))
                     .append(',').append(time(segment.outputEndSeconds()))
                     .append(",Default,,0,0,0,,").append(animation)
-                    .append(wrap(text, 16)).append('\n');
+                    .append(karaoke(wrap(text, 16), segment.outputEndSeconds()
+                            - segment.outputStartSeconds())).append('\n');
         }
         return ass.toString();
+    }
+
+    private String karaoke(String text, double durationSeconds) {
+        List<KaraokeToken> tokens = tokenize(text);
+        double totalWeight = tokens.stream().mapToDouble(KaraokeToken::weight).sum();
+        if (totalWeight <= 0) return text;
+        int totalCentiseconds = Math.max(1, (int) Math.round(Math.max(0, durationSeconds) * 100));
+        StringBuilder result = new StringBuilder(text.length() * 2);
+        double consumedWeight = 0;
+        int allocated = 0;
+        for (KaraokeToken token : tokens) {
+            if (token.weight() <= 0) {
+                result.append(token.text());
+                continue;
+            }
+            consumedWeight += token.weight();
+            int target = (int) Math.round(totalCentiseconds * consumedWeight / totalWeight);
+            int tokenDuration = Math.max(0, target - allocated);
+            allocated = target;
+            result.append("{\\kf").append(tokenDuration).append('}').append(token.text());
+        }
+        return result.toString();
+    }
+
+    private List<KaraokeToken> tokenize(String text) {
+        List<KaraokeToken> tokens = new ArrayList<>();
+        for (int offset = 0; offset < text.length();) {
+            if (offset + 1 < text.length() && text.charAt(offset) == '\\' && text.charAt(offset + 1) == 'N') {
+                tokens.add(new KaraokeToken("\\N", 0));
+                offset += 2;
+                continue;
+            }
+            int codePoint = text.codePointAt(offset);
+            if (Character.isWhitespace(codePoint)) {
+                tokens.add(new KaraokeToken(new String(Character.toChars(codePoint)), 0));
+                offset += Character.charCount(codePoint);
+                continue;
+            }
+            if (codePoint < 128 && Character.isLetterOrDigit(codePoint)) {
+                int end = offset + Character.charCount(codePoint);
+                while (end < text.length()) {
+                    int next = text.codePointAt(end);
+                    if (next >= 128 || (!Character.isLetterOrDigit(next) && next != '\'')) break;
+                    end += Character.charCount(next);
+                }
+                String word = text.substring(offset, end);
+                tokens.add(new KaraokeToken(word, Math.max(1, Math.sqrt(word.length()))));
+                offset = end;
+                continue;
+            }
+            String value = new String(Character.toChars(codePoint));
+            double weight = isPunctuation(codePoint) ? .35 : 1;
+            tokens.add(new KaraokeToken(value, weight));
+            offset += Character.charCount(codePoint);
+        }
+        return tokens;
+    }
+
+    private boolean isPunctuation(int codePoint) {
+        int type = Character.getType(codePoint);
+        return type == Character.CONNECTOR_PUNCTUATION || type == Character.DASH_PUNCTUATION
+                || type == Character.START_PUNCTUATION || type == Character.END_PUNCTUATION
+                || type == Character.INITIAL_QUOTE_PUNCTUATION || type == Character.FINAL_QUOTE_PUNCTUATION
+                || type == Character.OTHER_PUNCTUATION;
     }
 
     private Style style(String theme) {
@@ -81,4 +147,5 @@ public class AssSubtitleBuilder {
     }
 
     private record Style(int fontSize, String primaryColor, boolean bold, int outline, String animation) {}
+    private record KaraokeToken(String text, double weight) {}
 }

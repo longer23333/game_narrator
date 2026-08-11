@@ -1,7 +1,7 @@
 ﻿# GameNarrator — DeepSeek 结构化项目索引
 
-> 自动生成：2026-08-11 09:20:51 +08:00；UTF-8 BOM；索引不再内嵌全部源码。
-> Git：分支 `main`，提交 `cbb795e`；收录文件 669 个，分卷 8 个。
+> 自动生成：2026-08-11 09:28:10 +08:00；UTF-8 BOM；索引不再内嵌全部源码。
+> Git：分支 `main`，提交 `0cf8ac8`；收录文件 669 个，分卷 8 个。
 
 ## 使用方法
 
@@ -27,9 +27,9 @@
 
 | 分卷 | 文件数 | 字符数 | 建议用途 |
 |---|---:|---:|---|
-| `deepseek-context/01-foundation.md` | 72 | 115856 | 构建、配置、资源、数据库迁移 |
-| `deepseek-context/02-backend.md` | 247 | 968307 | Spring 后端实现 |
-| `deepseek-context/03-tests.md` | 74 | 191894 | Spring 测试与行为验证 |
+| `deepseek-context/01-foundation.md` | 72 | 115855 | 构建、配置、资源、数据库迁移 |
+| `deepseek-context/02-backend.md` | 247 | 971587 | Spring 后端实现 |
+| `deepseek-context/03-tests.md` | 74 | 192945 | Spring 测试与行为验证 |
 | `deepseek-context/04-frontend.md` | 17 | 351762 | Vite Web 源码 |
 | `deepseek-context/05-android-main.md` | 151 | 855263 | Android 实现、资源与 Gradle |
 | `deepseek-context/06-android-tests.md` | 55 | 131882 | Android 单元及设备测试 |
@@ -39,66 +39,8 @@
 ## 当前 Git 工作区（最近修改）
 
 ```text
-M DEEPSEEK_PROJECT_CONTEXT.md
- M docs/ACCOUNT_ADMIN_AND_CLOUD_MIGRATION.md
- M docs/FRONTEND_DEVELOPMENT.md
- M frontend/index.html
- M frontend/public/admin.html
- M frontend/public/admin.js
- M frontend/public/app.js
- M frontend/vite.config.js
- M package.json
- M pom.xml
- M src/main/java/cn/longer233/gamenarrator/LocalOnlyServerBindingGuard.java
- M src/main/java/cn/longer233/gamenarrator/admin/AdminManagementController.java
- M src/main/java/cn/longer233/gamenarrator/admin/AdminManagementService.java
- M src/main/java/cn/longer233/gamenarrator/asset/AssetCatalogService.java
- M src/main/java/cn/longer233/gamenarrator/asset/AssetDownloadService.java
- M src/main/java/cn/longer233/gamenarrator/asset/BgeAssetSemanticSearch.java
- M src/main/java/cn/longer233/gamenarrator/common/ExternalProcessRunner.java
- M src/main/java/cn/longer233/gamenarrator/common/PhaseRetryExecutor.java
- M src/main/java/cn/longer233/gamenarrator/community/CommunityResourceService.java
- M src/main/java/cn/longer233/gamenarrator/community/CreativeVariantService.java
- M src/main/java/cn/longer233/gamenarrator/diagnostics/DiagnosticLogService.java
- M src/main/java/cn/longer233/gamenarrator/event/BattleNarrativePlanService.java
- M src/main/java/cn/longer233/gamenarrator/event/GameKnowledgePackService.java
- M src/main/java/cn/longer233/gamenarrator/identity/AuthenticationFilter.java
- M src/main/java/cn/longer233/gamenarrator/identity/LocalSecretCipher.java
- M src/main/java/cn/longer233/gamenarrator/pipeline/PipelineRunTracker.java
- M src/main/java/cn/longer233/gamenarrator/pipeline/ProjectArtifactRegistry.java
- M src/main/java/cn/longer233/gamenarrator/script/StoryboardAssetPlacementService.java
- M src/main/java/cn/longer233/gamenarrator/storage/SourceMediaRegistry.java
- M src/main/java/cn/longer233/gamenarrator/task/application/ProjectHistoryService.java
- M src/main/java/cn/longer233/gamenarrator/task/application/VideoTaskService.java
- M src/main/java/cn/longer233/gamenarrator/task/web/TaskEventStreamService.java
- M src/main/java/cn/longer233/gamenarrator/task/web/VideoTaskController.java
- M src/main/java/cn/longer233/gamenarrator/vision/VideoSegmentSemanticIndex.java
- M src/main/resources/static/admin.html
- M src/main/resources/static/admin.js
- M src/main/resources/static/app.js
- M src/main/resources/static/index.html
- M src/test/java/cn/longer233/gamenarrator/LocalOnlyServerBindingGuardTest.java
- M src/test/java/cn/longer233/gamenarrator/common/ExternalProcessRunnerTest.java
- M src/test/java/cn/longer233/gamenarrator/diagnostics/DiagnosticLogServiceTest.java
- M src/test/java/cn/longer233/gamenarrator/task/web/VideoTaskControllerTest.java
-?? docker-compose.postgresql.yml
-?? docs/POSTGRESQL_AND_CLOUD_SYNC.md
-?? scripts/build-postgresql-migrations.ps1
-?? src/main/java/cn/longer233/gamenarrator/admin/AdminPage.java
-?? src/main/java/cn/longer233/gamenarrator/cloud/
-?? src/main/java/cn/longer233/gamenarrator/common/PortableUpsert.java
-?? src/main/java/cn/longer233/gamenarrator/task/application/TaskTrashService.java
-?? src/main/java/cn/longer233/gamenarrator/task/web/TaskStreamMessage.java
-?? src/main/resources/application-postgresql.yml
-?? src/main/resources/db/migration-postgresql/
-?? src/main/resources/db/migration/V31__cloud_sync_execution.sql
-?? src/main/resources/db/migration/V32__task_recycle_bin.sql
-?? src/test/java/cn/longer233/gamenarrator/admin/
-?? src/test/java/cn/longer233/gamenarrator/cloud/
-?? src/test/java/cn/longer233/gamenarrator/common/PhaseRetryExecutorTest.java
-?? src/test/java/cn/longer233/gamenarrator/common/PortableUpsertTest.java
-?? src/test/java/cn/longer233/gamenarrator/identity/LocalSecretCipherTest.java
-?? src/test/java/cn/longer233/gamenarrator/task/web/TaskEventStreamServiceTest.java
+M src/main/java/cn/longer233/gamenarrator/subtitle/AssSubtitleBuilder.java
+ M src/test/java/cn/longer233/gamenarrator/subtitle/AssSubtitleBuilderTest.java
 ```
 
 ## Flyway 迁移索引
