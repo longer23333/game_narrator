@@ -3,6 +3,7 @@ package cn.longer233.gamenarrator.task.domain;
 import jakarta.persistence.*;
 import org.hibernate.annotations.JdbcTypeCode;
 import org.hibernate.annotations.SQLRestriction;
+import org.hibernate.annotations.UpdateTimestamp;
 import org.hibernate.type.SqlTypes;
 import java.time.Instant;
 import java.util.ArrayList;
@@ -154,6 +155,10 @@ public class VideoTask {
 
     @Column(nullable = false, updatable = false)
     private Instant createdAt;
+
+    @UpdateTimestamp
+    @Column(nullable = false)
+    private Instant updatedAt;
 
     private Instant deletedAt;
 

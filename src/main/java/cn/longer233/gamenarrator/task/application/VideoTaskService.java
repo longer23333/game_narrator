@@ -155,6 +155,11 @@ public class VideoTaskService {
     }
 
     @Transactional
+    public cn.longer233.gamenarrator.task.repository.TaskListRevision taskListRevision(UUID ownerId) {
+        return repository.taskListRevision(ownerId);
+    }
+
+    @Transactional
     public VideoTaskView rename(UUID id, RenameTaskRequest request) {
         VideoTask task = owned(id);
         task.rename(request.name());

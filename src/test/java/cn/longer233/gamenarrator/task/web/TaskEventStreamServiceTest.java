@@ -3,15 +3,17 @@ package cn.longer233.gamenarrator.task.web;
 import cn.longer233.gamenarrator.identity.CurrentUserContext;
 import cn.longer233.gamenarrator.task.application.VideoTaskService;
 import cn.longer233.gamenarrator.task.application.VideoTaskView;
+import cn.longer233.gamenarrator.task.repository.TaskListRevision;
 import org.junit.jupiter.api.Test;
 
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
+import java.time.Instant;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.Mockito.atLeast;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -42,12 +44,37 @@ class TaskEventStreamServiceTest {
         CurrentUserContext currentUser = mock(CurrentUserContext.class);
         when(currentUser.userId()).thenReturn(owner);
         when(tasks.findAllForOwner(owner)).thenReturn(List.of());
+        when(tasks.taskListRevision(owner)).thenReturn(new TaskListRevision(0, null, null));
         TaskEventStreamService service = new TaskEventStreamService(tasks, currentUser);
 
         service.subscribe();
         service.publishChanges();
+        service.publishChanges();
 
-        verify(tasks, atLeast(2)).findAllForOwner(owner);
+        verify(tasks, times(2)).findAllForOwner(owner);
+        verify(tasks, times(2)).taskListRevision(owner);
+    }
+
+    @Test
+    void unchangedRevisionSkipsFullTaskListReload() {
+        UUID owner = UUID.randomUUID();
+        VideoTaskService tasks = mock(VideoTaskService.class);
+        CurrentUserContext currentUser = mock(CurrentUserContext.class);
+        TaskListRevision revision = new TaskListRevision(1, Instant.parse("2026-08-11T00:00:00Z"),
+                Instant.parse("2026-08-11T00:00:01Z"));
+        VideoTaskView existing = task(UUID.randomUUID());
+        when(currentUser.userId()).thenReturn(owner);
+        when(tasks.findAllForOwner(owner)).thenReturn(List.of(existing));
+        when(tasks.taskListRevision(owner)).thenReturn(revision);
+        TaskEventStreamService service = new TaskEventStreamService(tasks, currentUser);
+
+        service.subscribe();
+        service.publishChanges();
+        service.publishChanges();
+        service.publishChanges();
+
+        verify(tasks, times(2)).findAllForOwner(owner);
+        verify(tasks, times(3)).taskListRevision(owner);
     }
 
     private VideoTaskView task(UUID id) {

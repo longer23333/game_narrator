@@ -9,6 +9,30 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 class DatabaseMigrationTest {
     @Test
+    void latestMigrationAddsIndexedTaskStreamChangeTracking() throws Exception {
+        String url = "jdbc:h2:mem:task-stream-tracking;DB_CLOSE_DELAY=-1";
+        Flyway.configure().dataSource(url, "sa", "").load().migrate();
+        try (var connection = DriverManager.getConnection(url, "sa", "");
+             var statement = connection.createStatement()) {
+            var columns = statement.executeQuery("""
+                    SELECT table_name,column_name FROM information_schema.columns
+                    WHERE (table_name='VIDEO_TASKS' OR table_name='PROCESSING_STAGES')
+                      AND column_name='UPDATED_AT'
+                    """);
+            int columnCount = 0;
+            while (columns.next()) columnCount++;
+            assertThat(columnCount).isEqualTo(2);
+            var indexes = statement.executeQuery("""
+                    SELECT index_name FROM information_schema.indexes
+                    WHERE index_name IN ('IDX_VIDEO_TASKS_OWNER_UPDATED','IDX_PROCESSING_STAGES_TASK_UPDATED')
+                    """);
+            int indexCount = 0;
+            while (indexes.next()) indexCount++;
+            assertThat(indexCount).isEqualTo(2);
+        }
+    }
+
+    @Test
     void latestMigrationAddsVideoTaskOptimisticLockVersion() throws Exception {
         String url = "jdbc:h2:mem:task-version;DB_CLOSE_DELAY=-1";
         Flyway.configure().dataSource(url, "sa", "").load().migrate();

@@ -1,6 +1,9 @@
 package cn.longer233.gamenarrator.task.domain;
 
 import jakarta.persistence.*;
+import org.hibernate.annotations.UpdateTimestamp;
+
+import java.time.Instant;
 import java.util.UUID;
 
 @Entity
@@ -31,6 +34,10 @@ public class ProcessingStage {
 
     @Column(length = 1000)
     private String errorMessage;
+
+    @UpdateTimestamp
+    @Column(nullable = false)
+    private Instant updatedAt;
 
     protected ProcessingStage() {
     }

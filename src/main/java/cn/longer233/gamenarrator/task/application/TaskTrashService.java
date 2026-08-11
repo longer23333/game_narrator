@@ -35,7 +35,7 @@ public class TaskTrashService {
 
     @Transactional
     public VideoTaskView restore(UUID id) {
-        int changed=jdbc.update("UPDATE video_tasks SET deleted_at=NULL WHERE id=? AND owner_id=? AND deleted_at IS NOT NULL",id,current.userId());
+        int changed=jdbc.update("UPDATE video_tasks SET deleted_at=NULL,updated_at=CURRENT_TIMESTAMP WHERE id=? AND owner_id=? AND deleted_at IS NOT NULL",id,current.userId());
         if(changed==0) throw new IllegalArgumentException("回收站中不存在该任务");
         jdbc.update("UPDATE video_project SET deleted_at=NULL,updated_at=CURRENT_TIMESTAMP,version=version+1 WHERE id=? AND owner_id=?",id,current.userId());
         return VideoTaskView.from(repository.findByIdAndOwnerId(id,current.userId()).orElseThrow());

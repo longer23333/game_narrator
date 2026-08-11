@@ -54,7 +54,7 @@
 
 ## 2026-08-04 cleanup and push-update pass
 
-- One shared SSE stream now publishes changed task snapshots once per second for all browser clients; polling remains only as an automatic compatibility fallback.
+- One shared SSE stream publishes task deltas for all browser clients; its one-second scheduler first compares an indexed owner-level task/stage revision token and only rebuilds full task views when that token changes. Heartbeats and polling fallback remain available without repeatedly serializing an unchanged task list.
 - Crash-left `.tmp` files and stale `import-downloads` entries are cleaned at startup and hourly after 24 hours, with every deletion constrained by `SecurePathGuard`.
 - Expired export artifacts are physically removed and marked deleted/expired in the database.
 - Remote thumbnail retention defaults to 30 minutes.

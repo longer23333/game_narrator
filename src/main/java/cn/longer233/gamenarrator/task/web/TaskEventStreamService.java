@@ -3,6 +3,7 @@ package cn.longer233.gamenarrator.task.web;
 import cn.longer233.gamenarrator.identity.CurrentUserContext;
 import cn.longer233.gamenarrator.task.application.VideoTaskService;
 import cn.longer233.gamenarrator.task.application.VideoTaskView;
+import cn.longer233.gamenarrator.task.repository.TaskListRevision;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 import org.springframework.web.servlet.mvc.method.annotation.SseEmitter;
@@ -12,6 +13,7 @@ import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.UUID;
 import java.util.concurrent.CopyOnWriteArrayList;
 
@@ -31,7 +33,7 @@ public class TaskEventStreamService {
         SseEmitter emitter = new SseEmitter(0L);
         UUID ownerId = currentUser.userId();
         List<VideoTaskView> snapshot = tasks.findAllForOwner(ownerId);
-        Client client = new Client(ownerId, emitter, index(snapshot), System.currentTimeMillis());
+        Client client = new Client(ownerId, emitter, index(snapshot), null, System.currentTimeMillis());
         clients.add(client);
         emitter.onCompletion(() -> clients.remove(client));
         emitter.onTimeout(() -> clients.remove(client));
@@ -47,21 +49,32 @@ public class TaskEventStreamService {
         clients.forEach(client -> byOwner.computeIfAbsent(client.ownerId, ignored -> new ArrayList<>()).add(client));
         long now = System.currentTimeMillis();
         byOwner.forEach((ownerId, ownerClients) -> {
+            TaskListRevision revision = tasks.taskListRevision(ownerId);
+            if (ownerClients.stream().allMatch(client -> Objects.equals(revision, client.revision))) {
+                ownerClients.forEach(client -> sendHeartbeatIfDue(client, now));
+                return;
+            }
             List<VideoTaskView> snapshot = tasks.findAllForOwner(ownerId);
             Map<UUID, VideoTaskView> current = index(snapshot);
             for (Client client : ownerClients) {
                 TaskStreamMessage delta = diff(client.tasks, current, now);
                 if (delta.tasks().isEmpty() && delta.removedIds().isEmpty()) {
-                    if (now - client.lastSentAt >= HEARTBEAT_MILLIS
-                            && send(client, TaskStreamMessage.heartbeat(now))) client.lastSentAt = now;
+                    client.revision = revision;
+                    sendHeartbeatIfDue(client, now);
                     continue;
                 }
                 if (send(client, delta)) {
                     client.tasks = current;
+                    client.revision = revision;
                     client.lastSentAt = now;
                 }
             }
         });
+    }
+
+    private void sendHeartbeatIfDue(Client client, long now) {
+        if (now - client.lastSentAt >= HEARTBEAT_MILLIS
+                && send(client, TaskStreamMessage.heartbeat(now))) client.lastSentAt = now;
     }
 
     static TaskStreamMessage diff(Map<UUID, VideoTaskView> previous,
@@ -94,12 +107,15 @@ public class TaskEventStreamService {
         private final UUID ownerId;
         private final SseEmitter emitter;
         private volatile Map<UUID, VideoTaskView> tasks;
+        private volatile TaskListRevision revision;
         private volatile long lastSentAt;
 
-        private Client(UUID ownerId, SseEmitter emitter, Map<UUID, VideoTaskView> tasks, long lastSentAt) {
+        private Client(UUID ownerId, SseEmitter emitter, Map<UUID, VideoTaskView> tasks,
+                       TaskListRevision revision, long lastSentAt) {
             this.ownerId = ownerId;
             this.emitter = emitter;
             this.tasks = tasks;
+            this.revision = revision;
             this.lastSentAt = lastSentAt;
         }
     }
