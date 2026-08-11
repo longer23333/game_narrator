@@ -7,6 +7,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import org.flywaydb.core.Flyway;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.io.TempDir;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.datasource.DriverManagerDataSource;
 
@@ -18,14 +19,17 @@ import java.util.Optional;
 import java.util.UUID;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.Mockito.clearInvocations;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.verifyNoInteractions;
 import static org.mockito.Mockito.when;
 
 class GameEventTimelineServiceTest {
     @TempDir Path temp;
 
     @Test
-    void buildsExplainableBossEventAndRequiresManualConfirmation() throws Exception {
+    void buildsExplainableBossEventAndRegeneratesOnlyAfterARealConfirmedFactChange() throws Exception {
         String url = "jdbc:h2:mem:event-service;DB_CLOSE_DELAY=-1";
         DriverManagerDataSource dataSource = new DriverManagerDataSource(url, "sa", "");
         Flyway.configure().dataSource(dataSource).load().migrate();
@@ -53,7 +57,8 @@ class GameEventTimelineServiceTest {
                 "anchorSeconds":42.0,"eventType":"战斗","description":"Boss 战结束","sourceScore":92,
                 "finalScore":95,"locked":false,"excluded":false}]}
                 """);
-        GameEventTimelineService service = new GameEventTimelineService(jdbc, mapper, repository);
+        ApplicationEventPublisher publisher = mock(ApplicationEventPublisher.class);
+        GameEventTimelineService service = new GameEventTimelineService(jdbc, mapper, repository, null, publisher);
 
         var events = service.rebuild(taskId, visual, highlights);
 
@@ -64,8 +69,13 @@ class GameEventTimelineServiceTest {
                 .contains("FRAME_DESCRIPTION", "OCR", "HIGHLIGHT_SCORE");
         assertThat(service.confirmedFacts(taskId)).isEmpty();
 
-        service.update(taskId, events.getFirst().id(), new UpdateGameEventRequest(
+        GameEventView confirmed = service.update(taskId, events.getFirst().id(), new UpdateGameEventRequest(
                 "BOSS_DEFEATED", "Boss 已被击败并进入结算", 100, "CONFIRMED"));
+        verify(publisher).publishEvent(new ConfirmedGameEventChanged(taskId, events.getFirst().id()));
+        clearInvocations(publisher);
+        service.update(taskId, events.getFirst().id(), new UpdateGameEventRequest(
+                confirmed.eventType(), confirmed.description(), confirmed.importance(), confirmed.confirmationStatus()));
+        verifyNoInteractions(publisher);
         assertThat(service.confirmedFacts(taskId)).singleElement()
                 .satisfies(fact -> assertThat(fact.description()).contains("进入结算"));
     }

@@ -33,6 +33,7 @@ public class VideoTaskService {
     private final cn.longer233.gamenarrator.observability.StorageCapacityGuard capacityGuard;
     private final cn.longer233.gamenarrator.storage.SourceMediaRegistry sourceMediaRegistry;
     private final cn.longer233.gamenarrator.identity.CurrentUserContext currentUser;
+    private final cn.longer233.gamenarrator.cloud.CloudSyncService cloudSync;
 
     public VideoTaskService(
             VideoTaskRepository repository,
@@ -44,7 +45,8 @@ public class VideoTaskService {
             @org.springframework.beans.factory.annotation.Value("${game-narrator.storage-root}") String storageRoot,
             cn.longer233.gamenarrator.observability.StorageCapacityGuard capacityGuard,
             cn.longer233.gamenarrator.storage.SourceMediaRegistry sourceMediaRegistry,
-            cn.longer233.gamenarrator.identity.CurrentUserContext currentUser
+            cn.longer233.gamenarrator.identity.CurrentUserContext currentUser,
+            cn.longer233.gamenarrator.cloud.CloudSyncService cloudSync
     ) {
         this.repository = repository;
         this.storage = storage;
@@ -56,6 +58,7 @@ public class VideoTaskService {
         this.capacityGuard = capacityGuard;
         this.sourceMediaRegistry = sourceMediaRegistry;
         this.currentUser = currentUser;
+        this.cloudSync = cloudSync;
     }
 
     @Transactional
@@ -159,6 +162,7 @@ public class VideoTaskService {
         if (!repository.existsByIdAndOwnerId(id, currentUser.userId())) {
             throw new TaskNotFoundException(id);
         }
+        sourceVideo(id);
         log.info("TASK_MANUAL_START taskId={}", id);
         engine.start(id);
     }
@@ -190,6 +194,22 @@ public class VideoTaskService {
     }
 
     @Transactional
+    public void regenerateAfterConfirmedEventChange(UUID id) {
+        VideoTask task = repository.findById(id).orElseThrow(() -> new TaskNotFoundException(id));
+        if (task.isAwaitingScriptRegeneration()) {
+            log.info("TASK_EVENT_REGENERATION_COALESCED taskId={}", id);
+            return;
+        }
+        task.invalidateAfterConfirmedEventChange();
+        repository.save(task);
+        log.info("TASK_INVALIDATED_BY_CONFIRMED_EVENT taskId={} restartStage=SCRIPT_GENERATION", id);
+        TransactionSynchronizationManager.registerSynchronization(new TransactionSynchronization() {
+            @Override
+            public void afterCommit() { engine.start(id); }
+        });
+    }
+
+    @Transactional
     public VideoTaskView approveStoryboard(UUID id) {
         VideoTask task = owned(id);
         task.approveStoryboard();
@@ -216,7 +236,8 @@ public class VideoTaskService {
         }
         Path output = Path.of(task.getRenderedVideoPath()).toAbsolutePath().normalize();
         if (!Files.isRegularFile(output)) {
-            throw new IllegalStateException("最终视频文件不存在：" + output);
+            output = cloudSync.restoreLatestArtifact(id, "RENDERED_VIDEO",
+                    storageRoot.resolve("tasks").resolve(id.toString()).resolve("cloud-rendered.mp4"));
         }
         return output;
     }
@@ -226,7 +247,8 @@ public class VideoTaskService {
         VideoTask task = owned(id);
         Path source = Path.of(task.getSourceVideoPath()).toAbsolutePath().normalize();
         if (!source.startsWith(storageRoot) || !Files.isRegularFile(source)) {
-            throw new IllegalStateException("源视频文件不存在或不属于任务存储目录");
+            source = cloudSync.restoreSource(id,
+                    storageRoot.resolve("sources").resolve(id + ".cloud-media"));
         }
         return source;
     }
@@ -240,30 +262,10 @@ public class VideoTaskService {
             cn.longer233.gamenarrator.common.TaskProcessRegistry.cancelAndAwait(id,
                     java.time.Duration.ofSeconds(5));
         }
-        boolean sharedSource = task.getSourceVideoPath() != null
-                && repository.countBySourceVideoPath(task.getSourceVideoPath()) > 1;
-        List<String> paths = java.util.stream.Stream.of(sharedSource ? null : task.getSourceVideoPath(), task.getExtractedAudioPath(),
-                task.getSceneManifestPath(), task.getTranscriptTextPath(), task.getSubtitlePath(),
-                task.getTranscriptJsonPath(), task.getVisualAnalysisPath(), task.getHighlightManifestPath(),
-                task.getGeneratedScriptPath(), task.getVoiceManifestPath(), task.getTimelinePath(),
-                task.getGeneratedSubtitlePath(), task.getRenderedVideoPath())
-                .filter(java.util.Objects::nonNull).filter(value -> !value.isBlank()).toList();
-        List<String> ownedPaths = new java.util.ArrayList<>(paths);
-        if (task.getSourceVideoPath() != null && !sharedSource) {
-            Path source = Path.of(task.getSourceVideoPath());
-            ownedPaths.add(source.resolveSibling(source.getFileName() + ".platform.srt").toString());
-            ownedPaths.add(source.resolveSibling(source.getFileName() + ".platform.txt").toString());
-            ownedPaths.add(source.resolveSibling(source.getFileName() + ".platform.srt.analysis.json").toString());
-        }
-        repository.delete(task);
-        repository.flush();
-        TransactionSynchronizationManager.registerSynchronization(new TransactionSynchronization() {
-            @Override
-            public void afterCommit() {
-                storageCleanup.cleanupTask(id, ownedPaths);
-                log.info("TASK_DELETED taskId={} artifactCandidates={}", id, ownedPaths.size());
-            }
-        });
+        task.moveToTrash();
+        projectHistoryService.moveProjectToTrash(id);
+        repository.saveAndFlush(task);
+        log.info("TASK_MOVED_TO_TRASH taskId={}", id);
     }
 
     private VideoTask owned(UUID id) {

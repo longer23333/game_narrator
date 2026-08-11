@@ -12,6 +12,7 @@ import jakarta.transaction.Transactional;
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jdbc.core.JdbcTemplate;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Service;
 
 import java.io.InputStream;
@@ -35,19 +36,22 @@ public class GameEventTimelineService {
     private final VideoTaskRepository tasks;
     private final BossBattleKnowledgePack knowledgePack;
     private final GameKnowledgePackService knowledgePacks;
+    private final ApplicationEventPublisher eventPublisher;
 
     public GameEventTimelineService(JdbcTemplate jdbc, ObjectMapper objectMapper, VideoTaskRepository tasks) {
-        this(jdbc, objectMapper, tasks, null);
+        this(jdbc, objectMapper, tasks, null, null);
     }
 
     @Autowired
     public GameEventTimelineService(JdbcTemplate jdbc, ObjectMapper objectMapper, VideoTaskRepository tasks,
-                                    GameKnowledgePackService knowledgePacks) {
+                                    GameKnowledgePackService knowledgePacks,
+                                    ApplicationEventPublisher eventPublisher) {
         this.jdbc = jdbc;
         this.objectMapper = objectMapper;
         this.tasks = tasks;
         this.knowledgePack = loadKnowledgePack(objectMapper);
         this.knowledgePacks = knowledgePacks;
+        this.eventPublisher = eventPublisher;
     }
 
     @Transactional
@@ -100,17 +104,34 @@ public class GameEventTimelineService {
     @Transactional
     public GameEventView update(UUID taskId, UUID eventId, UpdateGameEventRequest request) {
         requireTask(taskId);
+        PreviousEventState previous = jdbc.query("""
+                SELECT event_type,description,highlight_score,confirmation_status
+                FROM game_events WHERE id=? AND task_id=?
+                """, (rs, rowNum) -> new PreviousEventState(rs.getString("event_type"),
+                        rs.getString("description"), rs.getInt("highlight_score"),
+                        rs.getString("confirmation_status")), eventId, taskId).stream().findFirst()
+                .orElseThrow(() -> new IllegalArgumentException("游戏事件不存在"));
         int changed = jdbc.update("""
                 UPDATE game_events SET event_type=?,description=?,highlight_score=?,confirmation_status=?,
                     manually_edited=TRUE,updated_at=? WHERE id=? AND task_id=?
                 """, request.eventType().trim(), request.description().trim(), request.importance(),
                 request.confirmationStatus(), OffsetDateTime.now(), eventId, taskId);
         if (changed == 0) throw new IllegalArgumentException("游戏事件不存在");
-        return jdbc.query("""
+        GameEventView updated = jdbc.query("""
                 SELECT id,task_id,start_seconds,end_seconds,anchor_seconds,event_type,confidence,
                        highlight_score,description,evidence_json,confirmation_status,manually_edited,
                        knowledge_pack_code,updated_at FROM game_events WHERE id=? AND task_id=?
                 """, (rs, rowNum) -> map(rs), eventId, taskId).getFirst();
+        boolean changedConfirmedFact = ("CONFIRMED".equals(previous.confirmationStatus())
+                || "CONFIRMED".equals(request.confirmationStatus()))
+                && (!previous.eventType().equals(request.eventType().trim())
+                    || !previous.description().equals(request.description().trim())
+                    || previous.importance() != request.importance()
+                    || !previous.confirmationStatus().equals(request.confirmationStatus()));
+        if (eventPublisher != null && changedConfirmedFact) {
+            eventPublisher.publishEvent(new ConfirmedGameEventChanged(taskId, eventId));
+        }
+        return updated;
     }
 
     @Transactional
@@ -189,4 +210,7 @@ public class GameEventTimelineService {
         for (String value : values) if (value != null && !value.isBlank()) return value.trim();
         return "";
     }
+
+    private record PreviousEventState(String eventType, String description, int importance,
+                                      String confirmationStatus) { }
 }

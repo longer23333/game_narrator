@@ -1,6 +1,9 @@
 package cn.longer233.gamenarrator.task.domain;
 
 import jakarta.persistence.*;
+import org.hibernate.annotations.JdbcTypeCode;
+import org.hibernate.annotations.SQLRestriction;
+import org.hibernate.type.SqlTypes;
 import java.time.Instant;
 import java.util.ArrayList;
 import java.util.List;
@@ -8,6 +11,7 @@ import java.util.UUID;
 
 @Entity
 @Table(name = "video_tasks")
+@SQLRestriction("deleted_at IS NULL")
 public class VideoTask {
 
     @Id
@@ -75,7 +79,7 @@ public class VideoTask {
 
     private Integer detectedSceneCount;
 
-    @Lob
+    @JdbcTypeCode(SqlTypes.LONG32VARCHAR)
     private String transcriptText;
 
     @Column(length = 500)
@@ -87,7 +91,7 @@ public class VideoTask {
     @Column(length = 500)
     private String transcriptJsonPath;
 
-    @Lob
+    @JdbcTypeCode(SqlTypes.LONG32VARCHAR)
     private String visualSummary;
 
     @Column(length = 500)
@@ -95,7 +99,7 @@ public class VideoTask {
 
     private Integer analyzedFrameCount;
 
-    @Lob
+    @JdbcTypeCode(SqlTypes.LONG32VARCHAR)
     private String highlightSummary;
 
     @Column(length = 500)
@@ -106,10 +110,10 @@ public class VideoTask {
     @Column(length = 200)
     private String generatedTitle;
 
-    @Lob
+    @JdbcTypeCode(SqlTypes.LONG32VARCHAR)
     private String scriptSynopsis;
 
-    @Lob
+    @JdbcTypeCode(SqlTypes.LONG32VARCHAR)
     private String generatedNarration;
 
     @Column(length = 500)
@@ -150,6 +154,8 @@ public class VideoTask {
 
     @Column(nullable = false, updatable = false)
     private Instant createdAt;
+
+    private Instant deletedAt;
 
     @OneToMany(mappedBy = "task", cascade = CascadeType.ALL, orphanRemoval = true)
     @OrderBy("sequenceNumber ASC")
@@ -214,6 +220,8 @@ public class VideoTask {
     public String getSourceVideoPath() { return sourceVideoPath; }
     public TaskStatus getStatus() { return status; }
     public Instant getCreatedAt() { return createdAt; }
+    public Instant getDeletedAt() { return deletedAt; }
+    public void moveToTrash() { this.deletedAt = Instant.now(); }
     public List<ProcessingStage> getStages() { return List.copyOf(stages); }
     public Double getDurationSeconds() { return durationSeconds; }
     public Integer getVideoWidth() { return videoWidth; }
@@ -463,6 +471,34 @@ public class VideoTask {
         this.generatedScriptSegmentCount = segmentCount;
         stage(ProcessingStageType.SCRIPT_GENERATION).complete();
         invalidateAfterScript();
+    }
+
+    public void invalidateAfterConfirmedEventChange() {
+        this.generatedTitle = null;
+        this.scriptSynopsis = null;
+        this.generatedNarration = null;
+        this.generatedScriptPath = null;
+        this.generatedScriptSegmentCount = null;
+        this.voiceManifestPath = null;
+        this.generatedVoiceSegmentCount = null;
+        this.timelinePath = null;
+        this.plannedOutputDurationSeconds = null;
+        this.voiceOverflowCount = null;
+        this.renderedVideoPath = null;
+        this.generatedSubtitlePath = null;
+        this.renderedFileSizeBytes = null;
+        stage(ProcessingStageType.SCRIPT_GENERATION).reset();
+        stage(ProcessingStageType.VOICE_GENERATION).reset();
+        stage(ProcessingStageType.TIMELINE_PLANNING).reset();
+        stage(ProcessingStageType.RENDERING).reset();
+        this.status = TaskStatus.READY;
+        this.failureReason = null;
+    }
+
+    public boolean isAwaitingScriptRegeneration() {
+        StageStatus scriptStatus = stage(ProcessingStageType.SCRIPT_GENERATION).getStatus();
+        return this.generatedScriptPath == null
+                && (scriptStatus == StageStatus.PENDING || scriptStatus == StageStatus.RUNNING);
     }
 
     public void failScriptGeneration(String reason) {

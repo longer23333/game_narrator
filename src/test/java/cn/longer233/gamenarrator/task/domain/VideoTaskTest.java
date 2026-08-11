@@ -118,4 +118,30 @@ class VideoTaskTest {
         assertThat(task.getStatus()).isEqualTo(TaskStatus.READY);
         assertThat(task.isStoryboardApproved()).isTrue();
     }
+
+    @Test
+    void confirmedEventChangeInvalidatesScriptVoiceTimelineAndRender() {
+        VideoTask task = new VideoTask("Event edit", "ACTION", CommentaryStyle.ANIME_THEATER,
+                90, "brief", "storage/demo.mp4");
+        task.startScriptGeneration();
+        task.completeScriptGeneration("title", "synopsis", "narration", "script.json", 1);
+        task.startVoiceGeneration();
+        task.completeVoiceGeneration("voice.json", 1);
+        task.startTimelinePlanning();
+        task.completeTimelinePlanning("timeline.json", 20, 0);
+        task.startRendering();
+        task.completeRendering("output.mp4", "subtitle.ass", 100);
+
+        task.invalidateAfterConfirmedEventChange();
+
+        assertThat(task.getStatus()).isEqualTo(TaskStatus.READY);
+        assertThat(task.getGeneratedScriptPath()).isNull();
+        assertThat(task.getVoiceManifestPath()).isNull();
+        assertThat(task.getTimelinePath()).isNull();
+        assertThat(task.getRenderedVideoPath()).isNull();
+        assertThat(task.isAwaitingScriptRegeneration()).isTrue();
+        assertThat(task.getStages().stream()
+                .filter(stage -> stage.getStageType().ordinal() >= ProcessingStageType.SCRIPT_GENERATION.ordinal()))
+                .allMatch(stage -> stage.getStatus() == StageStatus.PENDING);
+    }
 }
