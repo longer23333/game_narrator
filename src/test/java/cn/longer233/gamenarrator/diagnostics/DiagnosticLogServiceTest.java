@@ -5,6 +5,7 @@ import org.junit.jupiter.api.io.TempDir;
 
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.util.UUID;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -25,5 +26,24 @@ class DiagnosticLogServiceTest {
                 .doesNotContain("abc.def", "private-value", "SESSDATA=secret", "json-secret with spaces",
                         "access-value", "refresh-value", "session-value");
         assertThat(service.export()).isNotEmpty();
+    }
+
+    @Test
+    void filtersTaskLogsAndKeepsFailureContext() throws Exception {
+        UUID target = UUID.randomUUID();
+        UUID another = UUID.randomUUID();
+        Path log = tempDir.resolve("game-narrator.log");
+        Files.writeString(log, "unrelated\n"
+                + "ENGINE_FAILED taskId=" + target + " stage=RENDERING message=ffmpeg failed\n"
+                + "java.lang.IllegalStateException: complete ffmpeg output\n"
+                + "\tat renderer.call(Renderer.java:42)\n"
+                + "Authorization: Bearer secret-token\n"
+                + "ENGINE_COMPLETED taskId=" + another + "\n");
+        var service = new DiagnosticLogService(log.toString());
+
+        String recent = service.recentForTask(target, 100);
+
+        assertThat(recent).contains(target.toString(), "complete ffmpeg output", "renderer.call", "Authorization=***")
+                .doesNotContain(another.toString(), "secret-token");
     }
 }

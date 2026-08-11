@@ -6,9 +6,13 @@
   async function refresh() {
     output.textContent = '正在读取日志…';
     try {
-      const response = await fetch('/api/debug/logs?lines=400', {cache:'no-store'});
+      const taskId = document.querySelector('#diagnostics-open')?.dataset.taskId || '';
+      const query = new URLSearchParams({lines:'400'});
+      if (taskId) query.set('taskId', taskId);
+      const response = await fetch(`/api/debug/logs?${query}`, {cache:'no-store'});
       if (!response.ok) throw new Error(`日志读取失败（HTTP ${response.status}）`);
-      output.textContent = await response.text() || '当前没有日志记录。';
+      const scope = taskId ? `任务 ${taskId} 的相关日志\n\n` : '';
+      output.textContent = scope + (await response.text() || '当前没有日志记录。');
       output.scrollTop = output.scrollHeight;
     } catch (error) { output.textContent = error.message; }
     try {
@@ -22,6 +26,10 @@
   document.querySelector('#diagnostics-open')?.addEventListener('click', () => {
     if (!dialog.open) dialog.showModal();
     refresh();
+  });
+  dialog.addEventListener('close', () => {
+    const openButton = document.querySelector('#diagnostics-open');
+    if (openButton) delete openButton.dataset.taskId;
   });
   document.querySelector('#diagnostics-close')?.addEventListener('click', () => dialog.close());
   document.querySelector('#diagnostics-refresh')?.addEventListener('click', refresh);

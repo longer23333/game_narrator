@@ -13,6 +13,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.Map;
+import java.util.UUID;
 
 @RestController
 @RequestMapping("/api/debug")
@@ -33,8 +34,9 @@ public class DiagnosticsController {
     }
 
     @GetMapping(value = "/logs", produces = MediaType.TEXT_PLAIN_VALUE)
-    public String logs(@RequestParam(defaultValue = "300") int lines) {
-        return logs.recent(lines);
+    public String logs(@RequestParam(defaultValue = "300") int lines,
+                       @RequestParam(required = false) UUID taskId) {
+        return taskId == null ? logs.recent(lines) : logs.recentForTask(taskId, lines);
     }
 
     @GetMapping(value = "/logs/export", produces = "application/zip")

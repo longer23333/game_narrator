@@ -6,7 +6,7 @@ const loadedLazyFeatures = new Set();
 const lazyScriptUrls = {
   assets:'/asset-library.js?v=20260805-1',
   import:'/media-importer.js?v=20260805-1',
-  diagnostics:'/diagnostics.js?v=20260805-1'
+  diagnostics:'/diagnostics.js?v=20260811-1'
   ,updates:'/updates.js?v=20260805-1'
 };
 
@@ -634,7 +634,9 @@ detailDialog.addEventListener('close', () => { activeTaskId = null; });
 detailContent.addEventListener('click', async event => {
   const diagnosticsButton = event.target.closest('[data-open-error-diagnostics]');
   if (diagnosticsButton) {
-    document.querySelector('#diagnostics-open')?.click();
+    const openButton = document.querySelector('#diagnostics-open');
+    if (openButton) openButton.dataset.taskId = diagnosticsButton.dataset.taskId || activeTaskId || '';
+    openButton?.click();
     return;
   }
   const retryButton = event.target.closest('[data-retry-task]');
@@ -901,7 +903,7 @@ function renderTaskDetails(task) {
       </dl>
       <p class="detail-brief">${escapeHtml(task.taskBrief)}</p>
     </section>
-    ${task.failureReason ? `<section class="detail-block"><h3>失败原因</h3>${taskFailureHtml(task.failureReason)}<div class="task-operations"><button type="button" data-open-error-diagnostics>打开诊断日志</button></div></section>` : ''}
+    ${task.failureReason ? `<section class="detail-block"><h3>失败原因</h3>${taskFailureHtml(task.failureReason)}<div class="task-operations"><button type="button" data-open-error-diagnostics data-task-id="${task.id}">查看此任务完整日志</button></div></section>` : ''}
     <section class="detail-block">
       <h3>处理流水线</h3>
       <div class="stage-details">${task.stages.map(stage => `

@@ -9,7 +9,10 @@ import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.Comparator;
+import java.util.LinkedHashSet;
 import java.util.List;
+import java.util.Set;
+import java.util.UUID;
 import java.util.regex.Pattern;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipOutputStream;
@@ -44,6 +47,35 @@ public class DiagnosticLogService {
                     .reduce((left, right) -> left + System.lineSeparator() + right).orElse("");
         } catch (Exception exception) {
             throw new IllegalStateException("无法读取诊断日志：" + exception.getMessage(), exception);
+        }
+    }
+
+    public String recentForTask(UUID taskId, int requestedLines) {
+        if (taskId == null) return recent(requestedLines);
+        int lines = Math.max(20, Math.min(1000, requestedLines));
+        if (!Files.isRegularFile(applicationLog)) return "日志文件尚未生成：" + applicationLog.getFileName();
+        try {
+            List<String> values = new String(readTail(applicationLog, MAX_TAIL_BYTES), StandardCharsets.UTF_8)
+                    .lines().toList();
+            String marker = "taskId=" + taskId;
+            Set<Integer> selected = new LinkedHashSet<>();
+            for (int index = 0; index < values.size(); index++) {
+                if (!values.get(index).contains(marker)) continue;
+                int from = Math.max(0, index - 2);
+                int to = Math.min(values.size(), index + 13);
+                for (int context = from; context < to; context++) {
+                    String candidate = values.get(context);
+                    if (context > index && candidate.contains("taskId=") && !candidate.contains(marker)) break;
+                    selected.add(context);
+                }
+            }
+            if (selected.isEmpty()) return "当前日志尾部没有该任务的记录。任务编号：" + taskId;
+            List<Integer> indexes = selected.stream().toList();
+            return indexes.stream().skip(Math.max(0, indexes.size() - lines))
+                    .map(index -> sanitize(values.get(index)))
+                    .reduce((left, right) -> left + System.lineSeparator() + right).orElse("");
+        } catch (Exception exception) {
+            throw new IllegalStateException("无法读取任务诊断日志：" + exception.getMessage(), exception);
         }
     }
 
