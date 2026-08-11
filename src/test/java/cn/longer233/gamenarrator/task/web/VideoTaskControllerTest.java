@@ -205,6 +205,8 @@ class VideoTaskControllerTest {
         assertEquals(0,jdbc.queryForObject("SELECT COUNT(*) FROM video_tasks WHERE id=?",Integer.class,id));
         assertEquals(0,jdbc.queryForObject("SELECT COUNT(*) FROM processing_stages WHERE task_id=?",Integer.class,id));
         assertEquals(false,Files.exists(taskDirectory));
+        assertEquals("COMPLETED", jdbc.queryForObject(
+                "SELECT status FROM task_file_cleanup_job WHERE task_id=?", String.class, id));
     }
 
     @Test

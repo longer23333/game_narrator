@@ -1,7 +1,7 @@
 ﻿# GameNarrator — DeepSeek 结构化项目索引
 
-> 自动生成：2026-08-11 11:47:41 +08:00；UTF-8 BOM；索引不再内嵌全部源码。
-> Git：分支 `main`，提交 `6921f0f`；收录文件 699 个，分卷 8 个。
+> 自动生成：2026-08-11 11:57:15 +08:00；UTF-8 BOM；索引不再内嵌全部源码。
+> Git：分支 `main`，提交 `ed88280`；收录文件 703 个，分卷 8 个。
 
 ## 使用方法
 
@@ -27,10 +27,10 @@
 
 | 分卷 | 文件数 | 字符数 | 建议用途 |
 |---|---:|---:|---|
-| `deepseek-context/01-foundation.md` | 78 | 119990 | 构建、配置、资源、数据库迁移 |
-| `deepseek-context/02-backend.md` | 258 | 1027766 | Spring 后端实现 |
-| `deepseek-context/03-tests.md` | 82 | 230274 | Spring 测试与行为验证 |
-| `deepseek-context/04-frontend.md` | 17 | 359559 | Vite Web 源码 |
+| `deepseek-context/01-foundation.md` | 80 | 121091 | 构建、配置、资源、数据库迁移 |
+| `deepseek-context/02-backend.md` | 259 | 1031456 | Spring 后端实现 |
+| `deepseek-context/03-tests.md` | 83 | 232898 | Spring 测试与行为验证 |
+| `deepseek-context/04-frontend.md` | 17 | 359542 | Vite Web 源码 |
 | `deepseek-context/05-android-main.md` | 151 | 855263 | Android 实现、资源与 Gradle |
 | `deepseek-context/06-android-tests.md` | 55 | 131882 | Android 单元及设备测试 |
 | `deepseek-context/07-platform-release.md` | 10 | 49452 | Windows、CI/CD 与发布 |
@@ -39,13 +39,16 @@
 ## 当前 Git 工作区（最近修改）
 
 ```text
-M frontend/public/admin.html
- M frontend/public/app.js
- M src/main/java/cn/longer233/gamenarrator/identity/AuthController.java
- M src/main/java/cn/longer233/gamenarrator/identity/AuthSessionService.java
- M src/main/resources/static/admin.html
+M frontend/public/app.js
+ M src/main/java/cn/longer233/gamenarrator/common/StorageCleanupService.java
+ M src/main/java/cn/longer233/gamenarrator/task/application/TaskTrashService.java
+ M src/main/resources/db/migration-postgresql/V8__video_segment_semantic_index.sql
  M src/main/resources/static/app.js
-?? src/test/java/cn/longer233/gamenarrator/identity/AuthControllerTest.java
+ M src/test/java/cn/longer233/gamenarrator/task/web/VideoTaskControllerTest.java
+?? src/main/java/cn/longer233/gamenarrator/task/application/TaskFileCleanupService.java
+?? src/main/resources/db/migration-postgresql/V36__durable_task_file_cleanup.sql
+?? src/main/resources/db/migration/V36__durable_task_file_cleanup.sql
+?? src/test/java/cn/longer233/gamenarrator/task/application/
 ```
 
 ## Flyway 迁移索引
@@ -85,6 +88,7 @@ M frontend/public/admin.html
 - `src/main/resources/db/migration/V33__cloud_sync_retry_policy.sql`
 - `src/main/resources/db/migration/V34__asset_provider_credentials.sql`
 - `src/main/resources/db/migration/V35__resumable_asset_downloads.sql`
+- `src/main/resources/db/migration/V36__durable_task_file_cleanup.sql`
 
 ## 运行配置索引
 

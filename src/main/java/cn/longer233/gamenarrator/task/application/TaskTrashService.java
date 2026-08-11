@@ -1,6 +1,5 @@
 package cn.longer233.gamenarrator.task.application;
 
-import cn.longer233.gamenarrator.common.StorageCleanupService;
 import cn.longer233.gamenarrator.identity.CurrentUserContext;
 import cn.longer233.gamenarrator.task.repository.VideoTaskRepository;
 import org.springframework.jdbc.core.JdbcTemplate;
@@ -21,10 +20,10 @@ public class TaskTrashService {
     private final JdbcTemplate jdbc;
     private final CurrentUserContext current;
     private final VideoTaskRepository repository;
-    private final StorageCleanupService cleanup;
+    private final TaskFileCleanupService cleanup;
 
     public TaskTrashService(JdbcTemplate jdbc, CurrentUserContext current, VideoTaskRepository repository,
-                            StorageCleanupService cleanup) {
+                            TaskFileCleanupService cleanup) {
         this.jdbc=jdbc; this.current=current; this.repository=repository; this.cleanup=cleanup;
     }
 
@@ -53,8 +52,9 @@ public class TaskTrashService {
         for(String column:PATH_COLUMNS){String value=text(row.get(column));if(value!=null&&(!column.equals("source_video_path")||references==0))paths.add(value);}
         if(source!=null&&references==0){Path file=Path.of(source);paths.add(file.resolveSibling(file.getFileName()+".platform.srt").toString());paths.add(file.resolveSibling(file.getFileName()+".platform.txt").toString());paths.add(file.resolveSibling(file.getFileName()+".platform.srt.analysis.json").toString());}
         jdbc.update("DELETE FROM processing_stages WHERE task_id=?",id);
+        cleanup.enqueue(id, paths);
         jdbc.update("DELETE FROM video_tasks WHERE id=? AND owner_id=?",id,current.userId());
-        TransactionSynchronizationManager.registerSynchronization(new TransactionSynchronization(){@Override public void afterCommit(){cleanup.cleanupTask(id,paths);}});
+        TransactionSynchronizationManager.registerSynchronization(new TransactionSynchronization(){@Override public void afterCommit(){cleanup.process(id);}});
     }
 
     private Map<String,Object> lower(Map<String,Object> source){Map<String,Object> result=new HashMap<>();source.forEach((k,v)->result.put(k.toLowerCase(Locale.ROOT),v));return result;}

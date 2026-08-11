@@ -226,15 +226,27 @@ document.querySelector('[data-close-task-trash]')?.addEventListener('click', () 
 document.querySelector('#task-trash-list')?.addEventListener('click', async event => {
   const restore = event.target.closest('[data-restore-task]');
   const purge = event.target.closest('[data-purge-task]');
+  const action = restore || purge;
+  if (!action || action.disabled) return;
   try {
-    if (restore) await requestJson(`/api/tasks/trash/${restore.dataset.restoreTask}/restore`, {method:'POST'});
+    if (restore && !window.confirm('确认恢复这个任务并重新显示在任务列表中吗？')) return;
     if (purge) {
       if (!window.confirm(`永久删除“${purge.dataset.taskName}”及全部关联文件？此操作无法恢复。`)) return;
+    }
+    const originalText = action.textContent;
+    action.closest('.task-card')?.querySelectorAll('button').forEach(button => { button.disabled = true; });
+    action.textContent = restore ? '正在恢复…' : '正在清理文件…';
+    if (restore) await requestJson(`/api/tasks/trash/${restore.dataset.restoreTask}/restore`, {method:'POST'});
+    if (purge) {
       const response = await fetch(`/api/tasks/trash/${purge.dataset.purgeTask}`, {method:'DELETE'});
       if (!response.ok) throw await readApiError(response);
     }
     await Promise.all([loadTaskTrash(), loadTasks()]);
-  } catch (error) { window.alert(error.message); }
+  } catch (error) {
+    action.closest('.task-card')?.querySelectorAll('button').forEach(button => { button.disabled = false; });
+    action.textContent = restore ? '恢复' : '永久删除';
+    window.alert(error.message);
+  }
 });
 
 function connectTaskStream() {
@@ -597,22 +609,6 @@ async function renameTask(taskId, currentName) {
 }
 
 async function deleteTaskFromList(button) {
-  if (!window.confirm(`确定删除任务“${button.dataset.taskName}”吗？任务记录、源视频、输出视频和 data 中的处理文件都会永久删除。`)) return;
-  button.disabled = true;
-  button.textContent = '删除中…';
-  try {
-    const response = await fetch(`/api/tasks/${button.dataset.deleteListTask}`, {method:'DELETE'});
-    if (!response.ok) throw await readApiError(response);
-    button.closest('.task-card')?.remove();
-    await loadTasks();
-  } catch (error) {
-    button.disabled = false;
-    button.textContent = '删除';
-    button.title = error.message;
-  }
-}
-
-deleteTaskFromList = async function(button) {
   if (!window.confirm(`将任务“${button.dataset.taskName}”移入回收站吗？项目记录和文件会保留，可稍后恢复。`)) return;
   button.disabled = true; button.textContent = '正在移入…';
   try {
@@ -620,7 +616,7 @@ deleteTaskFromList = async function(button) {
     if (!response.ok) throw await readApiError(response);
     button.closest('.task-card')?.remove(); await loadTasks();
   } catch (error) { button.disabled=false; button.textContent='移入回收站'; button.title=error.message; }
-};
+}
 
 taskList.addEventListener('keydown', event => {
   if (event.key !== 'Enter' && event.key !== ' ') return;

@@ -60,6 +60,13 @@ public class StorageCleanupService implements ApplicationRunner {
 
     public void cleanupTask(UUID taskId, Collection<String> knownArtifacts) {
         try {
+            cleanupTaskOrThrow(taskId, knownArtifacts);
+        } catch (Exception exception) {
+            log.warn("TASK_STORAGE_CLEANUP_FAILED taskId={} reason={}", taskId, exception.getMessage());
+        }
+    }
+
+    public void cleanupTaskOrThrow(UUID taskId, Collection<String> knownArtifacts) throws Exception {
             Path root = SecurePathGuard.prepareRoot(storageRoot);
             if (knownArtifacts != null) {
                 for (String value : knownArtifacts) {
@@ -88,9 +95,6 @@ public class StorageCleanupService implements ApplicationRunner {
             }
             log.info("TASK_STORAGE_CLEANUP taskId={} knownArtifacts={}", taskId,
                     knownArtifacts == null ? 0 : knownArtifacts.size());
-        } catch (Exception exception) {
-            log.warn("TASK_STORAGE_CLEANUP_FAILED taskId={} reason={}", taskId, exception.getMessage());
-        }
     }
 
     public void cleanupRetryArtifacts(UUID taskId, ProcessingStageType stage) {
