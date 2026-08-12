@@ -1,0 +1,47 @@
+{
+  "schemaVersion": 1,
+  "maximumReviewAgeDays": 120,
+  "lastFullReviewOn": "2026-08-12",
+  "reviewedDocuments": [
+    "docs/ACCOUNT_ADMIN_AND_CLOUD_MIGRATION.md", "docs/AI_DIRECTOR_REVIEW_BOARD.md",
+    "docs/ANDROID_FEATURE_PARITY.md", "docs/ANDROID_MODELS.md", "docs/ARCHITECTURE.md",
+    "docs/ASSET_LIBRARY_DESIGN.md", "docs/CLIP_COMPILATIONS.md", "docs/CONFIGURATION_REFERENCE.md",
+    "docs/DATABASE_DESIGN.md", "docs/DATABASE_MIGRATION_POLICY.md", "docs/DEEPSEEK_CONTEXT_EXPORT.md",
+    "docs/FRONTEND_DEVELOPMENT.md", "docs/MANUAL_EDITOR_PARITY.md", "docs/OBSERVABILITY.md",
+    "docs/PERFORMANCE_PORTABILITY_AUDIT.md", "docs/PERFORMANCE_TESTING.md",
+    "docs/POSTGRESQL_AND_CLOUD_SYNC.md", "docs/RELEASE_PROCESS.md", "docs/REQUIREMENTS.md",
+    "docs/STYLE_TEMPLATE_STORE.md", "docs/VERSIONING.md"
+  ],
+  "documents": [
+    {
+      "document": "docs/ARCHITECTURE.md",
+      "reviewedOn": "2026-08-12",
+      "sources": [
+        "src/main/java/cn/longer233/gamenarrator/ai/ModelAdapter.java",
+        "src/main/java/cn/longer233/gamenarrator/pipeline/VideoTaskEngine.java",
+        "src/main/java/cn/longer233/gamenarrator/identity/SecretRotationService.java"
+      ],
+      "symbols": ["ModelAdapter", "Transcriber", "VisionAnalyzer", "TextGenerator", "VoiceSynthesizer", "PrioritizedTaskExecutor", "TaskProcessRegistry"]
+    },
+    {
+      "document": "docs/CONFIGURATION_REFERENCE.md",
+      "reviewedOn": "2026-08-12",
+      "sources": ["src/main/resources/application.yml", "src/main/resources/application-postgresql.yml", "launcher/Program.cs", "scripts/update-configuration-reference.ps1"]
+    },
+    {
+      "document": "docs/DATABASE_DESIGN.md",
+      "reviewedOn": "2026-08-12",
+      "sources": ["src/main/resources/db/migration/V1__database_v2_foundation.sql", "src/main/resources/db/migration/V38__task_processing_priority.sql"]
+    },
+    {
+      "document": "docs/ANDROID_FEATURE_PARITY.md",
+      "reviewedOn": "2026-08-12",
+      "sources": ["docs/ANDROID_CORE_BASELINE.json", "android-app/app/build.gradle"]
+    },
+    {
+      "document": "docs/PERFORMANCE_TESTING.md",
+      "reviewedOn": "2026-08-12",
+      "sources": ["performance/jmeter/api-load.jmx", "src/test/java/cn/longer233/gamenarrator/performance/ConcurrentApiPerformanceTest.java", "src/test/java/cn/longer233/gamenarrator/performance/LongVideoPerformanceIT.java"]
+    }
+  ]
+}

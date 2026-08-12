@@ -29,6 +29,20 @@ foreach ($file in Get-ChildItem (Join-Path $projectRoot 'src/main/resources') -F
     }
 }
 
+# Include deployment-only settings injected directly by Java source.
+foreach ($file in Get-ChildItem (Join-Path $projectRoot 'src/main/java') -Recurse -Filter '*.java') {
+    $java = [IO.File]::ReadAllText($file.FullName, [Text.Encoding]::UTF8)
+    foreach ($annotation in [regex]::Matches($java, '@Value\(\s*"(?<expression>[^"]+)"\s*\)')) {
+        $expression = $annotation.Groups['expression'].Value
+        $propertyMatch = [regex]::Match($expression, '\$\{(?<path>[a-z][a-z0-9.-]*):')
+        $path = if ($propertyMatch.Success) { $propertyMatch.Groups['path'].Value } else { 'Java @Value 注入' }
+        $source = $file.FullName.Substring($projectRoot.Length + 1).Replace('\', '/')
+        foreach ($match in [regex]::Matches($expression, '\$\{(?<name>[A-Z][A-Z0-9_]*)(?::(?<default>[^}]*))?\}')) {
+            Add-Entry $match.Groups['name'].Value $path $match.Groups['default'].Value $source
+        }
+    }
+}
+
 $launcherPath = Join-Path $projectRoot 'launcher/Program.cs'
 if (Test-Path $launcherPath) {
     $launcher = [IO.File]::ReadAllText($launcherPath, [Text.Encoding]::UTF8)

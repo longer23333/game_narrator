@@ -9,7 +9,7 @@
 - 桌面安装版会自动设置运行目录、端口和并发参数，普通用户不需要手工配置这些项目。
 - PostgreSQL、对象存储和云部署的操作步骤另见 `docs/POSTGRESQL_AND_CLOUD_SYNC.md`。
 
-## 完整清单（138 项）
+## 完整清单（139 项）
 
 | 环境变量 | Spring 配置路径/用途 | 默认值 | 敏感 | 来源 |
 |---|---|---|---|---|
@@ -56,12 +56,13 @@
 | `EDITOR_WAVEFORM_CACHE_MAXIMUM_ENTRIES` | game-narrator.editor.waveform-cache.maximum-entries | `128` | 否 | application.yml |
 | `FFMPEG_COMMAND` | game-narrator.ffmpeg-command | `./tools/ffmpeg/bin/ffmpeg.exe` | 否 | application.yml |
 | `FFMPEG_MAX_CONCURRENT` | game-narrator.external-process.ffmpeg-max-concurrent | `1` | 否 | application.yml |
+| `GAME_NARRATOR_AI_API_KEY` | Java @Value 注入 | `无（必须显式设置）` | 是 | src/main/java/cn/longer233/gamenarrator/ai/AiSettingsService.java |
 | `GAME_NARRATOR_APP_ROOT` | game-narrator.whisper.executable / game-narrator.piper.executable / game-narrator.ffmpeg-command / game-narrator.whisper.model / game-narrator.media-import.yt-dlp / game-narrator.piper.model / game-narrator.piper.voices.model / 桌面启动器自动注入 | `按设备运行时计算` | 否 | application-lite.yml, application-release.yml, launcher/Program.cs |
-| `GAME_NARRATOR_DATA_ROOT` | spring.datasource.url / logging.file.name / game-narrator.storage-root / 桌面启动器自动注入 | `按设备运行时计算` | 否 | application-lite.yml, application-release.yml, launcher/Program.cs |
+| `GAME_NARRATOR_DATA_ROOT` | spring.datasource.url / logging.file.name / game-narrator.storage-root / game-narrator.data-root / 桌面启动器自动注入 | `./data / 按设备运行时计算` | 否 | application-lite.yml, application-release.yml, src/main/java/cn/longer233/gamenarrator/ai/AiSettingsService.java, src/main/java/cn/longer233/gamenarrator/ai/AiUsageService.java, src/main/java/cn/longer233/gamenarrator/identity/LocalSecretCipher.java, launcher/Program.cs |
 | `GAME_NARRATOR_LOG_LEVEL` | logging.level.root | `DEBUG` | 否 | application.yml |
-| `GAME_NARRATOR_PREVIOUS_SECRET_KEYS` | game-narrator.security.previous-master-keys | `无（必须显式设置）` | 是 | application-postgresql.yml |
-| `GAME_NARRATOR_SECRET_KEY` | game-narrator.security.master-key | `无（必须显式设置）` | 是 | application-postgresql.yml |
-| `GAME_NARRATOR_SECRET_KEY_VERSION` | game-narrator.security.master-key-version | `v1` | 是 | application-postgresql.yml |
+| `GAME_NARRATOR_PREVIOUS_SECRET_KEYS` | game-narrator.security.previous-master-keys | `无（必须显式设置）` | 是 | application-postgresql.yml, src/main/java/cn/longer233/gamenarrator/identity/LocalSecretCipher.java |
+| `GAME_NARRATOR_SECRET_KEY` | game-narrator.security.master-key | `无（必须显式设置）` | 是 | application-postgresql.yml, src/main/java/cn/longer233/gamenarrator/identity/LocalSecretCipher.java |
+| `GAME_NARRATOR_SECRET_KEY_VERSION` | game-narrator.security.master-key-version | `v1` | 是 | application-postgresql.yml, src/main/java/cn/longer233/gamenarrator/identity/LocalSecretCipher.java |
 | `GENERATION_RETRY_ATTEMPTS` | game-narrator.retry.generation-attempts | `3` | 否 | application.yml |
 | `HIBERNATE_SQL_LOG_LEVEL` | logging.level.root | `WARN` | 否 | application.yml |
 | `MAX_VIDEO_REQUEST_SIZE` | spring.servlet.multipart.max-request-size | `101GB` | 否 | application.yml |

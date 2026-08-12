@@ -19,6 +19,14 @@ jobs:
         shell: pwsh
         run: ./scripts/build-migration-baselines.ps1 -Check
 
+  documentation:
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Verify documentation against source
+        shell: pwsh
+        run: ./scripts/verify-documentation.ps1
+
   frontend:
     runs-on: ubuntu-latest
     steps:
