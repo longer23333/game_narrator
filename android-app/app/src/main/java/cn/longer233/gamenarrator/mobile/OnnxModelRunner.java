@@ -7,12 +7,11 @@ import ai.onnxruntime.OnnxTensor;
 import java.io.File;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.Arrays;
 
 /**
- * ONNX Runtime adapter for user-provided vision/text models. Models are never
- * bundled; when absent the runner reports a clear missing-model message instead
- * of pretending the capability is available.
+ * ONNX Runtime adapter for bundled or user-installed vision/text models. The
+ * model directory exposes BUNDLED, USER_INSTALLED and MISSING explicitly;
+ * missing models produce a clear error instead of overclaiming availability.
  */
 public final class OnnxModelRunner {
     private static final Map<String, CachedSession> SESSION_CACHE = new HashMap<>();
@@ -34,26 +33,7 @@ public final class OnnxModelRunner {
     }
 
     static File modelFile(File dir, String kind) {
-        if ("embedding".equals(kind)) {
-            File[] files = dir.listFiles((unused, name) -> name.startsWith("text-") && name.endsWith(".onnx")
-                    && name.contains("embedding"));
-            return firstByName(files);
-        }
-        if ("text".equals(kind)) {
-            File[] files = dir.listFiles((unused, name) -> name.startsWith("text-") && name.endsWith(".onnx")
-                    && !name.contains("embedding"));
-            return firstByName(files);
-        }
-        if (!"vision".equals(kind)) return null;
-        String prefix = "vision-";
-        File[] files = dir.listFiles((unused, name) -> name.startsWith(prefix) && name.endsWith(".onnx"));
-        return firstByName(files);
-    }
-
-    private static File firstByName(File[] files) {
-        if (files == null || files.length == 0) return null;
-        Arrays.sort(files, (left, right) -> left.getName().compareToIgnoreCase(right.getName()));
-        return files[0];
+        return MobileModelDirectory.modelFile(dir, kind);
     }
 
     public static OrtSession openChecked(Context context, String kind) {

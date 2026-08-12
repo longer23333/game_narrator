@@ -12,9 +12,9 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * Whisper.cpp adapter. The model file and the platform whisper-cli executable
- * are both user-provided in the external models directory; neither is bundled
- * unless the user chooses to put them under assets/models/.
+ * Whisper.cpp adapter for the bundled copy or a user-installed replacement in
+ * the external models directory. Model source is reported by
+ * {@link MobileModelDirectory.Source}.
  */
 public final class WhisperModelRunner {
     private static final String ENGINE_LINUX = "whisper-cli";
@@ -27,7 +27,7 @@ public final class WhisperModelRunner {
     }
 
     static File modelFile(File dir) {
-        return first(dir, "whisper-", ".bin");
+        return MobileModelDirectory.modelFile(dir, "whisper");
     }
 
     public static File engineFile(Context context) {

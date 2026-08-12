@@ -89,20 +89,29 @@ public final class MainActivityPageActions {
                 ffmpegReady ? MobileEngineReport.INSTALLED : MobileEngineReport.UNSUPPORTED,
                 ffmpegReady ? "ffmpeg 已就绪" : "需要 ffmpeg"));
         MobileModelDirectory.Presence models = MobileModelDirectory.check(activity);
+        MobileModelDirectory.Source whisperSource = MobileModelDirectory.source(activity, "whisper");
+        MobileModelDirectory.Source visionSource = MobileModelDirectory.source(activity, "vision");
+        MobileModelDirectory.Source textSource = MobileModelDirectory.source(activity, "text");
         boolean whisperReady = WhisperModelRunner.isReady(activity);
         engines.add(new MobileEngineReport.Engine("转写","端侧转写引擎",
                 whisperReady ? MobileEngineReport.INSTALLED : MobileEngineReport.MISSING,
-                whisperReady ? "whisper-*.bin 与 whisper-cli 已就绪" : "需要 whisper-*.bin 与 whisper-cli"));
+                 whisperReady ? modelSourceLabel(whisperSource) + "；whisper-cli 已就绪" : "需要 whisper-*.bin 与 whisper-cli"));
         engines.add(new MobileEngineReport.Engine("画面理解","端侧视觉模型",
                 models.vision() ? MobileEngineReport.INSTALLED : MobileEngineReport.MISSING,
-                models.vision() ? "vision-*.onnx 已就绪" : "需要 vision-*.onnx"));
+                 models.vision() ? modelSourceLabel(visionSource) : "需要 vision-*.onnx"));
         engines.add(new MobileEngineReport.Engine("文案生成","端侧文案模型",
                 models.text() ? MobileEngineReport.INSTALLED : MobileEngineReport.MISSING,
-                models.text() ? "text-*.onnx 已就绪" : "需要 text-*.onnx"));
+                 models.text() ? modelSourceLabel(textSource) : "需要 text-*.onnx"));
         int projects=activity.projectStore.listProjects().size()+activity.projectStore.listArchivedProjects().size();
         int revisions=activity.projectStore.listRevisions().size(),exports=activity.projectStore.listExports().size(),assets=activity.projectStore.listAssets().size();
         File database=activity.getDatabasePath("game-narrator-mobile.db");long databaseBytes=database==null?0:database.length();
         return MobileEngineReport.build(engines,new MobileEngineReport.Usage(projects,revisions,exports,assets,databaseBytes));
+    }
+
+    private static String modelSourceLabel(MobileModelDirectory.Source source) {
+        if (source == MobileModelDirectory.Source.BUNDLED) return "APK 内置模型";
+        if (source == MobileModelDirectory.Source.USER_INSTALLED) return "用户安装/替换模型";
+        return "模型缺失";
     }
 
     void showInstalledVoices(){

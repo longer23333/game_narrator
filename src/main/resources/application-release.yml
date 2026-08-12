@@ -1,5 +1,8 @@
 server:
-  # Deliberately not configurable in release builds: the current API has no authentication layer.
+  # Desktop/offline releases stay on loopback even though application-level
+  # authentication exists. This reduces the local API exposure surface; use
+  # the PostgreSQL/cloud profile with require-login=true behind HTTPS for
+  # authenticated remote deployments.
   address: 127.0.0.1
   port: ${SERVER_PORT:18081}
 spring:

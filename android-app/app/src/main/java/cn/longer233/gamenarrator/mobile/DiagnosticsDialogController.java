@@ -122,8 +122,8 @@ public final class DiagnosticsDialogController {
         boolean modelsReady = presence.whisper() && presence.vision() && presence.text();
         LinearLayout installCard = ui.card(Color.WHITE);
         if (modelsReady) {
-            installCard.addView(ui.label("模型状态：已自动安装", 16, TEXT, true));
-            installCard.addView(ui.label("Whisper、ONNX 视觉与文案模型已从 APK 复制到本地模型目录。", 12, MUTED, false));
+            installCard.addView(ui.label("模型状态：已就绪", 16, TEXT, true));
+            installCard.addView(ui.label("Whisper、ONNX 视觉与文案模型均可用；具体来源见下方模型目录卡片。", 12, MUTED, false));
         } else {
             installCard.addView(ui.label("模型自动安装", 16, TEXT, true));
             TextView installStatus = ui.label("检测到模型未就绪，可点击按钮从 APK 复制。", 12, MUTED, false);
@@ -163,7 +163,10 @@ public final class DiagnosticsDialogController {
         LinearLayout modelCard = ui.card(Color.WHITE);
         modelCard.addView(ui.label("端侧模型目录", 16, TEXT, true));
         modelCard.addView(ui.label(MobileModelDirectory.modelsDir(context).getAbsolutePath(), 11, MUTED, false));
-        modelCard.addView(ui.label("把 whisper-*.bin / vision-*.onnx / text-*.onnx 放入该目录，并把 whisper-cli（Android 可执行文件）一并放入后，对应能力才会标记为本地可用。", 12, MUTED, false));
+        modelCard.addView(ui.label("模型来源分为 APK 内置、用户安装/替换、缺失；同名用户文件与 APK 资产不一致时按用户替换处理。", 12, MUTED, false));
+        modelCard.addView(ui.label("Whisper：" + sourceLabel(MobileModelDirectory.source(context, "whisper"))
+                + "；视觉：" + sourceLabel(MobileModelDirectory.source(context, "vision"))
+                + "；文案：" + sourceLabel(MobileModelDirectory.source(context, "text")), 12, MUTED, false));
         modelCard.addView(ui.label(WhisperModelRunner.isReady(context)
                 ? "Whisper.cpp：模型与 whisper-cli 引擎均已就绪。"
                 : "Whisper.cpp：等待 whisper-*.bin 与 whisper-cli 引擎。", 12, MUTED, false));
@@ -332,6 +335,12 @@ public final class DiagnosticsDialogController {
         scroll.addView(root);
         container.removeAllViews();
         container.addView(scroll);
+    }
+
+    private static String sourceLabel(MobileModelDirectory.Source source) {
+        if (source == MobileModelDirectory.Source.BUNDLED) return "APK 内置";
+        if (source == MobileModelDirectory.Source.USER_INSTALLED) return "用户安装/替换";
+        return "缺失";
     }
 
     public void showRoadmap() {

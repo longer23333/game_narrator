@@ -6,7 +6,7 @@ import org.springframework.context.ConfigurableApplicationContext;
 import java.net.InetAddress;
 import java.net.UnknownHostException;
 
-/** Prevents an unauthenticated GameNarrator instance from being exposed outside this computer. */
+/** Prevents a GameNarrator instance without mandatory login from being exposed outside this computer. */
 final class LocalOnlyServerBindingGuard implements ApplicationContextInitializer<ConfigurableApplicationContext> {
 
     @Override
@@ -41,7 +41,7 @@ final class LocalOnlyServerBindingGuard implements ApplicationContextInitializer
 
     private static IllegalStateException rejected(String address) {
         return new IllegalStateException("安全策略拒绝非本机监听地址：" + address
-                + "。当前版本没有 API 身份认证，只允许 127.0.0.1、::1 或 localhost；"
-                + "开放局域网前必须先实现认证与授权。");
+                + "。当前配置未强制登录，只允许 127.0.0.1、::1 或 localhost；"
+                + "远程部署请启用 require-login，并在 HTTPS 反向代理后提供服务。");
     }
 }

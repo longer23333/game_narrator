@@ -30,6 +30,7 @@ class LocalOnlyServerBindingGuardTest {
     private void assertRejected(String address) {
         assertThatThrownBy(() -> LocalOnlyServerBindingGuard.validate(address))
                 .isInstanceOf(IllegalStateException.class)
-                .hasMessageContaining("当前版本没有 API 身份认证");
+                .hasMessageContaining("当前配置未强制登录")
+                .hasMessageContaining("require-login");
     }
 }
