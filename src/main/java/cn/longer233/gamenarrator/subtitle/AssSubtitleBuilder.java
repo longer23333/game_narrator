@@ -8,9 +8,15 @@ import java.util.ArrayList;
 
 @Component
 public class AssSubtitleBuilder {
+    private static final List<String> KEYWORDS = List.of("critical", "victory", "defeat", "combo",
+            "boss", "mvp", "击杀", "胜利", "失败", "弹反", "格挡", "暴击", "残血", "反杀");
 
     public String build(List<TimelineSegment> segments, String theme) {
-        Style style = style(theme);
+        return build(segments, SubtitleRenderOptions.defaults(theme));
+    }
+
+    public String build(List<TimelineSegment> segments, SubtitleRenderOptions options) {
+        Style style = style(options == null ? null : options.template());
         StringBuilder ass = new StringBuilder("""
                 [Script Info]
                 ScriptType: v4.00+
@@ -34,7 +40,7 @@ public class AssSubtitleBuilder {
         for (TimelineSegment segment : segments) {
             String text = clean(segment.subtitle() == null || segment.subtitle().isBlank()
                     ? segment.narration() : segment.subtitle());
-            String animation = switch (style.animation) {
+            String animation = options != null && !options.animated() ? "" : switch (style.animation) {
                 case "POP" -> "{\\fad(80,100)\\fscx70\\fscy70\\t(0,180,\\fscx100\\fscy100)}";
                 case "TYPEWRITER" -> "{\\fad(180,160)\\blur0.5}";
                 case "IMPACT" -> "{\\fad(50,80)\\bord5\\fscx115\\fscy115\\t(0,140,\\fscx100\\fscy100)}";
@@ -44,12 +50,13 @@ public class AssSubtitleBuilder {
                     .append(',').append(time(segment.outputEndSeconds()))
                     .append(",Default,,0,0,0,,").append(animation)
                     .append(karaoke(wrap(text, 16), segment.outputEndSeconds()
-                            - segment.outputStartSeconds())).append('\n');
+                            - segment.outputStartSeconds(), options != null && options.keywordHighlights()))
+                    .append('\n');
         }
         return ass.toString();
     }
 
-    private String karaoke(String text, double durationSeconds) {
+    private String karaoke(String text, double durationSeconds, boolean highlightKeywords) {
         List<KaraokeToken> tokens = tokenize(text);
         double totalWeight = tokens.stream().mapToDouble(KaraokeToken::weight).sum();
         if (totalWeight <= 0) return text;
@@ -66,9 +73,21 @@ public class AssSubtitleBuilder {
             int target = (int) Math.round(totalCentiseconds * consumedWeight / totalWeight);
             int tokenDuration = Math.max(0, target - allocated);
             allocated = target;
-            result.append("{\\kf").append(tokenDuration).append('}').append(token.text());
+            result.append("{\\kf").append(tokenDuration).append('}');
+            if (highlightKeywords && isKeyword(token.text()))
+                result.append("{\\c&H003C7BFF&\\b1\\fscx112\\fscy112}").append(token.text())
+                        .append("{\\rDefault}");
+            else result.append(token.text());
         }
         return result.toString();
+    }
+
+    private boolean isKeyword(String token) {
+        String raw = token == null ? "" : token.strip();
+        String value = raw.toLowerCase(java.util.Locale.ROOT);
+        if (value.isBlank()) return false;
+        if (value.matches(".*\\d.*") || raw.matches("[A-Z]{2,}")) return true;
+        return KEYWORDS.contains(value);
     }
 
     private List<KaraokeToken> tokenize(String text) {
@@ -77,6 +96,12 @@ public class AssSubtitleBuilder {
             if (offset + 1 < text.length() && text.charAt(offset) == '\\' && text.charAt(offset + 1) == 'N') {
                 tokens.add(new KaraokeToken("\\N", 0));
                 offset += 2;
+                continue;
+            }
+            String keyword = keywordAt(text, offset);
+            if (keyword != null) {
+                tokens.add(new KaraokeToken(keyword, Math.max(1, keyword.codePointCount(0, keyword.length()))));
+                offset += keyword.length();
                 continue;
             }
             int codePoint = text.codePointAt(offset);
@@ -103,6 +128,14 @@ public class AssSubtitleBuilder {
             offset += Character.charCount(codePoint);
         }
         return tokens;
+    }
+
+    private String keywordAt(String text, int offset) {
+        for (String keyword : KEYWORDS) {
+            if (text.regionMatches(true, offset, keyword, 0, keyword.length()))
+                return text.substring(offset, offset + keyword.length());
+        }
+        return null;
     }
 
     private boolean isPunctuation(int codePoint) {

@@ -1,7 +1,7 @@
 ﻿# GameNarrator — DeepSeek 结构化项目索引
 
-> 自动生成：2026-08-12 16:21:50 +08:00；UTF-8 BOM；索引不再内嵌全部源码。
-> Git：分支 `main`，提交 `cf17797`；收录文件 779 个，分卷 8 个。
+> 自动生成：2026-08-12 16:38:27 +08:00；UTF-8 BOM；索引不再内嵌全部源码。
+> Git：分支 `unknown`，提交 `unknown`；收录文件 780 个，分卷 8 个。
 
 ## 使用方法
 
@@ -28,34 +28,18 @@
 | 分卷 | 文件数 | 字符数 | 建议用途 |
 |---|---:|---:|---|
 | `deepseek-context/01-foundation.md` | 86 | 217670 | 构建、配置、资源、数据库迁移 |
-| `deepseek-context/02-backend.md` | 290 | 1161312 | Spring 后端实现 |
-| `deepseek-context/03-tests.md` | 101 | 319072 | Spring 测试与行为验证 |
+| `deepseek-context/02-backend.md` | 291 | 1164556 | Spring 后端实现 |
+| `deepseek-context/03-tests.md` | 101 | 320325 | Spring 测试与行为验证 |
 | `deepseek-context/04-frontend.md` | 38 | 536559 | Vite Web 源码 |
 | `deepseek-context/05-android-main.md` | 137 | 847065 | Android 实现、资源与 Gradle |
 | `deepseek-context/06-android-tests.md` | 54 | 128284 | Android 单元及设备测试 |
 | `deepseek-context/07-platform-release.md` | 11 | 56149 | Windows、CI/CD 与发布 |
-| `deepseek-context/08-docs-scripts.md` | 62 | 225885 | 需求、架构、维护脚本 |
+| `deepseek-context/08-docs-scripts.md` | 62 | 225947 | 需求、架构、维护脚本 |
 
 ## 当前 Git 工作区（最近修改）
 
 ```text
-M docs/CONFIGURATION_REFERENCE.md
- M docs/REQUIREMENTS.md
- M src/main/java/cn/longer233/gamenarrator/common/StorageCleanupService.java
- M src/main/java/cn/longer233/gamenarrator/script/ScriptWorkspaceController.java
- M src/main/java/cn/longer233/gamenarrator/script/ScriptWorkspaceService.java
- M src/main/java/cn/longer233/gamenarrator/voice/PiperProperties.java
- M src/main/java/cn/longer233/gamenarrator/voice/PiperVoiceGenerator.java
- M src/main/java/cn/longer233/gamenarrator/voice/PiperVoiceSynthesizerAdapter.java
- M src/main/java/cn/longer233/gamenarrator/voice/VoiceRegenerationRequest.java
- M src/main/java/cn/longer233/gamenarrator/voice/VoiceSegment.java
- M src/main/java/cn/longer233/gamenarrator/voice/VoiceSynthesizer.java
- M src/main/resources/application.yml
- M src/main/resources/static/app.js
- M src/test/java/cn/longer233/gamenarrator/script/ScriptWorkspaceServiceTest.java
-?? src/main/java/cn/longer233/gamenarrator/voice/VoicePreviewRequest.java
-?? src/main/java/cn/longer233/gamenarrator/voice/VoiceProfile.java
-?? src/test/java/cn/longer233/gamenarrator/voice/
+clean or unavailable
 ```
 
 ## Flyway 迁移索引

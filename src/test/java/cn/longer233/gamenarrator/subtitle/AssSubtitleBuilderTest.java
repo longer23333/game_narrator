@@ -33,9 +33,36 @@ class AssSubtitleBuilderTest {
 
         String ass = new AssSubtitleBuilder().build(List.of(segment), "CLEAN_WHITE");
 
-        assertThat(ass).contains("}Boss ", "}battle ", "}starts ", "}now");
+        assertThat(ass).contains("Boss{\\rDefault} ", "}battle ", "}starts ", "}now")
+                .doesNotContain("}B{", "}o{", "}s{");
         assertThat(KARAOKE.matcher(ass).results().count()).isEqualTo(4);
         assertThat(karaokeDuration(ass)).isEqualTo(200);
+    }
+
+    @Test
+    void emphasizesKnownKeywordsAndCanDisableAnimationIndependently() {
+        var segment = new TimelineSegment(1, 0, 2, 0, 2,
+                "Boss 弹反后完成击杀", "Boss 弹反后完成击杀", "", "voice.wav", 1, false);
+
+        String ass = new AssSubtitleBuilder().build(List.of(segment),
+                new SubtitleRenderOptions("COMEDY_POP", false, true));
+
+        assertThat(ass).contains("{\\c&H003C7BFF&\\b1\\fscx112\\fscy112}Boss{\\rDefault}",
+                "{\\c&H003C7BFF&\\b1\\fscx112\\fscy112}弹反{\\rDefault}",
+                "{\\c&H003C7BFF&\\b1\\fscx112\\fscy112}击杀{\\rDefault}");
+        assertThat(ass).doesNotContain("\\fad(", "\\t(");
+    }
+
+    @Test
+    void keywordHighlightCanBeDisabledWithoutDisablingKaraokeTiming() {
+        var segment = new TimelineSegment(1, 0, 1, 0, 1,
+                "Boss 胜利", "Boss 胜利", "", "voice.wav", 1, false);
+
+        String ass = new AssSubtitleBuilder().build(List.of(segment),
+                new SubtitleRenderOptions("CLEAN_WHITE", true, false));
+
+        assertThat(ass).contains("\\kf").doesNotContain("&H003C7BFF&");
+        assertThat(karaokeDuration(ass)).isEqualTo(100);
     }
 
     private int karaokeDuration(String ass) {

@@ -101,6 +101,12 @@ public class FfmpegVideoRenderer {
             List<Path> clips = new ArrayList<>();
             List<java.util.Map<String, Object>> effectManifest = new ArrayList<>();
             List<EffectPlan> effectPlans = new ArrayList<>();
+            boolean dynamicSubtitles = settings != null && Boolean.TRUE.equals(settings.dynamicSubtitles());
+            boolean keywordHighlights = settings == null || !Boolean.FALSE.equals(settings.keywordHighlights());
+            boolean burnSubtitles = settings != null && Boolean.TRUE.equals(settings.burnSubtitles());
+            String subtitleTemplate = settings != null && settings.subtitleTemplate() != null
+                    && !settings.subtitleTemplate().isBlank() ? settings.subtitleTemplate()
+                    : preset == null ? "ANIME_OUTLINE" : preset.subtitleTheme();
             String encoder = encoderCapabilities.resolve(preferredEncoder, "libx264");
             for (int index = 0; index < segments.size(); index++) {
                 int clipPosition = index;
@@ -140,7 +146,12 @@ public class FfmpegVideoRenderer {
                             "version", 2,
                             "presetCode", preset == null ? "AUTO" : preset.code(),
                             "intensity", preset == null ? 0.75 : preset.defaultIntensity(),
-                            "subtitleTheme", preset == null ? "DEFAULT" : preset.subtitleTheme(),
+                            "subtitleTheme", subtitleTemplate,
+                            "subtitlePackaging", java.util.Map.of(
+                                    "animated", dynamicSubtitles,
+                                    "keywordHighlights", keywordHighlights,
+                                    "burned", burnSubtitles,
+                                    "softTrackIncluded", !burnSubtitles),
                             "sourceAudioVolume", preset == null ? 0.20 : preset.sourceAudioVolume(),
                             "colorGrading", java.util.Map.of(
                                     "brightness", settings == null || settings.brightness() == null ? 0 : settings.brightness(),
@@ -164,7 +175,6 @@ public class FfmpegVideoRenderer {
             progressConsumer.accept(80);
             cn.longer233.gamenarrator.common.AtomicArtifactWriter.writeText(
                     subtitle, buildSrt(segments), StandardCharsets.UTF_8);
-            boolean dynamicSubtitles = settings != null && Boolean.TRUE.equals(settings.dynamicSubtitles());
             boolean soundEffects = settings != null && Boolean.TRUE.equals(settings.soundEffects());
             List<SoundCue> soundCues = soundEffects
                     ? soundEffectLibrary.create(taskDirectory, segments, effectPlans) : List.of();
@@ -174,16 +184,17 @@ public class FfmpegVideoRenderer {
                         java.util.Map.of("version", 1, "cues", soundCues));
             }
             Path dynamicSubtitle = null;
-            if (dynamicSubtitles) {
+            if (dynamicSubtitles || keywordHighlights || burnSubtitles) {
                 dynamicSubtitle = taskDirectory.resolve("generated-subtitles.ass");
                 cn.longer233.gamenarrator.common.AtomicArtifactWriter.writeText(dynamicSubtitle,
-                        assSubtitleBuilder.build(segments,
-                                preset == null ? "ANIME_OUTLINE" : preset.subtitleTheme()),
+                        assSubtitleBuilder.build(segments, new cn.longer233.gamenarrator.subtitle.SubtitleRenderOptions(
+                                subtitleTemplate,
+                                dynamicSubtitles, keywordHighlights)),
                         StandardCharsets.UTF_8);
             }
             Path output = taskDirectory.resolve("final-video.mp4");
             mixVoiceAndSubtitle(baseVideo, segments, subtitle, output,
-                    preset == null ? 0.20 : preset.sourceAudioVolume(), dynamicSubtitle, soundCues,
+                    preset == null ? 0.20 : preset.sourceAudioVolume(), burnSubtitles ? dynamicSubtitle : null, soundCues,
                     storyboardAssets.stream().filter(RenderAssetResolver.RenderAsset::audio).toList(), encoder);
             long size = Files.size(output);
             progressConsumer.accept(95);

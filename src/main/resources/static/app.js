@@ -622,6 +622,9 @@ detailContent.addEventListener('submit', async event => {
         presetCode:String(values.get('presetCode')),
         intensity:Number(values.get('intensity')),
         dynamicSubtitles:values.get('dynamicSubtitles') === 'on',
+        keywordHighlights:values.get('keywordHighlights') === 'on',
+        burnSubtitles:values.get('burnSubtitles') === 'on',
+        subtitleTemplate:String(values.get('subtitleTemplate')),
         soundEffects:values.get('soundEffects') === 'on',
         brightness:Number(values.get('brightness')),
         contrast:Number(values.get('contrast')),
@@ -933,7 +936,10 @@ function effectSettingsSection(task) {
         <div class="style-template-grid">${effectPresets.map(item => `<article data-template-code="${escapeHtml(item.code)}"><header><b>${escapeHtml(item.name)}</b><i>${Math.round(item.defaultIntensity * 100)}%</i></header><p>${escapeHtml(item.description)}</p><div>${item.preferredEffects.slice(0,4).map(effect => `<span>${escapeHtml(visualEffectLabels[effect] || effect)}</span>`).join('')}</div><footer><button type="button" data-apply-style-template="${escapeHtml(item.code)}">一键套用</button><a href="/api/effect-presets/${encodeURIComponent(item.code)}/export" download>导出 JSON</a></footer></article>`).join('')}</div>
         <p class="effect-message" data-template-message aria-live="polite"></p>
       </details>
-      <label class="effect-toggle"><input name="dynamicSubtitles" type="checkbox" checked>启用动态 ASS 字幕主题</label>
+      <div class="grid"><label>字幕模板<select name="subtitleTemplate"><option value="ANIME_OUTLINE">动漫描边</option><option value="IMPACT_RED">高燃冲击</option><option value="COMEDY_POP">喜剧弹跳</option><option value="TYPEWRITER_DARK">暗色打字机</option><option value="CLEAN_WHITE">简洁白字</option></select></label></div>
+      <label class="effect-toggle"><input name="dynamicSubtitles" type="checkbox" checked>启用逐字动态高亮</label>
+      <label class="effect-toggle"><input name="keywordHighlights" type="checkbox" checked>强调击杀、弹反、胜利、Boss 等关键词</label>
+      <label class="effect-toggle"><input name="burnSubtitles" type="checkbox" checked>将包装字幕烧录到画面（关闭时保留软字幕轨和 ASS 文件）</label>
       <label class="effect-toggle"><input name="soundEffects" type="checkbox">加入冲击、转场和喜剧提示音</label>
       <details class="color-grading-panel" open>
         <summary>调色轮与 LUT</summary>

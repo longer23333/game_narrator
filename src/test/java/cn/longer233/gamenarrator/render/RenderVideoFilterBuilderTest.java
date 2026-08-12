@@ -56,7 +56,8 @@ class RenderVideoFilterBuilderTest {
         TimelineSegment segment = new TimelineSegment(1, 0, 8, 0, 8,
                 "调色", "调色", "", "voice.wav", 2, false);
         EffectSettingsRequest settings = new EffectSettingsRequest(
-                "ANIME_THEATER", .5, true, false, .1, 1.2, .8, -.5, true);
+                "ANIME_THEATER", .5, true, true, true, "ANIME_OUTLINE",
+                false, .1, 1.2, .8, -.5, true);
 
         String filter = filterBuilder.video(segment,
                 new EffectPlan(List.of(), TransitionType.HARD_CUT, "test"), null, settings,
