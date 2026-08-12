@@ -1,0 +1,23 @@
+{
+  "schemaVersion": 1,
+  "apkLimits": {
+    "standardReleaseBytes": 65000000,
+    "bundledModelsReleaseBytes": 250000000
+  },
+  "requiredDependencies": [
+    { "coordinate": "androidx.media3:media3-exoplayer:1.10.1", "license": "Apache-2.0" },
+    { "coordinate": "androidx.media3:media3-ui:1.10.1", "license": "Apache-2.0" },
+    { "coordinate": "androidx.media3:media3-transformer:1.10.1", "license": "Apache-2.0" },
+    { "coordinate": "androidx.media3:media3-effect:1.10.1", "license": "Apache-2.0" },
+    { "coordinate": "androidx.security:security-crypto:1.1.0-alpha06", "license": "Apache-2.0" },
+    { "coordinate": "com.google.mlkit:image-labeling:17.0.9", "license": "Apache-2.0" },
+    { "coordinate": "com.microsoft.onnxruntime:onnxruntime-android:1.20.0", "license": "MIT" }
+  ],
+  "bundledModelSources": [
+    { "pattern": "whisper-*.bin", "project": "whisper.cpp", "license": "MIT" },
+    { "pattern": "whisper-cli", "project": "whisper.cpp", "license": "MIT" },
+    { "pattern": "vision-mobilenetv2.onnx", "project": "ONNX Model Zoo MobileNetV2", "license": "Apache-2.0" },
+    { "pattern": "text-gpt2.onnx", "project": "GPT-2", "license": "MIT" },
+    { "pattern": "text-embedding.onnx", "project": "User-supplied embedding model", "license": "REVIEW_REQUIRED" }
+  ]
+}

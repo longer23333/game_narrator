@@ -11,6 +11,7 @@ def releaseStoreFile = System.getenv('GN_KEYSTORE') ?: keystoreProperties.getPro
 def releaseStorePassword = System.getenv('GN_KEYSTORE_PASSWORD') ?: keystoreProperties.getProperty('storePassword')
 def releaseKeyAlias = System.getenv('GN_KEY_ALIAS') ?: keystoreProperties.getProperty('keyAlias')
 def releaseKeyPassword = System.getenv('GN_KEY_PASSWORD') ?: keystoreProperties.getProperty('keyPassword')
+def bundleModels = providers.gradleProperty('bundleModels').map { it.toBoolean() }.getOrElse(false)
 
 android {
     namespace 'cn.longer233.gamenarrator.mobile'
@@ -25,6 +26,11 @@ android {
         testInstrumentationRunner 'androidx.test.runner.AndroidJUnitRunner'
     }
     buildFeatures { buildConfig true }
+    sourceSets {
+        main {
+            assets.srcDirs = bundleModels ? ['src/main/assets'] : ['src/main/assets-standard']
+        }
+    }
     packaging {
         resources.excludes += ['/META-INF/{AL2.0,LGPL2.1}']
         jniLibs {

@@ -75,4 +75,6 @@ Android 版 `whisper-cli` 没有官方预编译产物，需要按设备 ABI 编�
 .\scripts\install-models.ps1 -Device <serial> -Vision -VisionPath <本地文件> -Text -TextPath <本地文件>
 ```
 
-或直接放入 `assets/models/` 后重新构建 APK。
+或直接放入 `assets/models/` 后用 `-PbundleModels=true` 构建模型完整版 APK。标准 Release 默认排除本机模型目录，避免把未经许可证审核的模型意外打入产物，也让 CI 与本机构建内容一致。
+
+发布前运行 `scripts/verify-android-release-audit.ps1`。它会校验高体积依赖及许可证清单、R8/资源压缩报告和标准 APK 体积上限。模型完整版使用 `-BundleModels`；清单中标为 `REVIEW_REQUIRED` 的模型必须先确认许可证，否则构建审计会失败。

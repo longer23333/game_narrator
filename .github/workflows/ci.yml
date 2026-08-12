@@ -45,9 +45,11 @@ jobs:
           ./scripts/verify-release-alignment.ps1
           ./scripts/verify-android-guardrails.ps1
       - name: Test and assemble Android release
+        shell: pwsh
         run: |
           chmod +x android-app/gradlew
-          android-app/gradlew -p android-app testDebugUnitTest assembleRelease
+          android-app/gradlew -p android-app testDebugUnitTest
+          ./scripts/verify-android-release-audit.ps1
 
   android-emulator:
     name: Android emulator smoke tests

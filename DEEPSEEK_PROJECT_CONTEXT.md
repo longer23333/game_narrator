@@ -1,7 +1,7 @@
 ﻿# GameNarrator — DeepSeek 结构化项目索引
 
-> 自动生成：2026-08-12 10:13:23 +08:00；UTF-8 BOM；索引不再内嵌全部源码。
-> Git：分支 `main`，提交 `7197887`；收录文件 755 个，分卷 8 个。
+> 自动生成：2026-08-12 10:25:20 +08:00；UTF-8 BOM；索引不再内嵌全部源码。
+> Git：分支 `main`，提交 `83823fc`；收录文件 757 个，分卷 8 个。
 
 ## 使用方法
 
@@ -31,27 +31,29 @@
 | `deepseek-context/02-backend.md` | 281 | 1089456 | Spring 后端实现 |
 | `deepseek-context/03-tests.md` | 91 | 272917 | Spring 测试与行为验证 |
 | `deepseek-context/04-frontend.md` | 38 | 536559 | Vite Web 源码 |
-| `deepseek-context/05-android-main.md` | 138 | 848306 | Android 实现、资源与 Gradle |
+| `deepseek-context/05-android-main.md` | 138 | 848549 | Android 实现、资源与 Gradle |
 | `deepseek-context/06-android-tests.md` | 55 | 128912 | Android 单元及设备测试 |
-| `deepseek-context/07-platform-release.md` | 11 | 54651 | Windows、CI/CD 与发布 |
-| `deepseek-context/08-docs-scripts.md` | 55 | 209598 | 需求、架构、维护脚本 |
+| `deepseek-context/07-platform-release.md` | 11 | 54745 | Windows、CI/CD 与发布 |
+| `deepseek-context/08-docs-scripts.md` | 57 | 214154 | 需求、架构、维护脚本 |
 
 ## 当前 Git 工作区（最近修改）
 
 ```text
-M docs/CONFIGURATION_REFERENCE.md
- M scripts/start-local-cloud.ps1
- M src/main/java/cn/longer233/gamenarrator/GameNarratorApplication.java
+M .github/workflows/ci.yml
+ M .github/workflows/release-version.yml
+ M ANDROID_AI_CONTEXT.md
+ M android-app/app/build.gradle
+ M docs/ANDROID_MODELS.md
+ M scripts/verify-release-alignment.ps1
  M src/main/java/cn/longer233/gamenarrator/ai/AiSettingsController.java
  M src/main/java/cn/longer233/gamenarrator/editor/EditorTimelineService.java
  M src/main/java/cn/longer233/gamenarrator/event/BattleNarrativePlanService.java
- M src/main/java/cn/longer233/gamenarrator/identity/LocalSecretCipher.java
  M src/main/java/cn/longer233/gamenarrator/pipeline/ProjectArtifactRegistry.java
- M src/main/resources/application-postgresql.yml
  M src/main/resources/application.yml
  M src/test/java/cn/longer233/gamenarrator/event/BattleNarrativePlanServiceTest.java
-?? src/main/java/cn/longer233/gamenarrator/ProductionCredentialGuard.java
-?? src/test/java/cn/longer233/gamenarrator/ProductionCredentialGuardTest.java
+?? android-app/app/src/main/assets-standard/
+?? docs/ANDROID_RELEASE_AUDIT.json
+?? scripts/verify-android-release-audit.ps1
 ?? src/test/java/cn/longer233/gamenarrator/StaticResourceCompressionTest.java
 ```
 

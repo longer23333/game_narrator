@@ -64,7 +64,8 @@ jobs:
       - name: 构建并校验 Android release 包
         shell: pwsh
         run: |
-          ./android-app/gradlew.bat -p android-app testDebugUnitTest assembleRelease
+          ./android-app/gradlew.bat -p android-app testDebugUnitTest
+          ./scripts/verify-android-release-audit.ps1
       - name: 上传 Web 与 Android 统一版本产物
         uses: actions/upload-artifact@v4
         with:
