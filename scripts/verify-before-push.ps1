@@ -4,6 +4,19 @@ $projectRoot = (Resolve-Path (Join-Path $PSScriptRoot '..')).Path
 $npm = (Get-Command npm.cmd -ErrorAction Stop).Source
 $frontendRoot = Join-Path $projectRoot 'frontend'
 
+function Invoke-Npm([string[]]$Arguments, [string]$failureMessage) {
+  # Windows PowerShell promotes native stderr (including npm warnings) to ErrorRecord when redirected.
+  $previousErrorAction = $ErrorActionPreference
+  try {
+    $ErrorActionPreference = 'Continue'
+    & $npm @Arguments 2>&1 | ForEach-Object { Write-Host $_ }
+    $exitCode = $LASTEXITCODE
+  } finally {
+    $ErrorActionPreference = $previousErrorAction
+  }
+  if ($exitCode -ne 0) { throw $failureMessage }
+}
+
 function Test-WorkspaceViteRunning([string]$Root) {
   $escapedRoot = [Regex]::Escape((Resolve-Path $Root).Path)
   return [bool](Get-CimInstance Win32_Process -ErrorAction SilentlyContinue | Where-Object {
@@ -19,13 +32,11 @@ if (Test-WorkspaceViteRunning $frontendRoot) {
   Write-Host 'Workspace Vite is running; keeping its node_modules unchanged during verification.'
 } else {
   Write-Host 'Restoring exact frontend dependencies...'
-  & $npm --prefix $frontendRoot ci --no-audit --no-fund
-  if ($LASTEXITCODE -ne 0) { throw 'npm ci failed' }
+  Invoke-Npm @('--prefix', $frontendRoot, 'ci', '--no-audit', '--no-fund') 'npm ci failed'
 }
 
 Write-Host 'Building frontend...'
-& $npm --prefix $frontendRoot run build
-if ($LASTEXITCODE -ne 0) { throw 'Frontend build failed' }
+Invoke-Npm @('--prefix', $frontendRoot, 'run', 'build') 'Frontend build failed'
 
 Write-Host 'Checking browser JavaScript syntax...'
 $javascriptFiles = @(
@@ -38,11 +49,17 @@ foreach ($name in $javascriptFiles) {
 }
 
 Write-Host 'Running frontend behavior tests...'
-& $npm --prefix $frontendRoot test
-if ($LASTEXITCODE -ne 0) { throw 'Frontend behavior tests failed' }
+Invoke-Npm @('--prefix', $frontendRoot, 'test') 'Frontend behavior tests failed'
 
 Write-Host 'Running backend tests...'
-& (Join-Path $projectRoot 'mvnw.cmd') test
-if ($LASTEXITCODE -ne 0) { throw 'Backend tests failed' }
+$previousErrorAction = $ErrorActionPreference
+try {
+  $ErrorActionPreference = 'Continue'
+  & (Join-Path $projectRoot 'mvnw.cmd') test 2>&1 | ForEach-Object { Write-Host $_ }
+  $mavenExitCode = $LASTEXITCODE
+} finally {
+  $ErrorActionPreference = $previousErrorAction
+}
+if ($mavenExitCode -ne 0) { throw 'Backend tests failed' }
 
 Write-Host 'VERIFY SUCCESS: this revision is ready to commit and push.'

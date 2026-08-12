@@ -26,5 +26,19 @@ class PrioritizedTaskExecutorTest {
         while (executor.activeCount() != 0 && System.nanoTime() < deadline) Thread.onSpinWait();
         assertThat(executor.submit(id, 10, () -> { })).isTrue();
         executor.close();
+        assertThat(executor.submit(UUID.randomUUID(), 0, () -> { })).isFalse();
+    }
+
+    @Test
+    void closingWithQueuedWorkDoesNotLeakSubmissionState() throws Exception {
+        var executor = new PrioritizedTaskExecutor();
+        UUID id = UUID.randomUUID();
+        assertThat(executor.submit(id, 0, () -> { })).isTrue();
+
+        executor.close();
+
+        Thread.sleep(25);
+        assertThat(executor.queueSize()).isZero();
+        assertThat(executor.submit(id, 0, () -> { })).isFalse();
     }
 }

@@ -10,7 +10,7 @@ public class MobileReleaseNotesTest {
     @Test public void latestVersionIsPresent() {
         List<MobileReleaseNotes.Note> notes = MobileReleaseNotes.notes();
         assertTrue(!notes.isEmpty());
-        assertEquals("0.74.0", notes.get(0).version());
+        assertEquals(BuildConfig.VERSION_NAME, notes.get(0).version());
         for (MobileReleaseNotes.Note note : notes) {
             assertTrue(!note.title().isBlank());
             assertTrue(!note.body().isBlank());

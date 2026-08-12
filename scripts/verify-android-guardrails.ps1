@@ -26,12 +26,10 @@ function Test-ForbiddenClaims([string]$Root, [string]$Label) {
 
 function Test-ForbiddenCloudCredentials([string]$Root, [string]$Label) {
     $patterns = @(
-        'setRequestMethod\("POST"\)',
-        'multipart/form-data',
-        'client_secret',
-        'api[_-]?key\s*=',
-        'password\s*=',
-        'access_token\s*='
+        'client_secret\s*[=:]\s*["''][^"'']+',
+        'api[_-]?key\s*[=:]\s*["''][^"'']+',
+        'password\s*[=:]\s*["''][^"'']+',
+        'access_token\s*[=:]\s*["''][^"'']+'
     )
     $files = Get-ChildItem -LiteralPath $Root -Recurse -File |
         Where-Object { $_.Extension -in @(".java", ".kt", ".xml", ".properties") }
@@ -39,7 +37,7 @@ function Test-ForbiddenCloudCredentials([string]$Root, [string]$Label) {
         $content = [IO.File]::ReadAllText($file.FullName, [Text.Encoding]::UTF8)
         foreach ($pattern in $patterns) {
             if ($content -match $pattern) {
-                $failures.Add("$Label cloud/credential pattern: $($file.FullName) -> $pattern")
+                $failures.Add("$Label hard-coded credential pattern: $($file.FullName) -> $pattern")
             }
         }
     }

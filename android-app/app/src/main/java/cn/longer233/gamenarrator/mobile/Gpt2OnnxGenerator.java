@@ -38,8 +38,8 @@ public final class Gpt2OnnxGenerator {
         List<Integer> ids = new ArrayList<>();
         for (int id : tokenizer.encode(prompt)) ids.add(id);
 
-        OrtSession session = OnnxModelRunner.openChecked(context, "text");
-        try {
+        OrtSession session = OnnxModelRunner.cachedChecked(context, "text");
+        {
             OrtEnvironment env = OrtEnvironment.getEnvironment();
             for (int step = 0; step < MAX_TOKENS; step++) {
                 long[] inputIds = toLongArray(ids);
@@ -55,8 +55,9 @@ public final class Gpt2OnnxGenerator {
                         inputs.put(name, OnnxTensor.createTensor(env, new long[][]{attention}));
                     }
                 }
-                OrtSession.Result result = session.run(inputs);
                 try {
+                    OrtSession.Result result = session.run(inputs);
+                    try {
                     float[][][] logits = null;
                     for (Map.Entry<String, ai.onnxruntime.OnnxValue> entry : result) {
                         if (entry.getKey().toLowerCase().contains("logit")) {
@@ -68,13 +69,14 @@ public final class Gpt2OnnxGenerator {
                     int next = argmax(last);
                     ids.add(next);
                     if (next == EOS_TOKEN) break;
+                    } finally {
+                        result.close();
+                    }
                 } finally {
-                    result.close();
+                    OnnxModelRunner.closeTensors(inputs);
                 }
             }
             return tokenizer.decode(toIntArray(ids));
-        } finally {
-            OnnxModelRunner.close(session);
         }
     }
 

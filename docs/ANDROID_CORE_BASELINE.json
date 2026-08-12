@@ -1,0 +1,25 @@
+{
+  "schemaVersion": 1,
+  "minimumCoverage": 0.8,
+  "scoring": {"full": 1.0, "partial": 0.5, "missing": 0.0},
+  "capabilities": [
+    {"id":"task-lifecycle","name":"任务创建、队列、取消、重试与恢复","status":"full","evidence":"ANDROID_FEATURE_PARITY.md#创建任务、运行中、最近完成"},
+    {"id":"source-monitor","name":"源监视器与精确修剪","status":"full","evidence":"ANDROID_FEATURE_PARITY.md#源监视器与精确修剪"},
+    {"id":"storyboard","name":"完整分镜编辑与审阅","status":"full","evidence":"ANDROID_FEATURE_PARITY.md#分镜、字幕、解说、审阅"},
+    {"id":"timeline","name":"自由多轨时间线与撤回恢复","status":"full","evidence":"ANDROID_FEATURE_PARITY.md#自由时间线、撤回/恢复、分割、连接、删除"},
+    {"id":"project-history","name":"项目版本树与历史检出","status":"full","evidence":"ANDROID_FEATURE_PARITY.md#项目版本树与历史检出"},
+    {"id":"asset-library","name":"素材库、标签、派生与预览","status":"full","evidence":"ANDROID_FEATURE_PARITY.md#素材库、标签、派生与预览"},
+    {"id":"public-assets","name":"公共素材搜索与素材站导航","status":"partial","evidence":"ANDROID_FEATURE_PARITY.md#公共素材搜索与素材站导航"},
+    {"id":"media-import","name":"平台导入与下载任务","status":"partial","evidence":"ANDROID_FEATURE_PARITY.md#平台导入与下载任务"},
+    {"id":"shot-search","name":"镜头文本与图像搜索","status":"full","evidence":"ANDROID_FEATURE_PARITY.md#镜头文本/图像搜索与片段导出"},
+    {"id":"ai-settings","name":"云端与端侧 AI 设置、测试和用量","status":"full","evidence":"ANDROID_FEATURE_PARITY.md#AI 设置、用量和模型检查"},
+    {"id":"local-ai","name":"转写、画面理解、文案与配音","status":"full","evidence":"ANDROID_FEATURE_PARITY.md#转写、画面理解、文案、配音"},
+    {"id":"effects","name":"特效模板、动态字幕与转场","status":"full","evidence":"ANDROID_FEATURE_PARITY.md#特效模板、动态字幕、转场"},
+    {"id":"visual-adjustment","name":"画面调整、曲线和调色轮","status":"partial","evidence":"ANDROID_FEATURE_PARITY.md#画面调整"},
+    {"id":"keyframes","name":"关键帧和曲线编辑器","status":"full","evidence":"ANDROID_FEATURE_PARITY.md#关键帧"},
+    {"id":"export","name":"导出预设、任务与结果分享","status":"full","evidence":"ANDROID_FEATURE_PARITY.md#导出预设、任务、下载结果"},
+    {"id":"diagnostics","name":"诊断、日志导出与存储清理","status":"full","evidence":"ANDROID_FEATURE_PARITY.md#诊断、日志导出、存储清理"},
+    {"id":"onboarding","name":"使用引导与统一更新公告","status":"full","evidence":"ANDROID_FEATURE_PARITY.md#使用引导、更新公告"},
+    {"id":"release","name":"签名发行、升级与真机兼容","status":"partial","evidence":"ANDROID_FEATURE_PARITY.md#签名发行、升级与真机兼容"}
+  ]
+}

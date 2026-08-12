@@ -28,7 +28,6 @@ public final class TextEmbedding {
     private static final int PAD = 0;
 
     private static volatile Map<String, Integer> vocab;
-    private static volatile OrtSession cachedSession;
 
     private TextEmbedding() { }
 
@@ -72,28 +71,30 @@ public final class TextEmbedding {
                 inputs.put(name, OnnxTensor.createTensor(env, new long[][]{inputIds}));
             }
         }
-        OrtSession.Result result = session.run(inputs);
         try {
-            float[] vector = null;
-            for (Map.Entry<String, ai.onnxruntime.OnnxValue> entry : result) {
-                String name = entry.getKey().toLowerCase();
-                Object value = ((OnnxTensor) entry.getValue()).getValue();
-                if ((name.contains("sentence") || name.contains("dense") || name.contains("pooler"))
-                        && value instanceof float[][]) {
-                    float[][] batch = (float[][]) value;
-                    if (batch.length > 0) vector = batch[0];
-                } else if ((name.contains("last_hidden") || name.contains("hidden"))
-                        && value instanceof float[][][]) {
-                    float[][][] batch = (float[][][]) value;
-                    if (batch.length > 0 && batch[0].length > 0) vector = batch[0][0];
+            OrtSession.Result result = session.run(inputs);
+            try {
+                float[] vector = null;
+                for (Map.Entry<String, ai.onnxruntime.OnnxValue> entry : result) {
+                    String name = entry.getKey().toLowerCase();
+                    Object value = ((OnnxTensor) entry.getValue()).getValue();
+                    if ((name.contains("sentence") || name.contains("dense") || name.contains("pooler"))
+                            && value instanceof float[][]) {
+                        float[][] batch = (float[][]) value;
+                        if (batch.length > 0) vector = batch[0];
+                    } else if ((name.contains("last_hidden") || name.contains("hidden"))
+                            && value instanceof float[][][]) {
+                        float[][][] batch = (float[][][]) value;
+                        if (batch.length > 0 && batch[0].length > 0) vector = batch[0][0];
+                    }
                 }
+                if (vector == null || vector.length == 0) throw new IllegalStateException("模型输出中未找到句向量");
+                return normalize(vector);
+            } finally {
+                result.close();
             }
-            if (vector == null || vector.length == 0) {
-                throw new IllegalStateException("模型输出中未找到句向量");
-            }
-            return normalize(vector);
         } finally {
-            result.close();
+            OnnxModelRunner.closeTensors(inputs);
         }
     }
 
@@ -163,12 +164,7 @@ public final class TextEmbedding {
     }
 
     private static OrtSession session(Context context) throws Exception {
-        OrtSession local = cachedSession;
-        if (local != null) return local;
-        synchronized (TextEmbedding.class) {
-            if (cachedSession == null) cachedSession = OnnxModelRunner.openChecked(context, "embedding");
-            return cachedSession;
-        }
+        return OnnxModelRunner.cachedChecked(context, "embedding");
     }
 
     private static float[] normalize(float[] vector) {

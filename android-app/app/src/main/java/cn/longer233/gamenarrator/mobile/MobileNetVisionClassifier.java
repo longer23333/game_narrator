@@ -48,7 +48,8 @@ public final class MobileNetVisionClassifier {
         if (source == null) throw new IllegalStateException("无法读取画面");
         Bitmap resized = centerCropScale(source, SIZE, SIZE);
         float[] input = preprocess(resized);
-        OrtSession session = OnnxModelRunner.openChecked(context, "vision");
+        OrtSession session = OnnxModelRunner.cachedChecked(context, "vision");
+        Map<String, OnnxTensor> inputs = new HashMap<>();
         try {
             OrtEnvironment env = OrtEnvironment.getEnvironment();
             float[][][][] tensor = new float[1][3][SIZE][SIZE];
@@ -60,7 +61,6 @@ public final class MobileNetVisionClassifier {
                     }
                 }
             }
-            Map<String, OnnxTensor> inputs = new HashMap<>();
             for (String name : session.getInputNames()) {
                 inputs.put(name, OnnxTensor.createTensor(env, tensor));
             }
@@ -80,7 +80,8 @@ public final class MobileNetVisionClassifier {
                 result.close();
             }
         } finally {
-            OnnxModelRunner.close(session);
+            OnnxModelRunner.closeTensors(inputs);
+            if (resized != source && !resized.isRecycled()) resized.recycle();
         }
     }
 

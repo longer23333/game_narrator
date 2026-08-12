@@ -7,6 +7,7 @@ import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.Executors;
 import java.util.concurrent.PriorityBlockingQueue;
+import java.util.concurrent.RejectedExecutionException;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicLong;
 
@@ -30,8 +31,13 @@ public class PrioritizedTaskExecutor {
     PrioritizedTaskExecutor(int ignoredWorkers) { this(); }
 
     public boolean submit(UUID taskId, int priority, Runnable action) {
+        if (closing) return false;
         PrioritizedWork work = new PrioritizedWork(taskId, priority, sequence.incrementAndGet(), action);
         if (submitted.putIfAbsent(taskId, work) != null) return false;
+        if (closing) {
+            submitted.remove(taskId, work);
+            return false;
+        }
         queue.add(work);
         return true;
     }
@@ -56,7 +62,12 @@ public class PrioritizedTaskExecutor {
     private void dispatch() {
         while (!closing) try {
             PrioritizedWork work = queue.take();
-            waitingThreads.execute(() -> run(work));
+            try {
+                waitingThreads.execute(() -> run(work));
+            } catch (RejectedExecutionException rejected) {
+                submitted.remove(work.taskId, work);
+                if (!closing) throw rejected;
+            }
         } catch (InterruptedException interrupted) {
             if (!closing) Thread.currentThread().interrupt();
         }
@@ -74,6 +85,8 @@ public class PrioritizedTaskExecutor {
     @PreDestroy public void close() {
         closing = true;
         dispatcher.interrupt();
+        queue.forEach(work -> submitted.remove(work.taskId, work));
+        queue.clear();
         waitingThreads.shutdownNow();
     }
 

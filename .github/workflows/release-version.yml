@@ -4,14 +4,12 @@ on:
   workflow_dispatch:
     inputs:
       version:
-        description: 'Web/Windows 语义版本，例如 2.1.5'
-        required: true
-      android_version:
-        description: 'Android 版本，例如 0.68.0'
+        description: 'Web/Windows/Android 统一语义版本，例如 2.3.0'
         required: true
       android_version_code:
-        description: 'Android 递增版本号，例如 68'
-        required: true
+        description: '可选 Android versionCode；0 表示按语义版本自动生成'
+        required: false
+        default: '0'
       title:
         description: '中文发布标题'
         required: true
@@ -32,6 +30,11 @@ jobs:
           distribution: temurin
           java-version: '21'
           cache: maven
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: npm
+          cache-dependency-path: frontend/package-lock.json
       - name: 检查标签不存在
         shell: pwsh
         run: |
@@ -40,19 +43,36 @@ jobs:
         shell: pwsh
         env:
           RELEASE_VERSION: ${{ inputs.version }}
-          ANDROID_VERSION: ${{ inputs.android_version }}
           ANDROID_VERSION_CODE: ${{ inputs.android_version_code }}
           RELEASE_TITLE: ${{ inputs.title }}
         run: |
-          ./scripts/update-release-version.ps1 -Version $env:RELEASE_VERSION -AndroidVersion $env:ANDROID_VERSION -AndroidVersionCode ([int]$env:ANDROID_VERSION_CODE) -Title $env:RELEASE_TITLE
-      - name: 校验 Web 与后端
+          ./scripts/update-release-version.ps1 -Version $env:RELEASE_VERSION -AndroidVersionCode ([int]$env:ANDROID_VERSION_CODE) -Title $env:RELEASE_TITLE
+      - name: 校验统一版本和 Android 功能基线
         shell: pwsh
         run: |
-          npm --prefix frontend install
+          ./scripts/verify-release-alignment.ps1
+          ./scripts/verify-android-guardrails.ps1
+      - name: 构建并校验 Web 与后端发布包
+        shell: pwsh
+        run: |
+          npm --prefix frontend ci
           npm --prefix frontend run build
           node --check src/main/resources/static/app.js
           node --check src/main/resources/static/updates.js
           ./mvnw.cmd -q test
+          ./mvnw.cmd -q package -DskipTests
+      - name: 构建并校验 Android release 包
+        shell: pwsh
+        run: |
+          ./android-app/gradlew.bat -p android-app testDebugUnitTest assembleRelease
+      - name: 上传 Web 与 Android 统一版本产物
+        uses: actions/upload-artifact@v4
+        with:
+          name: GameNarrator-${{ inputs.version }}-Web-Android
+          if-no-files-found: error
+          path: |
+            target/game-narrator-${{ inputs.version }}.jar
+            android-app/app/build/outputs/apk/release/app-release*.apk
       - name: 提交并创建中文发布标签
         shell: pwsh
         run: |
