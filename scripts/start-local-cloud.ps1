@@ -70,6 +70,9 @@ Write-Host 'MinIO 控制台：http://127.0.0.1:9001 / 用户 game_narrator / 密
 Write-Host '对象存储桶：game-narrator（私有）'
 
 if ($StartBackend) {
+    # Local Docker Compose development credentials only. Remote deployments must provide their own secrets.
+    $env:POSTGRES_PASSWORD = 'game_narrator'
+    $env:GAME_NARRATOR_SECRET_KEY = 'AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA='
     $env:CLOUD_SYNC_ENABLED = 'true'
     $env:OBJECT_STORAGE_ENDPOINT = 'http://127.0.0.1:9000'
     $env:OBJECT_STORAGE_REGION = 'us-east-1'

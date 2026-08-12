@@ -1,7 +1,7 @@
 ﻿# GameNarrator — DeepSeek 结构化项目索引
 
-> 自动生成：2026-08-12 10:06:20 +08:00；UTF-8 BOM；索引不再内嵌全部源码。
-> Git：分支 `main`，提交 `65f1006`；收录文件 753 个，分卷 8 个。
+> 自动生成：2026-08-12 10:13:23 +08:00；UTF-8 BOM；索引不再内嵌全部源码。
+> Git：分支 `main`，提交 `7197887`；收录文件 755 个，分卷 8 个。
 
 ## 使用方法
 
@@ -27,28 +27,31 @@
 
 | 分卷 | 文件数 | 字符数 | 建议用途 |
 |---|---:|---:|---|
-| `deepseek-context/01-foundation.md` | 86 | 216315 | 构建、配置、资源、数据库迁移 |
-| `deepseek-context/02-backend.md` | 280 | 1086687 | Spring 后端实现 |
-| `deepseek-context/03-tests.md` | 90 | 269799 | Spring 测试与行为验证 |
+| `deepseek-context/01-foundation.md` | 86 | 216359 | 构建、配置、资源、数据库迁移 |
+| `deepseek-context/02-backend.md` | 281 | 1089456 | Spring 后端实现 |
+| `deepseek-context/03-tests.md` | 91 | 272917 | Spring 测试与行为验证 |
 | `deepseek-context/04-frontend.md` | 38 | 536559 | Vite Web 源码 |
 | `deepseek-context/05-android-main.md` | 138 | 848306 | Android 实现、资源与 Gradle |
 | `deepseek-context/06-android-tests.md` | 55 | 128912 | Android 单元及设备测试 |
 | `deepseek-context/07-platform-release.md` | 11 | 54651 | Windows、CI/CD 与发布 |
-| `deepseek-context/08-docs-scripts.md` | 55 | 209252 | 需求、架构、维护脚本 |
+| `deepseek-context/08-docs-scripts.md` | 55 | 209598 | 需求、架构、维护脚本 |
 
 ## 当前 Git 工作区（最近修改）
 
 ```text
-M docs/ANDROID_CORE_BASELINE.json
- M docs/ANDROID_FEATURE_PARITY.md
- M docs/RELEASE_PROCESS.md
- M scripts/verify-release-alignment.ps1
+M docs/CONFIGURATION_REFERENCE.md
+ M scripts/start-local-cloud.ps1
+ M src/main/java/cn/longer233/gamenarrator/GameNarratorApplication.java
  M src/main/java/cn/longer233/gamenarrator/ai/AiSettingsController.java
  M src/main/java/cn/longer233/gamenarrator/editor/EditorTimelineService.java
  M src/main/java/cn/longer233/gamenarrator/event/BattleNarrativePlanService.java
+ M src/main/java/cn/longer233/gamenarrator/identity/LocalSecretCipher.java
  M src/main/java/cn/longer233/gamenarrator/pipeline/ProjectArtifactRegistry.java
+ M src/main/resources/application-postgresql.yml
  M src/main/resources/application.yml
  M src/test/java/cn/longer233/gamenarrator/event/BattleNarrativePlanServiceTest.java
+?? src/main/java/cn/longer233/gamenarrator/ProductionCredentialGuard.java
+?? src/test/java/cn/longer233/gamenarrator/ProductionCredentialGuardTest.java
 ?? src/test/java/cn/longer233/gamenarrator/StaticResourceCompressionTest.java
 ```
 

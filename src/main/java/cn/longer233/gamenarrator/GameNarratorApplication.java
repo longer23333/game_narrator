@@ -12,7 +12,7 @@ public class GameNarratorApplication {
 
     public static void main(String[] args) {
         SpringApplication application = new SpringApplication(GameNarratorApplication.class);
-        application.addInitializers(new LocalOnlyServerBindingGuard());
+        application.addInitializers(new ProductionCredentialGuard(), new LocalOnlyServerBindingGuard());
         application.run(args);
     }
 }

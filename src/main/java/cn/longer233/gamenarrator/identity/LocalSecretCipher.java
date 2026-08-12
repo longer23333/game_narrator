@@ -15,7 +15,7 @@ public class LocalSecretCipher {
     private final SecretKeySpec key;
     private final SecureRandom random = new SecureRandom();
     public LocalSecretCipher(@Value("${game-narrator.data-root:${GAME_NARRATOR_DATA_ROOT:./data}}") String root,
-                             @Value("${GAME_NARRATOR_SECRET_KEY:}") String override) {
+                             @Value("${game-narrator.security.master-key:${GAME_NARRATOR_SECRET_KEY:}}") String override) {
         try {
             byte[] bytes;
             if (override != null && !override.isBlank()) bytes = Base64.getDecoder().decode(override.strip());
