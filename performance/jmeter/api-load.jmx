@@ -1,0 +1,51 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<jmeterTestPlan version="1.2" properties="5.0" jmeter="5.6.3">
+  <hashTree>
+    <TestPlan guiclass="TestPlanGui" testclass="TestPlan" testname="GameNarrator concurrent API baseline">
+      <stringProp name="TestPlan.comments">Creates tasks and exercises list/export preset queries. Override baseUrl, users, rampSeconds, durationSeconds and videoFile with -J.</stringProp>
+      <boolProp name="TestPlan.functional_mode">false</boolProp>
+    </TestPlan>
+    <hashTree>
+      <ThreadGroup guiclass="ThreadGroupGui" testclass="ThreadGroup" testname="Concurrent creators and readers">
+        <stringProp name="ThreadGroup.num_threads">${__P(users,8)}</stringProp>
+        <stringProp name="ThreadGroup.ramp_time">${__P(rampSeconds,10)}</stringProp>
+        <boolProp name="ThreadGroup.scheduler">true</boolProp>
+        <stringProp name="ThreadGroup.duration">${__P(durationSeconds,60)}</stringProp>
+        <elementProp name="ThreadGroup.main_controller" elementType="LoopController">
+          <boolProp name="LoopController.continue_forever">true</boolProp>
+          <stringProp name="LoopController.loops">-1</stringProp>
+        </elementProp>
+      </ThreadGroup>
+      <hashTree>
+        <HTTPSamplerProxy guiclass="HttpTestSampleGui" testclass="HTTPSamplerProxy" testname="GET task list">
+          <stringProp name="HTTPSampler.domain">${__P(host,127.0.0.1)}</stringProp><stringProp name="HTTPSampler.port">${__P(port,8080)}</stringProp>
+          <stringProp name="HTTPSampler.path">/api/tasks</stringProp><stringProp name="HTTPSampler.method">GET</stringProp>
+        </HTTPSamplerProxy><hashTree/>
+        <HTTPSamplerProxy guiclass="HttpTestSampleGui" testclass="HTTPSamplerProxy" testname="GET export presets">
+          <stringProp name="HTTPSampler.domain">${__P(host,127.0.0.1)}</stringProp><stringProp name="HTTPSampler.port">${__P(port,8080)}</stringProp>
+          <stringProp name="HTTPSampler.path">/api/export-presets</stringProp><stringProp name="HTTPSampler.method">GET</stringProp>
+        </HTTPSamplerProxy><hashTree/>
+        <IfController guiclass="IfControllerPanel" testclass="IfController" testname="Create task when videoFile is configured">
+          <stringProp name="IfController.condition">${__groovy(props.get('videoFile') != null &amp;&amp; !props.get('videoFile').isBlank())}</stringProp>
+        </IfController>
+        <hashTree>
+          <HTTPSamplerProxy guiclass="HttpTestSampleGui" testclass="HTTPSamplerProxy" testname="POST create task">
+            <stringProp name="HTTPSampler.domain">${__P(host,127.0.0.1)}</stringProp><stringProp name="HTTPSampler.port">${__P(port,8080)}</stringProp>
+            <stringProp name="HTTPSampler.path">/api/tasks</stringProp><stringProp name="HTTPSampler.method">POST</stringProp>
+            <boolProp name="HTTPSampler.DO_MULTIPART_POST">true</boolProp>
+            <elementProp name="HTTPsampler.Arguments" elementType="Arguments"><collectionProp name="Arguments.arguments">
+              <elementProp name="name" elementType="HTTPArgument"><stringProp name="Argument.name">name</stringProp><stringProp name="Argument.value">load-${__threadNum}-${__time}</stringProp></elementProp>
+              <elementProp name="gameCategory" elementType="HTTPArgument"><stringProp name="Argument.name">gameCategory</stringProp><stringProp name="Argument.value">ACTION</stringProp></elementProp>
+              <elementProp name="commentaryStyle" elementType="HTTPArgument"><stringProp name="Argument.name">commentaryStyle</stringProp><stringProp name="Argument.value">ANIME_THEATER</stringProp></elementProp>
+              <elementProp name="targetDurationSeconds" elementType="HTTPArgument"><stringProp name="Argument.name">targetDurationSeconds</stringProp><stringProp name="Argument.value">15</stringProp></elementProp>
+              <elementProp name="taskBrief" elementType="HTTPArgument"><stringProp name="Argument.name">taskBrief</stringProp><stringProp name="Argument.value">performance baseline</stringProp></elementProp>
+              <elementProp name="automaticGenerationEnabled" elementType="HTTPArgument"><stringProp name="Argument.name">automaticGenerationEnabled</stringProp><stringProp name="Argument.value">false</stringProp></elementProp>
+            </collectionProp></elementProp>
+            <elementProp name="HTTPsampler.Files" elementType="HTTPFileArgs"><collectionProp name="HTTPFileArgs.files"><elementProp name="${__P(videoFile,)}" elementType="HTTPFileArg"><stringProp name="File.path">${__P(videoFile,)}</stringProp><stringProp name="File.paramname">video</stringProp><stringProp name="File.mimetype">video/mp4</stringProp></elementProp></collectionProp></elementProp>
+          </HTTPSamplerProxy><hashTree/>
+          <TestAction guiclass="TestActionGui" testclass="TestAction" testname="Limit creation rate"><intProp name="ActionProcessor.action">1</intProp><intProp name="ActionProcessor.target">0</intProp><stringProp name="ActionProcessor.duration">5000</stringProp></TestAction><hashTree/>
+        </hashTree>
+      </hashTree>
+    </hashTree>
+  </hashTree>
+</jmeterTestPlan>
