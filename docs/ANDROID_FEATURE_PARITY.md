@@ -70,7 +70,7 @@
 | 设备端取消 | DeviceExportSmokeTest.cancelStopsExportOnDevice 真实调用 Transformer.cancel，取消回调缺失时由 5 秒兜底进入 CANCELLED |
 
 CI 的 `android-emulator` job 会在 API 35 x86_64 模拟器上运行核心
-`connectedDebugAndroidTest` 门禁，覆盖加密 AI 凭据、Room schema/迁移、测试模型复制和
+`connectedDebugAndroidTest` 门禁，覆盖加密 AI 凭据、生产 SQLite schema/持久化、测试模型复制和
 ONNX 缺失模型错误路径。Media3 Transformer 导出、内置 FFmpeg、完整 ONNX 模型加载和
 4K 压力场景保留在真机/重型设备验证中；文档中的具体通过数量只代表对应设备运行记录，
 不能替代持续 CI 结果。

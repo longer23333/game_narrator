@@ -118,7 +118,6 @@ public final class MainActivity extends AppCompatActivity {
     ProjectController projects;
     ProjectBackupManager projectBackups;
     PersistentSnapshotHistory projectHistory;
-    GameNarratorRoomDatabase roomDatabase;
     DialogController dialogs;
     MainActivityActions actions;
 
@@ -147,13 +146,12 @@ public final class MainActivity extends AppCompatActivity {
         player = new ExoPlayer.Builder(this).build();
         projectStore = new MobileProjectStore(this);
         projectBackups = new ProjectBackupManager(this, projectStore.projects());
-        roomDatabase = GameNarratorRoomDatabase.open(this);
         thumbnails.execute(() -> {
             try {
                 MobileModelBundler.ensureBundled(this);
             } catch (Exception ignored) { }
         });
-        projectHistory = new PersistentSnapshotHistory(new RoomEditHistoryStore(roomDatabase.editHistoryDao()));
+        projectHistory = new PersistentSnapshotHistory(new SqliteEditHistoryStore(projectStore.database()));
         projectState = new ProjectState() {
             @Override public ProjectSnapshot capture() {
                 return ProjectSnapshot.capture(projectStore, clips);
@@ -483,7 +481,6 @@ public final class MainActivity extends AppCompatActivity {
         if(activeDownload!=null)activeDownload.cancel(true);downloads.shutdownNow();
         player.release();
         if(projectBackups!=null)projectBackups.close();
-        if(roomDatabase!=null)roomDatabase.close();
         projectStore.close();
         super.onDestroy();
     }

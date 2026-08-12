@@ -59,5 +59,6 @@ foreach ($file in $files) {
     [void]$builder.AppendLine("~~~~")
     [void]$builder.AppendLine()
 }
-[IO.File]::WriteAllText($resolvedOutput, $builder.ToString(), $utf8NoBom)
-Write-Host "Android AI context updated: $resolvedOutput ($($builder.Length) characters)"
+$output = $builder.ToString().TrimEnd("`r", "`n") + [Environment]::NewLine
+[IO.File]::WriteAllText($resolvedOutput, $output, $utf8NoBom)
+Write-Host "Android AI context updated: $resolvedOutput ($($output.Length) characters)"

@@ -78,7 +78,7 @@ jobs:
           working-directory: android-app
           script: >-
             ./gradlew connectedDebugAndroidTest
-            -Pandroid.testInstrumentationRunnerArguments.class=cn.longer233.gamenarrator.mobile.AiCloudSettingsTest,cn.longer233.gamenarrator.mobile.MobileModelBundlerTest,cn.longer233.gamenarrator.mobile.OnnxModelRunnerTest,cn.longer233.gamenarrator.mobile.RoomMigrationTest,cn.longer233.gamenarrator.mobile.RoomSchemaTest
+            -Pandroid.testInstrumentationRunnerArguments.class=cn.longer233.gamenarrator.mobile.AiCloudSettingsTest,cn.longer233.gamenarrator.mobile.MobileModelBundlerTest,cn.longer233.gamenarrator.mobile.OnnxModelRunnerTest,cn.longer233.gamenarrator.mobile.ProductionDatabaseTest
       - name: Upload instrumentation reports
         if: always()
         uses: actions/upload-artifact@v4
