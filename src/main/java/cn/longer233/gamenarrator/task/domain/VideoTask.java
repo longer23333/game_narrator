@@ -341,6 +341,11 @@ public class VideoTask {
         stage(type).updateProgress(progress);
     }
 
+    public void updateStageProgress(ProcessingStageType type, int progress, String unit,
+                                    int current, int total, String detail) {
+        stage(type).updateProgress(progress, unit, current, total, detail);
+    }
+
     public void prepareRetry() {
         if (status == TaskStatus.CANCELLED) {
             ProcessingStage cancelledStage = stages.stream()

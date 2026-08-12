@@ -1,4 +1,4 @@
--- Generated H2 baseline through V38. Do not edit; run scripts/build-migration-baselines.ps1.
+-- Generated H2 baseline through V39. Do not edit; run scripts/build-migration-baselines.ps1.
 
 -- source: V1__database_v2_foundation.sql
 CREATE TABLE IF NOT EXISTS video_tasks (
@@ -1051,3 +1051,9 @@ CREATE INDEX IF NOT EXISTS idx_processing_stages_task_updated ON processing_stag
 ALTER TABLE video_tasks ADD COLUMN IF NOT EXISTS processing_priority INTEGER NOT NULL DEFAULT 0;
 CREATE INDEX IF NOT EXISTS idx_video_tasks_processing_priority
     ON video_tasks(processing_priority DESC, created_at ASC);
+
+-- source: V39__stage_subprogress.sql
+ALTER TABLE processing_stages ADD COLUMN IF NOT EXISTS subprogress_unit VARCHAR(24);
+ALTER TABLE processing_stages ADD COLUMN IF NOT EXISTS subprogress_current INT;
+ALTER TABLE processing_stages ADD COLUMN IF NOT EXISTS subprogress_total INT;
+ALTER TABLE processing_stages ADD COLUMN IF NOT EXISTS subprogress_detail VARCHAR(240);

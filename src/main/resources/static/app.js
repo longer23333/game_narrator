@@ -284,6 +284,13 @@ function renderingProgressText(task, stage) {
     : `正在编码片段 ${current}/${total} · ${stage.progress}%`;
 }
 
+function stageSubprogressText(stage) {
+  if (!stage.subprogressUnit) return '';
+  const labels = {CLIP:'片段', FRAME:'画面帧', MODEL:'模型', RENDER:'成片合成'};
+  const count = stage.subprogressTotal > 0 ? ` ${stage.subprogressCurrent}/${stage.subprogressTotal}` : '';
+  return `${labels[stage.subprogressUnit] || stage.subprogressUnit}${count}${stage.subprogressDetail ? ` · ${stage.subprogressDetail}` : ''}`;
+}
+
 function missingToolGuidance(task) {
   const reason = task.stages.find(stage => stage.status === 'PENDING' && stage.errorMessage)?.errorMessage || '';
   if (/whisper/i.test(reason)) return '缺少 Whisper：请运行 .\\scripts\\setup-whisper.ps1，完成后任务会自动重试。';
@@ -824,7 +831,7 @@ function renderTaskDetails(task) {
       <div class="stage-details">${task.stages.map(stage => `
         <article class="stage-row ${stage.status.toLowerCase()}">
           <span class="stage-index">${String(stage.sequence).padStart(2, '0')}</span>
-          <div class="stage-info"><strong>${stageNames[stage.type]}</strong><small>${stage.status}${stage.errorMessage ? ` · ${escapeHtml(stage.errorMessage)}` : ''}</small></div>
+          <div class="stage-info"><strong>${stageNames[stage.type]}</strong><small>${stage.status}${stageSubprogressText(stage) ? ` · ${escapeHtml(stageSubprogressText(stage))}` : ''}${stage.errorMessage ? ` · ${escapeHtml(stage.errorMessage)}` : ''}</small></div>
           <div class="stage-progress"><i style="width:${stage.progress}%"></i></div>
           <b>${stage.progress}%</b>
         </article>`).join('')}

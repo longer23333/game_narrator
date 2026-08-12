@@ -11,7 +11,11 @@ public record StageView(
         int sequence,
         StageStatus status,
         int progress,
-        String errorMessage
+        String errorMessage,
+        String subprogressUnit,
+        Integer subprogressCurrent,
+        Integer subprogressTotal,
+        String subprogressDetail
 ) {
     static StageView from(ProcessingStage stage) {
         return new StageView(
@@ -20,7 +24,11 @@ public record StageView(
                 stage.getSequenceNumber(),
                 stage.getStatus(),
                 stage.getProgress(),
-                stage.getErrorMessage()
+                stage.getErrorMessage(),
+                stage.getSubprogressUnit(),
+                stage.getSubprogressCurrent(),
+                stage.getSubprogressTotal(),
+                stage.getSubprogressDetail()
         );
     }
 }

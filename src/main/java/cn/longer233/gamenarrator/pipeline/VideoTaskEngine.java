@@ -236,7 +236,7 @@ public class VideoTaskEngine {
                 stateService.markVideoUnderstandingRunning(taskId);
                 EngineTaskContext analysisContext = context;
                 VideoUnderstandingResult result = retryExecutor.analysis(() -> analysisContext.cloudVisionEnabled()
-                        ? visionClient.analyze(Path.of(analysisContext.sceneManifestPath()), analysisContext.transcriptText(),
+                        ? visionClient.analyzeDetailed(Path.of(analysisContext.sceneManifestPath()), analysisContext.transcriptText(),
                             progress -> stateService.updateStageProgress(taskId,
                                     ProcessingStageType.VIDEO_UNDERSTANDING, progress))
                         : visionClient.analyzeWithoutAi(Path.of(analysisContext.sceneManifestPath()), analysisContext.transcriptText()));
@@ -309,7 +309,7 @@ public class VideoTaskEngine {
                 }
                 stateService.markVoiceGenerationRunning(taskId);
                 VoiceGenerationResult result = context.aiVoiceEnabled()
-                        ? voiceGenerator.generate(Path.of(context.generatedScriptPath()),
+                        ? voiceGenerator.generateDetailed(Path.of(context.generatedScriptPath()),
                             progress -> stateService.updateStageProgress(taskId,
                                     ProcessingStageType.VOICE_GENERATION, progress))
                         : silentVoiceGenerator.generate(Path.of(context.generatedScriptPath()));
@@ -345,7 +345,7 @@ public class VideoTaskEngine {
                 var preset = effectPresetCatalog.require(context.commentaryStyle());
                 var settings = new EffectSettingsRequest(preset.code(), null, true, true, true, null,
                         false, 0d, 1d, 1d, 0d, false);
-                RenderResult result = videoRenderer.render(sourcePath, Path.of(context.timelinePath()),
+                RenderResult result = videoRenderer.renderDetailed(sourcePath, Path.of(context.timelinePath()),
                         context.hasAudio(), preset, settings,
                         progress -> stateService.updateStageProgress(taskId,
                                 ProcessingStageType.RENDERING, progress));

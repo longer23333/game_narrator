@@ -78,6 +78,13 @@ public class FfmpegVideoRenderer {
     public RenderResult render(Path sourceVideo, Path timelinePath, boolean hasSourceAudio,
                                EffectPreset preset, EffectSettingsRequest settings,
                                java.util.function.IntConsumer progressConsumer) {
+        return renderDetailed(sourceVideo, timelinePath, hasSourceAudio, preset, settings,
+                update -> progressConsumer.accept(update.percent()));
+    }
+
+    public RenderResult renderDetailed(Path sourceVideo, Path timelinePath, boolean hasSourceAudio,
+                               EffectPreset preset, EffectSettingsRequest settings,
+                               java.util.function.Consumer<cn.longer233.gamenarrator.pipeline.StageProgressUpdate> progressConsumer) {
         Path workDirectory = timelinePath.getParent().resolve("render-work");
         try {
             var root = objectMapper.readTree(timelinePath.toFile());
@@ -118,14 +125,18 @@ public class FfmpegVideoRenderer {
                 try {
                     encodeClip(sourceVideo, segment, clip, hasSourceAudio, encoder, effectPlan, preset,
                             settings, lutPath, visualAssets(storyboardAssets, segment.sequence()), fraction -> progressConsumer.accept(
-                                    10 + (int) Math.floor((clipPosition + fraction) / segments.size() * 65)));
+                                    cn.longer233.gamenarrator.pipeline.StageProgressUpdate.of(
+                                            10 + (int) Math.floor((clipPosition + fraction) / segments.size() * 65),
+                                            "CLIP", clipPosition + 1, segments.size(), "片段编码")));
                 } catch (IllegalStateException exception) {
                     if (index == 0 && !"libx264".equals(encoder)) {
                         log.warn("RENDER_ENCODER_FALLBACK from={} to=libx264 reason={}", encoder, exception.getMessage());
                         encoder = "libx264";
                         encodeClip(sourceVideo, segment, clip, hasSourceAudio, encoder, effectPlan, preset,
                                 settings, lutPath, visualAssets(storyboardAssets, segment.sequence()), fraction -> progressConsumer.accept(
-                                        10 + (int) Math.floor((clipPosition + fraction) / segments.size() * 65)));
+                                        cn.longer233.gamenarrator.pipeline.StageProgressUpdate.of(
+                                                10 + (int) Math.floor((clipPosition + fraction) / segments.size() * 65),
+                                                "CLIP", clipPosition + 1, segments.size(), "片段编码（软件编码回退）")));
                     } else {
                         throw exception;
                     }
@@ -172,7 +183,8 @@ public class FfmpegVideoRenderer {
                     "-c", "copy", baseVideo.toString()), Duration.ofMinutes(30), "片段拼接");
 
             Path subtitle = taskDirectory.resolve("generated-subtitles.srt");
-            progressConsumer.accept(80);
+            progressConsumer.accept(cn.longer233.gamenarrator.pipeline.StageProgressUpdate.of(
+                    80, "RENDER", 1, 3, "拼接片段与生成字幕"));
             cn.longer233.gamenarrator.common.AtomicArtifactWriter.writeText(
                     subtitle, buildSrt(segments), StandardCharsets.UTF_8);
             boolean soundEffects = settings != null && Boolean.TRUE.equals(settings.soundEffects());
@@ -197,7 +209,8 @@ public class FfmpegVideoRenderer {
                     preset == null ? 0.20 : preset.sourceAudioVolume(), burnSubtitles ? dynamicSubtitle : null, soundCues,
                     storyboardAssets.stream().filter(RenderAssetResolver.RenderAsset::audio).toList(), encoder);
             long size = Files.size(output);
-            progressConsumer.accept(95);
+            progressConsumer.accept(cn.longer233.gamenarrator.pipeline.StageProgressUpdate.of(
+                    95, "RENDER", 3, 3, "混音、字幕与成片封装"));
             log.info("RENDERING_SUCCESS encoder={} duration={} sizeBytes={} output={}",
                     encoder, root.path("outputDurationSeconds").asDouble(), size, output);
             return new RenderResult(output.toString(), subtitle.toString(), size);

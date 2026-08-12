@@ -96,6 +96,11 @@ public class PiperVoiceGenerator {
     }
 
     public VoiceGenerationResult generate(Path scriptPath, IntConsumer progress) {
+        return generateDetailed(scriptPath, update -> progress.accept(update.percent()));
+    }
+
+    public VoiceGenerationResult generateDetailed(Path scriptPath,
+            java.util.function.Consumer<cn.longer233.gamenarrator.pipeline.StageProgressUpdate> progress) {
         if (!available()) {
             throw new IllegalStateException("等待本地 Piper 配音引擎；请执行 .\\scripts\\setup-piper.ps1");
         }
@@ -119,7 +124,9 @@ public class PiperVoiceGenerator {
                         resolved.speed(), resolved.profileId(), resolved.emotion(), resolved.pitch()));
                 log.info("VOICE_SEGMENT_SUCCESS clipIndex={} characters={} output={}",
                         script.clipIndex(), script.narration().length(), output);
-                progress.accept(10 + (int) Math.round((index + 1) * 85.0 / scripts.size()));
+                progress.accept(cn.longer233.gamenarrator.pipeline.StageProgressUpdate.of(
+                        10 + (int) Math.round((index + 1) * 85.0 / scripts.size()),
+                        "MODEL", index + 1, scripts.size(), "Piper 逐段合成"));
             }
             Path manifest = scriptPath.getParent().resolve("voice-manifest.json");
             Map<String, Object> result = new LinkedHashMap<>();

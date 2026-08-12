@@ -3,7 +3,7 @@ param([switch]$Check)
 $ErrorActionPreference = 'Stop'
 $root = (Resolve-Path (Join-Path $PSScriptRoot '..')).Path
 $utf8 = [Text.UTF8Encoding]::new($false)
-$version = 38
+$version = 39
 
 function Build-Baseline([string]$sourceDirectory, [string]$database) {
     $files = Get-ChildItem $sourceDirectory -Filter 'V*.sql' | Sort-Object {
@@ -22,8 +22,8 @@ function Build-Baseline([string]$sourceDirectory, [string]$database) {
 }
 
 $targets = [ordered]@{
-    'src/main/resources/db/baseline-h2/B38__version_2_2_4_baseline.sql' = Build-Baseline (Join-Path $root 'src/main/resources/db/migration') 'H2'
-    'src/main/resources/db/baseline-postgresql/B38__version_2_2_4_baseline.sql' = Build-Baseline (Join-Path $root 'src/main/resources/db/migration-postgresql') 'PostgreSQL'
+    'src/main/resources/db/baseline-h2/B39__version_2_2_4_baseline.sql' = Build-Baseline (Join-Path $root 'src/main/resources/db/migration') 'H2'
+    'src/main/resources/db/baseline-postgresql/B39__version_2_2_4_baseline.sql' = Build-Baseline (Join-Path $root 'src/main/resources/db/migration-postgresql') 'PostgreSQL'
 }
 
 foreach ($entry in $targets.GetEnumerator()) {

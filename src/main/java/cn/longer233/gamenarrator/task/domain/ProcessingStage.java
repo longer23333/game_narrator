@@ -35,6 +35,13 @@ public class ProcessingStage {
     @Column(length = 1000)
     private String errorMessage;
 
+    @Column(length = 24)
+    private String subprogressUnit;
+    private Integer subprogressCurrent;
+    private Integer subprogressTotal;
+    @Column(length = 240)
+    private String subprogressDetail;
+
     @UpdateTimestamp
     @Column(nullable = false)
     private Instant updatedAt;
@@ -57,17 +64,23 @@ public class ProcessingStage {
     public StageStatus getStatus() { return status; }
     public int getProgress() { return progress; }
     public String getErrorMessage() { return errorMessage; }
+    public String getSubprogressUnit() { return subprogressUnit; }
+    public Integer getSubprogressCurrent() { return subprogressCurrent; }
+    public Integer getSubprogressTotal() { return subprogressTotal; }
+    public String getSubprogressDetail() { return subprogressDetail; }
 
     public void start() {
         this.status = StageStatus.RUNNING;
         this.progress = 10;
         this.errorMessage = null;
+        clearSubprogress();
     }
 
     public void complete() {
         this.status = StageStatus.COMPLETED;
         this.progress = 100;
         this.errorMessage = null;
+        clearSubprogress();
     }
 
     public void updateProgress(int progress) {
@@ -75,16 +88,34 @@ public class ProcessingStage {
         this.progress = Math.max(this.progress, Math.min(99, Math.max(10, progress)));
     }
 
+    public void updateProgress(int progress, String unit, int current, int total, String detail) {
+        updateProgress(progress);
+        if (this.status != StageStatus.RUNNING) return;
+        this.subprogressUnit = unit;
+        this.subprogressCurrent = Math.max(0, current);
+        this.subprogressTotal = Math.max(this.subprogressCurrent, total);
+        this.subprogressDetail = detail;
+    }
+
+    private void clearSubprogress() {
+        subprogressUnit = null;
+        subprogressCurrent = null;
+        subprogressTotal = null;
+        subprogressDetail = null;
+    }
+
     public void fail(String message) {
         this.status = StageStatus.FAILED;
         this.progress = 0;
         this.errorMessage = message == null || message.length() <= 900 ? message : message.substring(0, 897) + "...";
+        clearSubprogress();
     }
 
     public void defer(String message) {
         this.status = StageStatus.PENDING;
         this.progress = 0;
         this.errorMessage = message == null || message.length() <= 900 ? message : message.substring(0, 897) + "...";
+        clearSubprogress();
     }
 
     public void prepareRetry() {
@@ -94,6 +125,7 @@ public class ProcessingStage {
         this.status = StageStatus.PENDING;
         this.progress = 0;
         this.errorMessage = null;
+        clearSubprogress();
     }
 
     public void prepareResume() {
@@ -102,11 +134,13 @@ public class ProcessingStage {
         }
         this.progress = 0;
         this.errorMessage = null;
+        clearSubprogress();
     }
 
     public void reset() {
         this.status = StageStatus.PENDING;
         this.progress = 0;
         this.errorMessage = null;
+        clearSubprogress();
     }
 }

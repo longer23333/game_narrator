@@ -93,6 +93,30 @@ class VideoTaskTest {
     }
 
     @Test
+    void detailedProgressKeepsExactWorkUnitAndClearsItAtTerminalState() {
+        VideoTask task = new VideoTask("Progress", "ACTION", CommentaryStyle.ANIME_THEATER,
+                90, "brief", "storage/demo.mp4");
+        task.startVideoUnderstanding();
+
+        task.updateStageProgress(ProcessingStageType.VIDEO_UNDERSTANDING,
+                42, "FRAME", 7, 18, "事件窗口二次检测");
+        ProcessingStage stage = task.getStages().stream()
+                .filter(item -> item.getStageType() == ProcessingStageType.VIDEO_UNDERSTANDING)
+                .findFirst().orElseThrow();
+
+        assertThat(stage.getProgress()).isEqualTo(42);
+        assertThat(stage.getSubprogressUnit()).isEqualTo("FRAME");
+        assertThat(stage.getSubprogressCurrent()).isEqualTo(7);
+        assertThat(stage.getSubprogressTotal()).isEqualTo(18);
+        assertThat(stage.getSubprogressDetail()).isEqualTo("事件窗口二次检测");
+
+        task.completeVideoUnderstanding("summary", "analysis.json", 18);
+        assertThat(stage.getSubprogressUnit()).isNull();
+        assertThat(stage.getSubprogressCurrent()).isNull();
+        assertThat(stage.getSubprogressDetail()).isNull();
+    }
+
+    @Test
     void renameTrimsAndValidatesTheDisplayName() {
         VideoTask task = new VideoTask("Old", "ACTION", CommentaryStyle.ANIME_THEATER,
                 90, "brief", "storage/demo.mp4");

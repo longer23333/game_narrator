@@ -22,6 +22,8 @@ import java.nio.file.Path;
 import java.time.Duration;
 import java.util.*;
 import java.util.function.IntConsumer;
+import java.util.function.Consumer;
+import cn.longer233.gamenarrator.pipeline.StageProgressUpdate;
 
 @Component
 public class OllamaVisionClient {
@@ -71,6 +73,11 @@ public class OllamaVisionClient {
     }
 
     public VideoUnderstandingResult analyze(Path manifestPath, String transcriptText, IntConsumer progress) {
+        return analyzeDetailed(manifestPath, transcriptText, update -> progress.accept(update.percent()));
+    }
+
+    public VideoUnderstandingResult analyzeDetailed(Path manifestPath, String transcriptText,
+            Consumer<StageProgressUpdate> progress) {
         try {
             List<Map<String, Object>> qualityAudit = new ArrayList<>();
             List<SceneFrame> allFrames = objectMapper.readerForListOf(SceneFrame.class).readValue(manifestPath.toFile());
@@ -87,12 +94,17 @@ public class OllamaVisionClient {
                     log.warn("VIDEO_FRAME_CONTENT_REJECTED frame={} action=rule_fallback", frame.index());
                     analyses.add(frameOcrService.enrich(fallbackFrame(frame, transcriptText)));
                 }
-                progress.accept(10 + (int) Math.round((index + 1) * 80.0 / selectedFrames.size()));
+                progress.accept(StageProgressUpdate.of(
+                        10 + (int) Math.round((index + 1) * 65.0 / selectedFrames.size()),
+                        "FRAME", index + 1, selectedFrames.size(), "代表帧分析"));
             }
             if (VisionResultQuality.allZero(analyses)) {
                 log.warn("VIDEO_VISION_ALL_ZERO action=quality_recovery frames={}", selectedFrames.size());
                 analyses.clear();
-                for (SceneFrame frame : selectedFrames) {
+                for (int index = 0; index < selectedFrames.size(); index++) {
+                    SceneFrame frame = selectedFrames.get(index);
+                    progress.accept(StageProgressUpdate.of(76, "MODEL", index + 1, selectedFrames.size(),
+                            "全零结果恢复与模型重试"));
                     analyses.add(frameOcrService.enrich(analyzeFrame(frame, transcriptText, qualityAudit, true,
                             "ALL_ZERO_RECOVERY")));
                 }
@@ -101,7 +113,10 @@ public class OllamaVisionClient {
                     maximumSecondPassFrames);
             if (!secondPass.isEmpty()) {
                 log.info("VIDEO_EVENT_SECOND_PASS_BEGIN candidateFrames={}", secondPass.size());
-                for (SceneFrame frame : secondPass) {
+                for (int index = 0; index < secondPass.size(); index++) {
+                    SceneFrame frame = secondPass.get(index);
+                    progress.accept(StageProgressUpdate.of(78 + (int) Math.round((index + 1) * 12.0 / secondPass.size()),
+                            "FRAME", index + 1, secondPass.size(), "事件窗口二次检测"));
                     try {
                         analyses.add(frameOcrService.enrich(analyzeFrame(frame, transcriptText, qualityAudit, false,
                                 "EVENT_SECOND_PASS")));
@@ -121,7 +136,7 @@ public class OllamaVisionClient {
                 contentAnalysis = fallbackContentAnalysis(transcriptText, analyses);
             }
             String summary = formatSummary(contentAnalysis);
-            progress.accept(95);
+            progress.accept(StageProgressUpdate.of(95, "MODEL", 1, 1, "汇总模型生成内容结论"));
             Path output = manifestPath.getParent().resolve("visual-analysis.json");
             Map<String, Object> document = new LinkedHashMap<>();
             document.put("model", model);

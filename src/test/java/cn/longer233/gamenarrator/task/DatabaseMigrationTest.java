@@ -19,7 +19,7 @@ class DatabaseMigrationTest {
         Flyway.configure().dataSource(migratedUrl, "sa", "").load().migrate();
         try (var baselineConnection = DriverManager.getConnection(baselineUrl, "sa", "")) {
             RunScript.execute(baselineConnection, Files.newBufferedReader(Path.of(
-                    "src/main/resources/db/baseline-h2/B38__version_2_2_4_baseline.sql")));
+                    "src/main/resources/db/baseline-h2/B39__version_2_2_4_baseline.sql")));
         }
         assertThat(schemaObjects(baselineUrl)).isEqualTo(schemaObjects(migratedUrl));
     }

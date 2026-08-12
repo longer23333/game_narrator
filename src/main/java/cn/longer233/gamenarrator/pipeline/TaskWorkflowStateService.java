@@ -85,6 +85,13 @@ public class TaskWorkflowStateService {
     }
 
     @Transactional
+    public void updateStageProgress(UUID taskId, ProcessingStageType stageType, StageProgressUpdate update) {
+        requireTask(taskId).updateStageProgress(stageType, update.percent(), update.unit(), update.current(),
+                update.total(), update.detail());
+        runTracker.progress(taskId, stageType.name(), update.percent());
+    }
+
+    @Transactional
     public void markCancelled(UUID taskId, String stageType, String reason) {
         requireTask(taskId).cancel(reason);
         runTracker.cancelled(taskId, stageType, reason);
