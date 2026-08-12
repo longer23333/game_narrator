@@ -66,11 +66,68 @@ $baseline = Read-Utf8 'docs/ANDROID_CORE_BASELINE.json' | ConvertFrom-Json
 $weights = @{full=1.0; partial=0.5; missing=0.0}
 $ids = [Collections.Generic.HashSet[string]]::new()
 $score = 0.0
+if ([int]$baseline.schemaVersion -ne 2) { $failures.Add("Unsupported Android baseline schemaVersion: $($baseline.schemaVersion)") }
+$testRoots = @(
+    (Join-Path $projectRoot 'android-app/app/src/test/java')
+    (Join-Path $projectRoot 'android-app/app/src/androidTest/java')
+)
 foreach ($capability in @($baseline.capabilities)) {
-    if (-not $ids.Add([string]$capability.id)) { $failures.Add("Duplicate Android capability id: $($capability.id)") }
-    if (-not $weights.ContainsKey([string]$capability.status)) { $failures.Add("Invalid Android capability status: $($capability.id)") }
+    $id = [string]$capability.id
+    if (-not $ids.Add($id)) { $failures.Add("Duplicate Android capability id: $id") }
+    if (-not $weights.ContainsKey([string]$capability.status)) { $failures.Add("Invalid Android capability status: $id") }
     else { $score += $weights[[string]$capability.status] }
-    if ([string]::IsNullOrWhiteSpace([string]$capability.evidence)) { $failures.Add("Missing Android capability evidence: $($capability.id)") }
+
+    $document = [string]$capability.evidence.document
+    $section = [string]$capability.evidence.section
+    if ([string]::IsNullOrWhiteSpace($document) -or [string]::IsNullOrWhiteSpace($section)) {
+        $failures.Add("Missing structured Android capability evidence: $id")
+    } else {
+        $documentPath = Join-Path $projectRoot $document
+        if (-not (Test-Path -LiteralPath $documentPath -PathType Leaf)) {
+            $failures.Add("Android capability evidence document not found: $id -> $document")
+        } else {
+            $documentText = [IO.File]::ReadAllText($documentPath, [Text.Encoding]::UTF8)
+            if ($documentText -notmatch ('(?m)^\|\s*' + [regex]::Escape($section) + '\s*\|')) {
+                $failures.Add("Android capability evidence section not found: $id -> $document#$section")
+            }
+        }
+    }
+
+    $sources = @($capability.sources)
+    $tests = @($capability.tests)
+    if ([string]$capability.status -ne 'missing' -and $sources.Count -eq 0) {
+        $failures.Add("Android capability has no source evidence: $id")
+    }
+    if ([string]$capability.status -ne 'missing' -and $tests.Count -eq 0) {
+        $failures.Add("Android capability has no automated test evidence: $id")
+    }
+    foreach ($source in $sources) {
+        $relativeSource = ([string]$source).Replace('\', '/')
+        if ($relativeSource -match '(^|/)(src/(test|androidTest)|build|target|deepseek-context)(/|$)') {
+            $failures.Add("Android capability source evidence is not production source: $id -> $relativeSource")
+        } elseif (-not (Test-Path -LiteralPath (Join-Path $projectRoot $relativeSource) -PathType Leaf)) {
+            $failures.Add("Android capability source evidence not found: $id -> $relativeSource")
+        }
+    }
+    foreach ($testReference in $tests) {
+        $reference = [string]$testReference
+        if ($reference -notmatch '^([A-Za-z_][A-Za-z0-9_]*)#([A-Za-z_][A-Za-z0-9_]*)$') {
+            $failures.Add("Invalid Android test reference: $id -> $reference")
+            continue
+        }
+        $className = $Matches[1]
+        $methodName = $Matches[2]
+        $matches = @($testRoots | ForEach-Object {
+            Get-ChildItem -LiteralPath $_ -Recurse -File -Filter "$className.java" -ErrorAction SilentlyContinue
+        })
+        $methodPattern = '(?s)@Test\s+(?:public\s+)?void\s+' + [regex]::Escape($methodName) + '\s*\('
+        $methodMatches = @($matches | Where-Object {
+            [IO.File]::ReadAllText($_.FullName, [Text.Encoding]::UTF8) -match $methodPattern
+        })
+        if ($methodMatches.Count -ne 1) {
+            $failures.Add("Android @Test method must resolve exactly once: $id -> $reference (found $($methodMatches.Count))")
+        }
+    }
 }
 $coverage = if ($ids.Count) { $score / $ids.Count } else { 0 }
 if ($coverage -lt [double]$baseline.minimumCoverage) {

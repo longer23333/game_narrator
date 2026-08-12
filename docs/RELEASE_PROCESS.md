@@ -11,7 +11,7 @@ GameNarrator 的 Web、Windows 与 Android 使用同一个语义版本。权威�
 .\scripts\verify-android-guardrails.ps1
 ```
 
-第一条命令同时校验所有版本源、统一更新日志和 `docs/ANDROID_CORE_BASELINE.json`。核心功能以 full=1、partial=0.5、missing=0 计分，Android 覆盖率不得低于 80%。每次迭代必须优先消除 partial，尤其是公共素材、平台导入、画面调整与正式签名真机兼容。
+第一条命令同时校验所有版本源、统一更新日志和 `docs/ANDROID_CORE_BASELINE.json`。核心能力状态以 full=1、partial=0.5、missing=0 计分，加权指标不得低于 80%；它不是代码覆盖率。baseline schema v2 要求每项非 missing 能力提供结构化文档表格行、生产源码路径和 `测试类#测试方法`，门禁会验证文件与 `@Test` 方法真实存在。partial 的测试只证明已实现部分，不能替代剩余真机或功能验收。每次迭代必须优先消除 partial，尤其是公共素材、平台导入、画面调整与正式签名真机兼容。
 
 Windows 正式版与 Demo Lite 构建脚本会在修改 staging 或打包前自动调用
 `scripts/verify-before-push.ps1`。统一门禁包含配置引用、release alignment、Android guardrails、

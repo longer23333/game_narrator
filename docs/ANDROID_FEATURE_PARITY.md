@@ -2,7 +2,7 @@
 
 本文件以当前桌面本体源码、控制器、前端和迁移为验收基线。Android 必须完全独立运行；“入口存在”不等于功能完成。
 
-核心功能基线由 `docs/ANDROID_CORE_BASELINE.json` 机器校验，当前加权覆盖率为 88.9%（14 项 full、4 项 partial），不得低于 80%。Web、Windows 与 Android 从 2.2.4 起共享同一语义版本；历史 Android `0.x` 版本只保留在更新记录中。
+核心功能基线由 `docs/ANDROID_CORE_BASELINE.json` 机器校验，当前能力状态加权指标为 88.9%（14 项 full、4 项 partial），不得低于 80%。该数值不是代码覆盖率：每项非 missing 能力还必须给出真实文档表格行、生产源码文件和 `测试类#测试方法`，verifier 会检查文件与 `@Test` 方法确实存在；partial 的测试只证明已实现部分，不能把未完成项算作 full。Web、Windows 与 Android 从 2.2.4 起共享同一语义版本；历史 Android `0.x` 版本只保留在更新记录中。
 
 | 本体能力 | Android 状态 | 验收要求 |
 |---|---|---|

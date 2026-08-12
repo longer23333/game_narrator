@@ -1,7 +1,7 @@
 ﻿# GameNarrator — DeepSeek 结构化项目索引
 
-> 自动生成：2026-08-12 09:59:41 +08:00；UTF-8 BOM；索引不再内嵌全部源码。
-> Git：分支 `main`，提交 `cd1e020`；收录文件 753 个，分卷 8 个。
+> 自动生成：2026-08-12 10:06:20 +08:00；UTF-8 BOM；索引不再内嵌全部源码。
+> Git：分支 `main`，提交 `65f1006`；收录文件 753 个，分卷 8 个。
 
 ## 使用方法
 
@@ -34,16 +34,15 @@
 | `deepseek-context/05-android-main.md` | 138 | 848306 | Android 实现、资源与 Gradle |
 | `deepseek-context/06-android-tests.md` | 55 | 128912 | Android 单元及设备测试 |
 | `deepseek-context/07-platform-release.md` | 11 | 54651 | Windows、CI/CD 与发布 |
-| `deepseek-context/08-docs-scripts.md` | 55 | 200338 | 需求、架构、维护脚本 |
+| `deepseek-context/08-docs-scripts.md` | 55 | 209252 | 需求、架构、维护脚本 |
 
 ## 当前 Git 工作区（最近修改）
 
 ```text
-M docs/RELEASE_PROCESS.md
- M release/README.md
- M scripts/build-windows-demo-lite.ps1
- M scripts/build-windows-release.ps1
- M scripts/verify-before-push.ps1
+M docs/ANDROID_CORE_BASELINE.json
+ M docs/ANDROID_FEATURE_PARITY.md
+ M docs/RELEASE_PROCESS.md
+ M scripts/verify-release-alignment.ps1
  M src/main/java/cn/longer233/gamenarrator/ai/AiSettingsController.java
  M src/main/java/cn/longer233/gamenarrator/editor/EditorTimelineService.java
  M src/main/java/cn/longer233/gamenarrator/event/BattleNarrativePlanService.java
