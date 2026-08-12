@@ -1272,7 +1272,9 @@ async function loadStoryboardEditor(taskId) {
   mountRevisionTree(taskId);
   storyboardWorkspace.scrollTo({top:0, behavior:'smooth'});
   await updateStoryboardProgress(taskId);
-  if (!taskStreamConnected) storyboardProgressTimer = setInterval(() => updateStoryboardProgress(taskId), 2000);
+  if (!window.gameNarratorTasks?.isStreamConnected()) {
+    storyboardProgressTimer = setInterval(() => updateStoryboardProgress(taskId), 2000);
+  }
 }
 
 function renderRevisionTree(revisions) {

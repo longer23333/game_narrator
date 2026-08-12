@@ -17,7 +17,10 @@ window.gameNarratorModules={async load(name){
   if(!target||!featureComponents[name])return; const promise=featureComponents[name]().then(({default:Component})=>createApp(Component).use(pinia).mount(target));
   mountedFeatures.set(name,promise); return promise;
 }};
-const tasks=useTaskStore(pinia); window.gameNarratorTasks={refresh:()=>tasks.refresh()};
+const tasks=useTaskStore(pinia); window.gameNarratorTasks={
+  refresh:()=>tasks.refresh(),
+  isStreamConnected:()=>tasks.streamConnected
+};
 try {
   createApp(TaskList).use(pinia).mount('#task-list');
   createApp(ActiveTaskQueue).use(pinia).mount('#active-task');
