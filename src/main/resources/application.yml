@@ -32,6 +32,8 @@ server:
   # Security invariant: the application refuses to start on a non-loopback address until API authentication exists.
   address: ${SERVER_ADDRESS:127.0.0.1}
   port: ${SERVER_PORT:8081}
+  compression:
+    enabled: true
   tomcat:
     threads:
       max: ${SERVER_MAX_THREADS:32}

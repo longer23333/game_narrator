@@ -4,8 +4,6 @@ import android.content.ClipData;
 import android.content.ClipboardManager;
 import android.content.Context;
 import android.graphics.Color;
-import android.os.Handler;
-import android.os.Looper;
 import android.speech.SpeechRecognizer;
 import android.view.Gravity;
 import android.view.ViewGroup;
@@ -132,10 +130,9 @@ public final class DiagnosticsDialogController {
                 new Thread(() -> {
                     try {
                         MobileModelBundler.ensureBundled(context);
-                        new Handler(Looper.getMainLooper()).post(() -> showAiSettings());
+                        ui.post(this::showAiSettings);
                     } catch (Exception error) {
-                        new Handler(Looper.getMainLooper()).post(() -> installStatus.setText("复制失败："
-                                + (error.getMessage() == null ? "未知错误" : error.getMessage())));
+                        ui.setText(installStatus, "复制失败：" + message(error));
                     }
                 }).start();
             }), ui.match(ui.dp(50)));
@@ -186,13 +183,13 @@ public final class DiagnosticsDialogController {
                 try {
                     LocalTranscriber.start(context, new LocalTranscriber.Listener() {
                         @Override public void onPartial(String text) {
-                            new Handler(Looper.getMainLooper()).post(() -> transcript.setText("…" + text));
+                            ui.setText(transcript, "…" + text);
                         }
                         @Override public void onResult(String text) {
-                            new Handler(Looper.getMainLooper()).post(() -> transcript.setText("识别结果：" + text));
+                            ui.setText(transcript, "识别结果：" + text);
                         }
                         @Override public void onError(String message) {
-                            new Handler(Looper.getMainLooper()).post(() -> transcript.setText("识别失败：" + message));
+                            ui.setText(transcript, "识别失败：" + message);
                         }
                     });
                 } catch (Exception error) {
@@ -215,7 +212,7 @@ public final class DiagnosticsDialogController {
             }
             whisperResult.setText("正在选择音频…");
             settingsHost.launchWhisperWavOpen(text ->
-                    new Handler(Looper.getMainLooper()).post(() -> whisperResult.setText(text)));
+                    ui.setText(whisperResult, text));
         }), ui.match(ui.dp(50)));
         whisperCard.addView(whisperResult);
         root.addView(whisperCard);
@@ -234,10 +231,9 @@ public final class DiagnosticsDialogController {
             new Thread(() -> {
                 try {
                     String output = Gpt2OnnxGenerator.generate(context, text);
-                    new Handler(Looper.getMainLooper()).post(() -> gptResult.setText("生成结果：\n" + output));
+                    ui.setText(gptResult, "生成结果：\n" + output);
                 } catch (Exception error) {
-                    new Handler(Looper.getMainLooper()).post(() -> gptResult.setText("生成失败："
-                            + (error.getMessage() == null ? "未知错误" : error.getMessage())));
+                    ui.setText(gptResult, "生成失败：" + message(error));
                 }
             }).start();
         }), ui.match(ui.dp(50)));
@@ -249,7 +245,7 @@ public final class DiagnosticsDialogController {
         visionCard.addView(ui.action("选择图片分类", Color.rgb(54, 201, 255), TEXT, v -> {
             visionResult.setText("正在选择图片…");
             settingsHost.launchVisionImageOpen(text ->
-                    new Handler(Looper.getMainLooper()).post(() -> visionResult.setText(text)));
+                    ui.setText(visionResult, text));
         }), ui.match(ui.dp(50)));
         visionCard.addView(visionResult);
         root.addView(visionCard);
@@ -297,10 +293,9 @@ public final class DiagnosticsDialogController {
             new Thread(() -> {
                 try {
                     String result = CloudAiClient.test(cloud);
-                    new Handler(Looper.getMainLooper()).post(() -> cloudStatus.setText(result));
+                    ui.setText(cloudStatus, result);
                 } catch (Exception error) {
-                    String message = error.getMessage() == null ? "未知错误" : error.getMessage();
-                    new Handler(Looper.getMainLooper()).post(() -> cloudStatus.setText("连接失败：" + message));
+                    ui.setText(cloudStatus, "连接失败：" + message(error));
                 }
             }).start();
         }), ui.match(ui.dp(50)));
@@ -335,6 +330,10 @@ public final class DiagnosticsDialogController {
         scroll.addView(root);
         container.removeAllViews();
         container.addView(scroll);
+    }
+
+    private static String message(Exception error) {
+        return error.getMessage() == null ? "未知错误" : error.getMessage();
     }
 
     private static String sourceLabel(MobileModelDirectory.Source source) {

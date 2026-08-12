@@ -118,7 +118,9 @@ public class BattleNarrativePlanService {
             JsonNode override = overrides.get(beat.stage().name());
             if (override == null) return beat;
             int requestedClip = override.path("clipIndex").asInt(beat.clipIndex() == null ? -1 : beat.clipIndex());
-            Integer clip = availableClips.contains(requestedClip) ? requestedClip : beat.clipIndex();
+            Integer clip = availableClips.contains(requestedClip)
+                    ? Integer.valueOf(requestedClip)
+                    : beat.clipIndex();
             double pace = bounded(override.path("paceMultiplier").asDouble(beat.paceMultiplier()), .5, 1.8);
             double music = bounded(override.path("musicIntensity").asDouble(beat.musicIntensity()), 0, 1);
             String directive = override.path("narrationDirective").asText(beat.narrationDirective()).strip();

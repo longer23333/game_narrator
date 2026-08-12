@@ -61,6 +61,39 @@ class BattleNarrativePlanServiceTest {
         verify(workspace).applyNarrativeStructure(taskId, plan.beats());
     }
 
+    @Test
+    void keepsPlaceholderBeatWithoutClipWhenReviewedOverridePointsToMissingClip() throws Exception {
+        String url = "jdbc:h2:mem:narrative-plan-placeholder;DB_CLOSE_DELAY=-1";
+        DriverManagerDataSource dataSource = new DriverManagerDataSource(url, "sa", "");
+        Flyway.configure().dataSource(dataSource).load().migrate();
+        JdbcTemplate jdbc = new JdbcTemplate(dataSource);
+        UUID taskId = UUID.randomUUID();
+        jdbc.update("""
+                INSERT INTO video_tasks(id,name,game_category,commentary_style,target_duration_seconds,
+                    task_brief,source_video_path,status,created_at)
+                VALUES(?,?,?,?,?,?,?,?,?)
+                """, taskId, "Boss", "ACTION", "ANIME_THEATER", 60,
+                "test", "source.mp4", "READY", Timestamp.from(Instant.now()));
+        GameEventTimelineService events = mock(GameEventTimelineService.class);
+        ScriptWorkspaceService workspace = mock(ScriptWorkspaceService.class);
+        List<GameEventView> confirmed = List.of(event(taskId, "BOSS_BATTLE", "battle", 0, 8, 60));
+        StoryboardView storyboard = new StoryboardView("title", "synopsis", true, false,
+                List.of(segment(1, 0, 8)));
+        when(events.list(taskId)).thenReturn(confirmed);
+        when(workspace.storyboard(taskId)).thenReturn(storyboard);
+        ObjectMapper mapper = new ObjectMapper().registerModule(new JavaTimeModule());
+        BattleNarrativePlanService service = new BattleNarrativePlanService(jdbc, mapper, events, workspace);
+        service.generate(taskId);
+
+        BattleNarrativePlanView reviewed = service.applyReviewed(taskId, mapper.readTree("""
+                {"narrativeBeats":[{"stage":"CRISIS","clipIndex":999}]}
+                """));
+
+        assertThat(reviewed.beats()).filteredOn(beat -> beat.stage() == NarrativeStage.CRISIS)
+                .singleElement().extracting(NarrativeBeat::clipIndex).isNull();
+        verify(workspace).applyNarrativeStructure(taskId, reviewed.beats());
+    }
+
     private GameEventView event(UUID taskId, String type, String description,
                                 double start, double end, int importance) {
         return new GameEventView(UUID.randomUUID(), taskId, start, end, (start + end) / 2,

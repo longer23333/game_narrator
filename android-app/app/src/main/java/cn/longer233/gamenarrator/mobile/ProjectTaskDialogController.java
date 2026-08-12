@@ -11,8 +11,6 @@ import android.graphics.Typeface;
 import android.graphics.drawable.GradientDrawable;
 import android.media.MediaMetadataRetriever;
 import android.net.Uri;
-import android.os.Handler;
-import android.os.Looper;
 import android.view.DragEvent;
 import android.view.Gravity;
 import android.view.View;
@@ -399,7 +397,7 @@ public final class ProjectTaskDialogController {
                     String fileCookie = platformImportHost.cookieSessionFor("https://www.bilibili.com");
                     String cookie = combineCookies(webCookie, fileCookie);
                     BilibiliArticle article = BilibiliArticleExtractor.extract(link, cookie);
-                    new Handler(Looper.getMainLooper()).post(() -> {
+                    ui.post(() -> {
                         goRef[0].setEnabled(true);
                         message.setText("提取完成。");
                         LinearLayout card = ui.card(Color.WHITE);
@@ -414,7 +412,7 @@ public final class ProjectTaskDialogController {
                         }
                     });
                 } catch (Exception error) {
-                    new Handler(Looper.getMainLooper()).post(() -> {
+                    ui.post(() -> {
                         goRef[0].setEnabled(true);
                         message.setText("提取失败：" + (error.getMessage() == null ? "未知错误" : error.getMessage()));
                     });
@@ -505,10 +503,10 @@ public final class ProjectTaskDialogController {
                             result.append("第 ").append(idx + 1).append(" 镜");
                         }
                         String text = result.toString();
-                        new Handler(Looper.getMainLooper()).post(() -> imageStatus.setText(text));
+                        ui.post(() -> imageStatus.setText(text));
                     } catch (Exception error) {
                         String message = error.getMessage() == null ? "未知错误" : error.getMessage();
-                        new Handler(Looper.getMainLooper()).post(() -> imageStatus.setText("图像检索失败：" + message));
+                        ui.post(() -> imageStatus.setText("图像检索失败：" + message));
                     }
                 }).start();
             }), ui.match(ui.dp(50)));
@@ -702,7 +700,7 @@ public final class ProjectTaskDialogController {
                 try {
                     List<PublicAsset> assets = wikimedia ? PublicAssetSearch.searchWikimedia(q, 12)
                             : PublicAssetSearch.searchOpenverse(q, audio ? "audio" : "image", 12);
-                    new Handler(Looper.getMainLooper()).post(() -> {
+                    ui.post(() -> {
                         searchRef[0].setEnabled(true);
                         if (assets.isEmpty()) {
                             message.setText("没有找到结果。");
@@ -730,7 +728,7 @@ public final class ProjectTaskDialogController {
                         }
                     });
                 } catch (Exception error) {
-                    new Handler(Looper.getMainLooper()).post(() -> {
+                    ui.post(() -> {
                         searchRef[0].setEnabled(true);
                         message.setText("搜索失败：" + (error.getMessage() == null ? "未知错误" : error.getMessage()));
                     });
@@ -770,13 +768,13 @@ public final class ProjectTaskDialogController {
             try {
                 List<PublicAsset> images = PublicAssetSearch.searchWikimedia(searchKeyword, 6);
                 List<PublicAsset> audio = PublicAssetSearch.searchOpenverse(searchKeyword, "audio", 6);
-                new Handler(Looper.getMainLooper()).post(() -> {
+                ui.post(() -> {
                     message.setText("图片 " + images.size() + " 条 · 音频 " + audio.size() + " 条，下载前请确认权利。");
                     addRecommendSection(results, "图片推荐", images);
                     addRecommendSection(results, "音频推荐", audio);
                 });
             } catch (Exception error) {
-                new Handler(Looper.getMainLooper()).post(() -> message.setText(
+                ui.post(() -> message.setText(
                         "推荐失败：" + (error.getMessage() == null ? "未知错误" : error.getMessage())));
             }
         }).start();

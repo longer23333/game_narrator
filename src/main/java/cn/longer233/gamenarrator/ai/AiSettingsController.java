@@ -41,6 +41,18 @@ public class AiSettingsController {
     @GetMapping("/usage")
     public AiUsageService.UsageSnapshot usage(){return usageService.snapshot();}
 
+    @GetMapping("/runtime")
+    public Map<String, Object> runtime() {
+        var settings = service.publicView();
+        return Map.of(
+                "mode", settings.mode(),
+                "provider", settings.provider(),
+                "activeTextModel", chatClient.activeModel(false),
+                "activeVisionModel", chatClient.activeModel(true),
+                "local", "LOCAL".equals(settings.mode())
+        );
+    }
+
     public record Update(@Pattern(regexp = "LOCAL|CLOUD") String mode, String provider, String apiKey,
                          String baseUrl, String visionModel, String textModel,Double inputPricePerMillion,
                          Double outputPricePerMillion,Double cachedInputPricePerMillion) { }

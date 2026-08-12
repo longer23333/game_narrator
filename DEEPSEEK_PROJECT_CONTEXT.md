@@ -1,7 +1,7 @@
 ﻿# GameNarrator — DeepSeek 结构化项目索引
 
-> 自动生成：2026-08-12 14:34:57 +08:00；UTF-8 BOM；索引不再内嵌全部源码。
-> Git：分支 `unknown`，提交 `unknown`；收录文件 767 个，分卷 8 个。
+> 自动生成：2026-08-12 14:56:48 +08:00；UTF-8 BOM；索引不再内嵌全部源码。
+> Git：分支 `main`，提交 `9a1f30a`；收录文件 767 个，分卷 8 个。
 
 ## 使用方法
 
@@ -39,7 +39,22 @@
 ## 当前 Git 工作区（最近修改）
 
 ```text
-clean or unavailable
+M DEEPSEEK_PROJECT_CONTEXT.md
+ M android-app/app/src/main/java/cn/longer233/gamenarrator/mobile/DiagnosticsDialogController.java
+ M android-app/app/src/main/java/cn/longer233/gamenarrator/mobile/DialogController.java
+ D android-app/app/src/main/java/cn/longer233/gamenarrator/mobile/EditHistory.java
+ M android-app/app/src/main/java/cn/longer233/gamenarrator/mobile/ProjectTaskDialogController.java
+ D android-app/app/src/test/java/cn/longer233/gamenarrator/mobile/EditHistoryTest.java
+ M src/main/java/cn/longer233/gamenarrator/ai/AiSettingsController.java
+ M src/main/java/cn/longer233/gamenarrator/community/CreativeVariantController.java
+ M src/main/java/cn/longer233/gamenarrator/community/CreativeVariantService.java
+ M src/main/java/cn/longer233/gamenarrator/editor/EditorTimelineService.java
+ M src/main/java/cn/longer233/gamenarrator/event/BattleNarrativePlanService.java
+ M src/main/java/cn/longer233/gamenarrator/pipeline/ProjectArtifactRegistry.java
+ M src/main/resources/application.yml
+ M src/test/java/cn/longer233/gamenarrator/community/CommunityEcosystemServiceTest.java
+ M src/test/java/cn/longer233/gamenarrator/event/BattleNarrativePlanServiceTest.java
+?? src/test/java/cn/longer233/gamenarrator/StaticResourceCompressionTest.java
 ```
 
 ## Flyway 迁移索引

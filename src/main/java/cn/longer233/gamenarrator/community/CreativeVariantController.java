@@ -12,5 +12,5 @@ public class CreativeVariantController {
     @GetMapping public List<CreativeVariantView> list(@PathVariable UUID taskId) { return service.list(taskId); }
     @PostMapping("/generate") public List<CreativeVariantView> generate(@PathVariable UUID taskId) { return service.generate(taskId); }
     @PostMapping("/{variantId}/materialize") public CreativeVariantView materialize(@PathVariable UUID taskId,
-            @PathVariable UUID variantId) { return service.materialize(variantId); }
+            @PathVariable UUID variantId) { return service.materialize(taskId, variantId); }
 }

@@ -1,6 +1,7 @@
 package cn.longer233.gamenarrator.community;
 
 import cn.longer233.gamenarrator.task.application.TaskNotFoundException;
+import cn.longer233.gamenarrator.identity.CurrentUserContext;
 import cn.longer233.gamenarrator.task.domain.VideoTask;
 import cn.longer233.gamenarrator.task.repository.VideoTaskRepository;
 import com.fasterxml.jackson.databind.JsonNode;
@@ -30,21 +31,25 @@ public class CreativeVariantService {
     private final VideoTaskEngine engine;
     private final SourceMediaRegistry sourceMedia;
     private final ProjectHistoryService history;
+    private final CurrentUserContext currentUser;
 
-    public CreativeVariantService(JdbcTemplate jdbc, ObjectMapper mapper, VideoTaskRepository tasks) {
-        this(jdbc, mapper, tasks, null, null, null);
+    public CreativeVariantService(JdbcTemplate jdbc, ObjectMapper mapper, VideoTaskRepository tasks,
+                                  CurrentUserContext currentUser) {
+        this(jdbc, mapper, tasks, null, null, null, currentUser);
     }
 
     @Autowired
     public CreativeVariantService(JdbcTemplate jdbc, ObjectMapper mapper, VideoTaskRepository tasks,
-                                  VideoTaskEngine engine, SourceMediaRegistry sourceMedia, ProjectHistoryService history) {
+                                  VideoTaskEngine engine, SourceMediaRegistry sourceMedia, ProjectHistoryService history,
+                                  CurrentUserContext currentUser) {
         this.jdbc = jdbc; this.mapper = mapper; this.tasks = tasks;
         this.engine = engine; this.sourceMedia = sourceMedia; this.history = history;
+        this.currentUser = currentUser;
     }
 
     @Transactional
     public List<CreativeVariantView> generate(UUID taskId) {
-        VideoTask task = tasks.findById(taskId).orElseThrow(() -> new TaskNotFoundException(taskId));
+        VideoTask task = ownedTask(taskId);
         upsert(task, "STORY", "剧情版", 0.82, 0.78, "五幕结构、角色动机、危机与反转", "情绪递进，高潮前保留呼吸空间");
         upsert(task, "GUIDE", "攻略版", 0.68, 0.42, "操作步骤、机制解释、失败原因和可复现建议", "关键操作慢放，字幕信息密度较高");
         upsert(task, "COMEDY", "搞笑版", 1.18, 0.70, "反差、失误、吐槽和回收梗", "快切、定格、局部放大与短音效");
@@ -53,6 +58,11 @@ public class CreativeVariantService {
     }
 
     public List<CreativeVariantView> list(UUID taskId) {
+        ownedTask(taskId);
+        return listOwned(taskId);
+    }
+
+    private List<CreativeVariantView> listOwned(UUID taskId) {
         return jdbc.query("""
                 SELECT id,source_task_id,variant_type,name,strategy_json,status,generated_task_id,created_at,updated_at
                 FROM creative_variant WHERE source_task_id=? ORDER BY CASE variant_type
@@ -67,18 +77,24 @@ public class CreativeVariantService {
     }
 
     @Transactional
-    public CreativeVariantView materialize(UUID variantId) {
+    public CreativeVariantView materialize(UUID taskId, UUID variantId) {
         if (engine == null || sourceMedia == null || history == null) throw new IllegalStateException("版本生成依赖未配置");
-        Map<String, Object> row = jdbc.queryForMap("""
+        VideoTask source = ownedTask(taskId);
+        Map<String, Object> row = jdbc.query("""
                 SELECT v.source_task_id,v.variant_type,v.name,v.strategy_json,v.generated_task_id
-                FROM creative_variant v WHERE v.id=?
-                """, variantId);
+                FROM creative_variant v WHERE v.id=? AND v.source_task_id=?
+                """, (rs, index) -> {
+            Map<String, Object> value = new LinkedHashMap<>();
+            value.put("SOURCE_TASK_ID", rs.getObject(1, UUID.class));
+            value.put("VARIANT_TYPE", rs.getString(2));
+            value.put("NAME", rs.getString(3));
+            value.put("STRATEGY_JSON", rs.getString(4));
+            value.put("GENERATED_TASK_ID", rs.getObject(5, UUID.class));
+            return value;
+        }, variantId, taskId).stream().findFirst().orElseThrow(() -> new TaskNotFoundException(taskId));
         if (row.get("GENERATED_TASK_ID") != null) {
-            UUID taskId = (UUID) row.get("SOURCE_TASK_ID");
-            return list(taskId).stream().filter(item -> item.id().equals(variantId)).findFirst().orElseThrow();
+            return listOwned(taskId).stream().filter(item -> item.id().equals(variantId)).findFirst().orElseThrow();
         }
-        UUID sourceId = (UUID) row.get("SOURCE_TASK_ID");
-        VideoTask source = tasks.findById(sourceId).orElseThrow(() -> new TaskNotFoundException(sourceId));
         try {
             JsonNode strategy = mapper.readTree(row.get("STRATEGY_JSON").toString());
             String type = row.get("VARIANT_TYPE").toString();
@@ -92,6 +108,7 @@ public class CreativeVariantService {
             generated.configureTerminologyGlossary(source.getTerminologyGlossary());
             generated.configureAiOptions(true, source.isCloudVisionEnabled(), source.isAiScriptEnabled(),
                     source.isAiVoiceEnabled(), source.isAutoAssetsEnabled());
+            generated.assignOwnership(currentUser.userId());
             generated = tasks.saveAndFlush(generated);
             history.createInitialHistory(generated);
             sourceMedia.registerReferenced(generated.getId(), java.nio.file.Path.of(source.getSourceVideoPath()),
@@ -102,7 +119,7 @@ public class CreativeVariantService {
             TransactionSynchronizationManager.registerSynchronization(new TransactionSynchronization() {
                 @Override public void afterCommit() { engine.start(generatedId); }
             });
-            return list(sourceId).stream().filter(item -> item.id().equals(variantId)).findFirst().orElseThrow();
+            return listOwned(taskId).stream().filter(item -> item.id().equals(variantId)).findFirst().orElseThrow();
         } catch (RuntimeException exception) { throw exception; }
         catch (Exception exception) { throw new IllegalStateException("无法创建独立成片任务", exception); }
     }
@@ -134,5 +151,10 @@ public class CreativeVariantService {
     private int targetDuration(VideoTask task, String type) {
         double ratio = switch (type) { case "STORY" -> 1.15; case "GUIDE" -> 1.25; case "COMEDY" -> .75; default -> 1.35; };
         return Math.max(15, (int) Math.round(task.getTargetDurationSeconds() * ratio));
+    }
+
+    private VideoTask ownedTask(UUID taskId) {
+        return tasks.findByIdAndOwnerId(taskId, currentUser.userId())
+                .orElseThrow(() -> new TaskNotFoundException(taskId));
     }
 }

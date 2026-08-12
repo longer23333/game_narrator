@@ -58,7 +58,7 @@ public class ProjectArtifactRegistry {
             int revisionNo = jdbc.queryForObject("SELECT COALESCE(MAX(revision_no),0)+1 FROM project_revision WHERE project_id=?",
                     Integer.class, projectId);
             UUID revision = UUID.randomUUID();
-            ObjectNode artifacts = manifest.with("artifacts");
+            ObjectNode artifacts = manifest.withObject("/artifacts");
             ObjectNode entry = artifacts.putObject(type);
             entry.put("artifactId", artifactId.toString());
             entry.put("storageKey", storageKey);

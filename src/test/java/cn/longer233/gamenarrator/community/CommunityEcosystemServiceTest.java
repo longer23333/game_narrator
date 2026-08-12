@@ -1,6 +1,7 @@
 package cn.longer233.gamenarrator.community;
 
 import cn.longer233.gamenarrator.effect.EffectPresetCatalog;
+import cn.longer233.gamenarrator.identity.CurrentUserContext;
 import cn.longer233.gamenarrator.event.GameKnowledgePackService;
 import cn.longer233.gamenarrator.task.domain.CommentaryStyle;
 import cn.longer233.gamenarrator.task.domain.VideoTask;
@@ -20,6 +21,7 @@ import java.util.UUID;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 class CommunityEcosystemServiceTest {
     @TempDir Path temporary;
@@ -58,8 +60,11 @@ class CommunityEcosystemServiceTest {
                 """, task.getId(), task.getName(), task.getGameCategory(), task.getCommentaryStyle().name(),
                 task.getTargetDurationSeconds(), task.getTaskBrief(), task.getSourceVideoPath());
         VideoTaskRepository repository = mock(VideoTaskRepository.class);
-        when(repository.findById(task.getId())).thenReturn(Optional.of(task));
-        CreativeVariantService service = new CreativeVariantService(jdbc, mapper, repository);
+        CurrentUserContext current = mock(CurrentUserContext.class);
+        UUID ownerId = UUID.randomUUID();
+        when(current.userId()).thenReturn(ownerId);
+        when(repository.findByIdAndOwnerId(task.getId(), ownerId)).thenReturn(Optional.of(task));
+        CreativeVariantService service = new CreativeVariantService(jdbc, mapper, repository, current);
 
         var variants = service.generate(task.getId());
 
@@ -69,6 +74,44 @@ class CommunityEcosystemServiceTest {
             assertThat(item.strategy().path("sourceReuse").asBoolean()).isTrue();
             assertThat(item.strategy().path("sourceVideoPath").asText()).isEqualTo(task.getSourceVideoPath());
         });
+    }
+
+    @Test
+    void rejectsVariantsForTasksNotOwnedByCurrentUser() {
+        JdbcTemplate jdbc = migrated("variant-ownership");
+        VideoTaskRepository repository = mock(VideoTaskRepository.class);
+        CurrentUserContext current = mock(CurrentUserContext.class);
+        UUID taskId = UUID.randomUUID();
+        UUID ownerId = UUID.randomUUID();
+        when(current.userId()).thenReturn(ownerId);
+        when(repository.findByIdAndOwnerId(taskId, ownerId)).thenReturn(Optional.empty());
+        CreativeVariantService service = new CreativeVariantService(jdbc,
+                new ObjectMapper().findAndRegisterModules(), repository, current);
+
+        assertThatThrownBy(() -> service.list(taskId))
+                .isInstanceOf(cn.longer233.gamenarrator.task.application.TaskNotFoundException.class);
+        assertThatThrownBy(() -> service.generate(taskId))
+                .isInstanceOf(cn.longer233.gamenarrator.task.application.TaskNotFoundException.class);
+    }
+
+    @Test
+    void rejectsVariantThatBelongsToAnotherOwnedTask() {
+        JdbcTemplate jdbc = migrated("variant-task-binding");
+        VideoTaskRepository repository = mock(VideoTaskRepository.class);
+        CurrentUserContext current = mock(CurrentUserContext.class);
+        UUID ownerId = UUID.randomUUID();
+        UUID requestedTaskId = UUID.randomUUID();
+        VideoTask requestedTask = new VideoTask("requested", "ACTION", CommentaryStyle.PASSIONATE,
+                60, "test", temporary.resolve("requested.mp4").toString());
+        when(current.userId()).thenReturn(ownerId);
+        when(repository.findByIdAndOwnerId(requestedTaskId, ownerId)).thenReturn(Optional.of(requestedTask));
+        CreativeVariantService service = new CreativeVariantService(jdbc,
+                new ObjectMapper().findAndRegisterModules(), repository, mock(cn.longer233.gamenarrator.pipeline.VideoTaskEngine.class),
+                mock(cn.longer233.gamenarrator.storage.SourceMediaRegistry.class),
+                mock(cn.longer233.gamenarrator.task.application.ProjectHistoryService.class), current);
+
+        assertThatThrownBy(() -> service.materialize(requestedTaskId, UUID.randomUUID()))
+                .isInstanceOf(cn.longer233.gamenarrator.task.application.TaskNotFoundException.class);
     }
 
     private JdbcTemplate migrated(String name) {

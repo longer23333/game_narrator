@@ -332,7 +332,7 @@ public class EditorTimelineService {
     }
 
     private void color(ObjectNode timeline, String id, Map<String, Object> values) {
-        ObjectNode color = clip((ArrayNode) timeline.path("clips"), id).with("color");
+        ObjectNode color = clip((ArrayNode) timeline.path("clips"), id).withObject("/color");
         color.put("brightness", bounded(number(values, "brightness"), -1, 1));
         color.put("contrast", bounded(number(values, "contrast"), 0, 3));
         color.put("saturation", bounded(number(values, "saturation"), 0, 3));

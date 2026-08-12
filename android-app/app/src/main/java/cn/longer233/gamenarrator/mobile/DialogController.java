@@ -410,6 +410,7 @@ public final class DialogController {
     }
 
     private final Context context;
+    private final Handler mainHandler;
     private final ExportDialogController exportDialogs;
     private final DiagnosticsDialogController diagnosticsDialogs;
     private final StoryboardDialogController storyboardDialogs;
@@ -447,6 +448,7 @@ public final class DialogController {
                             CompilationHost compilationHost, PlatformImportHost platformImportHost,
                             SettingsHost settingsHost, ShotSearchHost shotSearchHost) {
         this.context = context;
+        this.mainHandler = new Handler(context.getMainLooper());
         this.exportDialogs = new ExportDialogController(context, exportHost, this);
         this.diagnosticsDialogs = new DiagnosticsDialogController(context, settingsHost, this);
         this.storyboardDialogs = new StoryboardDialogController(context, this);
@@ -467,6 +469,8 @@ public final class DialogController {
     public void showReleaseNotes(String versionName) { diagnosticsDialogs.showReleaseNotes(versionName); }
     public void showAiSettings() { diagnosticsDialogs.showAiSettings(); }
     public void showSettings() { diagnosticsDialogs.showSettings(); }
+    public void post(Runnable action) { mainHandler.post(action); }
+    public void setText(TextView target, String text) { post(() -> target.setText(text)); }
     public void openSubtitlePanel() { storyboardDialogs.openSubtitlePanel(); }
     public void reviewCurrentClip() { storyboardDialogs.reviewCurrentClip(); }
     public void showScriptQuality() { storyboardDialogs.showScriptQuality(); }
