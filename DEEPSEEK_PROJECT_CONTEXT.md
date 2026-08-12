@@ -1,7 +1,7 @@
 ﻿# GameNarrator — DeepSeek 结构化项目索引
 
-> 自动生成：2026-08-12 09:27:37 +08:00；UTF-8 BOM；索引不再内嵌全部源码。
-> Git：分支 `main`，提交 `cbd28cf`；收录文件 767 个，分卷 8 个。
+> 自动生成：2026-08-12 09:36:59 +08:00；UTF-8 BOM；索引不再内嵌全部源码。
+> Git：分支 `main`，提交 `f5f3ef4`；收录文件 767 个，分卷 8 个。
 
 ## 使用方法
 
@@ -33,26 +33,20 @@
 | `deepseek-context/04-frontend.md` | 38 | 536559 | Vite Web 源码 |
 | `deepseek-context/05-android-main.md` | 151 | 857814 | Android 实现、资源与 Gradle |
 | `deepseek-context/06-android-tests.md` | 56 | 133003 | Android 单元及设备测试 |
-| `deepseek-context/07-platform-release.md` | 11 | 52697 | Windows、CI/CD 与发布 |
-| `deepseek-context/08-docs-scripts.md` | 55 | 198048 | 需求、架构、维护脚本 |
+| `deepseek-context/07-platform-release.md` | 11 | 54428 | Windows、CI/CD 与发布 |
+| `deepseek-context/08-docs-scripts.md` | 55 | 198209 | 需求、架构、维护脚本 |
 
 ## 当前 Git 工作区（最近修改）
 
 ```text
 M .github/workflows/ci.yml
- M scripts/build-postgresql-migrations.ps1
+ M docs/ANDROID_FEATURE_PARITY.md
  M src/main/java/cn/longer233/gamenarrator/ai/AiSettingsController.java
  M src/main/java/cn/longer233/gamenarrator/editor/EditorTimelineService.java
  M src/main/java/cn/longer233/gamenarrator/event/BattleNarrativePlanService.java
  M src/main/java/cn/longer233/gamenarrator/pipeline/ProjectArtifactRegistry.java
  M src/main/resources/application.yml
  M src/test/java/cn/longer233/gamenarrator/event/BattleNarrativePlanServiceTest.java
- M src/test/java/cn/longer233/gamenarrator/task/DatabaseMigrationTest.java
-?? docs/DATABASE_MIGRATION_POLICY.md
-?? scripts/build-migration-baselines.ps1
-?? src/main/resources/db/baseline-h2/
-?? src/main/resources/db/baseline-postgresql/
-?? src/main/resources/db/migration-postgresql/V37__task_stream_change_tracking.sql
 ?? src/test/java/cn/longer233/gamenarrator/StaticResourceCompressionTest.java
 ```
 
