@@ -80,6 +80,13 @@ public class GameKnowledgePackService {
                 });
     }
 
+    public List<BossBattleKnowledgePack.TerminologyEntry> activeTerminology() {
+        return activePacks().stream()
+                .flatMap(pack -> pack.terminology() == null ? java.util.stream.Stream.empty()
+                        : pack.terminology().stream())
+                .toList();
+    }
+
     private void validate(JsonNode value) {
         if (value == null || !value.isObject()) throw new IllegalArgumentException("知识包必须是 JSON 对象");
         String code = value.path("code").asText("").trim();
@@ -97,5 +104,21 @@ public class GameKnowledgePackService {
             if (confidence < 0 || confidence > 1 || importance < 0 || importance > 100)
                 throw new IllegalArgumentException("规则置信度或重要度超出范围");
         });
+        JsonNode terminology = value.path("terminology");
+        if (!terminology.isMissingNode() && !terminology.isNull()) {
+            if (!terminology.isArray() || terminology.size() > 500)
+                throw new IllegalArgumentException("知识包术语必须是最多 500 项的数组");
+            terminology.forEach(entry -> {
+                String canonical = entry.path("canonical").asText("").trim();
+                JsonNode aliases = entry.path("aliases");
+                if (canonical.isBlank() || canonical.length() > 120 || !aliases.isArray()
+                        || aliases.isEmpty() || aliases.size() > 30)
+                    throw new IllegalArgumentException("知识包术语必须包含规范词和 1 至 30 个别名");
+                aliases.forEach(alias -> {
+                    if (alias.asText("").isBlank() || alias.asText().length() > 120)
+                        throw new IllegalArgumentException("知识包术语别名无效");
+                });
+            });
+        }
     }
 }

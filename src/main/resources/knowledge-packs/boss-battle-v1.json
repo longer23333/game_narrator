@@ -3,6 +3,13 @@
   "code": "boss-battle-v1",
   "name": "Boss 战基础知识包",
   "description": "从画面说明、OCR 与高光分数中识别 Boss 战的阶段变化、残血危机和战斗结果。",
+  "terminology": [
+    {"canonical": "Boss", "aliases": ["包斯", "波斯", "boss"]},
+    {"canonical": "弹反", "aliases": ["谈反", "弹返", "弹饭"]},
+    {"canonical": "格挡", "aliases": ["格档", "隔挡"]},
+    {"canonical": "闪避", "aliases": ["闪辟", "躲避键"]},
+    {"canonical": "残血", "aliases": ["残雪", "惨血"]}
+  ],
   "eventRules": [
     {
       "code": "BOSS_DEFEATED",

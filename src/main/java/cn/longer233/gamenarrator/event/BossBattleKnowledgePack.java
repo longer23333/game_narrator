@@ -7,6 +7,7 @@ public record BossBattleKnowledgePack(
         String name,
         String description,
         List<EventRule> eventRules,
+        List<TerminologyEntry> terminology,
         Integer formatVersion
 ) {
     public record EventRule(
@@ -17,4 +18,6 @@ public record BossBattleKnowledgePack(
             int importance
     ) {
     }
+
+    public record TerminologyEntry(String canonical, List<String> aliases) { }
 }
