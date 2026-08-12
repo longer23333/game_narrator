@@ -42,6 +42,27 @@ public class AdaptiveAiChatClient {
         return cloud.chatJson(safePrompt, images, vision ? value.visionModel() : value.textModel(), value, timeout);
     }
 
+    public JsonNode chatJsonWithModel(String prompt, List<String> images, boolean vision,
+                                      String requestedModel, Duration timeout) throws Exception {
+        var value = settings.current();
+        String model = requestedModel == null || requestedModel.isBlank()
+                ? (vision ? activeModel(true) : activeModel(false)) : requestedModel.trim();
+        if (useLocal(value, vision)) return local.chatJson(prompt, images, model, value, timeout);
+        if (vision && "DASHSCOPE".equals(value.provider()) && "LOCAL_FIRST".equals(cloudImagePolicy)) {
+            if (local.modelAvailable(model)) return local.chatJson(prompt, images, model, value, timeout);
+            throw new AiContentRejectedException("Requested local vision model is unavailable: " + model);
+        }
+        String safePrompt = "DASHSCOPE".equals(value.provider()) ? minimizeCloudInput(prompt) : prompt;
+        return cloud.chatJson(safePrompt, images, model, value, timeout);
+    }
+
+    public boolean modelAvailable(String model, boolean vision) {
+        var value = settings.current();
+        if (useLocal(value, vision) || (vision && "DASHSCOPE".equals(value.provider())
+                && "LOCAL_FIRST".equals(cloudImagePolicy))) return local.modelAvailable(model);
+        return !value.apiKey().isBlank();
+    }
+
     public String activeModel(boolean vision) {
         var value = settings.current();
         return useLocal(value, vision) ? localModel(vision) : (vision ? value.visionModel() : value.textModel());

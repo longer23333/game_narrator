@@ -1,7 +1,7 @@
 ﻿# GameNarrator — DeepSeek 结构化项目索引
 
-> 自动生成：2026-08-12 15:27:29 +08:00；UTF-8 BOM；索引不再内嵌全部源码。
-> Git：分支 `main`，提交 `9be71ed`；收录文件 771 个，分卷 8 个。
+> 自动生成：2026-08-12 15:43:02 +08:00；UTF-8 BOM；索引不再内嵌全部源码。
+> Git：分支 `main`，提交 `7417bd6`；收录文件 775 个，分卷 8 个。
 
 ## 使用方法
 
@@ -27,30 +27,29 @@
 
 | 分卷 | 文件数 | 字符数 | 建议用途 |
 |---|---:|---:|---|
-| `deepseek-context/01-foundation.md` | 86 | 216701 | 构建、配置、资源、数据库迁移 |
-| `deepseek-context/02-backend.md` | 286 | 1124242 | Spring 后端实现 |
-| `deepseek-context/03-tests.md` | 97 | 301025 | Spring 测试与行为验证 |
+| `deepseek-context/01-foundation.md` | 86 | 216906 | 构建、配置、资源、数据库迁移 |
+| `deepseek-context/02-backend.md` | 288 | 1134016 | Spring 后端实现 |
+| `deepseek-context/03-tests.md` | 99 | 304932 | Spring 测试与行为验证 |
 | `deepseek-context/04-frontend.md` | 38 | 536559 | Vite Web 源码 |
 | `deepseek-context/05-android-main.md` | 137 | 847065 | Android 实现、资源与 Gradle |
 | `deepseek-context/06-android-tests.md` | 54 | 128284 | Android 单元及设备测试 |
 | `deepseek-context/07-platform-release.md` | 11 | 56149 | Windows、CI/CD 与发布 |
-| `deepseek-context/08-docs-scripts.md` | 62 | 225171 | 需求、架构、维护脚本 |
+| `deepseek-context/08-docs-scripts.md` | 62 | 225575 | 需求、架构、维护脚本 |
 
 ## 当前 Git 工作区（最近修改）
 
 ```text
-M docs/CONFIGURATION_REFERENCE.md
- M docs/PERFORMANCE_PORTABILITY_AUDIT.md
+M DEEPSEEK_PROJECT_CONTEXT.md
+ M docs/CONFIGURATION_REFERENCE.md
  M docs/REQUIREMENTS.md
- M src/main/java/cn/longer233/gamenarrator/media/FfmpegMediaPreprocessor.java
- M src/main/java/cn/longer233/gamenarrator/media/SceneFrame.java
- M src/main/java/cn/longer233/gamenarrator/vision/AdaptiveFrameSampler.java
+ M src/main/java/cn/longer233/gamenarrator/ai/AdaptiveAiChatClient.java
+ M src/main/java/cn/longer233/gamenarrator/vision/FrameUnderstanding.java
  M src/main/java/cn/longer233/gamenarrator/vision/OllamaVisionClient.java
  M src/main/resources/application.yml
- M src/test/java/cn/longer233/gamenarrator/pipeline/VideoPipelineEndToEndTest.java
- M src/test/java/cn/longer233/gamenarrator/vision/AdaptiveFrameSamplerTest.java
-?? src/main/java/cn/longer233/gamenarrator/vision/EventWindowSecondPass.java
-?? src/test/java/cn/longer233/gamenarrator/vision/EventWindowSecondPassTest.java
+?? src/main/java/cn/longer233/gamenarrator/vision/VisionQualityRecovery.java
+?? src/main/java/cn/longer233/gamenarrator/vision/VisionResultQuality.java
+?? src/test/java/cn/longer233/gamenarrator/vision/VisionQualityRecoveryTest.java
+?? src/test/java/cn/longer233/gamenarrator/vision/VisionResultQualityTest.java
 ```
 
 ## Flyway 迁移索引

@@ -7,11 +7,17 @@ public record FrameUnderstanding(
         String description,
         String eventType,
         int excitementScore,
+        double confidenceScore,
         String ocrText,
         String rawJson
 ) {
     public FrameUnderstanding(int index, double timestampSeconds, String imagePath, String description,
                               String eventType, int excitementScore, String rawJson) {
-        this(index, timestampSeconds, imagePath, description, eventType, excitementScore, "", rawJson);
+        this(index, timestampSeconds, imagePath, description, eventType, excitementScore, .5, "", rawJson);
+    }
+
+    public FrameUnderstanding(int index, double timestampSeconds, String imagePath, String description,
+                              String eventType, int excitementScore, String ocrText, String rawJson) {
+        this(index, timestampSeconds, imagePath, description, eventType, excitementScore, .5, ocrText, rawJson);
     }
 }

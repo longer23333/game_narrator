@@ -36,6 +36,9 @@ public class OllamaVisionClient {
     private final AiSettingsService aiSettings;
     private final FrameOcrService frameOcrService;
     private final int maximumSecondPassFrames;
+    private final List<String> qualityFallbackModels;
+    private final int qualityAttempts;
+    private final double minimumConfidence;
 
     public OllamaVisionClient(ObjectMapper objectMapper, AdaptiveAiChatClient adaptiveChat,
             AiSettingsService aiSettings, FrameOcrService frameOcrService,
@@ -43,7 +46,10 @@ public class OllamaVisionClient {
             @Value("${game-narrator.ollama.vision-model:qwen2.5vl:3b}") String model,
             @Value("${game-narrator.ollama.script-model:qwen2.5vl:3b}") String contentModel,
             @Value("${game-narrator.ollama.max-frames:0}") int maxFrames,
-            @Value("${game-narrator.event-sampling.maximum-second-pass-frames:48}") int maximumSecondPassFrames) {
+            @Value("${game-narrator.event-sampling.maximum-second-pass-frames:48}") int maximumSecondPassFrames,
+            @Value("${game-narrator.vision-quality.fallback-models:}") String fallbackModels,
+            @Value("${game-narrator.vision-quality.same-model-attempts:2}") int qualityAttempts,
+            @Value("${game-narrator.vision-quality.minimum-confidence:0.45}") double minimumConfidence) {
         this.objectMapper = objectMapper;
         this.adaptiveChat = adaptiveChat;
         this.aiSettings = aiSettings;
@@ -53,6 +59,10 @@ public class OllamaVisionClient {
         this.contentModel = contentModel;
         this.maxFrames = Math.max(0, maxFrames);
         this.maximumSecondPassFrames = Math.max(0, Math.min(200, maximumSecondPassFrames));
+        this.qualityFallbackModels = Arrays.stream(Objects.toString(fallbackModels, "").split(","))
+                .map(String::strip).filter(value -> !value.isBlank()).toList();
+        this.qualityAttempts = Math.max(1, Math.min(5, qualityAttempts));
+        this.minimumConfidence = Math.max(0, Math.min(1, minimumConfidence));
         this.httpClient = HttpClient.newBuilder().connectTimeout(Duration.ofSeconds(5)).build();
     }
 
@@ -62,6 +72,7 @@ public class OllamaVisionClient {
 
     public VideoUnderstandingResult analyze(Path manifestPath, String transcriptText, IntConsumer progress) {
         try {
+            List<Map<String, Object>> qualityAudit = new ArrayList<>();
             List<SceneFrame> allFrames = objectMapper.readerForListOf(SceneFrame.class).readValue(manifestPath.toFile());
             List<SceneFrame> selectedFrames = AdaptiveFrameSampler.sample(allFrames, maxFrames);
             if (selectedFrames.isEmpty()) throw new IllegalStateException("场景清单中没有可分析的截图");
@@ -70,12 +81,21 @@ public class OllamaVisionClient {
             for (int index = 0; index < selectedFrames.size(); index++) {
                 SceneFrame frame = selectedFrames.get(index);
                 try {
-                    analyses.add(frameOcrService.enrich(analyzeFrame(frame, transcriptText)));
+                    analyses.add(frameOcrService.enrich(analyzeFrame(frame, transcriptText, qualityAudit, false,
+                            "INITIAL")));
                 } catch (AiContentRejectedException exception) {
                     log.warn("VIDEO_FRAME_CONTENT_REJECTED frame={} action=rule_fallback", frame.index());
                     analyses.add(frameOcrService.enrich(fallbackFrame(frame, transcriptText)));
                 }
                 progress.accept(10 + (int) Math.round((index + 1) * 80.0 / selectedFrames.size()));
+            }
+            if (VisionResultQuality.allZero(analyses)) {
+                log.warn("VIDEO_VISION_ALL_ZERO action=quality_recovery frames={}", selectedFrames.size());
+                analyses.clear();
+                for (SceneFrame frame : selectedFrames) {
+                    analyses.add(frameOcrService.enrich(analyzeFrame(frame, transcriptText, qualityAudit, true,
+                            "ALL_ZERO_RECOVERY")));
+                }
             }
             List<SceneFrame> secondPass = EventWindowSecondPass.select(allFrames, selectedFrames, analyses,
                     maximumSecondPassFrames);
@@ -83,7 +103,8 @@ public class OllamaVisionClient {
                 log.info("VIDEO_EVENT_SECOND_PASS_BEGIN candidateFrames={}", secondPass.size());
                 for (SceneFrame frame : secondPass) {
                     try {
-                        analyses.add(frameOcrService.enrich(analyzeFrame(frame, transcriptText)));
+                        analyses.add(frameOcrService.enrich(analyzeFrame(frame, transcriptText, qualityAudit, false,
+                                "EVENT_SECOND_PASS")));
                     } catch (AiContentRejectedException exception) {
                         analyses.add(frameOcrService.enrich(fallbackFrame(frame, transcriptText)));
                     }
@@ -111,6 +132,9 @@ public class OllamaVisionClient {
             document.put("frames", analyses);
             document.put("sampling", Map.of("firstPassFrames", selectedFrames.size(),
                     "secondPassFrames", secondPass.size(), "eventDriven", true));
+            document.put("qualityRecovery", Map.of("minimumConfidence", minimumConfidence,
+                    "attempts", List.copyOf(qualityAudit), "degradedFrames",
+                    qualityAudit.stream().filter(item -> Boolean.TRUE.equals(item.get("degraded"))).count()));
             AtomicArtifactWriter.writeJson(objectMapper, output, document);
             log.info("VIDEO_UNDERSTANDING_SUCCESS analyzedFrames={} output={}", analyses.size(), output);
             return new VideoUnderstandingResult(summary, output.toString(), analyses);
@@ -161,23 +185,45 @@ public class OllamaVisionClient {
     public String model() { return adaptiveChat.activeModel(true); }
     public URI baseUri() { return baseUri; }
 
-    private FrameUnderstanding analyzeFrame(SceneFrame frame, String transcriptText) throws Exception {
+    private FrameUnderstanding analyzeFrame(SceneFrame frame, String transcriptText,
+            List<Map<String, Object>> qualityAudit, boolean requireNonZeroScore, String phase) throws Exception {
         String image = Base64.getEncoder().encodeToString(Files.readAllBytes(Path.of(frame.imagePath())));
         String transcriptHint = abbreviate(transcriptText, 500);
         String prompt = """
+                Also return confidenceScore from 0.0 to 1.0 for the reliability of this frame analysis.
                 JSON 必须额外包含 ocrText 字段：填写截图中实际可见的界面文字，没有文字时返回空字符串。
                 你是视频剪辑分析器。分析截图，严格返回 JSON 对象，不要 Markdown。
                 字段：description（简体中文画面描述）、eventType（从探索/战斗/剧情/菜单/胜利/失败/其他选择）、
                 excitementScore（0到100整数，代表适合作为高光片段的程度）。
                 同期语音参考：%s
                 """.formatted(transcriptHint);
-        JsonNode analysis = chat(model, prompt, List.of(image), Duration.ofMinutes(5));
+        List<String> availableFallbacks = qualityFallbackModels.stream()
+                .filter(candidate -> adaptiveChat == null || adaptiveChat.modelAvailable(candidate, true)).toList();
+        VisionQualityRecovery.Result recovered = VisionQualityRecovery.recover(model, availableFallbacks,
+                qualityAttempts, minimumConfidence, requireNonZeroScore,
+                requestedModel -> adaptiveChat != null
+                        ? adaptiveChat.chatJsonWithModel(prompt, List.of(image), true, requestedModel,
+                                Duration.ofMinutes(5))
+                        : chat(requestedModel, prompt, List.of(image), Duration.ofMinutes(5)));
+        Map<String, Object> audit = new LinkedHashMap<>();
+        audit.put("frameIndex", frame.index());
+        audit.put("phase", phase);
+        audit.put("selectedModel", recovered.model());
+        audit.put("degraded", recovered.degraded());
+        audit.put("attempts", recovered.attempts());
+        qualityAudit.add(audit);
+        if (recovered.degraded()) {
+            log.warn("VIDEO_FRAME_QUALITY_DEGRADED frame={} phase={} attempts={}", frame.index(), phase,
+                    recovered.attempts().size());
+            return fallbackFrame(frame, transcriptText);
+        }
+        JsonNode analysis = recovered.value();
         String raw = objectMapper.writeValueAsString(analysis);
         return new FrameUnderstanding(frame.index(), frame.timestampSeconds(), frame.imagePath(),
                 analysis.path("description").asText("未识别出明确画面内容"),
                 analysis.path("eventType").asText("其他"),
                 Math.max(0, Math.min(100, analysis.path("excitementScore").asInt(0))),
-                analysis.path("ocrText").asText(""), raw);
+                recovered.confidence(), analysis.path("ocrText").asText(""), raw);
     }
 
     private FrameUnderstanding fallbackFrame(SceneFrame frame, String transcriptText) {

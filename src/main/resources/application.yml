@@ -289,6 +289,10 @@ game-narrator:
     maximum-windows: ${EVENT_SAMPLING_MAXIMUM_WINDOWS:48}
     window-seconds: ${EVENT_SAMPLING_WINDOW_SECONDS:0.35}
     maximum-second-pass-frames: ${EVENT_SAMPLING_MAXIMUM_SECOND_PASS_FRAMES:48}
+  vision-quality:
+    minimum-confidence: ${VISION_QUALITY_MINIMUM_CONFIDENCE:0.45}
+    same-model-attempts: ${VISION_QUALITY_SAME_MODEL_ATTEMPTS:2}
+    fallback-models: ${VISION_QUALITY_FALLBACK_MODELS:}
   whisper:
     executable: "${WHISPER_EXECUTABLE:./tools/whisper/Release/whisper-cli.exe}"
     model: "${WHISPER_MODEL:./models/ggml-base.bin}"

@@ -9,7 +9,7 @@
 - 桌面安装版会自动设置运行目录、端口和并发参数，普通用户不需要手工配置这些项目。
 - PostgreSQL、对象存储和云部署的操作步骤另见 `docs/POSTGRESQL_AND_CLOUD_SYNC.md`。
 
-## 完整清单（139 项）
+## 完整清单（145 项）
 
 | 环境变量 | Spring 配置路径/用途 | 默认值 | 敏感 | 来源 |
 |---|---|---|---|---|
@@ -54,6 +54,9 @@
 | `CLOUD_SYNC_RETRY_MAX_SECONDS` | game-narrator.cloud-sync.retry.max-delay-seconds | `3600` | 否 | application-postgresql.yml |
 | `DOWNLOAD_RETRY_ATTEMPTS` | game-narrator.retry.download-attempts | `3` | 否 | application.yml |
 | `EDITOR_WAVEFORM_CACHE_MAXIMUM_ENTRIES` | game-narrator.editor.waveform-cache.maximum-entries | `128` | 否 | application.yml |
+| `EVENT_SAMPLING_MAXIMUM_SECOND_PASS_FRAMES` | game-narrator.event-sampling.maximum-second-pass-frames | `48` | 否 | application.yml |
+| `EVENT_SAMPLING_MAXIMUM_WINDOWS` | game-narrator.event-sampling.maximum-windows | `48` | 否 | application.yml |
+| `EVENT_SAMPLING_WINDOW_SECONDS` | game-narrator.event-sampling.window-seconds | `0.35` | 否 | application.yml |
 | `FFMPEG_COMMAND` | game-narrator.ffmpeg-command | `./tools/ffmpeg/bin/ffmpeg.exe` | 否 | application.yml |
 | `FFMPEG_MAX_CONCURRENT` | game-narrator.external-process.ffmpeg-max-concurrent | `1` | 否 | application.yml |
 | `GAME_NARRATOR_AI_API_KEY` | Java @Value 注入 | `无（必须显式设置）` | 是 | src/main/java/cn/longer233/gamenarrator/ai/AiSettingsService.java |
@@ -68,9 +71,6 @@
 | `MAX_VIDEO_REQUEST_SIZE` | spring.servlet.multipart.max-request-size | `101GB` | 否 | application.yml |
 | `MAX_VIDEO_UPLOAD_SIZE` | spring.servlet.multipart.max-file-size | `100GB` | 否 | application.yml |
 | `MAXIMUM_SCENE_FRAMES` | game-narrator.maximum-scene-frames | `240` | 否 | application.yml |
-| `EVENT_SAMPLING_MAXIMUM_WINDOWS` | game-narrator.event-sampling.maximum-windows | `48` | 否 | application.yml |
-| `EVENT_SAMPLING_WINDOW_SECONDS` | game-narrator.event-sampling.window-seconds | `0.35` | 否 | application.yml |
-| `EVENT_SAMPLING_MAXIMUM_SECOND_PASS_FRAMES` | game-narrator.event-sampling.maximum-second-pass-frames | `48` | 否 | application.yml |
 | `MEDIA_IMPORT_FORCE_IPV4` | game-narrator.media-import.force-ipv4 | `true` | 否 | application.yml |
 | `MEDIA_IMPORT_LOCAL_AUTH_DISCOVERY` | game-narrator.media-import.local-authentication-discovery | `false` | 否 | application.yml |
 | `MINIMUM_FREE_STORAGE_BYTES` | game-narrator.capacity.minimum-free-bytes | `5368709120` | 否 | application.yml |
@@ -143,6 +143,9 @@
 | `VIDEO_ENCODER` | game-narrator.render.video-encoder | `h264_nvenc` | 否 | application.yml |
 | `VIDEO_SEARCH_MAXIMUM_IMAGE_BYTES` | game-narrator.video-search.maximum-image-bytes | `10485760` | 否 | application.yml |
 | `VIDEO_WORKING_SPACE_MULTIPLIER` | game-narrator.capacity.working-space-multiplier | `1.5` | 否 | application.yml |
+| `VISION_QUALITY_FALLBACK_MODELS` | game-narrator.vision-quality.fallback-models | `无（必须显式设置）` | 否 | application.yml |
+| `VISION_QUALITY_MINIMUM_CONFIDENCE` | game-narrator.vision-quality.minimum-confidence | `0.45` | 否 | application.yml |
+| `VISION_QUALITY_SAME_MODEL_ATTEMPTS` | game-narrator.vision-quality.same-model-attempts | `2` | 否 | application.yml |
 | `WHISPER_CHUNK_MINUTES` | game-narrator.whisper.chunk-minutes | `20` | 否 | application.yml |
 | `WHISPER_CHUNK_TIMEOUT_MINUTES` | game-narrator.whisper.chunk-timeout-minutes | `45` | 否 | application.yml |
 | `WHISPER_EXECUTABLE` | game-narrator.whisper.executable | `./tools/whisper/Release/whisper-cli.exe` | 否 | application.yml |
