@@ -567,6 +567,24 @@ public class VideoTask {
         this.failureReason = null;
     }
 
+    public void applyLocalizedVoiceRevision(String manifestPath, int segmentCount, String revisedTimelinePath,
+            double outputDuration, int overflowCount) {
+        this.voiceManifestPath = manifestPath;
+        this.generatedVoiceSegmentCount = segmentCount;
+        stage(ProcessingStageType.VOICE_GENERATION).complete();
+        this.timelinePath = revisedTimelinePath;
+        this.plannedOutputDurationSeconds = outputDuration;
+        this.voiceOverflowCount = overflowCount;
+        stage(ProcessingStageType.TIMELINE_PLANNING).complete();
+        this.renderedVideoPath = null;
+        this.generatedSubtitlePath = null;
+        this.renderedFileSizeBytes = null;
+        stage(ProcessingStageType.RENDERING).reset();
+        this.status = storyboardReviewEnabled && !storyboardApproved
+                ? TaskStatus.WAITING_REVIEW : TaskStatus.READY;
+        this.failureReason = null;
+    }
+
     public void deferVoiceGeneration(String reason) {
         this.status = TaskStatus.PROCESSING;
         this.failureReason = null;

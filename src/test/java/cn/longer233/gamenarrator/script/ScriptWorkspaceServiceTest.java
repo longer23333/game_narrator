@@ -8,6 +8,9 @@ import cn.longer233.gamenarrator.task.domain.TaskStatus;
 import cn.longer233.gamenarrator.task.domain.VideoTask;
 import cn.longer233.gamenarrator.task.repository.VideoTaskRepository;
 import cn.longer233.gamenarrator.voice.VoiceSynthesizer;
+import cn.longer233.gamenarrator.voice.VoiceSegment;
+import cn.longer233.gamenarrator.timeline.TimelinePlanner;
+import cn.longer233.gamenarrator.timeline.TimelinePlanningResult;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.JsonNode;
 import org.junit.jupiter.api.Test;
@@ -22,6 +25,8 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.doAnswer;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyMap;
 import static org.mockito.ArgumentMatchers.contains;
@@ -68,6 +73,60 @@ class ScriptWorkspaceServiceTest {
         assertThat(stage(task, ProcessingStageType.RENDERING)).isEqualTo(StageStatus.PENDING);
         assertThat(mapper.readTree(scriptPath.toFile()).path("segments").get(1)
                 .path("narration").asText()).isEqualTo("revised");
+    }
+
+    @Test
+    void editingOneSegmentRegeneratesOnlyItsVoiceAndRefreshesExistingTimeline() throws Exception {
+        ObjectMapper mapper = new ObjectMapper();
+        Path script = temporaryDirectory.resolve("local-script.json");
+        Path highlight = temporaryDirectory.resolve("local-highlights.json");
+        Path manifest = temporaryDirectory.resolve("voice-manifest.json");
+        Path timeline = temporaryDirectory.resolve("timeline.json");
+        Path firstVoice = java.nio.file.Files.write(temporaryDirectory.resolve("first.wav"), new byte[]{1});
+        Path secondVoice = java.nio.file.Files.write(temporaryDirectory.resolve("second.wav"), new byte[]{2});
+        List<ScriptSegment> segments = List.of(
+                new ScriptSegment(1, 0, 5, "first", "s1", "e1"),
+                new ScriptSegment(2, 5, 10, "old", "s2", "e2"));
+        mapper.writeValue(script.toFile(), Map.of("title", "title", "synopsis", "synopsis",
+                "fullNarration", "first\nold", "segments", segments));
+        mapper.writeValue(highlight.toFile(), Map.of("clips", List.of(
+                new HighlightClip(1, 0, 5, 2, "A", "a", 50, 50),
+                new HighlightClip(2, 5, 10, 7, "B", "b", 60, 60))));
+        mapper.writeValue(manifest.toFile(), Map.of("segments", List.of(
+                new VoiceSegment(1, firstVoice.toString(), "first"),
+                new VoiceSegment(2, secondVoice.toString(), "old"))));
+        mapper.writeValue(timeline.toFile(), Map.of("segments", List.of(), "outputDurationSeconds", 10));
+        VideoTask task = new VideoTask("demo", "ACTION", CommentaryStyle.ANIME_THEATER,
+                30, "brief", temporaryDirectory.resolve("source.mp4").toString());
+        task.completeHighlightSelection("highlights", highlight.toString(), 2);
+        task.completeScriptGeneration("title", "synopsis", "first\nold", script.toString(), 2);
+        task.completeVoiceGeneration(manifest.toString(), 2);
+        task.completeTimelinePlanning(timeline.toString(), 10, 0);
+        VideoTaskRepository repository = mock(VideoTaskRepository.class);
+        when(repository.findById(task.getId())).thenReturn(Optional.of(task));
+        VoiceSynthesizer voice = mock(VoiceSynthesizer.class);
+        doAnswer(invocation -> {
+            VoiceSegment revisedVoice = new VoiceSegment(2, secondVoice.toString(), "revised");
+            mapper.writeValue(manifest.toFile(), Map.of("segments", List.of(
+                    new VoiceSegment(1, firstVoice.toString(), "first"), revisedVoice)));
+            return revisedVoice;
+        }).when(voice).regenerateSegment(script, 2, null, 1.0);
+        TimelinePlanner planner = mock(TimelinePlanner.class);
+        when(planner.refreshSegment(timeline, highlight, script, manifest, 2)).thenReturn(
+                new TimelinePlanningResult(timeline.toString(), 10, 0, List.of()));
+        ScriptWorkspaceService service = new ScriptWorkspaceService(repository, mapper,
+                mock(TextGenerator.class), voice, null, planner);
+
+        service.update(task.getId(), 2, new UpdateScriptSegmentRequest("revised", "new subtitle", "e2"));
+
+        verify(voice).regenerateSegment(script, 2, null, 1.0);
+        verify(voice, never()).regenerateSegment(script, 1, null, 1.0);
+        verify(planner).refreshSegment(timeline, highlight, script, manifest, 2);
+        assertThat(task.getVoiceManifestPath()).isEqualTo(manifest.toString());
+        assertThat(task.getTimelinePath()).isEqualTo(timeline.toString());
+        assertThat(stage(task, ProcessingStageType.VOICE_GENERATION)).isEqualTo(StageStatus.COMPLETED);
+        assertThat(stage(task, ProcessingStageType.TIMELINE_PLANNING)).isEqualTo(StageStatus.COMPLETED);
+        assertThat(stage(task, ProcessingStageType.RENDERING)).isEqualTo(StageStatus.PENDING);
     }
 
     @Test

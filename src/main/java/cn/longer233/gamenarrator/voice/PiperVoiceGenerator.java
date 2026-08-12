@@ -11,6 +11,7 @@ import java.io.OutputStream;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.nio.file.StandardCopyOption;
 import java.time.Duration;
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
@@ -126,7 +127,19 @@ public class PiperVoiceGenerator {
             Path voiceDirectory = scriptPath.getParent().resolve("voice");
             Files.createDirectories(voiceDirectory);
             Path output = voiceDirectory.resolve("voice-%02d.wav".formatted(clipIndex));
-            synthesize(script.narration(), output, voice.model(), speed);
+            Path temporary = voiceDirectory.resolve(".voice-%02d-%s.wav.part".formatted(clipIndex,
+                    java.util.UUID.randomUUID()));
+            try {
+                synthesize(script.narration(), temporary, voice.model(), speed);
+                try {
+                    Files.move(temporary, output, StandardCopyOption.REPLACE_EXISTING,
+                            StandardCopyOption.ATOMIC_MOVE);
+                } catch (java.nio.file.AtomicMoveNotSupportedException exception) {
+                    Files.move(temporary, output, StandardCopyOption.REPLACE_EXISTING);
+                }
+            } finally {
+                Files.deleteIfExists(temporary);
+            }
             VoiceSegment regenerated = new VoiceSegment(clipIndex, output.toString(), script.narration(), voice.id(), speed);
 
             Path manifest = scriptPath.getParent().resolve("voice-manifest.json");

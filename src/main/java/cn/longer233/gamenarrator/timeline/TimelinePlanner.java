@@ -75,6 +75,61 @@ public class TimelinePlanner {
         }
     }
 
+    public TimelinePlanningResult refreshSegment(Path timelinePath, Path highlightPath, Path scriptPath,
+            Path voiceManifestPath, int clipIndex) {
+        try {
+            JsonNode existing = objectMapper.readTree(timelinePath.toFile());
+            List<TimelineSegment> timeline = objectMapper.readerForListOf(TimelineSegment.class)
+                    .readValue(existing.path("segments"));
+            List<ScriptSegment> scripts = readList(scriptPath, "segments", ScriptSegment.class);
+            List<HighlightClip> clips = readList(highlightPath, "clips", HighlightClip.class);
+            List<VoiceSegment> voices = readList(voiceManifestPath, "segments", VoiceSegment.class);
+            ScriptSegment script = scripts.stream().filter(item -> item.clipIndex() == clipIndex).findFirst()
+                    .orElseThrow(() -> new IllegalArgumentException("Script segment does not exist: " + clipIndex));
+            VoiceSegment voice = voices.stream().filter(item -> item.clipIndex() == clipIndex).findFirst()
+                    .orElseThrow(() -> new IllegalArgumentException("Voice segment does not exist: " + clipIndex));
+            int scriptPosition = -1;
+            for (int index = 0; index < scripts.size(); index++) {
+                if (scripts.get(index).clipIndex() == clipIndex) { scriptPosition = index; break; }
+            }
+            if (scriptPosition < 0 || scriptPosition >= clips.size())
+                throw new IllegalStateException("Highlight list does not contain script segment: " + clipIndex);
+            if (clips.get(scriptPosition).excluded())
+                throw new IllegalStateException("Excluded segment has no timeline entry: " + clipIndex);
+            int position = 0;
+            for (int index = 0; index < scriptPosition; index++) if (!clips.get(index).excluded()) position++;
+            if (position >= timeline.size())
+                throw new IllegalStateException("Timeline does not contain script segment: " + clipIndex);
+            TimelineSegment current = timeline.get(position);
+            double voiceDuration = wavDuration(Path.of(voice.audioPath()));
+            double clipDuration = current.outputEndSeconds() - current.outputStartSeconds();
+            TimelineSegment refreshed = new TimelineSegment(current.sequence(), current.outputStartSeconds(),
+                    current.outputEndSeconds(), current.sourceStartSeconds(), current.sourceEndSeconds(),
+                    script.narration(), script.subtitle(), script.effectCue(), voice.audioPath(), voiceDuration,
+                    voiceDuration > clipDuration - 0.3);
+            List<TimelineSegment> revised = new ArrayList<>(timeline);
+            revised.set(position, refreshed);
+            double outputDuration = existing.path("outputDurationSeconds").asDouble(
+                    revised.getLast().outputEndSeconds());
+            int overflowCount = (int) revised.stream().filter(TimelineSegment::voiceOverflow).count();
+            timelineValidator.validate(revised, outputDuration);
+            Map<String, Object> document = objectMapper.convertValue(existing,
+                    new com.fasterxml.jackson.core.type.TypeReference<LinkedHashMap<String, Object>>() { });
+            document.put("outputDurationSeconds", outputDuration);
+            document.put("voiceOverflowCount", overflowCount);
+            document.put("segments", revised);
+            document.put("localizedRevision", Map.of("clipIndex", clipIndex,
+                    "updatedAt", java.time.Instant.now().toString()));
+            AtomicArtifactWriter.writeJson(objectMapper, timelinePath, document);
+            return new TimelinePlanningResult(timelinePath.toString(), outputDuration, overflowCount,
+                    List.copyOf(revised));
+        } catch (IllegalArgumentException | IllegalStateException exception) {
+            throw exception;
+        } catch (Exception exception) {
+            throw new IllegalStateException("Local timeline refresh failed: " + exception.getMessage(), exception);
+        }
+    }
+
     private <T> List<T> readList(Path path, String field, Class<T> type) throws Exception {
         JsonNode root = objectMapper.readTree(path.toFile());
         return objectMapper.readerForListOf(type).readValue(root.path(field));

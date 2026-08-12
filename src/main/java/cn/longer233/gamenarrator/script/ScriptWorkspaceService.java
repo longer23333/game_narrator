@@ -12,6 +12,8 @@ import cn.longer233.gamenarrator.highlight.HighlightClip;
 import cn.longer233.gamenarrator.event.NarrativeBeat;
 import cn.longer233.gamenarrator.personalization.DirectorProfileService;
 import cn.longer233.gamenarrator.personalization.DirectorProfileView;
+import cn.longer233.gamenarrator.timeline.TimelinePlanner;
+import cn.longer233.gamenarrator.timeline.TimelinePlanningResult;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import jakarta.transaction.Transactional;
@@ -34,21 +36,29 @@ public class ScriptWorkspaceService {
     private final TextGenerator scriptGenerator;
     private final VoiceSynthesizer voiceGenerator;
     private final DirectorProfileService directorProfiles;
+    private final TimelinePlanner timelinePlanner;
 
     public ScriptWorkspaceService(VideoTaskRepository repository, ObjectMapper objectMapper,
                                   TextGenerator scriptGenerator, VoiceSynthesizer voiceGenerator) {
         this(repository, objectMapper, scriptGenerator, voiceGenerator, null);
     }
 
-    @Autowired
     public ScriptWorkspaceService(VideoTaskRepository repository, ObjectMapper objectMapper,
                                   TextGenerator scriptGenerator, VoiceSynthesizer voiceGenerator,
                                   DirectorProfileService directorProfiles) {
+        this(repository, objectMapper, scriptGenerator, voiceGenerator, directorProfiles, null);
+    }
+
+    @Autowired
+    public ScriptWorkspaceService(VideoTaskRepository repository, ObjectMapper objectMapper,
+                                  TextGenerator scriptGenerator, VoiceSynthesizer voiceGenerator,
+                                  DirectorProfileService directorProfiles, TimelinePlanner timelinePlanner) {
         this.repository = repository;
         this.objectMapper = objectMapper;
         this.scriptGenerator = scriptGenerator;
         this.voiceGenerator = voiceGenerator;
         this.directorProfiles = directorProfiles;
+        this.timelinePlanner = timelinePlanner;
     }
 
     @Transactional
@@ -59,6 +69,7 @@ public class ScriptWorkspaceService {
     @Transactional
     public ScriptDocumentView update(UUID taskId, int clipIndex, UpdateScriptSegmentRequest request) {
         VideoTask task = requireTask(taskId);
+        LocalizedArtifacts localized = localizedArtifacts(task);
         ScriptDocumentView document = readDocument(task);
         ScriptSegment current = requireSegment(document.segments(), clipIndex);
         ScriptSegment replacement = new ScriptSegment(
@@ -67,6 +78,7 @@ public class ScriptWorkspaceService {
                 defaultText(request.subtitle(), request.narration()),
                 defaultText(request.effectCue(), current.effectCue()));
         ScriptDocumentView result = saveRevision(task, document, replacement);
+        refreshLocalizedVoice(task, clipIndex, localized, null);
         if (directorProfiles != null) directorProfiles.recordScriptEdit(taskId, current, replacement);
         return result;
     }
@@ -75,6 +87,7 @@ public class ScriptWorkspaceService {
     public ScriptDocumentView regenerate(UUID taskId, int clipIndex,
                                          RegenerateScriptSegmentRequest request) {
         VideoTask task = requireTask(taskId);
+        LocalizedArtifacts localized = localizedArtifacts(task);
         ScriptDocumentView document = readDocument(task);
         List<ScriptSegment> segments = document.segments();
         int position = positionOf(segments, clipIndex);
@@ -91,7 +104,9 @@ public class ScriptWorkspaceService {
                 instruction,
                 position == 0 ? null : segments.get(position - 1).narration(),
                 position + 1 >= segments.size() ? null : segments.get(position + 1).narration());
-        return saveRevision(task, document, replacement);
+        ScriptDocumentView revised = saveRevision(task, document, replacement);
+        refreshLocalizedVoice(task, clipIndex, localized, null);
+        return revised;
     }
 
     @Transactional
@@ -118,6 +133,7 @@ public class ScriptWorkspaceService {
     @Transactional
     public VoiceSegment regenerateVoice(UUID taskId, int clipIndex, VoiceRegenerationRequest request) {
         VideoTask task = requireTask(taskId);
+        LocalizedArtifacts localized = localizedArtifacts(task);
         Path scriptPath = requireScriptPath(task);
         requireSegment(readDocument(task).segments(), clipIndex);
         String voiceId = request == null ? null : request.voiceId();
@@ -127,9 +143,40 @@ public class ScriptWorkspaceService {
         JsonNode manifestDocument = readJson(manifest);
         List<VoiceSegment> voices = readVoiceSegments(manifestDocument);
         validateVoiceManifest(readDocument(task).segments(), voices);
-        task.applyVoiceRevision(manifest.toString(), voices.size());
+        applyTimelineRevision(task, clipIndex, localized, manifest, voices.size());
         return result;
     }
+
+    private LocalizedArtifacts localizedArtifacts(VideoTask task) {
+        return new LocalizedArtifacts(task.getHighlightManifestPath(), task.getVoiceManifestPath(), task.getTimelinePath());
+    }
+
+    private void refreshLocalizedVoice(VideoTask task, int clipIndex, LocalizedArtifacts artifacts,
+            VoiceRegenerationRequest request) {
+        if (artifacts.voiceManifestPath() == null || artifacts.timelinePath() == null || timelinePlanner == null) return;
+        Path scriptPath = requireScriptPath(task);
+        String voiceId = request == null ? null : request.voiceId();
+        double speed = request == null ? 1.0 : request.effectiveSpeed();
+        voiceGenerator.regenerateSegment(scriptPath, clipIndex, voiceId, speed);
+        Path manifest = Path.of(artifacts.voiceManifestPath());
+        List<VoiceSegment> voices = readVoiceSegments(readJson(manifest));
+        validateVoiceManifest(readDocument(task).segments(), voices);
+        applyTimelineRevision(task, clipIndex, artifacts, manifest, voices.size());
+    }
+
+    private void applyTimelineRevision(VideoTask task, int clipIndex, LocalizedArtifacts artifacts,
+            Path manifest, int voiceCount) {
+        if (artifacts.timelinePath() == null || artifacts.highlightManifestPath() == null || timelinePlanner == null) {
+            task.applyVoiceRevision(manifest.toString(), voiceCount);
+            return;
+        }
+        TimelinePlanningResult timeline = timelinePlanner.refreshSegment(Path.of(artifacts.timelinePath()),
+                Path.of(artifacts.highlightManifestPath()), requireScriptPath(task), manifest, clipIndex);
+        task.applyLocalizedVoiceRevision(manifest.toString(), voiceCount, timeline.timelinePath(),
+                timeline.outputDurationSeconds(), timeline.overflowCount());
+    }
+
+    private record LocalizedArtifacts(String highlightManifestPath, String voiceManifestPath, String timelinePath) { }
 
     public List<VoiceOption> voiceOptions() {
         return voiceGenerator.options();
