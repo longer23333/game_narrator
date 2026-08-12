@@ -1,4 +1,4 @@
-param([switch]$SkipFrontendRestore)
+param([switch]$SkipFrontendRestore, [switch]$SkipTests)
 $ErrorActionPreference = 'Stop'
 $projectRoot = (Resolve-Path (Join-Path $PSScriptRoot '..')).Path
 $staging = Join-Path $projectRoot 'release\staging-lite'
@@ -6,6 +6,15 @@ $cache = Join-Path $projectRoot 'release\cache'
 $dist = Join-Path $projectRoot 'dist'
 $pom = [xml](Get-Content (Join-Path $projectRoot 'pom.xml') -Raw)
 $version = [string]$pom.project.version
+
+if ($SkipTests) {
+  Write-Warning 'Skipping the unified release verification because -SkipTests was explicitly supplied.'
+} else {
+  Write-Host 'Running required release verification before packaging...'
+  & (Join-Path $PSScriptRoot 'verify-before-push.ps1')
+  if ($LASTEXITCODE -ne 0) { throw 'Release verification failed' }
+  $SkipFrontendRestore = $true
+}
 
 if (Test-Path $staging) { Remove-Item -LiteralPath $staging -Recurse -Force }
 New-Item -ItemType Directory -Path $staging | Out-Null

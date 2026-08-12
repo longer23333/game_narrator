@@ -2,6 +2,7 @@ param(
   [switch]$InstallInnoSetup,
   [switch]$SkipDownloads,
   [switch]$SkipFrontendRestore,
+  [switch]$SkipTests,
   [string]$LocalDependenciesRoot = $env:GAME_NARRATOR_BUILD_DEPS_ROOT
 )
 $ErrorActionPreference = 'Stop'
@@ -98,6 +99,15 @@ if ([string]::IsNullOrWhiteSpace($LocalDependenciesRoot)) {
   if (Test-Path -LiteralPath $siblingDependencies -PathType Container) {
     $LocalDependenciesRoot = $siblingDependencies
   }
+}
+
+if ($SkipTests) {
+  Write-Warning 'Skipping the unified release verification because -SkipTests was explicitly supplied.'
+} else {
+  Write-Host 'Running required release verification before packaging...'
+  & (Join-Path $PSScriptRoot 'verify-before-push.ps1')
+  if ($LASTEXITCODE -ne 0) { throw 'Release verification failed' }
+  $SkipFrontendRestore = $true
 }
 
 New-Item -ItemType Directory -Path $cache -Force | Out-Null

@@ -17,6 +17,11 @@ function Invoke-Npm([string[]]$Arguments, [string]$failureMessage) {
   if ($exitCode -ne 0) { throw $failureMessage }
 }
 
+function Invoke-VerificationScript([string]$RelativePath, [string]$failureMessage) {
+  & powershell.exe -NoProfile -ExecutionPolicy Bypass -File (Join-Path $projectRoot $RelativePath)
+  if ($LASTEXITCODE -ne 0) { throw $failureMessage }
+}
+
 function Test-WorkspaceViteRunning([string]$Root) {
   $escapedRoot = [Regex]::Escape((Resolve-Path $Root).Path)
   return [bool](Get-CimInstance Win32_Process -ErrorAction SilentlyContinue | Where-Object {
@@ -27,6 +32,12 @@ function Test-WorkspaceViteRunning([string]$Root) {
 
 Write-Host 'Checking generated configuration reference...'
 & (Join-Path $projectRoot 'scripts\update-configuration-reference.ps1') -Check
+
+Write-Host 'Checking release version and capability alignment...'
+Invoke-VerificationScript 'scripts\verify-release-alignment.ps1' 'Release alignment failed'
+
+Write-Host 'Checking Android guardrails...'
+Invoke-VerificationScript 'scripts\verify-android-guardrails.ps1' 'Android guardrails failed'
 
 if (Test-WorkspaceViteRunning $frontendRoot) {
   Write-Host 'Workspace Vite is running; keeping its node_modules unchanged during verification.'
@@ -62,4 +73,4 @@ try {
 }
 if ($mavenExitCode -ne 0) { throw 'Backend tests failed' }
 
-Write-Host 'VERIFY SUCCESS: this revision is ready to commit and push.'
+Write-Host 'VERIFY SUCCESS: frontend, backend, release alignment and Android guardrails passed.'

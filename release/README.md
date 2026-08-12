@@ -6,12 +6,23 @@
 .\scripts\build-windows-release.ps1 -InstallInnoSetup
 ```
 
+发布脚本默认先运行统一门禁：配置引用、release 版本一致性、Android guardrails、前端构建与测试、
+后端测试。只有在已经由同一修订的可信 CI 完成验证时，才可显式传入 `-SkipTests`；跳过测试不再是默认行为。
+
 构建会先执行 `npm ci`，因此删除或移动 `frontend/node_modules` 后仍可重复构建。Whisper、
 Piper、yt-dlp 和模型默认可放在项目的忽略目录中；也可通过环境变量指向项目外依赖目录：
 
 ```powershell
 $env:GAME_NARRATOR_BUILD_DEPS_ROOT = 'G:\shiping\game_narrator-local-20260803'
 .\scripts\build-windows-release.ps1 -SkipDownloads
+```
+
+Demo Lite 使用同一策略：
+
+```powershell
+.\scripts\build-windows-demo-lite.ps1
+# 仅在外部已完成同一修订验证时：
+.\scripts\build-windows-demo-lite.ps1 -SkipTests
 ```
 
 每次提交前建议执行：

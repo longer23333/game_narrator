@@ -1,7 +1,7 @@
 ﻿# GameNarrator — DeepSeek 结构化项目索引
 
-> 自动生成：2026-08-12 09:54:22 +08:00；UTF-8 BOM；索引不再内嵌全部源码。
-> Git：分支 `main`，提交 `5e7c8ba`；收录文件 753 个，分卷 8 个。
+> 自动生成：2026-08-12 09:59:41 +08:00；UTF-8 BOM；索引不再内嵌全部源码。
+> Git：分支 `main`，提交 `cd1e020`；收录文件 753 个，分卷 8 个。
 
 ## 使用方法
 
@@ -33,42 +33,23 @@
 | `deepseek-context/04-frontend.md` | 38 | 536559 | Vite Web 源码 |
 | `deepseek-context/05-android-main.md` | 138 | 848306 | Android 实现、资源与 Gradle |
 | `deepseek-context/06-android-tests.md` | 55 | 128912 | Android 单元及设备测试 |
-| `deepseek-context/07-platform-release.md` | 11 | 54385 | Windows、CI/CD 与发布 |
-| `deepseek-context/08-docs-scripts.md` | 55 | 198829 | 需求、架构、维护脚本 |
+| `deepseek-context/07-platform-release.md` | 11 | 54651 | Windows、CI/CD 与发布 |
+| `deepseek-context/08-docs-scripts.md` | 55 | 200338 | 需求、架构、维护脚本 |
 
 ## 当前 Git 工作区（最近修改）
 
 ```text
-M .github/workflows/ci.yml
- M ANDROID_AI_CONTEXT.md
- M DEEPSEEK_PROJECT_CONTEXT.md
- M android-app/app/build.gradle
- M android-app/app/proguard-rules.pro
- D android-app/app/src/androidTest/java/cn/longer233/gamenarrator/mobile/RoomMigrationTest.java
- D android-app/app/src/androidTest/java/cn/longer233/gamenarrator/mobile/RoomSchemaTest.java
- D android-app/app/src/main/java/cn/longer233/gamenarrator/mobile/AssetDao.java
- D android-app/app/src/main/java/cn/longer233/gamenarrator/mobile/AssetEntity.java
- D android-app/app/src/main/java/cn/longer233/gamenarrator/mobile/EditHistoryDao.java
- D android-app/app/src/main/java/cn/longer233/gamenarrator/mobile/EditHistoryEntity.java
- D android-app/app/src/main/java/cn/longer233/gamenarrator/mobile/ExportJobDao.java
- D android-app/app/src/main/java/cn/longer233/gamenarrator/mobile/ExportJobEntity.java
- D android-app/app/src/main/java/cn/longer233/gamenarrator/mobile/GameNarratorRoomDatabase.java
- M android-app/app/src/main/java/cn/longer233/gamenarrator/mobile/MainActivity.java
- D android-app/app/src/main/java/cn/longer233/gamenarrator/mobile/ProjectDao.java
- D android-app/app/src/main/java/cn/longer233/gamenarrator/mobile/ProjectEntity.java
- D android-app/app/src/main/java/cn/longer233/gamenarrator/mobile/RoomEditHistoryStore.java
- D android-app/app/src/main/java/cn/longer233/gamenarrator/mobile/RoomMigration.java
- D android-app/app/src/main/java/cn/longer233/gamenarrator/mobile/TimelineClipDao.java
- D android-app/app/src/main/java/cn/longer233/gamenarrator/mobile/TimelineClipEntity.java
- M docs/ANDROID_FEATURE_PARITY.md
- M scripts/export-android-ai-context.ps1
+M docs/RELEASE_PROCESS.md
+ M release/README.md
+ M scripts/build-windows-demo-lite.ps1
+ M scripts/build-windows-release.ps1
+ M scripts/verify-before-push.ps1
  M src/main/java/cn/longer233/gamenarrator/ai/AiSettingsController.java
  M src/main/java/cn/longer233/gamenarrator/editor/EditorTimelineService.java
  M src/main/java/cn/longer233/gamenarrator/event/BattleNarrativePlanService.java
  M src/main/java/cn/longer233/gamenarrator/pipeline/ProjectArtifactRegistry.java
  M src/main/resources/application.yml
  M src/test/java/cn/longer233/gamenarrator/event/BattleNarrativePlanServiceTest.java
-?? android-app/app/src/androidTest/java/cn/longer233/gamenarrator/mobile/ProductionDatabaseTest.java
 ?? src/test/java/cn/longer233/gamenarrator/StaticResourceCompressionTest.java
 ```
 

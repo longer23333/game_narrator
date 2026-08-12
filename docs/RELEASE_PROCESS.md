@@ -13,6 +13,10 @@ GameNarrator 的 Web、Windows 与 Android 使用同一个语义版本。权威�
 
 第一条命令同时校验所有版本源、统一更新日志和 `docs/ANDROID_CORE_BASELINE.json`。核心功能以 full=1、partial=0.5、missing=0 计分，Android 覆盖率不得低于 80%。每次迭代必须优先消除 partial，尤其是公共素材、平台导入、画面调整与正式签名真机兼容。
 
+Windows 正式版与 Demo Lite 构建脚本会在修改 staging 或打包前自动调用
+`scripts/verify-before-push.ps1`。统一门禁包含配置引用、release alignment、Android guardrails、
+前端构建/测试和后端测试；仅当同一修订已被可信 CI 验证时，才可显式使用 `-SkipTests`。
+
 GitHub 的“自动更新版本并发布标签”工作流只接收一个语义版本和可选 Android versionCode。工作流会在同一修订上构建 Web/后端 JAR 与 Android release APK，上传两端产物，再创建统一的中文提交和 `vX.Y.Z` 标签。
 
 Android release 默认启用 R8 与资源裁剪，并关闭系统自动备份。发布产物除 APK 外还应归档
