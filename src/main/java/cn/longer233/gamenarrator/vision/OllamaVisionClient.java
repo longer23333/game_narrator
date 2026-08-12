@@ -35,13 +35,15 @@ public class OllamaVisionClient {
     private final AdaptiveAiChatClient adaptiveChat;
     private final AiSettingsService aiSettings;
     private final FrameOcrService frameOcrService;
+    private final int maximumSecondPassFrames;
 
     public OllamaVisionClient(ObjectMapper objectMapper, AdaptiveAiChatClient adaptiveChat,
             AiSettingsService aiSettings, FrameOcrService frameOcrService,
             @Value("${game-narrator.ollama.base-url:http://localhost:11434}") String baseUrl,
             @Value("${game-narrator.ollama.vision-model:qwen2.5vl:3b}") String model,
             @Value("${game-narrator.ollama.script-model:qwen2.5vl:3b}") String contentModel,
-            @Value("${game-narrator.ollama.max-frames:0}") int maxFrames) {
+            @Value("${game-narrator.ollama.max-frames:0}") int maxFrames,
+            @Value("${game-narrator.event-sampling.maximum-second-pass-frames:48}") int maximumSecondPassFrames) {
         this.objectMapper = objectMapper;
         this.adaptiveChat = adaptiveChat;
         this.aiSettings = aiSettings;
@@ -50,6 +52,7 @@ public class OllamaVisionClient {
         this.model = model;
         this.contentModel = contentModel;
         this.maxFrames = Math.max(0, maxFrames);
+        this.maximumSecondPassFrames = Math.max(0, Math.min(200, maximumSecondPassFrames));
         this.httpClient = HttpClient.newBuilder().connectTimeout(Duration.ofSeconds(5)).build();
     }
 
@@ -74,6 +77,20 @@ public class OllamaVisionClient {
                 }
                 progress.accept(10 + (int) Math.round((index + 1) * 80.0 / selectedFrames.size()));
             }
+            List<SceneFrame> secondPass = EventWindowSecondPass.select(allFrames, selectedFrames, analyses,
+                    maximumSecondPassFrames);
+            if (!secondPass.isEmpty()) {
+                log.info("VIDEO_EVENT_SECOND_PASS_BEGIN candidateFrames={}", secondPass.size());
+                for (SceneFrame frame : secondPass) {
+                    try {
+                        analyses.add(frameOcrService.enrich(analyzeFrame(frame, transcriptText)));
+                    } catch (AiContentRejectedException exception) {
+                        analyses.add(frameOcrService.enrich(fallbackFrame(frame, transcriptText)));
+                    }
+                }
+                analyses.sort(Comparator.comparingDouble(FrameUnderstanding::timestampSeconds));
+                log.info("VIDEO_EVENT_SECOND_PASS_SUCCESS analyzedFrames={}", secondPass.size());
+            }
 
             VideoContentAnalysis contentAnalysis;
             try {
@@ -92,6 +109,8 @@ public class OllamaVisionClient {
             document.put("contentAnalysis", contentAnalysis);
             document.put("transcriptText", transcriptText == null ? "" : transcriptText);
             document.put("frames", analyses);
+            document.put("sampling", Map.of("firstPassFrames", selectedFrames.size(),
+                    "secondPassFrames", secondPass.size(), "eventDriven", true));
             AtomicArtifactWriter.writeJson(objectMapper, output, document);
             log.info("VIDEO_UNDERSTANDING_SUCCESS analyzedFrames={} output={}", analyses.size(), output);
             return new VideoUnderstandingResult(summary, output.toString(), analyses);
@@ -104,16 +123,24 @@ public class OllamaVisionClient {
 
     public VideoUnderstandingResult analyzeWithoutAi(Path manifestPath, String transcriptText) {
         try {
-            List<SceneFrame> frames = objectMapper.readerForListOf(SceneFrame.class).readValue(manifestPath.toFile());
-            if (frames.isEmpty()) throw new IllegalStateException("场景清单为空");
-            List<FrameUnderstanding> analyses = frames.stream()
-                    .map(frame -> frameOcrService.enrich(fallbackFrame(frame, transcriptText))).toList();
+            List<SceneFrame> allFrames = objectMapper.readerForListOf(SceneFrame.class).readValue(manifestPath.toFile());
+            if (allFrames.isEmpty()) throw new IllegalStateException("场景清单为空");
+            List<SceneFrame> firstPass = AdaptiveFrameSampler.sample(allFrames, maxFrames);
+            List<FrameUnderstanding> analyses = new ArrayList<>(firstPass.stream()
+                    .map(frame -> frameOcrService.enrich(fallbackFrame(frame, transcriptText))).toList());
+            List<SceneFrame> secondPass = EventWindowSecondPass.select(allFrames, firstPass, analyses,
+                    maximumSecondPassFrames);
+            analyses.addAll(secondPass.stream()
+                    .map(frame -> frameOcrService.enrich(fallbackFrame(frame, transcriptText))).toList());
+            analyses.sort(Comparator.comparingDouble(FrameUnderstanding::timestampSeconds));
             VideoContentAnalysis content = fallbackContentAnalysis(transcriptText, analyses);
             String summary = formatSummary(content);
             Path output = manifestPath.getParent().resolve("visual-analysis.json");
             AtomicArtifactWriter.writeJson(objectMapper, output, Map.of(
                     "model", "RULE_BASED", "summary", summary, "contentAnalysis", content,
-                    "transcriptText", transcriptText == null ? "" : transcriptText, "frames", analyses));
+                    "transcriptText", transcriptText == null ? "" : transcriptText, "frames", analyses,
+                    "sampling", Map.of("firstPassFrames", firstPass.size(), "secondPassFrames", secondPass.size(),
+                            "eventDriven", true, "mode", "RULE_BASED")));
             return new VideoUnderstandingResult(summary, output.toString(), analyses);
         } catch (Exception exception) {
             throw new IllegalStateException("非 AI 场景分析失败：" + exception.getMessage(), exception);

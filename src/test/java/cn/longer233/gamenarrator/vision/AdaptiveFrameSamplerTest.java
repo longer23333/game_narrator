@@ -34,4 +34,19 @@ class AdaptiveFrameSamplerTest {
                 .toList();
         assertThat(AdaptiveFrameSampler.sample(scenes, 16)).hasSize(16);
     }
+
+    @Test
+    void reservesFirstPassCapacityForEventCentersWithoutIncludingPreAndPostFrames() {
+        List<SceneFrame> frames = new java.util.ArrayList<>(IntStream.range(0, 30)
+                .mapToObj(index -> new SceneFrame(index, index * 5.0, "scene-" + index + ".jpg"))
+                .toList());
+        frames.add(new SceneFrame(100, 10.65, "pre.jpg", "AUDIO_PEAK_WINDOW", 11.0));
+        frames.add(new SceneFrame(101, 11.0, "center.jpg", "AUDIO_PEAK_WINDOW", 11.0));
+        frames.add(new SceneFrame(102, 11.35, "post.jpg", "AUDIO_PEAK_WINDOW", 11.0));
+
+        List<SceneFrame> selected = AdaptiveFrameSampler.sample(frames, 8);
+
+        assertThat(selected).hasSize(8).extracting(SceneFrame::imagePath).contains("center.jpg");
+        assertThat(selected).noneMatch(frame -> frame.imagePath().equals("pre.jpg") || frame.imagePath().equals("post.jpg"));
+    }
 }

@@ -21,6 +21,8 @@ import java.util.List;
 import java.util.concurrent.TimeUnit;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import java.util.LinkedHashSet;
+import java.util.Locale;
 
 @Component
 public class FfmpegMediaPreprocessor {
@@ -35,6 +37,8 @@ public class FfmpegMediaPreprocessor {
     private final int maximumSceneFrames;
     private final Duration sceneTimeout;
     private final AudioAnalysisService audioAnalysis;
+    private final int maximumEventWindows;
+    private final double eventWindowSeconds;
 
     public FfmpegMediaPreprocessor(
             @Value("${game-narrator.ffmpeg-command}") String ffmpegCommand,
@@ -43,6 +47,8 @@ public class FfmpegMediaPreprocessor {
             @Value("${game-narrator.scene-analysis-fps:6}") int sceneAnalysisFps,
             @Value("${game-narrator.maximum-scene-frames:240}") int maximumSceneFrames,
             @Value("${game-narrator.scene-timeout-minutes:20}") int sceneTimeoutMinutes,
+            @Value("${game-narrator.event-sampling.maximum-windows:48}") int maximumEventWindows,
+            @Value("${game-narrator.event-sampling.window-seconds:0.35}") double eventWindowSeconds,
             ObjectMapper objectMapper,
             AudioAnalysisService audioAnalysis
     ) {
@@ -54,6 +60,8 @@ public class FfmpegMediaPreprocessor {
         this.sceneTimeout = Duration.ofMinutes(Math.max(2, Math.min(120, sceneTimeoutMinutes)));
         this.objectMapper = objectMapper;
         this.audioAnalysis = audioAnalysis;
+        this.maximumEventWindows = Math.max(0, Math.min(200, maximumEventWindows));
+        this.eventWindowSeconds = Math.max(.1, Math.min(2, eventWindowSeconds));
     }
 
     public MediaPreparationResult prepare(
@@ -72,6 +80,7 @@ public class FfmpegMediaPreprocessor {
                 audioAnalysis.analyze(audioPath);
             }
             List<SceneFrame> scenes = detectScenes(sourceVideo, sceneDirectory);
+            scenes = enrichEventWindows(sourceVideo, sceneDirectory, taskDirectory.resolve("audio-analysis.json"), scenes);
             cn.longer233.gamenarrator.common.AtomicArtifactWriter.writeJson(objectMapper, manifestPath, scenes);
             log.info("MEDIA_PREPARATION_SUCCESS taskId={} sceneCount={} audioExtracted={} manifest={}",
                     taskId, scenes.size(), hasAudio, manifestPath);
@@ -82,6 +91,53 @@ public class FfmpegMediaPreprocessor {
             );
         } catch (IOException exception) {
             throw new IllegalStateException("无法创建媒体预处理产物：" + exception.getMessage(), exception);
+        }
+    }
+
+    private List<SceneFrame> enrichEventWindows(Path sourceVideo, Path sceneDirectory, Path audioAnalysisPath,
+                                                 List<SceneFrame> scenes) {
+        if (maximumEventWindows == 0) return scenes;
+        LinkedHashSet<EventAnchor> anchors = new LinkedHashSet<>();
+        scenes.stream().skip(1).limit(maximumEventWindows).forEach(frame ->
+                anchors.add(new EventAnchor(frame.timestampSeconds(), "SCENE_CHANGE_WINDOW")));
+        if (Files.isRegularFile(audioAnalysisPath)) try {
+            var root = objectMapper.readTree(audioAnalysisPath.toFile());
+            for (String field : List.of("peakIntervals", "clippingIntervals")) {
+                for (var interval : root.path(field)) {
+                    addAnchor(anchors, new EventAnchor(interval.path("startSeconds").asDouble(),
+                            "clippingIntervals".equals(field) ? "AUDIO_CLIPPING_WINDOW" : "AUDIO_PEAK_WINDOW"));
+                    if (anchors.size() >= maximumEventWindows) break;
+                }
+                if (anchors.size() >= maximumEventWindows) break;
+            }
+        } catch (Exception exception) {
+            log.warn("EVENT_AUDIO_ANCHORS_SKIPPED reason={}", exception.getMessage());
+        }
+        List<SceneFrame> result = new ArrayList<>(scenes);
+        int nextIndex = scenes.stream().mapToInt(SceneFrame::index).max().orElse(0) + 1;
+        int anchorIndex = 0;
+        for (EventAnchor anchor : anchors.stream().limit(maximumEventWindows).toList()) {
+            for (double offset : new double[]{-eventWindowSeconds, 0, eventWindowSeconds}) {
+                double timestamp = Math.max(0, anchor.seconds() + offset);
+                if (result.stream().anyMatch(frame -> Math.abs(frame.timestampSeconds() - timestamp) < .08)) continue;
+                Path output = sceneDirectory.resolve(String.format(Locale.ROOT, "event-%04d-%s.jpg", ++anchorIndex,
+                        offset < 0 ? "pre" : offset > 0 ? "post" : "center"));
+                run(List.of(ffmpegCommand, "-nostdin", "-y", "-hide_banner", "-loglevel", "warning",
+                        "-ss", String.format(Locale.ROOT, "%.3f", timestamp), "-i", sourceVideo.toString(),
+                        "-an", "-frames:v", "1", "-vf", "scale=480:-2:flags=fast_bilinear",
+                        "-c:v", "mjpeg", "-q:v", "5", "-threads:v", "1", "-update", "1", output.toString()),
+                        Duration.ofMinutes(2), "event frame extraction");
+                result.add(new SceneFrame(nextIndex++, timestamp, output.toString(), anchor.reason(), anchor.seconds()));
+            }
+        }
+        result.sort(Comparator.comparingDouble(SceneFrame::timestampSeconds));
+        log.info("EVENT_FRAME_SAMPLING anchors={} totalFrames={} windowSeconds={}", anchors.size(), result.size(), eventWindowSeconds);
+        return List.copyOf(result);
+    }
+
+    private void addAnchor(LinkedHashSet<EventAnchor> anchors, EventAnchor candidate) {
+        if (anchors.stream().noneMatch(value -> Math.abs(value.seconds() - candidate.seconds()) < 1.0)) {
+            anchors.add(candidate);
         }
     }
 
@@ -143,12 +199,14 @@ public class FfmpegMediaPreprocessor {
 
     private void clearSceneImages(Path sceneDirectory) {
         try (var paths = Files.list(sceneDirectory)) {
-            for (Path path : paths.filter(item -> item.getFileName().toString().matches("scene-\\d+\\.(?:jpg|png)"))
+            for (Path path : paths.filter(item -> item.getFileName().toString().matches("(?:scene|event)-.*\\.(?:jpg|png)"))
                     .toList()) Files.deleteIfExists(path);
         } catch (IOException exception) {
             throw new IllegalStateException("无法清理旧镜头缓存：" + exception.getMessage(), exception);
         }
     }
+
+    private record EventAnchor(double seconds, String reason) { }
 
     private String run(List<String> command, Duration timeout, String operation) {
         try {

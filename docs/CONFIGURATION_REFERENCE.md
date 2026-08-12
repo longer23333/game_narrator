@@ -68,6 +68,9 @@
 | `MAX_VIDEO_REQUEST_SIZE` | spring.servlet.multipart.max-request-size | `101GB` | 否 | application.yml |
 | `MAX_VIDEO_UPLOAD_SIZE` | spring.servlet.multipart.max-file-size | `100GB` | 否 | application.yml |
 | `MAXIMUM_SCENE_FRAMES` | game-narrator.maximum-scene-frames | `240` | 否 | application.yml |
+| `EVENT_SAMPLING_MAXIMUM_WINDOWS` | game-narrator.event-sampling.maximum-windows | `48` | 否 | application.yml |
+| `EVENT_SAMPLING_WINDOW_SECONDS` | game-narrator.event-sampling.window-seconds | `0.35` | 否 | application.yml |
+| `EVENT_SAMPLING_MAXIMUM_SECOND_PASS_FRAMES` | game-narrator.event-sampling.maximum-second-pass-frames | `48` | 否 | application.yml |
 | `MEDIA_IMPORT_FORCE_IPV4` | game-narrator.media-import.force-ipv4 | `true` | 否 | application.yml |
 | `MEDIA_IMPORT_LOCAL_AUTH_DISCOVERY` | game-narrator.media-import.local-authentication-discovery | `false` | 否 | application.yml |
 | `MINIMUM_FREE_STORAGE_BYTES` | game-narrator.capacity.minimum-free-bytes | `5368709120` | 否 | application.yml |

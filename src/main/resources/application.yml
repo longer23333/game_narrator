@@ -285,6 +285,10 @@ game-narrator:
   scene-analysis-fps: ${SCENE_ANALYSIS_FPS:6}
   maximum-scene-frames: ${MAXIMUM_SCENE_FRAMES:240}
   scene-timeout-minutes: ${SCENE_TIMEOUT_MINUTES:20}
+  event-sampling:
+    maximum-windows: ${EVENT_SAMPLING_MAXIMUM_WINDOWS:48}
+    window-seconds: ${EVENT_SAMPLING_WINDOW_SECONDS:0.35}
+    maximum-second-pass-frames: ${EVENT_SAMPLING_MAXIMUM_SECOND_PASS_FRAMES:48}
   whisper:
     executable: "${WHISPER_EXECUTABLE:./tools/whisper/Release/whisper-cli.exe}"
     model: "${WHISPER_MODEL:./models/ggml-base.bin}"
