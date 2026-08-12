@@ -60,6 +60,11 @@ MOV/ProRes 已通过内置 arm64 FFmpeg 支持并在真机验证；端侧转写/
 
 已提供 release 签名构建脚本与本地测试密钥 APK（android-app/keystore 已加入 .gitignore）；生产正式签名仍应使用用户自有密钥，真机端到端验证需连接 Android 设备。
 
+正式版默认启用 R8 代码压缩和资源裁剪。发布时必须将
+`app/build/outputs/mapping/release/mapping.txt` 与对应 APK 一起归档，以便还原崩溃堆栈。
+系统自动备份已关闭：AI 凭据、本地数据库、模型和大型媒体不会通过 Android Backup
+跨设备恢复；需要迁移项目时使用应用内 `.gnproject.json` 归档。
+
 导出提供快速、标准和高质量三档真实 H.264 目标码率预设，并在设备不完全支持请求参数时启用编码器回退。
 
 重叠交叉转场、完整特效模板、端侧转写/视觉/文案模型仍在后续阶段，界面会明确提示，不会显示为已完成。
