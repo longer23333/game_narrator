@@ -110,7 +110,7 @@ class ScriptWorkspaceServiceTest {
             mapper.writeValue(manifest.toFile(), Map.of("segments", List.of(
                     new VoiceSegment(1, firstVoice.toString(), "first"), revisedVoice)));
             return revisedVoice;
-        }).when(voice).regenerateSegment(script, 2, null, 1.0);
+        }).when(voice).regenerateSegment(script, 2, (cn.longer233.gamenarrator.voice.VoiceRegenerationRequest) null);
         TimelinePlanner planner = mock(TimelinePlanner.class);
         when(planner.refreshSegment(timeline, highlight, script, manifest, 2)).thenReturn(
                 new TimelinePlanningResult(timeline.toString(), 10, 0, List.of()));
@@ -119,8 +119,9 @@ class ScriptWorkspaceServiceTest {
 
         service.update(task.getId(), 2, new UpdateScriptSegmentRequest("revised", "new subtitle", "e2"));
 
-        verify(voice).regenerateSegment(script, 2, null, 1.0);
-        verify(voice, never()).regenerateSegment(script, 1, null, 1.0);
+        verify(voice).regenerateSegment(script, 2, (cn.longer233.gamenarrator.voice.VoiceRegenerationRequest) null);
+        verify(voice, never()).regenerateSegment(script, 1,
+                (cn.longer233.gamenarrator.voice.VoiceRegenerationRequest) null);
         verify(planner).refreshSegment(timeline, highlight, script, manifest, 2);
         assertThat(task.getVoiceManifestPath()).isEqualTo(manifest.toString());
         assertThat(task.getTimelinePath()).isEqualTo(timeline.toString());

@@ -136,9 +136,7 @@ public class ScriptWorkspaceService {
         LocalizedArtifacts localized = localizedArtifacts(task);
         Path scriptPath = requireScriptPath(task);
         requireSegment(readDocument(task).segments(), clipIndex);
-        String voiceId = request == null ? null : request.voiceId();
-        double speed = request == null ? 1.0 : request.effectiveSpeed();
-        VoiceSegment result = voiceGenerator.regenerateSegment(scriptPath, clipIndex, voiceId, speed);
+        VoiceSegment result = voiceGenerator.regenerateSegment(scriptPath, clipIndex, request);
         Path manifest = scriptPath.getParent().resolve("voice-manifest.json");
         JsonNode manifestDocument = readJson(manifest);
         List<VoiceSegment> voices = readVoiceSegments(manifestDocument);
@@ -155,9 +153,7 @@ public class ScriptWorkspaceService {
             VoiceRegenerationRequest request) {
         if (artifacts.voiceManifestPath() == null || artifacts.timelinePath() == null || timelinePlanner == null) return;
         Path scriptPath = requireScriptPath(task);
-        String voiceId = request == null ? null : request.voiceId();
-        double speed = request == null ? 1.0 : request.effectiveSpeed();
-        voiceGenerator.regenerateSegment(scriptPath, clipIndex, voiceId, speed);
+        voiceGenerator.regenerateSegment(scriptPath, clipIndex, request);
         Path manifest = Path.of(artifacts.voiceManifestPath());
         List<VoiceSegment> voices = readVoiceSegments(readJson(manifest));
         validateVoiceManifest(readDocument(task).segments(), voices);
@@ -180,6 +176,14 @@ public class ScriptWorkspaceService {
 
     public List<VoiceOption> voiceOptions() {
         return voiceGenerator.options();
+    }
+
+    public List<cn.longer233.gamenarrator.voice.VoiceProfile> voiceProfiles() {
+        return voiceGenerator.profiles();
+    }
+
+    public Path voicePreview(VoiceRegenerationRequest request, String text) {
+        return voiceGenerator.preview(request, text);
     }
 
     @Transactional

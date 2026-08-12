@@ -342,6 +342,7 @@ game-narrator:
     model: "${PIPER_MODEL:./models/piper/zh_CN-huayan-medium.onnx}"
     length-scale: ${PIPER_LENGTH_SCALE:1.0}
     default-voice: ${PIPER_DEFAULT_VOICE:huayan}
+    default-profile: ${PIPER_DEFAULT_PROFILE:narrative}
     voices:
       - id: huayan
         name: 华妍中文女声
@@ -349,5 +350,24 @@ game-narrator:
       - id: xiaoxiao
         name: 晓晓中文女声（可选安装）
         model: "${PIPER_XIAOXIAO_MODEL:./models/piper/zh_CN-xiaoxiao-medium.onnx}"
+    profiles:
+      - id: narrative
+        name: 自然解说
+        voice-id: huayan
+        emotion: NEUTRAL
+        speed: 1.0
+        pitch-semitones: 0
+      - id: highlight
+        name: 高燃时刻
+        voice-id: huayan
+        emotion: EXCITED
+        speed: 1.0
+        pitch-semitones: 0
+      - id: recap
+        name: 沉稳复盘
+        voice-id: huayan
+        emotion: CALM
+        speed: 1.0
+        pitch-semitones: 0
   render:
     video-encoder: ${VIDEO_ENCODER:h264_nvenc}

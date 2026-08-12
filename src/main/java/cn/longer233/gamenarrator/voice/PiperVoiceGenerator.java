@@ -6,6 +6,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
+import org.springframework.beans.factory.annotation.Value;
 
 import java.io.OutputStream;
 import java.nio.charset.StandardCharsets;
@@ -28,8 +29,14 @@ public class PiperVoiceGenerator {
     private final Map<String, ConfiguredVoice> voices;
     private final String defaultVoiceId;
     private final double lengthScale;
+    private final Path ffmpeg;
+    private final Path previewDirectory;
+    private final Map<String, ConfiguredProfile> profiles;
+    private final String defaultProfileId;
 
-    public PiperVoiceGenerator(ObjectMapper objectMapper, PiperProperties properties) {
+    public PiperVoiceGenerator(ObjectMapper objectMapper, PiperProperties properties,
+            @Value("${game-narrator.ffmpeg-command:ffmpeg}") String ffmpegCommand,
+            @Value("${game-narrator.storage-root:./storage}") String storageRoot) {
         this.objectMapper = objectMapper;
         this.executable = Path.of(properties.getExecutable()).toAbsolutePath().normalize();
         this.lengthScale = properties.getLengthScale();
@@ -47,6 +54,23 @@ public class PiperVoiceGenerator {
         this.voices = Map.copyOf(configured);
         this.defaultVoiceId = configured.containsKey(properties.getDefaultVoice())
                 ? properties.getDefaultVoice() : configured.keySet().iterator().next();
+        this.ffmpeg = Path.of(ffmpegCommand).toAbsolutePath().normalize();
+        this.previewDirectory = Path.of(storageRoot).toAbsolutePath().normalize().resolve("voice-previews");
+        LinkedHashMap<String, ConfiguredProfile> configuredProfiles = new LinkedHashMap<>();
+        for (PiperProperties.Profile profile : properties.getProfiles()) {
+            if (profile.getId() == null || profile.getId().isBlank()) continue;
+            String voiceId = profile.getVoiceId() == null || profile.getVoiceId().isBlank()
+                    ? defaultVoiceId : profile.getVoiceId().strip();
+            configuredProfiles.put(profile.getId().strip(), new ConfiguredProfile(profile.getId().strip(),
+                    profile.getName() == null || profile.getName().isBlank() ? profile.getId().strip() : profile.getName().strip(),
+                    voiceId, normalizeEmotion(profile.getEmotion()), boundedSpeed(profile.getSpeed()),
+                    boundedPitch(profile.getPitchSemitones())));
+        }
+        if (configuredProfiles.isEmpty()) configuredProfiles.put("narrative", new ConfiguredProfile(
+                "narrative", "自然解说", defaultVoiceId, "NEUTRAL", 1.0, 0));
+        this.profiles = java.util.Collections.unmodifiableMap(new LinkedHashMap<>(configuredProfiles));
+        this.defaultProfileId = configuredProfiles.containsKey(properties.getDefaultProfile())
+                ? properties.getDefaultProfile() : configuredProfiles.keySet().iterator().next();
     }
 
     public String engineId() { return "piper"; }
@@ -59,6 +83,12 @@ public class PiperVoiceGenerator {
         return voices.values().stream().map(voice -> new VoiceOption(voice.id(), voice.name(),
                 Files.isRegularFile(executable) && Files.isRegularFile(voice.model()),
                 voice.id().equals(defaultVoiceId))).toList();
+    }
+
+    public List<VoiceProfile> profiles() {
+        return profiles.values().stream().map(profile -> new VoiceProfile(profile.id(), profile.name(),
+                profile.voiceId(), profile.emotion(), profile.speed(), profile.pitch(),
+                voiceAvailable(profile.voiceId()), profile.id().equals(defaultProfileId))).toList();
     }
 
     public VoiceGenerationResult generate(Path scriptPath) {
@@ -76,14 +106,17 @@ public class PiperVoiceGenerator {
             if (scripts.isEmpty()) throw new IllegalStateException("生成文案中没有可配音片段");
             Path voiceDirectory = scriptPath.getParent().resolve("voice");
             Files.createDirectories(voiceDirectory);
-            ConfiguredVoice voice = requireVoice(defaultVoiceId);
+            ResolvedProfile resolved = resolve(null);
+            ConfiguredVoice voice = requireVoice(resolved.voiceId());
             log.info("VOICE_GENERATION_BEGIN engine=piper segmentCount={} voiceId={}", scripts.size(), voice.id());
             List<VoiceSegment> voices = new ArrayList<>();
             for (int index = 0; index < scripts.size(); index++) {
                 ScriptSegment script = scripts.get(index);
                 Path output = voiceDirectory.resolve("voice-%02d.wav".formatted(script.clipIndex()));
-                synthesize(script.narration(), output, voice.model(), 1.0);
-                voices.add(new VoiceSegment(script.clipIndex(), output.toString(), script.narration(), voice.id(), 1.0));
+                synthesize(script.narration(), output, voice.model(), resolved.speed());
+                applyPitch(output, resolved.pitch());
+                voices.add(new VoiceSegment(script.clipIndex(), output.toString(), script.narration(), voice.id(),
+                        resolved.speed(), resolved.profileId(), resolved.emotion(), resolved.pitch()));
                 log.info("VOICE_SEGMENT_SUCCESS clipIndex={} characters={} output={}",
                         script.clipIndex(), script.narration().length(), output);
                 progress.accept(10 + (int) Math.round((index + 1) * 85.0 / scripts.size()));
@@ -92,6 +125,10 @@ public class PiperVoiceGenerator {
             Map<String, Object> result = new LinkedHashMap<>();
             result.put("engine", "piper");
             result.put("voiceId", voice.id());
+            result.put("profileId", resolved.profileId());
+            result.put("emotion", resolved.emotion());
+            result.put("speed", resolved.speed());
+            result.put("pitchSemitones", resolved.pitch());
             result.put("model", voice.model().toString());
             result.put("segments", voices);
             cn.longer233.gamenarrator.common.AtomicArtifactWriter.writeJson(objectMapper, manifest, result);
@@ -105,18 +142,21 @@ public class PiperVoiceGenerator {
     }
 
     public VoiceSegment regenerateSegment(Path scriptPath, int clipIndex) {
-        return regenerateSegment(scriptPath, clipIndex, defaultVoiceId, 1.0);
+        return regenerateSegment(scriptPath, clipIndex, (VoiceRegenerationRequest) null);
     }
 
     public VoiceSegment regenerateSegment(Path scriptPath, int clipIndex, String voiceId, double speed) {
+        return regenerateSegment(scriptPath, clipIndex,
+                new VoiceRegenerationRequest(voiceId, speed, null, null, null));
+    }
+
+    public VoiceSegment regenerateSegment(Path scriptPath, int clipIndex, VoiceRegenerationRequest request) {
         if (!available()) {
             throw new IllegalStateException("Piper is not available");
         }
-        if (!Double.isFinite(speed) || speed < 0.5 || speed > 2.0) {
-            throw new IllegalArgumentException("Voice speed must be between 0.5 and 2.0");
-        }
         try {
-            ConfiguredVoice voice = requireVoice(voiceId == null || voiceId.isBlank() ? defaultVoiceId : voiceId);
+            ResolvedProfile resolved = resolve(request);
+            ConfiguredVoice voice = requireVoice(resolved.voiceId());
             JsonNode document = objectMapper.readTree(scriptPath.toFile());
             List<ScriptSegment> scripts = objectMapper.readerForListOf(ScriptSegment.class)
                     .readValue(document.path("segments"));
@@ -130,7 +170,8 @@ public class PiperVoiceGenerator {
             Path temporary = voiceDirectory.resolve(".voice-%02d-%s.wav.part".formatted(clipIndex,
                     java.util.UUID.randomUUID()));
             try {
-                synthesize(script.narration(), temporary, voice.model(), speed);
+                synthesize(script.narration(), temporary, voice.model(), resolved.speed());
+                applyPitch(temporary, resolved.pitch());
                 try {
                     Files.move(temporary, output, StandardCopyOption.REPLACE_EXISTING,
                             StandardCopyOption.ATOMIC_MOVE);
@@ -140,7 +181,8 @@ public class PiperVoiceGenerator {
             } finally {
                 Files.deleteIfExists(temporary);
             }
-            VoiceSegment regenerated = new VoiceSegment(clipIndex, output.toString(), script.narration(), voice.id(), speed);
+            VoiceSegment regenerated = new VoiceSegment(clipIndex, output.toString(), script.narration(), voice.id(),
+                    resolved.speed(), resolved.profileId(), resolved.emotion(), resolved.pitch());
 
             Path manifest = scriptPath.getParent().resolve("voice-manifest.json");
             List<VoiceSegment> voices = new ArrayList<>();
@@ -168,6 +210,25 @@ public class PiperVoiceGenerator {
         }
     }
 
+    public Path preview(VoiceRegenerationRequest request, String text) {
+        if (!available()) throw new IllegalStateException("Piper is not available");
+        String sample = text == null || text.isBlank() ? "欢迎使用游戏解说配音试听。" : text.strip();
+        if (sample.length() > 160) throw new IllegalArgumentException("Preview text cannot exceed 160 characters");
+        try {
+            ResolvedProfile resolved = resolve(request);
+            ConfiguredVoice voice = requireVoice(resolved.voiceId());
+            Files.createDirectories(previewDirectory);
+            Path output = previewDirectory.resolve("preview-" + java.util.UUID.randomUUID() + ".wav");
+            synthesize(sample, output, voice.model(), resolved.speed());
+            applyPitch(output, resolved.pitch());
+            return output;
+        } catch (IllegalArgumentException | IllegalStateException exception) {
+            throw exception;
+        } catch (Exception exception) {
+            throw new IllegalStateException("Voice preview failed: " + exception.getMessage(), exception);
+        }
+    }
+
     private void synthesize(String text, Path output, Path model, double speed) throws Exception {
         var result = cn.longer233.gamenarrator.common.ExternalProcessRunner.run(List.of(
                         executable.toString(), "--model", model.toString(), "--output_file", output.toString(),
@@ -177,6 +238,70 @@ public class PiperVoiceGenerator {
         if (result.exitCode() != 0 || !Files.isRegularFile(output)) {
             throw new IllegalStateException("Piper 退出码 " + result.exitCode() + "：" + tail(processOutput, 800));
         }
+    }
+
+    private void applyPitch(Path audio, double semitones) throws Exception {
+        if (Math.abs(semitones) < .01) return;
+        if (!Files.isRegularFile(ffmpeg)) throw new IllegalStateException("FFmpeg is required for pitch control");
+        Path transformed = audio.resolveSibling("." + audio.getFileName() + ".pitch.wav");
+        double factor = Math.pow(2, semitones / 12.0);
+        float sampleRate;
+        try (var stream = javax.sound.sampled.AudioSystem.getAudioInputStream(audio.toFile())) {
+            sampleRate = stream.getFormat().getSampleRate();
+        }
+        if (sampleRate <= 0) throw new IllegalStateException("Cannot determine generated voice sample rate");
+        String filter = "asetrate=" + sampleRate + "*" + factor + ",aresample=" + sampleRate
+                + ",atempo=" + (1.0 / factor);
+        try {
+            var result = cn.longer233.gamenarrator.common.ExternalProcessRunner.run(List.of(ffmpeg.toString(),
+                    "-hide_banner", "-loglevel", "error", "-y", "-i", audio.toString(), "-af", filter,
+                    transformed.toString()), Duration.ofMinutes(2));
+            if (result.exitCode() != 0 || !Files.isRegularFile(transformed))
+                throw new IllegalStateException("FFmpeg pitch processing failed: " + tail(result.output(), 800));
+            Files.move(transformed, audio, StandardCopyOption.REPLACE_EXISTING);
+        } finally {
+            Files.deleteIfExists(transformed);
+        }
+    }
+
+    private ResolvedProfile resolve(VoiceRegenerationRequest request) {
+        ConfiguredProfile profile = profiles.get(request == null || request.profileId() == null
+                || request.profileId().isBlank() ? defaultProfileId : request.profileId());
+        if (profile == null) throw new IllegalArgumentException("Unknown voice profile: " + request.profileId());
+        String voiceId = request != null && request.voiceId() != null && !request.voiceId().isBlank()
+                ? request.voiceId().strip() : profile.voiceId();
+        String emotion = request != null && request.emotion() != null && !request.emotion().isBlank()
+                ? normalizeEmotion(request.emotion()) : profile.emotion();
+        double speed = request != null && request.speed() != null ? request.effectiveSpeed() : profile.speed();
+        double pitch = request != null && request.pitchSemitones() != null ? request.effectivePitch() : profile.pitch();
+        double[] adjustment = switch (emotion) {
+            case "EXCITED" -> new double[]{1.08, 1.0};
+            case "CALM" -> new double[]{.92, -.5};
+            case "TENSE" -> new double[]{1.04, .5};
+            case "SAD" -> new double[]{.88, -1.0};
+            default -> new double[]{1, 0};
+        };
+        return new ResolvedProfile(profile.id(), voiceId, emotion, boundedSpeed(speed * adjustment[0]),
+                boundedPitch(pitch + adjustment[1]));
+    }
+
+    private boolean voiceAvailable(String voiceId) {
+        ConfiguredVoice value = voices.get(voiceId);
+        return value != null && Files.isRegularFile(executable) && Files.isRegularFile(value.model());
+    }
+    private double boundedSpeed(double value) {
+        if (!Double.isFinite(value) || value < .5 || value > 2) throw new IllegalArgumentException("Voice speed must be between 0.5 and 2.0");
+        return value;
+    }
+    private double boundedPitch(double value) {
+        if (!Double.isFinite(value) || value < -6 || value > 6) throw new IllegalArgumentException("Voice pitch must be between -6 and 6 semitones");
+        return value;
+    }
+    private String normalizeEmotion(String value) {
+        String normalized = value == null ? "NEUTRAL" : value.strip().toUpperCase(java.util.Locale.ROOT);
+        if (!List.of("NEUTRAL", "EXCITED", "CALM", "TENSE", "SAD").contains(normalized))
+            throw new IllegalArgumentException("Unsupported voice emotion: " + value);
+        return normalized;
     }
 
     private String tail(String value, int limit) {
@@ -191,4 +316,8 @@ public class PiperVoiceGenerator {
     }
 
     private record ConfiguredVoice(String id, String name, Path model) {}
+    private record ConfiguredProfile(String id, String name, String voiceId, String emotion,
+                                     double speed, double pitch) { }
+    private record ResolvedProfile(String profileId, String voiceId, String emotion,
+                                   double speed, double pitch) { }
 }

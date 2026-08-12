@@ -48,10 +48,11 @@ public class StorageCleanupService implements ApplicationRunner {
             Instant cutoff = Instant.now().minus(retention);
             int temporary = cleanupTemporaryFiles(root, cutoff);
             int imports = cleanupTree(root.resolve("import-downloads"), root, cutoff);
+            int previews = cleanupTree(root.resolve("voice-previews"), root, cutoff);
             int exports = cleanupExpiredExports(root);
-            if (temporary + imports + exports > 0) {
-                log.info("STORAGE_CLEANUP temporaryFiles={} importEntries={} expiredExports={}",
-                        temporary, imports, exports);
+            if (temporary + imports + previews + exports > 0) {
+                log.info("STORAGE_CLEANUP temporaryFiles={} importEntries={} voicePreviews={} expiredExports={}",
+                        temporary, imports, previews, exports);
             }
         } catch (Exception exception) {
             log.warn("STORAGE_CLEANUP_FAILED reason={}", exception.getMessage());

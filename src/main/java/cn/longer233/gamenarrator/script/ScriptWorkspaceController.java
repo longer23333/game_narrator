@@ -70,6 +70,21 @@ public class ScriptWorkspaceController {
         return service.voiceOptions();
     }
 
+    @GetMapping("/voice/profiles")
+    public java.util.List<cn.longer233.gamenarrator.voice.VoiceProfile> voiceProfiles() {
+        return service.voiceProfiles();
+    }
+
+    @PostMapping(value = "/voice/preview", produces = "audio/wav")
+    public ResponseEntity<FileSystemResource> voicePreview(@Valid @RequestBody(required = false)
+            cn.longer233.gamenarrator.voice.VoicePreviewRequest request) {
+        var path = service.voicePreview(request == null ? null : request.settings(),
+                request == null ? null : request.text());
+        return ResponseEntity.ok().contentType(MediaType.parseMediaType("audio/wav"))
+                .cacheControl(org.springframework.http.CacheControl.noStore())
+                .body(new FileSystemResource(path));
+    }
+
     @GetMapping("/storyboard")
     public StoryboardView storyboard(@PathVariable UUID taskId) {
         return service.storyboard(taskId);

@@ -578,6 +578,16 @@ detailContent.addEventListener('click', async event => {
     retryButton.title = error.message;
   }
 });
+detailContent.addEventListener('change', event => {
+  if (!event.target.matches('[name="voiceProfile"]')) return;
+  const card = event.target.closest('[data-script-segment]');
+  const option = event.target.selectedOptions[0];
+  if (!card || !option) return;
+  card.querySelector('[name="voiceId"]').value = option.dataset.voiceId || '';
+  card.querySelector('[name="voiceEmotion"]').value = option.dataset.emotion || 'NEUTRAL';
+  card.querySelector('[name="voiceSpeed"]').value = option.dataset.speed || '1';
+  card.querySelector('[name="voicePitch"]').value = option.dataset.pitch || '0';
+});
 
 detailContent.addEventListener('input', event => {
   if (event.target.matches('[name="voiceSpeed"]')) {
@@ -704,9 +714,29 @@ detailContent.addEventListener('click', async event => {
         method: 'POST', headers: {'Content-Type': 'application/json'},
         body: JSON.stringify({
           voiceId: card.querySelector('[name="voiceId"]').value,
-          speed: Number(card.querySelector('[name="voiceSpeed"]').value)
+          speed: Number(card.querySelector('[name="voiceSpeed"]').value),
+          profileId: card.querySelector('[name="voiceProfile"]').value,
+          emotion: card.querySelector('[name="voiceEmotion"]').value,
+          pitchSemitones: Number(card.querySelector('[name="voicePitch"]').value)
         })
       });
+    } else if (actionButton.dataset.scriptAction === 'voice-preview') {
+      const response = await fetch(`/api/tasks/${taskId}/voice/preview`, {
+        method: 'POST', headers: {'Content-Type': 'application/json'},
+        body: JSON.stringify({text: card.querySelector('[name="narration"]').value, settings: {
+          voiceId: card.querySelector('[name="voiceId"]').value,
+          speed: Number(card.querySelector('[name="voiceSpeed"]').value),
+          profileId: card.querySelector('[name="voiceProfile"]').value,
+          emotion: card.querySelector('[name="voiceEmotion"]').value,
+          pitchSemitones: Number(card.querySelector('[name="voicePitch"]').value)
+        }})
+      });
+      if (!response.ok) throw await readApiError(response);
+      const audio = card.querySelector('[data-voice-preview]');
+      if (audio.src?.startsWith('blob:')) URL.revokeObjectURL(audio.src);
+      audio.src = URL.createObjectURL(await response.blob());
+      audio.hidden = false;
+      await audio.play();
     } else if (actionButton.dataset.scriptAction.startsWith('review-')) {
       const status = actionButton.dataset.scriptAction === 'review-approved' ? 'APPROVED' : 'NEEDS_CHANGES';
       await requestJson(`/api/tasks/${taskId}/script/segments/${clipIndex}/review`, {
@@ -985,12 +1015,14 @@ detailContent.addEventListener('change', async event => {
 });
 
 async function loadScriptEditor(taskId) {
-  const [script, voices, manualReviews] = await Promise.all([
+  const [script, voices, profiles, manualReviews] = await Promise.all([
     requestJson(`/api/tasks/${taskId}/script`),
     requestJson(`/api/tasks/${taskId}/voice/options`),
+    requestJson(`/api/tasks/${taskId}/voice/profiles`),
     requestJson(`/api/tasks/${taskId}/script/reviews`)
   ]);
   const voiceOptions = voices.map(voice => `<option value="${escapeHtml(voice.id)}" ${voice.available ? '' : 'disabled'} ${voice.defaultVoice ? 'selected' : ''}>${escapeHtml(voice.name)}${voice.available ? '' : '（未安装）'}</option>`).join('');
+  const profileOptions = profiles.map(profile => `<option value="${escapeHtml(profile.id)}" data-voice-id="${escapeHtml(profile.voiceId)}" data-emotion="${escapeHtml(profile.emotion)}" data-speed="${profile.speed}" data-pitch="${profile.pitchSemitones}" ${profile.available ? '' : 'disabled'} ${profile.defaultProfile ? 'selected' : ''}>${escapeHtml(profile.name)}</option>`).join('');
   const existing = detailContent.querySelector('.script-editor');
   if (existing) existing.remove();
   detailContent.insertAdjacentHTML('beforeend', `
@@ -1018,11 +1050,13 @@ async function loadScriptEditor(taskId) {
           <label>字幕<input name="subtitle" maxlength="500" value="${escapeHtml(segment.subtitle)}"></label>
           <label>特效提示<input name="effectCue" maxlength="200" value="${escapeHtml(segment.effectCue)}"></label>
           <label>AI 重写要求<input name="instruction" maxlength="500" placeholder="例如：更紧张、更精简，保持事实不变"></label>
-          <div class="voice-controls"><label>配音音色<select name="voiceId">${voiceOptions}</select></label><label>语速<input name="voiceSpeed" type="range" min="0.5" max="2" step="0.05" value="1"><output>1.00×</output></label></div>
+          <div class="voice-controls"><label>配音档案<select name="voiceProfile">${profileOptions}</select></label><label>配音音色<select name="voiceId">${voiceOptions}</select></label><label>情绪<select name="voiceEmotion"><option value="NEUTRAL">自然</option><option value="EXCITED">兴奋</option><option value="CALM">沉稳</option><option value="TENSE">紧张</option><option value="SAD">低沉</option></select></label><label>语速<input name="voiceSpeed" type="range" min="0.5" max="2" step="0.05" value="1"><output>1.00×</output></label><label>音高<input name="voicePitch" type="range" min="-6" max="6" step="0.5" value="0"><output>0</output></label></div>
+          <audio data-voice-preview controls hidden preload="none"></audio>
           <div class="script-actions">
             <button type="button" data-script-action="save" data-task-id="${taskId}" data-clip-index="${segment.clipIndex}">保存并局部配音</button>
             <button type="button" data-script-action="regenerate" data-task-id="${taskId}" data-clip-index="${segment.clipIndex}">AI 重写</button>
             <button type="button" data-script-action="voice" data-task-id="${taskId}" data-clip-index="${segment.clipIndex}">重新配音</button>
+            <button type="button" data-script-action="voice-preview" data-task-id="${taskId}" data-clip-index="${segment.clipIndex}">试听档案</button>
             <button type="button" data-script-action="review-approved" data-task-id="${taskId}" data-clip-index="${segment.clipIndex}">通过</button>
             <button type="button" data-script-action="review-needs-changes" data-task-id="${taskId}" data-clip-index="${segment.clipIndex}">需修改</button>
           </div>
@@ -1030,6 +1064,8 @@ async function loadScriptEditor(taskId) {
         </article>`}).join('')}</div>
     </section>`);
   detailContent.querySelector('.script-editor').scrollIntoView({behavior: 'smooth', block: 'start'});
+  detailContent.querySelectorAll('[name="voiceProfile"]').forEach(select =>
+    select.dispatchEvent(new Event('change', {bubbles: true})));
 }
 
 function renderBattleNarrativePlan(plan, taskId) {

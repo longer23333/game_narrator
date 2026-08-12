@@ -19,5 +19,10 @@ public class PiperVoiceSynthesizerAdapter implements VoiceSynthesizer {
     @Override public VoiceSegment regenerateSegment(Path path, int index, String voiceId, double speed) {
         return delegate.regenerateSegment(path, index, voiceId, speed);
     }
+    @Override public VoiceSegment regenerateSegment(Path path, int index, VoiceRegenerationRequest request) {
+        return delegate.regenerateSegment(path, index, request);
+    }
     @Override public List<VoiceOption> options() { return delegate.options(); }
+    @Override public List<VoiceProfile> profiles() { return delegate.profiles(); }
+    @Override public Path preview(VoiceRegenerationRequest request, String text) { return delegate.preview(request, text); }
 }

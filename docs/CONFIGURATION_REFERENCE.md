@@ -9,7 +9,7 @@
 - 桌面安装版会自动设置运行目录、端口和并发参数，普通用户不需要手工配置这些项目。
 - PostgreSQL、对象存储和云部署的操作步骤另见 `docs/POSTGRESQL_AND_CLOUD_SYNC.md`。
 
-## 完整清单（145 项）
+## 完整清单（146 项）
 
 | 环境变量 | Spring 配置路径/用途 | 默认值 | 敏感 | 来源 |
 |---|---|---|---|---|
@@ -102,6 +102,7 @@
 | `PHASE_RETRY_BACKOFF_MS` | game-narrator.retry.initial-backoff-ms | `500` | 否 | application.yml |
 | `PIPELINE_WAITING_RETRY_DELAY_MS` | game-narrator.pipeline.waiting-retry-delay-ms | `30000` | 否 | application.yml |
 | `PIPELINE_WAITING_RETRY_INITIAL_DELAY_MS` | game-narrator.pipeline.waiting-retry-initial-delay-ms | `30000` | 否 | application.yml |
+| `PIPER_DEFAULT_PROFILE` | game-narrator.piper.default-profile | `narrative` | 否 | application.yml |
 | `PIPER_DEFAULT_VOICE` | game-narrator.piper.default-voice | `huayan` | 否 | application.yml |
 | `PIPER_EXECUTABLE` | game-narrator.piper.executable | `./tools/piper/piper/piper.exe` | 否 | application.yml |
 | `PIPER_LENGTH_SCALE` | game-narrator.piper.length-scale | `1.0` | 否 | application.yml |
