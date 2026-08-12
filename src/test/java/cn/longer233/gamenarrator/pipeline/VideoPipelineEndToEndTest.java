@@ -65,6 +65,21 @@ class VideoPipelineEndToEndTest {
         assertThat(current.stages()).hasSize(9).allMatch(stage -> stage.status() == StageStatus.COMPLETED);
         assertThat(Path.of(current.renderedVideoPath())).isRegularFile();
         assertThat(Path.of(current.sceneManifestPath()).resolveSibling("audio-analysis.json")).isRegularFile();
+
+        Path scenes = Path.of(current.sceneManifestPath());
+        Files.writeString(scenes, "{\"corrupted\":true}");
+        tasks.start(created.id());
+        long recoveryDeadline = System.nanoTime() + Duration.ofMinutes(2).toNanos();
+        do {
+            Thread.sleep(250);
+            current = tasks.find(created.id());
+        } while (current.status() != TaskStatus.COMPLETED && current.status() != TaskStatus.FAILED
+                && System.nanoTime() < recoveryDeadline);
+
+        assertThat(current.status()).isEqualTo(TaskStatus.COMPLETED);
+        assertThat(current.failureReason()).isNull();
+        assertThat(Files.readString(scenes)).contains("scenes").doesNotContain("corrupted");
+        assertThat(current.stages()).allMatch(stage -> stage.status() == StageStatus.COMPLETED);
     }
 
     @Test

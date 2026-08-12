@@ -44,6 +44,7 @@
 
 - FFmpeg, Whisper, and other native processes now have separate global concurrency limits. Limits are configurable with `FFMPEG_MAX_CONCURRENT`, `WHISPER_MAX_CONCURRENT`, and `OTHER_PROCESS_MAX_CONCURRENT`.
 - Startup recovery checks only the tools required by each task's unfinished stages and leaves tasks pending when a dependency is unavailable.
+- Completed stages now persist auditable artifact checkpoints (path, size, SHA-256) in stage-run summaries. Every engine start validates registered outputs and JSON structure, invalidates the earliest corrupt stage plus downstream state, and idempotently revives artifacts regenerated at the same storage key.
 - Cloud AI requests retry transient timeouts, HTTP 408/429, and 5xx responses with bounded exponential backoff.
 - Managed storage rejects symbolic-link path segments both when uploading and when deleting task artifacts.
 - A real five-second FFmpeg video now exercises the complete nine-stage pipeline in the integration test suite without requiring cloud credentials.

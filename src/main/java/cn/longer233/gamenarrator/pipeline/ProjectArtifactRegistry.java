@@ -42,9 +42,11 @@ public class ProjectArtifactRegistry {
             if (!Files.isRegularFile(path)) return;
             String storageKey = path.toString();
             String contentHash = fileSha256(path);
-            var existing = jdbc.query("SELECT id,sha256 FROM artifact WHERE storage_key=? AND deleted_at IS NULL",
-                    (rs, row) -> new ExistingArtifact(rs.getObject("id", UUID.class), rs.getString("sha256")), storageKey);
-            if (!existing.isEmpty() && contentHash.equals(existing.getFirst().sha256())) return;
+            var existing = jdbc.query("SELECT id,sha256,deleted_at FROM artifact WHERE storage_key=?",
+                    (rs, row) -> new ExistingArtifact(rs.getObject("id", UUID.class), rs.getString("sha256"),
+                            rs.getObject("deleted_at") != null), storageKey);
+            if (!existing.isEmpty() && !existing.getFirst().deleted()
+                    && contentHash.equals(existing.getFirst().sha256())) return;
             ProjectState project = jdbc.queryForObject("""
                     SELECT current_revision_id,latest_run_id,version FROM video_project WHERE id=?
                     """, (rs, row) -> new ProjectState(rs.getObject("current_revision_id", UUID.class),
@@ -81,7 +83,7 @@ public class ProjectArtifactRegistry {
             } else {
                 jdbc.update("""
                         UPDATE artifact SET revision_id=?,generation_run_id=?,artifact_type=?,mime_type=?,size_bytes=?,
-                        sha256=?,schema_version=1,temporary=?,created_at=? WHERE id=?
+                        sha256=?,schema_version=1,temporary=?,created_at=?,deleted_at=NULL WHERE id=?
                         """, revision, run, type, mimeType, Files.size(path), contentHash, temporary, now, artifactId);
             }
             int changed = jdbc.update("""
@@ -114,6 +116,6 @@ public class ProjectArtifactRegistry {
         return HexFormat.of().formatHex(digest.digest());
     }
 
-    private record ExistingArtifact(UUID id, String sha256) { }
+    private record ExistingArtifact(UUID id, String sha256, boolean deleted) { }
     private record ProjectState(UUID currentRevisionId, UUID latestRunId, long version) { }
 }

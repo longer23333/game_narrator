@@ -9,6 +9,8 @@ import java.time.OffsetDateTime;
 import java.time.ZoneOffset;
 import java.time.Duration;
 import java.util.Map;
+import java.util.LinkedHashMap;
+import java.util.List;
 import java.util.UUID;
 
 /** Mirrors the legacy task state into the versioned run model during the transition period. */
@@ -36,7 +38,17 @@ public class PipelineRunTracker {
     }
 
     public void completed(UUID taskId, String stageType, Map<String, ?> summary) {
-        updateStage(taskId, stageType, "COMPLETED", 100, json(summary), null);
+        Map<String, Object> checkpoint = new LinkedHashMap<>(summary);
+        List<String> artifactTypes = artifactTypes(stageType);
+        List<Map<String, Object>> artifacts = artifactTypes.isEmpty() ? List.of() : jdbc.queryForList("""
+                SELECT artifact_type,storage_key,size_bytes,sha256 FROM artifact
+                WHERE project_id=? AND generation_run_id=? AND artifact_type IN (%s)
+                AND deleted_at IS NULL ORDER BY created_at
+                """.formatted(String.join(",", java.util.Collections.nCopies(artifactTypes.size(), "?"))),
+                checkpointParameters(taskId, activeRun(taskId), artifactTypes));
+        checkpoint.put("artifacts", artifacts);
+        checkpoint.put("checkpointVersion", 1);
+        updateStage(taskId, stageType, "COMPLETED", 100, json(checkpoint), null);
         if ("RENDERING".equals(stageType)) finishRun(taskId, "COMPLETED", null);
     }
 
@@ -129,6 +141,26 @@ public class PipelineRunTracker {
     private String limited(String value) {
         if (value == null) return null;
         return value.length() <= 2000 ? value : value.substring(0, 2000);
+    }
+
+    private List<String> artifactTypes(String stageType) {
+        return switch (stageType) {
+            case "SCENE_DETECTION" -> List.of("SCENE_MANIFEST", "EXTRACTED_AUDIO");
+            case "TRANSCRIPTION" -> List.of("TRANSCRIPT_TEXT", "TRANSCRIPT_SUBTITLE", "TRANSCRIPT_DETAIL");
+            case "VIDEO_UNDERSTANDING" -> List.of("VISION_ANALYSIS");
+            case "HIGHLIGHT_SELECTION" -> List.of("HIGHLIGHT_MANIFEST");
+            case "SCRIPT_GENERATION" -> List.of("SCRIPT_MANIFEST");
+            case "VOICE_GENERATION" -> List.of("VOICE_MANIFEST");
+            case "TIMELINE_PLANNING" -> List.of("TIMELINE_MANIFEST");
+            case "RENDERING" -> List.of("RENDERED_VIDEO", "GENERATED_SUBTITLE");
+            default -> List.of();
+        };
+    }
+
+    private Object[] checkpointParameters(UUID taskId, UUID runId, List<String> types) {
+        java.util.ArrayList<Object> values = new java.util.ArrayList<>();
+        values.add(taskId); values.add(runId); values.addAll(types);
+        return values.toArray();
     }
 
     private OffsetDateTime now() { return OffsetDateTime.now(ZoneOffset.UTC); }

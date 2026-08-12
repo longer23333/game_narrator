@@ -65,6 +65,7 @@ public class VideoTaskEngine {
     private final PrioritizedTaskExecutor prioritizedTasks;
     private final cn.longer233.gamenarrator.task.repository.VideoTaskRepository taskRepository;
     private final cn.longer233.gamenarrator.observability.TaskAdmissionController admission;
+    private final StageCheckpointService checkpoints;
     private final Set<UUID> deletionRequested = ConcurrentHashMap.newKeySet();
     private final Set<UUID> activeTasks = ConcurrentHashMap.newKeySet();
 
@@ -100,7 +101,8 @@ public class VideoTaskEngine {
             GameEventTimelineService gameEvents,
             PrioritizedTaskExecutor prioritizedTasks,
             cn.longer233.gamenarrator.task.repository.VideoTaskRepository taskRepository,
-            cn.longer233.gamenarrator.observability.TaskAdmissionController admission
+            cn.longer233.gamenarrator.observability.TaskAdmissionController admission,
+            StageCheckpointService checkpoints
     ) {
         this.stateService = stateService;
         this.mediaProbe = mediaProbe;
@@ -123,6 +125,7 @@ public class VideoTaskEngine {
         this.prioritizedTasks = prioritizedTasks;
         this.taskRepository = taskRepository;
         this.admission = admission;
+        this.checkpoints = checkpoints;
     }
 
     public void start(UUID taskId) {
@@ -148,6 +151,11 @@ public class VideoTaskEngine {
         TaskProcessRegistry.ResourceLease resourceLease = null;
         try (TaskProcessRegistry.Scope ignored = TaskProcessRegistry.open(taskId)) {
             checkCancellation(taskId);
+            StageCheckpointService.Validation checkpoint = checkpoints.reconcile(taskId);
+            if (!checkpoint.valid()) {
+                log.warn("ENGINE_CHECKPOINT_RESTART taskId={} stage={} reason={}", taskId,
+                        checkpoint.restartStage(), checkpoint.reason());
+            }
             EngineTaskContext context = stateService.context(taskId);
             Path sourcePath = Path.of(context.sourceVideoPath());
             long sourceBytes;

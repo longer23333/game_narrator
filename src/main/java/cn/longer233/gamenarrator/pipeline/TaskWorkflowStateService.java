@@ -128,9 +128,9 @@ public class TaskWorkflowStateService {
                 result.sceneManifestPath(),
                 result.scenes().size()
         );
-        runTracker.completed(taskId, "SCENE_DETECTION", java.util.Map.of("sceneCount", result.scenes().size()));
         artifactRegistry.record(taskId, "SCENE_MANIFEST", result.sceneManifestPath(), "application/json", false);
         artifactRegistry.record(taskId, "EXTRACTED_AUDIO", result.extractedAudioPath(), "audio/wav", false);
+        runTracker.completed(taskId, "SCENE_DETECTION", java.util.Map.of("sceneCount", result.scenes().size()));
     }
 
     @Transactional
@@ -150,10 +150,10 @@ public class TaskWorkflowStateService {
         VideoTask task = requireTask(taskId);
         TranscriptionResult corrected = terminologyCorrector.correct(result, task.getTerminologyGlossary());
         task.completeTranscription(corrected.text(), corrected.textPath(), corrected.subtitlePath(), corrected.detailJsonPath());
-        runTracker.completed(taskId, "TRANSCRIPTION", java.util.Map.of("characterCount", corrected.text().length()));
         artifactRegistry.record(taskId, "TRANSCRIPT_TEXT", corrected.textPath(), "text/plain", false);
         artifactRegistry.record(taskId, "TRANSCRIPT_SUBTITLE", corrected.subtitlePath(), "application/x-subrip", false);
         artifactRegistry.record(taskId, "TRANSCRIPT_DETAIL", corrected.detailJsonPath(), "application/json", false);
+        runTracker.completed(taskId, "TRANSCRIPTION", java.util.Map.of("characterCount", corrected.text().length()));
     }
 
     /** Applies an optional enhancement without moving the overall task into PROCESSING or FAILED. */
@@ -183,8 +183,8 @@ public class TaskWorkflowStateService {
     public void markVideoUnderstandingCompleted(UUID taskId, VideoUnderstandingResult result) {
         requireTask(taskId).completeVideoUnderstanding(
                 result.summary(), result.analysisPath(), result.frames().size());
-        runTracker.completed(taskId, "VIDEO_UNDERSTANDING", java.util.Map.of("frameCount", result.frames().size()));
         artifactRegistry.record(taskId, "VISION_ANALYSIS", result.analysisPath(), "application/json", false);
+        runTracker.completed(taskId, "VIDEO_UNDERSTANDING", java.util.Map.of("frameCount", result.frames().size()));
     }
 
     @Transactional
@@ -208,8 +208,8 @@ public class TaskWorkflowStateService {
     @Transactional
     public void markHighlightSelectionCompleted(UUID taskId, HighlightSelectionResult result) {
         requireTask(taskId).completeHighlightSelection(result.summary(), result.manifestPath(), result.clips().size());
-        runTracker.completed(taskId, "HIGHLIGHT_SELECTION", java.util.Map.of("clipCount", result.clips().size()));
         artifactRegistry.record(taskId, "HIGHLIGHT_MANIFEST", result.manifestPath(), "application/json", false);
+        runTracker.completed(taskId, "HIGHLIGHT_SELECTION", java.util.Map.of("clipCount", result.clips().size()));
     }
 
     @Transactional
@@ -228,8 +228,8 @@ public class TaskWorkflowStateService {
     public void markScriptGenerationCompleted(UUID taskId, GeneratedScript result) {
         requireTask(taskId).completeScriptGeneration(result.title(), result.synopsis(),
                 result.fullNarration(), result.scriptPath(), result.segments().size());
-        runTracker.completed(taskId, "SCRIPT_GENERATION", java.util.Map.of("segmentCount", result.segments().size()));
         artifactRegistry.record(taskId, "SCRIPT_MANIFEST", result.scriptPath(), "application/json", false);
+        runTracker.completed(taskId, "SCRIPT_GENERATION", java.util.Map.of("segmentCount", result.segments().size()));
     }
 
     @Transactional
@@ -252,8 +252,8 @@ public class TaskWorkflowStateService {
     @Transactional
     public void markVoiceGenerationCompleted(UUID taskId, VoiceGenerationResult result) {
         requireTask(taskId).completeVoiceGeneration(result.manifestPath(), result.segments().size());
-        runTracker.completed(taskId, "VOICE_GENERATION", java.util.Map.of("segmentCount", result.segments().size()));
         artifactRegistry.record(taskId, "VOICE_MANIFEST", result.manifestPath(), "application/json", false);
+        runTracker.completed(taskId, "VOICE_GENERATION", java.util.Map.of("segmentCount", result.segments().size()));
     }
 
     @Transactional
@@ -285,9 +285,9 @@ public class TaskWorkflowStateService {
         task.completeTimelinePlanning(
                 result.timelinePath(), result.outputDurationSeconds(), result.overflowCount());
         if (manualEditingReady) task.readyForManualEditing();
+        artifactRegistry.record(taskId, "TIMELINE_MANIFEST", result.timelinePath(), "application/json", false);
         runTracker.completed(taskId, "TIMELINE_PLANNING", java.util.Map.of(
                 "outputDurationSeconds", result.outputDurationSeconds(), "overflowCount", result.overflowCount()));
-        artifactRegistry.record(taskId, "TIMELINE_MANIFEST", result.timelinePath(), "application/json", false);
     }
 
     @Transactional
@@ -305,9 +305,9 @@ public class TaskWorkflowStateService {
     @Transactional
     public void markRenderingCompleted(UUID taskId, RenderResult result) {
         requireTask(taskId).completeRendering(result.videoPath(), result.subtitlePath(), result.fileSizeBytes());
-        runTracker.completed(taskId, "RENDERING", java.util.Map.of("fileSizeBytes", result.fileSizeBytes()));
         artifactRegistry.record(taskId, "RENDERED_VIDEO", result.videoPath(), "video/mp4", false);
         artifactRegistry.record(taskId, "GENERATED_SUBTITLE", result.subtitlePath(), "application/x-subrip", false);
+        runTracker.completed(taskId, "RENDERING", java.util.Map.of("fileSizeBytes", result.fileSizeBytes()));
     }
 
     @Transactional
