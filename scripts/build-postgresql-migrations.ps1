@@ -20,3 +20,5 @@ Get-ChildItem $source -Filter 'V*.sql' | ForEach-Object {
     }
     Set-Content -Encoding UTF8 -NoNewline -Path (Join-Path $target $name) -Value $sql
 }
+
+& (Join-Path $PSScriptRoot 'build-migration-baselines.ps1')

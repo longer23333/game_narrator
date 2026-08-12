@@ -4,10 +4,64 @@ import org.flywaydb.core.Flyway;
 import org.junit.jupiter.api.Test;
 
 import java.sql.DriverManager;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.util.TreeSet;
+import org.h2.tools.RunScript;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
 class DatabaseMigrationTest {
+    @Test
+    void generatedH2BaselineMatchesFullMigrationSchema() throws Exception {
+        String migratedUrl = "jdbc:h2:mem:full-history;DB_CLOSE_DELAY=-1";
+        String baselineUrl = "jdbc:h2:mem:generated-baseline;DB_CLOSE_DELAY=-1";
+        Flyway.configure().dataSource(migratedUrl, "sa", "").load().migrate();
+        try (var baselineConnection = DriverManager.getConnection(baselineUrl, "sa", "")) {
+            RunScript.execute(baselineConnection, Files.newBufferedReader(Path.of(
+                    "src/main/resources/db/baseline-h2/B38__version_2_2_4_baseline.sql")));
+        }
+        assertThat(schemaObjects(baselineUrl)).isEqualTo(schemaObjects(migratedUrl));
+    }
+
+    @Test
+    void backupRestoreDrillRecoversPreMigrationDataAndSchema() throws Exception {
+        String sourceUrl = "jdbc:h2:mem:rollback-source;DB_CLOSE_DELAY=-1";
+        Flyway.configure().dataSource(sourceUrl, "sa", "").target("37").load().migrate();
+        Path backup = Files.createTempFile("game-narrator-v37-", ".sql");
+        try (var connection = DriverManager.getConnection(sourceUrl, "sa", ""); var statement = connection.createStatement()) {
+            statement.executeUpdate("INSERT INTO app_user(id,username,display_name,password_hash,role,status,created_at,updated_at) VALUES (UUID 'aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa','recovery-user','Recovery','x','USER','ACTIVE',CURRENT_TIMESTAMP,CURRENT_TIMESTAMP)");
+            statement.execute("SCRIPT TO '" + backup.toAbsolutePath().toString().replace("'", "''") + "'");
+        }
+        Flyway.configure().dataSource(sourceUrl, "sa", "").load().migrate();
+
+        String restoredUrl = "jdbc:h2:mem:rollback-restored;DB_CLOSE_DELAY=-1";
+        try (var restored = DriverManager.getConnection(restoredUrl, "sa", "")) {
+            RunScript.execute(restored, Files.newBufferedReader(backup));
+            try (var statement = restored.createStatement()) {
+                var user = statement.executeQuery("SELECT COUNT(*) FROM app_user WHERE username='recovery-user'");
+                assertThat(user.next()).isTrue();
+                assertThat(user.getInt(1)).isOne();
+                var priority = statement.executeQuery("SELECT COUNT(*) FROM information_schema.columns WHERE table_name='VIDEO_TASKS' AND column_name='PROCESSING_PRIORITY'");
+                assertThat(priority.next()).isTrue();
+                assertThat(priority.getInt(1)).isZero();
+            }
+        } finally {
+            Files.deleteIfExists(backup);
+        }
+    }
+
+    private static TreeSet<String> schemaObjects(String url) throws Exception {
+        var objects = new TreeSet<String>();
+        try (var connection = DriverManager.getConnection(url, "sa", ""); var statement = connection.createStatement()) {
+            var columns = statement.executeQuery("SELECT table_name,column_name,data_type,is_nullable FROM information_schema.columns WHERE table_schema='PUBLIC' AND table_name <> 'flyway_schema_history'");
+            while (columns.next()) objects.add("C|" + columns.getString(1) + "|" + columns.getString(2) + "|" + columns.getString(3) + "|" + columns.getString(4));
+            var indexes = statement.executeQuery("SELECT table_name,index_name FROM information_schema.indexes WHERE table_schema='PUBLIC' AND table_name <> 'flyway_schema_history' AND index_name LIKE 'IDX_%'");
+            while (indexes.next()) objects.add("I|" + indexes.getString(1) + "|" + indexes.getString(2));
+        }
+        return objects;
+    }
+
     @Test
     void latestMigrationAddsIndexedTaskStreamChangeTracking() throws Exception {
         String url = "jdbc:h2:mem:task-stream-tracking;DB_CLOSE_DELAY=-1";

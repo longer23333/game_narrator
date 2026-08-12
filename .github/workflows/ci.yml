@@ -9,6 +9,14 @@ permissions:
   contents: read
 
 jobs:
+  migration-baseline:
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Verify generated migration baselines
+        shell: pwsh
+        run: ./scripts/build-migration-baselines.ps1 -Check
+
   frontend:
     runs-on: ubuntu-latest
     steps:

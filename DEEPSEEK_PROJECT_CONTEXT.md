@@ -1,7 +1,7 @@
 ﻿# GameNarrator — DeepSeek 结构化项目索引
 
-> 自动生成：2026-08-12 09:19:54 +08:00；UTF-8 BOM；索引不再内嵌全部源码。
-> Git：分支 `main`，提交 `ed924c7`；收录文件 762 个，分卷 8 个。
+> 自动生成：2026-08-12 09:27:37 +08:00；UTF-8 BOM；索引不再内嵌全部源码。
+> Git：分支 `main`，提交 `cbd28cf`；收录文件 767 个，分卷 8 个。
 
 ## 使用方法
 
@@ -27,45 +27,32 @@
 
 | 分卷 | 文件数 | 字符数 | 建议用途 |
 |---|---:|---:|---|
-| `deepseek-context/01-foundation.md` | 83 | 123218 | 构建、配置、资源、数据库迁移 |
+| `deepseek-context/01-foundation.md` | 86 | 216149 | 构建、配置、资源、数据库迁移 |
 | `deepseek-context/02-backend.md` | 280 | 1086662 | Spring 后端实现 |
-| `deepseek-context/03-tests.md` | 90 | 266148 | Spring 测试与行为验证 |
+| `deepseek-context/03-tests.md` | 90 | 269750 | Spring 测试与行为验证 |
 | `deepseek-context/04-frontend.md` | 38 | 536559 | Vite Web 源码 |
 | `deepseek-context/05-android-main.md` | 151 | 857814 | Android 实现、资源与 Gradle |
 | `deepseek-context/06-android-tests.md` | 56 | 133003 | Android 单元及设备测试 |
-| `deepseek-context/07-platform-release.md` | 11 | 52470 | Windows、CI/CD 与发布 |
-| `deepseek-context/08-docs-scripts.md` | 53 | 195194 | 需求、架构、维护脚本 |
+| `deepseek-context/07-platform-release.md` | 11 | 52697 | Windows、CI/CD 与发布 |
+| `deepseek-context/08-docs-scripts.md` | 55 | 198048 | 需求、架构、维护脚本 |
 
 ## 当前 Git 工作区（最近修改）
 
 ```text
 M .github/workflows/ci.yml
- M .github/workflows/release-version.yml
- M DEEPSEEK_PROJECT_CONTEXT.md
- M android-app/app/build.gradle
- M android-app/app/src/main/java/cn/longer233/gamenarrator/mobile/Gpt2OnnxGenerator.java
- M android-app/app/src/main/java/cn/longer233/gamenarrator/mobile/MobileNetVisionClassifier.java
- M android-app/app/src/main/java/cn/longer233/gamenarrator/mobile/MobileReleaseNotes.java
- M android-app/app/src/main/java/cn/longer233/gamenarrator/mobile/OnnxModelRunner.java
- M android-app/app/src/main/java/cn/longer233/gamenarrator/mobile/TextEmbedding.java
- M android-app/app/src/test/java/cn/longer233/gamenarrator/mobile/MobileReleaseNotesTest.java
- M docs/ANDROID_FEATURE_PARITY.md
- M scripts/update-release-version.ps1
- M scripts/verify-android-guardrails.ps1
- M scripts/verify-before-push.ps1
+ M scripts/build-postgresql-migrations.ps1
  M src/main/java/cn/longer233/gamenarrator/ai/AiSettingsController.java
  M src/main/java/cn/longer233/gamenarrator/editor/EditorTimelineService.java
  M src/main/java/cn/longer233/gamenarrator/event/BattleNarrativePlanService.java
- M src/main/java/cn/longer233/gamenarrator/pipeline/PrioritizedTaskExecutor.java
  M src/main/java/cn/longer233/gamenarrator/pipeline/ProjectArtifactRegistry.java
  M src/main/resources/application.yml
  M src/test/java/cn/longer233/gamenarrator/event/BattleNarrativePlanServiceTest.java
- M src/test/java/cn/longer233/gamenarrator/pipeline/PrioritizedTaskExecutorTest.java
-?? android-app/app/src/test/java/cn/longer233/gamenarrator/mobile/OnnxModelRunnerTest.java
-?? docs/ANDROID_CORE_BASELINE.json
-?? docs/RELEASE_PROCESS.md
-?? release/CHANGELOG.json
-?? scripts/verify-release-alignment.ps1
+ M src/test/java/cn/longer233/gamenarrator/task/DatabaseMigrationTest.java
+?? docs/DATABASE_MIGRATION_POLICY.md
+?? scripts/build-migration-baselines.ps1
+?? src/main/resources/db/baseline-h2/
+?? src/main/resources/db/baseline-postgresql/
+?? src/main/resources/db/migration-postgresql/V37__task_stream_change_tracking.sql
 ?? src/test/java/cn/longer233/gamenarrator/StaticResourceCompressionTest.java
 ```
 
