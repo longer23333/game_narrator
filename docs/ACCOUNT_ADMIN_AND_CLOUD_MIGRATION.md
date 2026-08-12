@@ -7,6 +7,8 @@
 - 未登录时使用固定匿名账号，行为与旧版本一致；登录后任务、项目与媒体元数据按账号归属。
 - 第一个正式注册账号自动成为管理员，后续账号默认为普通用户。管理员入口为 `/admin.html`。
 - 密码使用 PBKDF2-SHA256（随机盐、210000 次）保存，会话只保存 SHA-256 摘要。API Key 使用 AES-256-GCM 加密，主密钥可通过 `GAME_NARRATOR_SECRET_KEY` 注入；离线模式会在数据目录生成本机密钥。
+- 密文携带 `v<number>` 密钥版本。轮换时同时配置新 `GAME_NARRATOR_SECRET_KEY`、递增的 `GAME_NARRATOR_SECRET_KEY_VERSION`，并将旧密钥以 `v1=base64,v2=base64` 形式放入 `GAME_NARRATOR_PREVIOUS_SECRET_KEYS`；管理员调用 `POST /api/admin/security/rotate-secrets` 完成事务内重加密，确认返回的迁移数量后才能移除旧密钥。
+- `/api/tasks/{taskId}/**`、视频片段、素材、导出任务及导出文件均在服务端按当前用户校验所有者。对跨用户资源统一返回不存在，避免通过响应差异枚举资源 ID。
 
 ## 大视频与存储边界
 

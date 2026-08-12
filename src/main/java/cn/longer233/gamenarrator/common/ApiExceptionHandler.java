@@ -29,6 +29,12 @@ public class ApiExceptionHandler {
         return error("TASK_NOT_FOUND", exception.getMessage(), "确认任务 ID 是否正确");
     }
 
+    @ExceptionHandler(OwnedResourceNotFoundException.class)
+    @ResponseStatus(HttpStatus.NOT_FOUND)
+    public ApiError ownedResourceNotFound(OwnedResourceNotFoundException exception) {
+        return error("RESOURCE_NOT_FOUND", exception.getMessage(), "Refresh the resource list");
+    }
+
     @ExceptionHandler(NoResourceFoundException.class)
     @ResponseStatus(HttpStatus.NOT_FOUND)
     public ApiError staticResourceNotFound(NoResourceFoundException exception) {

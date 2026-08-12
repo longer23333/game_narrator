@@ -11,6 +11,8 @@ spring:
 game-narrator:
   security:
     master-key: ${GAME_NARRATOR_SECRET_KEY:}
+    master-key-version: ${GAME_NARRATOR_SECRET_KEY_VERSION:v1}
+    previous-master-keys: ${GAME_NARRATOR_PREVIOUS_SECRET_KEYS:}
   auth:
     require-login: ${REQUIRE_LOGIN:true}
   cloud-sync:
