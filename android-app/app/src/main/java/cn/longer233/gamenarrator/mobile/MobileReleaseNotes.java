@@ -24,6 +24,8 @@ public final class MobileReleaseNotes {
 
     public static List<Note> notes() {
         List<Note> notes = new ArrayList<>();
+        notes.add(new Note("2.2.28", "PostgreSQL 生产路径验证增强",
+                "新增真实 PostgreSQL 16 迁移与租户隔离集成门槛，并把结果纳入不可绕过的发布证据。"));
         notes.add(new Note("2.2.27", "真实媒体测试与发布证据增强",
                 "真实 FFmpeg 输出测试在工具缺失时明确失败，并新增规则防止 CI 以跳过结果冒充媒体链路通过。"));
         notes.add(new Note("2.2.26", "界面操作体验优化",

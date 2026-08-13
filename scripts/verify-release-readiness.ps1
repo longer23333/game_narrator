@@ -8,5 +8,5 @@ Require 'frontend/index.html' @('readiness-open','readiness-dialog')
 Require 'src/test/java/cn/longer233/gamenarrator/diagnostics/ReleaseReadinessServiceTest.java' @('unknownEvidenceIsYellowAndMissingFfmpegIsRed','copiedOldOrWrongCommitEvidenceCannotBecomeGreen')
 Require 'src/main/java/cn/longer233/gamenarrator/diagnostics/ReleaseReadinessService.java' @('schemaVersion','minimumLongRunMinutes','sameCurrentCommit','currentVersion','plusSeconds(300)','completedAt','elapsedSeconds')
 Require '.github/workflows/ci.yml' @('release-evidence','new-ci-release-evidence.ps1','ci-release-result-${{ github.sha }}')
-Require 'scripts/verify-ci-release-evidence.ps1' @('CI commit mismatch','androidEmulator','performanceBaseline')
+Require 'scripts/verify-ci-release-evidence.ps1' @('schemaVersion must be 2','CI commit mismatch','androidEmulator','postgresqlIntegration','performanceBaseline')
 if($failures.Count){Write-Host "FAIL: $($failures.Count) release readiness violation(s)";$failures|%{Write-Host "  $_"};exit 1};Write-Host 'PASS: release readiness aggregates runtime, storage, migration, cloud and external evidence into red/yellow/green states'

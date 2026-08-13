@@ -145,6 +145,40 @@ jobs:
           chmod +x mvnw
           ./mvnw test
 
+  postgresql-integration:
+    name: PostgreSQL production-path integration
+    runs-on: ubuntu-latest
+    services:
+      postgres:
+        image: postgres:16-alpine
+        env:
+          POSTGRES_DB: game_narrator_ci
+          POSTGRES_USER: game_narrator_ci
+          POSTGRES_PASSWORD: ci-postgresql-password
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd "pg_isready -U game_narrator_ci -d game_narrator_ci"
+          --health-interval 5s
+          --health-timeout 3s
+          --health-retries 20
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '21'
+          cache: maven
+      - name: Run migrations and production-path integrity checks on PostgreSQL 16
+        env:
+          RUN_POSTGRESQL_INTEGRATION: 'true'
+          POSTGRES_URL: jdbc:postgresql://127.0.0.1:5432/game_narrator_ci
+          POSTGRES_USER: game_narrator_ci
+          POSTGRES_PASSWORD: ci-postgresql-password
+        run: |
+          chmod +x mvnw
+          ./mvnw -Dtest=PostgreSqlProductionIntegrationTest test
+
   performance-baseline:
     runs-on: ubuntu-latest
     steps:
@@ -185,7 +219,7 @@ jobs:
   release-evidence:
     name: Publish same-commit CI release evidence
     if: github.event_name == 'push'
-    needs: [migration-baseline, documentation, frontend, android, android-emulator, backend, performance-baseline]
+    needs: [migration-baseline, documentation, frontend, android, android-emulator, backend, postgresql-integration, performance-baseline]
     runs-on: windows-latest
     steps:
       - uses: actions/checkout@v4

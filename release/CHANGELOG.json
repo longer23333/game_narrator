@@ -1,7 +1,17 @@
 {
     "schemaVersion":  1,
-    "currentVersion":  "2.2.27",
+    "currentVersion":  "2.2.28",
     "releases":  [
+                     {
+                         "version":  "2.2.28",
+                         "title":  "PostgreSQL 生产路径验证增强",
+                         "summary":  "新增真实 PostgreSQL 16 生产路径集成作业，并把数据库门槛纳入不可绕过的发布证据。",
+                         "items":  [
+                                       "完整 PostgreSQL 迁移在一次性 PostgreSQL 16 服务上执行",
+                                       "真实验证租户外键、按 owner 更新隔离与乐观锁",
+                                       "发布证据 schema v2 强制要求 postgresqlIntegration 通过"
+                                   ]
+                     },
                      {
                          "version":  "2.2.27",
                          "title":  "真实媒体测试与发布证据增强",

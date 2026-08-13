@@ -10,6 +10,14 @@
 - 大文件不进入数据库。源视频和流水线产物通过 `cloud_sync_item` 上传到 S3 兼容对象存储，
   另一台电脑首次预览或继续任务时会校验 SHA-256 后原子写入本地缓存。
 
+## 生产路径持续验证
+
+GitHub CI 的 `PostgreSQL production-path integration` 作业会为每次提交启动一次全新的
+PostgreSQL 16 服务，执行完整 `db/migration-postgresql` 历史，并用真实 JDBC 事务验证租户归属
+外键、按 owner 隔离的更新以及 `video_project.version` 乐观锁。该作业是发布证据的必需门槛；
+缺少或失败的 `postgresqlIntegration` 结果不能生成绿色发布证据。本地普通测试不会把未运行的
+PostgreSQL 集成测试冒充通过，只有显式设置 `RUN_POSTGRESQL_INTEGRATION=true` 并提供独立测试库时才执行。
+
 ## 本地 PostgreSQL
 
 推荐直接运行一键启动脚本。它会检查 Docker Desktop、校验 Compose 配置、启动
