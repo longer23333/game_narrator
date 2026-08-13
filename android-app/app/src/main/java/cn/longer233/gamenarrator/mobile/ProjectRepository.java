@@ -152,8 +152,13 @@ public final class ProjectRepository {
 
     public static final class ClipVisualConfig {
         private final float brightness, contrast, saturation, temperature, hue, scale, rotation;
+        private final String lutPath;
         ClipVisualConfig(float brightness, float contrast, float saturation, float temperature, float hue,
                          float scale, float rotation) {
+            this(brightness, contrast, saturation, temperature, hue, scale, rotation, "");
+        }
+        ClipVisualConfig(float brightness, float contrast, float saturation, float temperature, float hue,
+                         float scale, float rotation, String lutPath) {
             this.brightness = brightness;
             this.contrast = contrast;
             this.saturation = saturation;
@@ -161,6 +166,7 @@ public final class ProjectRepository {
             this.hue = hue;
             this.scale = scale;
             this.rotation = rotation;
+            this.lutPath = lutPath == null ? "" : lutPath;
         }
         public float brightness() { return brightness; }
         public float contrast() { return contrast; }
@@ -169,6 +175,7 @@ public final class ProjectRepository {
         public float hue() { return hue; }
         public float scale() { return scale; }
         public float rotation() { return rotation; }
+        public String lutPath() { return lutPath; }
     }
 
     public static final class KeyframeInfo implements KeyframeInterpolator.Point {
@@ -507,15 +514,21 @@ public final class ProjectRepository {
 
     public ClipVisualConfig clipVisualConfig(String clipKey) {
         try (Cursor c = database.getReadableDatabase().query("project_clip_visual",
-                new String[]{"brightness", "contrast", "saturation", "temperature", "hue", "scale", "rotation"},
+                new String[]{"brightness", "contrast", "saturation", "temperature", "hue", "scale", "rotation", "lut_path"},
                 "project_id=? AND clip_key=?", new String[]{String.valueOf(activeProjectId), clipKey}, null, null, null)) {
             return c.moveToFirst() ? new ClipVisualConfig(c.getFloat(0), c.getFloat(1), c.getFloat(2), c.getFloat(3),
-                    c.getFloat(4), c.getFloat(5), c.getFloat(6)) : new ClipVisualConfig(0, 0, 0, 0, 0, 1, 0);
+                    c.getFloat(4), c.getFloat(5), c.getFloat(6), c.getString(7)) : new ClipVisualConfig(0, 0, 0, 0, 0, 1, 0, "");
         }
     }
 
     public void saveClipVisualConfig(String clipKey, float brightness, float contrast, float saturation,
                                      float temperature, float hue, float scale, float rotation) {
+        saveClipVisualConfig(clipKey, brightness, contrast, saturation, temperature, hue, scale, rotation,
+                clipVisualConfig(clipKey).lutPath());
+    }
+
+    public void saveClipVisualConfig(String clipKey, float brightness, float contrast, float saturation,
+                                     float temperature, float hue, float scale, float rotation, String lutPath) {
         ContentValues row = new ContentValues();
         row.put("project_id", activeProjectId);
         row.put("clip_key", clipKey);
@@ -526,6 +539,7 @@ public final class ProjectRepository {
         row.put("hue", Math.max(-180f, Math.min(180f, hue)));
         row.put("scale", Math.max(.25f, Math.min(3f, scale)));
         row.put("rotation", Math.max(-180f, Math.min(180f, rotation)));
+        row.put("lut_path", lutPath == null ? "" : lutPath);
         database.getWritableDatabase().insertWithOnConflict("project_clip_visual", null, row, SQLiteDatabase.CONFLICT_REPLACE);
     }
 

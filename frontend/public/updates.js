@@ -1,5 +1,6 @@
 const releases = [
-  {version:'2.2.5', title:'动态事件采样与说话人分段', current:true, items:["同步更新 Web、Windows 与 Android 版本","完成本版本功能修复与稳定性检查","创建并同步 GitHub、Gitee 发布标签"], jump:{view:'studio', selector:'#task-list'}},
+  {version:'2.2.6', title:'Android LUT 调色闭环', current:true, items:["同步更新 Web、Windows 与 Android 版本","完成本版本功能修复与稳定性检查","创建并同步 GitHub、Gitee 发布标签"], jump:{view:'studio', selector:'#task-list'}},
+  {version:'2.2.5', title:'动态事件采样与说话人分段', items:["同步更新 Web、Windows 与 Android 版本","完成本版本功能修复与稳定性检查","创建并同步 GitHub、Gitee 发布标签"], jump:{view:'studio', selector:'#task-list'}},
   {version:'2.2.4', title:'后台管理中心增强', items:['新增运营总览、AI 趋势、状态分布和近期审计','完善用户、项目、云同步、存储的搜索筛选、分页与 CSV 导出','修复存储检查和清理接口缺少管理员权限校验的问题'], jump:{view:'studio', selector:'#updates-open'}},
   {version:'2.2.3', title:'版本公告中文化修复', items:['修复 Windows PowerShell 解析 UTF-8 中文模板时产生乱码的问题','将近期 Web 与 Android 英文公告恢复为对应功能的中文内容','后续自动升级默认生成中文发布信息'], jump:{view:'studio', selector:'#updates-open'}},
   {version:'2.2.2', title:'使用引导自动跳转修复', items:['引导步骤自动切换到对应功能页面','等待异步功能加载完成后再滚动并高亮目标','目标暂不可见时保留当前步骤并支持重试'], jump:{view:'studio', selector:'#guide-open'}},

@@ -221,6 +221,19 @@ public final class TimelineClipActions {
         BottomSheetDialog dialog = new BottomSheetDialog(context);
         LinearLayout panel = ui.sheet("画面调整");
         panel.addView(ui.label("结构化参数通过 Media3 GPU 效果真实导出；重置为 0 / 100% 即恢复原画面。", 13, MUTED, false));
+        panel.addView(ui.label(config.lutPath().isBlank() ? "LUT：未使用" : "LUT：" + new java.io.File(config.lutPath()).getName(), 13, MUTED, false));
+        panel.addView(ui.action("导入 .cube LUT", Color.rgb(54, 201, 255), TEXT, v -> {
+            dialog.dismiss();
+            editingHost.launchLutFileOpen(clip.key());
+        }), ui.match(ui.dp(48)));
+        if (!config.lutPath().isBlank()) panel.addView(ui.action("移除 LUT", Color.WHITE, TEXT, v -> {
+            editingHost.beginEdit("移除片段 LUT");
+            editingHost.saveClipLut(clip.key(), "");
+            editingHost.commitEdit("移除片段 LUT");
+            editingHost.applyPreviewEffects();
+            dialog.dismiss();
+            editingHost.setStatus("LUT 已移除，预览已恢复基础画面参数。");
+        }), ui.match(ui.dp(46)));
         EditText brightness = ui.creativeInput("亮度（-100 到 100）", String.valueOf(Math.round(config.brightness() * 100)));
         EditText contrast = ui.creativeInput("对比度（-100 到 100）", String.valueOf(Math.round(config.contrast() * 100)));
         EditText saturation = ui.creativeInput("饱和度（-100 到 100）", String.valueOf(Math.round(config.saturation())));
@@ -255,14 +268,17 @@ public final class TimelineClipActions {
             editingHost.commitEdit("调整片段画面参数");
             dialog.dismiss();
             editingHost.renderTimeline();
+            editingHost.applyPreviewEffects();
             editingHost.setStatus("画面调整已保存，将在导出时通过 GPU 应用。");
         }), ui.match(ui.dp(54)));
         panel.addView(ui.action("重置画面参数", Color.WHITE, TEXT, v -> {
             editingHost.beginEdit("重置片段画面参数");
             editingHost.saveClipVisualConfig(clip.key(), 0, 0, 0, 0, 0, 1, 0);
+            editingHost.saveClipLut(clip.key(), "");
             editingHost.commitEdit("重置片段画面参数");
             dialog.dismiss();
             editingHost.setStatus("画面参数已恢复默认。");
+            editingHost.applyPreviewEffects();
         }), ui.match(ui.dp(50)));
         dialog.setContentView(panel);
         dialog.show();

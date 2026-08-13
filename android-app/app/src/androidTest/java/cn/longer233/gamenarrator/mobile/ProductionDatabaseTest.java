@@ -28,6 +28,7 @@ public final class ProductionDatabaseTest {
             clip.update(0, 1000, false, "字幕");
             clip.updateCreativeText("字幕", "解说", "");
             first.saveClips(List.of(clip), "首次保存");
+            first.saveClipVisualConfig("clip-1", .1f, .2f, 10, 5, 0, 1, 0, "/data/user/0/test/luts/demo.cube");
             new SqliteEditHistoryStore(first.database()).push(projectId, "snapshot-1");
         } finally {
             first.close();
@@ -39,6 +40,7 @@ public final class ProductionDatabaseTest {
             assertEquals("持久化项目", reopened.activeProjectName());
             assertEquals(1, reopened.loadClips().size());
             assertEquals("clip-1", reopened.loadClips().get(0).key());
+            assertEquals("/data/user/0/test/luts/demo.cube", reopened.clipVisualConfig("clip-1").lutPath());
             List<String> history = new SqliteEditHistoryStore(reopened.database()).recent(projectId, 1);
             assertFalse(history.isEmpty());
             assertEquals("snapshot-1", history.get(0));

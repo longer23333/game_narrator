@@ -177,6 +177,7 @@ public final class MainActivityActions {
     void showSubtitleFiles() { editActions.showSubtitleFiles(); }
     void editSubtitleCue(int index) { editActions.editSubtitleCue(index); }
     void importSubtitleFile(Uri uri) { editActions.importSubtitleFile(uri); }
+    void importCubeLut(Uri uri) { editActions.importCubeLut(uri); }
     void writeSubtitleFile(Uri uri) { editActions.writeSubtitleFile(uri); }
     void showClipVisualAdjustments() { editActions.showClipVisualAdjustments(); }
     void openSubtitlePanel() { editActions.openSubtitlePanel(); }

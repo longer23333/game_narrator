@@ -135,6 +135,10 @@ public final class MobileProjectStore implements ProjectStore {
                                      float temperature, float hue, float scale, float rotation) {
         projects.saveClipVisualConfig(clipKey, brightness, contrast, saturation, temperature, hue, scale, rotation);
     }
+    public void saveClipVisualConfig(String clipKey, float brightness, float contrast, float saturation,
+                                     float temperature, float hue, float scale, float rotation, String lutPath) {
+        projects.saveClipVisualConfig(clipKey, brightness, contrast, saturation, temperature, hue, scale, rotation, lutPath);
+    }
 
     public List<ProjectRepository.KeyframeInfo> listKeyframes(String clipKey, String property) {
         return projects.listKeyframes(clipKey, property);

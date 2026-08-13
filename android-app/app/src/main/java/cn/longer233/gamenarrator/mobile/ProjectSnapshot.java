@@ -112,9 +112,14 @@ public final class ProjectSnapshot {
         private final float hue;
         private final float scale;
         private final float rotation;
+        private final String lutPath;
 
         public VisualConfig(String clipKey, float brightness, float contrast, float saturation, float temperature,
                             float hue, float scale, float rotation) {
+            this(clipKey, brightness, contrast, saturation, temperature, hue, scale, rotation, "");
+        }
+        public VisualConfig(String clipKey, float brightness, float contrast, float saturation, float temperature,
+                            float hue, float scale, float rotation, String lutPath) {
             this.clipKey = clipKey;
             this.brightness = brightness;
             this.contrast = contrast;
@@ -123,6 +128,7 @@ public final class ProjectSnapshot {
             this.hue = hue;
             this.scale = scale;
             this.rotation = rotation;
+            this.lutPath = lutPath == null ? "" : lutPath;
         }
 
         public String clipKey() { return clipKey; }
@@ -133,6 +139,7 @@ public final class ProjectSnapshot {
         public float hue() { return hue; }
         public float scale() { return scale; }
         public float rotation() { return rotation; }
+        public String lutPath() { return lutPath; }
     }
 
     public static final class Review {
@@ -240,7 +247,7 @@ public final class ProjectSnapshot {
             audioConfigs.add(new AudioConfig(clip.key(), audio.volume(), audio.fadeInMs(), audio.fadeOutMs()));
             ProjectRepository.ClipVisualConfig visual = store.clipVisualConfig(clip.key());
             visualConfigs.add(new VisualConfig(clip.key(), visual.brightness(), visual.contrast(), visual.saturation(),
-                    visual.temperature(), visual.hue(), visual.scale(), visual.rotation()));
+                    visual.temperature(), visual.hue(), visual.scale(), visual.rotation(), visual.lutPath()));
             ProjectRepository.ClipReviewInfo review = store.clipReview(clip.key());
             reviews.add(new Review(clip.key(), review.status(), review.note()));
             ProjectRepository.VoiceConfig voice = store.voiceConfig(clip.key());
@@ -280,7 +287,7 @@ public final class ProjectSnapshot {
         }
         for (VisualConfig config : visualConfigs) {
             store.saveClipVisualConfig(config.clipKey(), config.brightness(), config.contrast(), config.saturation(),
-                    config.temperature(), config.hue(), config.scale(), config.rotation());
+                    config.temperature(), config.hue(), config.scale(), config.rotation(), config.lutPath());
         }
         for (Review review : reviews) {
             if ("PENDING".equals(review.status())) {

@@ -99,6 +99,8 @@ public final class ProjectMigration {
             db.execSQL("ALTER TABLE project ADD COLUMN storyboard_review_enabled INTEGER NOT NULL DEFAULT 1");
             db.execSQL("ALTER TABLE project ADD COLUMN automatic_generation_enabled INTEGER NOT NULL DEFAULT 1");
         }
+        if (oldVersion < 26 && oldVersion >= 17)
+            db.execSQL("ALTER TABLE project_clip_visual ADD COLUMN lut_path TEXT NOT NULL DEFAULT ''");
     }
 
     private static void createProjectTable(SQLiteDatabase db) {
@@ -156,7 +158,7 @@ public final class ProjectMigration {
     }
 
     private static void createClipVisualTable(SQLiteDatabase db) {
-        db.execSQL("CREATE TABLE IF NOT EXISTS project_clip_visual(project_id INTEGER NOT NULL,clip_key TEXT NOT NULL,contrast REAL NOT NULL DEFAULT 0,saturation REAL NOT NULL DEFAULT 0,hue REAL NOT NULL DEFAULT 0,scale REAL NOT NULL DEFAULT 1,rotation REAL NOT NULL DEFAULT 0,brightness REAL NOT NULL DEFAULT 0,temperature REAL NOT NULL DEFAULT 0,PRIMARY KEY(project_id,clip_key))");
+        db.execSQL("CREATE TABLE IF NOT EXISTS project_clip_visual(project_id INTEGER NOT NULL,clip_key TEXT NOT NULL,contrast REAL NOT NULL DEFAULT 0,saturation REAL NOT NULL DEFAULT 0,hue REAL NOT NULL DEFAULT 0,scale REAL NOT NULL DEFAULT 1,rotation REAL NOT NULL DEFAULT 0,brightness REAL NOT NULL DEFAULT 0,temperature REAL NOT NULL DEFAULT 0,lut_path TEXT NOT NULL DEFAULT '',PRIMARY KEY(project_id,clip_key))");
     }
 
     private static void createKeyframeTable(SQLiteDatabase db) {

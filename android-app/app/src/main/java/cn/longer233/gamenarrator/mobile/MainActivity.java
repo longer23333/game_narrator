@@ -103,6 +103,7 @@ public final class MainActivity extends AppCompatActivity {
     ActivityResultLauncher<String[]> whisperWavOpen;
     ActivityResultLauncher<String[]> visionImageOpen;
     ActivityResultLauncher<String[]> subtitleFileOpen;
+    ActivityResultLauncher<String[]> lutFileOpen;
     ActivityResultLauncher<String> subtitleFileCreate;
     CookieFileSession cookieSession = new CookieFileSession();
     String pendingProjectArchive;
@@ -111,6 +112,7 @@ public final class MainActivity extends AppCompatActivity {
     DialogController.WhisperResult pendingWhisperCallback;
     DialogController.ImageResult pendingVisionCallback;
     String pendingSubtitleFile;
+    String pendingLutClipKey;
     TextToSpeech textToSpeech;
     boolean ttsReady;
     Future<?> activeDownload;
@@ -142,6 +144,7 @@ public final class MainActivity extends AppCompatActivity {
         whisperWavOpen=registerForActivityResult(new ActivityResultContracts.OpenDocument(), this::handleWhisperWav);
         visionImageOpen=registerForActivityResult(new ActivityResultContracts.OpenDocument(), this::handleVisionImage);
         subtitleFileOpen=registerForActivityResult(new ActivityResultContracts.OpenDocument(),this::importSubtitleFile);
+        lutFileOpen=registerForActivityResult(new ActivityResultContracts.OpenDocument(),this::importCubeLut);
         subtitleFileCreate=registerForActivityResult(new ActivityResultContracts.CreateDocument("application/x-subrip"),this::writeSubtitleFile);
         player = new ExoPlayer.Builder(this).build();
         projectStore = new MobileProjectStore(this);
@@ -268,6 +271,14 @@ public final class MainActivity extends AppCompatActivity {
         }
         pendingMicAction = action;
         micPermission.launch(Manifest.permission.RECORD_AUDIO);
+    }
+
+    void importCubeLut(Uri uri) { actions.importCubeLut(uri); }
+    void applyCurrentPreviewEffects() {
+        TimelineClip clip = current();
+        if (clip == null) { player.setVideoEffects(Collections.emptyList()); return; }
+        try { player.setVideoEffects(MobileRenderEffects.previewVideoEffects(projectStore.clipVisualConfig(clip.key()))); }
+        catch (RuntimeException error) { showError("LUT 预览失败", error.getMessage()); player.setVideoEffects(Collections.emptyList()); }
     }
 
     void launchCookieFileOpen() {

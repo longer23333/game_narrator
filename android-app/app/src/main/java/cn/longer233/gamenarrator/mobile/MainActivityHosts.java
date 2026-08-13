@@ -353,6 +353,13 @@ public final class MainActivityHosts {
                                                        float temperature, float hue, float scale, float rotation) {
                 activity.projectStore.saveClipVisualConfig(clipKey, brightness, contrast, saturation, temperature, hue, scale, rotation);
             }
+            @Override public void saveClipLut(String clipKey, String lutPath) {
+                ProjectRepository.ClipVisualConfig value = activity.projectStore.clipVisualConfig(clipKey);
+                activity.projectStore.saveClipVisualConfig(clipKey, value.brightness(), value.contrast(), value.saturation(),
+                        value.temperature(), value.hue(), value.scale(), value.rotation(), lutPath);
+            }
+            @Override public void launchLutFileOpen(String clipKey) { activity.pendingLutClipKey = clipKey; activity.lutFileOpen.launch(new String[]{"application/octet-stream", "text/plain", "*/*"}); }
+            @Override public void applyPreviewEffects() { activity.applyCurrentPreviewEffects(); }
             @Override public void seekTo(long positionMs) { activity.player.seekTo(positionMs); }
             @Override public void exportSingleClip(TimelineClip clip) { activity.exportSingleClip(clip); }
             @Override public void deriveCoverAsset(TimelineClip clip) { activity.deriveCoverAsset(clip); }

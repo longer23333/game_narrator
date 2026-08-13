@@ -96,6 +96,7 @@ public final class ProjectSnapshotJson {
             value.put("hue", config.hue());
             value.put("scale", config.scale());
             value.put("rotation", config.rotation());
+            value.put("lutPath", config.lutPath());
             visualConfigs.put(value);
         }
         root.put("visualConfigs", visualConfigs);
@@ -198,7 +199,7 @@ public final class ProjectSnapshotJson {
                         (float) value.optDouble("brightness", 0), (float) value.optDouble("contrast", 0),
                         (float) value.optDouble("saturation", 0), (float) value.optDouble("temperature", 0),
                         (float) value.optDouble("hue", 0), (float) value.optDouble("scale", 1),
-                        (float) value.optDouble("rotation", 0)));
+                        (float) value.optDouble("rotation", 0), value.optString("lutPath", "")));
             }
         }
         List<ProjectSnapshot.Review> reviews = new ArrayList<>();

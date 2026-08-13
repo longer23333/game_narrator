@@ -45,6 +45,8 @@ public final class MobileRenderEffects {
         if(Math.abs(visualConfig.contrast())>.001f)videoEffects.add(new Contrast(visualConfig.contrast()));
         if(Math.abs(visualConfig.temperature())>.001f){float shift=visualConfig.temperature()*.003f;videoEffects.add(new RgbAdjustment.Builder().setRedScale(1f+shift).setGreenScale(1f).setBlueScale(1f-shift).build());}
         if(Math.abs(visualConfig.hue())>.001f||Math.abs(visualConfig.saturation())>.001f)videoEffects.add(new HslAdjustment.Builder().adjustHue(visualConfig.hue()).adjustSaturation(visualConfig.saturation()).build());
+        Effect lutEffect = CubeLutEffectFactory.fromPath(visualConfig.lutPath());
+        if (lutEffect != null) videoEffects.add(lutEffect);
         if(!scaleKeyframes.isEmpty()||!rotationKeyframes.isEmpty()||!xKeyframes.isEmpty()||!yKeyframes.isEmpty())videoEffects.add(new KeyframedTransformEffect(scaleKeyframes,rotationKeyframes,xKeyframes,yKeyframes,visualConfig.scale(),visualConfig.rotation()));else if(Math.abs(visualConfig.scale()-1f)>.001f||Math.abs(visualConfig.rotation())>.001f)videoEffects.add(new ScaleAndRotateTransformation.Builder().setScale(visualConfig.scale(),visualConfig.scale()).setRotationDegrees(visualConfig.rotation()).build());
         if(!opacityKeyframes.isEmpty())videoEffects.add(new KeyframedAlphaEffect(opacityKeyframes));
         addCueEffects(videoEffects, clip.effectCue());
@@ -68,6 +70,19 @@ public final class MobileRenderEffects {
         if (!overlays.isEmpty()) videoEffects.add(new OverlayEffect(overlays));
         boolean processAudio=audioConfig.volume()!=1f||audioConfig.fadeInMs()>0||audioConfig.fadeOutMs()>0||!volumeKeyframes.isEmpty();List<androidx.media3.common.audio.AudioProcessor> audioEffects=processAudio?Collections.singletonList(new GainProcessor(new KeyframedGainProvider(volumeKeyframes,audioConfig.volume(),clip.durationMs(),audioConfig.fadeInMs(),audioConfig.fadeOutMs()))):Collections.emptyList();
         return videoEffects.isEmpty()&&audioEffects.isEmpty()?Effects.EMPTY:new Effects(audioEffects,videoEffects);
+    }
+
+    /** The editor player and Transformer export call the same builder to prevent preview/export drift. */
+    public static List<Effect> previewVideoEffects(ProjectRepository.ClipVisualConfig visualConfig) {
+        List<Effect> effects = new ArrayList<>();
+        if(Math.abs(visualConfig.brightness())>.001f)effects.add(new Brightness(visualConfig.brightness()));
+        if(Math.abs(visualConfig.contrast())>.001f)effects.add(new Contrast(visualConfig.contrast()));
+        if(Math.abs(visualConfig.temperature())>.001f){float shift=visualConfig.temperature()*.003f;effects.add(new RgbAdjustment.Builder().setRedScale(1f+shift).setGreenScale(1f).setBlueScale(1f-shift).build());}
+        if(Math.abs(visualConfig.hue())>.001f||Math.abs(visualConfig.saturation())>.001f)effects.add(new HslAdjustment.Builder().adjustHue(visualConfig.hue()).adjustSaturation(visualConfig.saturation()).build());
+        Effect lut = CubeLutEffectFactory.fromPath(visualConfig.lutPath());
+        if (lut != null) effects.add(lut);
+        if(Math.abs(visualConfig.scale()-1f)>.001f||Math.abs(visualConfig.rotation())>.001f)effects.add(new ScaleAndRotateTransformation.Builder().setScale(visualConfig.scale(),visualConfig.scale()).setRotationDegrees(visualConfig.rotation()).build());
+        return List.copyOf(effects);
     }
 
     private static TextOverlay subtitle(String value) {

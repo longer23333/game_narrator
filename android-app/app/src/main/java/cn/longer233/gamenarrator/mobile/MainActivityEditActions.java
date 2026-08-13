@@ -92,6 +92,7 @@ public final class MainActivityEditActions {
         activity.selected = index;
         TimelineClip clip = activity.clips.get(index);
         activity.player.setMediaItem(MediaItem.fromUri(clip.uri()));
+        activity.applyCurrentPreviewEffects();
         activity.player.prepare();
         activity.player.seekTo(clip.startMs());
         activity.player.play();
@@ -139,6 +140,32 @@ public final class MainActivityEditActions {
     void writeSubtitleFile(Uri uri){if(uri==null||activity.pendingSubtitleFile==null)return;try(java.io.OutputStream output=activity.getContentResolver().openOutputStream(uri,"wt")){if(output==null)throw new IllegalStateException("无法打开字幕目标");output.write(activity.pendingSubtitleFile.getBytes(StandardCharsets.UTF_8));output.flush();Toast.makeText(activity,"SRT 字幕已导出",Toast.LENGTH_LONG).show();}catch(Exception error){activity.showError("SRT 字幕导出失败",error.getMessage());}finally{activity.pendingSubtitleFile=null;}}
 
     void showClipVisualAdjustments(){ activity.dialogs.showClipVisualAdjustments(); }
+
+    void importCubeLut(Uri uri) {
+        String clipKey = activity.pendingLutClipKey;
+        activity.pendingLutClipKey = null;
+        if (uri == null || clipKey == null) return;
+        File directory = new File(activity.getFilesDir(), "luts");
+        if (!directory.isDirectory() && !directory.mkdirs()) { activity.showError("LUT 导入失败", "无法创建 LUT 存储目录"); return; }
+        File target = new File(directory, clipKey.replaceAll("[^A-Za-z0-9._-]", "_") + ".cube");
+        try (java.io.InputStream input = activity.getContentResolver().openInputStream(uri);
+             java.io.OutputStream output = new java.io.FileOutputStream(target)) {
+            if (input == null) throw new IllegalArgumentException("无法读取所选 LUT 文件");
+            byte[] bytes = activity.readLimited(input, 16 * 1024 * 1024);
+            output.write(bytes);
+            try (java.io.FileReader reader = new java.io.FileReader(target)) { CubeLutParser.parse(reader); }
+            ProjectRepository.ClipVisualConfig value = activity.projectStore.clipVisualConfig(clipKey);
+            activity.pushHistory("导入片段 LUT");
+            activity.projectStore.saveClipVisualConfig(clipKey, value.brightness(), value.contrast(), value.saturation(),
+                    value.temperature(), value.hue(), value.scale(), value.rotation(), target.getAbsolutePath());
+            activity.persistProject("导入片段 LUT");
+            activity.applyCurrentPreviewEffects();
+            activity.status.setText("LUT 已导入；预览与最终导出使用同一 Media3 GPU 变换。");
+        } catch (Exception error) {
+            if (target.exists()) target.delete();
+            activity.showError("LUT 导入失败", error.getMessage());
+        }
+    }
 
     void openSubtitlePanel() {
         activity.dialogs.openSubtitlePanel();

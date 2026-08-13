@@ -50,6 +50,9 @@ jobs:
       - name: Verify event-driven frame sampling
         shell: pwsh
         run: ./scripts/verify-event-driven-frame-sampling.ps1
+      - name: Verify Android LUT contract
+        shell: pwsh
+        run: ./scripts/verify-android-lut.ps1
 
   frontend:
     runs-on: ubuntu-latest

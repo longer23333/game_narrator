@@ -268,6 +268,9 @@ public final class DialogController {
         ProjectRepository.ClipVisualConfig clipVisualConfig(String clipKey);
         void saveClipVisualConfig(String clipKey, float brightness, float contrast, float saturation,
                                   float temperature, float hue, float scale, float rotation);
+        void saveClipLut(String clipKey, String lutPath);
+        void launchLutFileOpen(String clipKey);
+        void applyPreviewEffects();
         void seekTo(long positionMs);
         void exportSingleClip(TimelineClip clip);
         void deriveCoverAsset(TimelineClip clip);
