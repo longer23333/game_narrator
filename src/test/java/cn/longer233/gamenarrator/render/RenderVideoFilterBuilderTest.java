@@ -31,12 +31,29 @@ class RenderVideoFilterBuilderTest {
         TimelineSegment segment = new TimelineSegment(1, 0, 12, 3, 15,
                 "narration", "subtitle", "impact", "voice.wav", 2, false);
         var asset = new RenderAssetResolver.RenderAsset(1, "VIDEO", "OVERLAY", "BOTTOM_RIGHT",
-                true, Path.of("overlay.webm"), "overlay");
+                true, Path.of("overlay.webm"), "overlay", 0, null, 38, "NONE", 0);
 
         String graph = filterBuilder.storyboard(segment,
                 new EffectPlan(List.of(), TransitionType.HARD_CUT, "test"), null, List.of(asset), 1);
 
         assertThat(graph).contains("chromakey=0x00FF00", "overlay=W-w-40:H-h-40", "[vout]");
+    }
+
+    @Test
+    void parameterizesMemeWindowScaleAnimationAndLayerOrder() {
+        TimelineSegment segment = new TimelineSegment(1, 0, 6, 0, 6,
+                "narration", "subtitle", "", "voice.wav", 2, false);
+        var lower = new RenderAssetResolver.RenderAsset(1, "MEME", "OVERLAY", "TOP_LEFT",
+                false, Path.of("lower.png"), "lower", .5, 4.5, 25, "FADE", 1);
+        var upper = new RenderAssetResolver.RenderAsset(1, "MEME", "OVERLAY", "BOTTOM_RIGHT",
+                false, Path.of("upper.webp"), "upper", 1.25, 3.75, 42, "BOUNCE", 9);
+
+        String graph = filterBuilder.storyboard(segment,
+                new EffectPlan(List.of(), TransitionType.HARD_CUT, "test"), null, List.of(lower, upper), 1);
+
+        assertThat(graph).contains("scale=480:-2", "fade=t=in:st=0.500:d=0.200:alpha=1",
+                "between(t,0.500,4.500)", "scale=806:-2", "18*abs(sin(8*(t-1.250)))",
+                "between(t,1.250,3.750)", "[base][asset0]", "[v0][asset1]");
     }
 
     @Test

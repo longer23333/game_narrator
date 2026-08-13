@@ -31,13 +31,16 @@ public class StoryboardAssetPlacementService {
         return jdbc.query("""
                 SELECT p.id,p.asset_id,p.clip_index,a.title,a.asset_type,p.placement_type,
                        p.position_name,p.instruction,p.ai_assigned,p.cutout_applied
+                       ,p.start_offset_seconds,p.end_offset_seconds,p.scale_percent,p.animation_name,p.z_index
                 FROM storyboard_asset_placement p JOIN external_asset a ON a.id=p.asset_id
                 WHERE p.task_id=? ORDER BY p.clip_index,p.created_at
                 """, (rs, n) -> new StoryboardAssetPlacementView(
                 rs.getObject("id", UUID.class), rs.getObject("asset_id", UUID.class), rs.getInt("clip_index"),
                 rs.getString("title"), rs.getString("asset_type"), rs.getString("placement_type"),
                 rs.getString("position_name"), rs.getString("instruction"), rs.getBoolean("ai_assigned"),
-                rs.getBoolean("cutout_applied"), "/api/assets/" + rs.getObject("asset_id") + "/preview"), taskId);
+                rs.getBoolean("cutout_applied"), "/api/assets/" + rs.getObject("asset_id") + "/preview",
+                rs.getDouble("start_offset_seconds"), (Double) rs.getObject("end_offset_seconds"),
+                rs.getInt("scale_percent"), rs.getString("animation_name"), rs.getInt("z_index")), taskId);
     }
 
     @Transactional
@@ -61,10 +64,12 @@ public class StoryboardAssetPlacementService {
         UUID id = UUID.randomUUID();
         cn.longer233.gamenarrator.common.PortableUpsert.update(jdbc, """
                 MERGE INTO storyboard_asset_placement(id,task_id,clip_index,asset_id,placement_type,
-                position_name,instruction,ai_assigned,cutout_applied,created_at) KEY(task_id,clip_index,asset_id)
-                VALUES(?,?,?,?,?,?,?,?,?,?)
+                position_name,instruction,ai_assigned,cutout_applied,start_offset_seconds,end_offset_seconds,
+                scale_percent,animation_name,z_index,created_at) KEY(task_id,clip_index,asset_id)
+                VALUES(?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)
                 """, "task_id,clip_index,asset_id", id, taskId, clip, asset.id(), placementType, position, instruction,
-                request.aiAssign(), cutout, OffsetDateTime.now());
+                request.aiAssign(), cutout, start(request.startOffsetSeconds()), end(request.startOffsetSeconds(), request.endOffsetSeconds()),
+                value(request.scalePercent(), 38), text(request.animation(), "NONE"), value(request.zIndex(), 0), OffsetDateTime.now());
         return list(taskId).stream().filter(item -> item.assetId().equals(asset.id()) && item.clipIndex() == clip)
                 .findFirst().orElseThrow();
     }
@@ -80,13 +85,24 @@ public class StoryboardAssetPlacementService {
     public StoryboardAssetPlacementView update(UUID taskId, UUID placementId, UpdateStoryboardAssetRequest request) {
         requireTask(taskId);
         int changed = jdbc.update("""
-                UPDATE storyboard_asset_placement SET position_name=?,cutout_applied=?,instruction=?
+                UPDATE storyboard_asset_placement SET position_name=?,cutout_applied=?,instruction=?,
+                    start_offset_seconds=?,end_offset_seconds=?,scale_percent=?,animation_name=?,z_index=?
                 WHERE id=? AND task_id=?
                 """, request.position(), request.cutoutApplied(),
-                request.instruction() == null ? "" : request.instruction().trim(), placementId, taskId);
+                request.instruction() == null ? "" : request.instruction().trim(), start(request.startOffsetSeconds()),
+                end(request.startOffsetSeconds(), request.endOffsetSeconds()), value(request.scalePercent(), 38),
+                text(request.animation(), "NONE"), value(request.zIndex(), 0), placementId, taskId);
         if (changed == 0) throw new IllegalArgumentException("分镜素材不存在");
         return list(taskId).stream().filter(item -> item.id().equals(placementId)).findFirst().orElseThrow();
     }
+
+    private double start(Double value) { return value == null ? 0 : value; }
+    private Double end(Double start, Double end) {
+        if (end != null && end <= start(start)) throw new IllegalArgumentException("贴图结束时间必须晚于开始时间");
+        return end;
+    }
+    private int value(Integer value, int fallback) { return value == null ? fallback : value; }
+    private String text(String value, String fallback) { return value == null || value.isBlank() ? fallback : value; }
 
     public AutoAssetAssignmentView autoAssign(UUID taskId) {
         requireTask(taskId);

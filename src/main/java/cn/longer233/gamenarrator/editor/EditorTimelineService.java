@@ -392,7 +392,8 @@ public class EditorTimelineService {
     private void remapAssetPlacements(UUID taskId, ObjectNode timeline) {
         List<Map<String, Object>> existing = jdbc.queryForList("""
                 SELECT clip_index,asset_id,placement_type,position_name,instruction,
-                       ai_assigned,cutout_applied,created_at
+                       ai_assigned,cutout_applied,start_offset_seconds,end_offset_seconds,
+                       scale_percent,animation_name,z_index,created_at
                 FROM storyboard_asset_placement WHERE task_id=?
                 """, taskId);
         if (existing.isEmpty()) return;
@@ -407,11 +408,15 @@ public class EditorTimelineService {
                 if (!sourceIndexes.contains(((Number) placement.get("CLIP_INDEX")).intValue())) continue;
                 jdbc.update("""
                         INSERT INTO storyboard_asset_placement(id,task_id,clip_index,asset_id,placement_type,
-                            position_name,instruction,ai_assigned,cutout_applied,created_at)
-                        VALUES(?,?,?,?,?,?,?,?,?,?)
+                            position_name,instruction,ai_assigned,cutout_applied,start_offset_seconds,end_offset_seconds,
+                            scale_percent,animation_name,z_index,created_at)
+                        VALUES(?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)
                         """, UUID.randomUUID(), taskId, targetIndex, placement.get("ASSET_ID"),
                         placement.get("PLACEMENT_TYPE"), placement.get("POSITION_NAME"), placement.get("INSTRUCTION"),
-                        placement.get("AI_ASSIGNED"), placement.get("CUTOUT_APPLIED"), placement.get("CREATED_AT"));
+                        placement.get("AI_ASSIGNED"), placement.get("CUTOUT_APPLIED"),
+                        placement.get("START_OFFSET_SECONDS"), placement.get("END_OFFSET_SECONDS"),
+                        placement.get("SCALE_PERCENT"), placement.get("ANIMATION_NAME"), placement.get("Z_INDEX"),
+                        placement.get("CREATED_AT"));
             }
             targetIndex++;
         }

@@ -34,11 +34,14 @@ public class RenderVideoFilterBuilder {
                     .append("setpts=PTS-STARTPTS,");
             if (background) graph.append("scale=1920:1080:force_original_aspect_ratio=increase,crop=1920:1080,")
                     .append("format=rgba,colorchannelmixer=aa=0.38");
-            else graph.append("scale=720:720:force_original_aspect_ratio=decrease,format=rgba");
+            else graph.append("scale=").append(even(1920 * asset.scalePercent() / 100d))
+                    .append(":-2:force_original_aspect_ratio=decrease,format=rgba")
+                    .append(animationFilter(asset));
             if (asset.cutoutApplied()) graph.append(",chromakey=0x00FF00:0.18:0.08");
             graph.append('[').append(prepared).append("];[").append(previous).append("][")
-                    .append(prepared).append("]overlay=").append(overlayPosition(asset.position()))
-                    .append(":shortest=1[v").append(index).append("];");
+                    .append(prepared).append("]overlay=").append(overlayPosition(asset))
+                    .append(":enable='").append(enable(asset, segment))
+                    .append("':eof_action=pass:shortest=0[v").append(index).append("];");
             previous = "v" + index;
         }
         graph.append('[').append(previous).append("]null[vout]");
@@ -131,12 +134,38 @@ public class RenderVideoFilterBuilder {
         return String.join(",", filters);
     }
 
-    private String overlayPosition(String position) {
-        return switch (String.valueOf(position)) {
+    private String overlayPosition(RenderAssetResolver.RenderAsset asset) {
+        String base = switch (String.valueOf(asset.position())) {
             case "TOP_LEFT" -> "40:40"; case "TOP_RIGHT" -> "W-w-40:40";
             case "BOTTOM_LEFT" -> "40:H-h-40"; case "BOTTOM_RIGHT" -> "W-w-40:H-h-40";
             default -> "(W-w)/2:(H-h)/2";
         };
+        String[] coordinate = base.split(":", 2);
+        double start = Math.max(0, asset.startOffsetSeconds());
+        return switch (String.valueOf(asset.animation())) {
+            case "SLIDE" -> "if(lt(t," + decimal(start + .28) + "),-w+(" + coordinate[0]
+                    + "+w)*(t-" + decimal(start) + ")/.28," + coordinate[0] + "):" + coordinate[1];
+            case "BOUNCE" -> coordinate[0] + ":" + coordinate[1] + "+18*abs(sin(8*(t-" + decimal(start) + ")))";
+            default -> base;
+        };
+    }
+
+    private String animationFilter(RenderAssetResolver.RenderAsset asset) {
+        if (!List.of("FADE", "POP").contains(String.valueOf(asset.animation()))) return "";
+        double start = Math.max(0, asset.startOffsetSeconds());
+        StringBuilder value = new StringBuilder(",fade=t=in:st=").append(decimal(start)).append(":d=0.200:alpha=1");
+        if (asset.endOffsetSeconds() != null && asset.endOffsetSeconds() - start > .25) {
+            value.append(",fade=t=out:st=").append(decimal(asset.endOffsetSeconds() - .2)).append(":d=0.200:alpha=1");
+        }
+        return value.toString();
+    }
+
+    private String enable(RenderAssetResolver.RenderAsset asset, TimelineSegment segment) {
+        double start = Math.max(0, asset.startOffsetSeconds());
+        double duration = Math.max(.01, segment.sourceEndSeconds() - segment.sourceStartSeconds());
+        double safeStart = Math.min(start, duration);
+        double end = asset.endOffsetSeconds() == null ? duration : Math.min(duration, asset.endOffsetSeconds());
+        return "between(t," + decimal(safeStart) + "," + decimal(Math.max(safeStart, end)) + ")";
     }
 
     private int even(double value) {

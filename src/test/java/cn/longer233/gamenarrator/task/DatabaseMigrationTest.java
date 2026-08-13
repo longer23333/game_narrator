@@ -25,6 +25,29 @@ class DatabaseMigrationTest {
     }
 
     @Test
+    void v40AddsMemeTimelineParametersAndLayerIndex() throws Exception {
+        String url = "jdbc:h2:mem:meme-slots;DB_CLOSE_DELAY=-1";
+        Flyway.configure().dataSource(url, "sa", "").load().migrate();
+        try (var connection = DriverManager.getConnection(url, "sa", "");
+             var statement = connection.createStatement()) {
+            var columns = statement.executeQuery("""
+                    SELECT column_name,column_default FROM information_schema.columns
+                    WHERE table_name='STORYBOARD_ASSET_PLACEMENT'
+                    AND column_name IN ('START_OFFSET_SECONDS','END_OFFSET_SECONDS','SCALE_PERCENT','ANIMATION_NAME','Z_INDEX')
+                    """);
+            int count = 0;
+            while (columns.next()) count++;
+            assertThat(count).isEqualTo(5);
+            var index = statement.executeQuery("""
+                    SELECT COUNT(*) FROM information_schema.indexes
+                    WHERE table_name='STORYBOARD_ASSET_PLACEMENT' AND index_name='IDX_STORYBOARD_ASSET_LAYER'
+                    """);
+            assertThat(index.next()).isTrue();
+            assertThat(index.getInt(1)).isOne();
+        }
+    }
+
+    @Test
     void backupRestoreDrillRecoversPreMigrationDataAndSchema() throws Exception {
         String sourceUrl = "jdbc:h2:mem:rollback-source;DB_CLOSE_DELAY=-1";
         Flyway.configure().dataSource(sourceUrl, "sa", "").target("37").load().migrate();

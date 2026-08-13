@@ -243,7 +243,8 @@ public class FfmpegVideoRenderer {
         }
         double duration = segment.sourceEndSeconds() - segment.sourceStartSeconds();
         for (RenderAssetResolver.RenderAsset asset : assets) {
-            if ("MEME".equals(asset.assetType())) command.addAll(List.of("-loop", "1", "-t", decimal(duration)));
+            if ("MEME".equals(asset.assetType()) || "IMAGE".equals(asset.assetType()))
+                command.addAll(List.of("-loop", "1", "-t", decimal(duration)));
             else command.addAll(List.of("-stream_loop", "-1"));
             command.addAll(List.of("-i", asset.path().toString()));
         }

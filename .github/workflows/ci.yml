@@ -38,6 +38,9 @@ jobs:
       - name: Verify render work lifecycle
         shell: pwsh
         run: ./scripts/verify-render-work-cleanup.ps1
+      - name: Verify meme timeline slots
+        shell: pwsh
+        run: ./scripts/verify-meme-timeline-slots.ps1
 
   frontend:
     runs-on: ubuntu-latest
