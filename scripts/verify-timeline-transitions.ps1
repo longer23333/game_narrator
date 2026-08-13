@@ -17,7 +17,9 @@ Require-Text 'src/main/java/cn/longer233/gamenarrator/render/TimelineTransitionG
 Require-Text 'src/main/java/cn/longer233/gamenarrator/render/FfmpegVideoRenderer.java' @(
     'TIMELINE_TRANSITION_SUCCESS', 'TIMELINE_TRANSITION_FALLBACK', 'transitionDurationSeconds')
 Require-Text 'src/test/java/cn/longer233/gamenarrator/render/FfmpegTimelineTransitionOutputTest.java' @(
-    'ffmpegProducesPlayableAudioVideoFromParameterizedTransition', 'createClip')
+    'ffmpegProducesPlayableAudioVideoFromParameterizedTransition',
+    'ffmpegProducesSynchronizedHardCutFallbackAfterTransitionFailure', 'ffprobe',
+    'contains("video", "audio")', 'Math.abs(videoDuration - audioDuration)', 'createClip')
 Require-Text 'docs/REQUIREMENTS.md' @('| FR-605 | P0 |')
 if ($failures.Count) { Write-Host "FAIL: $($failures.Count) timeline transition violation(s)"; $failures | ForEach-Object { Write-Host "  $_" }; exit 1 }
 Write-Host 'PASS: FR-605 is a constrained, synchronized, parameterized timeline transition with real FFmpeg output coverage'
