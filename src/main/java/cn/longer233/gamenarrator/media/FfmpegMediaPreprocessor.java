@@ -117,7 +117,7 @@ public class FfmpegMediaPreprocessor {
         int nextIndex = scenes.stream().mapToInt(SceneFrame::index).max().orElse(0) + 1;
         int anchorIndex = 0;
         for (EventAnchor anchor : anchors.stream().limit(maximumEventWindows).toList()) {
-            for (double offset : new double[]{-eventWindowSeconds, 0, eventWindowSeconds}) {
+            for (double offset : eventOffsets()) {
                 double timestamp = Math.max(0, anchor.seconds() + offset);
                 if (result.stream().anyMatch(frame -> Math.abs(frame.timestampSeconds() - timestamp) < .08)) continue;
                 Path output = sceneDirectory.resolve(String.format(Locale.ROOT, "event-%04d-%s.jpg", ++anchorIndex,
@@ -133,6 +133,13 @@ public class FfmpegMediaPreprocessor {
         result.sort(Comparator.comparingDouble(SceneFrame::timestampSeconds));
         log.info("EVENT_FRAME_SAMPLING anchors={} totalFrames={} windowSeconds={}", anchors.size(), result.size(), eventWindowSeconds);
         return List.copyOf(result);
+    }
+
+    /** Prepares a compact multi-radius pool; the vision pass spends it according to the detected event type. */
+    private double[] eventOffsets() {
+        double near = Math.max(.10, Math.min(.20, eventWindowSeconds / 2));
+        double far = Math.max(.70, Math.min(1.50, eventWindowSeconds * 3));
+        return new double[]{-far, -eventWindowSeconds, -near, 0, near, eventWindowSeconds, far};
     }
 
     private void addAnchor(LinkedHashSet<EventAnchor> anchors, EventAnchor candidate) {

@@ -34,6 +34,24 @@ class EventWindowSecondPassTest {
                 List.of(analysis(center, "胜利", 70, "")), 1)).hasSize(1);
     }
 
+    @Test
+    void allocatesDenseNearFramesToKillAndWideFramesToBossPhaseChange() {
+        List<SceneFrame> frames = List.of(
+                frame(1, 8.8, "kill-far-pre", 10), frame(2, 9.8, "kill-near-pre", 10),
+                frame(3, 10, "kill-center", 10), frame(4, 10.2, "kill-near-post", 10),
+                frame(5, 11.2, "kill-far-post", 10), frame(6, 18.8, "boss-far-pre", 20),
+                frame(7, 19.8, "boss-near-pre", 20), frame(8, 20, "boss-center", 20),
+                frame(9, 20.2, "boss-near-post", 20), frame(10, 21.2, "boss-far-post", 20));
+
+        List<SceneFrame> selected = EventWindowSecondPass.select(frames,
+                List.of(frames.get(2), frames.get(7)),
+                List.of(analysis(frames.get(2), "KILL", 95, ""),
+                        analysis(frames.get(7), "BOSS_PHASE_CHANGE", 85, "PHASE 2")), 6);
+
+        assertThat(selected).extracting(SceneFrame::imagePath)
+                .contains("kill-near-pre", "kill-near-post", "boss-far-pre", "boss-far-post");
+    }
+
     private SceneFrame frame(int index, double time, String path, double anchor) {
         return new SceneFrame(index, time, path, "SCENE_CHANGE_WINDOW", anchor);
     }

@@ -1,16 +1,26 @@
 {
-  "schemaVersion": 1,
-  "currentVersion": "2.2.4",
-  "releases": [
-    {
-      "version": "2.2.4",
-      "title": "后台管理中心增强",
-      "summary": "统一 Web、Windows 与 Android 主版本；新增运营总览、AI 趋势、用户与项目管理、云同步、存储和审计视图，并修复存储管理接口的权限校验。",
-      "items": [
-        "新增运营总览、AI 趋势、状态分布和近期审计",
-        "完善用户、项目、云同步、存储的搜索筛选、分页与 CSV 导出",
-        "修复存储检查和清理接口缺少管理员权限校验的问题"
-      ]
-    }
-  ]
+    "schemaVersion":  1,
+    "currentVersion":  "2.2.5",
+    "releases":  [
+                     {
+                         "version":  "2.2.5",
+                         "title":  "动态事件采样与说话人分段",
+                         "summary":  "统一 Web、Windows 与 Android 版本，完成对应功能修复、稳定性检查与发布记录。",
+                         "items":  [
+                                       "同步更新 Web、Windows 与 Android 版本",
+                                       "完成本版本功能修复与稳定性检查",
+                                       "创建并同步 GitHub、Gitee 发布标签"
+                                   ]
+                     },
+                     {
+                         "version":  "2.2.4",
+                         "title":  "后台管理中心增强",
+                         "summary":  "统一 Web、Windows 与 Android 主版本；新增运营总览、AI 趋势、用户与项目管理、云同步、存储和审计视图，并修复存储管理接口的权限校验。",
+                         "items":  [
+                                       "新增运营总览、AI 趋势、状态分布和近期审计",
+                                       "完善用户、项目、云同步、存储的搜索筛选、分页与 CSV 导出",
+                                       "修复存储检查和清理接口缺少管理员权限校验的问题"
+                                   ]
+                     }
+                 ]
 }

@@ -24,6 +24,8 @@ public final class MobileReleaseNotes {
 
     public static List<Note> notes() {
         List<Note> notes = new ArrayList<>();
+        notes.add(new Note("2.2.5", "动态事件采样与说话人分段",
+                "同步更新各平台版本，完成对应功能修复、稳定性检查与发布记录。"));
         notes.add(new Note("2.2.4", "后台管理中心增强",
                 "统一 Web、Windows 与 Android 主版本；新增运营总览、AI 趋势、用户与项目管理、云同步、存储和审计视图，并修复存储管理接口的权限校验。"));
         notes.add(new Note("0.73.0", "版本公告中文化修复",

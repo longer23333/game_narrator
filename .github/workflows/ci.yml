@@ -47,6 +47,9 @@ jobs:
       - name: Verify speaker diarization contract
         shell: pwsh
         run: ./scripts/verify-speaker-diarization.ps1
+      - name: Verify event-driven frame sampling
+        shell: pwsh
+        run: ./scripts/verify-event-driven-frame-sampling.ps1
 
   frontend:
     runs-on: ubuntu-latest
