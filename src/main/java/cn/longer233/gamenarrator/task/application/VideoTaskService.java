@@ -195,8 +195,12 @@ public class VideoTaskService {
         if (task.getStatus() != cn.longer233.gamenarrator.task.domain.TaskStatus.PROCESSING) {
             throw new IllegalStateException("只有正在处理的任务可以取消");
         }
-        engine.requestCancellation(id);
-        log.info("TASK_CANCEL_REQUESTED taskId={}", id);
+        task.cancel("用户取消了任务");
+        repository.saveAndFlush(task);
+        TransactionSynchronizationManager.registerSynchronization(new TransactionSynchronization() {
+            @Override public void afterCommit() { engine.requestCancellation(id); }
+        });
+        log.info("TASK_CANCEL_ACCEPTED taskId={} status=CANCELLED processTermination=asynchronous", id);
         return VideoTaskView.from(task);
     }
 

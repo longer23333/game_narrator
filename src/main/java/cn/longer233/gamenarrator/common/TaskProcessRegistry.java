@@ -9,6 +9,8 @@ import java.util.Comparator;
 import java.util.Map;
 import java.util.PriorityQueue;
 import java.util.concurrent.atomic.AtomicLong;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
 /** Associates external processes with the task currently executing on an engine thread. */
 public final class TaskProcessRegistry {
@@ -20,6 +22,8 @@ public final class TaskProcessRegistry {
     private static final PriorityQueue<Waiter> RESOURCE_WAITERS = new PriorityQueue<>(
             Comparator.comparingInt(Waiter::priority).reversed().thenComparingLong(Waiter::sequence));
     private static final AtomicLong WAITER_SEQUENCE = new AtomicLong();
+    private static final ExecutorService CANCELLATION_EXECUTOR = Executors.newCachedThreadPool(
+            Thread.ofPlatform().daemon(true).name("task-cancel-", 0).factory());
     private static volatile ResourceRequest resourceBudget = new ResourceRequest(
             Math.max(1, Runtime.getRuntime().availableProcessors()), Long.MAX_VALUE, Long.MAX_VALUE);
     private static long reservedCpuUnits;
@@ -120,7 +124,9 @@ public final class TaskProcessRegistry {
 
     public static void cancel(UUID taskId) {
         CANCELLED.add(taskId);
-        PROCESSES.getOrDefault(taskId, Set.of()).forEach(ExternalProcessRunner::terminateTree);
+        Set<Process> snapshot = Set.copyOf(PROCESSES.getOrDefault(taskId, Set.of()));
+        if (!snapshot.isEmpty()) CANCELLATION_EXECUTOR.execute(() ->
+                snapshot.forEach(ExternalProcessRunner::terminateTree));
         synchronized (RESOURCE_MONITOR) { RESOURCE_MONITOR.notifyAll(); }
     }
 
@@ -147,6 +153,10 @@ public final class TaskProcessRegistry {
 
     public static boolean currentTaskCancelled() {
         UUID taskId = CURRENT_TASK.get();
+        return taskId != null && CANCELLED.contains(taskId);
+    }
+
+    public static boolean isCancelled(UUID taskId) {
         return taskId != null && CANCELLED.contains(taskId);
     }
 

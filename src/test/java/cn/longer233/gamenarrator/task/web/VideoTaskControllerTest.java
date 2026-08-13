@@ -149,6 +149,30 @@ class VideoTaskControllerTest {
     }
 
     @Test
+    void cancellingProcessingTaskReturnsTerminalStateImmediately() throws Exception {
+        MockMultipartFile video = new MockMultipartFile(
+                "video", "cancel.mp4", "video/mp4", "cancel-test-video".getBytes());
+        var created = mockMvc.perform(multipart("/api/tasks")
+                        .file(video)
+                        .param("name", "Cancel regression")
+                        .param("gameCategory", "ACTION")
+                        .param("commentaryStyle", "ANIME_THEATER")
+                        .param("targetDurationSeconds", "90")
+                        .param("taskBrief", "Verify prompt cancellation"))
+                .andExpect(status().isCreated())
+                .andReturn();
+        UUID taskId = UUID.fromString(objectMapper.readTree(
+                created.getResponse().getContentAsString()).path("id").asText());
+        assertEquals(1, jdbc.update("UPDATE video_tasks SET status='PROCESSING' WHERE id=?", taskId));
+
+        mockMvc.perform(post("/api/tasks/{id}/cancel", taskId))
+                .andExpect(status().isAccepted())
+                .andExpect(jsonPath("$.status").value("CANCELLED"));
+        assertEquals("CANCELLED", jdbc.queryForObject(
+                "SELECT status FROM video_tasks WHERE id=?", String.class, taskId));
+    }
+
+    @Test
     void invalidVideoReturnsReadableErrorAndTraceId() throws Exception {
         MockMultipartFile invalidVideo = new MockMultipartFile(
                 "video",

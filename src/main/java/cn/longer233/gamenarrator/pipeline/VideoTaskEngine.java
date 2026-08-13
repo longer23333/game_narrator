@@ -368,6 +368,11 @@ public class VideoTaskEngine {
                 log.info("ENGINE_STOPPED_DELETED taskId={} stage={}", taskId, activeStage);
                 return;
             }
+            if (TaskProcessRegistry.isCancelled(taskId)) {
+                stateService.markCancelled(taskId, activeStage, "用户取消了任务");
+                log.info("ENGINE_CANCELLED_AFTER_PROCESS_EXIT taskId={} stage={}", taskId, activeStage);
+                return;
+            }
             String reason = rootMessage(exception);
             log.error("ENGINE_FAILED taskId={} stage={} message={}",
                     taskId, activeStage, reason, exception);

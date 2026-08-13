@@ -16,21 +16,27 @@ Require-Text 'android-app/app/src/main/java/cn/longer233/gamenarrator/mobile/Mai
 Require-Text 'android-app/app/src/test/java/cn/longer233/gamenarrator/mobile/RemoteMediaImporterTest.java' @('validatesResumeRangeAndStableKey')
 Require-Text 'android-app/app/src/main/java/cn/longer233/gamenarrator/mobile/BilibiliQrLogin.java' @('startDeviceConfirm','parseSetCookie')
 if ($RequireDeviceEvidence) {
-    $path = Join-Path $root $EvidenceFile
+    $path = [IO.Path]::GetFullPath((Join-Path $root $EvidenceFile));$artifactRoot=[IO.Path]::GetFullPath((Join-Path $root 'artifacts'))
+    if(-not $path.StartsWith($artifactRoot+[IO.Path]::DirectorySeparatorChar,[StringComparison]::OrdinalIgnoreCase)){$failures.Add('device evidence must stay under artifacts')}
     if (-not (Test-Path -LiteralPath $path -PathType Leaf)) { $failures.Add("missing device evidence: $EvidenceFile") }
     else {
         $evidence = [IO.File]::ReadAllText($path, [Text.Encoding]::UTF8) | ConvertFrom-Json
+        $commit=(git -c "safe.directory=$($root.Replace('\','/'))" -C $root rev-parse HEAD).Trim()
+        $version=([regex]::Match([IO.File]::ReadAllText((Join-Path $root 'pom.xml')),'<artifactId>game-narrator</artifactId>\s*<version>([^<]+)</version>')).Groups[1].Value
+        if($evidence.schemaVersion-ne2-or$evidence.commit-ne$commit-or$evidence.appVersion-ne$version){$failures.Add('device evidence schema, commit or app version does not match current release')}
+        try{$tested=[DateTimeOffset]::Parse([string]$evidence.completedAt);$age=[DateTimeOffset]::Now-$tested;if($age.TotalDays-gt7-or$age.TotalMinutes-lt-5){$failures.Add('device evidence completedAt is stale or in the future')}}catch{$failures.Add('device evidence completedAt is invalid')}
         foreach ($platform in @('bilibili','douyin','kuaishou','youtube')) {
             $row = $evidence.platforms.$platform
-            if ($null -eq $row -or -not $row.login -or -not $row.resolve -or -not $row.formatSelect -or
+            if ($null -eq $row -or -not $row.accountConfirmed -or -not $row.login -or -not $row.resolve -or -not $row.formatSelect -or
                 -not $row.cancel -or -not $row.resume -or -not $row.projectCreated) {
                 $failures.Add("incomplete real-account device evidence: $platform")
             }
         }
-        if ([string]::IsNullOrWhiteSpace([string]$evidence.device.serial) -or
+        if ([string]::IsNullOrWhiteSpace([string]$evidence.device.serial) -or [string]$evidence.device.serial -match '^REPLACE|^REDACTED_DEVICE_ID$' -or
+            [string]::IsNullOrWhiteSpace([string]$evidence.device.model) -or
             [string]::IsNullOrWhiteSpace([string]$evidence.device.androidVersion) -or
-            [string]::IsNullOrWhiteSpace([string]$evidence.commit)) {
-            $failures.Add('device evidence lacks serial, Android version or commit')
+            [string]::IsNullOrWhiteSpace([string]$evidence.sessionId)) {
+            $failures.Add('device evidence lacks device identity or unique session')
         }
     }
 }

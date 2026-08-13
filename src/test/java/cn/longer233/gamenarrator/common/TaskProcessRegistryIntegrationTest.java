@@ -6,11 +6,32 @@ import java.nio.file.Path;
 import java.time.Duration;
 import java.util.UUID;
 import java.util.concurrent.CancellationException;
+import java.util.concurrent.TimeUnit;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 class TaskProcessRegistryIntegrationTest {
+
+    @Test
+    void cancellationRequestReturnsImmediatelyWhileChildStopsAsynchronously() throws Exception {
+        UUID taskId = UUID.randomUUID();
+        String java = Path.of(System.getProperty("java.home"), "bin", executable("java")).toString();
+        Process child = new ProcessBuilder(java, "-cp", System.getProperty("java.class.path"),
+                Sleeper.class.getName()).start();
+        try (var ignored = TaskProcessRegistry.open(taskId)) {
+            TaskProcessRegistry.register(child);
+            long started = System.nanoTime();
+
+            TaskProcessRegistry.cancel(taskId);
+
+            assertThat(TimeUnit.NANOSECONDS.toMillis(System.nanoTime() - started)).isLessThan(500);
+            assertThat(child.waitFor(5, TimeUnit.SECONDS)).isTrue();
+            assertThat(child.isAlive()).isFalse();
+        } finally {
+            if (child.isAlive()) ExternalProcessRunner.terminateTree(child);
+        }
+    }
 
     @Test
     void cancellationTerminatesRegisteredChildProcessBeforeReportingSuccess() throws Exception {
