@@ -125,7 +125,7 @@ public class FfmpegMediaPreprocessor {
                 run(List.of(ffmpegCommand, "-nostdin", "-y", "-hide_banner", "-loglevel", "warning",
                         "-ss", String.format(Locale.ROOT, "%.3f", timestamp), "-i", sourceVideo.toString(),
                         "-an", "-frames:v", "1", "-vf", "scale=480:-2:flags=fast_bilinear",
-                        "-c:v", "mjpeg", "-q:v", "5", "-threads:v", "1", "-update", "1", output.toString()),
+                        "-c:v", "mjpeg", "-q:v", "5", "-strict", "unofficial", "-threads:v", "1", "-update", "1", output.toString()),
                         Duration.ofMinutes(2), "event frame extraction");
                 result.add(new SceneFrame(nextIndex++, timestamp, output.toString(), anchor.reason(), anchor.seconds()));
             }
@@ -171,7 +171,7 @@ public class FfmpegMediaPreprocessor {
                 "-an", "-sn", "-dn",
                 "-vf", "fps=" + sceneAnalysisFps + ",scale=480:-2:flags=fast_bilinear,select=gt(scene\\," + sceneThreshold + "),showinfo",
                 "-fps_mode", "vfr", "-frames:v", String.valueOf(maximumSceneFrames),
-                "-c:v", "mjpeg", "-q:v", "5", "-threads:v", "1",
+                "-c:v", "mjpeg", "-q:v", "5", "-strict", "unofficial", "-threads:v", "1",
                 outputPattern
         ), sceneTimeout, "场景检测");
 
@@ -187,7 +187,8 @@ public class FfmpegMediaPreprocessor {
                 Path first = sceneDirectory.resolve("scene-0001.jpg");
                 run(List.of(ffmpegCommand, "-nostdin", "-y", "-hide_banner", "-loglevel", "warning",
                         "-ss", "0", "-i", sourceVideo.toString(), "-an", "-frames:v", "1",
-                        "-vf", "scale=480:-2:flags=fast_bilinear", "-c:v", "mjpeg", "-q:v", "5", "-threads:v", "1",
+                        "-vf", "scale=480:-2:flags=fast_bilinear", "-c:v", "mjpeg", "-q:v", "5",
+                        "-strict", "unofficial", "-threads:v", "1",
                         "-update", "1",
                         first.toString()), Duration.ofMinutes(2), "首帧提取");
                 images = List.of(first);

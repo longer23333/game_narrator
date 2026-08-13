@@ -24,6 +24,8 @@ public final class MobileReleaseNotes {
 
     public static List<Note> notes() {
         List<Note> notes = new ArrayList<>();
+        notes.add(new Note("2.2.20", "稳定性与功能更新",
+                "同步更新各平台版本，完成对应功能修复、稳定性检查与发布记录。"));
         notes.add(new Note("2.2.19", "稳定性与功能更新",
                 "同步更新各平台版本，完成对应功能修复、稳定性检查与发布记录。"));
         notes.add(new Note("2.2.18", "Meme 叠加像素级验收",

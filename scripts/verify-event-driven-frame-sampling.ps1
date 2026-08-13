@@ -12,7 +12,7 @@ function Require-Text([string]$relative, [string[]]$needles) {
 
 Require-Text 'src/main/java/cn/longer233/gamenarrator/media/FfmpegMediaPreprocessor.java' @(
     'SCENE_CHANGE_WINDOW', 'AUDIO_PEAK_WINDOW', 'AUDIO_CLIPPING_WINDOW',
-    'eventOffsets()', 'audioAnalysis.analyze(audioPath)')
+    'eventOffsets()', 'audioAnalysis.analyze(audioPath)', '"-strict", "unofficial"')
 Require-Text 'src/main/java/cn/longer233/gamenarrator/vision/AdaptiveFrameSampler.java' @(
     'eventCenters', 'isCenter', 'configuredMaximum')
 Require-Text 'src/main/java/cn/longer233/gamenarrator/vision/EventWindowSecondPass.java' @(
@@ -22,6 +22,9 @@ Require-Text 'src/main/java/cn/longer233/gamenarrator/vision/OllamaVisionClient.
     'EventWindowSecondPass.select', 'EVENT_SECOND_PASS', 'analyzeWithoutAi')
 Require-Text 'src/test/java/cn/longer233/gamenarrator/vision/AdaptiveFrameSamplerTest.java' @('AdaptiveFrameSampler.sample')
 Require-Text 'src/test/java/cn/longer233/gamenarrator/vision/EventWindowSecondPassTest.java' @('EventWindowSecondPass.select')
+Require-Text 'src/test/java/cn/longer233/gamenarrator/media/FfmpegEventWindowOutputTest.java' @(
+    'highEnergyPulseProducesRealPreCenterAndPostEventFrames', 'AUDIO_', 'Files.isRegularFile',
+    'frame.timestampSeconds() < anchor', 'frame.timestampSeconds() > anchor')
 Require-Text 'docs/REQUIREMENTS.md' @('| FR-204 | P0 |')
 
 if ($failures.Count) {

@@ -1,5 +1,6 @@
 const releases = [
-  {version:'2.2.19', title:'稳定性与功能更新', current:true, items:["同步更新 Web、Windows 与 Android 版本","完成本版本功能修复与稳定性检查","创建并同步 GitHub、Gitee 发布标签"], jump:{view:'studio', selector:'#task-list'}},
+  {version:'2.2.20', title:'稳定性与功能更新', current:true, items:["同步更新 Web、Windows 与 Android 版本","完成本版本功能修复与稳定性检查","创建并同步 GitHub、Gitee 发布标签"], jump:{view:'studio', selector:'#task-list'}},
+  {version:'2.2.19', title:'稳定性与功能更新', items:["同步更新 Web、Windows 与 Android 版本","完成本版本功能修复与稳定性检查","创建并同步 GitHub、Gitee 发布标签"], jump:{view:'studio', selector:'#task-list'}},
   {version:'2.2.18', title:'Meme 叠加像素级验收', items:["同步更新 Web、Windows 与 Android 版本","完成本版本功能修复与稳定性检查","创建并同步 GitHub、Gitee 发布标签"], jump:{view:'studio', selector:'#task-list'}},
   {version:'2.2.17', title:'渲染占用文件真实恢复', items:["同步更新 Web、Windows 与 Android 版本","完成本版本功能修复与稳定性检查","创建并同步 GitHub、Gitee 发布标签"], jump:{view:'studio', selector:'#task-list'}},
   {version:'2.2.16', title:'转场真实输出强验证', items:["同步更新 Web、Windows 与 Android 版本","完成本版本功能修复与稳定性检查","创建并同步 GitHub、Gitee 发布标签"], jump:{view:'studio', selector:'#task-list'}},

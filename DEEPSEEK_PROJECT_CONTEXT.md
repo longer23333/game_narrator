@@ -1,7 +1,7 @@
 ﻿# GameNarrator — DeepSeek 结构化项目索引
 
-> 自动生成：2026-08-13 13:33:52 +08:00；UTF-8 BOM；索引不再内嵌全部源码。
-> Git：分支 `unknown`，提交 `unknown`；收录文件 836 个，分卷 8 个。
+> 自动生成：2026-08-13 13:42:41 +08:00；UTF-8 BOM；索引不再内嵌全部源码。
+> Git：分支 `unknown`，提交 `unknown`；收录文件 837 个，分卷 8 个。
 
 ## 使用方法
 
@@ -28,13 +28,13 @@
 | 分卷 | 文件数 | 字符数 | 建议用途 |
 |---|---:|---:|---|
 | `deepseek-context/01-foundation.md` | 90 | 221503 | 构建、配置、资源、数据库迁移 |
-| `deepseek-context/02-backend.md` | 298 | 1233094 | Spring 后端实现 |
-| `deepseek-context/03-tests.md` | 112 | 366787 | Spring 测试与行为验证 |
-| `deepseek-context/04-frontend.md` | 39 | 555441 | Vite Web 源码 |
-| `deepseek-context/05-android-main.md` | 143 | 882971 | Android 实现、资源与 Gradle |
+| `deepseek-context/02-backend.md` | 298 | 1233193 | Spring 后端实现 |
+| `deepseek-context/03-tests.md` | 113 | 369969 | Spring 测试与行为验证 |
+| `deepseek-context/04-frontend.md` | 39 | 555612 | Vite Web 源码 |
+| `deepseek-context/05-android-main.md` | 143 | 883074 | Android 实现、资源与 Gradle |
 | `deepseek-context/06-android-tests.md` | 58 | 137159 | Android 单元及设备测试 |
-| `deepseek-context/07-platform-release.md` | 12 | 70675 | Windows、CI/CD 与发布 |
-| `deepseek-context/08-docs-scripts.md` | 84 | 274551 | 需求、架构、维护脚本 |
+| `deepseek-context/07-platform-release.md` | 12 | 71184 | Windows、CI/CD 与发布 |
+| `deepseek-context/08-docs-scripts.md` | 84 | 274884 | 需求、架构、维护脚本 |
 
 ## 当前 Git 工作区（最近修改）
 
