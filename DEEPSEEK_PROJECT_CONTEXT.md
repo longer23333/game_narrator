@@ -1,7 +1,7 @@
 ﻿# GameNarrator — DeepSeek 结构化项目索引
 
-> 自动生成：2026-08-13 14:05:39 +08:00；UTF-8 BOM；索引不再内嵌全部源码。
-> Git：分支 `unknown`，提交 `unknown`；收录文件 837 个，分卷 8 个。
+> 自动生成：2026-08-13 14:18:54 +08:00；UTF-8 BOM；索引不再内嵌全部源码。
+> Git：分支 `main`，提交 `ff1c681`；收录文件 837 个，分卷 8 个。
 
 ## 使用方法
 
@@ -28,18 +28,40 @@
 | 分卷 | 文件数 | 字符数 | 建议用途 |
 |---|---:|---:|---|
 | `deepseek-context/01-foundation.md` | 90 | 221503 | 构建、配置、资源、数据库迁移 |
-| `deepseek-context/02-backend.md` | 298 | 1235507 | Spring 后端实现 |
-| `deepseek-context/03-tests.md` | 113 | 373877 | Spring 测试与行为验证 |
-| `deepseek-context/04-frontend.md` | 39 | 555954 | Vite Web 源码 |
-| `deepseek-context/05-android-main.md` | 143 | 883280 | Android 实现、资源与 Gradle |
+| `deepseek-context/02-backend.md` | 298 | 1236817 | Spring 后端实现 |
+| `deepseek-context/03-tests.md` | 113 | 377351 | Spring 测试与行为验证 |
+| `deepseek-context/04-frontend.md` | 39 | 556125 | Vite Web 源码 |
+| `deepseek-context/05-android-main.md` | 143 | 883383 | Android 实现、资源与 Gradle |
 | `deepseek-context/06-android-tests.md` | 58 | 137159 | Android 单元及设备测试 |
-| `deepseek-context/07-platform-release.md` | 12 | 72202 | Windows、CI/CD 与发布 |
-| `deepseek-context/08-docs-scripts.md` | 84 | 277994 | 需求、架构、维护脚本 |
+| `deepseek-context/07-platform-release.md` | 12 | 72711 | Windows、CI/CD 与发布 |
+| `deepseek-context/08-docs-scripts.md` | 84 | 278270 | 需求、架构、维护脚本 |
 
 ## 当前 Git 工作区（最近修改）
 
 ```text
-clean or unavailable
+M ANDROID_AI_CONTEXT.md
+ M DEEPSEEK_PROJECT_CONTEXT.md
+ M android-app/app/build.gradle
+ M android-app/app/src/main/java/cn/longer233/gamenarrator/mobile/MobileReleaseNotes.java
+ M docs/REQUIREMENTS.md
+ M frontend/index.html
+ M frontend/package-lock.json
+ M frontend/package.json
+ M frontend/public/app.js
+ M frontend/public/updates.js
+ M launcher/GameNarrator.Launcher.csproj
+ M package.json
+ M pom.xml
+ M release/CHANGELOG.json
+ M release/installer/GameNarrator-Demo-Lite.iss
+ M release/installer/GameNarrator.iss
+ M scripts/verify-evidence-aware-script-scoring.ps1
+ M src/main/java/cn/longer233/gamenarrator/quality/NarrativeConsistencyService.java
+ M src/main/java/cn/longer233/gamenarrator/quality/NarrativeQualityReport.java
+ M src/main/resources/static/app.js
+ M src/main/resources/static/index.html
+ M src/main/resources/static/updates.js
+ M src/test/java/cn/longer233/gamenarrator/quality/NarrativeConsistencyServiceTest.java
 ```
 
 ## Flyway 迁移索引

@@ -84,13 +84,18 @@ public class NarrativeConsistencyService {
         double evidenceCoverage = segments.isEmpty() ? 0 : supportedSegments / (double) segments.size();
         double averageEventConfidence = confirmedEvents.stream().mapToDouble(GameEventView::confidence)
                 .average().orElse(0);
-        double ocrEvidenceCoverage = confirmedEvents.isEmpty() ? 0 : confirmedEvents.stream()
+        double confidenceTotal = confirmedEvents.stream().mapToDouble(GameEventView::confidence).sum();
+        double ocrEvidenceCoverage = confidenceTotal == 0 ? 0 : confirmedEvents.stream()
                 .filter(event -> event.evidence().stream().anyMatch(item -> "OCR".equals(item.sourceType())))
-                .count() / (double) confirmedEvents.size();
-        double knowledgeEvidenceCoverage = confirmedEvents.isEmpty() ? 0 : confirmedEvents.stream()
+                .mapToDouble(GameEventView::confidence).sum() / confidenceTotal;
+        double knowledgeEvidenceCoverage = confidenceTotal == 0 ? 0 : confirmedEvents.stream()
                 .filter(event -> event.knowledgePackCode() != null && !event.knowledgePackCode().isBlank())
-                .count() / (double) confirmedEvents.size();
+                .mapToDouble(GameEventView::confidence).sum() / confidenceTotal;
         double speakerCoverage = speakerCoverage(task, segments);
+        double reliabilityWeight = .80 + (asrAvailable ? .20 : 0);
+        double upstreamEvidenceReliability = clamp((averageEventConfidence * .40
+                + ocrEvidenceCoverage * .20 + knowledgeEvidenceCoverage * .20
+                + (asrAvailable ? speakerCoverage * .20 : 0)) / reliabilityWeight);
         if (!visualAvailable) issues.add(issue("EVIDENCE_COVERAGE", "ERROR", null,
                 "缺少视觉分析证据，脚本评分不能判定为通过", "visualAnalysisPath unavailable"));
         if (!asrAvailable) issues.add(issue("EVIDENCE_COVERAGE", "WARNING", null,
@@ -114,10 +119,12 @@ public class NarrativeConsistencyService {
         int errors = (int) issues.stream().filter(i -> "ERROR".equals(i.severity())).count();
         int warnings = issues.size() - errors;
         int score = Math.max(0, 100 - errors * 25 - warnings * 8);
+        score = Math.min(score, (int) Math.round(upstreamEvidenceReliability * 100));
         boolean passed = errors == 0 && score >= 75;
         return new NarrativeQualityReport(taskId, score, passed, List.copyOf(issues), facts.size(),
                 supportedSegments, segments.size(), evidenceCoverage,
                 averageEventConfidence, speakerCoverage, ocrEvidenceCoverage, knowledgeEvidenceCoverage,
+                upstreamEvidenceReliability,
                 passed ? "叙事连续性和事实一致性检查通过" : "发现 %d 个错误、%d 个提醒".formatted(errors, warnings));
     }
 
@@ -136,16 +143,24 @@ public class NarrativeConsistencyService {
                     ? Path.of(task.getTranscriptJsonPath()).resolveSibling("speaker-segments.json") : Path.of(configured);
             if (!Files.isRegularFile(speakerPath)) return 0;
             JsonNode speakerSegments = mapper.readTree(speakerPath.toFile()).path("segments");
-            int supported = 0;
+            double supported = 0;
             for (StoryboardSegmentView segment : segments) {
                 boolean overlap = false;
+                double bestReliability = 0;
                 for (JsonNode speaker : speakerSegments) {
                     double start = speaker.path("startMillis").asDouble() / 1000d;
                     double end = speaker.path("endMillis").asDouble() / 1000d;
                     if (!speaker.path("speakerType").asText("").isBlank()
-                            && start <= segment.endSeconds() && end >= segment.startSeconds()) { overlap = true; break; }
+                            && start <= segment.endSeconds() && end >= segment.startSeconds()) {
+                        overlap = true;
+                        double confidence = clamp(speaker.path("confidence").asDouble(.4));
+                        String evidence = speaker.path("evidence").asText("");
+                        double evidenceWeight = "NATIVE_LABEL".equals(evidence) ? 1.0
+                                : "TIMELINE_OVERLAP".equals(evidence) ? .9 : "TEXT_FALLBACK".equals(evidence) ? .6 : .4;
+                        bestReliability = Math.max(bestReliability, confidence * evidenceWeight);
+                    }
                 }
-                if (overlap) supported++;
+                if (overlap) supported += bestReliability;
             }
             return supported / (double) segments.size();
         } catch (Exception ignored) { return 0; }
@@ -158,6 +173,7 @@ public class NarrativeConsistencyService {
         if (text == null) return; Matcher matcher = NUMBER.matcher(text); while (matcher.find()) target.add(matcher.group());
     }
     private boolean containsAny(String text, List<String> needles) { return needles.stream().anyMatch(text::contains); }
+    private double clamp(double value) { return Math.max(0, Math.min(1, value)); }
     private double wordOverlap(String left, String right) {
         Set<Integer> a = grams(left); Set<Integer> b = grams(right);
         if (a.isEmpty() || b.isEmpty()) return 0;

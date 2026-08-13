@@ -8,6 +8,7 @@ public record NarrativeQualityReport(UUID taskId, int score, boolean passed, Lis
                                      int segmentCount, double evidenceCoverage,
                                      double averageEventConfidence, double speakerCoverage,
                                      double ocrEvidenceCoverage, double knowledgeEvidenceCoverage,
+                                     double upstreamEvidenceReliability,
                                      String summary) {
     public record Issue(String type, String severity, Integer clipIndex, String message, String evidence) { }
 }
