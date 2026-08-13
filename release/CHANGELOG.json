@@ -1,7 +1,17 @@
 {
     "schemaVersion":  1,
-    "currentVersion":  "2.2.26",
+    "currentVersion":  "2.2.27",
     "releases":  [
+                     {
+                         "version":  "2.2.27",
+                         "title":  "真实媒体测试与发布证据增强",
+                         "summary":  "真实 FFmpeg 输出测试在工具缺失时明确失败，避免 CI 以跳过结果冒充媒体链路通过。",
+                         "items":  [
+                                       "真实事件窗口、音效混音、透明叠加与转场输出测试不再静默跳过",
+                                       "性能套件契约阻止 FFmpeg assumption 跳过逻辑回流",
+                                       "同步 Web、Windows 与 Android 版本至 2.2.27"
+                                   ]
+                     },
                      {
                          "version":  "2.2.26",
                          "title":  "界面操作体验优化",

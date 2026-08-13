@@ -1,6 +1,5 @@
 package cn.longer233.gamenarrator.render;
 
-import org.junit.jupiter.api.Assumptions;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.io.TempDir;
 
@@ -20,7 +19,7 @@ class FfmpegMemeOverlayOutputTest {
 
     @Test
     void ffmpegPreservesTransparentPngAndWebpInTimedLayeredOverlay() throws Exception {
-        Assumptions.assumeTrue(available());
+        assertThat(available()).as("FFmpeg is required for the real meme-overlay output test").isTrue();
         Path png = temporary.resolve("lower.png");
         Path webp = temporary.resolve("upper.webp");
         Path output = temporary.resolve("meme-overlay.mp4");

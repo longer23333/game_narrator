@@ -2,7 +2,6 @@ package cn.longer233.gamenarrator.render;
 
 import cn.longer233.gamenarrator.common.ExternalProcessRunner;
 import cn.longer233.gamenarrator.timeline.TimelineSegment;
-import org.junit.jupiter.api.Assumptions;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.io.TempDir;
 import java.nio.file.Files;
@@ -19,8 +18,8 @@ class FfmpegTimelineTransitionOutputTest {
     private final String ffprobe = mediaTool("ffprobe");
 
     @Test void ffmpegProducesPlayableAudioVideoFromParameterizedTransition() throws Exception {
-        Assumptions.assumeTrue(ffmpeg != null && ffprobe != null,
-                "FFmpeg and ffprobe are required for the real output test");
+        assertThat(ffmpeg).as("FFmpeg is required for the real transition output test").isNotNull();
+        assertThat(ffprobe).as("ffprobe is required for the real transition output test").isNotNull();
         var segments = List.of(segment(1, "HARD_CUT", 0), segment(2, "DISSOLVE", .4));
         var graph = new TimelineTransitionGraphBuilder().build(segments);
         Path first = temp.resolve("first.mp4");
@@ -40,8 +39,8 @@ class FfmpegTimelineTransitionOutputTest {
     }
 
     @Test void ffmpegProducesSynchronizedHardCutFallbackAfterTransitionFailure() throws Exception {
-        Assumptions.assumeTrue(ffmpeg != null && ffprobe != null,
-                "FFmpeg and ffprobe are required for the real fallback output test");
+        assertThat(ffmpeg).as("FFmpeg is required for the real fallback output test").isNotNull();
+        assertThat(ffprobe).as("ffprobe is required for the real fallback output test").isNotNull();
         var segments = List.of(segment(1, "HARD_CUT", 0), segment(2, "DISSOLVE", .4));
         var fallback = new TimelineTransitionGraphBuilder().hardCutFallback(segments);
         Path first = temp.resolve("fallback-first.mp4");

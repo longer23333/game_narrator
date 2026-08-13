@@ -2,7 +2,6 @@ package cn.longer233.gamenarrator.media;
 
 import cn.longer233.gamenarrator.audio.AudioAnalysisService;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import org.junit.jupiter.api.Assumptions;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.io.TempDir;
 
@@ -22,7 +21,7 @@ class FfmpegEventWindowOutputTest {
 
     @Test
     void highEnergyPulseProducesRealPreCenterAndPostEventFrames() throws Exception {
-        Assumptions.assumeTrue(available());
+        assertThat(available()).as("FFmpeg is required for the real event-window output test").isTrue();
         Path source = temporary.resolve("pulse.mp4");
         Process process = new ProcessBuilder(ffmpeg, "-y", "-f", "lavfi", "-i",
                 "color=c=navy:s=320x180:r=10:d=4", "-f", "lavfi", "-i",

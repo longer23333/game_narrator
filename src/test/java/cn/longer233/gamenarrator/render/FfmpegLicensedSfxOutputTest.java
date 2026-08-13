@@ -1,6 +1,5 @@
 package cn.longer233.gamenarrator.render;
 
-import org.junit.jupiter.api.Assumptions;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.io.TempDir;
 
@@ -20,7 +19,7 @@ class FfmpegLicensedSfxOutputTest {
 
     @Test
     void ffmpegRendersTimedVolumeAndFadedExternalSfx() throws Exception {
-        Assumptions.assumeTrue(available());
+        assertThat(available()).as("FFmpeg is required for the real licensed-SFX output test").isTrue();
         Path output = temporary.resolve("licensed-sfx.wav");
         String graph = "[0:a]volume=0.15[bg];[1:a]atrim=0:1.5,asetpts=PTS-STARTPTS,volume=0.72,"
                 + "afade=t=in:st=0:d=0.2,afade=t=out:st=1.15:d=0.35,adelay=750|750[sfx];"

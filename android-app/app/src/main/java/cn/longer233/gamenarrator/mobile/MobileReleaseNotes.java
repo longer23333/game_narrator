@@ -24,6 +24,8 @@ public final class MobileReleaseNotes {
 
     public static List<Note> notes() {
         List<Note> notes = new ArrayList<>();
+        notes.add(new Note("2.2.27", "真实媒体测试与发布证据增强",
+                "真实 FFmpeg 输出测试在工具缺失时明确失败，并新增规则防止 CI 以跳过结果冒充媒体链路通过。"));
         notes.add(new Note("2.2.26", "界面操作体验优化",
                 "同步更新各平台版本，完成对应功能修复、稳定性检查与发布记录。"));
         notes.add(new Note("2.2.25", "任务终止闭环与 Android 实证增强",

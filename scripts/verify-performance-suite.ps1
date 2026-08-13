@@ -10,6 +10,20 @@ foreach ($marker in @('duration=300','1920x1080','Duration.ofMinutes(10)','maxim
     if (-not $longTest.Contains($marker)) { throw "Long-video gate is missing marker: $marker" }
 }
 Write-Output 'PASS: concurrent API load plan and 300-second 1080p performance gate are present'
+
+$realOutputTests = @(
+    'src/test/java/cn/longer233/gamenarrator/media/FfmpegEventWindowOutputTest.java',
+    'src/test/java/cn/longer233/gamenarrator/render/FfmpegLicensedSfxOutputTest.java',
+    'src/test/java/cn/longer233/gamenarrator/render/FfmpegMemeOverlayOutputTest.java',
+    'src/test/java/cn/longer233/gamenarrator/render/FfmpegTimelineTransitionOutputTest.java'
+)
+foreach ($relativePath in $realOutputTests) {
+    $source = Get-Content -Raw -Encoding UTF8 (Join-Path $root $relativePath)
+    if ($source -match 'Assumptions\.assumeTrue') {
+        throw "Real FFmpeg output test must fail when its required media tool is unavailable: $relativePath"
+    }
+}
+Write-Output 'PASS: real FFmpeg output tests cannot be silently skipped when media tools are unavailable'
 $releaseRunner = Get-Content -Raw -Encoding UTF8 (Join-Path $root 'scripts/run-release-performance-gate.ps1')
 $releaseVerifier = Get-Content -Raw -Encoding UTF8 (Join-Path $root 'scripts/verify-release-performance-evidence.ps1')
 foreach ($marker in @('input40gb','diskLow','gpuOom','ffmpegInterrupted','longRun','recovery','SetLength(40GB)',

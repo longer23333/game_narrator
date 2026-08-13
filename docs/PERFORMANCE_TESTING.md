@@ -2,6 +2,8 @@
 
 日常 CI 运行 `ConcurrentApiPerformanceTest`：12 个并发工作线程执行 240 次任务列表查询，要求 P95 小于 750 ms，强制 GC 后保留堆增长小于 32 MiB。它用于尽早发现 H2 锁竞争、查询退化和明显内存滞留。
 
+后端 CI 会安装 FFmpeg，并强制执行事件窗口抽帧、授权音效混音、透明 Meme 叠加和时间线转场等真实媒体输出测试。上述测试缺少 FFmpeg/ffprobe 时必须失败，不能以 assumption 跳过；`verify-performance-suite.ps1` 会阻止静默跳过逻辑重新进入这些测试。
+
 每周六定时 CI（或提交信息包含 `[performance]`）运行 `LongVideoPerformanceIT`：真实 FFmpeg 生成并转码 300 秒、1920×1080 视频，要求处理时间小于 600 秒，即不超过视频时长 2 倍，并要求 Java 保留堆增长小于 64 MiB。测试需显式设置 `RUN_LONG_VIDEO_PERFORMANCE=true`，不会伪装成快速单元测试。
 
 多用户/多任务 HTTP 压测使用 `performance/jmeter/api-load.jmx`，覆盖任务创建、任务列表和导出预设查询：
