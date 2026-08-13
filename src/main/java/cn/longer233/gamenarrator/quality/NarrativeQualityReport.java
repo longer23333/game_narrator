@@ -4,6 +4,7 @@ import java.util.List;
 import java.util.UUID;
 
 public record NarrativeQualityReport(UUID taskId, int score, boolean passed, List<Issue> issues,
-                                     int confirmedFactCount, String summary) {
+                                     int confirmedFactCount, int supportedSegmentCount,
+                                     int segmentCount, double evidenceCoverage, String summary) {
     public record Issue(String type, String severity, Integer clipIndex, String message, String evidence) { }
 }

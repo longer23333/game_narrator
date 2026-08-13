@@ -4,6 +4,8 @@ import cn.longer233.gamenarrator.event.GameEventFact;
 import cn.longer233.gamenarrator.event.GameEventTimelineService;
 import cn.longer233.gamenarrator.script.ScriptWorkspaceService;
 import cn.longer233.gamenarrator.script.StoryboardSegmentView;
+import cn.longer233.gamenarrator.task.domain.VideoTask;
+import cn.longer233.gamenarrator.task.repository.VideoTaskRepository;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
@@ -14,6 +16,8 @@ import java.util.Set;
 import java.util.UUID;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import java.nio.file.Files;
+import java.nio.file.Path;
 
 @Service
 public class NarrativeConsistencyService {
@@ -21,15 +25,19 @@ public class NarrativeConsistencyService {
     private static final List<String> RESULT_WORDS = List.of("击败", "胜利", "通关", "defeated", "victory");
     private final GameEventTimelineService events;
     private final ScriptWorkspaceService workspace;
+    private final VideoTaskRepository tasks;
 
-    public NarrativeConsistencyService(GameEventTimelineService events, ScriptWorkspaceService workspace) {
+    public NarrativeConsistencyService(GameEventTimelineService events, ScriptWorkspaceService workspace,
+                                       VideoTaskRepository tasks) {
         this.events = events;
         this.workspace = workspace;
+        this.tasks = tasks;
     }
 
     public NarrativeQualityReport inspect(UUID taskId) {
         List<GameEventFact> facts = events.confirmedFacts(taskId);
         List<StoryboardSegmentView> segments = workspace.storyboard(taskId).segments();
+        VideoTask task = tasks.findById(taskId).orElseThrow();
         List<NarrativeQualityReport.Issue> issues = new ArrayList<>();
         boolean resultConfirmed = facts.stream().anyMatch(f -> containsAny(f.eventType().toLowerCase(Locale.ROOT),
                 List.of("defeated", "victory", "result", "clear")));
@@ -60,12 +68,35 @@ public class NarrativeConsistencyService {
         }
         if (facts.isEmpty()) issues.add(issue("FACT_CONSISTENCY", "ERROR", null,
                 "尚无已确认事件，无法完成事实一致性校验", "请先确认事件时间线"));
+        boolean visualAvailable = artifactExists(task.getVisualAnalysisPath());
+        boolean asrAvailable = artifactExists(task.getTranscriptJsonPath())
+                || artifactExists(task.getTranscriptTextPath());
+        int supportedSegments = (int) segments.stream().filter(segment -> facts.stream().anyMatch(fact ->
+                fact.startSeconds() <= segment.endSeconds() && fact.endSeconds() >= segment.startSeconds())).count();
+        double evidenceCoverage = segments.isEmpty() ? 0 : supportedSegments / (double) segments.size();
+        if (!visualAvailable) issues.add(issue("EVIDENCE_COVERAGE", "ERROR", null,
+                "缺少视觉分析证据，脚本评分不能判定为通过", "visualAnalysisPath unavailable"));
+        if (!asrAvailable) issues.add(issue("EVIDENCE_COVERAGE", "WARNING", null,
+                "缺少 ASR 证据，无法交叉核对语音内容", "transcript artifact unavailable"));
+        if (evidenceCoverage < .5) issues.add(issue("EVIDENCE_COVERAGE", "ERROR", null,
+                "少于一半的文案片段有时间重叠的已确认事件证据",
+                "%d/%d segments supported".formatted(supportedSegments, segments.size())));
+        else if (evidenceCoverage < .8) issues.add(issue("EVIDENCE_COVERAGE", "WARNING", null,
+                "部分文案片段缺少时间重叠的已确认事件证据",
+                "%d/%d segments supported".formatted(supportedSegments, segments.size())));
         int errors = (int) issues.stream().filter(i -> "ERROR".equals(i.severity())).count();
         int warnings = issues.size() - errors;
         int score = Math.max(0, 100 - errors * 25 - warnings * 8);
         boolean passed = errors == 0 && score >= 75;
         return new NarrativeQualityReport(taskId, score, passed, List.copyOf(issues), facts.size(),
+                supportedSegments, segments.size(), evidenceCoverage,
                 passed ? "叙事连续性和事实一致性检查通过" : "发现 %d 个错误、%d 个提醒".formatted(errors, warnings));
+    }
+
+    private boolean artifactExists(String value) {
+        if (value == null || value.isBlank()) return false;
+        try { return Files.isRegularFile(Path.of(value).toAbsolutePath().normalize()); }
+        catch (RuntimeException ignored) { return false; }
     }
 
     private NarrativeQualityReport.Issue issue(String type, String severity, Integer clip, String message, String evidence) {
