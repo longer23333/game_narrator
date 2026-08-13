@@ -1,0 +1,14 @@
+{
+  "schemaVersion": 1,
+  "commit": "REPLACE_WITH_TESTED_COMMIT",
+  "completedAt": "YYYY-MM-DDTHH:mm:ss+08:00",
+  "machine": {"os": "", "gpu": "RTX 4060 8GB", "processor": ""},
+  "scenarios": {
+    "input40gb": {"status": "pending", "reportSha256": ""},
+    "diskLow": {"status": "pending", "reportSha256": ""},
+    "gpuOom": {"status": "pending", "reportSha256": ""},
+    "ffmpegInterrupted": {"status": "pending", "reportSha256": ""},
+    "longRun": {"status": "pending", "reportSha256": ""},
+    "recovery": {"status": "pending", "reportSha256": ""}
+  }
+}

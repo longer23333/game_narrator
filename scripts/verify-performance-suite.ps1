@@ -10,3 +10,12 @@ foreach ($marker in @('duration=300','1920x1080','Duration.ofMinutes(10)','maxim
     if (-not $longTest.Contains($marker)) { throw "Long-video gate is missing marker: $marker" }
 }
 Write-Output 'PASS: concurrent API load plan and 300-second 1080p performance gate are present'
+$releaseRunner = Get-Content -Raw -Encoding UTF8 (Join-Path $root 'scripts/run-release-performance-gate.ps1')
+$releaseVerifier = Get-Content -Raw -Encoding UTF8 (Join-Path $root 'scripts/verify-release-performance-evidence.ps1')
+foreach ($marker in @('input40gb','diskLow','gpuOom','ffmpegInterrupted','longRun','recovery','SetLength(40GB)')) {
+    if (-not $releaseRunner.Contains($marker)) { throw "Release performance runner is missing: $marker" }
+}
+foreach ($marker in @('MaximumAgeHours','commit mismatch','reportSha256')) {
+    if (-not $releaseVerifier.Contains($marker)) { throw "Release performance verifier is missing: $marker" }
+}
+Write-Output 'PASS: release target-machine gate covers 40GB, disk, GPU OOM, FFmpeg interruption, long run and recovery evidence'

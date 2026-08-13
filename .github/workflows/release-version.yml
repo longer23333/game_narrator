@@ -52,6 +52,7 @@ jobs:
         run: |
           ./scripts/verify-release-alignment.ps1
           ./scripts/verify-android-guardrails.ps1
+          ./scripts/verify-release-performance-evidence.ps1
       - name: 构建并校验 Web 与后端发布包
         shell: pwsh
         run: |
