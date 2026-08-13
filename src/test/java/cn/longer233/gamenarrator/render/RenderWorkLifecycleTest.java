@@ -7,6 +7,8 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.io.IOException;
 import java.util.concurrent.atomic.AtomicInteger;
+import java.io.RandomAccessFile;
+import org.junit.jupiter.api.Assumptions;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
@@ -72,5 +74,22 @@ class RenderWorkLifecycleTest {
 
         assertThat(lifecycle.completed(task)).isFalse();
         assertThat(diagnostic).exists();
+    }
+
+    @Test
+    void retriesRealWindowsFileHandleAndCleansAfterRelease() throws Exception {
+        Assumptions.assumeTrue(System.getProperty("os.name").startsWith("Windows"),
+                "Windows file-handle deletion semantics are required");
+        Path task = Files.createDirectories(storage.resolve("tasks/task-real-lock"));
+        Path clip = Files.writeString(Files.createDirectories(task.resolve("render-work")).resolve("clip.mp4"), "busy");
+        try (RandomAccessFile handle = new RandomAccessFile(clip.toFile(), "rw")) {
+            Thread releaser = Thread.ofPlatform().start(() -> {
+                try { Thread.sleep(120); handle.close(); }
+                catch (Exception ignored) { }
+            });
+            assertThat(new RenderWorkLifecycle(storage.toString(), 12, 30).completed(task)).isTrue();
+            releaser.join(2_000);
+        }
+        assertThat(task.resolve("render-work")).doesNotExist();
     }
 }

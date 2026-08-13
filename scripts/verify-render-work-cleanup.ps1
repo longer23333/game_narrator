@@ -17,7 +17,8 @@ Require-Text 'src/main/java/cn/longer233/gamenarrator/common/StorageCleanupServi
     'cleanupCompletedRenderWork', "WHERE status='COMPLETED'", 'COMPLETED_RENDER_WORK_RECOVERED')
 Require-Text 'src/test/java/cn/longer233/gamenarrator/render/RenderWorkLifecycleTest.java' @(
     'successfulRenderRemovesOnlyOwnedWorkDirectory', 'failedRenderRetainsDiagnostics',
-    'retriesBusyWorkAndEventuallyCleansIt', 'defersCleanupAfterBusyFileExhaustsRetriesWithoutDeletingDiagnostics')
+    'retriesBusyWorkAndEventuallyCleansIt', 'defersCleanupAfterBusyFileExhaustsRetriesWithoutDeletingDiagnostics',
+    'retriesRealWindowsFileHandleAndCleansAfterRelease', 'RandomAccessFile')
 Require-Text 'src/test/java/cn/longer233/gamenarrator/common/StorageCleanupServiceTest.java' @(
     'crashRecoveryRemovesOnlyExpiredCompletedRenderWork')
 Require-Text 'docs/REQUIREMENTS.md' @('| FR-708 | P0 |', 'render-work')
