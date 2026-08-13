@@ -219,6 +219,10 @@ public final class MainActivityHosts {
             }
             @Override public void refreshAssetLibrary(String query) { activity.showAssetLibrary(query); }
             @Override public String activeProjectName() { return activity.projectStore.activeProjectName(); }
+            @Override public long addPublicAsset(File file, String mimeType, PublicAsset source) {
+                return activity.projectStore.addAsset(Uri.fromFile(file).toString(), source.title(), mimeType, source);
+            }
+            @Override public void showAssetLibraryPage() { activity.showAssetLibrary(); }
         };
         pipelineHost = new DialogController.PipelineHost() {
             @Override public ViewGroup pageContainer() { return activity.shell; }

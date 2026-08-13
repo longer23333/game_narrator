@@ -11,6 +11,7 @@ import android.graphics.Typeface;
 import android.graphics.drawable.GradientDrawable;
 import android.media.MediaMetadataRetriever;
 import android.net.Uri;
+import android.text.InputType;
 import android.view.DragEvent;
 import android.view.Gravity;
 import android.view.View;
@@ -678,7 +679,7 @@ public final class ProjectTaskDialogController {
         EditText query = ui.creativeInput("搜索词", "");
         Spinner provider = new Spinner(context);
         provider.setAdapter(new ArrayAdapter<>(context, android.R.layout.simple_spinner_dropdown_item,
-                new String[]{"Wikimedia Commons", "Openverse"}));
+                new String[]{"Wikimedia Commons", "Openverse", "Pexels", "Pixabay"}));
         Spinner type = new Spinner(context);
         type.setAdapter(new ArrayAdapter<>(context, android.R.layout.simple_spinner_dropdown_item,
                 new String[]{"图片", "音频"}));
@@ -694,12 +695,17 @@ public final class ProjectTaskDialogController {
             message.setText("正在搜索…");
             results.removeAllViews();
             searchRef[0].setEnabled(false);
-            boolean wikimedia = provider.getSelectedItemPosition() == 0;
+            int selectedProvider = provider.getSelectedItemPosition();
             boolean audio = type.getSelectedItemPosition() == 1;
             new Thread(() -> {
                 try {
-                    List<PublicAsset> assets = wikimedia ? PublicAssetSearch.searchWikimedia(q, 12)
-                            : PublicAssetSearch.searchOpenverse(q, audio ? "audio" : "image", 12);
+                    PublicAssetCredentials credentials = new PublicAssetCredentials(context);
+                    List<PublicAsset> assets;
+                    if (selectedProvider == 0) assets = PublicAssetSearch.searchWikimedia(q, 12);
+                    else if (selectedProvider == 1) assets = PublicAssetSearch.searchOpenverse(q, audio ? "audio" : "image", 12);
+                    else if (audio) throw new IllegalStateException("Pexels 和 Pixabay 当前仅提供图片搜索");
+                    else if (selectedProvider == 2) assets = PublicAssetSearch.searchPexels(q, 12, credentials.pexelsKey());
+                    else assets = PublicAssetSearch.searchPixabay(q, 12, credentials.pixabayKey());
                     ui.post(() -> {
                         searchRef[0].setEnabled(true);
                         if (assets.isEmpty()) {
@@ -718,8 +724,8 @@ public final class ProjectTaskDialogController {
                                         b -> openUrl(asset.pageUrl())), new LinearLayout.LayoutParams(0, ui.dp(40), 1));
                             }
                             if (!asset.directUrl().isBlank()) {
-                                actions.addView(ui.action("复制直链", Color.rgb(255, 229, 72), TEXT,
-                                        b -> copyText(asset.directUrl())), new LinearLayout.LayoutParams(0, ui.dp(40), 1));
+                                actions.addView(ui.action("下载并加入素材库", Color.rgb(255, 229, 72), TEXT,
+                                        b -> confirmPublicAssetDownload(asset)), new LinearLayout.LayoutParams(0, ui.dp(40), 1));
                             }
                             card.addView(actions);
                             LinearLayout.LayoutParams p = ui.match(ViewGroup.LayoutParams.WRAP_CONTENT);
@@ -739,6 +745,8 @@ public final class ProjectTaskDialogController {
         panel.addView(query);
         panel.addView(provider, ui.match(ui.dp(48)));
         panel.addView(type, ui.match(ui.dp(48)));
+        panel.addView(ui.action("配置 Pexels / Pixabay API Key", SURFACE_HIGH, TEXT,
+                v -> showPublicAssetCredentials()), ui.match(ui.dp(48)));
         panel.addView(search, ui.match(ui.dp(52)));
         panel.addView(message);
         panel.addView(results);
@@ -747,6 +755,71 @@ public final class ProjectTaskDialogController {
         scroll.addView(panel);
         dialog.setContentView(scroll);
         dialog.show();
+    }
+
+    private void showPublicAssetCredentials() {
+        PublicAssetCredentials credentials = new PublicAssetCredentials(context);
+        LinearLayout form = ui.column();
+        EditText pexels = ui.creativeInput("Pexels API Key（留空保留）", "");
+        EditText pixabay = ui.creativeInput("Pixabay API Key（留空保留）", "");
+        pexels.setInputType(InputType.TYPE_CLASS_TEXT | InputType.TYPE_TEXT_VARIATION_PASSWORD);
+        pixabay.setInputType(InputType.TYPE_CLASS_TEXT | InputType.TYPE_TEXT_VARIATION_PASSWORD);
+        form.addView(ui.label("密钥仅使用 Android 加密存储。当前：Pexels "
+                + (credentials.hasPexels() ? "已配置" : "未配置") + "，Pixabay "
+                + (credentials.hasPixabay() ? "已配置" : "未配置"), 12, MUTED, false));
+        form.addView(pexels); form.addView(pixabay);
+        new AlertDialog.Builder(context).setTitle("公共素材服务密钥").setView(form)
+                .setNeutralButton("清除全部", (d, w) -> credentials.clear()).setNegativeButton("取消", null)
+                .setPositiveButton("安全保存", (d, w) -> credentials.save(pexels.getText().toString(), pixabay.getText().toString()))
+                .show();
+    }
+
+    private void confirmPublicAssetDownload(PublicAsset asset) {
+        LinearLayout form = ui.column();
+        form.addView(ui.label(asset.title() + "\n" + asset.provider() + " · " + asset.license(), 13, TEXT, false));
+        CheckBox source = new CheckBox(context); source.setText("我已查看来源页和作者信息");
+        CheckBox license = new CheckBox(context); license.setText("我确认许可允许本次使用，并会按要求署名");
+        CheckBox uploader = new CheckBox(context); uploader.setText("我拥有上传者授权或合理使用依据（Bilibili 必填）");
+        form.addView(source); form.addView(license);
+        if ("BILIBILI".equalsIgnoreCase(asset.provider())) form.addView(uploader);
+        AlertDialog confirmation = new AlertDialog.Builder(context).setTitle("下载前权利确认").setView(form)
+                .setNeutralButton("查看来源页", null).setNegativeButton("取消", null)
+                .setPositiveButton("确认并下载", null).create();
+        confirmation.setOnShowListener(ignored -> {
+            confirmation.getButton(AlertDialog.BUTTON_NEUTRAL).setOnClickListener(v -> openUrl(asset.pageUrl()));
+            confirmation.getButton(AlertDialog.BUTTON_POSITIVE).setOnClickListener(v -> {
+                try { PublicAssetRightsPolicy.requireDownloadable(asset, source.isChecked(), license.isChecked(), uploader.isChecked()); }
+                catch (Exception error) { Toast.makeText(context, error.getMessage(), Toast.LENGTH_LONG).show(); return; }
+                confirmation.dismiss(); startPublicAssetDownload(asset);
+            });
+        });
+        confirmation.show();
+    }
+
+    private void startPublicAssetDownload(PublicAsset asset) {
+        LinearLayout panel = ui.column();
+        TextView message = ui.label("准备下载…", 13, TEXT, false);
+        ProgressBar progress = new ProgressBar(context, null, android.R.attr.progressBarStyleHorizontal);
+        panel.addView(message); panel.addView(progress);
+        AlertDialog dialog = new AlertDialog.Builder(context).setTitle("公共素材下载").setView(panel)
+                .setNegativeButton("取消", null).create();
+        final Thread[] worker = new Thread[1];
+        dialog.setOnShowListener(ignored -> dialog.getButton(AlertDialog.BUTTON_NEGATIVE).setOnClickListener(v -> {
+            if (worker[0] != null) worker[0].interrupt(); dialog.dismiss();
+        }));
+        dialog.show();
+        worker[0] = new Thread(() -> {
+            try {
+                PublicAssetDownloader.Result result = PublicAssetDownloader.download(context, asset, (percent, done, total) -> ui.post(() -> {
+                    progress.setIndeterminate(percent < 0); if (percent >= 0) progress.setProgress(percent);
+                    message.setText("已下载 " + MobileDiagnostics.formatBytes(done) + (total > 0 ? " / " + MobileDiagnostics.formatBytes(total) : ""));
+                }));
+                PublicAssetDownloadTransaction.commit(result.file(), file -> assetLibraryHost.addPublicAsset(file, result.mimeType(), asset));
+                ui.post(() -> { dialog.dismiss(); assetLibraryHost.showAssetLibraryPage(); Toast.makeText(context, "已下载并登记许可来源", Toast.LENGTH_LONG).show(); });
+            } catch (InterruptedException cancelled) { Thread.currentThread().interrupt(); }
+            catch (Exception error) { ui.post(() -> { dialog.dismiss(); new AlertDialog.Builder(context).setTitle("公共素材下载失败").setMessage(error.getMessage()).setPositiveButton("知道了", null).show(); }); }
+        }, "public-asset-download");
+        worker[0].start();
     }
 
     public void showRecommendedAssets() {
@@ -797,8 +870,8 @@ public final class ProjectTaskDialogController {
                         b -> openUrl(asset.pageUrl())), new LinearLayout.LayoutParams(0, ui.dp(40), 1));
             }
             if (!asset.directUrl().isBlank()) {
-                actions.addView(ui.action("复制直链", Color.rgb(255, 229, 72), TEXT,
-                        b -> copyText(asset.directUrl())), new LinearLayout.LayoutParams(0, ui.dp(40), 1));
+                actions.addView(ui.action("下载并加入素材库", Color.rgb(255, 229, 72), TEXT,
+                        b -> confirmPublicAssetDownload(asset)), new LinearLayout.LayoutParams(0, ui.dp(40), 1));
             }
             card.addView(actions);
             LinearLayout.LayoutParams p = ui.match(ViewGroup.LayoutParams.WRAP_CONTENT);

@@ -15,14 +15,17 @@ import java.util.List;
 public final class MobileAssetStore {
     public static final class AssetInfo {
         private final long id, createdAt;
-        private final String uri, name, type, tags;
-        AssetInfo(long id, String uri, String name, String type, String tags, long createdAt) {
+        private final String uri, name, type, tags, sourceProvider, sourceUrl, licenseName, licenseUrl, creator;
+        AssetInfo(long id, String uri, String name, String type, String tags, long createdAt,
+                  String sourceProvider, String sourceUrl, String licenseName, String licenseUrl, String creator) {
             this.id = id;
             this.uri = uri;
             this.name = name;
             this.type = type;
             this.tags = tags;
             this.createdAt = createdAt;
+            this.sourceProvider = sourceProvider; this.sourceUrl = sourceUrl; this.licenseName = licenseName;
+            this.licenseUrl = licenseUrl; this.creator = creator;
         }
         public long id() { return id; }
         public String uri() { return uri; }
@@ -30,6 +33,11 @@ public final class MobileAssetStore {
         public String type() { return type; }
         public String tags() { return tags; }
         public long createdAt() { return createdAt; }
+        public String sourceProvider() { return sourceProvider; }
+        public String sourceUrl() { return sourceUrl; }
+        public String licenseName() { return licenseName; }
+        public String licenseUrl() { return licenseUrl; }
+        public String creator() { return creator; }
     }
 
     public static final class PlacementInfo {
@@ -74,12 +82,21 @@ public final class MobileAssetStore {
     }
 
     public long addAsset(String uri, String name, String type) {
+        return addAsset(uri, name, type, null);
+    }
+
+    public long addAsset(String uri, String name, String type, PublicAsset source) {
         ContentValues row = new ContentValues();
         row.put("uri", uri);
         row.put("name", name);
         row.put("media_type", type);
         row.put("tags", "");
         row.put("created_at", System.currentTimeMillis());
+        row.put("source_provider", source == null ? "" : source.provider());
+        row.put("source_url", source == null ? "" : source.pageUrl());
+        row.put("license_name", source == null ? "" : source.license());
+        row.put("license_url", source == null ? "" : source.licenseUrl());
+        row.put("creator", source == null ? "" : source.creator());
         long id = database.getWritableDatabase().insertWithOnConflict("asset", null, row, SQLiteDatabase.CONFLICT_IGNORE);
         if (id >= 0) return id;
         try (Cursor c = database.getReadableDatabase().query("asset", new String[]{"id"}, "uri=?", new String[]{uri}, null, null, null)) {
@@ -90,9 +107,9 @@ public final class MobileAssetStore {
     public List<AssetInfo> listAssets() {
         List<AssetInfo> out = new ArrayList<>();
         try (Cursor c = database.getReadableDatabase().query("asset",
-                new String[]{"id", "uri", "name", "media_type", "tags", "created_at"}, null, null, null, null, "created_at DESC")) {
+                new String[]{"id", "uri", "name", "media_type", "tags", "created_at", "source_provider", "source_url", "license_name", "license_url", "creator"}, null, null, null, null, "created_at DESC")) {
             while (c.moveToNext()) {
-                out.add(new AssetInfo(c.getLong(0), c.getString(1), c.getString(2), c.getString(3), c.getString(4), c.getLong(5)));
+                out.add(new AssetInfo(c.getLong(0), c.getString(1), c.getString(2), c.getString(3), c.getString(4), c.getLong(5), c.getString(6), c.getString(7), c.getString(8), c.getString(9), c.getString(10)));
             }
         }
         return out;

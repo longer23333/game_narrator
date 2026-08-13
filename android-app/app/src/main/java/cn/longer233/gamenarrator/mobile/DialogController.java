@@ -165,6 +165,8 @@ public final class DialogController {
         void confirmRemoveAsset(MobileAssetStore.AssetInfo asset);
         void refreshAssetLibrary(String query);
         String activeProjectName();
+        long addPublicAsset(File file, String mimeType, PublicAsset source);
+        void showAssetLibraryPage();
     }
 
     public interface PipelineHost {

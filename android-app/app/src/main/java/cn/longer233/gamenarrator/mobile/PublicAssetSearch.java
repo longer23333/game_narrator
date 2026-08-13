@@ -22,6 +22,8 @@ public final class PublicAssetSearch {
     private static final String WIKIMEDIA_ENDPOINT = "https://commons.wikimedia.org/w/api.php";
     private static final String OPENVERSE_IMAGES = "https://api.openverse.org/v1/images/";
     private static final String OPENVERSE_AUDIO = "https://api.openverse.org/v1/audio/";
+    private static final String PEXELS_IMAGES = "https://api.pexels.com/v1/search";
+    private static final String PIXABAY_IMAGES = "https://pixabay.com/api/";
 
     private PublicAssetSearch() { }
 
@@ -46,6 +48,48 @@ public final class PublicAssetSearch {
         } catch (JSONException error) {
             throw new IOException("Openverse 返回了无法解析的结果", error);
         }
+    }
+
+    public static List<PublicAsset> searchPexels(String query, int limit, String apiKey) throws IOException {
+        requireKey(apiKey, "Pexels");
+        try { return parsePexels(httpGet(PEXELS_IMAGES + "?query=" + encode(query) + "&per_page=" + bounded(limit), "Authorization", apiKey)); }
+        catch (JSONException error) { throw new IOException("Pexels 返回了无法解析的结果", error); }
+    }
+
+    public static List<PublicAsset> searchPixabay(String query, int limit, String apiKey) throws IOException {
+        requireKey(apiKey, "Pixabay");
+        try { return parsePixabay(httpGet(PIXABAY_IMAGES + "?key=" + encode(apiKey) + "&q=" + encode(query)
+                + "&image_type=photo&safesearch=true&per_page=" + bounded(limit), null, null)); }
+        catch (JSONException error) { throw new IOException("Pixabay 返回了无法解析的结果", error); }
+    }
+
+    static List<PublicAsset> parsePexels(String json) throws JSONException {
+        List<PublicAsset> out = new ArrayList<>();
+        JSONArray values = new JSONObject(json).optJSONArray("photos");
+        if (values == null) return out;
+        for (int i = 0; i < values.length(); i++) {
+            JSONObject value = values.optJSONObject(i); if (value == null) continue;
+            JSONObject src = value.optJSONObject("src");
+            out.add(new PublicAsset("PEXELS", value.optString("alt", "Pexels photo"),
+                    value.optString("photographer", ""), "Pexels License", "https://www.pexels.com/license/",
+                    value.optString("url", ""), src == null ? "" : src.optString("medium", ""),
+                    src == null ? "" : src.optString("original", ""), "image"));
+        }
+        return out;
+    }
+
+    static List<PublicAsset> parsePixabay(String json) throws JSONException {
+        List<PublicAsset> out = new ArrayList<>();
+        JSONArray values = new JSONObject(json).optJSONArray("hits");
+        if (values == null) return out;
+        for (int i = 0; i < values.length(); i++) {
+            JSONObject value = values.optJSONObject(i); if (value == null) continue;
+            out.add(new PublicAsset("PIXABAY", value.optString("tags", "Pixabay image"), value.optString("user", ""),
+                    "Pixabay Content License", "https://pixabay.com/service/license-summary/",
+                    value.optString("pageURL", ""), value.optString("previewURL", ""),
+                    value.optString("largeImageURL", value.optString("webformatURL", "")), "image"));
+        }
+        return out;
     }
 
     static List<PublicAsset> parseWikimedia(String json) throws JSONException {
@@ -113,12 +157,14 @@ public final class PublicAssetSearch {
         }
     }
 
-    private static String httpGet(String url) throws IOException {
+    private static String httpGet(String url) throws IOException { return httpGet(url, null, null); }
+    private static String httpGet(String url, String header, String value) throws IOException {
         HttpURLConnection connection = (HttpURLConnection) new URL(url).openConnection();
         connection.setConnectTimeout(15_000);
         connection.setReadTimeout(15_000);
         connection.setRequestProperty("User-Agent", "GameNarrator-Android/0.54");
         connection.setRequestProperty("Accept", "application/json");
+        if (header != null && value != null) connection.setRequestProperty(header, value.trim());
         int code = connection.getResponseCode();
         InputStream stream = code >= 200 && code < 300 ? connection.getInputStream() : connection.getErrorStream();
         try (BufferedReader reader = new BufferedReader(new InputStreamReader(stream, StandardCharsets.UTF_8))) {
@@ -132,5 +178,9 @@ public final class PublicAssetSearch {
         } finally {
             connection.disconnect();
         }
+    }
+    private static int bounded(int limit) { return Math.max(3, Math.min(limit, 50)); }
+    private static void requireKey(String key, String provider) {
+        if (key == null || key.isBlank()) throw new IllegalStateException("请先配置 " + provider + " API Key");
     }
 }

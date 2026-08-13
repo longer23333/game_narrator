@@ -70,6 +70,7 @@ public final class MobileProjectStore implements ProjectStore {
     public List<MobileExportStore.ExportJobInfo> listExports() { return exports.listExports(projects.activeProjectId()); }
 
     public long addAsset(String uri, String name, String type) { return assets.addAsset(uri, name, type); }
+    public long addAsset(String uri, String name, String type, PublicAsset source) { return assets.addAsset(uri, name, type, source); }
 
     public List<MobileAssetStore.AssetInfo> listAssets() { return assets.listAssets(); }
 

@@ -99,6 +99,13 @@ public final class ProjectMigration {
             db.execSQL("ALTER TABLE project ADD COLUMN storyboard_review_enabled INTEGER NOT NULL DEFAULT 1");
             db.execSQL("ALTER TABLE project ADD COLUMN automatic_generation_enabled INTEGER NOT NULL DEFAULT 1");
         }
+        if (oldVersion < 27) {
+            db.execSQL("ALTER TABLE asset ADD COLUMN source_provider TEXT NOT NULL DEFAULT ''");
+            db.execSQL("ALTER TABLE asset ADD COLUMN source_url TEXT NOT NULL DEFAULT ''");
+            db.execSQL("ALTER TABLE asset ADD COLUMN license_name TEXT NOT NULL DEFAULT ''");
+            db.execSQL("ALTER TABLE asset ADD COLUMN license_url TEXT NOT NULL DEFAULT ''");
+            db.execSQL("ALTER TABLE asset ADD COLUMN creator TEXT NOT NULL DEFAULT ''");
+        }
         if (oldVersion < 26 && oldVersion >= 17)
             db.execSQL("ALTER TABLE project_clip_visual ADD COLUMN lut_path TEXT NOT NULL DEFAULT ''");
     }
@@ -124,7 +131,7 @@ public final class ProjectMigration {
     }
 
     private static void createAssetTables(SQLiteDatabase db) {
-        db.execSQL("CREATE TABLE IF NOT EXISTS asset (id INTEGER PRIMARY KEY AUTOINCREMENT,uri TEXT NOT NULL UNIQUE,name TEXT NOT NULL,media_type TEXT NOT NULL,tags TEXT NOT NULL,created_at INTEGER NOT NULL)");
+        db.execSQL("CREATE TABLE IF NOT EXISTS asset (id INTEGER PRIMARY KEY AUTOINCREMENT,uri TEXT NOT NULL UNIQUE,name TEXT NOT NULL,media_type TEXT NOT NULL,tags TEXT NOT NULL,created_at INTEGER NOT NULL,source_provider TEXT NOT NULL DEFAULT '',source_url TEXT NOT NULL DEFAULT '',license_name TEXT NOT NULL DEFAULT '',license_url TEXT NOT NULL DEFAULT '',creator TEXT NOT NULL DEFAULT '')");
         db.execSQL("CREATE TABLE IF NOT EXISTS asset_placement (id INTEGER PRIMARY KEY AUTOINCREMENT,project_id INTEGER NOT NULL,clip_key TEXT NOT NULL,asset_id INTEGER NOT NULL,role TEXT NOT NULL,volume REAL NOT NULL DEFAULT 1.0,fade_in_ms INTEGER NOT NULL DEFAULT 0,fade_out_ms INTEGER NOT NULL DEFAULT 0,visual_x REAL NOT NULL DEFAULT 0.68,visual_y REAL NOT NULL DEFAULT 0.66,visual_scale REAL NOT NULL DEFAULT 0.31,created_at INTEGER NOT NULL,UNIQUE(project_id,clip_key,asset_id))");
         db.execSQL("CREATE INDEX IF NOT EXISTS idx_asset_placement_project ON asset_placement(project_id,clip_key)");
     }

@@ -6,6 +6,7 @@ import static org.junit.Assert.assertTrue;
 
 import android.content.Context;
 import android.net.Uri;
+import java.io.File;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 import androidx.test.platform.app.InstrumentationRegistry;
 import java.util.List;
@@ -49,5 +50,24 @@ public final class ProductionDatabaseTest {
             reopened.close();
             context.deleteDatabase("game-narrator-mobile.db");
         }
+    }
+
+    @Test public void publicAssetLicenseMetadataSurvivesReopen() {
+        Context context = InstrumentationRegistry.getInstrumentation().getTargetContext();
+        context.deleteDatabase("game-narrator-mobile.db");
+        PublicAsset source = new PublicAsset("PEXELS", "Victory", "Ada", "Pexels License",
+                "https://www.pexels.com/license/", "https://www.pexels.com/photo/1", "",
+                "https://images.pexels.com/photos/1.jpg", "image");
+        MobileProjectStore first = new MobileProjectStore(context);
+        try { assertTrue(first.addAsset(Uri.fromFile(new File(context.getFilesDir(), "victory.jpg")).toString(), "Victory", "image/jpeg", source) > 0); }
+        finally { first.close(); }
+        MobileProjectStore reopened = new MobileProjectStore(context);
+        try {
+            MobileAssetStore.AssetInfo asset = reopened.listAssets().get(0);
+            assertEquals("PEXELS", asset.sourceProvider());
+            assertEquals("Pexels License", asset.licenseName());
+            assertEquals("Ada", asset.creator());
+            assertEquals("https://www.pexels.com/photo/1", asset.sourceUrl());
+        } finally { reopened.close(); context.deleteDatabase("game-narrator-mobile.db"); }
     }
 }

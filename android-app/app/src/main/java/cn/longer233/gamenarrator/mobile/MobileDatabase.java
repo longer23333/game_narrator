@@ -10,7 +10,7 @@ import android.database.sqlite.SQLiteOpenHelper;
  */
 public final class MobileDatabase extends SQLiteOpenHelper {
     private static final String DB_NAME = "game-narrator-mobile.db";
-    private static final int DB_VERSION = 26;
+    private static final int DB_VERSION = 27;
 
     public MobileDatabase(Context context) {
         super(context, DB_NAME, null, DB_VERSION);

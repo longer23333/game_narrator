@@ -41,4 +41,17 @@ public final class PublicAssetSearchTest {
         String json = "{\"query\":{\"pages\":{\"1\":{\"title\":\"File:Broken.png\"}}}}";
         assertTrue(PublicAssetSearch.parseWikimedia(json).isEmpty());
     }
+
+    @Test public void parsesCredentialedImageProviders() throws Exception {
+        List<PublicAsset> pexels = PublicAssetSearch.parsePexels("{\"photos\":[{\"alt\":\"Boss fight\",\"photographer\":\"Ada\",\"url\":\"https://pexels.test/p/1\",\"src\":{\"medium\":\"https://img.test/m.jpg\",\"original\":\"https://img.test/o.jpg\"}}]}");
+        assertEquals("PEXELS", pexels.get(0).provider());
+        assertEquals("Ada", pexels.get(0).creator());
+        assertEquals("https://img.test/o.jpg", pexels.get(0).directUrl());
+        List<PublicAsset> pixabay = PublicAssetSearch.parsePixabay("{\"hits\":[{\"tags\":\"parry, game\",\"user\":\"Bob\",\"pageURL\":\"https://pixabay.test/1\",\"previewURL\":\"https://img.test/p.jpg\",\"largeImageURL\":\"https://img.test/l.jpg\"}]}");
+        assertEquals("PIXABAY", pixabay.get(0).provider());
+        assertEquals("Pixabay Content License", pixabay.get(0).license());
+    }
+
+    @Test(expected = IllegalStateException.class)
+    public void refusesPexelsWithoutApiKey() throws Exception { PublicAssetSearch.searchPexels("game", 3, " "); }
 }
