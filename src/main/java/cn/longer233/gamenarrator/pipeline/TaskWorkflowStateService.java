@@ -23,14 +23,17 @@ public class TaskWorkflowStateService {
     private final VideoTaskRepository repository;
     private final PipelineRunTracker runTracker;
     private final cn.longer233.gamenarrator.transcription.TerminologyCorrector terminologyCorrector;
+    private final cn.longer233.gamenarrator.transcription.SpeakerDiarizationService speakerDiarization;
     private final ProjectArtifactRegistry artifactRegistry;
 
     public TaskWorkflowStateService(VideoTaskRepository repository, PipelineRunTracker runTracker,
                                     cn.longer233.gamenarrator.transcription.TerminologyCorrector terminologyCorrector,
+                                    cn.longer233.gamenarrator.transcription.SpeakerDiarizationService speakerDiarization,
                                     ProjectArtifactRegistry artifactRegistry) {
         this.repository = repository;
         this.runTracker = runTracker;
         this.terminologyCorrector = terminologyCorrector;
+        this.speakerDiarization = speakerDiarization;
         this.artifactRegistry = artifactRegistry;
     }
 
@@ -160,6 +163,9 @@ public class TaskWorkflowStateService {
         artifactRegistry.record(taskId, "TRANSCRIPT_TEXT", corrected.textPath(), "text/plain", false);
         artifactRegistry.record(taskId, "TRANSCRIPT_SUBTITLE", corrected.subtitlePath(), "application/x-subrip", false);
         artifactRegistry.record(taskId, "TRANSCRIPT_DETAIL", corrected.detailJsonPath(), "application/json", false);
+        java.nio.file.Path speakerSegments = speakerDiarization.analyze(corrected);
+        artifactRegistry.record(taskId, "SPEAKER_SEGMENTS",
+                speakerSegments == null ? null : speakerSegments.toString(), "application/json", false);
         runTracker.completed(taskId, "TRANSCRIPTION", java.util.Map.of("characterCount", corrected.text().length()));
     }
 
@@ -172,6 +178,9 @@ public class TaskWorkflowStateService {
         artifactRegistry.record(taskId, "TRANSCRIPT_TEXT", corrected.textPath(), "text/plain", false);
         artifactRegistry.record(taskId, "TRANSCRIPT_SUBTITLE", corrected.subtitlePath(), "application/x-subrip", false);
         artifactRegistry.record(taskId, "TRANSCRIPT_DETAIL", corrected.detailJsonPath(), "application/json", false);
+        java.nio.file.Path speakerSegments = speakerDiarization.analyze(corrected);
+        artifactRegistry.record(taskId, "SPEAKER_SEGMENTS",
+                speakerSegments == null ? null : speakerSegments.toString(), "application/json", false);
     }
 
     @Transactional

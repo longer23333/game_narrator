@@ -44,6 +44,9 @@ jobs:
       - name: Verify licensed SFX library
         shell: pwsh
         run: ./scripts/verify-licensed-sfx-library.ps1
+      - name: Verify speaker diarization contract
+        shell: pwsh
+        run: ./scripts/verify-speaker-diarization.ps1
 
   frontend:
     runs-on: ubuntu-latest
