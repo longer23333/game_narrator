@@ -14,4 +14,4 @@ powershell -ExecutionPolicy Bypass -File scripts/run-performance-load.ps1 `
 
 服务须由测试人员单独启动并使用隔离数据库/存储目录。结果写入 `target/performance/summary.json` 和 HTML 报告。40 GB 输入及 GPU 耗尽场景不进入公共 CI：在目标 RTX 4060 8 GB 设备上使用同一脚本和资源指标端点执行，保留报告、JFR/JProfiler 快照和驱动日志；不得将真实视频或含凭据的报告提交到仓库。
 
-正式发布前在目标机运行 `run-release-performance-gate.ps1`。脚本以稀疏文件验证 40GB 路径，执行磁盘余量、GPU OOM、FFmpeg 中断、长跑与恢复命令，并只把报告 SHA-256 写入证据清单。`verify-release-performance-evidence.ps1` 要求六项均通过、清单对应当前提交、机器含 GPU/OS 标识且不超过 7 天；原始媒体、凭据与大体积报告不得提交。
+正式发布前在目标机运行 `run-release-performance-gate.ps1`。脚本以稀疏文件验证 40GB 路径，以合成低余量确认磁盘守卫确实拒绝任务，强制终止 FFmpeg 并要求非零退出；GPU OOM、至少 60 分钟长跑和恢复命令分别必须输出 `GN_GPU_OOM_RECOVERED=1`、`GN_LONG_RUN_COMPLETED=1`、`GN_RECOVERY_VERIFIED=1`，防止空命令伪造通过。证据 schema v2 记录验证类型、耗时和报告 SHA-256。`verify-release-performance-evidence.ps1` 要求六项均通过、清单对应当前提交、机器含 GPU/OS 标识且不超过 7 天；原始媒体、凭据与大体积报告不得提交。
