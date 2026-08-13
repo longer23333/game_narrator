@@ -19,9 +19,10 @@ Require-Text 'src/main/java/cn/longer233/gamenarrator/asset/AssetView.java' @(
 Require-Text 'frontend/public/app.js' @(
     'placementVolume', 'placementFadeIn', 'placementFadeOut', '<audio controls', 'licenseCode', 'attribution')
 Require-Text 'src/test/java/cn/longer233/gamenarrator/render/FfmpegLicensedSfxOutputTest.java' @(
-    'ffmpegRendersTimedVolumeAndFadedExternalSfx')
+    'ffmpegRendersTimedVolumeAndFadedExternalSfx', 'backgroundBeforeCue', 'fadeIn', 'fullVolume',
+    'fadeOut', 'backgroundAfterCue', 'AudioSystem.getAudioInputStream')
 Require-Text 'src/test/java/cn/longer233/gamenarrator/render/RenderAssetLicenseGateTest.java' @(
     'rejectsExternalAssetsAwaitingRightsReviewOrWithoutLicense')
 Require-Text 'docs/REQUIREMENTS.md' @('| FR-607 | P1 |', 'SFX')
 if ($failures.Count) { Write-Host "FAIL: $($failures.Count) licensed SFX violation(s)"; $failures | ForEach-Object { Write-Host "  $_" }; exit 1 }
-Write-Host 'PASS: FR-607 covers license/source/tags/preview, timeline volume and fades, with real FFmpeg output'
+Write-Host 'PASS: FR-607 covers license/source/tags/preview and verifies real FFmpeg timing, volume, fades and audio mix samples'
