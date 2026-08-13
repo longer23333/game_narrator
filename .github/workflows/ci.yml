@@ -54,6 +54,7 @@ jobs:
         run: |
           ./scripts/verify-release-alignment.ps1
           ./scripts/verify-android-guardrails.ps1
+          ./scripts/verify-android-device-farm.ps1
       - name: Test and assemble Android release
         shell: pwsh
         run: |

@@ -1,0 +1,83 @@
+name: Android heavy device farm
+
+on:
+  schedule:
+    - cron: '23 19 * * *'
+  workflow_dispatch:
+    inputs:
+      device_matrix:
+        description: Firebase Test Lab physical device matrix
+        required: false
+        default: 'model=Pixel2,version=30,locale=zh_CN,orientation=portrait;model=husky,version=34,locale=zh_CN,orientation=portrait'
+
+permissions:
+  contents: read
+  id-token: write
+
+concurrency:
+  group: android-heavy-device-farm
+  cancel-in-progress: false
+
+jobs:
+  physical-device-gate:
+    runs-on: ubuntu-latest
+    timeout-minutes: 120
+    env:
+      FIREBASE_PROJECT_ID: ${{ secrets.FIREBASE_PROJECT_ID }}
+      GOOGLE_WORKLOAD_IDENTITY_PROVIDER: ${{ secrets.GOOGLE_WORKLOAD_IDENTITY_PROVIDER }}
+      GOOGLE_SERVICE_ACCOUNT: ${{ secrets.GOOGLE_SERVICE_ACCOUNT }}
+      DEVICE_MATRIX: ${{ inputs.device_matrix || 'model=Pixel2,version=30,locale=zh_CN,orientation=portrait;model=husky,version=34,locale=zh_CN,orientation=portrait' }}
+    steps:
+      - uses: actions/checkout@v4
+      - name: Require device-farm identity
+        shell: bash
+        run: |
+          missing=0
+          for name in FIREBASE_PROJECT_ID GOOGLE_WORKLOAD_IDENTITY_PROVIDER GOOGLE_SERVICE_ACCOUNT; do
+            if [ -z "${!name}" ]; then echo "::error::$name is required for the nightly physical-device gate"; missing=1; fi
+          done
+          exit "$missing"
+      - uses: google-github-actions/auth@v2
+        with:
+          workload_identity_provider: ${{ env.GOOGLE_WORKLOAD_IDENTITY_PROVIDER }}
+          service_account: ${{ env.GOOGLE_SERVICE_ACCOUNT }}
+      - uses: google-github-actions/setup-gcloud@v2
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '21'
+          cache: gradle
+      - name: Fetch configured full ONNX models
+        shell: pwsh
+        run: ./scripts/fetch-onnx-models.ps1
+      - name: Build model-bundled app and instrumentation APKs
+        working-directory: android-app
+        run: |
+          chmod +x gradlew
+          ./gradlew assembleDebug assembleDebugAndroidTest -PbundleModels=true
+      - name: Run FFmpeg, full ONNX, Media3 and 4K tests on physical devices
+        shell: bash
+        run: |
+          IFS=';' read -ra devices <<< "$DEVICE_MATRIX"
+          args=()
+          for device in "${devices[@]}"; do args+=(--device "$device"); done
+          gcloud firebase test android run \
+            --project "$FIREBASE_PROJECT_ID" \
+            --type instrumentation \
+            --app android-app/app/build/outputs/apk/debug/app-debug.apk \
+            --test android-app/app/build/outputs/apk/androidTest/debug/app-debug-androidTest.apk \
+            --test-targets 'class cn.longer233.gamenarrator.mobile.FfmpegDeviceTest,class cn.longer233.gamenarrator.mobile.FullOnnxDeviceTest,class cn.longer233.gamenarrator.mobile.DeviceExportSmokeTest,class cn.longer233.gamenarrator.mobile.DeviceStressTest' \
+            --timeout 45m \
+            --results-dir "android-heavy/${GITHUB_RUN_ID}-${GITHUB_RUN_ATTEMPT}" \
+            "${args[@]}"
+      - name: Upload local build and test metadata
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: android-heavy-device-farm-${{ github.run_id }}
+          path: |
+            android-app/app/build/outputs/apk/debug/app-debug.apk
+            android-app/app/build/outputs/apk/androidTest/debug/app-debug-androidTest.apk
+            android-app/app/build/reports/androidTests/
+          retention-days: 30
+          if-no-files-found: warn

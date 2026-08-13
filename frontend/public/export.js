@@ -82,7 +82,10 @@
         <label>创作风格<select data-effect="preset">${presets.map(item =>
           `<option value="${item.code}">${text(item.name)} · ${text(item.description)}</option>`).join('')}</select></label>
         <label>效果强度<input data-effect="intensity" type="range" min="0" max="1" step="0.05" value="0.78"><output>78%</output></label>
-        <label class="effect-toggle"><input data-effect="subtitles" type="checkbox" checked> 启用动态字幕</label>
+        <label>字幕模板<select data-effect="subtitle-template"><option value="ANIME_OUTLINE">动漫描边</option><option value="IMPACT_RED">高燃冲击</option><option value="COMEDY_POP">喜剧弹跳</option><option value="TYPEWRITER_DARK">暗色打字机</option><option value="CLEAN_WHITE">简洁白字</option></select></label>
+        <label class="effect-toggle"><input data-effect="subtitles" type="checkbox" checked> 启用逐字动态高亮</label>
+        <label class="effect-toggle"><input data-effect="keywords" type="checkbox" checked> 强调游戏关键词</label>
+        <label class="effect-toggle"><input data-effect="burn-subtitles" type="checkbox" checked> 将包装字幕烧录到画面</label>
         <label class="effect-toggle"><input data-effect="sounds" type="checkbox"> 启用程序化音效轨道（冲击、掠过、喜剧提示）</label>
       </div>
       <p class="effect-note">预设会同时控制视觉特效、转场范围、字幕主题、单片段最大效果数和原声音量。</p>
@@ -104,6 +107,9 @@
       presetCode: panel.querySelector('[data-effect=preset]').value,
       intensity: Number(panel.querySelector('[data-effect=intensity]').value),
       dynamicSubtitles: panel.querySelector('[data-effect=subtitles]').checked,
+      keywordHighlights: panel.querySelector('[data-effect=keywords]').checked,
+      burnSubtitles: panel.querySelector('[data-effect=burn-subtitles]').checked,
+      subtitleTemplate: panel.querySelector('[data-effect=subtitle-template]').value,
       soundEffects: panel.querySelector('[data-effect=sounds]').checked
     };
     try {

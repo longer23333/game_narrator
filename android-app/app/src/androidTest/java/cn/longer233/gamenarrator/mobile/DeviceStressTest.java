@@ -28,14 +28,13 @@ import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicLong;
 import java.util.concurrent.atomic.AtomicReference;
-import org.junit.Assume;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
 /**
  * Device stress scenarios for large media, process restarts and export
- * recovery. The large-video case is skipped unless a stress-4k.mp4 asset is
- * bundled; the restart case always runs.
+ * recovery. stress-4k.mp4 is a required test asset: a missing fixture must fail
+ * the heavy-device gate instead of turning a 4K claim into a skipped test.
  */
 @RunWith(AndroidJUnit4.class)
 public final class DeviceStressTest {
@@ -44,7 +43,7 @@ public final class DeviceStressTest {
     @Test public void largeVideoOpensGeneratesThumbnailAndPlays() throws Exception {
         Context context = InstrumentationRegistry.getInstrumentation().getTargetContext();
         File file = ensureAssetVideo(context, "stress", LARGE_ASSET);
-        Assume.assumeTrue("stress-4k.mp4 asset not bundled; skipping large-video run", file != null);
+        assertNotNull("stress-4k.mp4 test asset must be bundled", file);
 
         MediaMetadataRetriever retriever = new MediaMetadataRetriever();
         try {
@@ -53,6 +52,8 @@ public final class DeviceStressTest {
             String height = retriever.extractMetadata(MediaMetadataRetriever.METADATA_KEY_VIDEO_HEIGHT);
             assertNotNull("video width must be readable", width);
             assertNotNull("video height must be readable", height);
+            assertTrue("stress fixture must be at least 3840 pixels wide", Integer.parseInt(width) >= 3840);
+            assertTrue("stress fixture must be at least 2160 pixels high", Integer.parseInt(height) >= 2160);
             Bitmap frame = retriever.getFrameAtTime(0, MediaMetadataRetriever.OPTION_CLOSEST_SYNC);
             assertNotNull("thumbnail must be extractable", frame);
             assertTrue(frame.getWidth() > 0 && frame.getHeight() > 0);

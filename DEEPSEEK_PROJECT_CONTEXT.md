@@ -1,7 +1,7 @@
 ﻿# GameNarrator — DeepSeek 结构化项目索引
 
-> 自动生成：2026-08-12 16:51:48 +08:00；UTF-8 BOM；索引不再内嵌全部源码。
-> Git：分支 `unknown`，提交 `unknown`；收录文件 783 个，分卷 8 个。
+> 自动生成：2026-08-13 08:40:59 +08:00；UTF-8 BOM；索引不再内嵌全部源码。
+> Git：分支 `main`，提交 `06367ce`；收录文件 786 个，分卷 8 个。
 
 ## 使用方法
 
@@ -30,16 +30,26 @@
 | `deepseek-context/01-foundation.md` | 88 | 219308 | 构建、配置、资源、数据库迁移 |
 | `deepseek-context/02-backend.md` | 292 | 1171605 | Spring 后端实现 |
 | `deepseek-context/03-tests.md` | 101 | 321492 | Spring 测试与行为验证 |
-| `deepseek-context/04-frontend.md` | 38 | 536559 | Vite Web 源码 |
+| `deepseek-context/04-frontend.md` | 38 | 541599 | Vite Web 源码 |
 | `deepseek-context/05-android-main.md` | 137 | 847065 | Android 实现、资源与 Gradle |
-| `deepseek-context/06-android-tests.md` | 54 | 128284 | Android 单元及设备测试 |
-| `deepseek-context/07-platform-release.md` | 11 | 56149 | Windows、CI/CD 与发布 |
-| `deepseek-context/08-docs-scripts.md` | 62 | 226002 | 需求、架构、维护脚本 |
+| `deepseek-context/06-android-tests.md` | 55 | 129774 | Android 单元及设备测试 |
+| `deepseek-context/07-platform-release.md` | 12 | 59823 | Windows、CI/CD 与发布 |
+| `deepseek-context/08-docs-scripts.md` | 63 | 228625 | 需求、架构、维护脚本 |
 
 ## 当前 Git 工作区（最近修改）
 
 ```text
-clean or unavailable
+M .github/workflows/ci.yml
+ M ANDROID_AI_CONTEXT.md
+ M DEEPSEEK_PROJECT_CONTEXT.md
+ M android-app/app/src/androidTest/java/cn/longer233/gamenarrator/mobile/DeviceStressTest.java
+ M docs/ANDROID_FEATURE_PARITY.md
+ M docs/REQUIREMENTS.md
+ M frontend/public/app.js
+ M frontend/public/export.js
+?? .github/workflows/android-device-farm.yml
+?? android-app/app/src/androidTest/java/cn/longer233/gamenarrator/mobile/FullOnnxDeviceTest.java
+?? scripts/verify-android-device-farm.ps1
 ```
 
 ## Flyway 迁移索引
@@ -86,6 +96,7 @@ clean or unavailable
 
 ## 运行配置索引
 
+- `.github/workflows/android-device-farm.yml`
 - `.github/workflows/ci.yml`
 - `.github/workflows/mirror-to-gitee.yml`
 - `.github/workflows/release-version.yml`

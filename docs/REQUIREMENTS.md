@@ -336,7 +336,7 @@ storage/tasks/{taskId}/
 2. 动态字幕和至少 8 种基础视觉特效。
 3. 至少 5 种转场和基础音效库。
 4. 文案质量校验与重新生成。
-5. Android 重型能力 nightly/device farm 持续实证。
+5. Android 重型能力由每日/手动 Firebase Test Lab 设备矩阵持续实证：arm64 FFmpeg、完整 ONNX、Media3 导出和强制 4K 输入均为门禁测试；构建附件和工作流元数据保留 30 天，Test Lab 报告按云项目策略保留；云身份缺失时门禁明确失败。
 6. 端到端短视频自动化测试。
 7. 系统诊断页面和安装向导。
 

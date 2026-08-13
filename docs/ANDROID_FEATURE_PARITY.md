@@ -71,9 +71,12 @@
 
 CI 的 `android-emulator` job 会在 API 35 x86_64 模拟器上运行核心
 `connectedDebugAndroidTest` 门禁，覆盖加密 AI 凭据、生产 SQLite schema/持久化、测试模型复制和
-ONNX 缺失模型错误路径。Media3 Transformer 导出、内置 FFmpeg、完整 ONNX 模型加载和
-4K 压力场景保留在真机/重型设备验证中；文档中的具体通过数量只代表对应设备运行记录，
-不能替代持续 CI 结果。
+ONNX 缺失模型错误路径。独立 `Android heavy device farm` 工作流每天定时或手动触发，下载完整
+ONNX 模型并构建模型版 APK，在 Firebase Test Lab 设备矩阵上执行 Media3 Transformer、内置 arm64
+FFmpeg、完整视觉/文本 ONNX session 和强制 4K 播放压力测试；构建附件和工作流元数据保留 30 天，
+Test Lab 真机报告按对应 Firebase 项目策略保留。工作流要求通过
+OIDC 配置 `FIREBASE_PROJECT_ID`、`GOOGLE_WORKLOAD_IDENTITY_PROVIDER` 和 `GOOGLE_SERVICE_ACCOUNT`，
+缺失任何配置都会明确失败，不会把普通 x86 模拟器或跳过结果冒充真机证明。
 
 规则校验：`scripts/verify-android-guardrails.ps1` 可重复检查禁止宣称、云端/凭据模式与 50 步历史限制。
 
