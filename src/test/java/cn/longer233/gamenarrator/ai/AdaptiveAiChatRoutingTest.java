@@ -19,13 +19,14 @@ class AdaptiveAiChatRoutingTest {
     void routesLocalModeOnlyToOllamaAdapter() throws Exception {
         var value = configured("LOCAL", "DASHSCOPE");
         when(settings.current()).thenReturn(value);
-        when(local.chatJson(anyString(), anyList(), eq("local-text"), eq(value), any()))
+        when(local.chatJson(anyString(), anyList(), eq("cloud-text"), eq(value), any()))
                 .thenReturn(mapper.readTree("{\"ok\":true}"));
         var router = new AdaptiveAiChatClient(settings, local, cloud,
                 "local-vision", "local-text", "CLOUD_ALLOWED");
 
         assertThat(router.chatJson("prompt", List.of(), false, Duration.ofSeconds(1)).path("ok").asBoolean()).isTrue();
         verifyNoInteractions(cloud);
+        assertThat(router.activeModel(false)).isEqualTo("cloud-text");
     }
 
     @Test

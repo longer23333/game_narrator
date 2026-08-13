@@ -77,6 +77,23 @@ public class AiSettingsService {
             throw new IllegalStateException("无法保存 AI 设置：" + exception.getMessage(), exception);
         }
     }
+
+    public synchronized PublicSettings switchLocalModel(String role, String model) {
+        Settings current = stored();
+        String normalizedRole = role == null ? "" : role.trim().toUpperCase();
+        String name = LocalModelCatalogService.validateName(model);
+        Settings changed = switch (normalizedRole) {
+            case "VISION" -> new Settings("LOCAL", current.provider(), current.apiKey(), current.baseUrl(), name,
+                    current.textModel(), current.inputPricePerMillion(), current.outputPricePerMillion(),
+                    current.cachedInputPricePerMillion());
+            case "TEXT" -> new Settings("LOCAL", current.provider(), current.apiKey(), current.baseUrl(),
+                    current.visionModel(), name, current.inputPricePerMillion(), current.outputPricePerMillion(),
+                    current.cachedInputPricePerMillion());
+            default -> throw new IllegalArgumentException("模型角色必须是 VISION 或 TEXT");
+        };
+        save(changed);
+        return publicView();
+    }
     private String hint(String key){return key==null||key.isBlank()?null:key.substring(0,Math.min(4,key.length()));}
 
     public PublicSettings publicView() {
@@ -91,10 +108,11 @@ public class AiSettingsService {
         String mode = "LOCAL".equalsIgnoreCase(value.mode()) ? "LOCAL" : "CLOUD";
         String provider = blank(value.provider(), "DASHSCOPE").toUpperCase();
         boolean deepSeek = "DEEPSEEK".equals(provider);
+        boolean local = "LOCAL".equals(mode);
         return new Settings(mode, provider, blank(value.apiKey(), ""),
                 blank(value.baseUrl(), deepSeek ? "https://api.deepseek.com" : "https://dashscope.aliyuncs.com/compatible-mode/v1"),
-                blank(value.visionModel(), deepSeek ? "qwen2.5vl:3b" : "qwen-vl-plus"),
-                blank(value.textModel(), deepSeek ? "deepseek-chat" : "qwen-plus"), positive(value.inputPricePerMillion()),
+                blank(value.visionModel(), local || deepSeek ? "qwen2.5vl:3b" : "qwen-vl-plus"),
+                blank(value.textModel(), local ? "qwen2.5:3b" : deepSeek ? "deepseek-chat" : "qwen-plus"), positive(value.inputPricePerMillion()),
                 positive(value.outputPricePerMillion()),positive(value.cachedInputPricePerMillion()));
     }
 

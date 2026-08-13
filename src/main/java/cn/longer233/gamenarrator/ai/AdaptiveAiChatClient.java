@@ -33,7 +33,7 @@ public class AdaptiveAiChatClient {
 
     public JsonNode chatJson(String prompt, List<String> images, boolean vision, Duration timeout) throws Exception {
         var value = settings.current();
-        if (useLocal(value, vision)) return local.chatJson(prompt, images, localModel(vision), value, timeout);
+        if (useLocal(value, vision)) return local.chatJson(prompt, images, localModel(value, vision), value, timeout);
         if (vision && "DASHSCOPE".equals(value.provider()) && "LOCAL_FIRST".equals(cloudImagePolicy)) {
             if (local.modelAvailable(localVision)) return local.chatJson(prompt, images, localVision, value, timeout);
             throw new AiContentRejectedException("阿里云安全路由未上传原始截图；本地视觉模型不可用，已使用镜头规则");
@@ -65,13 +65,17 @@ public class AdaptiveAiChatClient {
 
     public String activeModel(boolean vision) {
         var value = settings.current();
-        return useLocal(value, vision) ? localModel(vision) : (vision ? value.visionModel() : value.textModel());
+        return useLocal(value, vision) ? localModel(value, vision) : (vision ? value.visionModel() : value.textModel());
     }
 
     private boolean useLocal(AiSettingsService.Settings value, boolean vision) {
         return "LOCAL".equals(value.mode()) || (vision && "DEEPSEEK".equals(value.provider()));
     }
-    private String localModel(boolean vision) { return vision ? localVision : localText; }
+    private String localModel(AiSettingsService.Settings value, boolean vision) {
+        String selected = vision ? value.visionModel() : value.textModel();
+        if ("LOCAL".equals(value.mode()) && selected != null && !selected.isBlank()) return selected;
+        return vision ? localVision : localText;
+    }
 
     static boolean retryableStatus(int status) { return status == 408 || status == 429 || status >= 500; }
     static boolean isContentRejected(String body) {

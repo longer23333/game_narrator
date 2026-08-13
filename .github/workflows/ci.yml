@@ -26,6 +26,9 @@ jobs:
       - name: Verify documentation against source
         shell: pwsh
         run: ./scripts/verify-documentation.ps1
+      - name: Verify local model management contract
+        shell: pwsh
+        run: ./scripts/verify-local-model-management.ps1
 
   frontend:
     runs-on: ubuntu-latest

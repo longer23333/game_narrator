@@ -14,11 +14,14 @@ public class AiSettingsController {
     private final AiSettingsService service;
     private final AdaptiveAiChatClient chatClient;
     private final AiUsageService usageService;
+    private final LocalModelCatalogService localModels;
 
-    public AiSettingsController(AiSettingsService service, AdaptiveAiChatClient chatClient, AiUsageService usageService) {
+    public AiSettingsController(AiSettingsService service, AdaptiveAiChatClient chatClient, AiUsageService usageService,
+                                LocalModelCatalogService localModels) {
         this.service = service;
         this.chatClient = chatClient;
         this.usageService = usageService;
+        this.localModels = localModels;
     }
 
     @GetMapping
@@ -53,7 +56,27 @@ public class AiSettingsController {
         );
     }
 
+    @GetMapping("/models")
+    public LocalModelCatalogService.Catalog models() {
+        return localModels.catalog(chatClient.activeModel(true), chatClient.activeModel(false));
+    }
+
+    @PostMapping("/models/download")
+    public LocalModelCatalogService.DownloadResult download(@RequestBody ModelDownload request) {
+        return localModels.download(request.name());
+    }
+
+    @PostMapping("/models/switch")
+    public AiSettingsService.PublicSettings switchModel(@RequestBody ModelSwitch request) {
+        if (!localModels.catalog(chatClient.activeModel(true), chatClient.activeModel(false)).installed().stream()
+                .anyMatch(model -> model.name().equals(request.name())))
+            throw new IllegalArgumentException("只能切换到已安装且健康的模型");
+        return service.switchLocalModel(request.role(), request.name());
+    }
+
     public record Update(@Pattern(regexp = "LOCAL|CLOUD") String mode, String provider, String apiKey,
                          String baseUrl, String visionModel, String textModel,Double inputPricePerMillion,
                          Double outputPricePerMillion,Double cachedInputPricePerMillion) { }
+    public record ModelDownload(String name) { }
+    public record ModelSwitch(String role, String name) { }
 }

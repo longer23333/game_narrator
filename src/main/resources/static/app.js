@@ -121,6 +121,9 @@ window.addEventListener('gamenarrator-release-jump', event => {
 });
 const aiSettingsForm = document.querySelector('#ai-settings-form');
 const aiKeyState = document.querySelector('#ai-key-state');
+const modelServiceState = document.querySelector('[data-model-service]');
+const installedModels = document.querySelector('[data-installed-models]');
+const recommendedModels = document.querySelector('[data-recommended-models]');
 const aiProviderPresets = {
   DASHSCOPE:['https://dashscope.aliyuncs.com/compatible-mode/v1','qwen-vl-plus','qwen-plus'], DEEPSEEK:['https://api.deepseek.com','qwen2.5vl:3b','deepseek-chat'],
   OPENAI:['https://api.openai.com/v1','gpt-4.1','gpt-4.1-mini'], ANTHROPIC:['https://api.anthropic.com/v1','claude-sonnet-4-20250514','claude-sonnet-4-20250514'],
@@ -143,6 +146,37 @@ async function loadAiSettings() {
   aiSettingsForm.querySelector('[data-cloud-settings]').hidden = value.mode === 'LOCAL';
   updateAiProviderHint();
 }
+
+const modelResources = model => `内存约 ${Number(model.memoryMb).toLocaleString()} MB · 显存约 ${Number(model.vramMb).toLocaleString()} MB`;
+function modelCard(model, installed) {
+  const active = [model.activeVision ? '视觉正在使用' : '', model.activeText ? '文案正在使用' : ''].filter(Boolean).join(' · ');
+  return `<article class="local-model-card ${active ? 'active' : ''}"><header><div><strong>${escapeHtml(model.name)}</strong><small>${escapeHtml(model.kind || '通用')}</small></div><i>${installed ? escapeHtml(model.health) : '可下载'}</i></header><p>${escapeHtml(model.description || modelResources(model))}</p>${model.description ? `<small>${escapeHtml(modelResources(model))}</small>` : ''}<footer>${installed ? `<button type="button" data-model-action="switch" data-model-role="VISION" data-model-name="${escapeHtml(model.name)}" ${model.activeVision ? 'disabled' : ''}>设为视觉</button><button type="button" data-model-action="switch" data-model-role="TEXT" data-model-name="${escapeHtml(model.name)}" ${model.activeText ? 'disabled' : ''}>设为文案</button>` : `<button type="button" data-model-action="download" data-model-name="${escapeHtml(model.name)}">下载模型</button>`}<span>${escapeHtml(active)}</span></footer></article>`;
+}
+async function loadLocalModels() {
+  if (!modelServiceState) return;
+  modelServiceState.textContent = '正在检测 Ollama 和已安装模型…';
+  const response = await fetch('/api/ai-settings/models', {cache:'no-store'});
+  if (!response.ok) throw await readApiError(response);
+  const catalog = await response.json();
+  modelServiceState.textContent = catalog.message;
+  modelServiceState.className = catalog.serviceAvailable ? 'model-service-ready' : 'model-service-offline';
+  installedModels.innerHTML = catalog.installed.length ? catalog.installed.map(model => modelCard(model, true)).join('') : '<p class="empty">尚未发现已安装模型。</p>';
+  const installedNames = new Set(catalog.installed.map(model => model.name));
+  recommendedModels.innerHTML = catalog.recommendations.filter(model => !installedNames.has(model.name)).map(model => modelCard(model, false)).join('') || '<p class="empty">推荐模型均已安装。</p>';
+}
+document.querySelector('.local-model-manager')?.addEventListener('click', async event => {
+  const button = event.target.closest('[data-model-action]'); if (!button) return;
+  button.disabled = true;
+  try {
+    if (button.dataset.modelAction === 'refresh') return await loadLocalModels();
+    const endpoint = button.dataset.modelAction === 'download' ? 'download' : 'switch';
+    modelServiceState.textContent = endpoint === 'download' ? `正在下载 ${button.dataset.modelName}，请勿关闭应用…` : '正在切换模型…';
+    const response = await fetch(`/api/ai-settings/models/${endpoint}`, {method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify({name:button.dataset.modelName, role:button.dataset.modelRole})});
+    if (!response.ok) throw await readApiError(response);
+    await Promise.all([loadAiSettings(), loadLocalModels()]);
+  } catch (error) { modelServiceState.textContent = error.message; }
+  finally { button.disabled = false; }
+});
 
 function updateAiProviderHint() {
   if (!aiSettingsForm) return;
@@ -187,6 +221,7 @@ aiSettingsForm?.addEventListener('submit', async event => {
   }
 });
 loadAiSettings().catch(error=>{if(aiKeyState)aiKeyState.textContent=`配置读取失败：${error.message}`;});
+loadLocalModels().catch(error=>{if(modelServiceState)modelServiceState.textContent=`模型状态读取失败：${error.message}`;});
 const taskForm = document.querySelector('#task-form');
 const editingScopeSelect = taskForm?.elements.editingScope;
 const targetDurationField = taskForm?.querySelector('[data-target-duration]');

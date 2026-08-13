@@ -51,6 +51,13 @@
         <p id="ai-key-state">正在读取配置…</p>
         <button type="submit">保存并测试连接</button>
       </form>
+      <section class="local-model-manager" aria-labelledby="local-model-title">
+        <header><div><small>LOCAL MODEL CATALOG</small><h3 id="local-model-title">本地模型管理</h3></div><button type="button" class="secondary-button" data-model-action="refresh">刷新状态</button></header>
+        <p data-model-service>正在检测 Ollama 和已安装模型…</p>
+        <div class="local-model-grid" data-installed-models></div>
+        <details open><summary>推荐模型与资源需求</summary><div class="local-model-grid" data-recommended-models></div></details>
+        <p class="local-model-note">内存/显存为推理估算值，实际占用会随上下文长度、量化版本和并发变化。下载由本机 Ollama 完成。</p>
+      </section>
       <section class="ai-usage" aria-live="polite"><div><span>本轮 输入</span><strong data-usage="turnInput">0</strong></div><div><span>输出</span><strong data-usage="turnOutput">0</strong></div><div><span>会话</span><strong data-usage="session">0</strong></div><div><span>缓存</span><strong><b data-usage="cached">0</b> <small>(<i data-usage="cachePercent">0%</i>)</small></strong></div><div><span>花费</span><strong data-usage="turnCost">$0.0000</strong></div><div><span>今日</span><strong data-usage="todayCost">$0.0000</strong></div><div class="ai-usage-model"><span>模型</span><strong data-usage="model">尚未调用</strong></div></section>
     </section>
     <section class="hero" data-page="studio">
