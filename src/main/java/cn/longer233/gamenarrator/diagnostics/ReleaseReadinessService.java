@@ -13,6 +13,8 @@ import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
 
 @Service
 public class ReleaseReadinessService {
@@ -23,12 +25,15 @@ public class ReleaseReadinessService {
     private final JdbcTemplate jdbc;
     private final CloudSyncProperties cloud;
     private final Path projectRoot;
+    private final ObjectMapper mapper;
 
     public ReleaseReadinessService(SystemDiagnosticsService diagnostics, StorageAdminService storage,
                                    JdbcTemplate jdbc, CloudSyncProperties cloud,
-                                   @Value("${game-narrator.project-root:.}") String projectRoot) {
+                                   @Value("${game-narrator.project-root:.}") String projectRoot,
+                                   ObjectMapper mapper) {
         this.diagnostics=diagnostics;this.storage=storage;this.jdbc=jdbc;this.cloud=cloud;
         this.projectRoot=Path.of(projectRoot).toAbsolutePath().normalize();
+        this.mapper=mapper;
     }
 
     public Report inspect() {
@@ -46,9 +51,9 @@ public class ReleaseReadinessService {
         checks.add(new Check("gpu","GPU",gpu,"GPU/硬件编码能力以诊断探测为准",now()));
         checks.add(databaseCheck());
         checks.add(cloudCheck());
-        checks.add(evidenceCheck("android","Android 验收","artifacts/android-upgrade-2.2.4-current.json"));
-        checks.add(evidenceCheck("ci","CI 最近结果","artifacts/ci-release-result.json"));
-        checks.add(evidenceCheck("performance","专项性能","artifacts/release-performance-gate.json"));
+        checks.add(evidenceCheck("android","Android 验收","artifacts/android-upgrade-2.2.4-current.json",this::validAndroidEvidence));
+        checks.add(evidenceCheck("ci","CI 最近结果","artifacts/ci-release-result.json",this::validCiEvidence));
+        checks.add(evidenceCheck("performance","专项性能","artifacts/release-performance-gate.json",this::validPerformanceEvidence));
         String overall=checks.stream().anyMatch(c->"RED".equals(c.status()))?"RED":
                 checks.stream().anyMatch(c->"YELLOW".equals(c.status()))?"YELLOW":"GREEN";
         return new Report(overall,now(),List.copyOf(checks));
@@ -65,13 +70,17 @@ public class ReleaseReadinessService {
             return new Check("cloud","云同步",failures!=null&&failures>0?"RED":"GREEN",(failures==null?0:failures)+" 个失败同步项",now());}
         catch(Exception error){return new Check("cloud","云同步","RED","无法读取同步队列："+safe(error.getMessage()),now());}
     }
-    private Check evidenceCheck(String id,String label,String relative){
+    private Check evidenceCheck(String id,String label,String relative,java.util.function.Predicate<JsonNode> validator){
         Path path=projectRoot.resolve(relative).normalize();
         if(!path.startsWith(projectRoot)||!Files.isRegularFile(path))return new Check(id,label,"YELLOW","当前提交没有本机证据文件","");
-        try{Instant modified=Files.getLastModifiedTime(path).toInstant();boolean fresh=modified.isAfter(Instant.now().minusSeconds(7*86400));
+        try{JsonNode evidence=mapper.readTree(path.toFile());if(!validator.test(evidence))return new Check(id,label,"RED","证据文件内容不完整或未通过",Files.getLastModifiedTime(path).toInstant().toString());
+            Instant modified=Files.getLastModifiedTime(path).toInstant();boolean fresh=modified.isAfter(Instant.now().minusSeconds(7*86400));
             return new Check(id,label,fresh?"GREEN":"YELLOW",fresh?"证据文件在 7 天内更新":"证据已超过 7 天",modified.toString());}
         catch(Exception error){return new Check(id,label,"YELLOW","证据时间不可读","");}
     }
+    private boolean validAndroidEvidence(JsonNode e){return "2.2.4".equals(e.path("fromVersion").asText())&&e.path("apkUpgrade").asBoolean()&&e.path("databaseIntegrity").asBoolean()&&e.path("projectIntegrity").asBoolean()&&e.path("mediaIntegrity").asBoolean()&&!e.path("device").path("serial").asText("").isBlank();}
+    private boolean validCiEvidence(JsonNode e){return "passed".equalsIgnoreCase(e.path("status").asText())&&!e.path("commit").asText("").isBlank()&&!e.path("completedAt").asText("").isBlank();}
+    private boolean validPerformanceEvidence(JsonNode e){for(String name:List.of("input40gb","diskLow","gpuOom","ffmpegInterrupted","longRun","recovery")){JsonNode result=e.path("scenarios").path(name);if(!"passed".equals(result.path("status").asText())||result.path("reportSha256").asText("").isBlank())return false;}return !e.path("machine").path("gpu").asText("").isBlank()&&!e.path("machine").path("os").asText("").isBlank();}
     private Check booleanCheck(String id,String label,Object value,String component){return new Check(id,label,Boolean.TRUE.equals(value)?"GREEN":"RED",component+(Boolean.TRUE.equals(value)?"可用":"不可用"),now());}
     private String gpuStatus(Map<String,Object> runtime){
         Object available=runtime.get("gpuAvailable");

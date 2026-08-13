@@ -1,7 +1,17 @@
 {
     "schemaVersion":  1,
-    "currentVersion":  "2.2.13",
+    "currentVersion":  "2.2.14",
     "releases":  [
+                     {
+                         "version":  "2.2.14",
+                         "title":  "发布证据语义校验",
+                         "summary":  "统一 Web、Windows 与 Android 版本，完成对应功能修复、稳定性检查与发布记录。",
+                         "items":  [
+                                       "同步更新 Web、Windows 与 Android 版本",
+                                       "完成本版本功能修复与稳定性检查",
+                                       "创建并同步 GitHub、Gitee 发布标签"
+                                   ]
+                     },
                      {
                          "version":  "2.2.13",
                          "title":  "多源证据文案评分",
