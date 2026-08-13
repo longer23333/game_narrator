@@ -52,9 +52,20 @@ public class RenderAudioMixBuilder {
                 filter.append("atrim=0:").append(decimal(totalDuration)).append(",volume='")
                         .append(musicVolumeExpression(segments)).append("':eval=frame");
             } else {
-                long delay = Math.round(segment.outputStartSeconds() * 1000);
-                filter.append("atrim=0:").append(decimal(segment.outputEndSeconds() - segment.outputStartSeconds()))
-                        .append(",volume=0.48,adelay=").append(delay).append('|').append(delay);
+                double clipDuration = segment.outputEndSeconds() - segment.outputStartSeconds();
+                double start = Math.min(clipDuration, Math.max(0, asset.startOffsetSeconds()));
+                double end = asset.endOffsetSeconds() == null ? clipDuration
+                        : Math.min(clipDuration, Math.max(start, asset.endOffsetSeconds()));
+                double duration = Math.max(.01, end - start);
+                long delay = Math.round((segment.outputStartSeconds() + start) * 1000);
+                filter.append("atrim=0:").append(decimal(duration)).append(",asetpts=PTS-STARTPTS")
+                        .append(",volume=").append(decimal(asset.volumePercent() / 100d));
+                if (asset.fadeInSeconds() > 0) filter.append(",afade=t=in:st=0:d=")
+                        .append(decimal(Math.min(duration, asset.fadeInSeconds())));
+                if (asset.fadeOutSeconds() > 0) filter.append(",afade=t=out:st=")
+                        .append(decimal(Math.max(0, duration - Math.min(duration, asset.fadeOutSeconds()))))
+                        .append(":d=").append(decimal(Math.min(duration, asset.fadeOutSeconds())));
+                filter.append(",adelay=").append(delay).append('|').append(delay);
             }
             filter.append("[x").append(index).append("];");
         }

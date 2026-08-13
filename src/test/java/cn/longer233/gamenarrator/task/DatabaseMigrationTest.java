@@ -48,6 +48,23 @@ class DatabaseMigrationTest {
     }
 
     @Test
+    void v41AddsSoundEffectMixParameters() throws Exception {
+        String url = "jdbc:h2:mem:sfx-timeline;DB_CLOSE_DELAY=-1";
+        Flyway.configure().dataSource(url, "sa", "").load().migrate();
+        try (var connection = DriverManager.getConnection(url, "sa", "");
+             var statement = connection.createStatement();
+             var columns = statement.executeQuery("""
+                     SELECT column_name,column_default FROM information_schema.columns
+                     WHERE table_name='STORYBOARD_ASSET_PLACEMENT'
+                     AND column_name IN ('VOLUME_PERCENT','FADE_IN_SECONDS','FADE_OUT_SECONDS')
+                     """)) {
+            int count = 0;
+            while (columns.next()) count++;
+            assertThat(count).isEqualTo(3);
+        }
+    }
+
+    @Test
     void backupRestoreDrillRecoversPreMigrationDataAndSchema() throws Exception {
         String sourceUrl = "jdbc:h2:mem:rollback-source;DB_CLOSE_DELAY=-1";
         Flyway.configure().dataSource(sourceUrl, "sa", "").target("37").load().migrate();

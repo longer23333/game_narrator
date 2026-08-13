@@ -624,6 +624,11 @@ ALTER TABLE storyboard_asset_placement ADD COLUMN animation_name VARCHAR(20) NOT
 ALTER TABLE storyboard_asset_placement ADD COLUMN z_index INTEGER NOT NULL DEFAULT 0;
 CREATE INDEX idx_storyboard_asset_layer ON storyboard_asset_placement(task_id,clip_index,z_index,created_at);
 
+-- source: V41__licensed_sfx_timeline.sql
+ALTER TABLE storyboard_asset_placement ADD COLUMN volume_percent INTEGER NOT NULL DEFAULT 48;
+ALTER TABLE storyboard_asset_placement ADD COLUMN fade_in_seconds DOUBLE PRECISION NOT NULL DEFAULT 0;
+ALTER TABLE storyboard_asset_placement ADD COLUMN fade_out_seconds DOUBLE PRECISION NOT NULL DEFAULT 0;
+
 -- source: V13__remove_placeholder_asset_labels.sql
 DELETE FROM asset_tag_assignment
 WHERE tag_id IN (SELECT id FROM asset_tag WHERE normalized_name IN ('待审核', '待翻译素材'));

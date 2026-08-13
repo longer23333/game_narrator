@@ -1320,6 +1320,14 @@ async function loadStoryboardEditor(taskId) {
       <footer class="storyboard-continue-bar"><div><strong>修改完成了吗？</strong><small>点击后会先保存全部分镜，再明确启动配音、时间线规划和视频渲染。</small></div><button type="button" data-storyboard-action="save-all-continue" data-task-id="${taskId}">保存全部修改并执行下一步 →</button></footer>
     </section>`;
   mountStoryboardTimeline(taskId, editorTimeline, waveform);
+  storyboardWorkspace.querySelectorAll('[data-placement-item]').forEach(itemNode => {
+    const placement = placements.find(item => item.id === itemNode.dataset.placementItem);
+    if (!placement || !['SFX', 'BGM'].includes(placement.assetType)) return;
+    const controls = document.createElement('div');
+    controls.className = 'storyboard-sfx-controls';
+    controls.innerHTML = `<label>音量 %<input name="placementVolume" type="number" min="0" max="200" value="${placement.volumePercent ?? 48}"></label><label>淡入秒<input name="placementFadeIn" type="number" min="0" step="0.05" value="${placement.fadeInSeconds ?? 0}"></label><label>淡出秒<input name="placementFadeOut" type="number" min="0" step="0.05" value="${placement.fadeOutSeconds ?? 0}"></label><audio controls preload="none" src="${placement.previewUrl}"></audio><small>授权：${escapeHtml(placement.licenseCode || '未记录')} · ${escapeHtml(placement.attribution || '无署名要求')}</small>`;
+    itemNode.querySelector('[name="placementCutout"]')?.closest('label')?.before(controls);
+  });
   restoreStoryboardViewState(viewState);
   storyboardWorkspace.querySelector('[data-knowledge-pack-import]')?.addEventListener('change', async event => {
     const file = event.target.files?.[0];
@@ -1743,7 +1751,10 @@ async function handleStoryboardAction(button) {
           endOffsetSeconds:item.querySelector('[name="placementEnd"]').value === '' ? null : Number(item.querySelector('[name="placementEnd"]').value),
           scalePercent:Number(item.querySelector('[name="placementScale"]').value || 38),
           animation:item.querySelector('[name="placementAnimation"]').value,
-          zIndex:Number(item.querySelector('[name="placementZIndex"]').value || 0)
+          zIndex:Number(item.querySelector('[name="placementZIndex"]').value || 0),
+          volumePercent:Number(item.querySelector('[name="placementVolume"]')?.value || 48),
+          fadeInSeconds:Number(item.querySelector('[name="placementFadeIn"]')?.value || 0),
+          fadeOutSeconds:Number(item.querySelector('[name="placementFadeOut"]')?.value || 0)
         })
       });
       await loadStoryboardEditor(taskId); return;

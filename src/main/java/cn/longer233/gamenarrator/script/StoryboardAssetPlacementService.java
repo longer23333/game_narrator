@@ -32,6 +32,7 @@ public class StoryboardAssetPlacementService {
                 SELECT p.id,p.asset_id,p.clip_index,a.title,a.asset_type,p.placement_type,
                        p.position_name,p.instruction,p.ai_assigned,p.cutout_applied
                        ,p.start_offset_seconds,p.end_offset_seconds,p.scale_percent,p.animation_name,p.z_index
+                       ,p.volume_percent,p.fade_in_seconds,p.fade_out_seconds,a.license_code,a.attribution
                 FROM storyboard_asset_placement p JOIN external_asset a ON a.id=p.asset_id
                 WHERE p.task_id=? ORDER BY p.clip_index,p.created_at
                 """, (rs, n) -> new StoryboardAssetPlacementView(
@@ -40,7 +41,9 @@ public class StoryboardAssetPlacementService {
                 rs.getString("position_name"), rs.getString("instruction"), rs.getBoolean("ai_assigned"),
                 rs.getBoolean("cutout_applied"), "/api/assets/" + rs.getObject("asset_id") + "/preview",
                 rs.getDouble("start_offset_seconds"), (Double) rs.getObject("end_offset_seconds"),
-                rs.getInt("scale_percent"), rs.getString("animation_name"), rs.getInt("z_index")), taskId);
+                rs.getInt("scale_percent"), rs.getString("animation_name"), rs.getInt("z_index"),
+                rs.getInt("volume_percent"), rs.getDouble("fade_in_seconds"), rs.getDouble("fade_out_seconds"),
+                rs.getString("license_code"), rs.getString("attribution")), taskId);
     }
 
     @Transactional
@@ -65,11 +68,12 @@ public class StoryboardAssetPlacementService {
         cn.longer233.gamenarrator.common.PortableUpsert.update(jdbc, """
                 MERGE INTO storyboard_asset_placement(id,task_id,clip_index,asset_id,placement_type,
                 position_name,instruction,ai_assigned,cutout_applied,start_offset_seconds,end_offset_seconds,
-                scale_percent,animation_name,z_index,created_at) KEY(task_id,clip_index,asset_id)
-                VALUES(?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)
+                scale_percent,animation_name,z_index,volume_percent,fade_in_seconds,fade_out_seconds,created_at)
+                KEY(task_id,clip_index,asset_id) VALUES(?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)
                 """, "task_id,clip_index,asset_id", id, taskId, clip, asset.id(), placementType, position, instruction,
                 request.aiAssign(), cutout, start(request.startOffsetSeconds()), end(request.startOffsetSeconds(), request.endOffsetSeconds()),
-                value(request.scalePercent(), 38), text(request.animation(), "NONE"), value(request.zIndex(), 0), OffsetDateTime.now());
+                value(request.scalePercent(), 38), text(request.animation(), "NONE"), value(request.zIndex(), 0),
+                value(request.volumePercent(), 48), start(request.fadeInSeconds()), start(request.fadeOutSeconds()), OffsetDateTime.now());
         return list(taskId).stream().filter(item -> item.assetId().equals(asset.id()) && item.clipIndex() == clip)
                 .findFirst().orElseThrow();
     }
@@ -87,11 +91,13 @@ public class StoryboardAssetPlacementService {
         int changed = jdbc.update("""
                 UPDATE storyboard_asset_placement SET position_name=?,cutout_applied=?,instruction=?,
                     start_offset_seconds=?,end_offset_seconds=?,scale_percent=?,animation_name=?,z_index=?
+                    ,volume_percent=?,fade_in_seconds=?,fade_out_seconds=?
                 WHERE id=? AND task_id=?
                 """, request.position(), request.cutoutApplied(),
                 request.instruction() == null ? "" : request.instruction().trim(), start(request.startOffsetSeconds()),
                 end(request.startOffsetSeconds(), request.endOffsetSeconds()), value(request.scalePercent(), 38),
-                text(request.animation(), "NONE"), value(request.zIndex(), 0), placementId, taskId);
+                text(request.animation(), "NONE"), value(request.zIndex(), 0), value(request.volumePercent(), 48),
+                start(request.fadeInSeconds()), start(request.fadeOutSeconds()), placementId, taskId);
         if (changed == 0) throw new IllegalArgumentException("分镜素材不存在");
         return list(taskId).stream().filter(item -> item.id().equals(placementId)).findFirst().orElseThrow();
     }

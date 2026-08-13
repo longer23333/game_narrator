@@ -41,6 +41,9 @@ jobs:
       - name: Verify meme timeline slots
         shell: pwsh
         run: ./scripts/verify-meme-timeline-slots.ps1
+      - name: Verify licensed SFX library
+        shell: pwsh
+        run: ./scripts/verify-licensed-sfx-library.ps1
 
   frontend:
     runs-on: ubuntu-latest

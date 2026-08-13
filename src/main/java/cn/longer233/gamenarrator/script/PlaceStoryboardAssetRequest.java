@@ -16,8 +16,11 @@ public record PlaceStoryboardAssetRequest(
         @DecimalMin("0.0") Double endOffsetSeconds,
         @Min(5) @Max(200) Integer scalePercent,
         @Pattern(regexp = "NONE|FADE|POP|SLIDE|BOUNCE") String animation,
-        @Min(-100) @Max(100) Integer zIndex) {
+        @Min(-100) @Max(100) Integer zIndex,
+        @Min(0) @Max(200) Integer volumePercent,
+        @DecimalMin("0.0") Double fadeInSeconds,
+        @DecimalMin("0.0") Double fadeOutSeconds) {
     public PlaceStoryboardAssetRequest(UUID assetId, String instruction, boolean aiAssign) {
-        this(assetId, instruction, aiAssign, 0d, null, 38, "NONE", 0);
+        this(assetId, instruction, aiAssign, 0d, null, 38, "NONE", 0, 48, 0d, 0d);
     }
 }

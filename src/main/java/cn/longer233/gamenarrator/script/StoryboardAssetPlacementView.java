@@ -7,4 +7,5 @@ public record StoryboardAssetPlacementView(
         String placementType, String position, String instruction,
         boolean aiAssigned, boolean cutoutApplied, String previewUrl,
         double startOffsetSeconds, Double endOffsetSeconds, int scalePercent,
-        String animation, int zIndex) { }
+        String animation, int zIndex, int volumePercent, double fadeInSeconds,
+        double fadeOutSeconds, String licenseCode, String attribution) { }

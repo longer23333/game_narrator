@@ -43,8 +43,21 @@ class RenderAudioMixBuilderTest {
         RenderAudioMixBuilder.AudioMixPlan plan = builder.build(segments(), List.of(), List.of(soundEffect), 0.15);
 
         assertThat(plan.filterGraph()).contains(
-                "[3:a]atrim=0:5.000,volume=0.48,adelay=5000|5000[x0]");
+                "[3:a]atrim=0:5.000,asetpts=PTS-STARTPTS,volume=0.480,adelay=5000|5000[x0]");
         assertThat(plan.subtitleInput()).isEqualTo(4);
+    }
+
+    @Test
+    void appliesTimelineWindowVolumeAndFadesToLicensedSoundEffect() {
+        var soundEffect = new RenderAssetResolver.RenderAsset(2, "SFX", "SOUND_EFFECT", "AUDIO_TRACK",
+                false, Path.of("licensed.wav"), "licensed", .75, 3.25, 38, "NONE", 2,
+                72, .2, .35, "CC0", "Creator / Source");
+
+        String graph = builder.build(segments(), List.of(), List.of(soundEffect), .15).filterGraph();
+
+        assertThat(graph).contains("atrim=0:2.500,asetpts=PTS-STARTPTS,volume=0.720",
+                "afade=t=in:st=0:d=0.200", "afade=t=out:st=2.150:d=0.350",
+                "adelay=5750|5750[x0]");
     }
 
     @Test
