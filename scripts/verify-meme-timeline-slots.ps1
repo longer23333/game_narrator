@@ -17,7 +17,8 @@ Require-Text 'src/main/java/cn/longer233/gamenarrator/render/FfmpegVideoRenderer
 Require-Text 'frontend/public/app.js' @(
     'placementStart', 'placementEnd', 'placementScale', 'placementAnimation', 'placementZIndex')
 Require-Text 'src/test/java/cn/longer233/gamenarrator/render/FfmpegMemeOverlayOutputTest.java' @(
-    'ffmpegPreservesTransparentPngAndWebpInTimedLayeredOverlay')
+    'ffmpegPreservesTransparentPngAndWebpInTimedLayeredOverlay', 'pixel(output, .2',
+    'pixel(output, .8', 'pixel(output, 1.5', 'pixel(output, 2.7', 'assertBlue', 'assertRed')
 Require-Text 'docs/REQUIREMENTS.md' @('| FR-608 | P1 |', 'PNG/WebP')
 if ($failures.Count) { Write-Host "FAIL: $($failures.Count) meme slot violation(s)"; $failures | ForEach-Object { Write-Host "  $_" }; exit 1 }
 Write-Host 'PASS: FR-608 supports local PNG/WebP timing, position, scaling, animation, layering and real FFmpeg overlay'
