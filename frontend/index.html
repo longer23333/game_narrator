@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>GameNarrator 2.2.25</title>
+  <title>GameNarrator 2.2.26</title>
   <link rel="stylesheet" href="/media-importer.css?v=20260729-10">
   <link rel="stylesheet" href="/app.css?v=20260803-13">
   <link rel="stylesheet" href="/ui-refresh.css?v=20260811-1">
@@ -11,7 +11,7 @@
 <body>
   <div class="aurora"></div>
   <header class="topbar">
-    <a class="brand" href="/">GAME<span>NARRATOR</span><small class="app-version">v2.2.25</small></a>
+    <a class="brand" href="/">GAME<span>NARRATOR</span><small class="app-version">v2.2.26</small></a>
     <nav class="primary-nav" aria-label="主要功能">
       <a href="/?view=studio" data-view-link="studio">剪辑任务</a>
       <a href="/?view=search" data-view-link="search">镜头搜索</a>
@@ -70,6 +70,11 @@
         <div><strong>4</strong><span>模型能力</span></div>
         <div><strong>LOCAL</strong><span>数据优先</span></div>
       </div>
+      <nav class="quick-start" aria-label="快捷开始">
+        <a href="#task-form" data-quick-action="create"><b>① 新建剪辑</b><span>上传本地录像并自动生成成片</span></a>
+        <a href="/?view=import" data-view-link="import"><b>② 从平台导入</b><span>粘贴已获授权的视频链接</span></a>
+        <a href="/?view=assets" data-view-link="assets"><b>③ 管理素材</b><span>查找图片、视频、音效和贴图</span></a>
+      </nav>
     </section>
 
     <section class="workspace" data-page="studio">
@@ -79,6 +84,7 @@
           <span class="step">01</span>
         </div>
         <form id="task-form">
+          <p class="form-intro"><strong>只需完成 3 项：</strong>填写名称和创作要求、选择视频、点击底部“开始制作”。其余选项已有推荐默认值。</p>
           <label>任务名称<input name="name" maxlength="120" required placeholder="例如：魂系 Boss 战逆转高光"></label>
           <div class="grid">
             <label>内容类别
@@ -116,7 +122,7 @@
             </div>
           </details>
           <label class="dropzone">选择游戏视频<input name="video" type="file" accept="video/*" required><span>MP4 / MOV / MKV / WEBM</span></label>
-          <button type="submit">建立分析任务 <b>→</b></button>
+          <button type="submit" class="primary-submit">开始制作视频 <b>→</b></button>
           <p id="form-message"></p>
         </form>
       </article>

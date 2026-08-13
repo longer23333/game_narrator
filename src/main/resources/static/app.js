@@ -117,7 +117,7 @@ document.querySelector('#updates-open')?.addEventListener('click', async event =
   try { await loadLazyScript('updates'); document.querySelector('#updates-dialog')?.showModal(); }
   catch (error) { window.alert(error.message); } finally { button.disabled = false; }
 });
-if (localStorage.getItem('gameNarrator.lastSeenRelease') === '2.2.25') document.querySelector('#updates-open')?.classList.remove('has-update');
+if (localStorage.getItem('gameNarrator.lastSeenRelease') === '2.2.26') document.querySelector('#updates-open')?.classList.remove('has-update');
 window.addEventListener('gamenarrator-release-jump', event => {
   const {view='studio', selector, note} = event.detail || {}; activateView(view, true);
   setTimeout(() => {
@@ -510,6 +510,7 @@ activeTaskPanel.addEventListener('click', event => {
 
 async function cancelTask(button) {
   if (!window.confirm('确定取消当前任务吗？正在运行的转写、配音或渲染进程会被终止。')) return;
+  const originalText = button.textContent;
   button.disabled = true;
   button.textContent = '正在终止进程…';
   const controller = new AbortController();
@@ -520,7 +521,7 @@ async function cancelTask(button) {
     if (activeTaskId === button.dataset.cancelTask) await refreshTaskDetails(activeTaskId);
   } catch (error) {
     button.disabled = false;
-    button.textContent = '取消当前任务';
+    button.textContent = originalText;
     if (error.name === 'AbortError') {
       await loadTasks().catch(() => {});
       window.alert('终止请求等待超时，后台仍会继续终止进程；任务状态已刷新，请稍后再次查看。');
@@ -842,12 +843,16 @@ function renderTaskDetails(task) {
   const completedCount = task.stages.filter(stage => stage.status === 'COMPLETED').length;
   const overallProgress = Math.round(task.stages.reduce((sum, stage) => sum + stage.progress, 0) / task.stages.length);
   detailContent.innerHTML = `
-    <section class="detail-block task-operations"><button type="button" data-rename-task="${task.id}" data-task-name="${escapeHtml(task.name)}">重命名任务</button><small>只修改显示名称，不影响正在处理的阶段和已有文件。</small></section>
-    <section class="detail-block task-operations task-delete-operation"><button type="button" data-delete-task="${task.id}" data-task-name="${escapeHtml(task.name)}">移入回收站</button><small>任务及关联文件会保留，可在回收站恢复或永久删除。</small></section>
-    ${task.status === 'PROCESSING' ? `<section class="detail-block task-operations"><button type="button" data-cancel-task="${task.id}">取消当前任务</button><small>立即终止当前外部进程，保留已完成阶段，清理未完成的临时文件。</small></section>` : ''}
-    ${['FAILED','CANCELLED'].includes(task.status) ? `<section class="detail-block task-operations"><button type="button" data-retry-task="${task.id}">${task.status === 'CANCELLED' ? '从取消处继续' : '重试失败阶段'}</button><small>已完成阶段会保留，从中断位置继续处理。</small></section>` : ''}
-    ${task.generatedScriptPath ? `<section class="detail-block task-operations storyboard-launch"><button type="button" data-open-storyboard="${task.id}">进入线性分镜工作台 →</button><small>${task.storyboardReviewEnabled && !task.storyboardApproved ? '需要在独立分镜时间线中检查并确认后才能继续生成。' : '按镜头顺序编辑画面、起止时间、文案、字幕、素材和特效。'}</small></section>` : ''}
-    ${task.generatedScriptPath ? `<section class="detail-block task-operations"><button type="button" data-open-script="${task.id}">编辑分段文案</button><small>支持保存、AI 单段重写和单段重新配音。</small></section>` : ''}
+    <section class="detail-block task-action-center">
+      <header><div><small>下一步</small><h3>任务操作中心</h3></div><span>${task.status}</span></header>
+      <div class="task-primary-actions">
+        ${task.status === 'PROCESSING' ? `<button type="button" class="danger-button" data-cancel-task="${task.id}">终止正在运行的任务</button>` : ''}
+        ${['FAILED','CANCELLED'].includes(task.status) ? `<button type="button" data-retry-task="${task.id}">${task.status === 'CANCELLED' ? '从中断处继续制作' : '重试失败步骤'}</button>` : ''}
+        ${task.generatedScriptPath ? `<button type="button" data-open-storyboard="${task.id}">打开分镜与时间线</button><button type="button" class="secondary-button" data-open-script="${task.id}">编辑解说文案</button>` : ''}
+      </div>
+      <p>${task.status === 'PROCESSING' ? '任务正在后台制作；可以关闭此窗口，进度不会丢失。需要停止时使用上方红色按钮。' : task.generatedScriptPath ? '建议先打开分镜与时间线检查画面；只改文字或单段配音时进入“编辑解说文案”。' : '这里会根据任务进度显示当前最合适的下一步操作。'}</p>
+      <details class="task-more-actions"><summary>更多管理操作</summary><div><button type="button" class="secondary-button" data-rename-task="${task.id}" data-task-name="${escapeHtml(task.name)}">修改任务名称</button><button type="button" class="text-danger-button" data-delete-task="${task.id}" data-task-name="${escapeHtml(task.name)}">移入回收站</button></div><small>移入回收站后仍可恢复；只有在回收站中永久删除才会清理关联文件。</small></details>
+    </section>
     <section class="detail-block enhancement-toolbox">
       <h3>智能增强工具箱</h3>
       <p class="visual-summary">手动剪辑始终可用；下面每项可随时单独执行，失败不会破坏当前时间线或已有成片。</p>
@@ -2055,7 +2060,7 @@ const guideSteps = [
   {selector: '.history-panel', title: '第 5 步：从最左侧历史继续', text: '只有真正生成完成的任务才会进入页面最左侧“最近完成”列表。处理中、等待检查、失败或取消的任务都留在右侧，避免被误认为已经完成。点击已完成条目可查看生成文件、分镜、文案、时间线和最终视频。'},
   {selector: '.storyboard-review-option', title: '第 6 步：检查分镜再继续', text: '开启分镜检查后，流程会在文案与分镜生成后暂停。进入线性分镜工作台可调整顺序、起止时间、字幕、解说、素材和特效；保存全部修改后再继续配音与渲染。'},
   {selector: '.primary-nav', title: '更多工具入口', text: '“镜头搜索”使用本地语义模型寻找片段；“平台导入”负责下载并创建项目；“素材库”管理授权素材；“设置”管理云端或本地 AI。遇到问题可点击右上角“诊断日志”。'},
-  {selector: '.topbar-actions', title: '完成、诊断与再次查看', text: '任务完成后在详情中预览并导出 MP4。任何阶段失败时先查看任务详情和诊断日志；本引导可以随时从“使用引导”重新打开。当前版本为 v2.2.25。'}
+  {selector: '.topbar-actions', title: '完成、诊断与再次查看', text: '任务完成后在详情中预览并导出 MP4。任何阶段失败时先查看任务详情和诊断日志；本引导可以随时从“使用引导”重新打开。当前版本为 v2.2.26。'}
 ];
 const guideStepViews = new Map([
   ['.hero', 'studio'],
