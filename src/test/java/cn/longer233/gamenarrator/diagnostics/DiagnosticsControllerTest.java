@@ -19,7 +19,8 @@ class DiagnosticsControllerTest {
     private final DiagnosticLogService logs = mock(DiagnosticLogService.class);
     private final VideoTaskRepository tasks = mock(VideoTaskRepository.class);
     private final CurrentUserContext current = mock(CurrentUserContext.class);
-    private final DiagnosticsController controller = new DiagnosticsController(diagnostics, logs, tasks, current);
+    private final ReleaseReadinessService readiness = mock(ReleaseReadinessService.class);
+    private final DiagnosticsController controller = new DiagnosticsController(diagnostics, logs, tasks, current, readiness);
 
     @Test
     void rejectsTaskLogOwnedByAnotherUser() {
@@ -56,5 +57,12 @@ class DiagnosticsControllerTest {
 
         assertThat(controller.logs(200, taskId)).isEqualTo("task logs");
         verify(logs).recentForTask(taskId, 200);
+    }
+
+    @Test
+    void exposesAggregatedReleaseReadiness() {
+        var report = new ReleaseReadinessService.Report("YELLOW", "now", List.of());
+        when(readiness.inspect()).thenReturn(report);
+        assertThat(controller.releaseReadiness()).isSameAs(report);
     }
 }

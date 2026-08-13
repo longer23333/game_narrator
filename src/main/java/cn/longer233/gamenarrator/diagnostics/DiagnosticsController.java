@@ -26,15 +26,20 @@ public class DiagnosticsController {
     private final DiagnosticLogService logs;
     private final VideoTaskRepository tasks;
     private final CurrentUserContext current;
+    private final ReleaseReadinessService readiness;
     private static final Logger log = LoggerFactory.getLogger(DiagnosticsController.class);
 
     public DiagnosticsController(SystemDiagnosticsService diagnostics, DiagnosticLogService logs,
-                                 VideoTaskRepository tasks, CurrentUserContext current) {
+                                 VideoTaskRepository tasks, CurrentUserContext current, ReleaseReadinessService readiness) {
         this.diagnostics = diagnostics;
         this.logs = logs;
         this.tasks = tasks;
         this.current = current;
+        this.readiness = readiness;
     }
+
+    @GetMapping("/release-readiness")
+    public ReleaseReadinessService.Report releaseReadiness() { return readiness.inspect(); }
 
     @GetMapping("/health")
     public Map<String, Object> health() {

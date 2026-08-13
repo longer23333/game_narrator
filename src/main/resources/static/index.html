@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>GameNarrator 2.2.10</title>
+  <title>GameNarrator 2.2.11</title>
   <link rel="stylesheet" href="/media-importer.css?v=20260729-10">
   <link rel="stylesheet" href="/app.css?v=20260803-13">
   <link rel="stylesheet" href="/ui-refresh.css?v=20260811-1">
@@ -15,7 +15,7 @@
 <body>
   <div class="aurora"></div>
   <header class="topbar">
-    <a class="brand" href="/">GAME<span>NARRATOR</span><small class="app-version">v2.2.10</small></a>
+    <a class="brand" href="/">GAME<span>NARRATOR</span><small class="app-version">v2.2.11</small></a>
     <nav class="primary-nav" aria-label="主要功能">
       <a href="/?view=studio" data-view-link="studio">剪辑任务</a>
       <a href="/?view=search" data-view-link="search">镜头搜索</a>
@@ -31,6 +31,7 @@
           <button id="runtime-restart" class="diagnostics-open" type="button" hidden>重新运行</button>
           <button id="updates-open" class="diagnostics-open has-update" type="button">更新公告</button>
           <button id="guide-open" class="diagnostics-open guide-open" type="button">使用引导</button>
+          <button id="readiness-open" class="diagnostics-open" type="button">发布就绪度</button>
           <button id="diagnostics-open" class="diagnostics-open" type="button">诊断日志</button>
         </div>
       </details>
@@ -334,6 +335,9 @@
       <header class="dialog-header"><div><small>LINEAR STORYBOARD WORKSPACE</small><h2>线性分镜工作台</h2></div><button id="storyboard-close" class="dialog-close" type="button" aria-label="关闭">×</button></header>
       <main id="storyboard-workspace" class="storyboard-workspace"><p class="empty">正在读取分镜…</p></main>
     </div>
+  </dialog>
+  <dialog id="readiness-dialog" class="task-dialog diagnostics-dialog">
+    <div class="dialog-shell"><header class="dialog-header"><div><small>RELEASE READINESS</small><h2>发布就绪度</h2></div><button id="readiness-close" class="dialog-close" type="button" aria-label="关闭发布就绪度">×</button></header><section class="diagnostics-content"><p>红色表示发布阻断，黄色表示可降级或缺少近期证据，绿色表示当前检查通过。</p><div id="readiness-summary" class="readiness-summary">正在检查…</div><div id="readiness-grid" class="readiness-grid"></div><div class="diagnostics-actions"><button id="readiness-refresh" type="button">重新检查</button></div></section></div>
   </dialog>
   <dialog id="diagnostics-dialog" class="task-dialog diagnostics-dialog">
     <div class="dialog-shell">

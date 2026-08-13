@@ -1,7 +1,7 @@
 ﻿# GameNarrator — DeepSeek 结构化项目索引
 
-> 自动生成：2026-08-13 12:16:57 +08:00；UTF-8 BOM；索引不再内嵌全部源码。
-> Git：分支 `unknown`，提交 `unknown`；收录文件 828 个，分卷 8 个。
+> 自动生成：2026-08-13 12:26:28 +08:00；UTF-8 BOM；索引不再内嵌全部源码。
+> Git：分支 `unknown`，提交 `unknown`；收录文件 832 个，分卷 8 个。
 
 ## 使用方法
 
@@ -28,13 +28,13 @@
 | 分卷 | 文件数 | 字符数 | 建议用途 |
 |---|---:|---:|---|
 | `deepseek-context/01-foundation.md` | 90 | 221503 | 构建、配置、资源、数据库迁移 |
-| `deepseek-context/02-backend.md` | 297 | 1219293 | Spring 后端实现 |
-| `deepseek-context/03-tests.md` | 110 | 352722 | Spring 测试与行为验证 |
-| `deepseek-context/04-frontend.md` | 38 | 550449 | Vite Web 源码 |
-| `deepseek-context/05-android-main.md` | 143 | 882035 | Android 实现、资源与 Gradle |
+| `deepseek-context/02-backend.md` | 298 | 1224956 | Spring 后端实现 |
+| `deepseek-context/03-tests.md` | 111 | 354718 | Spring 测试与行为验证 |
+| `deepseek-context/04-frontend.md` | 39 | 554063 | Vite Web 源码 |
+| `deepseek-context/05-android-main.md` | 143 | 882137 | Android 实现、资源与 Gradle |
 | `deepseek-context/06-android-tests.md` | 58 | 137159 | Android 单元及设备测试 |
-| `deepseek-context/07-platform-release.md` | 12 | 65266 | Windows、CI/CD 与发布 |
-| `deepseek-context/08-docs-scripts.md` | 80 | 267581 | 需求、架构、维护脚本 |
+| `deepseek-context/07-platform-release.md` | 12 | 65774 | Windows、CI/CD 与发布 |
+| `deepseek-context/08-docs-scripts.md` | 81 | 269021 | 需求、架构、维护脚本 |
 
 ## 当前 Git 工作区（最近修改）
 
@@ -140,6 +140,7 @@ clean or unavailable
 | GET | `/api/debug/health` | `src/main/java/cn/longer233/gamenarrator/diagnostics/DiagnosticsController.java` |
 | GET | `/api/debug/logs/export` | `src/main/java/cn/longer233/gamenarrator/diagnostics/DiagnosticsController.java` |
 | GET | `/api/debug/logs` | `src/main/java/cn/longer233/gamenarrator/diagnostics/DiagnosticsController.java` |
+| GET | `/api/debug/release-readiness` | `src/main/java/cn/longer233/gamenarrator/diagnostics/DiagnosticsController.java` |
 | GET | `/api/director-profile` | `src/main/java/cn/longer233/gamenarrator/personalization/DirectorProfileController.java` |
 | GET | `/api/effect-presets/{code}/export` | `src/main/java/cn/longer233/gamenarrator/effect/EffectController.java` |
 | GET | `/api/effect-presets` | `src/main/java/cn/longer233/gamenarrator/effect/EffectController.java` |
