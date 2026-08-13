@@ -49,13 +49,14 @@ public class StorageCleanupService implements ApplicationRunner {
             Path root = SecurePathGuard.prepareRoot(storageRoot);
             Instant cutoff = Instant.now().minus(retention);
             int orphanTasks = cleanupOrphanTaskDirectories(root, cutoff);
+            int completedRenderWork = cleanupCompletedRenderWork(root, cutoff);
             int temporary = cleanupTemporaryFiles(root, cutoff);
             int imports = cleanupTree(root.resolve("import-downloads"), root, cutoff);
             int previews = cleanupTree(root.resolve("voice-previews"), root, cutoff);
             int exports = cleanupExpiredExports(root);
-            if (temporary + orphanTasks + imports + previews + exports > 0) {
-                log.info("STORAGE_RECONCILIATION temporaryFiles={} orphanTaskDirectories={} importEntries={} voicePreviews={} expiredExports={}",
-                        temporary, orphanTasks, imports, previews, exports);
+            if (temporary + orphanTasks + completedRenderWork + imports + previews + exports > 0) {
+                log.info("STORAGE_RECONCILIATION temporaryFiles={} orphanTaskDirectories={} completedRenderWork={} importEntries={} voicePreviews={} expiredExports={}",
+                        temporary, orphanTasks, completedRenderWork, imports, previews, exports);
             }
         } catch (Exception exception) {
             log.warn("STORAGE_CLEANUP_FAILED reason={}", exception.getMessage());
@@ -204,6 +205,22 @@ public class StorageCleanupService implements ApplicationRunner {
                 deleted++;
                 log.info("ORPHAN_TASK_WORKSPACE_REMOVED taskId={} path={}", taskId, directory);
             }
+        }
+        return deleted;
+    }
+
+    int cleanupCompletedRenderWork(Path root, Instant cutoff) throws Exception {
+        Set<UUID> completed = new HashSet<>(jdbc.query(
+                "SELECT id FROM video_tasks WHERE status='COMPLETED'",
+                (rs, row) -> rs.getObject(1, UUID.class)));
+        int deleted = 0;
+        for (UUID taskId : completed) {
+            Path work = root.resolve("tasks").resolve(taskId.toString()).resolve("render-work").normalize();
+            if (!Files.isDirectory(work, LinkOption.NOFOLLOW_LINKS)
+                    || !SecurePathGuard.isOwned(work, root) || !olderThan(work, cutoff)) continue;
+            deleteOwnedTree(work, root);
+            deleted++;
+            log.info("COMPLETED_RENDER_WORK_RECOVERED taskId={} path={}", taskId, work);
         }
         return deleted;
     }

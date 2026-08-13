@@ -271,6 +271,8 @@ game-narrator:
   cleanup:
     retention-hours: ${CLEANUP_RETENTION_HOURS:24}
     interval-ms: ${CLEANUP_INTERVAL_MS:3600000}
+    render-work-attempts: ${RENDER_WORK_CLEANUP_ATTEMPTS:4}
+    render-work-retry-ms: ${RENDER_WORK_CLEANUP_RETRY_MS:150}
   capacity:
     minimum-free-bytes: ${MINIMUM_FREE_STORAGE_BYTES:5368709120}
     minimum-free-percent: ${MINIMUM_FREE_STORAGE_PERCENT:5}

@@ -39,6 +39,7 @@ public class FfmpegVideoRenderer {
     private final RenderVideoFilterBuilder videoFilterBuilder;
     private final RenderAudioMixBuilder audioMixBuilder;
     private final TimelineTransitionGraphBuilder transitionGraphBuilder;
+    private final RenderWorkLifecycle renderWorkLifecycle;
 
     public FfmpegVideoRenderer(ObjectMapper objectMapper,
             SemanticEffectPlanner effectPlanner,
@@ -48,6 +49,7 @@ public class FfmpegVideoRenderer {
             RenderVideoFilterBuilder videoFilterBuilder,
             RenderAudioMixBuilder audioMixBuilder,
             TimelineTransitionGraphBuilder transitionGraphBuilder,
+            RenderWorkLifecycle renderWorkLifecycle,
             FfmpegEncoderCapabilities encoderCapabilities,
             @Value("${game-narrator.ffmpeg-command}") String ffmpegCommand,
             @Value("${game-narrator.render.video-encoder:h264_nvenc}") String preferredEncoder) {
@@ -59,6 +61,7 @@ public class FfmpegVideoRenderer {
         this.videoFilterBuilder = videoFilterBuilder;
         this.audioMixBuilder = audioMixBuilder;
         this.transitionGraphBuilder = transitionGraphBuilder;
+        this.renderWorkLifecycle = renderWorkLifecycle;
         this.encoderCapabilities = encoderCapabilities;
         this.ffmpegCommand = ffmpegCommand;
         this.preferredEncoder = preferredEncoder;
@@ -212,13 +215,17 @@ public class FfmpegVideoRenderer {
                     95, "RENDER", 3, 3, "混音、字幕与成片封装"));
             log.info("RENDERING_SUCCESS encoder={} duration={} sizeBytes={} output={}",
                     encoder, root.path("outputDurationSeconds").asDouble(), size, output);
+            renderWorkLifecycle.completed(timelinePath.getParent());
             return new RenderResult(output.toString(), subtitle.toString(), size);
         } catch (IllegalStateException exception) {
+            renderWorkLifecycle.failed(timelinePath.getParent(), exception);
             throw exception;
         } catch (Exception exception) {
+            renderWorkLifecycle.failed(timelinePath.getParent(), exception);
             throw new IllegalStateException("视频渲染失败：" + exception.getMessage(), exception);
-        } finally {
-            cleanupWorkDirectory(workDirectory);
+        } catch (Throwable failure) {
+            renderWorkLifecycle.failed(timelinePath.getParent(), failure);
+            throw failure;
         }
     }
 
@@ -427,21 +434,6 @@ public class FfmpegVideoRenderer {
     }
 
     private String decimal(double value) { return String.format(Locale.ROOT, "%.3f", value); }
-
-    private void cleanupWorkDirectory(Path workDirectory) {
-        Path normalized = workDirectory.toAbsolutePath().normalize();
-        if (!"render-work".equals(String.valueOf(normalized.getFileName())) || !Files.isDirectory(normalized)) return;
-        try (var paths = Files.walk(normalized)) {
-            paths.sorted(java.util.Comparator.reverseOrder()).forEach(path -> {
-                try { Files.deleteIfExists(path); }
-                catch (java.io.IOException exception) {
-                    log.warn("RENDER_WORK_CLEANUP_FAILED path={} message={}", path, exception.getMessage());
-                }
-            });
-        } catch (java.io.IOException exception) {
-            log.warn("RENDER_WORK_CLEANUP_FAILED path={} message={}", normalized, exception.getMessage());
-        }
-    }
 
     private void run(List<String> command, Duration timeout, String operation) {
         run(command, timeout, operation, ignored -> { });

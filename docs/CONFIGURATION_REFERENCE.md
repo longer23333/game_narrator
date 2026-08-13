@@ -9,7 +9,7 @@
 - 桌面安装版会自动设置运行目录、端口和并发参数，普通用户不需要手工配置这些项目。
 - PostgreSQL、对象存储和云部署的操作步骤另见 `docs/POSTGRESQL_AND_CLOUD_SYNC.md`。
 
-## 完整清单（146 项）
+## 完整清单（148 项）
 
 | 环境变量 | Spring 配置路径/用途 | 默认值 | 敏感 | 来源 |
 |---|---|---|---|---|
@@ -114,6 +114,8 @@
 | `POSTGRES_PASSWORD` | spring.datasource.password | `无（必须显式设置）` | 是 | application-postgresql.yml |
 | `POSTGRES_URL` | spring.datasource.url | `jdbc:postgresql://127.0.0.1:5432/game_narrator` | 否 | application-postgresql.yml |
 | `POSTGRES_USER` | spring.datasource.username | `game_narrator` | 否 | application-postgresql.yml |
+| `RENDER_WORK_CLEANUP_ATTEMPTS` | game-narrator.cleanup.render-work-attempts | `4` | 否 | application.yml |
+| `RENDER_WORK_CLEANUP_RETRY_MS` | game-narrator.cleanup.render-work-retry-ms | `150` | 否 | application.yml |
 | `REQUIRE_LOGIN` | game-narrator.auth.require-login | `true` | 否 | application-postgresql.yml |
 | `RESOURCE_CPU_UNITS` | game-narrator.resources.cpu-units | `${ASYNC_MAX_POOL_SIZE:4` | 否 | application.yml |
 | `RESOURCE_GPU_MEMORY_BYTES` | game-narrator.resources.gpu-memory-bytes | `7516192768` | 否 | application.yml |

@@ -78,6 +78,29 @@ class StorageCleanupServiceTest {
     }
 
     @Test
+    void crashRecoveryRemovesOnlyExpiredCompletedRenderWork() throws Exception {
+        JdbcTemplate jdbc = mock(JdbcTemplate.class);
+        UUID completed = UUID.randomUUID();
+        UUID failed = UUID.randomUUID();
+        when(jdbc.query(anyString(), any(org.springframework.jdbc.core.RowMapper.class)))
+                .thenAnswer(invocation -> invocation.getArgument(0, String.class).contains("status='COMPLETED'")
+                        ? List.of(completed) : List.of(completed, failed));
+        when(jdbc.queryForList(anyString(), any(Object[].class))).thenReturn(List.of());
+        Path completedWork = Files.createDirectories(temporary.resolve("tasks").resolve(completed.toString()).resolve("render-work"));
+        Path failedWork = Files.createDirectories(temporary.resolve("tasks").resolve(failed.toString()).resolve("render-work"));
+        Files.writeString(completedWork.resolve("clip.mp4"), "recover");
+        Files.writeString(failedWork.resolve("ffmpeg.log"), "diagnose");
+        FileTime old = FileTime.from(Instant.now().minus(2, ChronoUnit.DAYS));
+        Files.setLastModifiedTime(completedWork, old);
+        Files.setLastModifiedTime(failedWork, old);
+
+        new StorageCleanupService(temporary.toString(), 24, jdbc).cleanup();
+
+        assertThat(completedWork).doesNotExist();
+        assertThat(failedWork).exists();
+    }
+
+    @Test
     void taskCleanupRemovesOwnedSegmentAndKnownImportArtifacts() throws Exception {
         JdbcTemplate jdbc = mock(JdbcTemplate.class);
         when(jdbc.queryForList(anyString(), any(Object[].class))).thenReturn(List.of());

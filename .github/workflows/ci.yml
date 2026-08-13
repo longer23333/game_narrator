@@ -35,6 +35,9 @@ jobs:
       - name: Verify parameterized timeline transitions
         shell: pwsh
         run: ./scripts/verify-timeline-transitions.ps1
+      - name: Verify render work lifecycle
+        shell: pwsh
+        run: ./scripts/verify-render-work-cleanup.ps1
 
   frontend:
     runs-on: ubuntu-latest
