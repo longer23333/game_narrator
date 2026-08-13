@@ -21,6 +21,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 import java.util.Collection;
+import java.util.HashSet;
+import java.util.Set;
 import cn.longer233.gamenarrator.task.domain.ProcessingStageType;
 
 @Component
@@ -46,13 +48,14 @@ public class StorageCleanupService implements ApplicationRunner {
         try {
             Path root = SecurePathGuard.prepareRoot(storageRoot);
             Instant cutoff = Instant.now().minus(retention);
+            int orphanTasks = cleanupOrphanTaskDirectories(root, cutoff);
             int temporary = cleanupTemporaryFiles(root, cutoff);
             int imports = cleanupTree(root.resolve("import-downloads"), root, cutoff);
             int previews = cleanupTree(root.resolve("voice-previews"), root, cutoff);
             int exports = cleanupExpiredExports(root);
-            if (temporary + imports + previews + exports > 0) {
-                log.info("STORAGE_CLEANUP temporaryFiles={} importEntries={} voicePreviews={} expiredExports={}",
-                        temporary, imports, previews, exports);
+            if (temporary + orphanTasks + imports + previews + exports > 0) {
+                log.info("STORAGE_RECONCILIATION temporaryFiles={} orphanTaskDirectories={} importEntries={} voicePreviews={} expiredExports={}",
+                        temporary, orphanTasks, imports, previews, exports);
             }
         } catch (Exception exception) {
             log.warn("STORAGE_CLEANUP_FAILED reason={}", exception.getMessage());
@@ -176,8 +179,30 @@ public class StorageCleanupService implements ApplicationRunner {
         int deleted = 0;
         try (var paths = Files.walk(root)) {
             for (Path path : paths.filter(Files::isRegularFile).toList()) {
-                if (!path.getFileName().toString().endsWith(".tmp")) continue;
+                String name = path.getFileName().toString();
+                if (!name.endsWith(".tmp") && !name.endsWith(".part") && !name.endsWith(".partial")) continue;
                 if (olderThan(path, cutoff) && deleteOwned(path, root)) deleted++;
+            }
+        }
+        return deleted;
+    }
+
+    int cleanupOrphanTaskDirectories(Path root, Instant cutoff) throws Exception {
+        Path tasksRoot = root.resolve("tasks");
+        if (!Files.isDirectory(tasksRoot, LinkOption.NOFOLLOW_LINKS)
+                || !SecurePathGuard.isOwned(tasksRoot, root)) return 0;
+        Set<UUID> registered = new HashSet<>(jdbc.query("SELECT id FROM video_tasks",
+                (rs, row) -> rs.getObject(1, UUID.class)));
+        int deleted = 0;
+        try (var directories = Files.list(tasksRoot)) {
+            for (Path directory : directories.filter(path -> Files.isDirectory(path, LinkOption.NOFOLLOW_LINKS)).toList()) {
+                UUID taskId;
+                try { taskId = UUID.fromString(directory.getFileName().toString()); }
+                catch (IllegalArgumentException ignored) { continue; }
+                if (registered.contains(taskId) || !olderThan(directory, cutoff)) continue;
+                deleteOwnedTree(directory, root);
+                deleted++;
+                log.info("ORPHAN_TASK_WORKSPACE_REMOVED taskId={} path={}", taskId, directory);
             }
         }
         return deleted;

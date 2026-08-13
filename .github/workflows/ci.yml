@@ -29,6 +29,9 @@ jobs:
       - name: Verify local model management contract
         shell: pwsh
         run: ./scripts/verify-local-model-management.ps1
+      - name: Verify startup reconciliation and orphan GC
+        shell: pwsh
+        run: ./scripts/verify-startup-reconciliation.ps1
 
   frontend:
     runs-on: ubuntu-latest

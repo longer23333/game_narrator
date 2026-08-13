@@ -19,6 +19,7 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 import cn.longer233.gamenarrator.task.domain.ProcessingStageType;
 
+@SuppressWarnings("unchecked")
 class StorageCleanupServiceTest {
     @TempDir Path temporary;
 
@@ -26,23 +27,54 @@ class StorageCleanupServiceTest {
     void removesOnlyExpiredTemporaryAndImportFiles() throws Exception {
         JdbcTemplate jdbc = mock(JdbcTemplate.class);
         when(jdbc.queryForList(anyString(), any(Object[].class))).thenReturn(List.of());
+        when(jdbc.query(anyString(), any(org.springframework.jdbc.core.RowMapper.class))).thenReturn(List.of());
         Path oldTemporary = temporary.resolve("tasks/a/.artifact.tmp");
         Path recentTemporary = temporary.resolve("tasks/a/.recent.tmp");
         Path oldImport = temporary.resolve("import-downloads/job/video.mp4");
+        Path oldPart = temporary.resolve("tasks/a/download.partial");
         Files.createDirectories(oldTemporary.getParent());
         Files.createDirectories(oldImport.getParent());
         Files.writeString(oldTemporary, "old");
         Files.writeString(recentTemporary, "recent");
         Files.writeString(oldImport, "old");
+        Files.writeString(oldPart, "old");
         FileTime old = FileTime.from(Instant.now().minus(2, ChronoUnit.DAYS));
         Files.setLastModifiedTime(oldTemporary, old);
         Files.setLastModifiedTime(oldImport, old);
+        Files.setLastModifiedTime(oldPart, old);
 
         new StorageCleanupService(temporary.toString(), 24, jdbc).cleanup();
 
         assertThat(oldTemporary).doesNotExist();
         assertThat(oldImport).doesNotExist();
+        assertThat(oldPart).doesNotExist();
         assertThat(recentTemporary).exists();
+    }
+
+    @Test
+    void startupReconciliationDeletesOnlyExpiredUnregisteredUuidWorkspaces() throws Exception {
+        JdbcTemplate jdbc = mock(JdbcTemplate.class);
+        UUID registered = UUID.randomUUID();
+        UUID orphan = UUID.randomUUID();
+        UUID recentOrphan = UUID.randomUUID();
+        when(jdbc.query(anyString(), any(org.springframework.jdbc.core.RowMapper.class)))
+                .thenReturn(List.of(registered));
+        when(jdbc.queryForList(anyString(), any(Object[].class))).thenReturn(List.of());
+        Path registeredDir = Files.createDirectories(temporary.resolve("tasks").resolve(registered.toString()));
+        Path orphanDir = Files.createDirectories(temporary.resolve("tasks").resolve(orphan.toString()));
+        Path recentDir = Files.createDirectories(temporary.resolve("tasks").resolve(recentOrphan.toString()));
+        Files.writeString(registeredDir.resolve("keep.txt"), "registered");
+        Files.writeString(orphanDir.resolve("crash.part"), "orphan");
+        Files.writeString(recentDir.resolve("keep.txt"), "recent");
+        FileTime old = FileTime.from(Instant.now().minus(2, ChronoUnit.DAYS));
+        Files.setLastModifiedTime(orphanDir, old);
+        Files.setLastModifiedTime(registeredDir, old);
+
+        new StorageCleanupService(temporary.toString(), 24, jdbc).cleanup();
+
+        assertThat(registeredDir).exists();
+        assertThat(orphanDir).doesNotExist();
+        assertThat(recentDir).exists();
     }
 
     @Test
