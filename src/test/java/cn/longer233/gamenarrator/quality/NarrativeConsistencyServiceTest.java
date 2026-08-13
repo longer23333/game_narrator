@@ -1,6 +1,8 @@
 package cn.longer233.gamenarrator.quality;
 
-import cn.longer233.gamenarrator.event.GameEventFact;
+import cn.longer233.gamenarrator.event.GameEventEvidence;
+import cn.longer233.gamenarrator.event.GameEventView;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import cn.longer233.gamenarrator.event.GameEventTimelineService;
 import cn.longer233.gamenarrator.script.ScriptWorkspaceService;
 import cn.longer233.gamenarrator.script.StoryboardSegmentView;
@@ -13,6 +15,7 @@ import java.nio.file.Files;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
+import java.time.OffsetDateTime;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
@@ -27,22 +30,34 @@ class NarrativeConsistencyServiceTest {
         var tasks = mock(VideoTaskRepository.class);
         var task = mock(VideoTask.class);
         var visual = Files.createTempFile("visual-evidence", ".json");
+        var evidenceDir = Files.createTempDirectory("narrative-evidence");
+        var transcript = evidenceDir.resolve("transcript.json");
+        var speakers = evidenceDir.resolve("speaker-segments.json");
+        Files.writeString(speakers, """
+                {"segments":[{"startMillis":0,"endMillis":5000,"speakerType":"PLAYER_VOICE"}]}
+                """);
+        Files.writeString(transcript, "{}");
         when(task.getVisualAnalysisPath()).thenReturn(visual.toString());
-        when(task.getTranscriptJsonPath()).thenReturn(null);
+        when(task.getTranscriptJsonPath()).thenReturn(transcript.toString());
         when(task.getTranscriptTextPath()).thenReturn(null);
         when(tasks.findById(taskId)).thenReturn(Optional.of(task));
-        when(events.confirmedFacts(taskId)).thenReturn(List.of(
-                new GameEventFact("BATTLE", "confirmed", 0, 5, 80)));
+        when(events.list(taskId)).thenReturn(List.of(new GameEventView(UUID.randomUUID(), taskId, 0, 5, 2,
+                "BATTLE", .55, 80, "confirmed", List.of(new GameEventEvidence("OCR", "victory", 2, 1)),
+                "CONFIRMED", false, "boss-battle", OffsetDateTime.now())));
         when(workspace.storyboard(taskId)).thenReturn(new StoryboardView("title", "synopsis", true, true,
                 List.of(segment(1, 0, 5), segment(2, 10, 15), segment(3, 20, 25))));
 
-        NarrativeQualityReport report = new NarrativeConsistencyService(events, workspace, tasks).inspect(taskId);
+        NarrativeQualityReport report = new NarrativeConsistencyService(events, workspace, tasks, new ObjectMapper()).inspect(taskId);
 
         assertThat(report.passed()).isFalse();
         assertThat(report.supportedSegmentCount()).isEqualTo(1);
         assertThat(report.evidenceCoverage()).isCloseTo(1d / 3d, org.assertj.core.data.Offset.offset(.001));
         assertThat(report.issues()).extracting(NarrativeQualityReport.Issue::type)
-                .contains("EVIDENCE_COVERAGE");
+                .contains("EVIDENCE_COVERAGE", "EVENT_CONFIDENCE");
+        assertThat(report.ocrEvidenceCoverage()).isEqualTo(1);
+        assertThat(report.knowledgeEvidenceCoverage()).isEqualTo(1);
+        assertThat(report.speakerCoverage()).isCloseTo(1d / 3d, org.assertj.core.data.Offset.offset(.001));
+        assertThat(report.issues()).extracting(NarrativeQualityReport.Issue::type).contains("SPEAKER_EVIDENCE");
     }
 
     private StoryboardSegmentView segment(int index, double start, double end) {

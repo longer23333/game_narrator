@@ -24,6 +24,8 @@ public final class MobileReleaseNotes {
 
     public static List<Note> notes() {
         List<Note> notes = new ArrayList<>();
+        notes.add(new Note("2.2.13", "多源证据文案评分",
+                "同步更新各平台版本，完成对应功能修复、稳定性检查与发布记录。"));
         notes.add(new Note("2.2.12", "证据约束脚本评分",
                 "同步更新各平台版本，完成对应功能修复、稳定性检查与发布记录。"));
         notes.add(new Note("2.2.11", "发布就绪度看板",

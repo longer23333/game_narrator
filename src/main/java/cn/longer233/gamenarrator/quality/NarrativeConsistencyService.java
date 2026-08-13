@@ -1,12 +1,15 @@
 package cn.longer233.gamenarrator.quality;
 
 import cn.longer233.gamenarrator.event.GameEventFact;
+import cn.longer233.gamenarrator.event.GameEventView;
 import cn.longer233.gamenarrator.event.GameEventTimelineService;
 import cn.longer233.gamenarrator.script.ScriptWorkspaceService;
 import cn.longer233.gamenarrator.script.StoryboardSegmentView;
 import cn.longer233.gamenarrator.task.domain.VideoTask;
 import cn.longer233.gamenarrator.task.repository.VideoTaskRepository;
 import org.springframework.stereotype.Service;
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
 
 import java.util.ArrayList;
 import java.util.HashSet;
@@ -26,16 +29,21 @@ public class NarrativeConsistencyService {
     private final GameEventTimelineService events;
     private final ScriptWorkspaceService workspace;
     private final VideoTaskRepository tasks;
+    private final ObjectMapper mapper;
 
     public NarrativeConsistencyService(GameEventTimelineService events, ScriptWorkspaceService workspace,
-                                       VideoTaskRepository tasks) {
+                                       VideoTaskRepository tasks, ObjectMapper mapper) {
         this.events = events;
         this.workspace = workspace;
         this.tasks = tasks;
+        this.mapper = mapper;
     }
 
     public NarrativeQualityReport inspect(UUID taskId) {
-        List<GameEventFact> facts = events.confirmedFacts(taskId);
+        List<GameEventView> confirmedEvents = events.list(taskId).stream()
+                .filter(event -> "CONFIRMED".equals(event.confirmationStatus())).toList();
+        List<GameEventFact> facts = confirmedEvents.stream().map(event -> new GameEventFact(event.eventType(),
+                event.description(), event.startSeconds(), event.endSeconds(), event.importance())).toList();
         List<StoryboardSegmentView> segments = workspace.storyboard(taskId).segments();
         VideoTask task = tasks.findById(taskId).orElseThrow();
         List<NarrativeQualityReport.Issue> issues = new ArrayList<>();
@@ -74,6 +82,15 @@ public class NarrativeConsistencyService {
         int supportedSegments = (int) segments.stream().filter(segment -> facts.stream().anyMatch(fact ->
                 fact.startSeconds() <= segment.endSeconds() && fact.endSeconds() >= segment.startSeconds())).count();
         double evidenceCoverage = segments.isEmpty() ? 0 : supportedSegments / (double) segments.size();
+        double averageEventConfidence = confirmedEvents.stream().mapToDouble(GameEventView::confidence)
+                .average().orElse(0);
+        double ocrEvidenceCoverage = confirmedEvents.isEmpty() ? 0 : confirmedEvents.stream()
+                .filter(event -> event.evidence().stream().anyMatch(item -> "OCR".equals(item.sourceType())))
+                .count() / (double) confirmedEvents.size();
+        double knowledgeEvidenceCoverage = confirmedEvents.isEmpty() ? 0 : confirmedEvents.stream()
+                .filter(event -> event.knowledgePackCode() != null && !event.knowledgePackCode().isBlank())
+                .count() / (double) confirmedEvents.size();
+        double speakerCoverage = speakerCoverage(task, segments);
         if (!visualAvailable) issues.add(issue("EVIDENCE_COVERAGE", "ERROR", null,
                 "缺少视觉分析证据，脚本评分不能判定为通过", "visualAnalysisPath unavailable"));
         if (!asrAvailable) issues.add(issue("EVIDENCE_COVERAGE", "WARNING", null,
@@ -84,12 +101,23 @@ public class NarrativeConsistencyService {
         else if (evidenceCoverage < .8) issues.add(issue("EVIDENCE_COVERAGE", "WARNING", null,
                 "部分文案片段缺少时间重叠的已确认事件证据",
                 "%d/%d segments supported".formatted(supportedSegments, segments.size())));
+        if (!confirmedEvents.isEmpty() && averageEventConfidence < .6) issues.add(issue("EVENT_CONFIDENCE", "ERROR", null,
+                "已确认事件的平均置信度过低", "average confidence %.2f".formatted(averageEventConfidence)));
+        else if (!confirmedEvents.isEmpty() && averageEventConfidence < .75) issues.add(issue("EVENT_CONFIDENCE", "WARNING", null,
+                "已确认事件的平均置信度偏低", "average confidence %.2f".formatted(averageEventConfidence)));
+        if (asrAvailable && speakerCoverage < .5) issues.add(issue("SPEAKER_EVIDENCE", "WARNING", null,
+                "少于一半文案片段有时间对齐的说话人证据", "speaker coverage %.0f%%".formatted(speakerCoverage * 100)));
+        if (!confirmedEvents.isEmpty() && ocrEvidenceCoverage == 0) issues.add(issue("OCR_EVIDENCE", "WARNING", null,
+                "已确认事件没有 OCR 交叉证据", "0/%d confirmed events".formatted(confirmedEvents.size())));
+        if (!confirmedEvents.isEmpty() && knowledgeEvidenceCoverage == 0) issues.add(issue("KNOWLEDGE_EVIDENCE", "WARNING", null,
+                "已确认事件没有知识包引用", "0/%d confirmed events".formatted(confirmedEvents.size())));
         int errors = (int) issues.stream().filter(i -> "ERROR".equals(i.severity())).count();
         int warnings = issues.size() - errors;
         int score = Math.max(0, 100 - errors * 25 - warnings * 8);
         boolean passed = errors == 0 && score >= 75;
         return new NarrativeQualityReport(taskId, score, passed, List.copyOf(issues), facts.size(),
                 supportedSegments, segments.size(), evidenceCoverage,
+                averageEventConfidence, speakerCoverage, ocrEvidenceCoverage, knowledgeEvidenceCoverage,
                 passed ? "叙事连续性和事实一致性检查通过" : "发现 %d 个错误、%d 个提醒".formatted(errors, warnings));
     }
 
@@ -97,6 +125,30 @@ public class NarrativeConsistencyService {
         if (value == null || value.isBlank()) return false;
         try { return Files.isRegularFile(Path.of(value).toAbsolutePath().normalize()); }
         catch (RuntimeException ignored) { return false; }
+    }
+
+    private double speakerCoverage(VideoTask task, List<StoryboardSegmentView> segments) {
+        if (segments.isEmpty() || !artifactExists(task.getTranscriptJsonPath())) return 0;
+        try {
+            JsonNode transcript = mapper.readTree(Path.of(task.getTranscriptJsonPath()).toFile());
+            String configured = transcript.path("speakerDiarization").path("path").asText("");
+            Path speakerPath = configured.isBlank()
+                    ? Path.of(task.getTranscriptJsonPath()).resolveSibling("speaker-segments.json") : Path.of(configured);
+            if (!Files.isRegularFile(speakerPath)) return 0;
+            JsonNode speakerSegments = mapper.readTree(speakerPath.toFile()).path("segments");
+            int supported = 0;
+            for (StoryboardSegmentView segment : segments) {
+                boolean overlap = false;
+                for (JsonNode speaker : speakerSegments) {
+                    double start = speaker.path("startMillis").asDouble() / 1000d;
+                    double end = speaker.path("endMillis").asDouble() / 1000d;
+                    if (!speaker.path("speakerType").asText("").isBlank()
+                            && start <= segment.endSeconds() && end >= segment.startSeconds()) { overlap = true; break; }
+                }
+                if (overlap) supported++;
+            }
+            return supported / (double) segments.size();
+        } catch (Exception ignored) { return 0; }
     }
 
     private NarrativeQualityReport.Issue issue(String type, String severity, Integer clip, String message, String evidence) {
