@@ -28,3 +28,5 @@ Android release 默认启用 R8 与资源裁剪，并关闭系统自动备份。
 只能用于本地非发布审计。脚本会同时归档 APK、R8 mapping/usage/resources、证书信息、SHA-256 与
 包含提交哈希的制品清单。`verify-android-production-release.ps1 -RequireProductionArtifacts
 -RequireUpgradeEvidence` 只有在生产签名产物及 2.2.4→当前版本真机升级证据同时存在时才通过。
+
+常规 CI 的 `release-evidence` 汇总作业仅在 migration、documentation、frontend、Android、Android emulator、backend 和 performance baseline 全部成功后运行，生成 `ci-release-result-<commit>` 制品。下载其中的 `artifacts/ci-release-result.json` 后，`verify-ci-release-evidence.ps1` 会强制校验当前提交、七项门禁、运行链接和 7 天有效期；发布就绪度页面还会校验相同语义，空文件或旧提交不能显示绿色。

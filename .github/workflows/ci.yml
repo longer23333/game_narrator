@@ -181,3 +181,21 @@ jobs:
         run: |
           chmod +x mvnw
           ./mvnw -Dtest=LongVideoPerformanceIT test
+
+  release-evidence:
+    name: Publish same-commit CI release evidence
+    if: github.event_name == 'push'
+    needs: [migration-baseline, documentation, frontend, android, android-emulator, backend, performance-baseline]
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Create passed CI evidence
+        shell: pwsh
+        run: ./scripts/new-ci-release-evidence.ps1 -Commit '${{ github.sha }}' -RunId '${{ github.run_id }}' -RunUrl '${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}'
+      - name: Upload CI release evidence
+        uses: actions/upload-artifact@v4
+        with:
+          name: ci-release-result-${{ github.sha }}
+          path: artifacts/ci-release-result.json
+          if-no-files-found: error
+          retention-days: 30
