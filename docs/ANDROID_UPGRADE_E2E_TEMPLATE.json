@@ -1,0 +1,11 @@
+{
+  "fromVersion": "2.2.4",
+  "toVersion": "REPLACE_WITH_CURRENT_VERSION",
+  "commit": "REPLACE_WITH_TESTED_COMMIT",
+  "device": {"serial": "REDACTED_DEVICE_ID", "model": "", "androidVersion": ""},
+  "apkUpgrade": false,
+  "databaseIntegrity": false,
+  "projectIntegrity": false,
+  "mediaIntegrity": false,
+  "notes": "Install the production-signed 2.2.4 APK, create a project with media and edits, then install the current APK with adb install -r and verify all checks."
+}

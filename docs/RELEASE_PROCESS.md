@@ -22,3 +22,9 @@ GitHub 的“自动更新版本并发布标签”工作流只接收一个语义�
 Android release 默认启用 R8 与资源裁剪，并关闭系统自动备份。发布产物除 APK 外还应归档
 `android-app/app/build/outputs/mapping/release/mapping.txt`，用于还原压缩后的崩溃堆栈。
 项目迁移使用应用内 `.gnproject.json` 归档，不依赖 Android Backup 恢复数据库、模型、媒体或 AI 凭据。
+
+正式 Android 构建必须通过环境变量提供 `GN_KEYSTORE`、`GN_KEYSTORE_PASSWORD`、`GN_KEY_ALIAS`、
+`GN_KEY_PASSWORD`。`build-android-release-signed.ps1` 默认拒绝缺少生产密钥的构建；`-AllowTestKey`
+只能用于本地非发布审计。脚本会同时归档 APK、R8 mapping/usage/resources、证书信息、SHA-256 与
+包含提交哈希的制品清单。`verify-android-production-release.ps1 -RequireProductionArtifacts
+-RequireUpgradeEvidence` 只有在生产签名产物及 2.2.4→当前版本真机升级证据同时存在时才通过。
