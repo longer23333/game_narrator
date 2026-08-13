@@ -47,8 +47,10 @@ class RenderVideoFilterBuilderTest {
                 VisualEffectType.VIGNETTE, VisualEffectType.COOL_TONE, VisualEffectType.RGB_SPLIT,
                 VisualEffectType.PIXELATE, VisualEffectType.LENS_DISTORTION), TransitionType.DISSOLVE, "test");
 
-        assertThat(filterBuilder.video(segment, plan)).contains("gblur=", "vignette=", "colorbalance=",
-                "rgbashift=", "flags=neighbor", "lenscorrection=", "fade=t=in");
+        String graph = filterBuilder.video(segment, plan);
+        assertThat(graph).contains("gblur=", "vignette=", "colorbalance=",
+                "rgbashift=", "flags=neighbor", "lenscorrection=");
+        assertThat(graph).doesNotContain("fade=t=in", "fade=t=out");
     }
 
     @Test

@@ -126,12 +126,6 @@ public class RenderVideoFilterBuilder {
                 filters.add("lut3d=file='" + filterPath(lutPath) + "'");
             }
         }
-        if (plan.transition() == TransitionType.FADE || plan.transition() == TransitionType.DISSOLVE) {
-            filters.add("fade=t=in:st=0:d=" + decimal(transitionDuration));
-            filters.add("fade=t=out:st=" + decimal(Math.max(0, duration - transitionDuration)) + ":d=" + decimal(transitionDuration));
-        } else if (plan.transition() == TransitionType.PUSH) {
-            filters.add("crop=iw:ih:x='min(30,30*t/0.25)':y=0"); filters.add("scale=1920:1080");
-        }
         filters.add("setsar=1");
         filters.add("format=yuv420p");
         return String.join(",", filters);

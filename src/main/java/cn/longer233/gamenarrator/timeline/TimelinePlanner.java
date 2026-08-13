@@ -9,6 +9,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
+import org.springframework.beans.factory.annotation.Autowired;
 
 import javax.sound.sampled.AudioSystem;
 import java.nio.file.Files;
@@ -23,10 +24,18 @@ public class TimelinePlanner {
     private static final Logger log = LoggerFactory.getLogger(TimelinePlanner.class);
     private final ObjectMapper objectMapper;
     private final TimelineValidator timelineValidator;
+    private final TimelineTransitionPlanner transitionPlanner;
 
-    public TimelinePlanner(ObjectMapper objectMapper, TimelineValidator timelineValidator) {
+    @Autowired
+    public TimelinePlanner(ObjectMapper objectMapper, TimelineValidator timelineValidator,
+                           TimelineTransitionPlanner transitionPlanner) {
         this.objectMapper = objectMapper;
         this.timelineValidator = timelineValidator;
+        this.transitionPlanner = transitionPlanner;
+    }
+
+    public TimelinePlanner(ObjectMapper objectMapper, TimelineValidator timelineValidator) {
+        this(objectMapper, timelineValidator, new TimelineTransitionPlanner());
     }
 
     public TimelinePlanningResult plan(Path highlightPath, Path scriptPath, Path voiceManifestPath) {
@@ -52,9 +61,14 @@ public class TimelinePlanner {
                 double voiceDuration = wavDuration(Path.of(voice.audioPath()));
                 boolean overflow = voiceDuration > clipDuration - 0.3;
                 if (overflow) overflowCount++;
+                double previousDuration = timeline.isEmpty() ? 0
+                        : timeline.getLast().sourceEndSeconds() - timeline.getLast().sourceStartSeconds();
+                var transition = transitionPlanner.boundary(script.effectCue(), sequence, previousDuration, clipDuration);
+                cursor = Math.max(0, cursor - transition.durationSeconds());
                 timeline.add(new TimelineSegment(sequence++, cursor, cursor + clipDuration,
                         clip.startSeconds(), clip.endSeconds(), script.narration(), script.subtitle(),
-                        script.effectCue(), voice.audioPath(), voiceDuration, overflow));
+                        script.effectCue(), voice.audioPath(), voiceDuration, overflow, transition.type(),
+                        transition.durationSeconds(), transition.direction(), transition.curve()));
                 cursor += clipDuration;
             }
             Path output = highlightPath.getParent().resolve("timeline.json");
@@ -106,7 +120,8 @@ public class TimelinePlanner {
             TimelineSegment refreshed = new TimelineSegment(current.sequence(), current.outputStartSeconds(),
                     current.outputEndSeconds(), current.sourceStartSeconds(), current.sourceEndSeconds(),
                     script.narration(), script.subtitle(), script.effectCue(), voice.audioPath(), voiceDuration,
-                    voiceDuration > clipDuration - 0.3);
+                    voiceDuration > clipDuration - 0.3, current.transitionType(),
+                    current.transitionDurationSeconds(), current.transitionDirection(), current.transitionCurve());
             List<TimelineSegment> revised = new ArrayList<>(timeline);
             revised.set(position, refreshed);
             double outputDuration = existing.path("outputDurationSeconds").asDouble(

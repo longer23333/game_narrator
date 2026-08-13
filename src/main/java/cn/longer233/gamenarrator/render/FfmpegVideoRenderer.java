@@ -38,6 +38,7 @@ public class FfmpegVideoRenderer {
     private final RenderAssetResolver renderAssetResolver;
     private final RenderVideoFilterBuilder videoFilterBuilder;
     private final RenderAudioMixBuilder audioMixBuilder;
+    private final TimelineTransitionGraphBuilder transitionGraphBuilder;
 
     public FfmpegVideoRenderer(ObjectMapper objectMapper,
             SemanticEffectPlanner effectPlanner,
@@ -46,6 +47,7 @@ public class FfmpegVideoRenderer {
             RenderAssetResolver renderAssetResolver,
             RenderVideoFilterBuilder videoFilterBuilder,
             RenderAudioMixBuilder audioMixBuilder,
+            TimelineTransitionGraphBuilder transitionGraphBuilder,
             FfmpegEncoderCapabilities encoderCapabilities,
             @Value("${game-narrator.ffmpeg-command}") String ffmpegCommand,
             @Value("${game-narrator.render.video-encoder:h264_nvenc}") String preferredEncoder) {
@@ -56,6 +58,7 @@ public class FfmpegVideoRenderer {
         this.renderAssetResolver = renderAssetResolver;
         this.videoFilterBuilder = videoFilterBuilder;
         this.audioMixBuilder = audioMixBuilder;
+        this.transitionGraphBuilder = transitionGraphBuilder;
         this.encoderCapabilities = encoderCapabilities;
         this.ffmpegCommand = ffmpegCommand;
         this.preferredEncoder = preferredEncoder;
@@ -147,7 +150,10 @@ public class FfmpegVideoRenderer {
                         "sequence", segment.sequence(),
                         "effectCue", segment.effectCue() == null ? "" : segment.effectCue(),
                         "effects", effectPlan.effects(),
-                        "transition", effectPlan.transition(),
+                        "transition", segment.transitionType(),
+                        "transitionDurationSeconds", segment.transitionDurationSeconds(),
+                        "transitionDirection", segment.transitionDirection(),
+                        "transitionCurve", segment.transitionCurve(),
                         "reason", effectPlan.reason()));
                 log.info("RENDER_CLIP_SUCCESS sequence={} encoder={} output={}", index + 1, encoder, clip);
             }
@@ -172,15 +178,8 @@ public class FfmpegVideoRenderer {
                                     "lutEnabled", lutPath != null),
                             "segments", effectManifest));
 
-            Path concatList = workDirectory.resolve("concat.txt");
-            cn.longer233.gamenarrator.common.AtomicArtifactWriter.writeText(concatList, clips.stream()
-                    .map(path -> "file '" + path.toAbsolutePath().toString().replace('\\', '/') + "'")
-                    .reduce((left, right) -> left + System.lineSeparator() + right).orElseThrow(),
-                    StandardCharsets.UTF_8);
             Path baseVideo = workDirectory.resolve("base.mp4");
-            run(List.of(ffmpegCommand, "-y", "-hide_banner", "-loglevel", "warning",
-                    "-f", "concat", "-safe", "0", "-i", concatList.toString(),
-                    "-c", "copy", baseVideo.toString()), Duration.ofMinutes(30), "片段拼接");
+            concatenateClips(clips, segments, baseVideo, workDirectory, encoder);
 
             Path subtitle = taskDirectory.resolve("generated-subtitles.srt");
             progressConsumer.accept(cn.longer233.gamenarrator.pipeline.StageProgressUpdate.of(
@@ -258,6 +257,50 @@ public class FfmpegVideoRenderer {
                 progressConsumer.accept(Math.max(0, Math.min(1, elapsed / Math.max(.1, duration))));
             } catch (NumberFormatException ignored) { }
         });
+    }
+
+    private void concatenateClips(List<Path> clips, List<TimelineSegment> segments, Path output,
+                                  Path workDirectory, String encoder) {
+        var transition = transitionGraphBuilder.build(segments);
+        if (transition.enabled()) {
+            List<String> command = new ArrayList<>(List.of(ffmpegCommand, "-y", "-hide_banner", "-loglevel", "warning"));
+            clips.forEach(clip -> command.addAll(List.of("-i", clip.toString())));
+            command.addAll(List.of("-filter_complex", transition.filterGraph(), "-map", "[vout]", "-map", "[aout]",
+                    "-c:v", encoder));
+            if ("h264_nvenc".equals(encoder)) command.addAll(List.of("-preset", "p4", "-cq", "23"));
+            else command.addAll(List.of("-preset", "veryfast", "-crf", "22"));
+            command.addAll(List.of("-c:a", "aac", "-ar", "48000", "-ac", "2", output.toString()));
+            try {
+                run(command, Duration.ofMinutes(30), "parameterized timeline transition");
+                log.info("TIMELINE_TRANSITION_SUCCESS boundaries={} outputDuration={}",
+                        segments.size() - 1, transition.outputDurationSeconds());
+                return;
+            } catch (IllegalStateException exception) {
+                log.warn("TIMELINE_TRANSITION_FALLBACK mode=HARD_CUT reason={}", exception.getMessage());
+                try { Files.deleteIfExists(output); } catch (java.io.IOException ignored) { }
+                var fallback = transitionGraphBuilder.hardCutFallback(segments);
+                List<String> fallbackCommand = new ArrayList<>(List.of(ffmpegCommand, "-y", "-hide_banner",
+                        "-loglevel", "warning"));
+                clips.forEach(clip -> fallbackCommand.addAll(List.of("-i", clip.toString())));
+                fallbackCommand.addAll(List.of("-filter_complex", fallback.filterGraph(), "-map", "[vout]",
+                        "-map", "[aout]", "-c:v", "libx264", "-preset", "veryfast", "-crf", "23",
+                        "-c:a", "aac", "-ar", "48000", "-ac", "2", output.toString()));
+                run(fallbackCommand, Duration.ofMinutes(30), "synchronized hard-cut transition fallback");
+                return;
+            }
+        }
+        Path concatList = workDirectory.resolve("concat.txt");
+        try {
+            cn.longer233.gamenarrator.common.AtomicArtifactWriter.writeText(concatList, clips.stream()
+                    .map(path -> "file '" + path.toAbsolutePath().toString().replace('\\', '/') + "'")
+                    .reduce((left, right) -> left + System.lineSeparator() + right).orElseThrow(),
+                    StandardCharsets.UTF_8);
+        } catch (java.io.IOException exception) {
+            throw new IllegalStateException("cannot write concat manifest", exception);
+        }
+        run(List.of(ffmpegCommand, "-y", "-hide_banner", "-loglevel", "warning", "-f", "concat",
+                "-safe", "0", "-i", concatList.toString(), "-c", "copy", output.toString()),
+                Duration.ofMinutes(30), "hard-cut fallback concat");
     }
 
     private List<RenderAssetResolver.RenderAsset> visualAssets(List<RenderAssetResolver.RenderAsset> assets,

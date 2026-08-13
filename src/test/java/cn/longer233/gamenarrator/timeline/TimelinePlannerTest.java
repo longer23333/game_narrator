@@ -97,6 +97,31 @@ class TimelinePlannerTest {
                 .isEqualTo(2);
     }
 
+    @Test
+    void transitionOverlapUpdatesOutputCoordinatesForAudioAndSubtitleSynchronization() throws Exception {
+        ObjectMapper mapper = new ObjectMapper();
+        Path highlights = tempDir.resolve("transition-highlights.json");
+        Path scripts = tempDir.resolve("transition-script.json");
+        Path voices = tempDir.resolve("transition-voices.json");
+        Path wav = tempDir.resolve("transition.wav");
+        writeSilentWav(wav, 1);
+        mapper.writeValue(highlights.toFile(), Map.of("clips", List.of(
+                new HighlightClip(1, 0, 4, 2, "A", "one", 70, 70),
+                new HighlightClip(2, 5, 9, 7, "B", "two", 80, 80))));
+        mapper.writeValue(scripts.toFile(), Map.of("segments", List.of(
+                new ScriptSegment(1, 0, 4, "first", "s1", "hard cut"),
+                new ScriptSegment(2, 5, 9, "second", "s2", "叠化"))));
+        mapper.writeValue(voices.toFile(), Map.of("segments", List.of(
+                new VoiceSegment(1, wav.toString(), "first"), new VoiceSegment(2, wav.toString(), "second"))));
+
+        var result = new TimelinePlanner(mapper, new TimelineValidator()).plan(highlights, scripts, voices);
+
+        assertThat(result.segments().get(1).transitionType()).isEqualTo("DISSOLVE");
+        assertThat(result.segments().get(1).transitionDurationSeconds()).isEqualTo(.45);
+        assertThat(result.segments().get(1).outputStartSeconds()).isEqualTo(3.55);
+        assertThat(result.outputDurationSeconds()).isEqualTo(7.55);
+    }
+
     private void writeSilentWav(Path output, int seconds) throws Exception {
         AudioFormat format = new AudioFormat(16_000, 16, 1, true, false);
         byte[] bytes = new byte[16_000 * 2 * seconds];

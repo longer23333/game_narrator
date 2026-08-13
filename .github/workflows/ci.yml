@@ -32,6 +32,9 @@ jobs:
       - name: Verify startup reconciliation and orphan GC
         shell: pwsh
         run: ./scripts/verify-startup-reconciliation.ps1
+      - name: Verify parameterized timeline transitions
+        shell: pwsh
+        run: ./scripts/verify-timeline-transitions.ps1
 
   frontend:
     runs-on: ubuntu-latest

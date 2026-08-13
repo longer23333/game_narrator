@@ -28,7 +28,16 @@ public class TimelineValidator {
             }
             requireFiniteRange(prefix, segment.outputStartSeconds(), segment.outputEndSeconds(), "输出");
             requireFiniteRange(prefix, segment.sourceStartSeconds(), segment.sourceEndSeconds(), "源视频");
-            if (Math.abs(segment.outputStartSeconds() - expectedStart) > EPSILON) {
+            double segmentDuration = segment.outputEndSeconds() - segment.outputStartSeconds();
+            if (!Double.isFinite(segment.transitionDurationSeconds()) || segment.transitionDurationSeconds() < 0
+                    || segment.transitionDurationSeconds() > segmentDuration * .35 + EPSILON) {
+                throw new IllegalStateException(prefix + "transition duration violates adjacent clip constraints");
+            }
+            if (segment.sequence() == 1 && segment.transitionDurationSeconds() > EPSILON) {
+                throw new IllegalStateException(prefix + "first clip cannot overlap a previous clip");
+            }
+            double expectedBoundary = Math.max(0, expectedStart - segment.transitionDurationSeconds());
+            if (Math.abs(segment.outputStartSeconds() - expectedBoundary) > EPSILON) {
                 throw new IllegalStateException(prefix + "与上一片段之间存在空隙或重叠");
             }
             if (!Double.isFinite(segment.voiceDurationSeconds()) || segment.voiceDurationSeconds() <= 0) {

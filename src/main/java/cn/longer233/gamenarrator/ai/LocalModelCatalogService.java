@@ -2,6 +2,7 @@ package cn.longer233.gamenarrator.ai;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
@@ -30,6 +31,7 @@ public class LocalModelCatalogService {
     private final HttpClient http;
     private final URI baseUri;
 
+    @Autowired
     public LocalModelCatalogService(ObjectMapper mapper,
             @Value("${game-narrator.ollama.base-url:http://localhost:11434}") String baseUrl) {
         this(mapper, baseUrl, HttpClient.newBuilder().connectTimeout(Duration.ofSeconds(5)).build());
