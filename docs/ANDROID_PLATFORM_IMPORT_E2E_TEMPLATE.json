@@ -1,0 +1,11 @@
+{
+  "commit": "REPLACE_WITH_TESTED_COMMIT",
+  "testedAt": "YYYY-MM-DDTHH:mm:ss+08:00",
+  "device": {"serial": "REDACTED_DEVICE_ID", "model": "", "androidVersion": ""},
+  "platforms": {
+    "bilibili": {"login": false, "resolve": false, "formatSelect": false, "cancel": false, "resume": false, "projectCreated": false, "notes": ""},
+    "douyin": {"login": false, "resolve": false, "formatSelect": false, "cancel": false, "resume": false, "projectCreated": false, "notes": ""},
+    "kuaishou": {"login": false, "resolve": false, "formatSelect": false, "cancel": false, "resume": false, "projectCreated": false, "notes": ""},
+    "youtube": {"login": false, "resolve": false, "formatSelect": false, "cancel": false, "resume": false, "projectCreated": false, "notes": ""}
+  }
+}

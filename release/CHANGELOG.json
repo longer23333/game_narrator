@@ -1,7 +1,17 @@
 {
     "schemaVersion":  1,
-    "currentVersion":  "2.2.7",
+    "currentVersion":  "2.2.8",
     "releases":  [
+                     {
+                         "version":  "2.2.8",
+                         "title":  "平台下载断点恢复",
+                         "summary":  "统一 Web、Windows 与 Android 版本，完成对应功能修复、稳定性检查与发布记录。",
+                         "items":  [
+                                       "同步更新 Web、Windows 与 Android 版本",
+                                       "完成本版本功能修复与稳定性检查",
+                                       "创建并同步 GitHub、Gitee 发布标签"
+                                   ]
+                     },
                      {
                          "version":  "2.2.7",
                          "title":  "公共素材下载闭环",

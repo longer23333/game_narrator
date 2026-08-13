@@ -3,6 +3,8 @@ package cn.longer233.gamenarrator.mobile;
 import org.junit.Test;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
+import static org.junit.Assert.assertEquals;
+import java.net.URI;
 
 public final class RemoteMediaImporterTest {
     @Test public void rejectsNonHttpSchemeBeforeConnecting() {
@@ -13,6 +15,13 @@ public final class RemoteMediaImporterTest {
             assertTrue(error instanceof IllegalArgumentException);
             assertTrue(error.getMessage().contains("HTTP"));
         }
+    }
+
+    @Test public void validatesResumeRangeAndStableKey() throws Exception {
+        assertTrue(RemoteMediaImporter.contentRangeStartsAt("bytes 1024-2047/4096",1024));
+        assertTrue(!RemoteMediaImporter.contentRangeStartsAt("bytes 0-2047/4096",1024));
+        assertEquals(RemoteMediaImporter.resumeKey(URI.create("https://example.com/a.mp4")),
+                RemoteMediaImporter.resumeKey(URI.create("https://example.com/a.mp4")));
     }
 
     @Test public void rejectsEmbeddedCredentialsBeforeConnecting() {

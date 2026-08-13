@@ -8,6 +8,8 @@ import java.io.FileOutputStream;
 import java.net.HttpURLConnection;
 import java.net.URI;
 import java.net.URL;
+import java.nio.charset.StandardCharsets;
+import java.security.MessageDigest;
 import java.util.List;
 import java.util.Locale;
 
@@ -49,12 +51,20 @@ public final class RemoteMediaImporter {
     public static Result download(Context context,String rawUrl,String cookies,Progress progress) throws Exception {
         URI source=sourceUri(rawUrl);
         File movies=context.getExternalFilesDir(Environment.DIRECTORY_MOVIES);if(movies==null)throw new IllegalStateException("设备没有可用的影片目录");File root=new File(movies,"imports");if(!root.isDirectory()&&!root.mkdirs())throw new IllegalStateException("无法创建导入目录");
+        File part=new File(root,"resume-"+resumeKey(source)+".part");
+        long offset=part.isFile()?part.length():0;
         HttpURLConnection connection=open(source);
         applyCookies(connection,cookies);
+        if(offset>0)connection.setRequestProperty("Range","bytes="+offset+"-");
         connection.connect();
-        int status=connection.getResponseCode();if(status<200||status>=300)throw new IllegalStateException("服务器返回 HTTP "+status);String mime=connection.getContentType();if(mime!=null&&mime.contains(";"))mime=mime.substring(0,mime.indexOf(';'));if(mime==null)mime="application/octet-stream";if(!mime.startsWith("video/")&&!mime.startsWith("audio/")&&!"application/octet-stream".equals(mime))throw new IllegalArgumentException("地址返回的不是音频或视频："+mime+"）");
-        String name=fileName(connection,source,mime);if("application/octet-stream".equals(mime)&&!name.toLowerCase(Locale.ROOT).matches(".*\\.(mp4|m4v|mov|webm|mkv|mp3|m4a|aac|wav|ogg|opus)$")){connection.disconnect();throw new IllegalArgumentException("服务器未返回媒体类型，文件扩展名也无法识别");}File output=unique(root,name);File part=new File(root,output.getName()+".part");long total=connection.getContentLengthLong(),done=0,maxBytes=Math.max(0,root.getUsableSpace()-64L*1024*1024);if(total>0&&total>maxBytes){connection.disconnect();throw new IllegalStateException("可用空间不足，已保留 64 MiB 安全余量");}
-        try(BufferedInputStream input=new BufferedInputStream(connection.getInputStream());FileOutputStream stream=new FileOutputStream(part)){byte[] buffer=new byte[64*1024];int read;while((read=input.read(buffer))>=0){if(Thread.currentThread().isInterrupted())throw new InterruptedException("下载已取消");done+=read;if(done>maxBytes)throw new IllegalStateException("下载已停止：可用空间低于 64 MiB 安全余量");stream.write(buffer,0,read);progress.update(total>0?(int)Math.min(99,done*100/total):-1,done,total);}stream.getFD().sync();}catch(Exception error){part.delete();throw error;}finally{connection.disconnect();}
+        int status=connection.getResponseCode();
+        if(status==416&&offset>0){connection.disconnect();if(!part.delete())throw new IllegalStateException("旧断点文件无法清理");return download(context,rawUrl,cookies,progress);}
+        if(status<200||status>=300)throw new IllegalStateException("服务器返回 HTTP "+status);
+        boolean append=offset>0&&status==206&&contentRangeStartsAt(connection.getHeaderField("Content-Range"),offset);
+        if(!append)offset=0;
+        String mime=connection.getContentType();if(mime!=null&&mime.contains(";"))mime=mime.substring(0,mime.indexOf(';'));if(mime==null)mime="application/octet-stream";if(!mime.startsWith("video/")&&!mime.startsWith("audio/")&&!"application/octet-stream".equals(mime)){part.delete();throw new IllegalArgumentException("地址返回的不是音频或视频："+mime+"）");}
+        String name=fileName(connection,source,mime);if("application/octet-stream".equals(mime)&&!name.toLowerCase(Locale.ROOT).matches(".*\\.(mp4|m4v|mov|webm|mkv|mp3|m4a|aac|wav|ogg|opus)$")){connection.disconnect();part.delete();throw new IllegalArgumentException("服务器未返回媒体类型，文件扩展名也无法识别");}File output=unique(root,name);long remaining=connection.getContentLengthLong(),total=remaining>0?offset+remaining:-1,done=offset,maxBytes=Math.max(0,root.getUsableSpace()-64L*1024*1024)+offset;if(total>0&&total>maxBytes){connection.disconnect();throw new IllegalStateException("可用空间不足，已保留 64 MiB 安全余量");}
+        try(BufferedInputStream input=new BufferedInputStream(connection.getInputStream());FileOutputStream stream=new FileOutputStream(part,append)){byte[] buffer=new byte[64*1024];int read;while((read=input.read(buffer))>=0){if(Thread.currentThread().isInterrupted())throw new InterruptedException("下载已取消，可稍后从断点继续");done+=read;if(done>maxBytes)throw new IllegalStateException("下载已暂停：可用空间低于 64 MiB 安全余量");stream.write(buffer,0,read);progress.update(total>0?(int)Math.min(99,done*100/total):-1,done,total);}stream.getFD().sync();}finally{connection.disconnect();}
         if(!part.renameTo(output)){part.delete();throw new IllegalStateException("无法完成下载文件的原子替换");}progress.update(100,done,total);return new Result(output,mime,output.getName());
     }
 
@@ -70,6 +80,15 @@ public final class RemoteMediaImporter {
 
     private static void applyCookies(HttpURLConnection connection,String cookies){
         if(cookies!=null&&!cookies.isBlank())connection.setRequestProperty("Cookie",cookies.trim());
+    }
+
+    static boolean contentRangeStartsAt(String value,long offset){
+        return value!=null&&value.matches("bytes\\s+"+offset+"-\\d+/((\\d+)|\\*)");
+    }
+
+    static String resumeKey(URI source) throws Exception {
+        byte[] digest=MessageDigest.getInstance("SHA-256").digest(source.normalize().toString().getBytes(StandardCharsets.UTF_8));
+        StringBuilder value=new StringBuilder();for(int i=0;i<12;i++)value.append(String.format(Locale.ROOT,"%02x",digest[i]));return value.toString();
     }
 
     private static String fileName(HttpURLConnection connection,URI source,String mime){String value=connection.getHeaderField("Content-Disposition");if(value!=null){int marker=value.toLowerCase(Locale.ROOT).indexOf("filename=");if(marker>=0)value=value.substring(marker+9).replace("\"","").trim();else value=null;}if(value==null||value.isBlank()){String path=source.getPath();value=path==null?"":path.substring(path.lastIndexOf('/')+1);}value=value.replaceAll("[^A-Za-z0-9._-]","_");if(value.isBlank()||!value.contains("."))value="remote-"+System.currentTimeMillis()+(mime.startsWith("audio/")?".m4a":".mp4");return value;}

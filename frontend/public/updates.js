@@ -1,5 +1,6 @@
 const releases = [
-  {version:'2.2.7', title:'公共素材下载闭环', current:true, items:["同步更新 Web、Windows 与 Android 版本","完成本版本功能修复与稳定性检查","创建并同步 GitHub、Gitee 发布标签"], jump:{view:'studio', selector:'#task-list'}},
+  {version:'2.2.8', title:'平台下载断点恢复', current:true, items:["同步更新 Web、Windows 与 Android 版本","完成本版本功能修复与稳定性检查","创建并同步 GitHub、Gitee 发布标签"], jump:{view:'studio', selector:'#task-list'}},
+  {version:'2.2.7', title:'公共素材下载闭环', items:["同步更新 Web、Windows 与 Android 版本","完成本版本功能修复与稳定性检查","创建并同步 GitHub、Gitee 发布标签"], jump:{view:'studio', selector:'#task-list'}},
   {version:'2.2.6', title:'Android LUT 调色闭环', items:["同步更新 Web、Windows 与 Android 版本","完成本版本功能修复与稳定性检查","创建并同步 GitHub、Gitee 发布标签"], jump:{view:'studio', selector:'#task-list'}},
   {version:'2.2.5', title:'动态事件采样与说话人分段', items:["同步更新 Web、Windows 与 Android 版本","完成本版本功能修复与稳定性检查","创建并同步 GitHub、Gitee 发布标签"], jump:{view:'studio', selector:'#task-list'}},
   {version:'2.2.4', title:'后台管理中心增强', items:['新增运营总览、AI 趋势、状态分布和近期审计','完善用户、项目、云同步、存储的搜索筛选、分页与 CSV 导出','修复存储检查和清理接口缺少管理员权限校验的问题'], jump:{view:'studio', selector:'#updates-open'}},
