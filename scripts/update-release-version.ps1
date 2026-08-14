@@ -41,7 +41,7 @@ if ($AndroidVersionCode -eq 0) {
 if ($AndroidVersionCode -le $oldAndroidCode) { throw "Android versionCode must be greater than $oldAndroidCode" }
 
 $desktopFiles = @(
-    'pom.xml', 'package.json', 'frontend/package.json', 'frontend/package-lock.json',
+    'pom.xml', 'package.json', 'frontend/package.json',
     'frontend/index.html', 'frontend/public/app.js', 'src/main/resources/static/index.html',
     'src/main/resources/static/app.js', 'launcher/GameNarrator.Launcher.csproj',
     'release/installer/GameNarrator.iss', 'release/installer/GameNarrator-Demo-Lite.iss'
@@ -49,6 +49,17 @@ $desktopFiles = @(
 foreach ($file in $desktopFiles) {
     Replace-Required $file ([regex]::Escape($oldVersion)) $Version
 }
+
+$lockPath = 'frontend/package-lock.json'
+$lock = Read-Utf8 $lockPath
+$oldLockToken = '"version": "' + $oldVersion + '"'
+$newLockToken = '"version": "' + $Version + '"'
+for ($index = 0; $index -lt 2; $index++) {
+    $position = $lock.IndexOf($oldLockToken, [StringComparison]::Ordinal)
+    if ($position -lt 0) { throw "Project version token $($index + 1) not found in $lockPath" }
+    $lock = $lock.Substring(0, $position) + $newLockToken + $lock.Substring($position + $oldLockToken.Length)
+}
+Write-Utf8 $lockPath $lock
 
 $releaseItems = [Text.Encoding]::UTF8.GetString([Convert]::FromBase64String('WyflkIzmraXmm7TmlrAgV2Vi44CBV2luZG93cyDkuI4gQW5kcm9pZCDniYjmnKwnLCflrozmiJDmnKzniYjmnKzlip/og73kv67lpI3kuI7nqLPlrprmgKfmo4Dmn6UnLCfliJvlu7rlubblkIzmraUgR2l0SHVi44CBR2l0ZWUg5Y+R5biD5qCH562+J10=')) | ConvertFrom-Json
 $changelog = Read-Utf8 'release/CHANGELOG.json' | ConvertFrom-Json
