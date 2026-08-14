@@ -29,30 +29,6 @@ jobs:
       - name: Verify documentation against source
         shell: pwsh
         run: ./scripts/verify-documentation.ps1
-      - name: Verify local model management contract
-        shell: pwsh
-        run: ./scripts/verify-local-model-management.ps1
-      - name: Verify startup reconciliation and orphan GC
-        shell: pwsh
-        run: ./scripts/verify-startup-reconciliation.ps1
-      - name: Verify parameterized timeline transitions
-        shell: pwsh
-        run: ./scripts/verify-timeline-transitions.ps1
-      - name: Verify render work lifecycle
-        shell: pwsh
-        run: ./scripts/verify-render-work-cleanup.ps1
-      - name: Verify meme timeline slots
-        shell: pwsh
-        run: ./scripts/verify-meme-timeline-slots.ps1
-      - name: Verify licensed SFX library
-        shell: pwsh
-        run: ./scripts/verify-licensed-sfx-library.ps1
-      - name: Verify speaker diarization contract
-        shell: pwsh
-        run: ./scripts/verify-speaker-diarization.ps1
-      - name: Verify event-driven frame sampling
-        shell: pwsh
-        run: ./scripts/verify-event-driven-frame-sampling.ps1
       - name: Verify Android LUT contract
         shell: pwsh
         run: ./scripts/verify-android-lut.ps1

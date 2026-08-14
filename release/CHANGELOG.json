@@ -1,7 +1,17 @@
 {
     "schemaVersion":  1,
-    "currentVersion":  "2.2.33",
+    "currentVersion":  "2.2.34",
     "releases":  [
+                     {
+                         "version":  "2.2.34",
+                         "title":  "验证脚本与持续集成精简",
+                         "summary":  "统一 Web、Windows 与 Android 版本，完成对应功能修复、稳定性检查与发布记录。",
+                         "items":  [
+                                       "同步更新 Web、Windows 与 Android 版本",
+                                       "完成本版本功能修复与稳定性检查",
+                                       "创建并同步 GitHub、Gitee 发布标签"
+                                   ]
+                     },
                      {
                          "version":  "2.2.33",
                          "title":  "前端模块加载链路精简",

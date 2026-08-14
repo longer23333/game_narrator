@@ -24,6 +24,8 @@ public final class MobileReleaseNotes {
 
     public static List<Note> notes() {
         List<Note> notes = new ArrayList<>();
+        notes.add(new Note("2.2.34", "验证脚本与持续集成精简",
+                "同步更新各平台版本，完成对应功能修复、稳定性检查与发布记录。"));
         notes.add(new Note("2.2.33", "前端模块加载链路精简",
                 "同步更新各平台版本，完成对应功能修复、稳定性检查与发布记录。"));
         notes.add(new Note("2.2.32", "目标机真实性能证据门禁",
