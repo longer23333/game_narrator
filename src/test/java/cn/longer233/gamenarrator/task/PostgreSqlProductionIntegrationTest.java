@@ -155,6 +155,7 @@ class PostgreSqlProductionIntegrationTest {
                     SELECT 'constraint|' || table_name || '|' || constraint_name || '|' || constraint_type
                     FROM information_schema.table_constraints
                     WHERE table_schema = ?
+                      AND constraint_name !~ '^[0-9]+_[0-9]+_[0-9]+_not_null$'
                     ORDER BY table_name, constraint_name
                     """, schema);
             collect(signature, connection, """

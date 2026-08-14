@@ -15,6 +15,7 @@ foreach ($marker in @(
     'structureSignature(baselineSchema)',
     'information_schema.columns',
     'information_schema.table_constraints',
+    "constraint_name !~ '^[0-9]+_[0-9]+_[0-9]+_not_null$'",
     'pg_indexes'
 )) {
     if (-not $test.Contains($marker)) {
