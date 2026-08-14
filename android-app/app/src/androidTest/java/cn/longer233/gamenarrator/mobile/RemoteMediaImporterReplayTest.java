@@ -11,6 +11,7 @@ import androidx.test.ext.junit.runners.AndroidJUnit4;
 import androidx.test.platform.app.InstrumentationRegistry;
 import java.io.File;
 import java.nio.file.Files;
+import java.nio.charset.StandardCharsets;
 import java.util.concurrent.TimeUnit;
 import okhttp3.mockwebserver.MockResponse;
 import okhttp3.mockwebserver.MockWebServer;
@@ -55,7 +56,7 @@ public final class RemoteMediaImporterReplayTest {
                 .setHeader("Content-Range","bytes 4-7/8").setBody("tail"));
         RemoteMediaImporter.Result result=RemoteMediaImporter.download(context,raw,(p,d,t)->{});
         assertEquals("bytes=4-",server.takeRequest().getHeader("Range"));
-        assertEquals("headtail",Files.readString(result.file().toPath()));
+        assertEquals("headtail",read(result.file()));
     }
 
     @Test public void restartsAfter416AndWrongRange() throws Exception {
@@ -63,13 +64,13 @@ public final class RemoteMediaImporterReplayTest {
         Files.write(partFor(raw).toPath(),"stale".getBytes());
         server.enqueue(new MockResponse().setResponseCode(416));
         server.enqueue(media(200,"fresh"));
-        assertEquals("fresh",Files.readString(RemoteMediaImporter.download(context,raw,(p,d,t)->{}).file().toPath()));
+        assertEquals("fresh",read(RemoteMediaImporter.download(context,raw,(p,d,t)->{}).file()));
 
         clearImports();
         Files.write(partFor(raw).toPath(),"stale".getBytes());
         server.enqueue(new MockResponse().setResponseCode(206).setHeader("Content-Range","bytes 0-4/5"));
         server.enqueue(media(200,"fresh"));
-        assertEquals("fresh",Files.readString(RemoteMediaImporter.download(context,raw,(p,d,t)->{}).file().toPath()));
+        assertEquals("fresh",read(RemoteMediaImporter.download(context,raw,(p,d,t)->{}).file()));
     }
 
     @Test public void faultsRemainResumableAndAreClassified() throws Exception {
@@ -87,6 +88,7 @@ public final class RemoteMediaImporterReplayTest {
     }
 
     private MockResponse media(int status,String body) { return new MockResponse().setResponseCode(status).setHeader("Content-Type","video/mp4").setBody(body); }
+    private String read(File file) throws Exception { return new String(Files.readAllBytes(file.toPath()),StandardCharsets.UTF_8); }
     private String url() { return server.url("/video.mp4").toString(); }
     private File imports() { return new File(context.getExternalFilesDir(Environment.DIRECTORY_MOVIES),"imports"); }
     private File partFor(String raw) throws Exception { File root=imports();assertTrue(root.isDirectory()||root.mkdirs());return new File(root,"resume-"+RemoteMediaImporter.resumeKey(java.net.URI.create(raw))+".part"); }
