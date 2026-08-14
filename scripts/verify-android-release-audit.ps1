@@ -33,8 +33,11 @@ if (-not $SkipBuild) {
     if ($LASTEXITCODE -ne 0) { throw 'Android release build failed' }
 }
 
-$apk = Join-Path $androidRoot 'app/build/outputs/apk/release/app-release.apk'
-if (-not (Test-Path -LiteralPath $apk)) { throw "Android release APK not found: $apk" }
+$releaseRoot = Join-Path $androidRoot 'app/build/outputs/apk/release'
+$apkCandidates = @(@('app-release.apk', 'app-release-unsigned.apk') | ForEach-Object { Join-Path $releaseRoot $_ } |
+    Where-Object { Test-Path -LiteralPath $_ -PathType Leaf })
+if ($apkCandidates.Count -ne 1) { throw "Android release audit requires exactly one signed or unsigned APK under: $releaseRoot" }
+$apk = $apkCandidates[0]
 $apkBytes = (Get-Item -LiteralPath $apk).Length
 $limit = if ($BundleModels) { [long]$manifest.apkLimits.bundledModelsReleaseBytes } else { [long]$manifest.apkLimits.standardReleaseBytes }
 if ($apkBytes -gt $limit) { throw "Android APK size regression: $apkBytes bytes exceeds $limit bytes" }
