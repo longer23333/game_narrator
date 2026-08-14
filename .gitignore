@@ -31,4 +31,7 @@ storage/*
 logs/
 tools/
 models/
+!android-app/app/src/debug/assets/models/
+!android-app/app/src/debug/assets/models/whisper-test.bin
+!android-app/app/src/debug/assets/models/whisper-cli
 tools/yt-dlp/

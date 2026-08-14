@@ -14,7 +14,7 @@ import org.junit.runner.RunWith;
 public final class MobileModelBundlerTest {
     @Test public void bundledModelIsCopiedIntoModelsDirectory() throws Exception {
         Context target = InstrumentationRegistry.getInstrumentation().getTargetContext();
-        AssetManager assets = InstrumentationRegistry.getInstrumentation().getContext().getAssets();
+        AssetManager assets = target.getAssets();
         File dir = MobileModelDirectory.modelsDir(target);
         File modelFile = new File(dir, "whisper-test.bin");
         File engineFile = new File(dir, "whisper-cli");
