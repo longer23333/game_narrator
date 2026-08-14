@@ -78,11 +78,15 @@ class RenderVideoFilterBuilderTest {
                 "ANIME_THEATER", .5, true, true, true, "ANIME_OUTLINE",
                 false, .1, 1.2, .8, -.5, true);
 
+        Path lutPath = Path.of("C:/project/color-lut.cube");
         String filter = filterBuilder.video(segment,
                 new EffectPlan(List.of(), TransitionType.HARD_CUT, "test"), null, settings,
-                Path.of("C:/project/color-lut.cube"));
+                lutPath);
+
+        String escapedLutPath = lutPath.toAbsolutePath().toString().replace('\\', '/')
+                .replace(":", "\\:").replace("'", "\\'");
 
         assertThat(filter).contains("eq=brightness=0.100:contrast=1.200:saturation=0.800",
-                "colorbalance=rs=-0.060:bs=0.060", "lut3d=file='C\\:/project/color-lut.cube'");
+                "colorbalance=rs=-0.060:bs=0.060", "lut3d=file='" + escapedLutPath + "'");
     }
 }
