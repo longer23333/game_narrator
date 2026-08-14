@@ -1,7 +1,17 @@
 {
     "schemaVersion":  1,
-    "currentVersion":  "2.2.28",
+    "currentVersion":  "2.2.29",
     "releases":  [
+                     {
+                         "version":  "2.2.29",
+                         "title":  "Android 自动化验收闭环",
+                         "summary":  "完成 Android 平台导入协议回放、API 29/35 模拟器矩阵及 2.2.4 持久化升级门禁；生产签名与真机兼容继续独立标记为未验证。",
+                         "items":  [
+                                       "API 29/35 阻断矩阵覆盖平台导入协议回放和故障注入",
+                                       "同一持久化 API 29 AVD 验证 2.2.4 覆盖升级与数据保留",
+                                       "Android 软件能力达到 18 项 full，生产签名与真机状态仍独立为 false"
+                                   ]
+                     },
                      {
                          "version":  "2.2.28",
                          "title":  "PostgreSQL 生产路径验证增强",

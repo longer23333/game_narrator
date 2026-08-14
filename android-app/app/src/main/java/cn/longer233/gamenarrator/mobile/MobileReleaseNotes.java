@@ -24,6 +24,8 @@ public final class MobileReleaseNotes {
 
     public static List<Note> notes() {
         List<Note> notes = new ArrayList<>();
+        notes.add(new Note("2.2.29", "Android 自动化验收闭环",
+                "API 29/35 平台导入协议回放和 2.2.4 持久化 AVD 覆盖升级门禁已通过；生产签名和 OEM 真机兼容仍独立标记为未验证。"));
         notes.add(new Note("2.2.28", "PostgreSQL 生产路径验证增强",
                 "新增真实 PostgreSQL 16 迁移与租户隔离集成门槛，并把结果纳入不可绕过的发布证据。"));
         notes.add(new Note("2.2.27", "真实媒体测试与发布证据增强",
