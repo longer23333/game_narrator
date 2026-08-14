@@ -1,7 +1,6 @@
 package cn.longer233.gamenarrator.script;
 
 import cn.longer233.gamenarrator.task.application.TaskNotFoundException;
-import cn.longer233.gamenarrator.common.AtomicArtifactWriter;
 import cn.longer233.gamenarrator.task.domain.VideoTask;
 import cn.longer233.gamenarrator.task.repository.VideoTaskRepository;
 import cn.longer233.gamenarrator.voice.VoiceSynthesizer;
@@ -33,6 +32,7 @@ import java.util.UUID;
 public class ScriptWorkspaceService {
     private final VideoTaskRepository repository;
     private final ObjectMapper objectMapper;
+    private final ScriptArtifactStore artifacts;
     private final TextGenerator scriptGenerator;
     private final VoiceSynthesizer voiceGenerator;
     private final DirectorProfileService directorProfiles;
@@ -55,6 +55,7 @@ public class ScriptWorkspaceService {
                                   DirectorProfileService directorProfiles, TimelinePlanner timelinePlanner) {
         this.repository = repository;
         this.objectMapper = objectMapper;
+        this.artifacts = new ScriptArtifactStore(objectMapper);
         this.scriptGenerator = scriptGenerator;
         this.voiceGenerator = voiceGenerator;
         this.directorProfiles = directorProfiles;
@@ -114,7 +115,7 @@ public class ScriptWorkspaceService {
         VideoTask task = requireTask(taskId);
         ScriptDocumentView document = readDocument(task);
         Path path = requireScriptPath(task);
-        JsonNode root = readJson(path);
+        JsonNode root = artifacts.readJson(path);
         Map<String, Object> manualReviews = root.path("manualReviews").isObject()
                 ? objectMapper.convertValue(root.path("manualReviews"),
                     new com.fasterxml.jackson.core.type.TypeReference<LinkedHashMap<String, Object>>() {})
@@ -125,7 +126,7 @@ public class ScriptWorkspaceService {
         output.put("qualityReview", review);
         output.put("qualityReviewSource", "AI_INDEPENDENT_REVIEW");
         output.put("qualityReviewedAt", java.time.Instant.now().toString());
-        writeAtomically(path, output);
+        artifacts.writeJson(path, output);
         return new ScriptDocumentView(document.title(), document.synopsis(), document.fullNarration(), review,
                 document.segments());
     }
@@ -138,7 +139,7 @@ public class ScriptWorkspaceService {
         requireSegment(readDocument(task).segments(), clipIndex);
         VoiceSegment result = voiceGenerator.regenerateSegment(scriptPath, clipIndex, request);
         Path manifest = scriptPath.getParent().resolve("voice-manifest.json");
-        JsonNode manifestDocument = readJson(manifest);
+        JsonNode manifestDocument = artifacts.readJson(manifest);
         List<VoiceSegment> voices = readVoiceSegments(manifestDocument);
         validateVoiceManifest(readDocument(task).segments(), voices);
         applyTimelineRevision(task, clipIndex, localized, manifest, voices.size());
@@ -155,7 +156,7 @@ public class ScriptWorkspaceService {
         Path scriptPath = requireScriptPath(task);
         voiceGenerator.regenerateSegment(scriptPath, clipIndex, request);
         Path manifest = Path.of(artifacts.voiceManifestPath());
-        List<VoiceSegment> voices = readVoiceSegments(readJson(manifest));
+        List<VoiceSegment> voices = readVoiceSegments(this.artifacts.readJson(manifest));
         validateVoiceManifest(readDocument(task).segments(), voices);
         applyTimelineRevision(task, clipIndex, artifacts, manifest, voices.size());
     }
@@ -223,7 +224,7 @@ public class ScriptWorkspaceService {
         saveRevision(task, document, replacement);
 
         Path highlightPath = requireHighlightPath(task);
-        JsonNode root = readJson(highlightPath);
+        JsonNode root = artifacts.readJson(highlightPath);
         List<HighlightClip> clips = readHighlightClips(task);
         int position = positionOf(document.segments(), clipIndex);
         HighlightClip currentClip = clips.get(position);
@@ -243,7 +244,7 @@ public class ScriptWorkspaceService {
         updated.put("manualDecisionCount", manualDecisions.size());
         updated.put("selectedDurationSeconds", clips.stream().filter(clip -> !clip.excluded())
                 .mapToDouble(HighlightClip::durationSeconds).sum());
-        writeAtomically(highlightPath, updated);
+        artifacts.writeJson(highlightPath, updated);
         StoryboardView result = storyboard(taskId);
         if (directorProfiles != null) {
             StoryboardSegmentView finalValue = result.segments().stream()
@@ -293,18 +294,18 @@ public class ScriptWorkspaceService {
         }
         String narration = String.join("\n", reindexed.stream().map(ScriptSegment::narration).toList());
         Path scriptPath = requireScriptPath(task);
-        JsonNode scriptRoot = readJson(scriptPath);
+        JsonNode scriptRoot = artifacts.readJson(scriptPath);
         Map<String, Object> scriptOutput = objectMapper.convertValue(scriptRoot,
                 new com.fasterxml.jackson.core.type.TypeReference<LinkedHashMap<String, Object>>() {});
         scriptOutput.put("fullNarration", narration);
         scriptOutput.put("segments", reindexed);
 
         Path highlightPath = requireHighlightPath(task);
-        Map<String, Object> highlightOutput = objectMapper.convertValue(readJson(highlightPath),
+        Map<String, Object> highlightOutput = objectMapper.convertValue(artifacts.readJson(highlightPath),
                 new com.fasterxml.jackson.core.type.TypeReference<LinkedHashMap<String, Object>>() {});
         highlightOutput.put("clips", clips);
-        writeAtomically(highlightPath, highlightOutput);
-        writeAtomically(scriptPath, scriptOutput);
+        artifacts.writeJson(highlightPath, highlightOutput);
+        artifacts.writeJson(scriptPath, scriptOutput);
         task.applyScriptRevision(document.title(), document.synopsis(), narration, scriptPath.toString(), reindexed.size());
         return storyboard(taskId);
     }
@@ -353,19 +354,19 @@ public class ScriptWorkspaceService {
             reorderedClips.add(clip);
         }
         Path scriptPath = requireScriptPath(task);
-        Map<String, Object> scriptOutput = objectMapper.convertValue(readJson(scriptPath),
+        Map<String, Object> scriptOutput = objectMapper.convertValue(artifacts.readJson(scriptPath),
                 new com.fasterxml.jackson.core.type.TypeReference<LinkedHashMap<String, Object>>() {});
         String narration = String.join("\n", reorderedScripts.stream().map(ScriptSegment::narration).toList());
         scriptOutput.put("fullNarration", narration);
         scriptOutput.put("segments", reorderedScripts);
         Path highlightPath = requireHighlightPath(task);
-        Map<String, Object> highlightOutput = objectMapper.convertValue(readJson(highlightPath),
+        Map<String, Object> highlightOutput = objectMapper.convertValue(artifacts.readJson(highlightPath),
                 new com.fasterxml.jackson.core.type.TypeReference<LinkedHashMap<String, Object>>() {});
         highlightOutput.put("clips", reorderedClips);
         highlightOutput.put("selectedDurationSeconds", reorderedClips.stream()
                 .filter(item -> !item.excluded()).mapToDouble(HighlightClip::durationSeconds).sum());
-        writeAtomically(highlightPath, highlightOutput);
-        writeAtomically(scriptPath, scriptOutput);
+        artifacts.writeJson(highlightPath, highlightOutput);
+        artifacts.writeJson(scriptPath, scriptOutput);
         task.applyScriptRevision(document.title(), document.synopsis(), narration,
                 scriptPath.toString(), reorderedScripts.size());
         return storyboard(taskId);
@@ -448,15 +449,16 @@ public class ScriptWorkspaceService {
         }
         String narration = String.join("\n", scripts.stream().map(ScriptSegment::narration).toList());
         Path scriptPath = requireScriptPath(task);
-        Map<String, Object> scriptOutput = objectMapper.convertValue(readJson(scriptPath),
+        Map<String, Object> scriptOutput = objectMapper.convertValue(artifacts.readJson(scriptPath),
                 new com.fasterxml.jackson.core.type.TypeReference<LinkedHashMap<String, Object>>() {});
         scriptOutput.put("fullNarration", narration); scriptOutput.put("segments", scripts);
         Path highlightPath = requireHighlightPath(task);
-        Map<String, Object> highlightOutput = objectMapper.convertValue(readJson(highlightPath),
+        Map<String, Object> highlightOutput = objectMapper.convertValue(artifacts.readJson(highlightPath),
                 new com.fasterxml.jackson.core.type.TypeReference<LinkedHashMap<String, Object>>() {});
         highlightOutput.put("clips", highlights);
         highlightOutput.put("selectedDurationSeconds", highlights.stream().mapToDouble(HighlightClip::durationSeconds).sum());
-        writeAtomically(highlightPath, highlightOutput); writeAtomically(scriptPath, scriptOutput);
+        artifacts.writeJson(highlightPath, highlightOutput);
+        artifacts.writeJson(scriptPath, scriptOutput);
         task.applyScriptRevision(document.title(), document.synopsis(), narration, scriptPath.toString(), scripts.size());
     }
 
@@ -471,7 +473,7 @@ public class ScriptWorkspaceService {
         List<HighlightClip> clips = readHighlightClips(task);
         int position = positionOf(readDocument(task).segments(), clipIndex);
         int frameIndex = clips.get(position).sourceFrameIndex();
-        JsonNode frames = readJson(Path.of(task.getVisualAnalysisPath())).path("frames");
+        JsonNode frames = artifacts.readJson(Path.of(task.getVisualAnalysisPath())).path("frames");
         for (JsonNode frame : frames) {
             if (frame.path("index").asInt() == frameIndex) {
                 Path image = Path.of(frame.path("imagePath").asText()).toAbsolutePath().normalize();
@@ -494,7 +496,7 @@ public class ScriptWorkspaceService {
         ScriptDocumentView revised = new ScriptDocumentView(
                 current.title(), current.synopsis(), fullNarration, ScriptQualityReview.stale(), List.copyOf(segments));
         Path scriptPath = requireScriptPath(task);
-        JsonNode existing = readJson(scriptPath);
+        JsonNode existing = artifacts.readJson(scriptPath);
         Map<String, Object> output = objectMapper.convertValue(existing,
                 new com.fasterxml.jackson.core.type.TypeReference<LinkedHashMap<String, Object>>() {});
         output.put("title", revised.title());
@@ -504,14 +506,14 @@ public class ScriptWorkspaceService {
         output.remove("qualityReviewSource");
         output.remove("qualityReviewedAt");
         output.put("segments", revised.segments());
-        writeAtomically(scriptPath, output);
+        artifacts.writeJson(scriptPath, output);
         task.applyScriptRevision(revised.title(), revised.synopsis(), revised.fullNarration(),
                 scriptPath.toString(), revised.segments().size());
         return revised;
     }
 
     private String feedbackInstruction(VideoTask task, ScriptDocumentView document, int clipIndex) {
-        JsonNode root = readJson(requireScriptPath(task));
+        JsonNode root = artifacts.readJson(requireScriptPath(task));
         List<String> feedback = new ArrayList<>();
         JsonNode manual = root.path("manualReviews").path(Integer.toString(clipIndex));
         if ("NEEDS_CHANGES".equals(manual.path("status").asText()) && !manual.path("note").asText().isBlank()) {
@@ -531,7 +533,7 @@ public class ScriptWorkspaceService {
         ScriptDocumentView document = readDocument(task);
         requireSegment(document.segments(), clipIndex);
         Path path = requireScriptPath(task);
-        JsonNode root = readJson(path);
+        JsonNode root = artifacts.readJson(path);
         Map<String, Object> output = objectMapper.convertValue(root,
                 new com.fasterxml.jackson.core.type.TypeReference<LinkedHashMap<String, Object>>() {});
         Map<String, Object> reviews = root.path("manualReviews").isObject()
@@ -543,13 +545,13 @@ public class ScriptWorkspaceService {
                 "note", request.note() == null ? "" : request.note().trim(),
                 "updatedAt", java.time.Instant.now().toString()));
         output.put("manualReviews", reviews);
-        writeAtomically(path, output);
+        artifacts.writeJson(path, output);
         return Map.copyOf(reviews);
     }
 
     @Transactional
     public Map<String, Object> reviews(UUID taskId) {
-        JsonNode reviews = readJson(requireScriptPath(requireTask(taskId))).path("manualReviews");
+        JsonNode reviews = artifacts.readJson(requireScriptPath(requireTask(taskId))).path("manualReviews");
         if (!reviews.isObject()) return Map.of();
         return objectMapper.convertValue(reviews,
                 new com.fasterxml.jackson.core.type.TypeReference<LinkedHashMap<String, Object>>() {});
@@ -557,7 +559,7 @@ public class ScriptWorkspaceService {
 
     private ScriptDocumentView readDocument(VideoTask task) {
         Path path = requireScriptPath(task);
-        JsonNode document = readJson(path);
+        JsonNode document = artifacts.readJson(path);
         try {
             List<ScriptSegment> segments = objectMapper.readerForListOf(ScriptSegment.class)
                     .readValue(document.path("segments"));
@@ -608,27 +610,21 @@ public class ScriptWorkspaceService {
 
     private Path requireHighlightPath(VideoTask task) {
         if (task.getHighlightManifestPath() == null) throw new IllegalStateException("任务尚未生成高光分镜");
-        Path path = Path.of(task.getHighlightManifestPath()).toAbsolutePath().normalize();
-        if (!Files.isRegularFile(path)) throw new IllegalStateException("高光分镜文件不存在");
-        return path;
+        return artifacts.requireFile(task.getHighlightManifestPath(), "任务尚未生成高光分镜", "高光分镜文件不存在");
     }
 
     private List<HighlightClip> readHighlightClips(VideoTask task) {
         try {
             return new ArrayList<>(objectMapper.readerForListOf(HighlightClip.class)
-                    .readValue(readJson(requireHighlightPath(task)).path("clips")));
+                    .readValue(artifacts.readJson(requireHighlightPath(task)).path("clips")));
         } catch (Exception exception) {
             throw new IllegalStateException("无法读取高光分镜：" + exception.getMessage(), exception);
         }
     }
 
     private Path requireScriptPath(VideoTask task) {
-        if (task.getGeneratedScriptPath() == null) {
-            throw new IllegalStateException("Task has no generated script");
-        }
-        Path path = Path.of(task.getGeneratedScriptPath()).toAbsolutePath().normalize();
-        if (!Files.isRegularFile(path)) throw new IllegalStateException("Generated script file is missing");
-        return path;
+        return artifacts.requireFile(task.getGeneratedScriptPath(), "Task has no generated script",
+                "Generated script file is missing");
     }
 
     private ScriptSegment requireSegment(List<ScriptSegment> segments, int clipIndex) {
@@ -647,19 +643,4 @@ public class ScriptWorkspaceService {
         return value == null || value.isBlank() ? fallback.trim() : value.trim();
     }
 
-    private JsonNode readJson(Path path) {
-        try {
-            return objectMapper.readTree(path.toFile());
-        } catch (Exception exception) {
-            throw new IllegalStateException("Cannot read JSON artifact: " + exception.getMessage(), exception);
-        }
-    }
-
-    private void writeAtomically(Path target, Object value) {
-        try {
-            AtomicArtifactWriter.writeJson(objectMapper, target, value);
-        } catch (Exception exception) {
-            throw new IllegalStateException("Cannot save script revision: " + exception.getMessage(), exception);
-        }
-    }
 }

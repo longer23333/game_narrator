@@ -1,7 +1,17 @@
 {
     "schemaVersion":  1,
-    "currentVersion":  "2.2.37",
+    "currentVersion":  "2.2.38",
     "releases":  [
+                     {
+                         "version":  "2.2.38",
+                         "title":  "脚本产物存储统一",
+                         "summary":  "统一 Web、Windows 与 Android 版本，完成对应功能修复、稳定性检查与发布记录。",
+                         "items":  [
+                                       "同步更新 Web、Windows 与 Android 版本",
+                                       "完成本版本功能修复与稳定性检查",
+                                       "创建并同步 GitHub、Gitee 发布标签"
+                                   ]
+                     },
                      {
                          "version":  "2.2.37",
                          "title":  "单实现模型适配层精简",
