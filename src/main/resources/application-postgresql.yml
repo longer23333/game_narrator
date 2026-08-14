@@ -23,11 +23,11 @@ game-narrator:
     access-key: ${OBJECT_STORAGE_ACCESS_KEY:}
     secret-key: ${OBJECT_STORAGE_SECRET_KEY:}
     path-style: ${OBJECT_STORAGE_PATH_STYLE:true}
-    interval-ms: ${CLOUD_SYNC_INTERVAL_MS:5000}
+    interval-ms: 5000
     retry:
       max-attempts: ${CLOUD_SYNC_MAX_ATTEMPTS:8}
       base-delay-seconds: ${CLOUD_SYNC_RETRY_BASE_SECONDS:30}
       max-delay-seconds: ${CLOUD_SYNC_RETRY_MAX_SECONDS:3600}
       jitter-ratio: ${CLOUD_SYNC_RETRY_JITTER_RATIO:0.2}
-    multipart-threshold-bytes: ${CLOUD_SYNC_MULTIPART_THRESHOLD_BYTES:67108864}
-    multipart-part-bytes: ${CLOUD_SYNC_MULTIPART_PART_BYTES:16777216}
+    multipart-threshold-bytes: 67108864
+    multipart-part-bytes: 16777216
