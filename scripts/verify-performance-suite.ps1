@@ -10,6 +10,15 @@ foreach ($marker in @('duration=300','1920x1080','Duration.ofMinutes(10)','maxim
     if (-not $longTest.Contains($marker)) { throw "Long-video gate is missing marker: $marker" }
 }
 Write-Output 'PASS: concurrent API load plan and 300-second 1080p performance gate are present'
+$workflow = Get-Content -Raw -Encoding UTF8 (Join-Path $root '.github/workflows/ci.yml')
+$longJob = [regex]::Match($workflow, '(?ms)^  long-video-performance:\s*(.+?)(?=^  [a-zA-Z0-9_-]+:)')
+if (-not $longJob.Success) { throw 'CI is missing the long-video-performance job' }
+if ($longJob.Groups[1].Value -match '(?m)^\s+if:') { throw 'Long-video performance gate must not be conditionally skipped' }
+$releaseJob = [regex]::Match($workflow, '(?ms)^  release-evidence:\s*(.+)$')
+if (-not $releaseJob.Success -or $releaseJob.Groups[1].Value -notmatch 'needs:.*long-video-performance') {
+    throw 'Release evidence must depend on the long-video performance gate'
+}
+Write-Output 'PASS: long-video performance is blocking for same-commit release evidence'
 
 $realOutputTests = @(
     'src/test/java/cn/longer233/gamenarrator/media/FfmpegEventWindowOutputTest.java',

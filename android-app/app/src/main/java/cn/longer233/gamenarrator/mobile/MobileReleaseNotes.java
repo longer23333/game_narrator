@@ -24,6 +24,8 @@ public final class MobileReleaseNotes {
 
     public static List<Note> notes() {
         List<Note> notes = new ArrayList<>();
+        notes.add(new Note("2.2.30", "长视频发布性能门禁",
+                "五分钟 1080p 真实 FFmpeg 转码改为每次 CI 必跑并纳入同提交发布证据；目标机 GPU OOM 与 60 分钟长跑仍独立验收。"));
         notes.add(new Note("2.2.29", "Android 自动化验收闭环",
                 "API 29/35 平台导入协议回放和 2.2.4 持久化 AVD 覆盖升级门禁已通过；生产签名和 OEM 真机兼容仍独立标记为未验证。"));
         notes.add(new Note("2.2.28", "PostgreSQL 生产路径验证增强",

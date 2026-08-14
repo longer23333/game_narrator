@@ -14,7 +14,7 @@ if(-not $path.StartsWith($artifactRoot+[IO.Path]::DirectorySeparatorChar,[String
 [IO.Directory]::CreateDirectory([IO.Path]::GetDirectoryName($path))|Out-Null
 $document=[ordered]@{
  schemaVersion=2;status='passed';commit=$Commit.ToLowerInvariant();completedAt=[DateTimeOffset]::UtcNow.ToString('o');runId=$RunId;runUrl=$RunUrl
- gates=[ordered]@{migrationBaseline='passed';documentation='passed';frontend='passed';android='passed';androidEmulator='passed';backend='passed';postgresqlIntegration='passed';performanceBaseline='passed'}
+ gates=[ordered]@{migrationBaseline='passed';documentation='passed';frontend='passed';android='passed';androidEmulator='passed';backend='passed';postgresqlIntegration='passed';performanceBaseline='passed';longVideoPerformance='passed'}
 }
 $json=$document|ConvertTo-Json -Depth 6
 [IO.File]::WriteAllText($path,$json+[Environment]::NewLine,[Text.UTF8Encoding]::new($false))

@@ -1,7 +1,17 @@
 {
     "schemaVersion":  1,
-    "currentVersion":  "2.2.29",
+    "currentVersion":  "2.2.30",
     "releases":  [
+                     {
+                         "version":  "2.2.30",
+                         "title":  "长视频发布性能门禁",
+                         "summary":  "五分钟 1080p 真实 FFmpeg 转码从条件任务升级为每次 CI 的阻断门禁，并纳入同提交发布证据。",
+                         "items":  [
+                                       "取消 long-video-performance 的提交信息条件跳过",
+                                       "发布证据新增 longVideoPerformance 必过字段",
+                                       "本机真实五分钟 1080p 转码门禁无跳过通过"
+                                   ]
+                     },
                      {
                          "version":  "2.2.29",
                          "title":  "Android 自动化验收闭环",

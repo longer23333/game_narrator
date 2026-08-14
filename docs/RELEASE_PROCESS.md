@@ -29,4 +29,4 @@ Android release 默认启用 R8 与资源裁剪，并关闭系统自动备份。
 包含提交哈希的制品清单。`verify-android-production-release.ps1 -RequireProductionArtifacts
 -RequireUpgradeEvidence` 只有在生产签名产物及 2.2.4→当前版本真机升级证据同时存在时才通过。平台导入和升级报告采用 schema v2，必须位于 `artifacts`、匹配当前提交与版本、在 7 天内完成，并包含唯一会话和非占位设备信息；模板填满布尔值但提交、版本、设备或时间不匹配仍会失败。
 
-常规 CI 的 `release-evidence` 汇总作业仅在 migration、documentation、frontend、Android、Android emulator、backend、真实 PostgreSQL integration 和 performance baseline 全部成功后运行，生成 `ci-release-result-<commit>` 制品。下载其中的 `artifacts/ci-release-result.json` 后，`verify-ci-release-evidence.ps1` 会强制校验当前提交、八项门禁、schema v2、运行链接和 7 天有效期；发布就绪度页面还会校验相同语义，空文件、旧 schema 或旧提交不能显示绿色。
+常规 CI 的 `release-evidence` 汇总作业仅在 migration、documentation、frontend、Android、Android emulator、backend、真实 PostgreSQL integration、performance baseline 和五分钟 1080p 长视频性能门禁全部成功后运行，生成 `ci-release-result-<commit>` 制品。下载其中的 `artifacts/ci-release-result.json` 后，`verify-ci-release-evidence.ps1` 会强制校验当前提交、九项门禁、schema v2、运行链接和 7 天有效期；发布就绪度页面校验相同语义，跳过的长视频作业、空文件、旧 schema 或旧提交都不能显示绿色。

@@ -1,5 +1,6 @@
 const releases = [
-  {version:'2.2.29', title:'Android 自动化验收闭环', current:true, items:["API 29/35 平台导入协议回放门禁通过","2.2.4 持久化 AVD 覆盖升级与数据保留通过","生产签名和 OEM 真机兼容继续独立标记为未验证"], jump:{view:'studio', selector:'#task-list'}},
+  {version:'2.2.30', title:'长视频发布性能门禁', current:true, items:["五分钟 1080p FFmpeg 转码改为每次 CI 必跑","同提交发布证据新增长视频性能必过字段","目标机 GPU OOM 和 60 分钟长跑仍保持独立验收"], jump:{view:'studio', selector:'#task-list'}},
+  {version:'2.2.29', title:'Android 自动化验收闭环', items:["API 29/35 平台导入协议回放门禁通过","2.2.4 持久化 AVD 覆盖升级与数据保留通过","生产签名和 OEM 真机兼容继续独立标记为未验证"], jump:{view:'studio', selector:'#task-list'}},
   {version:'2.2.28', title:'PostgreSQL 生产路径验证增强', items:["真实 PostgreSQL 16 执行完整迁移","验证租户隔离、外键与乐观锁","发布证据强制要求 PostgreSQL 门槛通过"], jump:{view:'studio', selector:'#task-list'}},
   {version:'2.2.27', title:'真实媒体测试与发布证据增强', items:["真实媒体输出测试缺少 FFmpeg 时明确失败","新增性能套件规则防止静默跳过逻辑回流","同步 Web、Windows 与 Android 版本至 2.2.27"], jump:{view:'studio', selector:'#task-list'}},
   {version:'2.2.26', title:'界面操作体验优化', items:["同步更新 Web、Windows 与 Android 版本","完成本版本功能修复与稳定性检查","创建并同步 GitHub、Gitee 发布标签"], jump:{view:'studio', selector:'#task-list'}},
