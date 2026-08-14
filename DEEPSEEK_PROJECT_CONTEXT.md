@@ -1,7 +1,7 @@
 ﻿# GameNarrator — DeepSeek 结构化项目索引
 
-> 自动生成：2026-08-14 14:21:00 +08:00；UTF-8 BOM；索引不再内嵌全部源码。
-> Git：分支 `main`，提交 `89f711e`；收录文件 850 个，分卷 8 个。
+> 自动生成：2026-08-14 14:35:26 +08:00；UTF-8 BOM；索引不再内嵌全部源码。
+> Git：分支 `main`，提交 `f0d1422`；收录文件 850 个，分卷 8 个。
 
 ## 使用方法
 
@@ -34,39 +34,14 @@
 | `deepseek-context/05-android-main.md` | 144 | 887154 | Android 实现、资源与 Gradle |
 | `deepseek-context/06-android-tests.md` | 59 | 143956 | Android 单元及设备测试 |
 | `deepseek-context/07-platform-release.md` | 13 | 83574 | Windows、CI/CD 与发布 |
-| `deepseek-context/08-docs-scripts.md` | 90 | 297751 | 需求、架构、维护脚本 |
+| `deepseek-context/08-docs-scripts.md` | 90 | 297903 | 需求、架构、维护脚本 |
 
 ## 当前 Git 工作区（最近修改）
 
 ```text
-M android-app/app/build.gradle
- M android-app/app/src/main/java/cn/longer233/gamenarrator/mobile/MobileReleaseNotes.java
- M docs/PERFORMANCE_TESTING.md
- M docs/RELEASE_PERFORMANCE_EVIDENCE_TEMPLATE.json
- M docs/REQUIREMENTS.md
- M frontend/index.html
- M frontend/package-lock.json
- M frontend/package.json
- M frontend/public/app.js
- M frontend/public/updates.js
- M launcher/GameNarrator.Launcher.csproj
- M package.json
- M pom.xml
- M release/CHANGELOG.json
- M release/installer/GameNarrator-Demo-Lite.iss
- M release/installer/GameNarrator.iss
+M DEEPSEEK_PROJECT_CONTEXT.md
  M scripts/run-release-performance-gate.ps1
- M scripts/verify-performance-suite.ps1
- M scripts/verify-release-performance-evidence.ps1
- M src/main/java/cn/longer233/gamenarrator/diagnostics/ReleaseReadinessService.java
- M src/main/resources/static/app.js
- M src/main/resources/static/index.html
- M src/main/resources/static/updates.js
- M src/test/java/cn/longer233/gamenarrator/diagnostics/ReleaseReadinessServiceTest.java
-?? scripts/invoke-gpu-oom-recovery.ps1
-?? scripts/invoke-pipeline-recovery-performance.ps1
-?? scripts/invoke-release-soak.ps1
-?? src/test/java/cn/longer233/gamenarrator/performance/ReleaseSoakPerformanceIT.java
+?? artifacts/
 ```
 
 ## Flyway 迁移索引

@@ -22,14 +22,17 @@ function Invoke-Scenario([string]$name,[string]$validation,[scriptblock]$action)
     catch{$timer.Stop();$_.Exception.Message|Out-File $log -Append -Encoding utf8;$results[$name]=[ordered]@{status='failed';validation=$validation;elapsedSeconds=[Math]::Round($timer.Elapsed.TotalSeconds,3);reportFile=$relativeLog;reportSha256=(Get-FileHash $log -Algorithm SHA256).Hash};throw}
 }
 function Invoke-MarkedScript([string]$script,[string[]]$arguments,[string]$marker){
-    $output=& powershell.exe -NoProfile -ExecutionPolicy Bypass -File $script @arguments 2>&1;$exit=$LASTEXITCODE;$output
+    $previousPreference=$ErrorActionPreference
+    try{$ErrorActionPreference='Continue';$output=& powershell.exe -NoProfile -ExecutionPolicy Bypass -File $script @arguments 2>&1;$exit=$LASTEXITCODE}
+    finally{$ErrorActionPreference=$previousPreference}
+    $output
     if($exit-ne0){throw "scenario script exited ${exit}: $script"}
     if(-not (($output|Out-String).Contains($marker))){throw "scenario command did not emit required marker: $marker"}
 }
 function Assert-DiskGuard([long]$available,[long]$required){if($available-lt$required){throw "DISK_LOW_REJECTED available=$available required=$required"}}
 $sparse=Join-Path $work 'sparse-40gb-input.bin'
 Invoke-Scenario 'input40gb' 'exact-sparse-length' { $stream=[IO.File]::Open($sparse,[IO.FileMode]::Create,[IO.FileAccess]::Write,[IO.FileShare]::None);try{$stream.SetLength(40GB);if($stream.Length-ne40GB){throw '40GB sparse input length mismatch'};"length=$($stream.Length)"}finally{$stream.Dispose();Remove-Item -LiteralPath $sparse -Force -ErrorAction SilentlyContinue} }
-Invoke-Scenario 'diskLow' 'synthetic-low-space-rejection' { $rejected=$false;try{Assert-DiskGuard ([Math]::Max(0,$MinimumFreeBytes-1)) $MinimumFreeBytes}catch{if($_.Exception.Message-notlike 'DISK_LOW_REJECTED*'){throw};$rejected=$true;$_.Exception.Message};if(-not$rejected){throw 'synthetic disk-low condition was accepted'} }
+Invoke-Scenario 'diskLow' 'synthetic-low-space-rejection' { $rejected=$false;try{Assert-DiskGuard ([Math]::Max([long]0,$MinimumFreeBytes-1)) $MinimumFreeBytes}catch{if($_.Exception.Message-notlike 'DISK_LOW_REJECTED*'){throw};$rejected=$true;$_.Exception.Message};if(-not$rejected){throw 'synthetic disk-low condition was accepted'} }
 Invoke-Scenario 'ffmpegInterrupted' 'forced-nonzero-process-exit' { $p=Start-Process $ffmpeg -ArgumentList @('-hide_banner','-f','lavfi','-i','testsrc=size=1280x720:rate=30','-t','3600','-f','null','-') -PassThru -WindowStyle Hidden;Start-Sleep -Seconds 3;$p.Kill();$p.WaitForExit();if(-not$p.HasExited-or$p.ExitCode-eq0){throw "FFmpeg interruption was not observed exit=$($p.ExitCode)"};"FFMPEG_INTERRUPTED exit=$($p.ExitCode)" }
 $gpuScript=Join-Path $root 'scripts/invoke-gpu-oom-recovery.ps1'
 $soakScript=Join-Path $root 'scripts/invoke-release-soak.ps1'
