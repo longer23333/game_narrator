@@ -1,7 +1,7 @@
 ﻿# GameNarrator — DeepSeek 结构化项目索引
 
-> 自动生成：2026-08-14 14:35:26 +08:00；UTF-8 BOM；索引不再内嵌全部源码。
-> Git：分支 `main`，提交 `f0d1422`；收录文件 850 个，分卷 8 个。
+> 自动生成：2026-08-14 16:09:21 +08:00；UTF-8 BOM；索引不再内嵌全部源码。
+> Git：分支 `main`，提交 `ac76d83`；收录文件 847 个，分卷 8 个。
 
 ## 使用方法
 
@@ -30,18 +30,41 @@
 | `deepseek-context/01-foundation.md` | 92 | 221766 | 构建、配置、资源、数据库迁移 |
 | `deepseek-context/02-backend.md` | 298 | 1238065 | Spring 后端实现 |
 | `deepseek-context/03-tests.md` | 115 | 395617 | Spring 测试与行为验证 |
-| `deepseek-context/04-frontend.md` | 39 | 560806 | Vite Web 源码 |
-| `deepseek-context/05-android-main.md` | 144 | 887154 | Android 实现、资源与 Gradle |
+| `deepseek-context/04-frontend.md` | 36 | 558846 | Vite Web 源码 |
+| `deepseek-context/05-android-main.md` | 144 | 887260 | Android 实现、资源与 Gradle |
 | `deepseek-context/06-android-tests.md` | 59 | 143956 | Android 单元及设备测试 |
-| `deepseek-context/07-platform-release.md` | 13 | 83574 | Windows、CI/CD 与发布 |
+| `deepseek-context/07-platform-release.md` | 13 | 84089 | Windows、CI/CD 与发布 |
 | `deepseek-context/08-docs-scripts.md` | 90 | 297903 | 需求、架构、维护脚本 |
 
 ## 当前 Git 工作区（最近修改）
 
 ```text
-M DEEPSEEK_PROJECT_CONTEXT.md
- M scripts/run-release-performance-gate.ps1
+M android-app/app/build.gradle
+ M android-app/app/src/main/java/cn/longer233/gamenarrator/mobile/MobileReleaseNotes.java
+ M frontend/index.html
+ M frontend/package-lock.json
+ M frontend/package.json
+ M frontend/public/app.js
+ M frontend/public/updates.js
+ D frontend/src/features/AssetLibraryBoundary.vue
+ D frontend/src/features/MediaImporterBoundary.vue
+ M frontend/src/main.js
+ D frontend/src/services/legacy-script.js
+ M launcher/GameNarrator.Launcher.csproj
+ M package.json
+ M pom.xml
+ M release/CHANGELOG.json
+ M release/installer/GameNarrator-Demo-Lite.iss
+ M release/installer/GameNarrator.iss
+ M src/main/resources/static/app.js
+ D src/main/resources/static/assets/AssetLibraryBoundary-BHD4kS8d.js
+ D src/main/resources/static/assets/MediaImporterBoundary-BWuRZ5QO.js
+ D src/main/resources/static/assets/index-Cq5gKfK3.js
+ D src/main/resources/static/assets/legacy-script-CLD-0yWn.js
+ M src/main/resources/static/index.html
+ M src/main/resources/static/updates.js
 ?? artifacts/
+?? src/main/resources/static/assets/index-DPGErZnd.js
 ```
 
 ## Flyway 迁移索引

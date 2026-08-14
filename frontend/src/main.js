@@ -5,18 +5,10 @@ import TaskList from './components/TaskList.vue';
 import ActiveTaskQueue from './components/ActiveTaskQueue.vue';
 import {useTaskStore} from './stores/tasks.js';
 import {usePreferenceStore} from './stores/preferences.js';
-import {loadLegacyScript} from './services/legacy-script.js';
 import './memphis-theme.css';
 import './memphis-motion.js';
 
 const pinia=createPinia(); pinia.use(piniaPluginPersistedstate);
-const mountedFeatures=new Map();
-const featureComponents={import:()=>import('./features/MediaImporterBoundary.vue'),assets:()=>import('./features/AssetLibraryBoundary.vue')};
-window.gameNarratorModules={async load(name){
-  if(mountedFeatures.has(name))return mountedFeatures.get(name); const target=document.querySelector(`[data-feature-mount="${name}"]`);
-  if(!target||!featureComponents[name])return; const promise=featureComponents[name]().then(({default:Component})=>createApp(Component).use(pinia).mount(target));
-  mountedFeatures.set(name,promise); return promise;
-}};
 const tasks=useTaskStore(pinia); window.gameNarratorTasks={
   refresh:()=>tasks.refresh(),
   isStreamConnected:()=>tasks.streamConnected
@@ -36,4 +28,5 @@ for(const name of ['gameCategory','editingScope','targetDurationSeconds']) {
   if(preferences.taskDraft[name]!==undefined&&preferences.taskDraft[name]!=='')field.value=preferences.taskDraft[name];
   field.addEventListener('change',()=>{preferences.taskDraft[name]=field.type==='number'?Number(field.value):field.value;});
 }
-await loadLegacyScript('/app.js'); await tasks.refresh().catch(()=>undefined); tasks.startStream();
+const appModuleUrl='/app.js';
+await import(/* @vite-ignore */ appModuleUrl); await tasks.refresh().catch(()=>undefined); tasks.startStream();

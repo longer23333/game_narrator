@@ -24,6 +24,8 @@ public final class MobileReleaseNotes {
 
     public static List<Note> notes() {
         List<Note> notes = new ArrayList<>();
+        notes.add(new Note("2.2.33", "前端模块加载链路精简",
+                "同步更新各平台版本，完成对应功能修复、稳定性检查与发布记录。"));
         notes.add(new Note("2.2.32", "目标机真实性能证据门禁",
                 "真实 CUDA OOM 后恢复、60 分钟 FFmpeg soak 和九阶段损坏恢复生成带脚本与日志哈希的 schema v3 证据。"));
         notes.add(new Note("2.2.31", "PostgreSQL 2.2.4 基线升级门禁",

@@ -1,5 +1,6 @@
 const releases = [
-  {version:'2.2.32', title:'目标机真实性能证据门禁', current:true, items:["真实 CUDA OOM 后恢复计算，不再接受任意 marker 命令","至少 60 分钟重复真实 FFmpeg 音视频转码","schema v3 校验 runner、场景实现和原始日志哈希"], jump:{view:'studio', selector:'#task-list'}},
+  {version:'2.2.33', title:'前端模块加载链路精简', current:true, items:["同步更新 Web、Windows 与 Android 版本","完成本版本功能修复与稳定性检查","创建并同步 GitHub、Gitee 发布标签"], jump:{view:'studio', selector:'#task-list'}},
+  {version:'2.2.32', title:'目标机真实性能证据门禁', items:["真实 CUDA OOM 后恢复计算，不再接受任意 marker 命令","至少 60 分钟重复真实 FFmpeg 音视频转码","schema v3 校验 runner、场景实现和原始日志哈希"], jump:{view:'studio', selector:'#task-list'}},
   {version:'2.2.31', title:'PostgreSQL 2.2.4 基线升级门禁', items:["真实 PostgreSQL 16 从 B39 基线升级到当前版本","完整历史和基线升级均执行 Flyway validate","比较表列、约束和索引签名，阻止结构漂移"], jump:{view:'studio', selector:'#task-list'}},
   {version:'2.2.30', title:'长视频发布性能门禁', items:["五分钟 1080p FFmpeg 转码改为每次 CI 必跑","同提交发布证据新增长视频性能必过字段","目标机 GPU OOM 和 60 分钟长跑仍保持独立验收"], jump:{view:'studio', selector:'#task-list'}},
   {version:'2.2.29', title:'Android 自动化验收闭环', items:["API 29/35 平台导入协议回放门禁通过","2.2.4 持久化 AVD 覆盖升级与数据保留通过","生产签名和 OEM 真机兼容继续独立标记为未验证"], jump:{view:'studio', selector:'#task-list'}},

@@ -1,1 +1,0 @@
-import{Q as t,P as s,F as r,H as o,J as c,r as n,E as l}from"./legacy-script-CLD-0yWn.js";const p={key:0,class:"empty"},y={__name:"AssetLibraryBoundary",setup(u){const e=n("");return t(async()=>{try{await s("/asset-library.js",{type:"module"})}catch(a){e.value=a.message}}),(a,i)=>e.value?(l(),r("p",p,"素材库模块加载失败："+o(e.value),1)):c("",!0)}};export{y as default};
