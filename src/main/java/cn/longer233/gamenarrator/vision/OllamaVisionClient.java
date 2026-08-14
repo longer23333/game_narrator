@@ -26,7 +26,7 @@ import java.util.function.Consumer;
 import cn.longer233.gamenarrator.pipeline.StageProgressUpdate;
 
 @Component
-public class OllamaVisionClient {
+public class OllamaVisionClient implements VisionAnalyzer {
     private static final Logger log = LoggerFactory.getLogger(OllamaVisionClient.class);
     private final HttpClient httpClient;
     private final ObjectMapper objectMapper;
@@ -194,6 +194,17 @@ public class OllamaVisionClient {
             HttpResponse<String> response = httpClient.send(request, HttpResponse.BodyHandlers.ofString(StandardCharsets.UTF_8));
             return response.statusCode() == 200 && response.body().contains(model.split(":")[0]);
         } catch (Exception ignored) { return false; }
+    }
+
+    @Override
+    public String engineId() {
+        return "ollama";
+    }
+
+    @Override
+    public Map<String, Object> diagnostics() {
+        return Map.of("engine", engineId(), "available", available(),
+                "url", baseUri.toString(), "model", model());
     }
 
 

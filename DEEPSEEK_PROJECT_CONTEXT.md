@@ -1,7 +1,7 @@
 ﻿# GameNarrator — DeepSeek 结构化项目索引
 
-> 自动生成：2026-08-14 16:56:59 +08:00；UTF-8 BOM；索引不再内嵌全部源码。
-> Git：分支 `main`，提交 `0676b76`；收录文件 835 个，分卷 8 个。
+> 自动生成：2026-08-14 17:10:54 +08:00；UTF-8 BOM；索引不再内嵌全部源码。
+> Git：分支 `main`，提交 `18724c7`；收录文件 832 个，分卷 8 个。
 
 ## 使用方法
 
@@ -28,19 +28,20 @@
 | 分卷 | 文件数 | 字符数 | 建议用途 |
 |---|---:|---:|---|
 | `deepseek-context/01-foundation.md` | 92 | 219465 | 构建、配置、资源、数据库迁移 |
-| `deepseek-context/02-backend.md` | 298 | 1236391 | Spring 后端实现 |
+| `deepseek-context/02-backend.md` | 295 | 1232021 | Spring 后端实现 |
 | `deepseek-context/03-tests.md` | 115 | 395720 | Spring 测试与行为验证 |
-| `deepseek-context/04-frontend.md` | 36 | 559362 | Vite Web 源码 |
-| `deepseek-context/05-android-main.md` | 144 | 887572 | Android 实现、资源与 Gradle |
+| `deepseek-context/04-frontend.md` | 36 | 559535 | Vite Web 源码 |
+| `deepseek-context/05-android-main.md` | 144 | 887677 | Android 实现、资源与 Gradle |
 | `deepseek-context/06-android-tests.md` | 59 | 143956 | Android 单元及设备测试 |
-| `deepseek-context/07-platform-release.md` | 13 | 84619 | Windows、CI/CD 与发布 |
-| `deepseek-context/08-docs-scripts.md` | 78 | 266397 | 需求、架构、维护脚本 |
+| `deepseek-context/07-platform-release.md` | 13 | 85130 | Windows、CI/CD 与发布 |
+| `deepseek-context/08-docs-scripts.md` | 78 | 266391 | 需求、架构、维护脚本 |
 
 ## 当前 Git 工作区（最近修改）
 
 ```text
 M android-app/app/build.gradle
  M android-app/app/src/main/java/cn/longer233/gamenarrator/mobile/MobileReleaseNotes.java
+ M docs/ARCHITECTURE.md
  M frontend/index.html
  M frontend/package-lock.json
  M frontend/package.json
@@ -52,15 +53,15 @@ M android-app/app/build.gradle
  M release/CHANGELOG.json
  M release/installer/GameNarrator-Demo-Lite.iss
  M release/installer/GameNarrator.iss
- M src/main/java/cn/longer233/gamenarrator/effect/EffectRerenderWorker.java
- M src/main/java/cn/longer233/gamenarrator/enhancement/TaskEnhancementService.java
- M src/main/java/cn/longer233/gamenarrator/pipeline/EngineTaskContext.java
- M src/main/java/cn/longer233/gamenarrator/pipeline/TaskWorkflowStateService.java
- M src/main/java/cn/longer233/gamenarrator/pipeline/VideoTaskEngine.java
+ M src/main/java/cn/longer233/gamenarrator/transcription/WhisperCppTranscriber.java
+ D src/main/java/cn/longer233/gamenarrator/transcription/WhisperCppTranscriberAdapter.java
+ D src/main/java/cn/longer233/gamenarrator/vision/OllamaVisionAnalyzerAdapter.java
+ M src/main/java/cn/longer233/gamenarrator/vision/OllamaVisionClient.java
+ M src/main/java/cn/longer233/gamenarrator/voice/PiperVoiceGenerator.java
+ D src/main/java/cn/longer233/gamenarrator/voice/PiperVoiceSynthesizerAdapter.java
  M src/main/resources/static/app.js
  M src/main/resources/static/index.html
  M src/main/resources/static/updates.js
- M src/test/java/cn/longer233/gamenarrator/enhancement/TaskEnhancementServiceTest.java
 ?? artifacts/
 ```
 

@@ -22,7 +22,7 @@ import java.util.concurrent.TimeUnit;
 import java.util.function.IntConsumer;
 
 @Component
-public class PiperVoiceGenerator {
+public class PiperVoiceGenerator implements VoiceSynthesizer {
     private static final Logger log = LoggerFactory.getLogger(PiperVoiceGenerator.class);
     private final ObjectMapper objectMapper;
     private final Path executable;
@@ -73,6 +73,7 @@ public class PiperVoiceGenerator {
                 ? properties.getDefaultProfile() : configuredProfiles.keySet().iterator().next();
     }
 
+    @Override
     public String engineId() { return "piper"; }
 
     public boolean available() {

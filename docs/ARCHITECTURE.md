@@ -26,10 +26,10 @@
 所有推理能力实现 `ModelAdapter`，业务层只依赖四个标准接口：ASR 的 `Transcriber`、VLM 的
 `VisionAnalyzer`、LLM 的 `TextGenerator` 和 TTS 的 `VoiceSynthesizer`。
 
-- Whisper.cpp 通过 `WhisperCppTranscriberAdapter` 接入。
-- Ollama 视觉通过 `OllamaVisionAnalyzerAdapter` 接入。
+- Whisper.cpp 由 `WhisperCppTranscriber` 直接实现转写接口。
+- Ollama 视觉由 `OllamaVisionClient` 直接实现视觉分析接口。
 - 本地/云端文本路由通过 `AdaptiveTextGeneratorAdapter` 接入。
-- Piper 通过 `PiperVoiceSynthesizerAdapter` 接入。
+- Piper 由 `PiperVoiceGenerator` 直接实现语音合成接口。
 
 `AdaptiveAiChatClient` 只负责本地/云端路由和活动模型，不再实现具体协议推理。模型选择由
 `game-narrator.ai.asr-engine`、`vlm-engine`、`llm-engine`、`tts-engine` 配置完成。

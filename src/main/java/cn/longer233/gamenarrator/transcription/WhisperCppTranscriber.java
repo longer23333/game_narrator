@@ -13,9 +13,10 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.time.Duration;
 import java.util.List;
+import java.util.Map;
 
 @Component
-public class WhisperCppTranscriber {
+public class WhisperCppTranscriber implements Transcriber {
 
     private static final Logger log = LoggerFactory.getLogger(WhisperCppTranscriber.class);
     private final Path executable;
@@ -47,6 +48,7 @@ public class WhisperCppTranscriber {
         this.chunkTimeout = Duration.ofMinutes(Math.max(5, chunkTimeoutMinutes));
     }
 
+    @Override
     public TranscriptionResult transcribe(Path audioPath) {
         validateRuntime(audioPath);
         Path outputPrefix = audioPath.getParent().resolve("transcript");
@@ -134,6 +136,22 @@ public class WhisperCppTranscriber {
 
     public boolean runtimeAvailable() {
         return Files.isRegularFile(executable) && Files.isRegularFile(model);
+    }
+
+    @Override
+    public String engineId() {
+        return "whisper-cpp";
+    }
+
+    @Override
+    public boolean available() {
+        return runtimeAvailable();
+    }
+
+    @Override
+    public Map<String, Object> diagnostics() {
+        return Map.of("engine", engineId(), "available", available(),
+                "executable", executable.toString(), "model", model.toString());
     }
 
     public Path executable() {
