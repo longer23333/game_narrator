@@ -26,17 +26,17 @@ public final class RemoteMediaImporterReplayTest {
     private Context context;
 
     @Before public void setUp() throws Exception {
+        context=InstrumentationRegistry.getInstrumentation().getTargetContext();
         server=new MockWebServer();
         server.start();
-        context=InstrumentationRegistry.getInstrumentation().getContext();
         clearImports();
         RemoteMediaImporter.configureTimeoutsForTest(500,500);
     }
 
     @After public void tearDown() throws Exception {
         RemoteMediaImporter.configureTimeoutsForTest(15_000,30_000);
-        clearImports();
-        server.shutdown();
+        if(context!=null)clearImports();
+        if(server!=null)server.shutdown();
     }
 
     @Test public void downloads200WithoutContentLength() throws Exception {
