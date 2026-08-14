@@ -36,11 +36,12 @@ Write-Output 'PASS: real FFmpeg output tests cannot be silently skipped when med
 $releaseRunner = Get-Content -Raw -Encoding UTF8 (Join-Path $root 'scripts/run-release-performance-gate.ps1')
 $releaseVerifier = Get-Content -Raw -Encoding UTF8 (Join-Path $root 'scripts/verify-release-performance-evidence.ps1')
 foreach ($marker in @('input40gb','diskLow','gpuOom','ffmpegInterrupted','longRun','recovery','SetLength(40GB)',
-        'GN_GPU_OOM_RECOVERED=1','GN_LONG_RUN_COMPLETED=1','GN_RECOVERY_VERIFIED=1','MinimumLongRunMinutes',
-        'synthetic-low-space-rejection','forced-nonzero-process-exit','Remove-Item -LiteralPath $sparse')) {
+        'invoke-gpu-oom-recovery.ps1','invoke-release-soak.ps1','invoke-pipeline-recovery-performance.ps1',
+        'real-cuda-oom-and-post-oom-calculation','real-ffmpeg-soak-minimum-duration','real-nine-stage-corruption-recovery',
+        'MinimumLongRunMinutes','runnerSha256','implementations','reportFile','Remove-Item -LiteralPath $sparse')) {
     if (-not $releaseRunner.Contains($marker)) { throw "Release performance runner is missing: $marker" }
 }
-foreach ($marker in @('MaximumAgeHours','commit mismatch','reportSha256','schemaVersion must be 2','3600 seconds')) {
+foreach ($marker in @('MaximumAgeHours','commit mismatch','reportSha256','schemaVersion must be 3','runner hash mismatch','implementation hash mismatch','report file or hash mismatch','3600 seconds')) {
     if (-not $releaseVerifier.Contains($marker)) { throw "Release performance verifier is missing: $marker" }
 }
 Write-Output 'PASS: release target-machine gate covers 40GB, disk, GPU OOM, FFmpeg interruption, long run and recovery evidence'

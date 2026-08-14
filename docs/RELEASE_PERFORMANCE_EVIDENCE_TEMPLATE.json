@@ -1,14 +1,17 @@
 {
-  "schemaVersion": 1,
+  "schemaVersion": 3,
   "commit": "REPLACE_WITH_TESTED_COMMIT",
   "completedAt": "YYYY-MM-DDTHH:mm:ss+08:00",
+  "minimumLongRunMinutes": 60,
+  "runnerSha256": "",
+  "implementations": {"gpuOom": "", "longRun": "", "recovery": ""},
   "machine": {"os": "", "gpu": "RTX 4060 8GB", "processor": ""},
   "scenarios": {
-    "input40gb": {"status": "pending", "reportSha256": ""},
-    "diskLow": {"status": "pending", "reportSha256": ""},
-    "gpuOom": {"status": "pending", "reportSha256": ""},
-    "ffmpegInterrupted": {"status": "pending", "reportSha256": ""},
-    "longRun": {"status": "pending", "reportSha256": ""},
-    "recovery": {"status": "pending", "reportSha256": ""}
+    "input40gb": {"status": "pending", "validation": "exact-sparse-length", "reportFile": "", "reportSha256": ""},
+    "diskLow": {"status": "pending", "validation": "synthetic-low-space-rejection", "reportFile": "", "reportSha256": ""},
+    "gpuOom": {"status": "pending", "validation": "real-cuda-oom-and-post-oom-calculation", "reportFile": "", "reportSha256": ""},
+    "ffmpegInterrupted": {"status": "pending", "validation": "forced-nonzero-process-exit", "reportFile": "", "reportSha256": ""},
+    "longRun": {"status": "pending", "validation": "real-ffmpeg-soak-minimum-duration", "reportFile": "", "reportSha256": ""},
+    "recovery": {"status": "pending", "validation": "real-nine-stage-corruption-recovery", "reportFile": "", "reportSha256": ""}
   }
 }

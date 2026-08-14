@@ -53,4 +53,16 @@ class ReleaseReadinessServiceTest {
   var report=new ReleaseReadinessService(diagnostics,storage,jdbc,new CloudSyncProperties(false,"","","","","",false,1,1),root.toString(),new ObjectMapper()).inspect();
   assertTrue(report.checks().stream().anyMatch(c->c.id().equals("android")&&c.status().equals("RED")));
  }
+ @Test void schemaThreeRealScenarioEvidenceBecomesGreen() throws Exception {
+  Path root=Files.createTempDirectory("readiness-performance-v3");Files.createDirectories(root.resolve("artifacts"));Files.createDirectories(root.resolve(".git/refs/heads"));
+  String current="3333333333333333333333333333333333333333";Files.writeString(root.resolve(".git/HEAD"),"ref: refs/heads/main\n");Files.writeString(root.resolve(".git/refs/heads/main"),current+"\n");
+  String scenarios="\"input40gb\":"+scenario("exact-sparse-length",1)+",\"diskLow\":"+scenario("synthetic-low-space-rejection",1)+",\"gpuOom\":"+scenario("real-cuda-oom-and-post-oom-calculation",1)+",\"ffmpegInterrupted\":"+scenario("forced-nonzero-process-exit",3)+",\"longRun\":"+scenario("real-ffmpeg-soak-minimum-duration",3601)+",\"recovery\":"+scenario("real-nine-stage-corruption-recovery",30);
+  Files.writeString(root.resolve("artifacts/release-performance-gate.json"),"{\"schemaVersion\":3,\"commit\":\""+current+"\",\"completedAt\":\""+Instant.now()+"\",\"minimumLongRunMinutes\":60,\"runnerSha256\":\"hash\",\"machine\":{\"os\":\"Windows\",\"gpu\":\"RTX 4060\"},\"scenarios\":{"+scenarios+"}}");
+  var diagnostics=mock(SystemDiagnosticsService.class);when(diagnostics.inspect()).thenReturn(Map.of("ffmpegAvailable",true,"whisperAvailable",true,"visionModelAvailable",true));
+  var storage=mock(StorageAdminService.class);when(storage.inspect()).thenReturn(new StorageAdminView("x","NTFS",100,80,10,0,0,0,0,java.util.List.of()));
+  var jdbc=mock(JdbcTemplate.class);when(jdbc.queryForObject(anyString(),eq(Integer.class))).thenReturn(45);
+  var report=new ReleaseReadinessService(diagnostics,storage,jdbc,new CloudSyncProperties(false,"","","","","",false,1,1),root.toString(),new ObjectMapper()).inspect();
+  assertTrue(report.checks().stream().anyMatch(c->c.id().equals("performance")&&c.status().equals("GREEN")));
+ }
+ private static String scenario(String validation,long elapsed){return "{\"status\":\"passed\",\"validation\":\""+validation+"\",\"elapsedSeconds\":"+elapsed+",\"reportFile\":\"report.log\",\"reportSha256\":\"hash\"}";}
 }

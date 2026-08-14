@@ -1,7 +1,17 @@
 {
     "schemaVersion":  1,
-    "currentVersion":  "2.2.31",
+    "currentVersion":  "2.2.32",
     "releases":  [
+                     {
+                         "version":  "2.2.32",
+                         "title":  "目标机真实性能证据门禁",
+                         "summary":  "目标机专项性能证据改为真实 CUDA OOM、60 分钟 FFmpeg soak 与九阶段恢复，移除任意 marker 命令漏洞。",
+                         "items":  [
+                                       "真实耗尽 CUDA 显存、释放缓存并执行恢复后计算",
+                                       "至少 60 分钟重复真实音视频转码并约束堆增长",
+                                       "证据 schema v3 校验 runner、实现脚本和原始日志哈希"
+                                   ]
+                     },
                      {
                          "version":  "2.2.31",
                          "title":  "PostgreSQL 2.2.4 基线升级门禁",

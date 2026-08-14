@@ -16,4 +16,6 @@ powershell -ExecutionPolicy Bypass -File scripts/run-performance-load.ps1 `
 
 服务须由测试人员单独启动并使用隔离数据库/存储目录。结果写入 `target/performance/summary.json` 和 HTML 报告。40 GB 输入及 GPU 耗尽场景不进入公共 CI：在目标 RTX 4060 8 GB 设备上使用同一脚本和资源指标端点执行，保留报告、JFR/JProfiler 快照和驱动日志；不得将真实视频或含凭据的报告提交到仓库。
 
-正式发布前在目标机运行 `run-release-performance-gate.ps1`。脚本以稀疏文件验证 40GB 路径，以合成低余量确认磁盘守卫确实拒绝任务，强制终止 FFmpeg 并要求非零退出；GPU OOM、至少 60 分钟长跑和恢复命令分别必须输出 `GN_GPU_OOM_RECOVERED=1`、`GN_LONG_RUN_COMPLETED=1`、`GN_RECOVERY_VERIFIED=1`，防止空命令伪造通过。证据 schema v2 记录验证类型、耗时和报告 SHA-256。`verify-release-performance-evidence.ps1` 要求六项均通过、清单对应当前提交、机器含 GPU/OS 标识且不超过 7 天；原始媒体、凭据与大体积报告不得提交。
+正式发布前在目标机运行 `run-release-performance-gate.ps1`，必须传入带 CUDA PyTorch 的 Python 和真实 FFmpeg 路径。脚本以稀疏文件验证 40GB 路径，以配置低余量确认磁盘守卫拒绝语义，强制终止 FFmpeg 并要求非零退出；仓库内置脚本会实际耗尽 CUDA 显存、释放缓存并执行一次恢复后计算，持续至少 60 分钟重复真实音视频转码，并运行九阶段流水线的产物损坏后恢复集成测试。调用方不能再传入只打印 marker 的任意命令。
+
+证据 schema v3 记录 runner 与三个场景实现的 SHA-256、每项耗时、目标机身份、原始日志相对路径和日志 SHA-256。`verify-release-performance-evidence.ps1` 会重新计算脚本与日志哈希，要求六项均通过、清单对应当前提交、长跑不少于 3600 秒、机器含 GPU/OS 标识且不超过 7 天。生成的日志位于 `artifacts/release-performance-reports`，不得包含真实媒体或凭据，也不提交仓库。

@@ -1,7 +1,7 @@
 ﻿# GameNarrator — DeepSeek 结构化项目索引
 
-> 自动生成：2026-08-14 13:47:59 +08:00；UTF-8 BOM；索引不再内嵌全部源码。
-> Git：分支 `main`，提交 `ff108f9`；收录文件 846 个，分卷 8 个。
+> 自动生成：2026-08-14 14:21:00 +08:00；UTF-8 BOM；索引不再内嵌全部源码。
+> Git：分支 `main`，提交 `89f711e`；收录文件 850 个，分卷 8 个。
 
 ## 使用方法
 
@@ -28,19 +28,45 @@
 | 分卷 | 文件数 | 字符数 | 建议用途 |
 |---|---:|---:|---|
 | `deepseek-context/01-foundation.md` | 92 | 221766 | 构建、配置、资源、数据库迁移 |
-| `deepseek-context/02-backend.md` | 298 | 1237968 | Spring 后端实现 |
-| `deepseek-context/03-tests.md` | 114 | 389947 | Spring 测试与行为验证 |
-| `deepseek-context/04-frontend.md` | 39 | 560610 | Vite Web 源码 |
-| `deepseek-context/05-android-main.md` | 144 | 887013 | Android 实现、资源与 Gradle |
+| `deepseek-context/02-backend.md` | 298 | 1238065 | Spring 后端实现 |
+| `deepseek-context/03-tests.md` | 115 | 395617 | Spring 测试与行为验证 |
+| `deepseek-context/04-frontend.md` | 39 | 560806 | Vite Web 源码 |
+| `deepseek-context/05-android-main.md` | 144 | 887154 | Android 实现、资源与 Gradle |
 | `deepseek-context/06-android-tests.md` | 59 | 143956 | Android 单元及设备测试 |
-| `deepseek-context/07-platform-release.md` | 13 | 83030 | Windows、CI/CD 与发布 |
-| `deepseek-context/08-docs-scripts.md` | 87 | 290968 | 需求、架构、维护脚本 |
+| `deepseek-context/07-platform-release.md` | 13 | 83574 | Windows、CI/CD 与发布 |
+| `deepseek-context/08-docs-scripts.md` | 90 | 297751 | 需求、架构、维护脚本 |
 
 ## 当前 Git 工作区（最近修改）
 
 ```text
-M scripts/verify-postgresql-production-path.ps1
- M src/test/java/cn/longer233/gamenarrator/task/PostgreSqlProductionIntegrationTest.java
+M android-app/app/build.gradle
+ M android-app/app/src/main/java/cn/longer233/gamenarrator/mobile/MobileReleaseNotes.java
+ M docs/PERFORMANCE_TESTING.md
+ M docs/RELEASE_PERFORMANCE_EVIDENCE_TEMPLATE.json
+ M docs/REQUIREMENTS.md
+ M frontend/index.html
+ M frontend/package-lock.json
+ M frontend/package.json
+ M frontend/public/app.js
+ M frontend/public/updates.js
+ M launcher/GameNarrator.Launcher.csproj
+ M package.json
+ M pom.xml
+ M release/CHANGELOG.json
+ M release/installer/GameNarrator-Demo-Lite.iss
+ M release/installer/GameNarrator.iss
+ M scripts/run-release-performance-gate.ps1
+ M scripts/verify-performance-suite.ps1
+ M scripts/verify-release-performance-evidence.ps1
+ M src/main/java/cn/longer233/gamenarrator/diagnostics/ReleaseReadinessService.java
+ M src/main/resources/static/app.js
+ M src/main/resources/static/index.html
+ M src/main/resources/static/updates.js
+ M src/test/java/cn/longer233/gamenarrator/diagnostics/ReleaseReadinessServiceTest.java
+?? scripts/invoke-gpu-oom-recovery.ps1
+?? scripts/invoke-pipeline-recovery-performance.ps1
+?? scripts/invoke-release-soak.ps1
+?? src/test/java/cn/longer233/gamenarrator/performance/ReleaseSoakPerformanceIT.java
 ```
 
 ## Flyway 迁移索引
