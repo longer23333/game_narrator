@@ -66,7 +66,12 @@ $baseline = Read-Utf8 'docs/ANDROID_CORE_BASELINE.json' | ConvertFrom-Json
 $weights = @{full=1.0; partial=0.5; missing=0.0}
 $ids = [Collections.Generic.HashSet[string]]::new()
 $score = 0.0
-if ([int]$baseline.schemaVersion -ne 2) { $failures.Add("Unsupported Android baseline schemaVersion: $($baseline.schemaVersion)") }
+if ([int]$baseline.schemaVersion -ne 3) { $failures.Add("Unsupported Android baseline schemaVersion: $($baseline.schemaVersion)") }
+if (@('full','partial','missing') -notcontains [string]$baseline.validation.featureStatus) { $failures.Add('Android featureStatus is invalid') }
+if (@('full','pending','missing') -notcontains [string]$baseline.validation.automatedValidation) { $failures.Add('Android automatedValidation is invalid') }
+if ([string]$baseline.validation.physicalDeviceValidation -ne 'optional') { $failures.Add('Android physicalDeviceValidation must remain optional') }
+if ($baseline.validation.physicalDeviceValidated -isnot [bool]) { $failures.Add('Android physicalDeviceValidated must be an explicit boolean') }
+if ($baseline.validation.productionSigningValidated -isnot [bool]) { $failures.Add('Android productionSigningValidated must be an explicit boolean') }
 $testRoots = @(
     (Join-Path $projectRoot 'android-app/app/src/test/java')
     (Join-Path $projectRoot 'android-app/app/src/androidTest/java')

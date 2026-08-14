@@ -28,4 +28,12 @@ public final class BilibiliQrLoginTest {
         assertTrue(url.contains("qrcode_key=abc123"));
         assertTrue(url.startsWith("https://account.bilibili.com/h5/account-h5/auth/scan-web"));
     }
+
+    @Test public void mapsReplayLoginStatesWithoutRealAccount() {
+        assertEquals(BilibiliQrLogin.LoginState.CONFIRMED, BilibiliQrLogin.loginState(0));
+        assertEquals(BilibiliQrLogin.LoginState.WAITING, BilibiliQrLogin.loginState(86090));
+        assertEquals(BilibiliQrLogin.LoginState.WAITING, BilibiliQrLogin.loginState(86101));
+        assertEquals(BilibiliQrLogin.LoginState.EXPIRED, BilibiliQrLogin.loginState(86038));
+        assertEquals(BilibiliQrLogin.LoginState.FAILED, BilibiliQrLogin.loginState(-1));
+    }
 }

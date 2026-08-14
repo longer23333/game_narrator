@@ -32,6 +32,14 @@ import org.json.JSONObject;
  * cookies are stored in-memory only and reused for platform imports.
  */
 public final class BilibiliQrLogin {
+    enum LoginState { WAITING, CONFIRMED, EXPIRED, FAILED }
+
+    static LoginState loginState(int code) {
+        if (code == 0) return LoginState.CONFIRMED;
+        if (code == 86038) return LoginState.EXPIRED;
+        if (code == 86090 || code == 86101) return LoginState.WAITING;
+        return LoginState.FAILED;
+    }
     private static final String GENERATE_URL =
             "https://passport.bilibili.com/x/passport-login/web/qrcode/generate";
     private static final String POLL_URL =
@@ -160,7 +168,8 @@ public final class BilibiliQrLogin {
                         JSONObject payload = new JSONObject(body).getJSONObject("data");
                         int code = payload.optInt("code", -1);
                         final String message = payload.optString("message", "");
-                        if (code == 0) {
+                        LoginState state = loginState(code);
+                        if (state == LoginState.CONFIRMED) {
                             String cookies = extractCookies(connection);
                             handler.post(() -> {
                                 if (!polling) return;
@@ -175,11 +184,19 @@ public final class BilibiliQrLogin {
                             });
                             return;
                         }
-                        if (code == 86038) {
+                        if (state == LoginState.EXPIRED) {
                             handler.post(() -> {
                                 if (!polling) return;
                                 stopPolling();
                                 if (listener != null) listener.onError("二维码已过期，请重新生成");
+                            });
+                            return;
+                        }
+                        if (state == LoginState.FAILED) {
+                            handler.post(() -> {
+                                if (!polling) return;
+                                stopPolling();
+                                if (listener != null) listener.onError(message.isBlank() ? "登录服务拒绝了本次会话" : message);
                             });
                             return;
                         }

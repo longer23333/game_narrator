@@ -11,6 +11,7 @@ Require-Text 'scripts/build-android-release-signed.ps1' @('Production signing is
 Require-Text 'android-app/app/build.gradle' @('minifyEnabled true','shrinkResources true','signingConfigs')
 Require-Text 'android-app/app/src/androidTest/java/cn/longer233/gamenarrator/mobile/ProductionDatabaseTest.java' @('projectTimelineAndHistorySurviveReopen','publicAssetLicenseMetadataSurvivesReopen')
 Require-Text '.github/workflows/release-version.yml' @('GN_KEYSTORE_BASE64','build-android-release-signed.ps1','GameNarrator-Android-${{ inputs.version }}-r8')
+Require-Text '.github/workflows/ci.yml' @('Android 2.2.4 to current persistent AVD upgrade','ref: v2.2.4','adb install -r','ProductionDatabaseTest')
 if($RequireProductionArtifacts){
     $version=([regex]::Match([IO.File]::ReadAllText((Join-Path $root 'pom.xml')),'<artifactId>game-narrator</artifactId>\s*<version>([^<]+)</version>')).Groups[1].Value
     $manifestPath=Join-Path $root "dist/GameNarrator-Android-$version-manifest.json"
@@ -24,4 +25,4 @@ if($RequireUpgradeEvidence){
     else{$e=[IO.File]::ReadAllText($path,[Text.Encoding]::UTF8)|ConvertFrom-Json;$version=([regex]::Match([IO.File]::ReadAllText((Join-Path $root 'pom.xml')),'<artifactId>game-narrator</artifactId>\s*<version>([^<]+)</version>')).Groups[1].Value;$commit=(git -c "safe.directory=$($root.Replace('\','/'))" -C $root rev-parse HEAD).Trim();try{$completed=[DateTimeOffset]::Parse([string]$e.completedAt);$age=[DateTimeOffset]::Now-$completed;if($age.TotalDays-gt7-or$age.TotalMinutes-lt-5){$failures.Add('upgrade evidence completedAt is stale or in the future')}}catch{$failures.Add('upgrade evidence completedAt is invalid')};if($e.schemaVersion-ne2-or$e.fromVersion-ne'2.2.4'-or$e.toVersion-ne$version-or$e.commit-ne$commit-or-not$e.apkUpgrade-or-not$e.databaseIntegrity-or-not$e.projectIntegrity-or-not$e.mediaIntegrity-or-not$e.productionSignedApk-or[string]::IsNullOrWhiteSpace([string]$e.sessionId)-or[string]::IsNullOrWhiteSpace([string]$e.device.serial)-or[string]$e.device.serial-match'^REPLACE|^REDACTED_DEVICE_ID$'-or[string]::IsNullOrWhiteSpace([string]$e.device.model)-or[string]::IsNullOrWhiteSpace([string]$e.device.androidVersion)){$failures.Add('2.2.4 to current same-commit production device upgrade evidence is incomplete')}}
 }
 if($failures.Count){Write-Host "FAIL: $($failures.Count) Android production release violation(s)";$failures|ForEach-Object{Write-Host "  $_"};exit 1}
-Write-Host 'PASS: Android production signing, R8 archive, certificate manifest and upgrade evidence contracts are wired'
+Write-Host 'PASS: Android release contracts and blocking 2.2.4-to-current AVD upgrade are wired; optional evidence switches remain independently enforceable'

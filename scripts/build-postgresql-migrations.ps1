@@ -1,8 +1,10 @@
+param([switch]$Check)
+
 $ErrorActionPreference = 'Stop'
 $source = Join-Path $PSScriptRoot '..\src\main\resources\db\migration'
 $target = Join-Path $PSScriptRoot '..\src\main\resources\db\migration-postgresql'
 New-Item -ItemType Directory -Force -Path $target | Out-Null
-Get-ChildItem $target -Filter 'V*.sql' | Remove-Item -Force
+$utf8 = [Text.UTF8Encoding]::new($false)
 
 Get-ChildItem $source -Filter 'V*.sql' | ForEach-Object {
     $name = $_.Name
@@ -18,7 +20,11 @@ Get-ChildItem $source -Filter 'V*.sql' | ForEach-Object {
             $sql = $sql -replace "MERGE INTO app_user \(id, username, display_name, password_hash, role, status, created_at, updated_at, last_login_at\)\s*KEY \(id\) VALUES \(([^;]+)\);", "INSERT INTO app_user (id, username, display_name, password_hash, role, status, created_at, updated_at, last_login_at) VALUES (`$1) ON CONFLICT (id) DO NOTHING;"
         }
     }
-    Set-Content -Encoding UTF8 -NoNewline -Path (Join-Path $target $name) -Value $sql
+    $targetPath = Join-Path $target $name
+    if (-not (Test-Path -LiteralPath $targetPath)) {
+        if ($Check) { throw "PostgreSQL migration is missing: $name" }
+        [IO.File]::WriteAllText($targetPath, $sql, $utf8)
+    }
 }
 
-& (Join-Path $PSScriptRoot 'build-migration-baselines.ps1')
+& (Join-Path $PSScriptRoot 'build-migration-baselines.ps1') -Check:$Check

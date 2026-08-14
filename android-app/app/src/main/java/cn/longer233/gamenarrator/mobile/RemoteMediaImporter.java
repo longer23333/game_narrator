@@ -14,6 +14,25 @@ import java.util.List;
 import java.util.Locale;
 
 public final class RemoteMediaImporter {
+    private static int connectTimeoutMillis = 15_000;
+    private static int readTimeoutMillis = 30_000;
+    enum ResponseAction { ACCEPT_NEW, APPEND, RESTART, RETRY_LATER, REAUTHENTICATE, FAIL }
+
+    static ResponseAction responseAction(int status,long offset,String contentRange) {
+        if (status == 429 || status >= 500) return ResponseAction.RETRY_LATER;
+        if (status == 401 || status == 403) return ResponseAction.REAUTHENTICATE;
+        if (status == 416 && offset > 0) return ResponseAction.RESTART;
+        if (status == 206 && offset > 0) {
+            return contentRangeStartsAt(contentRange, offset) ? ResponseAction.APPEND : ResponseAction.RESTART;
+        }
+        if (status >= 200 && status < 300) return ResponseAction.ACCEPT_NEW;
+        return ResponseAction.FAIL;
+    }
+
+    static void configureTimeoutsForTest(int connectMillis,int readMillis) {
+        connectTimeoutMillis=connectMillis;
+        readTimeoutMillis=readMillis;
+    }
     public interface Progress { void update(int percent,long downloaded,long total); }
     public static final class Result {
         private final File file;private final String mimeType,displayName;
@@ -58,9 +77,12 @@ public final class RemoteMediaImporter {
         if(offset>0)connection.setRequestProperty("Range","bytes="+offset+"-");
         connection.connect();
         int status=connection.getResponseCode();
-        if(status==416&&offset>0){connection.disconnect();if(!part.delete())throw new IllegalStateException("旧断点文件无法清理");return download(context,rawUrl,cookies,progress);}
+        ResponseAction action=responseAction(status,offset,connection.getHeaderField("Content-Range"));
+        if(action==ResponseAction.RESTART){connection.disconnect();if(part.exists()&&!part.delete())throw new IllegalStateException("旧断点文件无法清理");return download(context,rawUrl,cookies,progress);}
+        if(action==ResponseAction.RETRY_LATER)throw new IllegalStateException("服务器暂时不可用，请稍后从断点重试（HTTP "+status+"）");
+        if(action==ResponseAction.REAUTHENTICATE)throw new IllegalStateException("平台会话已失效或无权访问（HTTP "+status+"）");
         if(status<200||status>=300)throw new IllegalStateException("服务器返回 HTTP "+status);
-        boolean append=offset>0&&status==206&&contentRangeStartsAt(connection.getHeaderField("Content-Range"),offset);
+        boolean append=action==ResponseAction.APPEND;
         if(!append)offset=0;
         String mime=connection.getContentType();if(mime!=null&&mime.contains(";"))mime=mime.substring(0,mime.indexOf(';'));if(mime==null)mime="application/octet-stream";if(!mime.startsWith("video/")&&!mime.startsWith("audio/")&&!"application/octet-stream".equals(mime)){part.delete();throw new IllegalArgumentException("地址返回的不是音频或视频："+mime+"）");}
         String name=fileName(connection,source,mime);if("application/octet-stream".equals(mime)&&!name.toLowerCase(Locale.ROOT).matches(".*\\.(mp4|m4v|mov|webm|mkv|mp3|m4a|aac|wav|ogg|opus)$")){connection.disconnect();part.delete();throw new IllegalArgumentException("服务器未返回媒体类型，文件扩展名也无法识别");}File output=unique(root,name);long remaining=connection.getContentLengthLong(),total=remaining>0?offset+remaining:-1,done=offset,maxBytes=Math.max(0,root.getUsableSpace()-64L*1024*1024)+offset;if(total>0&&total>maxBytes){connection.disconnect();throw new IllegalStateException("可用空间不足，已保留 64 MiB 安全余量");}
@@ -74,7 +96,7 @@ public final class RemoteMediaImporter {
     }
 
     private static HttpURLConnection open(URI source) throws Exception {
-        HttpURLConnection connection=(HttpURLConnection)new URL(source.toString()).openConnection();connection.setConnectTimeout(15_000);connection.setReadTimeout(30_000);connection.setInstanceFollowRedirects(true);connection.setRequestProperty("User-Agent","GameNarrator-Android/"+BuildConfig.VERSION_NAME);
+        HttpURLConnection connection=(HttpURLConnection)new URL(source.toString()).openConnection();connection.setConnectTimeout(connectTimeoutMillis);connection.setReadTimeout(readTimeoutMillis);connection.setInstanceFollowRedirects(true);connection.setRequestProperty("User-Agent","GameNarrator-Android/"+BuildConfig.VERSION_NAME);
         return connection;
     }
 

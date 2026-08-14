@@ -2,7 +2,7 @@
 
 本文件以当前桌面本体源码、控制器、前端和迁移为验收基线。Android 必须完全独立运行；“入口存在”不等于功能完成。
 
-核心功能基线由 `docs/ANDROID_CORE_BASELINE.json` 机器校验，当前能力状态加权指标为 94.4%（16 项 full、2 项 partial），不得低于 80%。该数值不是代码覆盖率：每项非 missing 能力还必须给出真实文档表格行、生产源码文件和 `测试类#测试方法`，verifier 会检查文件与 `@Test` 方法确实存在；partial 的测试只证明已实现部分，不能把未完成项算作 full。Web、Windows 与 Android 从 2.2.4 起共享同一语义版本；历史 Android `0.x` 版本只保留在更新记录中。
+核心功能基线由 `docs/ANDROID_CORE_BASELINE.json` schema v3 机器校验，分别记录软件功能、自动化验收、可选真机兼容和生产签名状态。当前能力状态加权指标仍为 94.4%（16 项 full、2 项 partial），自动化验收在新矩阵取得同提交 CI 结果前保持 pending；真机兼容是可选增强，不能冒充自动化结果，模拟器结果也不能冒充 OEM、硬件编解码或生产密钥证明。Web、Windows 与 Android 从 2.2.4 起共享同一语义版本。
 
 | 本体能力 | Android 状态 | 验收要求 |
 |---|---|---|
@@ -22,7 +22,7 @@
 | 素材库、标签、派生与预览 | 已完成 | 本地导入、缩略图、名称/类型/标签检索、移除、引用关系、图片/视频/音频完整预览，以及从片段派生封面素材（自动加“派生/封面”标签）均已实现 |
 | 公共素材搜索与素材站导航 | 已完成 | Wikimedia Commons / Openverse 匿名搜索与 Pexels / Pixabay 加密 API Key 搜索已实现；下载前强制查看来源、确认许可，Bilibili 候选素材额外确认上传者授权或合理使用依据；下载支持进度、取消、`.part` 清理、512 MB 上限、原子落盘和素材库失败回滚，并持久保存作者、来源页与许可元数据 |
 | 镜头文本/图像搜索与片段导出 | 已完成 | 镜头文本检索（名称/字幕/解说/特效提示）当前为关键词检索并明确标注，语义向量检索需另装 embedding 模型、未安装时不会宣称语义能力；镜头定位和独立片段导出已实现；图像相似度检索已接入 MobileNet 特征 + 余弦相似度（ImageSearchIndex），真机验证通过（ImageSearchDeviceTest：MobileNet 真实提取特征并正确检索匹配镜头） |
-| 平台导入与下载任务 | 基础完成 | HTTP/HTTPS 媒体直链支持手机端进度、稳定断点文件、HTTP Range 恢复、服务器不支持 Range 时安全从零覆盖、原子落盘、类型和存储检查，并可建立项目；网页解析与格式选择已实现；Bilibili 登录助手与 cookies.txt 内存会话已接入。`verify-android-platform-import.ps1 -RequireDeviceEvidence` 要求 schema v2、当前提交和版本、7 天内唯一真机会话、非占位设备信息及 Bilibili/抖音/快手/YouTube 各自的真实账号确认→登录→解析→选格式→取消→恢复→建立项目证据；当前无连接设备与真实账号证据，因此仍保持 partial，不以代码契约代替真机验收 |
+| 平台导入与下载任务 | 基础完成 | 本地 HTTP 回放和故障注入覆盖 200、206、416、403、429、500、缺失 Content-Length、不支持/错误 Range、连接中断和超时；登录回放覆盖等待、确认、过期和拒绝。API 29/35 模拟器矩阵是阻断门禁，真实账号与真机四平台流程由 `-RequireDeviceEvidence` 独立校验并保持可选；在新矩阵取得同提交通过结果前仍保持 partial |
 | 合集与片段排序 | 已完成 | 跨项目加入片段、SQLite 持久化、上下排序、移除以及生成独立剪辑项目均已实现 |
 | 转写、画面理解、文案、配音 | 已完成（本地模型） | Android 系统中文 TTS 可生成真实 WAV 并自动进入分镜混音；系统语音识别（离线可用时动态标记为本地可用）与 ML Kit 端侧图像标签已接入 AI 设置页；Whisper 自动字幕已接入片段面板与一键自动流水线（FFmpeg 抽 WAV → 端侧转写 → 写分镜字幕）；GPT-2 分镜文案生成已接入片段面板与自动流水线；MobileNet 画面分类与图像相似度检索已接入；模型随 assets/models 打包，首启自动复制 |
 | AI 设置、用量和模型检查 | 已完成 | 端侧引擎检查页只展示已安装可运行引擎，未安装能力明确标注；云端 AI 设置支持加密保存并“测试连接（真实请求所选服务商）”；离线 TTS 音色列表与项目/版本/导出/素材/数据库用量已实现 |
@@ -30,12 +30,12 @@
 | 诊断、日志导出、存储清理 | 已完成 | 设备/CPU/内存/存储/媒体编码器诊断、无凭据报告复制与分享、安全缓存清理，以及最多 2000 条 / 1 MiB 的 JSONL 结构化运行日志查看/导出/清空均已实现 |
 | 使用引导、更新公告 | 已完成 | 首次启动引导、可重开的完整操作引导和与 Android 实际版本一致的更新公告已实现 |
 | 未来版本规划 | 已完成 | 设置页提供与本体一致的 1.0–5.0 路线图（自动剪辑、AI 剧情分镜工作台、AI 动画剧场/Meme、多创作者风格、AI 创意助手） |
-| 签名发行、升级与真机兼容 | 基础完成 | 正式构建默认强制生产密钥，GitHub 发布工作流要求四项签名 Secret，并归档 APK、SHA-256 清单、证书指纹及 R8 mapping/usage/resources；测试密钥只能显式用于本地非发布审计，严格门禁会拒绝其清单。升级证据 schema v2 必须匹配当前提交与版本、7 天内唯一真机会话、生产签名 APK、设备型号/Android 版本，并证明 2.2.4→当前版本的数据库、工程和媒体完整；生产密钥与真实证据仍缺，因此保持 partial |
+| 签名发行、升级与真机兼容 | 基础完成 | CI 在同一持久化 API 29 AVD 上从仓库 `v2.2.4` APK 覆盖安装当前 APK，并复验数据库和项目持久化；正式构建仍强制生产密钥并归档 APK、SHA-256、证书指纹及 R8 资料。模拟器升级是软件阻断门禁，生产签名和真机/OEM 兼容为独立状态；在升级作业取得同提交通过结果前保持 partial，生产密钥目前仍未验证 |
 
 ## 当前优先补齐项
 
-1. 平台导入：完成真实账号确认后的直链下载和真机逐页验收。
-2. 发行：使用生产密钥完成真机升级矩阵；CI 已在同一版本修订上构建 Web/后端与 Android release 产物。
+1. 自动化验收：等待 API 29/35 协议回放与 2.2.4→当前覆盖升级的同提交 CI 证据。
+2. 独立发布状态：生产签名密钥和 OEM/硬件编解码真机兼容仍未验证，不阻塞软件功能自动化评分，也不宣称已经完成。
 
 端侧 ONNX session 现按模型文件复用；模型文件大小或修改时间改变时会关闭旧 session 并重新加载。运行线程限制为最多 2 个 intra-op 和 1 个 inter-op，输入 tensor 在每次推理后显式关闭，避免连续分镜分析反复加载模型或累积原生内存。
 
@@ -67,8 +67,8 @@
 | 设备端多片段导出 | DeviceExportSmokeTest.multiClipExportCompletesOnDevice 在 API 34 模拟器上真实执行双片段 Media3 Transformer 导出并校验输出文件 |
 | 设备端取消 | DeviceExportSmokeTest.cancelStopsExportOnDevice 真实调用 Transformer.cancel，取消回调缺失时由 5 秒兜底进入 CANCELLED |
 
-CI 的 `android-emulator` job 会在 API 35 x86_64 模拟器上运行核心
-`connectedDebugAndroidTest` 门禁，覆盖加密 AI 凭据、生产 SQLite schema/持久化、测试模型复制和
+CI 的 `android-emulator` job 会在 API 29/35 x86_64 模拟器上运行核心
+`connectedDebugAndroidTest` 门禁，覆盖协议回放/故障注入、加密 AI 凭据、生产 SQLite schema/持久化、测试模型复制和
 ONNX 缺失模型错误路径。独立 `Android heavy device farm` 工作流每天定时或手动触发，下载完整
 ONNX 模型并构建模型版 APK，在 Firebase Test Lab 设备矩阵上执行 Media3 Transformer、内置 arm64
 FFmpeg、完整视觉/文本 ONNX session 和强制 4K 播放压力测试；构建附件和工作流元数据保留 30 天，

@@ -1,0 +1,50 @@
+name: Android emulator compatibility matrix
+
+on:
+  schedule:
+    - cron: '11 19 * * *'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  emulator-compatibility:
+    name: API ${{ matrix.api-level }} / ${{ matrix.profile }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 60
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - {api-level: 29, profile: pixel_2, orientation: portrait}
+          - {api-level: 30, profile: pixel_2, orientation: landscape}
+          - {api-level: 34, profile: Nexus 7, orientation: portrait}
+          - {api-level: 35, profile: pixel_2, orientation: portrait}
+          - {api-level: 37, profile: pixel_2, orientation: portrait}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '21'
+          cache: gradle
+      - name: Enable KVM access
+        run: |
+          echo 'KERNEL=="kvm", GROUP="kvm", MODE="0666", OPTIONS+="static_node=kvm"' | sudo tee /etc/udev/rules.d/99-kvm4all.rules
+          sudo udevadm control --reload-rules
+          sudo udevadm trigger --name-match=kvm
+      - name: Run compatibility suite
+        uses: ReactiveCircus/android-emulator-runner@v2
+        with:
+          api-level: ${{ matrix.api-level }}
+          arch: x86_64
+          target: google_apis
+          profile: ${{ matrix.profile }}
+          emulator-options: -no-window -gpu swiftshader_indirect -noaudio -no-boot-anim -camera-back none
+          disable-animations: true
+          working-directory: android-app
+          script: |
+            chmod +x gradlew
+            adb shell settings put system user_rotation ${{ matrix.orientation == 'landscape' && '1' || '0' }}
+            ./gradlew connectedDebugAndroidTest -Pandroid.testInstrumentationRunnerArguments.class=cn.longer233.gamenarrator.mobile.ProductionDatabaseTest,cn.longer233.gamenarrator.mobile.RemoteMediaImporterReplayTest

@@ -84,7 +84,7 @@ class PostgreSqlProductionIntegrationTest {
             try (var statement = connection.createStatement();
                  var migrations = statement.executeQuery("SELECT COUNT(*) FROM flyway_schema_history WHERE success=TRUE")) {
                 assertThat(migrations.next()).isTrue();
-                assertThat(migrations.getInt(1)).isGreaterThanOrEqualTo(40);
+                assertThat(migrations.getInt(1)).isEqualTo(41);
             }
         }
     }

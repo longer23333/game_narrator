@@ -17,7 +17,7 @@ jobs:
       - uses: actions/checkout@v4
       - name: Verify generated migration baselines
         shell: pwsh
-        run: ./scripts/build-migration-baselines.ps1 -Check
+        run: ./scripts/build-postgresql-migrations.ps1 -Check
 
   documentation:
     runs-on: windows-latest
@@ -90,9 +90,13 @@ jobs:
           ./scripts/verify-android-release-audit.ps1
 
   android-emulator:
-    name: Android emulator smoke tests
+    name: Android emulator API ${{ matrix.api-level }} blocking tests
     runs-on: ubuntu-latest
     timeout-minutes: 45
+    strategy:
+      fail-fast: false
+      matrix:
+        api-level: [29, 35]
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-java@v4
@@ -106,10 +110,12 @@ jobs:
             | sudo tee /etc/udev/rules.d/99-kvm4all.rules
           sudo udevadm control --reload-rules
           sudo udevadm trigger --name-match=kvm
+      - name: Enable Gradle wrapper execution
+        run: chmod +x android-app/gradlew
       - name: Run core instrumentation tests
         uses: ReactiveCircus/android-emulator-runner@v2
         with:
-          api-level: 35
+          api-level: ${{ matrix.api-level }}
           arch: x86_64
           target: google_apis
           profile: pixel_2
@@ -118,7 +124,7 @@ jobs:
           working-directory: android-app
           script: >-
             ./gradlew connectedDebugAndroidTest
-            -Pandroid.testInstrumentationRunnerArguments.class=cn.longer233.gamenarrator.mobile.AiCloudSettingsTest,cn.longer233.gamenarrator.mobile.MobileModelBundlerTest,cn.longer233.gamenarrator.mobile.OnnxModelRunnerTest,cn.longer233.gamenarrator.mobile.ProductionDatabaseTest
+            -Pandroid.testInstrumentationRunnerArguments.class=cn.longer233.gamenarrator.mobile.AiCloudSettingsTest,cn.longer233.gamenarrator.mobile.MobileModelBundlerTest,cn.longer233.gamenarrator.mobile.OnnxModelRunnerTest,cn.longer233.gamenarrator.mobile.ProductionDatabaseTest,cn.longer233.gamenarrator.mobile.RemoteMediaImporterReplayTest
       - name: Upload instrumentation reports
         if: always()
         uses: actions/upload-artifact@v4
@@ -128,6 +134,45 @@ jobs:
             android-app/app/build/reports/androidTests/connected/
             android-app/app/build/outputs/androidTest-results/connected/
           if-no-files-found: warn
+
+  android-upgrade:
+    name: Android 2.2.4 to current persistent AVD upgrade
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/checkout@v4
+        with:
+          ref: v2.2.4
+          path: android-2.2.4
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '21'
+          cache: gradle
+      - name: Build baseline, current app and verification APK
+        run: |
+          chmod +x android-2.2.4/android-app/gradlew android-app/gradlew
+          android-2.2.4/android-app/gradlew -p android-2.2.4/android-app assembleDebug
+          android-app/gradlew -p android-app assembleDebug assembleDebugAndroidTest
+      - name: Upgrade the same persistent emulator and verify app data
+        uses: ReactiveCircus/android-emulator-runner@v2
+        with:
+          api-level: 29
+          arch: x86_64
+          target: google_apis
+          profile: pixel_2
+          emulator-options: -no-window -gpu swiftshader_indirect -noaudio -no-boot-anim -camera-back none
+          disable-animations: true
+          script: |
+            adb install android-2.2.4/android-app/app/build/outputs/apk/debug/app-debug.apk
+            adb shell am start -W -n cn.longer233.gamenarrator.mobile/.MainActivity
+            adb shell am force-stop cn.longer233.gamenarrator.mobile
+            adb shell run-as cn.longer233.gamenarrator.mobile test -f databases/game-narrator-mobile.db
+            adb install -r android-app/app/build/outputs/apk/debug/app-debug.apk
+            adb install -r android-app/app/build/outputs/apk/androidTest/debug/app-debug-androidTest.apk
+            adb shell am instrument -w -e class cn.longer233.gamenarrator.mobile.ProductionDatabaseTest cn.longer233.gamenarrator.mobile.test/androidx.test.runner.AndroidJUnitRunner
+            adb shell run-as cn.longer233.gamenarrator.mobile test -f databases/game-narrator-mobile.db
 
   backend:
     runs-on: ubuntu-latest
@@ -219,7 +264,7 @@ jobs:
   release-evidence:
     name: Publish same-commit CI release evidence
     if: github.event_name == 'push'
-    needs: [migration-baseline, documentation, frontend, android, android-emulator, backend, postgresql-integration, performance-baseline]
+    needs: [migration-baseline, documentation, frontend, android, android-emulator, android-upgrade, backend, postgresql-integration, performance-baseline]
     runs-on: windows-latest
     steps:
       - uses: actions/checkout@v4

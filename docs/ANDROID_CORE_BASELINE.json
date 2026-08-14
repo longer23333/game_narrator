@@ -1,6 +1,7 @@
 {
-  "schemaVersion": 2,
+  "schemaVersion": 3,
   "minimumCoverage": 0.8,
+  "validation": {"featureStatus":"partial","automatedValidation":"pending","physicalDeviceValidation":"optional","physicalDeviceValidated":false,"productionSigningValidated":false},
   "scoring": {"full": 1.0, "partial": 0.5, "missing": 0.0},
   "capabilities": [
     {"id":"task-lifecycle","name":"任务创建、队列、取消、重试与恢复","status":"full","evidence":{"document":"docs/ANDROID_FEATURE_PARITY.md","section":"创建任务、运行中、最近完成"},"sources":["android-app/app/src/main/java/cn/longer233/gamenarrator/mobile/ExportStateMachine.java","android-app/app/src/main/java/cn/longer233/gamenarrator/mobile/PipelineStages.java"],"tests":["ExportStateMachineTest#terminalStateCannotBeOverwritten","ExportManagerTest#terminalFailureCanResetAndRetry"]},

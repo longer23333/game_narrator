@@ -33,4 +33,15 @@ public final class RemoteMediaImporterTest {
             assertTrue(error.getMessage().contains("用户名"));
         }
     }
+
+    @Test public void classifiesProtocolReplayAndFaultResponses() {
+        assertEquals(RemoteMediaImporter.ResponseAction.ACCEPT_NEW, RemoteMediaImporter.responseAction(200,0,null));
+        assertEquals(RemoteMediaImporter.ResponseAction.APPEND, RemoteMediaImporter.responseAction(206,1024,"bytes 1024-2047/4096"));
+        assertEquals(RemoteMediaImporter.ResponseAction.RESTART, RemoteMediaImporter.responseAction(206,1024,"bytes 0-2047/4096"));
+        assertEquals(RemoteMediaImporter.ResponseAction.RESTART, RemoteMediaImporter.responseAction(416,1024,null));
+        assertEquals(RemoteMediaImporter.ResponseAction.RETRY_LATER, RemoteMediaImporter.responseAction(429,0,null));
+        assertEquals(RemoteMediaImporter.ResponseAction.REAUTHENTICATE, RemoteMediaImporter.responseAction(403,0,null));
+        assertEquals(RemoteMediaImporter.ResponseAction.RETRY_LATER, RemoteMediaImporter.responseAction(500,0,null));
+        assertEquals(RemoteMediaImporter.ResponseAction.FAIL, RemoteMediaImporter.responseAction(404,0,null));
+    }
 }

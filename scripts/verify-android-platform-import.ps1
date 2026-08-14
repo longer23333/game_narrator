@@ -13,8 +13,10 @@ function Require-Text([string]$relative, [string[]]$needles) {
 }
 Require-Text 'android-app/app/src/main/java/cn/longer233/gamenarrator/mobile/RemoteMediaImporter.java' @('Range','Content-Range','resumeKey','contentRangeStartsAt','new FileOutputStream(part,append)')
 Require-Text 'android-app/app/src/main/java/cn/longer233/gamenarrator/mobile/MainActivityPageActions.java' @('RemoteMediaImporter.download','activeDownload.cancel(true)')
-Require-Text 'android-app/app/src/test/java/cn/longer233/gamenarrator/mobile/RemoteMediaImporterTest.java' @('validatesResumeRangeAndStableKey')
+Require-Text 'android-app/app/src/test/java/cn/longer233/gamenarrator/mobile/RemoteMediaImporterTest.java' @('classifiesProtocolReplayAndFaultResponses')
+Require-Text 'android-app/app/src/androidTest/java/cn/longer233/gamenarrator/mobile/RemoteMediaImporterReplayTest.java' @('downloads200WithoutContentLength','resumes206WithCorrectRange','restartsAfter416AndWrongRange','faultsRemainResumableAndAreClassified','DISCONNECT_DURING_RESPONSE_BODY','setBodyDelay')
 Require-Text 'android-app/app/src/main/java/cn/longer233/gamenarrator/mobile/BilibiliQrLogin.java' @('startDeviceConfirm','parseSetCookie')
+Require-Text 'android-app/app/src/test/java/cn/longer233/gamenarrator/mobile/BilibiliQrLoginTest.java' @('mapsReplayLoginStatesWithoutRealAccount')
 if ($RequireDeviceEvidence) {
     $path = [IO.Path]::GetFullPath((Join-Path $root $EvidenceFile));$artifactRoot=[IO.Path]::GetFullPath((Join-Path $root 'artifacts'))
     if(-not $path.StartsWith($artifactRoot+[IO.Path]::DirectorySeparatorChar,[StringComparison]::OrdinalIgnoreCase)){$failures.Add('device evidence must stay under artifacts')}
@@ -41,4 +43,4 @@ if ($RequireDeviceEvidence) {
     }
 }
 if ($failures.Count) { Write-Host "FAIL: $($failures.Count) Android platform import violation(s)"; $failures | ForEach-Object { Write-Host "  $_" }; exit 1 }
-Write-Host ('PASS: Android platform import resume contracts are wired' + $(if ($RequireDeviceEvidence) {' and four-platform real-account evidence is complete'} else {''}))
+Write-Host ('PASS: Android platform import protocol replay and fault injection contracts are wired' + $(if ($RequireDeviceEvidence) {'; optional four-platform real-account evidence is also complete'} else {'; physical-device evidence remains optional'}))

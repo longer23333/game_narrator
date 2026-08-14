@@ -1,7 +1,7 @@
 ﻿# GameNarrator — DeepSeek 结构化项目索引
 
-> 自动生成：2026-08-13 16:50:33 +08:00；UTF-8 BOM；索引不再内嵌全部源码。
-> Git：分支 `main`，提交 `f4963b6`；收录文件 840 个，分卷 8 个。
+> 自动生成：2026-08-14 10:48:10 +08:00；UTF-8 BOM；索引不再内嵌全部源码。
+> Git：分支 `main`，提交 `dcb2190`；收录文件 844 个，分卷 8 个。
 
 ## 使用方法
 
@@ -27,44 +27,42 @@
 
 | 分卷 | 文件数 | 字符数 | 建议用途 |
 |---|---:|---:|---|
-| `deepseek-context/01-foundation.md` | 90 | 221503 | 构建、配置、资源、数据库迁移 |
+| `deepseek-context/01-foundation.md` | 92 | 221613 | 构建、配置、资源、数据库迁移 |
 | `deepseek-context/02-backend.md` | 298 | 1237945 | Spring 后端实现 |
-| `deepseek-context/03-tests.md` | 114 | 385350 | Spring 测试与行为验证 |
+| `deepseek-context/03-tests.md` | 114 | 385362 | Spring 测试与行为验证 |
 | `deepseek-context/04-frontend.md` | 39 | 560055 | Vite Web 源码 |
-| `deepseek-context/05-android-main.md` | 143 | 883959 | Android 实现、资源与 Gradle |
-| `deepseek-context/06-android-tests.md` | 58 | 137159 | Android 单元及设备测试 |
-| `deepseek-context/07-platform-release.md` | 12 | 76502 | Windows、CI/CD 与发布 |
-| `deepseek-context/08-docs-scripts.md` | 86 | 286351 | 需求、架构、维护脚本 |
+| `deepseek-context/05-android-main.md` | 143 | 886157 | Android 实现、资源与 Gradle |
+| `deepseek-context/06-android-tests.md` | 59 | 143862 | Android 单元及设备测试 |
+| `deepseek-context/07-platform-release.md` | 13 | 80836 | Windows、CI/CD 与发布 |
+| `deepseek-context/08-docs-scripts.md` | 86 | 287877 | 需求、架构、维护脚本 |
 
 ## 当前 Git 工作区（最近修改）
 
 ```text
-M .github/workflows/ci.yml
- M DEEPSEEK_PROJECT_CONTEXT.md
+M .github/workflows/android-device-farm.yml
+ M .github/workflows/ci.yml
  M android-app/app/build.gradle
- M android-app/app/src/main/java/cn/longer233/gamenarrator/mobile/MobileReleaseNotes.java
- M docs/POSTGRESQL_AND_CLOUD_SYNC.md
+ M android-app/app/src/main/java/cn/longer233/gamenarrator/mobile/BilibiliQrLogin.java
+ M android-app/app/src/main/java/cn/longer233/gamenarrator/mobile/RemoteMediaImporter.java
+ M android-app/app/src/test/java/cn/longer233/gamenarrator/mobile/BilibiliQrLoginTest.java
+ M android-app/app/src/test/java/cn/longer233/gamenarrator/mobile/RemoteMediaImporterTest.java
+ M docs/ANDROID_CORE_BASELINE.json
+ M docs/ANDROID_FEATURE_PARITY.md
  M docs/RELEASE_PROCESS.md
- M frontend/index.html
- M frontend/package-lock.json
- M frontend/package.json
- M frontend/public/app.js
- M frontend/public/updates.js
- M launcher/GameNarrator.Launcher.csproj
- M package.json
- M pom.xml
- M release/CHANGELOG.json
- M release/installer/GameNarrator-Demo-Lite.iss
- M release/installer/GameNarrator.iss
- M scripts/new-ci-release-evidence.ps1
- M scripts/verify-ci-release-evidence.ps1
- M scripts/verify-release-readiness.ps1
- M src/main/java/cn/longer233/gamenarrator/diagnostics/ReleaseReadinessService.java
- M src/main/resources/static/app.js
- M src/main/resources/static/index.html
- M src/main/resources/static/updates.js
- M src/test/java/cn/longer233/gamenarrator/diagnostics/ReleaseReadinessServiceTest.java
-?? src/test/java/cn/longer233/gamenarrator/task/PostgreSqlProductionIntegrationTest.java
+ M scripts/build-postgresql-migrations.ps1
+ M scripts/verify-android-platform-import.ps1
+ M scripts/verify-android-production-release.ps1
+ M scripts/verify-release-alignment.ps1
+ M src/main/resources/db/baseline-h2/B39__version_2_2_4_baseline.sql
+ M src/main/resources/db/baseline-postgresql/B39__version_2_2_4_baseline.sql
+ M src/main/resources/db/migration-postgresql/V38__task_processing_priority.sql
+ M src/main/resources/db/migration-postgresql/V8__video_segment_semantic_index.sql
+ M src/test/java/cn/longer233/gamenarrator/task/DatabaseMigrationTest.java
+ M src/test/java/cn/longer233/gamenarrator/task/PostgreSqlProductionIntegrationTest.java
+?? .github/workflows/android-emulator-nightly.yml
+?? android-app/app/src/androidTest/java/cn/longer233/gamenarrator/mobile/RemoteMediaImporterReplayTest.java
+?? src/main/resources/db/migration-postgresql/V40__meme_timeline_slots.sql
+?? src/main/resources/db/migration-postgresql/V41__licensed_sfx_timeline.sql
 ```
 
 ## Flyway 迁移索引
@@ -114,6 +112,7 @@ M .github/workflows/ci.yml
 ## 运行配置索引
 
 - `.github/workflows/android-device-farm.yml`
+- `.github/workflows/android-emulator-nightly.yml`
 - `.github/workflows/ci.yml`
 - `.github/workflows/mirror-to-gitee.yml`
 - `.github/workflows/release-version.yml`

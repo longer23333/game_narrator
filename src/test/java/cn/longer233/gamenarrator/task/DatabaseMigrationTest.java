@@ -13,10 +13,10 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 class DatabaseMigrationTest {
     @Test
-    void generatedH2BaselineMatchesFullMigrationSchema() throws Exception {
-        String migratedUrl = "jdbc:h2:mem:full-history;DB_CLOSE_DELAY=-1";
+    void generatedH2BaselineMatchesVersion39MigrationSchema() throws Exception {
+        String migratedUrl = "jdbc:h2:mem:history-through-v39;DB_CLOSE_DELAY=-1";
         String baselineUrl = "jdbc:h2:mem:generated-baseline;DB_CLOSE_DELAY=-1";
-        Flyway.configure().dataSource(migratedUrl, "sa", "").load().migrate();
+        Flyway.configure().dataSource(migratedUrl, "sa", "").target("39").load().migrate();
         try (var baselineConnection = DriverManager.getConnection(baselineUrl, "sa", "")) {
             RunScript.execute(baselineConnection, Files.newBufferedReader(Path.of(
                     "src/main/resources/db/baseline-h2/B39__version_2_2_4_baseline.sql")));
