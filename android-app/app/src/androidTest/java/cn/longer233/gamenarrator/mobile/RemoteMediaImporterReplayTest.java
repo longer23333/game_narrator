@@ -8,7 +8,7 @@ import static org.junit.Assert.fail;
 import android.content.Context;
 import android.os.Environment;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
-import androidx.test.core.app.ApplicationProvider;
+import androidx.test.platform.app.InstrumentationRegistry;
 import java.io.File;
 import java.nio.file.Files;
 import java.util.concurrent.TimeUnit;
@@ -28,7 +28,7 @@ public final class RemoteMediaImporterReplayTest {
     @Before public void setUp() throws Exception {
         server=new MockWebServer();
         server.start();
-        context=ApplicationProvider.getApplicationContext();
+        context=InstrumentationRegistry.getInstrumentation().getContext();
         clearImports();
         RemoteMediaImporter.configureTimeoutsForTest(500,500);
     }

@@ -174,11 +174,11 @@ jobs:
             adb install android-2.2.4/android-app/app/build/outputs/apk/debug/app-debug.apk
             adb shell am start -W -n cn.longer233.gamenarrator.mobile/.MainActivity
             adb shell am force-stop cn.longer233.gamenarrator.mobile
-            adb shell run-as cn.longer233.gamenarrator.mobile test -f databases/game-narrator-mobile.db
+            adb shell run-as cn.longer233.gamenarrator.mobile ls databases/game-narrator-mobile.db
             adb install -r android-app/app/build/outputs/apk/debug/app-debug.apk
             adb install -r android-app/app/build/outputs/apk/androidTest/debug/app-debug-androidTest.apk
             adb shell am instrument -w -e class cn.longer233.gamenarrator.mobile.ProductionDatabaseTest cn.longer233.gamenarrator.mobile.test/androidx.test.runner.AndroidJUnitRunner
-            adb shell run-as cn.longer233.gamenarrator.mobile test -f databases/game-narrator-mobile.db
+            adb shell run-as cn.longer233.gamenarrator.mobile ls databases/game-narrator-mobile.db
 
   backend:
     runs-on: ubuntu-latest
