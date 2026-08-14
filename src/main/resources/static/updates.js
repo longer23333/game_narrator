@@ -1,5 +1,6 @@
 const releases = [
-  {version:'2.2.35', title:'运行配置项收敛', current:true, items:["同步更新 Web、Windows 与 Android 版本","完成本版本功能修复与稳定性检查","创建并同步 GitHub、Gitee 发布标签"], jump:{view:'studio', selector:'#task-list'}},
+  {version:'2.2.36', title:'流水线阶段状态统一', current:true, items:["同步更新 Web、Windows 与 Android 版本","完成本版本功能修复与稳定性检查","创建并同步 GitHub、Gitee 发布标签"], jump:{view:'studio', selector:'#task-list'}},
+  {version:'2.2.35', title:'运行配置项收敛', items:["同步更新 Web、Windows 与 Android 版本","完成本版本功能修复与稳定性检查","创建并同步 GitHub、Gitee 发布标签"], jump:{view:'studio', selector:'#task-list'}},
   {version:'2.2.34', title:'验证脚本与持续集成精简', items:["同步更新 Web、Windows 与 Android 版本","完成本版本功能修复与稳定性检查","创建并同步 GitHub、Gitee 发布标签"], jump:{view:'studio', selector:'#task-list'}},
   {version:'2.2.33', title:'前端模块加载链路精简', items:["同步更新 Web、Windows 与 Android 版本","完成本版本功能修复与稳定性检查","创建并同步 GitHub、Gitee 发布标签"], jump:{view:'studio', selector:'#task-list'}},
   {version:'2.2.32', title:'目标机真实性能证据门禁', items:["真实 CUDA OOM 后恢复计算，不再接受任意 marker 命令","至少 60 分钟重复真实 FFmpeg 音视频转码","schema v3 校验 runner、场景实现和原始日志哈希"], jump:{view:'studio', selector:'#task-list'}},

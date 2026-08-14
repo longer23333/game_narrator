@@ -2,6 +2,7 @@ package cn.longer233.gamenarrator.effect;
 
 import cn.longer233.gamenarrator.pipeline.TaskWorkflowStateService;
 import cn.longer233.gamenarrator.render.FfmpegVideoRenderer;
+import cn.longer233.gamenarrator.task.domain.ProcessingStageType;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.scheduling.annotation.Async;
@@ -42,7 +43,7 @@ public class EffectRerenderWorker {
             state.markRenderingCompleted(taskId, result);
             log.info("EFFECT_RERENDER_SUCCESS taskId={} output={}", taskId, result.videoPath());
         } catch (Exception exception) {
-            state.markRenderingFailed(taskId, exception.getMessage());
+            state.markFailed(taskId, ProcessingStageType.RENDERING, exception.getMessage());
             log.error("EFFECT_RERENDER_FAILED taskId={}", taskId, exception);
         }
     }

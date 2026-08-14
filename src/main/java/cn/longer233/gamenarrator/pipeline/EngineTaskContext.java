@@ -1,16 +1,12 @@
 package cn.longer233.gamenarrator.pipeline;
 
+import cn.longer233.gamenarrator.task.domain.ProcessingStageType;
+
+import java.util.Set;
+
 public record EngineTaskContext(
         String sourceVideoPath,
-        boolean ingestionCompleted,
-        boolean sceneDetectionCompleted,
-        boolean transcriptionCompleted,
-        boolean videoUnderstandingCompleted,
-        boolean highlightSelectionCompleted,
-        boolean scriptGenerationCompleted,
-        boolean voiceGenerationCompleted,
-        boolean timelinePlanningCompleted,
-        boolean renderingCompleted,
+        Set<ProcessingStageType> completedStages,
         boolean hasAudio,
         String extractedAudioPath,
         String sceneManifestPath,
@@ -34,4 +30,11 @@ public record EngineTaskContext(
         boolean autoAssetsEnabled,
         boolean automaticGenerationEnabled
 ) {
+    public EngineTaskContext {
+        completedStages = Set.copyOf(completedStages);
+    }
+
+    public boolean stageCompleted(ProcessingStageType stageType) {
+        return completedStages.contains(stageType);
+    }
 }

@@ -3,6 +3,7 @@ package cn.longer233.gamenarrator.enhancement;
 import cn.longer233.gamenarrator.pipeline.EngineTaskContext;
 import cn.longer233.gamenarrator.pipeline.TaskWorkflowStateService;
 import cn.longer233.gamenarrator.task.domain.TaskStatus;
+import cn.longer233.gamenarrator.task.domain.ProcessingStageType;
 import cn.longer233.gamenarrator.task.domain.VideoTask;
 import cn.longer233.gamenarrator.task.repository.VideoTaskRepository;
 import cn.longer233.gamenarrator.transcription.PlatformSubtitleReader;
@@ -13,6 +14,7 @@ import org.junit.jupiter.api.Test;
 
 import java.nio.file.Path;
 import java.util.Optional;
+import java.util.Set;
 import java.util.UUID;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -61,7 +63,7 @@ class TaskEnhancementServiceTest {
         service.startTranscription(taskId);
 
         assertThat(service.status(taskId).getFirst().status()).isEqualTo("FAILED");
-        verify(state, never()).markTranscriptionFailed(any(), any());
+        verify(state, never()).markFailed(any(), any(), any());
         verify(state, never()).applyTranscriptionEnhancement(any(), any());
     }
 
@@ -78,8 +80,8 @@ class TaskEnhancementServiceTest {
     }
 
     private EngineTaskContext context() {
-        return new EngineTaskContext("source.mp4", true, true, false, false, false, false,
-                false, false, false, true, "speech.wav", "scenes.json", "", null, null,
+        return new EngineTaskContext("source.mp4", Set.of(ProcessingStageType.VIDEO_INGESTION,
+                ProcessingStageType.SCENE_DETECTION), true, "speech.wav", "scenes.json", "", null, null,
                 null, null, null, 60.0, 30, "FULL_VIDEO", "ACTION", "ANIME_THEATER", "",
                 false, false, false, false, false, false, false);
     }

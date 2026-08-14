@@ -6,6 +6,7 @@ import cn.longer233.gamenarrator.transcription.SubtitleChunkAnalysisService;
 import cn.longer233.gamenarrator.transcription.TranscriptionResult;
 import cn.longer233.gamenarrator.transcription.Transcriber;
 import cn.longer233.gamenarrator.task.domain.TaskStatus;
+import cn.longer233.gamenarrator.task.domain.ProcessingStageType;
 import cn.longer233.gamenarrator.task.repository.VideoTaskRepository;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -47,23 +48,24 @@ public class TaskEnhancementService {
         boolean idle = repository.findById(taskId).map(task -> task.getStatus() != TaskStatus.PROCESSING).orElse(false);
         EnhancementJobView transcription = transcriptionJobs.get(taskId);
         if (transcription == null) {
-            boolean available = idle && context.sceneDetectionCompleted() && context.hasAudio();
+            boolean available = idle && context.stageCompleted(ProcessingStageType.SCENE_DETECTION) && context.hasAudio();
             transcription = new EnhancementJobView("TRANSCRIPTION", "IDLE",
                     available ? "可重新识别语音并生成字幕" : "需要平台字幕或已安装的 Whisper", available);
         }
         return List.of(transcription,
                 new EnhancementJobView("AUTO_ASSETS", "IDLE",
-                        context.scriptGenerationCompleted() ? "可按分镜自动匹配素材" : "需要先建立分镜",
-                        idle && context.scriptGenerationCompleted()),
+                        context.stageCompleted(ProcessingStageType.SCRIPT_GENERATION) ? "可按分镜自动匹配素材" : "需要先建立分镜",
+                        idle && context.stageCompleted(ProcessingStageType.SCRIPT_GENERATION)),
                 new EnhancementJobView("AUTO_EFFECTS", "IDLE",
-                        context.timelinePlanningCompleted() ? "可自动规划特效并重新渲染" : "需要先建立时间线",
-                        idle && context.timelinePlanningCompleted()));
+                        context.stageCompleted(ProcessingStageType.TIMELINE_PLANNING) ? "可自动规划特效并重新渲染" : "需要先建立时间线",
+                        idle && context.stageCompleted(ProcessingStageType.TIMELINE_PLANNING)));
     }
 
     public EnhancementJobView startTranscription(UUID taskId) {
         requireIdleTask(taskId);
         var context = state.context(taskId);
-        if (!context.sceneDetectionCompleted() || !context.hasAudio() || context.extractedAudioPath() == null) {
+        if (!context.stageCompleted(ProcessingStageType.SCENE_DETECTION) || !context.hasAudio()
+                || context.extractedAudioPath() == null) {
             throw new IllegalStateException("任务尚未完成音频准备，不能执行语音转写");
         }
         EnhancementJobView running = new EnhancementJobView("TRANSCRIPTION", "RUNNING", "正在识别语音并生成字幕", true);

@@ -147,7 +147,7 @@ public class VideoTaskEngine {
         }
         MDC.put("traceId", "task-" + taskId.toString().substring(0, 8));
         log.info("ENGINE_START taskId={}", taskId);
-        String activeStage = "VIDEO_INGESTION";
+        ProcessingStageType activeStage = ProcessingStageType.VIDEO_INGESTION;
         TaskProcessRegistry.ResourceLease resourceLease = null;
         try (TaskProcessRegistry.Scope ignored = TaskProcessRegistry.open(taskId)) {
             checkCancellation(taskId);
@@ -163,7 +163,7 @@ public class VideoTaskEngine {
             catch (Exception ignoredSize) { sourceBytes = 0; }
             int priority = taskRepository.findById(taskId).map(task -> task.getPriority()).orElse(0);
             resourceLease = admission.admit(taskId, priority, context, sourceBytes);
-            if (!context.ingestionCompleted()) {
+            if (!context.stageCompleted(ProcessingStageType.VIDEO_INGESTION)) {
                 stateService.markIngestionRunning(taskId);
                 MediaMetadata metadata = mediaProbe.inspect(sourcePath);
                 stateService.markIngestionCompleted(taskId, metadata);
@@ -174,9 +174,9 @@ public class VideoTaskEngine {
                         taskId);
             }
 
-            activeStage = "SCENE_DETECTION";
+            activeStage = ProcessingStageType.SCENE_DETECTION;
             checkCancellation(taskId);
-            if (!context.sceneDetectionCompleted()) {
+            if (!context.stageCompleted(ProcessingStageType.SCENE_DETECTION)) {
                 stateService.markSceneDetectionRunning(taskId);
                 MediaPreparationResult result = mediaPreprocessor.prepare(
                         taskId, sourcePath, context.hasAudio());
@@ -189,9 +189,9 @@ public class VideoTaskEngine {
                         taskId);
             }
 
-            activeStage = "TRANSCRIPTION";
+            activeStage = ProcessingStageType.TRANSCRIPTION;
             checkCancellation(taskId);
-            if (!context.transcriptionCompleted()) {
+            if (!context.stageCompleted(ProcessingStageType.TRANSCRIPTION)) {
                 stateService.markTranscriptionRunning(taskId);
                 TranscriptionResult result = platformSubtitleReader.read(sourcePath);
                 if (result != null) {
@@ -222,9 +222,9 @@ public class VideoTaskEngine {
                         taskId);
             }
 
-            activeStage = "VIDEO_UNDERSTANDING";
+            activeStage = ProcessingStageType.VIDEO_UNDERSTANDING;
             checkCancellation(taskId);
-            if (!context.videoUnderstandingCompleted()) {
+            if (!context.stageCompleted(ProcessingStageType.VIDEO_UNDERSTANDING)) {
                 if (context.cloudVisionEnabled() && !visionClient.available()) {
                     String reason = "当前视觉服务不可用：请检查云端 API Key/服务状态，或安装并启动本地视觉模型";
                     stateService.deferVideoUnderstanding(taskId, reason);
@@ -249,9 +249,9 @@ public class VideoTaskEngine {
                 log.info("ENGINE_STAGE_SKIPPED taskId={} stage=VIDEO_UNDERSTANDING reason=already_completed",
                         taskId);
             }
-            activeStage = "HIGHLIGHT_SELECTION";
+            activeStage = ProcessingStageType.HIGHLIGHT_SELECTION;
             checkCancellation(taskId);
-            if (!context.highlightSelectionCompleted()) {
+            if (!context.stageCompleted(ProcessingStageType.HIGHLIGHT_SELECTION)) {
                 stateService.markHighlightSelectionRunning(taskId);
                 HighlightSelectionResult result = highlightSelector.select(
                         Path.of(context.visualAnalysisPath()), context.durationSeconds(),
@@ -269,9 +269,9 @@ public class VideoTaskEngine {
                 gameEvents.rebuild(taskId, Path.of(context.visualAnalysisPath()),
                         Path.of(context.highlightManifestPath()));
             }
-            activeStage = "SCRIPT_GENERATION";
+            activeStage = ProcessingStageType.SCRIPT_GENERATION;
             checkCancellation(taskId);
-            if (!context.scriptGenerationCompleted()) {
+            if (!context.stageCompleted(ProcessingStageType.SCRIPT_GENERATION)) {
                 stateService.markScriptGenerationRunning(taskId);
                 EngineTaskContext generationContext = context;
                 GeneratedScript result = retryExecutor.generation(() -> generationContext.aiScriptEnabled()
@@ -298,9 +298,9 @@ public class VideoTaskEngine {
                 log.info("ENGINE_WAITING taskId={} stage=STORYBOARD_REVIEW", taskId);
                 return;
             }
-            activeStage = "VOICE_GENERATION";
+            activeStage = ProcessingStageType.VOICE_GENERATION;
             checkCancellation(taskId);
-            if (!context.voiceGenerationCompleted()) {
+            if (!context.stageCompleted(ProcessingStageType.VOICE_GENERATION)) {
                 if (context.aiVoiceEnabled() && !voiceGenerator.available()) {
                     String reason = "等待本地 Piper 配音引擎；请执行 .\\scripts\\setup-piper.ps1";
                     stateService.deferVoiceGeneration(taskId, reason);
@@ -320,9 +320,9 @@ public class VideoTaskEngine {
             } else {
                 log.info("ENGINE_STAGE_SKIPPED taskId={} stage=VOICE_GENERATION reason=already_completed", taskId);
             }
-            activeStage = "TIMELINE_PLANNING";
+            activeStage = ProcessingStageType.TIMELINE_PLANNING;
             checkCancellation(taskId);
-            if (!context.timelinePlanningCompleted()) {
+            if (!context.stageCompleted(ProcessingStageType.TIMELINE_PLANNING)) {
                 stateService.markTimelinePlanningRunning(taskId);
                 TimelinePlanningResult result = timelinePlanner.plan(
                         Path.of(context.highlightManifestPath()), Path.of(context.generatedScriptPath()),
@@ -338,9 +338,9 @@ public class VideoTaskEngine {
                 log.info("ENGINE_READY taskId={} mode=manual editableTimeline=true", taskId);
                 return;
             }
-            activeStage = "RENDERING";
+            activeStage = ProcessingStageType.RENDERING;
             checkCancellation(taskId);
-            if (!context.renderingCompleted()) {
+            if (!context.stageCompleted(ProcessingStageType.RENDERING)) {
                 stateService.markRenderingRunning(taskId);
                 var preset = effectPresetCatalog.require(context.commentaryStyle());
                 var settings = new EffectSettingsRequest(preset.code(), null, true, true, true, null,
@@ -376,25 +376,7 @@ public class VideoTaskEngine {
             String reason = rootMessage(exception);
             log.error("ENGINE_FAILED taskId={} stage={} message={}",
                     taskId, activeStage, reason, exception);
-            if ("SCENE_DETECTION".equals(activeStage)) {
-                stateService.markSceneDetectionFailed(taskId, reason);
-            } else if ("TRANSCRIPTION".equals(activeStage)) {
-                stateService.markTranscriptionFailed(taskId, reason);
-            } else if ("VIDEO_UNDERSTANDING".equals(activeStage)) {
-                stateService.markVideoUnderstandingFailed(taskId, reason);
-            } else if ("HIGHLIGHT_SELECTION".equals(activeStage)) {
-                stateService.markHighlightSelectionFailed(taskId, reason);
-            } else if ("SCRIPT_GENERATION".equals(activeStage)) {
-                stateService.markScriptGenerationFailed(taskId, reason);
-            } else if ("VOICE_GENERATION".equals(activeStage)) {
-                stateService.markVoiceGenerationFailed(taskId, reason);
-            } else if ("TIMELINE_PLANNING".equals(activeStage)) {
-                stateService.markTimelinePlanningFailed(taskId, reason);
-            } else if ("RENDERING".equals(activeStage)) {
-                stateService.markRenderingFailed(taskId, reason);
-            } else {
-                stateService.markIngestionFailed(taskId, reason);
-            }
+            stateService.markFailed(taskId, activeStage, reason);
         } finally {
             if (resourceLease != null) resourceLease.close();
             activeTasks.remove(taskId);
