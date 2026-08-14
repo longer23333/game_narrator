@@ -1,7 +1,17 @@
 {
     "schemaVersion":  1,
-    "currentVersion":  "2.2.30",
+    "currentVersion":  "2.2.31",
     "releases":  [
+                     {
+                         "version":  "2.2.31",
+                         "title":  "PostgreSQL 2.2.4 基线升级门禁",
+                         "summary":  "PostgreSQL 16 同时验证完整迁移历史与 2.2.4 B39 基线升级，并比较最终结构签名。",
+                         "items":  [
+                                       "从 B39 基线执行 V40 至 V41 的真实 PostgreSQL 升级",
+                                       "完整历史与基线升级分别执行 Flyway validate",
+                                       "比较最终表列、约束和索引签名，防止升级结构漂移"
+                                   ]
+                     },
                      {
                          "version":  "2.2.30",
                          "title":  "长视频发布性能门禁",

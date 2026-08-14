@@ -7,6 +7,8 @@ import org.junit.jupiter.api.condition.EnabledIfEnvironmentVariable;
 import java.sql.DriverManager;
 import java.time.OffsetDateTime;
 import java.time.ZoneOffset;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.UUID;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -86,6 +88,100 @@ class PostgreSqlProductionIntegrationTest {
                 assertThat(migrations.next()).isTrue();
                 assertThat(migrations.getInt(1)).isEqualTo(41);
             }
+        }
+    }
+
+    @Test
+    void version224BaselineUpgradeMatchesFullMigrationHistory() throws Exception {
+        String suffix = UUID.randomUUID().toString().replace("-", "");
+        String fullSchema = "full_" + suffix;
+        String baselineSchema = "baseline_" + suffix;
+        try {
+            var full = migration(fullSchema, "classpath:db/migration-postgresql");
+            var baseline = migration(baselineSchema,
+                    "classpath:db/baseline-postgresql", "classpath:db/migration-postgresql");
+
+            assertThat(full.migrate().success).isTrue();
+            assertThat(baseline.migrate().success).isTrue();
+            full.validate();
+            baseline.validate();
+
+            assertThat(appliedVersions(fullSchema)).hasSize(41).endsWith("41");
+            assertThat(appliedVersions(baselineSchema)).containsExactly("39", "40", "41");
+            assertThat(structureSignature(fullSchema)).containsExactlyElementsOf(structureSignature(baselineSchema));
+        } finally {
+            dropSchema(fullSchema);
+            dropSchema(baselineSchema);
+        }
+    }
+
+    private Flyway migration(String schema, String... locations) {
+        return Flyway.configure()
+                .dataSource(url, user, password)
+                .schemas(schema)
+                .defaultSchema(schema)
+                .createSchemas(true)
+                .locations(locations)
+                .cleanDisabled(false)
+                .load();
+    }
+
+    private List<String> appliedVersions(String schema) throws Exception {
+        List<String> versions = new ArrayList<>();
+        try (var connection = DriverManager.getConnection(url, user, password);
+             var query = connection.prepareStatement("""
+                     SELECT version FROM flyway_schema_history
+                     WHERE success = TRUE AND version IS NOT NULL
+                     ORDER BY installed_rank
+                     """)) {
+            connection.setSchema(schema);
+            try (var rows = query.executeQuery()) {
+                while (rows.next()) versions.add(rows.getString(1));
+            }
+        }
+        return versions;
+    }
+
+    private List<String> structureSignature(String schema) throws Exception {
+        List<String> signature = new ArrayList<>();
+        try (var connection = DriverManager.getConnection(url, user, password)) {
+            collect(signature, connection, """
+                    SELECT 'column|' || table_name || '|' || column_name || '|' || data_type || '|' || is_nullable
+                    FROM information_schema.columns
+                    WHERE table_schema = ? AND table_name <> 'flyway_schema_history'
+                    ORDER BY table_name, ordinal_position
+                    """, schema);
+            collect(signature, connection, """
+                    SELECT 'constraint|' || table_name || '|' || constraint_name || '|' || constraint_type
+                    FROM information_schema.table_constraints
+                    WHERE table_schema = ?
+                    ORDER BY table_name, constraint_name
+                    """, schema);
+            collect(signature, connection, """
+                    SELECT 'index|' || tablename || '|' || indexname || '|' ||
+                           regexp_replace(indexdef, ' ON [^ ]+\\.', ' ON <schema>.')
+                    FROM pg_indexes
+                    WHERE schemaname = ? AND tablename <> 'flyway_schema_history'
+                    ORDER BY tablename, indexname
+                    """, schema);
+        }
+        return signature;
+    }
+
+    private static void collect(List<String> target, java.sql.Connection connection, String sql, String schema)
+            throws Exception {
+        try (var query = connection.prepareStatement(sql)) {
+            query.setString(1, schema);
+            try (var rows = query.executeQuery()) {
+                while (rows.next()) target.add(rows.getString(1));
+            }
+        }
+    }
+
+    private void dropSchema(String schema) throws Exception {
+        try (var connection = DriverManager.getConnection(url, user, password);
+             var statement = connection.createStatement()) {
+            statement.execute("DROP SCHEMA IF EXISTS " + schema + " CASCADE");
         }
     }
 

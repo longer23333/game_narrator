@@ -24,6 +24,8 @@ public final class MobileReleaseNotes {
 
     public static List<Note> notes() {
         List<Note> notes = new ArrayList<>();
+        notes.add(new Note("2.2.31", "PostgreSQL 2.2.4 基线升级门禁",
+                "PostgreSQL 16 从 B39 基线升级到当前版本，并与完整迁移历史比较表列、约束和索引签名。"));
         notes.add(new Note("2.2.30", "长视频发布性能门禁",
                 "五分钟 1080p 真实 FFmpeg 转码改为每次 CI 必跑并纳入同提交发布证据；目标机 GPU OOM 与 60 分钟长跑仍独立验收。"));
         notes.add(new Note("2.2.29", "Android 自动化验收闭环",

@@ -18,6 +18,9 @@ jobs:
       - name: Verify generated migration baselines
         shell: pwsh
         run: ./scripts/build-postgresql-migrations.ps1 -Check
+      - name: Verify PostgreSQL production-path contract
+        shell: pwsh
+        run: ./scripts/verify-postgresql-production-path.ps1
 
   documentation:
     runs-on: windows-latest
@@ -222,7 +225,7 @@ jobs:
           distribution: temurin
           java-version: '21'
           cache: maven
-      - name: Run migrations and production-path integrity checks on PostgreSQL 16
+      - name: Run full history and 2.2.4 baseline upgrade checks on PostgreSQL 16
         env:
           RUN_POSTGRESQL_INTEGRATION: 'true'
           POSTGRES_URL: jdbc:postgresql://127.0.0.1:5432/game_narrator_ci
