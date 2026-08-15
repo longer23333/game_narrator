@@ -5,6 +5,7 @@ import org.springframework.stereotype.Component;
 
 import java.nio.file.Path;
 import java.util.Optional;
+import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.UUID;
 
@@ -39,6 +40,29 @@ public class TaskArtifactLocator {
                 """, (rs, row) -> Path.of(rs.getString(1)).toAbsolutePath().normalize(), taskId, artifactType)
                 .stream().findFirst();
         if (indexed.isPresent()) return indexed;
+        return latestLegacy(taskId, artifactType);
+    }
+
+    public Map<String, Path> latestAll(UUID taskId) {
+        Map<String, Path> result = new LinkedHashMap<>();
+        jdbc.query("""
+                SELECT a.artifact_type,a.storage_key FROM artifact a
+                JOIN video_tasks t ON t.project_id=a.project_id
+                WHERE t.id=? AND a.deleted_at IS NULL
+                ORDER BY a.created_at DESC
+                """, rs -> {
+            String type = rs.getString(1);
+            if (LEGACY_COLUMNS.containsKey(type)) {
+                result.putIfAbsent(type, Path.of(rs.getString(2)).toAbsolutePath().normalize());
+            }
+        }, taskId);
+        LEGACY_COLUMNS.keySet().stream()
+                .filter(type -> !result.containsKey(type))
+                .forEach(type -> latestLegacy(taskId, type).ifPresent(path -> result.put(type, path)));
+        return Map.copyOf(result);
+    }
+
+    private Optional<Path> latestLegacy(UUID taskId, String artifactType) {
         String column = LEGACY_COLUMNS.get(artifactType);
         if (column == null) return Optional.empty();
         return jdbc.query("SELECT " + column + " FROM video_tasks WHERE id=?",

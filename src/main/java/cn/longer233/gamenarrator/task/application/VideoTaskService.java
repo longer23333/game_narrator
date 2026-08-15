@@ -36,6 +36,7 @@ public class VideoTaskService {
     private final cn.longer233.gamenarrator.identity.CurrentUserContext currentUser;
     private final cn.longer233.gamenarrator.cloud.CloudSyncService cloudSync;
     private final TaskArtifactLocator artifacts;
+    private final VideoTaskViewMapper viewMapper;
 
     public VideoTaskService(
             VideoTaskRepository repository,
@@ -49,7 +50,8 @@ public class VideoTaskService {
             cn.longer233.gamenarrator.storage.SourceMediaRegistry sourceMediaRegistry,
             cn.longer233.gamenarrator.identity.CurrentUserContext currentUser,
             cn.longer233.gamenarrator.cloud.CloudSyncService cloudSync,
-            TaskArtifactLocator artifacts
+            TaskArtifactLocator artifacts,
+            VideoTaskViewMapper viewMapper
     ) {
         this.repository = repository;
         this.storage = storage;
@@ -63,6 +65,7 @@ public class VideoTaskService {
         this.currentUser = currentUser;
         this.cloudSync = cloudSync;
         this.artifacts = artifacts;
+        this.viewMapper = viewMapper;
     }
 
     @Transactional
@@ -96,7 +99,7 @@ public class VideoTaskService {
         projectHistoryService.createInitialHistory(savedTask);
         log.info("TASK_CREATE_SUCCESS taskId={} stageCount={} videoPath={}",
                 savedTask.getId(), savedTask.getStages().size(), videoPath);
-        VideoTaskView createdTask = VideoTaskView.from(savedTask);
+        VideoTaskView createdTask = viewMapper.from(savedTask);
         TransactionSynchronizationManager.registerSynchronization(new TransactionSynchronization() {
             @Override public void afterCommit() { engine.start(savedTask.getId()); }
         });
@@ -117,7 +120,7 @@ public class VideoTaskService {
         task.startIngestion();
         VideoTask saved = repository.saveAndFlush(task);
         projectHistoryService.createInitialHistory(saved);
-        return VideoTaskView.from(saved);
+        return viewMapper.from(saved);
     }
 
     @Transactional
@@ -140,7 +143,7 @@ public class VideoTaskService {
     public VideoTaskView find(UUID id) {
         log.debug("TASK_FIND taskId={}", id);
         return repository.findByIdAndOwnerId(id, currentUser.userId())
-                .map(VideoTaskView::from)
+                .map(viewMapper::from)
                 .orElseThrow(() -> new TaskNotFoundException(id));
     }
 
@@ -154,7 +157,7 @@ public class VideoTaskService {
     public List<VideoTaskView> findAllForOwner(UUID ownerId) {
         return repository.findAllByOwnerIdOrderByCreatedAtDesc(ownerId)
                 .stream()
-                .map(VideoTaskView::from)
+                .map(viewMapper::from)
                 .toList();
     }
 
@@ -169,7 +172,7 @@ public class VideoTaskService {
         task.rename(request.name());
         projectHistoryService.renameProject(id, task.getName());
         log.info("TASK_RENAMED taskId={}", id);
-        return VideoTaskView.from(task);
+        return viewMapper.from(task);
     }
 
     @Transactional
@@ -181,7 +184,7 @@ public class VideoTaskService {
             @Override public void afterCommit() { engine.reprioritize(id, task.getPriority()); }
         });
         log.info("TASK_PRIORITY_CHANGED taskId={} priority={}", id, task.getPriority());
-        return VideoTaskView.from(task);
+        return viewMapper.from(task);
     }
 
     public void start(UUID id) {
@@ -205,7 +208,7 @@ public class VideoTaskService {
             @Override public void afterCommit() { engine.requestCancellation(id); }
         });
         log.info("TASK_CANCEL_ACCEPTED taskId={} status=CANCELLED processTermination=asynchronous", id);
-        return VideoTaskView.from(task);
+        return viewMapper.from(task);
     }
 
     @Transactional
@@ -222,7 +225,7 @@ public class VideoTaskService {
                 engine.start(id);
             }
         });
-        return VideoTaskView.from(task);
+        return viewMapper.from(task);
     }
 
     @Transactional
@@ -251,7 +254,7 @@ public class VideoTaskService {
             public void afterCommit() { engine.start(id); }
         });
         log.info("STORYBOARD_APPROVED taskId={}", id);
-        return VideoTaskView.from(task);
+        return viewMapper.from(task);
     }
 
     public void rerenderEffects(UUID id, EffectSettingsRequest settings) {

@@ -1,5 +1,6 @@
 const releases = [
-  {version:'2.2.46', title:'运行入口产物读取统一', current:true, items:["恢复诊断统一读取音频产物索引","视频下载统一读取渲染产物索引","继续保留云端校验恢复流程"], jump:{view:'studio', selector:'#task-list'}},
+  {version:'2.2.47', title:'任务视图产物映射统一', current:true, items:["新增任务视图统一映射器","十二类产物通过索引批量装配","DTO 不再读取任务旧路径字段"], jump:{view:'studio', selector:'#task-list'}},
+  {version:'2.2.46', title:'运行入口产物读取统一', items:["恢复诊断统一读取音频产物索引","视频下载统一读取渲染产物索引","继续保留云端校验恢复流程"], jump:{view:'studio', selector:'#task-list'}},
   {version:'2.2.45', title:'脚本工作台产物读取统一', items:["脚本与高光统一读取产物索引","视觉、配音与时间线统一读取产物索引","移除工作台对任务旧路径字段的读取"], jump:{view:'studio', selector:'#task-list'}},
   {version:'2.2.44', title:'编辑器产物读取统一', items:["波形统一读取音频产物索引","时间线统一判断脚本与高光产物索引","移除编辑器对任务旧路径字段的读取"], jump:{view:'studio', selector:'#task-list'}},
   {version:'2.2.43', title:'产物索引读取扩展', items:["事件时间线统一读取视觉分析与高光产物索引","事实约束文案统一读取高光产物索引","渲染预览统一读取时间线产物索引"], jump:{view:'studio', selector:'#task-list'}},

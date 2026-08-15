@@ -21,10 +21,12 @@ public class TaskTrashService {
     private final CurrentUserContext current;
     private final VideoTaskRepository repository;
     private final TaskFileCleanupService cleanup;
+    private final VideoTaskViewMapper viewMapper;
 
     public TaskTrashService(JdbcTemplate jdbc, CurrentUserContext current, VideoTaskRepository repository,
-                            TaskFileCleanupService cleanup) {
+                            TaskFileCleanupService cleanup, VideoTaskViewMapper viewMapper) {
         this.jdbc=jdbc; this.current=current; this.repository=repository; this.cleanup=cleanup;
+        this.viewMapper=viewMapper;
     }
 
     public List<TrashedTask> list() {
@@ -38,7 +40,7 @@ public class TaskTrashService {
         int changed=jdbc.update("UPDATE video_tasks SET deleted_at=NULL,updated_at=CURRENT_TIMESTAMP WHERE id=? AND owner_id=? AND deleted_at IS NOT NULL",id,current.userId());
         if(changed==0) throw new IllegalArgumentException("回收站中不存在该任务");
         jdbc.update("UPDATE video_project SET deleted_at=NULL,updated_at=CURRENT_TIMESTAMP,version=version+1 WHERE id=? AND owner_id=?",id,current.userId());
-        return VideoTaskView.from(repository.findByIdAndOwnerId(id,current.userId()).orElseThrow());
+        return viewMapper.from(repository.findByIdAndOwnerId(id,current.userId()).orElseThrow());
     }
 
     @Transactional

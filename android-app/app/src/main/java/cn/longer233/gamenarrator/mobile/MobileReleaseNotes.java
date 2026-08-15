@@ -24,6 +24,8 @@ public final class MobileReleaseNotes {
 
     public static List<Note> notes() {
         List<Note> notes = new ArrayList<>();
+        notes.add(new Note("2.2.47", "任务视图产物映射统一",
+                "任务视图统一批量读取产物索引，不再访问任务旧路径字段。"));
         notes.add(new Note("2.2.46", "运行入口产物读取统一",
                 "恢复诊断与最终视频下载统一通过产物索引定位文件。"));
         notes.add(new Note("2.2.45", "脚本工作台产物读取统一",

@@ -4,6 +4,8 @@ import cn.longer233.gamenarrator.task.domain.*;
 import java.time.Instant;
 import java.util.List;
 import java.util.UUID;
+import java.nio.file.Path;
+import java.util.Map;
 
 public record VideoTaskView(
         UUID id,
@@ -59,7 +61,7 @@ public record VideoTaskView(
         Instant createdAt,
         List<StageView> stages
 ) {
-    public static VideoTaskView from(VideoTask task) {
+    static VideoTaskView from(VideoTask task, Map<String, Path> artifacts) {
         return new VideoTaskView(
                 task.getId(),
                 task.getName(),
@@ -77,31 +79,31 @@ public record VideoTaskView(
                 task.getFramesPerSecond(),
                 task.getVideoCodec(),
                 task.getAudioCodec(),
-                task.getExtractedAudioPath(),
-                task.getSceneManifestPath(),
+                path(artifacts, "EXTRACTED_AUDIO"),
+                path(artifacts, "SCENE_MANIFEST"),
                 task.getDetectedSceneCount(),
                 task.getTranscriptText(),
-                task.getTranscriptTextPath(),
-                task.getSubtitlePath(),
-                task.getTranscriptJsonPath(),
+                path(artifacts, "TRANSCRIPT_TEXT"),
+                path(artifacts, "TRANSCRIPT_SUBTITLE"),
+                path(artifacts, "TRANSCRIPT_DETAIL"),
                 task.getVisualSummary(),
-                task.getVisualAnalysisPath(),
+                path(artifacts, "VISION_ANALYSIS"),
                 task.getAnalyzedFrameCount(),
                 task.getHighlightSummary(),
-                task.getHighlightManifestPath(),
+                path(artifacts, "HIGHLIGHT_MANIFEST"),
                 task.getSelectedHighlightCount(),
                 task.getGeneratedTitle(),
                 task.getScriptSynopsis(),
                 task.getGeneratedNarration(),
-                task.getGeneratedScriptPath(),
+                path(artifacts, "SCRIPT_MANIFEST"),
                 task.getGeneratedScriptSegmentCount(),
-                task.getVoiceManifestPath(),
+                path(artifacts, "VOICE_MANIFEST"),
                 task.getGeneratedVoiceSegmentCount(),
-                task.getTimelinePath(),
+                path(artifacts, "TIMELINE_MANIFEST"),
                 task.getPlannedOutputDurationSeconds(),
                 task.getVoiceOverflowCount(),
-                task.getRenderedVideoPath(),
-                task.getGeneratedSubtitlePath(),
+                path(artifacts, "RENDERED_VIDEO"),
+                path(artifacts, "GENERATED_SUBTITLE"),
                 task.getRenderedFileSizeBytes(),
                 task.isStoryboardReviewEnabled(),
                 task.isStoryboardApproved(),
@@ -114,5 +116,10 @@ public record VideoTaskView(
                 task.getCreatedAt(),
                 task.getStages().stream().map(StageView::from).toList()
         );
+    }
+
+    private static String path(Map<String, Path> artifacts, String type) {
+        Path path = artifacts.get(type);
+        return path == null ? null : path.toString();
     }
 }

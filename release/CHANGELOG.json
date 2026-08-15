@@ -1,7 +1,17 @@
 {
   "schemaVersion": 1,
-  "currentVersion": "2.2.46",
+  "currentVersion": "2.2.47",
   "releases": [
+    {
+      "version": "2.2.47",
+      "title": "任务视图产物映射统一",
+      "summary": "任务视图统一批量读取 artifact 索引，DTO 不再访问 VideoTask 旧路径字段。",
+      "items": [
+        "新增可注入的任务视图映射器",
+        "十二类任务产物通过统一批量查询装配",
+        "任务服务和回收站恢复移除静态旧路径映射"
+      ]
+    },
     {
       "version": "2.2.46",
       "title": "运行入口产物读取统一",
