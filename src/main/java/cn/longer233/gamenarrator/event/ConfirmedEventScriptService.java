@@ -4,6 +4,7 @@ import cn.longer233.gamenarrator.script.GeneratedScript;
 import cn.longer233.gamenarrator.script.TextGenerator;
 import cn.longer233.gamenarrator.script.ScriptDocumentView;
 import cn.longer233.gamenarrator.script.ScriptQualityReview;
+import cn.longer233.gamenarrator.pipeline.TaskArtifactLocator;
 import cn.longer233.gamenarrator.task.application.TaskNotFoundException;
 import cn.longer233.gamenarrator.task.domain.VideoTask;
 import cn.longer233.gamenarrator.task.repository.VideoTaskRepository;
@@ -22,21 +23,25 @@ public class ConfirmedEventScriptService {
     private final GameEventTimelineService events;
     private final TextGenerator generator;
     private final ObjectMapper objectMapper;
+    private final TaskArtifactLocator artifacts;
 
     public ConfirmedEventScriptService(VideoTaskRepository tasks, GameEventTimelineService events,
-                                       TextGenerator generator, ObjectMapper objectMapper) {
+                                       TextGenerator generator, ObjectMapper objectMapper,
+                                       TaskArtifactLocator artifacts) {
         this.tasks = tasks;
         this.events = events;
         this.generator = generator;
         this.objectMapper = objectMapper;
+        this.artifacts = artifacts;
     }
 
     public ScriptDocumentView regenerate(UUID taskId) {
         VideoTask task = tasks.findById(taskId).orElseThrow(() -> new TaskNotFoundException(taskId));
         List<GameEventFact> facts = events.confirmedFacts(taskId);
         if (facts.isEmpty()) throw new IllegalStateException("请先确认至少一个游戏事件，再生成事实约束文案");
-        if (task.getHighlightManifestPath() == null) throw new IllegalStateException("任务尚未生成分镜");
-        GeneratedScript result = generator.generate(Path.of(task.getHighlightManifestPath()), task.getGameCategory(),
+        Path highlights = artifacts.latest(taskId, "HIGHLIGHT_MANIFEST")
+                .orElseThrow(() -> new IllegalStateException("任务尚未生成分镜"));
+        GeneratedScript result = generator.generate(highlights, task.getGameCategory(),
                 task.getCommentaryStyle().name(), task.getTaskBrief(), task.getTranscriptText(), facts);
         task.applyScriptRevision(result.title(), result.synopsis(), result.fullNarration(),
                 result.scriptPath(), result.segments().size());

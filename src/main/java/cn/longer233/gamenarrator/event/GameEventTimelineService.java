@@ -1,6 +1,7 @@
 package cn.longer233.gamenarrator.event;
 
 import cn.longer233.gamenarrator.highlight.HighlightClip;
+import cn.longer233.gamenarrator.pipeline.TaskArtifactLocator;
 import cn.longer233.gamenarrator.task.application.TaskNotFoundException;
 import cn.longer233.gamenarrator.task.domain.VideoTask;
 import cn.longer233.gamenarrator.task.repository.VideoTaskRepository;
@@ -37,21 +38,24 @@ public class GameEventTimelineService {
     private final BossBattleKnowledgePack knowledgePack;
     private final GameKnowledgePackService knowledgePacks;
     private final ApplicationEventPublisher eventPublisher;
+    private final TaskArtifactLocator artifacts;
 
     public GameEventTimelineService(JdbcTemplate jdbc, ObjectMapper objectMapper, VideoTaskRepository tasks) {
-        this(jdbc, objectMapper, tasks, null, null);
+        this(jdbc, objectMapper, tasks, null, null, new TaskArtifactLocator(jdbc));
     }
 
     @Autowired
     public GameEventTimelineService(JdbcTemplate jdbc, ObjectMapper objectMapper, VideoTaskRepository tasks,
                                     GameKnowledgePackService knowledgePacks,
-                                    ApplicationEventPublisher eventPublisher) {
+                                    ApplicationEventPublisher eventPublisher,
+                                    TaskArtifactLocator artifacts) {
         this.jdbc = jdbc;
         this.objectMapper = objectMapper;
         this.tasks = tasks;
         this.knowledgePack = loadKnowledgePack(objectMapper);
         this.knowledgePacks = knowledgePacks;
         this.eventPublisher = eventPublisher;
+        this.artifacts = artifacts;
     }
 
     @Transactional
@@ -82,9 +86,11 @@ public class GameEventTimelineService {
         VideoTask task = requireTask(taskId);
         List<GameEventView> existing = query(taskId);
         if (!existing.isEmpty()) return existing;
-        if (task.getVisualAnalysisPath() != null && task.getHighlightManifestPath() != null) {
-            Path visual = Path.of(task.getVisualAnalysisPath()).toAbsolutePath().normalize();
-            Path highlights = Path.of(task.getHighlightManifestPath()).toAbsolutePath().normalize();
+        var visualPath = artifacts.latest(taskId, "VISION_ANALYSIS");
+        var highlightPath = artifacts.latest(taskId, "HIGHLIGHT_MANIFEST");
+        if (visualPath.isPresent() && highlightPath.isPresent()) {
+            Path visual = visualPath.orElseThrow();
+            Path highlights = highlightPath.orElseThrow();
             if (Files.isRegularFile(visual) && Files.isRegularFile(highlights)) {
                 return rebuild(taskId, visual, highlights);
             }

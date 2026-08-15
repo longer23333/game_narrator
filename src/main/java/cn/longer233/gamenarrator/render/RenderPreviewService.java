@@ -1,6 +1,7 @@
 package cn.longer233.gamenarrator.render;
 
 import cn.longer233.gamenarrator.task.application.TaskNotFoundException;
+import cn.longer233.gamenarrator.pipeline.TaskArtifactLocator;
 import cn.longer233.gamenarrator.task.repository.VideoTaskRepository;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.springframework.beans.factory.annotation.Value;
@@ -16,12 +17,14 @@ public class RenderPreviewService {
     private final VideoTaskRepository tasks;
     private final ObjectMapper objectMapper;
     private final Path storageRoot;
+    private final TaskArtifactLocator artifacts;
 
     public RenderPreviewService(VideoTaskRepository tasks, ObjectMapper objectMapper,
-            @Value("${game-narrator.storage-root}") String storageRoot) {
+            @Value("${game-narrator.storage-root}") String storageRoot, TaskArtifactLocator artifacts) {
         this.tasks = tasks;
         this.objectMapper = objectMapper;
         this.storageRoot = Path.of(storageRoot).toAbsolutePath().normalize();
+        this.artifacts = artifacts;
     }
 
     public List<PreviewFrame> frames(UUID taskId) {
@@ -49,9 +52,10 @@ public class RenderPreviewService {
     }
 
     private Path previewDirectory(UUID taskId) {
-        var task = tasks.findById(taskId).orElseThrow(() -> new TaskNotFoundException(taskId));
-        if (task.getTimelinePath() == null) return storageRoot.resolve("unavailable");
-        Path timeline = Path.of(task.getTimelinePath()).toAbsolutePath().normalize();
+        tasks.findById(taskId).orElseThrow(() -> new TaskNotFoundException(taskId));
+        Path timeline = artifacts.latest(taskId, "TIMELINE_MANIFEST")
+                .orElse(null);
+        if (timeline == null) return storageRoot.resolve("unavailable");
         Path directory = timeline.getParent().resolve("render-preview").normalize();
         if (!timeline.startsWith(storageRoot) || !directory.startsWith(storageRoot)) {
             throw new IllegalStateException("渲染预览目录不属于任务存储目录");

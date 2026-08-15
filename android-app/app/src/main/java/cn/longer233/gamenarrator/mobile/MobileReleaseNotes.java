@@ -24,6 +24,8 @@ public final class MobileReleaseNotes {
 
     public static List<Note> notes() {
         List<Note> notes = new ArrayList<>();
+        notes.add(new Note("2.2.43", "产物索引读取扩展",
+                "事件、文案与渲染预览统一通过产物索引定位，并继续兼容旧任务。"));
         notes.add(new Note("2.2.42", "流水线恢复读取统一",
                 "桌面端流水线恢复上下文统一从 artifact 索引读取阶段产物，并兼容旧任务。"));
         notes.add(new Note("2.2.41", "URL 媒体导入统一",

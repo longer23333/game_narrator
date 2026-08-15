@@ -5,6 +5,7 @@ import cn.longer233.gamenarrator.script.TextGenerator;
 import cn.longer233.gamenarrator.task.domain.CommentaryStyle;
 import cn.longer233.gamenarrator.task.domain.VideoTask;
 import cn.longer233.gamenarrator.task.repository.VideoTaskRepository;
+import cn.longer233.gamenarrator.pipeline.TaskArtifactLocator;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.io.TempDir;
@@ -32,11 +33,12 @@ class ConfirmedEventScriptServiceTest {
         VideoTaskRepository tasks = mock(VideoTaskRepository.class);
         GameEventTimelineService events = mock(GameEventTimelineService.class);
         TextGenerator generator = mock(TextGenerator.class);
+        TaskArtifactLocator artifacts = mock(TaskArtifactLocator.class);
         VideoTask task = mock(VideoTask.class);
         when(tasks.findById(taskId)).thenReturn(Optional.of(task));
         when(events.confirmedFacts(taskId)).thenReturn(List.of());
         ConfirmedEventScriptService service = new ConfirmedEventScriptService(
-                tasks, events, generator, new ObjectMapper());
+                tasks, events, generator, new ObjectMapper(), artifacts);
 
         assertThatThrownBy(() -> service.regenerate(taskId))
                 .isInstanceOf(IllegalStateException.class);
@@ -55,11 +57,12 @@ class ConfirmedEventScriptServiceTest {
         VideoTaskRepository tasks = mock(VideoTaskRepository.class);
         GameEventTimelineService events = mock(GameEventTimelineService.class);
         TextGenerator generator = mock(TextGenerator.class);
+        TaskArtifactLocator artifacts = mock(TaskArtifactLocator.class);
         VideoTask task = mock(VideoTask.class);
         GameEventFact fact = new GameEventFact("BOSS_DEFEATED", "Boss defeated", 10, 20, 100);
         when(tasks.findById(taskId)).thenReturn(Optional.of(task));
         when(events.confirmedFacts(taskId)).thenReturn(List.of(fact));
-        when(task.getHighlightManifestPath()).thenReturn(highlights.toString());
+        when(artifacts.latest(taskId, "HIGHLIGHT_MANIFEST")).thenReturn(Optional.of(highlights));
         when(task.getGameCategory()).thenReturn("ACTION");
         when(task.getCommentaryStyle()).thenReturn(CommentaryStyle.ANIME_THEATER);
         when(task.getTaskBrief()).thenReturn("brief");
@@ -67,7 +70,7 @@ class ConfirmedEventScriptServiceTest {
                 eq("brief"), any(), eq(List.of(fact))))
                 .thenReturn(new GeneratedScript("title", "synopsis", "narration", script.toString(), List.of()));
         ConfirmedEventScriptService service = new ConfirmedEventScriptService(
-                tasks, events, generator, new ObjectMapper());
+                tasks, events, generator, new ObjectMapper(), artifacts);
 
         service.regenerate(taskId);
 

@@ -3,6 +3,7 @@ package cn.longer233.gamenarrator.event;
 import cn.longer233.gamenarrator.task.domain.CommentaryStyle;
 import cn.longer233.gamenarrator.task.domain.VideoTask;
 import cn.longer233.gamenarrator.task.repository.VideoTaskRepository;
+import cn.longer233.gamenarrator.pipeline.TaskArtifactLocator;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.flywaydb.core.Flyway;
 import org.junit.jupiter.api.Test;
@@ -58,7 +59,8 @@ class GameEventTimelineServiceTest {
                 "finalScore":95,"locked":false,"excluded":false}]}
                 """);
         ApplicationEventPublisher publisher = mock(ApplicationEventPublisher.class);
-        GameEventTimelineService service = new GameEventTimelineService(jdbc, mapper, repository, null, publisher);
+        GameEventTimelineService service = new GameEventTimelineService(
+                jdbc, mapper, repository, null, publisher, new TaskArtifactLocator(jdbc));
 
         var events = service.rebuild(taskId, visual, highlights);
 

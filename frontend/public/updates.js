@@ -1,5 +1,6 @@
 const releases = [
-  {version:'2.2.42', title:'流水线恢复读取统一', current:true, items:["恢复上下文统一从 artifact 索引读取七类阶段产物","旧任务缺少索引时继续使用固定白名单安全回退","新增测试证明不再直接依赖 VideoTask 阶段路径字段"], jump:{view:'studio', selector:'#task-list'}},
+  {version:'2.2.43', title:'产物索引读取扩展', current:true, items:["事件时间线统一读取视觉分析与高光产物索引","事实约束文案统一读取高光产物索引","渲染预览统一读取时间线产物索引"], jump:{view:'studio', selector:'#task-list'}},
+  {version:'2.2.42', title:'流水线恢复读取统一', items:["恢复上下文统一从 artifact 索引读取七类阶段产物","旧任务缺少索引时继续使用固定白名单安全回退","新增测试证明不再直接依赖 VideoTask 阶段路径字段"], jump:{view:'studio', selector:'#task-list'}},
   {version:'2.2.41', title:'URL 媒体导入统一', items:["平台 URL 统一通过 yt-dlp 解析、预览、字幕和下载","移除自动 Cookie 读取、Bilibili 专用登录和专栏抓取旁路","登录受限内容仅接受用户主动上传且按平台过滤的临时 cookies.txt"], jump:{view:'import', selector:'#media-resolve-form'}},
   {version:'2.2.40', title:'素材来源收敛', items:["开放搜索统一为 Wikimedia","Bilibili 保留为需权利确认的视频候选","移除三套旧来源客户端与密钥设置"], jump:{view:'studio', selector:'#task-list'}},
   {version:'2.2.39', title:'任务产物读取统一', items:["新增统一任务产物定位入口","导出与叙事证据检查优先读取 artifact 索引","旧任务缺少索引时安全回退旧路径"], jump:{view:'studio', selector:'#task-list'}},

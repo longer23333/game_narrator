@@ -2,6 +2,7 @@ package cn.longer233.gamenarrator.render;
 
 import cn.longer233.gamenarrator.task.domain.VideoTask;
 import cn.longer233.gamenarrator.task.repository.VideoTaskRepository;
+import cn.longer233.gamenarrator.pipeline.TaskArtifactLocator;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.io.TempDir;
@@ -34,7 +35,10 @@ class RenderPreviewServiceTest {
         when(task.getTimelinePath()).thenReturn(timeline.toString());
         VideoTaskRepository repository = mock(VideoTaskRepository.class);
         when(repository.findById(taskId)).thenReturn(Optional.of(task));
-        RenderPreviewService service = new RenderPreviewService(repository, new ObjectMapper(), storageRoot.toString());
+        TaskArtifactLocator artifacts = mock(TaskArtifactLocator.class);
+        when(artifacts.latest(taskId, "TIMELINE_MANIFEST")).thenReturn(Optional.of(timeline));
+        RenderPreviewService service = new RenderPreviewService(
+                repository, new ObjectMapper(), storageRoot.toString(), artifacts);
 
         assertThat(service.frames(taskId)).singleElement().satisfies(frame -> {
             assertThat(frame.sequence()).isEqualTo(3);

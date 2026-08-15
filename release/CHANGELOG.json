@@ -1,396 +1,406 @@
 {
-    "schemaVersion":  1,
-    "currentVersion":  "2.2.42",
-    "releases":  [
-                     {
-                         "version":  "2.2.42",
-                         "title":  "流水线恢复读取统一",
-                         "summary":  "流水线恢复上下文统一从 artifact 索引读取阶段产物，并为旧任务保留固定白名单回退。",
-                         "items":  [
-                                       "恢复上下文统一从 artifact 索引读取七类阶段产物",
-                                       "旧任务缺少索引时继续使用固定白名单安全回退",
-                                       "新增测试证明不再直接依赖 VideoTask 阶段路径字段"
-                                   ]
-                     },
-                     {
-                         "version":  "2.2.41",
-                         "title":  "URL 媒体导入统一",
-                         "summary":  "平台 URL 导入统一收敛到 yt-dlp，并移除自动 Cookie 读取和平台专用导入旁路。",
-                         "items":  [
-                                       "平台 URL 统一通过 yt-dlp 解析、预览、字幕和下载",
-                                       "移除自动 Cookie 读取、Bilibili 专用登录和专栏抓取旁路",
-                                       "登录受限内容仅接受用户主动上传且按平台过滤的临时 cookies.txt"
-                                   ]
-                     },
-                     {
-                         "version":  "2.2.40",
-                         "title":  "素材来源收敛",
-                         "summary":  "素材搜索收敛为 Wikimedia 开放许可来源与 Bilibili 权利确认候选，同时保留历史素材数据。",
-                         "items":  [
-                                       "移除 Openverse、Pexels、Pixabay 客户端与密钥配置入口",
-                                       "自动素材放置统一使用 Wikimedia，不自动使用 Bilibili 候选",
-                                       "保留历史迁移、密钥轮换和既有素材许可兼容"
-                                   ]
-                     },
-                     {
-                         "version":  "2.2.39",
-                         "title":  "任务产物读取统一",
-                         "summary":  "导出与叙事证据检查优先从 artifact 索引读取阶段产物，并为旧任务保留安全回退。",
-                         "items":  [
-                                       "新增统一的任务产物定位入口，按最新有效 artifact 读取文件",
-                                       "导出和叙事证据检查不再直接依赖 VideoTask 阶段路径字段",
-                                       "旧任务缺少 artifact 索引时按固定白名单回退，并通过兼容测试"
-                                   ]
-                     },
-                     {
-                         "version":  "2.2.38",
-                         "title":  "脚本产物存储统一",
-                         "summary":  "统一 Web、Windows 与 Android 版本，完成对应功能修复、稳定性检查与发布记录。",
-                         "items":  [
-                                       "同步更新 Web、Windows 与 Android 版本",
-                                       "完成本版本功能修复与稳定性检查",
-                                       "创建并同步 GitHub、Gitee 发布标签"
-                                   ]
-                     },
-                     {
-                         "version":  "2.2.37",
-                         "title":  "单实现模型适配层精简",
-                         "summary":  "统一 Web、Windows 与 Android 版本，完成对应功能修复、稳定性检查与发布记录。",
-                         "items":  [
-                                       "同步更新 Web、Windows 与 Android 版本",
-                                       "完成本版本功能修复与稳定性检查",
-                                       "创建并同步 GitHub、Gitee 发布标签"
-                                   ]
-                     },
-                     {
-                         "version":  "2.2.36",
-                         "title":  "流水线阶段状态统一",
-                         "summary":  "统一 Web、Windows 与 Android 版本，完成对应功能修复、稳定性检查与发布记录。",
-                         "items":  [
-                                       "同步更新 Web、Windows 与 Android 版本",
-                                       "完成本版本功能修复与稳定性检查",
-                                       "创建并同步 GitHub、Gitee 发布标签"
-                                   ]
-                     },
-                     {
-                         "version":  "2.2.35",
-                         "title":  "运行配置项收敛",
-                         "summary":  "统一 Web、Windows 与 Android 版本，完成对应功能修复、稳定性检查与发布记录。",
-                         "items":  [
-                                       "同步更新 Web、Windows 与 Android 版本",
-                                       "完成本版本功能修复与稳定性检查",
-                                       "创建并同步 GitHub、Gitee 发布标签"
-                                   ]
-                     },
-                     {
-                         "version":  "2.2.34",
-                         "title":  "验证脚本与持续集成精简",
-                         "summary":  "统一 Web、Windows 与 Android 版本，完成对应功能修复、稳定性检查与发布记录。",
-                         "items":  [
-                                       "同步更新 Web、Windows 与 Android 版本",
-                                       "完成本版本功能修复与稳定性检查",
-                                       "创建并同步 GitHub、Gitee 发布标签"
-                                   ]
-                     },
-                     {
-                         "version":  "2.2.33",
-                         "title":  "前端模块加载链路精简",
-                         "summary":  "统一 Web、Windows 与 Android 版本，完成对应功能修复、稳定性检查与发布记录。",
-                         "items":  [
-                                       "同步更新 Web、Windows 与 Android 版本",
-                                       "完成本版本功能修复与稳定性检查",
-                                       "创建并同步 GitHub、Gitee 发布标签"
-                                   ]
-                     },
-                     {
-                         "version":  "2.2.32",
-                         "title":  "目标机真实性能证据门禁",
-                         "summary":  "目标机专项性能证据改为真实 CUDA OOM、60 分钟 FFmpeg soak 与九阶段恢复，移除任意 marker 命令漏洞。",
-                         "items":  [
-                                       "真实耗尽 CUDA 显存、释放缓存并执行恢复后计算",
-                                       "至少 60 分钟重复真实音视频转码并约束堆增长",
-                                       "证据 schema v3 校验 runner、实现脚本和原始日志哈希"
-                                   ]
-                     },
-                     {
-                         "version":  "2.2.31",
-                         "title":  "PostgreSQL 2.2.4 基线升级门禁",
-                         "summary":  "PostgreSQL 16 同时验证完整迁移历史与 2.2.4 B39 基线升级，并比较最终结构签名。",
-                         "items":  [
-                                       "从 B39 基线执行 V40 至 V41 的真实 PostgreSQL 升级",
-                                       "完整历史与基线升级分别执行 Flyway validate",
-                                       "比较最终表列、约束和索引签名，防止升级结构漂移"
-                                   ]
-                     },
-                     {
-                         "version":  "2.2.30",
-                         "title":  "长视频发布性能门禁",
-                         "summary":  "五分钟 1080p 真实 FFmpeg 转码从条件任务升级为每次 CI 的阻断门禁，并纳入同提交发布证据。",
-                         "items":  [
-                                       "取消 long-video-performance 的提交信息条件跳过",
-                                       "发布证据新增 longVideoPerformance 必过字段",
-                                       "本机真实五分钟 1080p 转码门禁无跳过通过"
-                                   ]
-                     },
-                     {
-                         "version":  "2.2.29",
-                         "title":  "Android 自动化验收闭环",
-                         "summary":  "完成 Android 平台导入协议回放、API 29/35 模拟器矩阵及 2.2.4 持久化升级门禁；生产签名与真机兼容继续独立标记为未验证。",
-                         "items":  [
-                                       "API 29/35 阻断矩阵覆盖平台导入协议回放和故障注入",
-                                       "同一持久化 API 29 AVD 验证 2.2.4 覆盖升级与数据保留",
-                                       "Android 软件能力达到 18 项 full，生产签名与真机状态仍独立为 false"
-                                   ]
-                     },
-                     {
-                         "version":  "2.2.28",
-                         "title":  "PostgreSQL 生产路径验证增强",
-                         "summary":  "新增真实 PostgreSQL 16 生产路径集成作业，并把数据库门槛纳入不可绕过的发布证据。",
-                         "items":  [
-                                       "完整 PostgreSQL 迁移在一次性 PostgreSQL 16 服务上执行",
-                                       "真实验证租户外键、按 owner 更新隔离与乐观锁",
-                                       "发布证据 schema v2 强制要求 postgresqlIntegration 通过"
-                                   ]
-                     },
-                     {
-                         "version":  "2.2.27",
-                         "title":  "真实媒体测试与发布证据增强",
-                         "summary":  "真实 FFmpeg 输出测试在工具缺失时明确失败，避免 CI 以跳过结果冒充媒体链路通过。",
-                         "items":  [
-                                       "真实事件窗口、音效混音、透明叠加与转场输出测试不再静默跳过",
-                                       "性能套件契约阻止 FFmpeg assumption 跳过逻辑回流",
-                                       "同步 Web、Windows 与 Android 版本至 2.2.27"
-                                   ]
-                     },
-                     {
-                         "version":  "2.2.26",
-                         "title":  "界面操作体验优化",
-                         "summary":  "统一 Web、Windows 与 Android 版本，完成对应功能修复、稳定性检查与发布记录。",
-                         "items":  [
-                                       "同步更新 Web、Windows 与 Android 版本",
-                                       "完成本版本功能修复与稳定性检查",
-                                       "创建并同步 GitHub、Gitee 发布标签"
-                                   ]
-                     },
-                     {
-                         "version":  "2.2.25",
-                         "title":  "任务终止闭环与 Android 实证增强",
-                         "summary":  "统一 Web、Windows 与 Android 版本，完成对应功能修复、稳定性检查与发布记录。",
-                         "items":  [
-                                       "同步更新 Web、Windows 与 Android 版本",
-                                       "完成本版本功能修复与稳定性检查",
-                                       "创建并同步 GitHub、Gitee 发布标签"
-                                   ]
-                     },
-                     {
-                         "version":  "2.2.24",
-                         "title":  "稳定性与功能更新",
-                         "summary":  "统一 Web、Windows 与 Android 版本，完成对应功能修复、稳定性检查与发布记录。",
-                         "items":  [
-                                       "同步更新 Web、Windows 与 Android 版本",
-                                       "完成本版本功能修复与稳定性检查",
-                                       "创建并同步 GitHub、Gitee 发布标签"
-                                   ]
-                     },
-                     {
-                         "version":  "2.2.23",
-                         "title":  "稳定性与功能更新",
-                         "summary":  "统一 Web、Windows 与 Android 版本，完成对应功能修复、稳定性检查与发布记录。",
-                         "items":  [
-                                       "同步更新 Web、Windows 与 Android 版本",
-                                       "完成本版本功能修复与稳定性检查",
-                                       "创建并同步 GitHub、Gitee 发布标签"
-                                   ]
-                     },
-                     {
-                         "version":  "2.2.22",
-                         "title":  "稳定性与功能更新",
-                         "summary":  "统一 Web、Windows 与 Android 版本，完成对应功能修复、稳定性检查与发布记录。",
-                         "items":  [
-                                       "同步更新 Web、Windows 与 Android 版本",
-                                       "完成本版本功能修复与稳定性检查",
-                                       "创建并同步 GitHub、Gitee 发布标签"
-                                   ]
-                     },
-                     {
-                         "version":  "2.2.21",
-                         "title":  "稳定性与功能更新",
-                         "summary":  "统一 Web、Windows 与 Android 版本，完成对应功能修复、稳定性检查与发布记录。",
-                         "items":  [
-                                       "同步更新 Web、Windows 与 Android 版本",
-                                       "完成本版本功能修复与稳定性检查",
-                                       "创建并同步 GitHub、Gitee 发布标签"
-                                   ]
-                     },
-                     {
-                         "version":  "2.2.20",
-                         "title":  "稳定性与功能更新",
-                         "summary":  "统一 Web、Windows 与 Android 版本，完成对应功能修复、稳定性检查与发布记录。",
-                         "items":  [
-                                       "同步更新 Web、Windows 与 Android 版本",
-                                       "完成本版本功能修复与稳定性检查",
-                                       "创建并同步 GitHub、Gitee 发布标签"
-                                   ]
-                     },
-                     {
-                         "version":  "2.2.19",
-                         "title":  "稳定性与功能更新",
-                         "summary":  "统一 Web、Windows 与 Android 版本，完成对应功能修复、稳定性检查与发布记录。",
-                         "items":  [
-                                       "同步更新 Web、Windows 与 Android 版本",
-                                       "完成本版本功能修复与稳定性检查",
-                                       "创建并同步 GitHub、Gitee 发布标签"
-                                   ]
-                     },
-                     {
-                         "version":  "2.2.18",
-                         "title":  "Meme 叠加像素级验收",
-                         "summary":  "统一 Web、Windows 与 Android 版本，完成对应功能修复、稳定性检查与发布记录。",
-                         "items":  [
-                                       "同步更新 Web、Windows 与 Android 版本",
-                                       "完成本版本功能修复与稳定性检查",
-                                       "创建并同步 GitHub、Gitee 发布标签"
-                                   ]
-                     },
-                     {
-                         "version":  "2.2.17",
-                         "title":  "渲染占用文件真实恢复",
-                         "summary":  "统一 Web、Windows 与 Android 版本，完成对应功能修复、稳定性检查与发布记录。",
-                         "items":  [
-                                       "同步更新 Web、Windows 与 Android 版本",
-                                       "完成本版本功能修复与稳定性检查",
-                                       "创建并同步 GitHub、Gitee 发布标签"
-                                   ]
-                     },
-                     {
-                         "version":  "2.2.16",
-                         "title":  "转场真实输出强验证",
-                         "summary":  "统一 Web、Windows 与 Android 版本，完成对应功能修复、稳定性检查与发布记录。",
-                         "items":  [
-                                       "同步更新 Web、Windows 与 Android 版本",
-                                       "完成本版本功能修复与稳定性检查",
-                                       "创建并同步 GitHub、Gitee 发布标签"
-                                   ]
-                     },
-                     {
-                         "version":  "2.2.15",
-                         "title":  "同提交 CI 发布证据",
-                         "summary":  "统一 Web、Windows 与 Android 版本，完成对应功能修复、稳定性检查与发布记录。",
-                         "items":  [
-                                       "同步更新 Web、Windows 与 Android 版本",
-                                       "完成本版本功能修复与稳定性检查",
-                                       "创建并同步 GitHub、Gitee 发布标签"
-                                   ]
-                     },
-                     {
-                         "version":  "2.2.14",
-                         "title":  "发布证据语义校验",
-                         "summary":  "统一 Web、Windows 与 Android 版本，完成对应功能修复、稳定性检查与发布记录。",
-                         "items":  [
-                                       "同步更新 Web、Windows 与 Android 版本",
-                                       "完成本版本功能修复与稳定性检查",
-                                       "创建并同步 GitHub、Gitee 发布标签"
-                                   ]
-                     },
-                     {
-                         "version":  "2.2.13",
-                         "title":  "多源证据文案评分",
-                         "summary":  "统一 Web、Windows 与 Android 版本，完成对应功能修复、稳定性检查与发布记录。",
-                         "items":  [
-                                       "同步更新 Web、Windows 与 Android 版本",
-                                       "完成本版本功能修复与稳定性检查",
-                                       "创建并同步 GitHub、Gitee 发布标签"
-                                   ]
-                     },
-                     {
-                         "version":  "2.2.12",
-                         "title":  "证据约束脚本评分",
-                         "summary":  "统一 Web、Windows 与 Android 版本，完成对应功能修复、稳定性检查与发布记录。",
-                         "items":  [
-                                       "同步更新 Web、Windows 与 Android 版本",
-                                       "完成本版本功能修复与稳定性检查",
-                                       "创建并同步 GitHub、Gitee 发布标签"
-                                   ]
-                     },
-                     {
-                         "version":  "2.2.11",
-                         "title":  "发布就绪度看板",
-                         "summary":  "统一 Web、Windows 与 Android 版本，完成对应功能修复、稳定性检查与发布记录。",
-                         "items":  [
-                                       "同步更新 Web、Windows 与 Android 版本",
-                                       "完成本版本功能修复与稳定性检查",
-                                       "创建并同步 GitHub、Gitee 发布标签"
-                                   ]
-                     },
-                     {
-                         "version":  "2.2.10",
-                         "title":  "发布性能专项门禁",
-                         "summary":  "统一 Web、Windows 与 Android 版本，完成对应功能修复、稳定性检查与发布记录。",
-                         "items":  [
-                                       "同步更新 Web、Windows 与 Android 版本",
-                                       "完成本版本功能修复与稳定性检查",
-                                       "创建并同步 GitHub、Gitee 发布标签"
-                                   ]
-                     },
-                     {
-                         "version":  "2.2.9",
-                         "title":  "Android 正式发行门禁",
-                         "summary":  "统一 Web、Windows 与 Android 版本，完成对应功能修复、稳定性检查与发布记录。",
-                         "items":  [
-                                       "同步更新 Web、Windows 与 Android 版本",
-                                       "完成本版本功能修复与稳定性检查",
-                                       "创建并同步 GitHub、Gitee 发布标签"
-                                   ]
-                     },
-                     {
-                         "version":  "2.2.8",
-                         "title":  "平台下载断点恢复",
-                         "summary":  "统一 Web、Windows 与 Android 版本，完成对应功能修复、稳定性检查与发布记录。",
-                         "items":  [
-                                       "同步更新 Web、Windows 与 Android 版本",
-                                       "完成本版本功能修复与稳定性检查",
-                                       "创建并同步 GitHub、Gitee 发布标签"
-                                   ]
-                     },
-                     {
-                         "version":  "2.2.7",
-                         "title":  "公共素材下载闭环",
-                         "summary":  "统一 Web、Windows 与 Android 版本，完成对应功能修复、稳定性检查与发布记录。",
-                         "items":  [
-                                       "同步更新 Web、Windows 与 Android 版本",
-                                       "完成本版本功能修复与稳定性检查",
-                                       "创建并同步 GitHub、Gitee 发布标签"
-                                   ]
-                     },
-                     {
-                         "version":  "2.2.6",
-                         "title":  "Android LUT 调色闭环",
-                         "summary":  "统一 Web、Windows 与 Android 版本，完成对应功能修复、稳定性检查与发布记录。",
-                         "items":  [
-                                       "同步更新 Web、Windows 与 Android 版本",
-                                       "完成本版本功能修复与稳定性检查",
-                                       "创建并同步 GitHub、Gitee 发布标签"
-                                   ]
-                     },
-                     {
-                         "version":  "2.2.5",
-                         "title":  "动态事件采样与说话人分段",
-                         "summary":  "统一 Web、Windows 与 Android 版本，完成对应功能修复、稳定性检查与发布记录。",
-                         "items":  [
-                                       "同步更新 Web、Windows 与 Android 版本",
-                                       "完成本版本功能修复与稳定性检查",
-                                       "创建并同步 GitHub、Gitee 发布标签"
-                                   ]
-                     },
-                     {
-                         "version":  "2.2.4",
-                         "title":  "后台管理中心增强",
-                         "summary":  "统一 Web、Windows 与 Android 主版本；新增运营总览、AI 趋势、用户与项目管理、云同步、存储和审计视图，并修复存储管理接口的权限校验。",
-                         "items":  [
-                                       "新增运营总览、AI 趋势、状态分布和近期审计",
-                                       "完善用户、项目、云同步、存储的搜索筛选、分页与 CSV 导出",
-                                       "修复存储检查和清理接口缺少管理员权限校验的问题"
-                                   ]
-                     }
-                 ]
+  "schemaVersion": 1,
+  "currentVersion": "2.2.43",
+  "releases": [
+    {
+      "version": "2.2.43",
+      "title": "产物索引读取扩展",
+      "summary": "事件、文案与渲染预览统一通过 artifact 索引定位产物，并继续兼容旧任务。",
+      "items": [
+        "事件时间线从 artifact 索引读取视觉分析与高光清单",
+        "事实约束文案从 artifact 索引读取高光清单",
+        "渲染预览从 artifact 索引读取时间线清单"
+      ]
+    },
+    {
+      "version": "2.2.42",
+      "title": "流水线恢复读取统一",
+      "summary": "流水线恢复上下文统一从 artifact 索引读取阶段产物，并为旧任务保留固定白名单回退。",
+      "items": [
+        "恢复上下文统一从 artifact 索引读取七类阶段产物",
+        "旧任务缺少索引时继续使用固定白名单安全回退",
+        "新增测试证明不再直接依赖 VideoTask 阶段路径字段"
+      ]
+    },
+    {
+      "version": "2.2.41",
+      "title": "URL 媒体导入统一",
+      "summary": "平台 URL 导入统一收敛到 yt-dlp，并移除自动 Cookie 读取和平台专用导入旁路。",
+      "items": [
+        "平台 URL 统一通过 yt-dlp 解析、预览、字幕和下载",
+        "移除自动 Cookie 读取、Bilibili 专用登录和专栏抓取旁路",
+        "登录受限内容仅接受用户主动上传且按平台过滤的临时 cookies.txt"
+      ]
+    },
+    {
+      "version": "2.2.40",
+      "title": "素材来源收敛",
+      "summary": "素材搜索收敛为 Wikimedia 开放许可来源与 Bilibili 权利确认候选，同时保留历史素材数据。",
+      "items": [
+        "移除 Openverse、Pexels、Pixabay 客户端与密钥配置入口",
+        "自动素材放置统一使用 Wikimedia，不自动使用 Bilibili 候选",
+        "保留历史迁移、密钥轮换和既有素材许可兼容"
+      ]
+    },
+    {
+      "version": "2.2.39",
+      "title": "任务产物读取统一",
+      "summary": "导出与叙事证据检查优先从 artifact 索引读取阶段产物，并为旧任务保留安全回退。",
+      "items": [
+        "新增统一的任务产物定位入口，按最新有效 artifact 读取文件",
+        "导出和叙事证据检查不再直接依赖 VideoTask 阶段路径字段",
+        "旧任务缺少 artifact 索引时按固定白名单回退，并通过兼容测试"
+      ]
+    },
+    {
+      "version": "2.2.38",
+      "title": "脚本产物存储统一",
+      "summary": "统一 Web、Windows 与 Android 版本，完成对应功能修复、稳定性检查与发布记录。",
+      "items": [
+        "同步更新 Web、Windows 与 Android 版本",
+        "完成本版本功能修复与稳定性检查",
+        "创建并同步 GitHub、Gitee 发布标签"
+      ]
+    },
+    {
+      "version": "2.2.37",
+      "title": "单实现模型适配层精简",
+      "summary": "统一 Web、Windows 与 Android 版本，完成对应功能修复、稳定性检查与发布记录。",
+      "items": [
+        "同步更新 Web、Windows 与 Android 版本",
+        "完成本版本功能修复与稳定性检查",
+        "创建并同步 GitHub、Gitee 发布标签"
+      ]
+    },
+    {
+      "version": "2.2.36",
+      "title": "流水线阶段状态统一",
+      "summary": "统一 Web、Windows 与 Android 版本，完成对应功能修复、稳定性检查与发布记录。",
+      "items": [
+        "同步更新 Web、Windows 与 Android 版本",
+        "完成本版本功能修复与稳定性检查",
+        "创建并同步 GitHub、Gitee 发布标签"
+      ]
+    },
+    {
+      "version": "2.2.35",
+      "title": "运行配置项收敛",
+      "summary": "统一 Web、Windows 与 Android 版本，完成对应功能修复、稳定性检查与发布记录。",
+      "items": [
+        "同步更新 Web、Windows 与 Android 版本",
+        "完成本版本功能修复与稳定性检查",
+        "创建并同步 GitHub、Gitee 发布标签"
+      ]
+    },
+    {
+      "version": "2.2.34",
+      "title": "验证脚本与持续集成精简",
+      "summary": "统一 Web、Windows 与 Android 版本，完成对应功能修复、稳定性检查与发布记录。",
+      "items": [
+        "同步更新 Web、Windows 与 Android 版本",
+        "完成本版本功能修复与稳定性检查",
+        "创建并同步 GitHub、Gitee 发布标签"
+      ]
+    },
+    {
+      "version": "2.2.33",
+      "title": "前端模块加载链路精简",
+      "summary": "统一 Web、Windows 与 Android 版本，完成对应功能修复、稳定性检查与发布记录。",
+      "items": [
+        "同步更新 Web、Windows 与 Android 版本",
+        "完成本版本功能修复与稳定性检查",
+        "创建并同步 GitHub、Gitee 发布标签"
+      ]
+    },
+    {
+      "version": "2.2.32",
+      "title": "目标机真实性能证据门禁",
+      "summary": "目标机专项性能证据改为真实 CUDA OOM、60 分钟 FFmpeg soak 与九阶段恢复，移除任意 marker 命令漏洞。",
+      "items": [
+        "真实耗尽 CUDA 显存、释放缓存并执行恢复后计算",
+        "至少 60 分钟重复真实音视频转码并约束堆增长",
+        "证据 schema v3 校验 runner、实现脚本和原始日志哈希"
+      ]
+    },
+    {
+      "version": "2.2.31",
+      "title": "PostgreSQL 2.2.4 基线升级门禁",
+      "summary": "PostgreSQL 16 同时验证完整迁移历史与 2.2.4 B39 基线升级，并比较最终结构签名。",
+      "items": [
+        "从 B39 基线执行 V40 至 V41 的真实 PostgreSQL 升级",
+        "完整历史与基线升级分别执行 Flyway validate",
+        "比较最终表列、约束和索引签名，防止升级结构漂移"
+      ]
+    },
+    {
+      "version": "2.2.30",
+      "title": "长视频发布性能门禁",
+      "summary": "五分钟 1080p 真实 FFmpeg 转码从条件任务升级为每次 CI 的阻断门禁，并纳入同提交发布证据。",
+      "items": [
+        "取消 long-video-performance 的提交信息条件跳过",
+        "发布证据新增 longVideoPerformance 必过字段",
+        "本机真实五分钟 1080p 转码门禁无跳过通过"
+      ]
+    },
+    {
+      "version": "2.2.29",
+      "title": "Android 自动化验收闭环",
+      "summary": "完成 Android 平台导入协议回放、API 29/35 模拟器矩阵及 2.2.4 持久化升级门禁；生产签名与真机兼容继续独立标记为未验证。",
+      "items": [
+        "API 29/35 阻断矩阵覆盖平台导入协议回放和故障注入",
+        "同一持久化 API 29 AVD 验证 2.2.4 覆盖升级与数据保留",
+        "Android 软件能力达到 18 项 full，生产签名与真机状态仍独立为 false"
+      ]
+    },
+    {
+      "version": "2.2.28",
+      "title": "PostgreSQL 生产路径验证增强",
+      "summary": "新增真实 PostgreSQL 16 生产路径集成作业，并把数据库门槛纳入不可绕过的发布证据。",
+      "items": [
+        "完整 PostgreSQL 迁移在一次性 PostgreSQL 16 服务上执行",
+        "真实验证租户外键、按 owner 更新隔离与乐观锁",
+        "发布证据 schema v2 强制要求 postgresqlIntegration 通过"
+      ]
+    },
+    {
+      "version": "2.2.27",
+      "title": "真实媒体测试与发布证据增强",
+      "summary": "真实 FFmpeg 输出测试在工具缺失时明确失败，避免 CI 以跳过结果冒充媒体链路通过。",
+      "items": [
+        "真实事件窗口、音效混音、透明叠加与转场输出测试不再静默跳过",
+        "性能套件契约阻止 FFmpeg assumption 跳过逻辑回流",
+        "同步 Web、Windows 与 Android 版本至 2.2.27"
+      ]
+    },
+    {
+      "version": "2.2.26",
+      "title": "界面操作体验优化",
+      "summary": "统一 Web、Windows 与 Android 版本，完成对应功能修复、稳定性检查与发布记录。",
+      "items": [
+        "同步更新 Web、Windows 与 Android 版本",
+        "完成本版本功能修复与稳定性检查",
+        "创建并同步 GitHub、Gitee 发布标签"
+      ]
+    },
+    {
+      "version": "2.2.25",
+      "title": "任务终止闭环与 Android 实证增强",
+      "summary": "统一 Web、Windows 与 Android 版本，完成对应功能修复、稳定性检查与发布记录。",
+      "items": [
+        "同步更新 Web、Windows 与 Android 版本",
+        "完成本版本功能修复与稳定性检查",
+        "创建并同步 GitHub、Gitee 发布标签"
+      ]
+    },
+    {
+      "version": "2.2.24",
+      "title": "稳定性与功能更新",
+      "summary": "统一 Web、Windows 与 Android 版本，完成对应功能修复、稳定性检查与发布记录。",
+      "items": [
+        "同步更新 Web、Windows 与 Android 版本",
+        "完成本版本功能修复与稳定性检查",
+        "创建并同步 GitHub、Gitee 发布标签"
+      ]
+    },
+    {
+      "version": "2.2.23",
+      "title": "稳定性与功能更新",
+      "summary": "统一 Web、Windows 与 Android 版本，完成对应功能修复、稳定性检查与发布记录。",
+      "items": [
+        "同步更新 Web、Windows 与 Android 版本",
+        "完成本版本功能修复与稳定性检查",
+        "创建并同步 GitHub、Gitee 发布标签"
+      ]
+    },
+    {
+      "version": "2.2.22",
+      "title": "稳定性与功能更新",
+      "summary": "统一 Web、Windows 与 Android 版本，完成对应功能修复、稳定性检查与发布记录。",
+      "items": [
+        "同步更新 Web、Windows 与 Android 版本",
+        "完成本版本功能修复与稳定性检查",
+        "创建并同步 GitHub、Gitee 发布标签"
+      ]
+    },
+    {
+      "version": "2.2.21",
+      "title": "稳定性与功能更新",
+      "summary": "统一 Web、Windows 与 Android 版本，完成对应功能修复、稳定性检查与发布记录。",
+      "items": [
+        "同步更新 Web、Windows 与 Android 版本",
+        "完成本版本功能修复与稳定性检查",
+        "创建并同步 GitHub、Gitee 发布标签"
+      ]
+    },
+    {
+      "version": "2.2.20",
+      "title": "稳定性与功能更新",
+      "summary": "统一 Web、Windows 与 Android 版本，完成对应功能修复、稳定性检查与发布记录。",
+      "items": [
+        "同步更新 Web、Windows 与 Android 版本",
+        "完成本版本功能修复与稳定性检查",
+        "创建并同步 GitHub、Gitee 发布标签"
+      ]
+    },
+    {
+      "version": "2.2.19",
+      "title": "稳定性与功能更新",
+      "summary": "统一 Web、Windows 与 Android 版本，完成对应功能修复、稳定性检查与发布记录。",
+      "items": [
+        "同步更新 Web、Windows 与 Android 版本",
+        "完成本版本功能修复与稳定性检查",
+        "创建并同步 GitHub、Gitee 发布标签"
+      ]
+    },
+    {
+      "version": "2.2.18",
+      "title": "Meme 叠加像素级验收",
+      "summary": "统一 Web、Windows 与 Android 版本，完成对应功能修复、稳定性检查与发布记录。",
+      "items": [
+        "同步更新 Web、Windows 与 Android 版本",
+        "完成本版本功能修复与稳定性检查",
+        "创建并同步 GitHub、Gitee 发布标签"
+      ]
+    },
+    {
+      "version": "2.2.17",
+      "title": "渲染占用文件真实恢复",
+      "summary": "统一 Web、Windows 与 Android 版本，完成对应功能修复、稳定性检查与发布记录。",
+      "items": [
+        "同步更新 Web、Windows 与 Android 版本",
+        "完成本版本功能修复与稳定性检查",
+        "创建并同步 GitHub、Gitee 发布标签"
+      ]
+    },
+    {
+      "version": "2.2.16",
+      "title": "转场真实输出强验证",
+      "summary": "统一 Web、Windows 与 Android 版本，完成对应功能修复、稳定性检查与发布记录。",
+      "items": [
+        "同步更新 Web、Windows 与 Android 版本",
+        "完成本版本功能修复与稳定性检查",
+        "创建并同步 GitHub、Gitee 发布标签"
+      ]
+    },
+    {
+      "version": "2.2.15",
+      "title": "同提交 CI 发布证据",
+      "summary": "统一 Web、Windows 与 Android 版本，完成对应功能修复、稳定性检查与发布记录。",
+      "items": [
+        "同步更新 Web、Windows 与 Android 版本",
+        "完成本版本功能修复与稳定性检查",
+        "创建并同步 GitHub、Gitee 发布标签"
+      ]
+    },
+    {
+      "version": "2.2.14",
+      "title": "发布证据语义校验",
+      "summary": "统一 Web、Windows 与 Android 版本，完成对应功能修复、稳定性检查与发布记录。",
+      "items": [
+        "同步更新 Web、Windows 与 Android 版本",
+        "完成本版本功能修复与稳定性检查",
+        "创建并同步 GitHub、Gitee 发布标签"
+      ]
+    },
+    {
+      "version": "2.2.13",
+      "title": "多源证据文案评分",
+      "summary": "统一 Web、Windows 与 Android 版本，完成对应功能修复、稳定性检查与发布记录。",
+      "items": [
+        "同步更新 Web、Windows 与 Android 版本",
+        "完成本版本功能修复与稳定性检查",
+        "创建并同步 GitHub、Gitee 发布标签"
+      ]
+    },
+    {
+      "version": "2.2.12",
+      "title": "证据约束脚本评分",
+      "summary": "统一 Web、Windows 与 Android 版本，完成对应功能修复、稳定性检查与发布记录。",
+      "items": [
+        "同步更新 Web、Windows 与 Android 版本",
+        "完成本版本功能修复与稳定性检查",
+        "创建并同步 GitHub、Gitee 发布标签"
+      ]
+    },
+    {
+      "version": "2.2.11",
+      "title": "发布就绪度看板",
+      "summary": "统一 Web、Windows 与 Android 版本，完成对应功能修复、稳定性检查与发布记录。",
+      "items": [
+        "同步更新 Web、Windows 与 Android 版本",
+        "完成本版本功能修复与稳定性检查",
+        "创建并同步 GitHub、Gitee 发布标签"
+      ]
+    },
+    {
+      "version": "2.2.10",
+      "title": "发布性能专项门禁",
+      "summary": "统一 Web、Windows 与 Android 版本，完成对应功能修复、稳定性检查与发布记录。",
+      "items": [
+        "同步更新 Web、Windows 与 Android 版本",
+        "完成本版本功能修复与稳定性检查",
+        "创建并同步 GitHub、Gitee 发布标签"
+      ]
+    },
+    {
+      "version": "2.2.9",
+      "title": "Android 正式发行门禁",
+      "summary": "统一 Web、Windows 与 Android 版本，完成对应功能修复、稳定性检查与发布记录。",
+      "items": [
+        "同步更新 Web、Windows 与 Android 版本",
+        "完成本版本功能修复与稳定性检查",
+        "创建并同步 GitHub、Gitee 发布标签"
+      ]
+    },
+    {
+      "version": "2.2.8",
+      "title": "平台下载断点恢复",
+      "summary": "统一 Web、Windows 与 Android 版本，完成对应功能修复、稳定性检查与发布记录。",
+      "items": [
+        "同步更新 Web、Windows 与 Android 版本",
+        "完成本版本功能修复与稳定性检查",
+        "创建并同步 GitHub、Gitee 发布标签"
+      ]
+    },
+    {
+      "version": "2.2.7",
+      "title": "公共素材下载闭环",
+      "summary": "统一 Web、Windows 与 Android 版本，完成对应功能修复、稳定性检查与发布记录。",
+      "items": [
+        "同步更新 Web、Windows 与 Android 版本",
+        "完成本版本功能修复与稳定性检查",
+        "创建并同步 GitHub、Gitee 发布标签"
+      ]
+    },
+    {
+      "version": "2.2.6",
+      "title": "Android LUT 调色闭环",
+      "summary": "统一 Web、Windows 与 Android 版本，完成对应功能修复、稳定性检查与发布记录。",
+      "items": [
+        "同步更新 Web、Windows 与 Android 版本",
+        "完成本版本功能修复与稳定性检查",
+        "创建并同步 GitHub、Gitee 发布标签"
+      ]
+    },
+    {
+      "version": "2.2.5",
+      "title": "动态事件采样与说话人分段",
+      "summary": "统一 Web、Windows 与 Android 版本，完成对应功能修复、稳定性检查与发布记录。",
+      "items": [
+        "同步更新 Web、Windows 与 Android 版本",
+        "完成本版本功能修复与稳定性检查",
+        "创建并同步 GitHub、Gitee 发布标签"
+      ]
+    },
+    {
+      "version": "2.2.4",
+      "title": "后台管理中心增强",
+      "summary": "统一 Web、Windows 与 Android 主版本；新增运营总览、AI 趋势、用户与项目管理、云同步、存储和审计视图，并修复存储管理接口的权限校验。",
+      "items": [
+        "新增运营总览、AI 趋势、状态分布和近期审计",
+        "完善用户、项目、云同步、存储的搜索筛选、分页与 CSV 导出",
+        "修复存储检查和清理接口缺少管理员权限校验的问题"
+      ]
+    }
+  ]
 }
