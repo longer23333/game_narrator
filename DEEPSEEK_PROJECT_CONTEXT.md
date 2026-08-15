@@ -1,7 +1,7 @@
 ﻿# GameNarrator — DeepSeek 结构化项目索引
 
-> 自动生成：2026-08-15 18:06:05 +08:00；UTF-8 BOM；索引不再内嵌全部源码。
-> Git：分支 `main`，提交 `8d94aee`；收录文件 835 个，分卷 8 个。
+> 自动生成：2026-08-15 18:20:13 +08:00；UTF-8 BOM；索引不再内嵌全部源码。
+> Git：分支 `main`，提交 `be3c461`；收录文件 827 个，分卷 8 个。
 
 ## 使用方法
 
@@ -27,42 +27,66 @@
 
 | 分卷 | 文件数 | 字符数 | 建议用途 |
 |---|---:|---:|---|
-| `deepseek-context/01-foundation.md` | 92 | 219465 | 构建、配置、资源、数据库迁移 |
-| `deepseek-context/02-backend.md` | 297 | 1235679 | Spring 后端实现 |
-| `deepseek-context/03-tests.md` | 116 | 398411 | Spring 测试与行为验证 |
-| `deepseek-context/04-frontend.md` | 36 | 559861 | Vite Web 源码 |
-| `deepseek-context/05-android-main.md` | 144 | 887885 | Android 实现、资源与 Gradle |
+| `deepseek-context/01-foundation.md` | 92 | 218639 | 构建、配置、资源、数据库迁移 |
+| `deepseek-context/02-backend.md` | 290 | 1211099 | Spring 后端实现 |
+| `deepseek-context/03-tests.md` | 115 | 394877 | Spring 测试与行为验证 |
+| `deepseek-context/04-frontend.md` | 36 | 553625 | Vite Web 源码 |
+| `deepseek-context/05-android-main.md` | 144 | 888004 | Android 实现、资源与 Gradle |
 | `deepseek-context/06-android-tests.md` | 59 | 143956 | Android 单元及设备测试 |
-| `deepseek-context/07-platform-release.md` | 13 | 86169 | Windows、CI/CD 与发布 |
-| `deepseek-context/08-docs-scripts.md` | 78 | 266391 | 需求、架构、维护脚本 |
+| `deepseek-context/07-platform-release.md` | 13 | 86710 | Windows、CI/CD 与发布 |
+| `deepseek-context/08-docs-scripts.md` | 78 | 266086 | 需求、架构、维护脚本 |
 
 ## 当前 Git 工作区（最近修改）
 
 ```text
-M DEEPSEEK_PROJECT_CONTEXT.md
- M android-app/app/build.gradle
+M android-app/app/build.gradle
  M android-app/app/src/main/java/cn/longer233/gamenarrator/mobile/MobileReleaseNotes.java
+ M docs/ASSET_LIBRARY_DESIGN.md
+ M docs/CONFIGURATION_REFERENCE.md
+ M docs/DATABASE_DESIGN.md
  M frontend/index.html
  M frontend/package-lock.json
  M frontend/package.json
+ M frontend/public/app.css
  M frontend/public/app.js
+ M frontend/public/asset-library.js
+ M frontend/public/ui-refresh.css
  M frontend/public/updates.js
+ M frontend/src/memphis-theme.css
  M launcher/GameNarrator.Launcher.csproj
  M package.json
  M pom.xml
  M release/CHANGELOG.json
  M release/installer/GameNarrator-Demo-Lite.iss
  M release/installer/GameNarrator.iss
- M src/main/java/cn/longer233/gamenarrator/export/ExportService.java
- M src/main/java/cn/longer233/gamenarrator/quality/NarrativeConsistencyService.java
+ M src/main/java/cn/longer233/gamenarrator/asset/AssetCatalogService.java
+ M src/main/java/cn/longer233/gamenarrator/asset/AssetLibraryProperties.java
+ D src/main/java/cn/longer233/gamenarrator/asset/AssetProviderCredentialController.java
+ D src/main/java/cn/longer233/gamenarrator/asset/AssetProviderCredentialRequest.java
+ D src/main/java/cn/longer233/gamenarrator/asset/AssetProviderCredentialService.java
+ D src/main/java/cn/longer233/gamenarrator/asset/AssetProviderCredentialView.java
+ M src/main/java/cn/longer233/gamenarrator/asset/AssetReferenceRequest.java
+ M src/main/java/cn/longer233/gamenarrator/asset/AssetSearchRequest.java
+ M src/main/java/cn/longer233/gamenarrator/asset/ChineseAssetQueryExpander.java
+ D src/main/java/cn/longer233/gamenarrator/asset/OpenverseAssetClient.java
+ D src/main/java/cn/longer233/gamenarrator/asset/PexelsAssetClient.java
+ D src/main/java/cn/longer233/gamenarrator/asset/PixabayAssetClient.java
+ M src/main/java/cn/longer233/gamenarrator/script/StoryboardAssetPlacementService.java
+ M src/main/resources/application-lite.yml
+ M src/main/resources/application.yml
+ M src/main/resources/static/app.css
  M src/main/resources/static/app.js
+ M src/main/resources/static/asset-library.js
+ M src/main/resources/static/assets/memphis-theme.css
  M src/main/resources/static/index.html
+ M src/main/resources/static/ui-refresh.css
  M src/main/resources/static/updates.js
- M src/test/java/cn/longer233/gamenarrator/export/ExportOwnershipTest.java
- M src/test/java/cn/longer233/gamenarrator/quality/NarrativeConsistencyServiceTest.java
+ D src/test/java/cn/longer233/gamenarrator/asset/AssetProviderCredentialControllerTest.java
+ D src/test/java/cn/longer233/gamenarrator/asset/AssetProviderCredentialServiceTest.java
+ M src/test/java/cn/longer233/gamenarrator/asset/AssetSearchResilienceTest.java
+ M src/test/java/cn/longer233/gamenarrator/script/StoryboardAssetPlacementServiceTest.java
 ?? artifacts/
-?? src/main/java/cn/longer233/gamenarrator/pipeline/TaskArtifactLocator.java
-?? src/test/java/cn/longer233/gamenarrator/pipeline/TaskArtifactLocatorTest.java
+?? src/test/java/cn/longer233/gamenarrator/asset/AssetProviderContractionTest.java
 ```
 
 ## Flyway 迁移索引
@@ -128,7 +152,6 @@ M DEEPSEEK_PROJECT_CONTEXT.md
 | 方法 | 路径 | 来源 |
 |---|---|---|
 | DELETE | `/api/assets/{id}` | `src/main/java/cn/longer233/gamenarrator/asset/AssetCatalogController.java` |
-| DELETE | `/api/assets/provider-settings/{provider}` | `src/main/java/cn/longer233/gamenarrator/asset/AssetProviderCredentialController.java` |
 | DELETE | `/api/tasks/{id}` | `src/main/java/cn/longer233/gamenarrator/task/web/VideoTaskController.java` |
 | DELETE | `/api/tasks/{taskId}/color-lut` | `src/main/java/cn/longer233/gamenarrator/effect/ColorLutController.java` |
 | DELETE | `/api/tasks/{taskId}/storyboard/assets/{placementId}` | `src/main/java/cn/longer233/gamenarrator/script/ScriptWorkspaceController.java` |
@@ -152,7 +175,6 @@ M DEEPSEEK_PROJECT_CONTEXT.md
 | GET | `/api/assets/{id}/similar` | `src/main/java/cn/longer233/gamenarrator/asset/AssetCatalogController.java` |
 | GET | `/api/assets/{id}/thumbnail` | `src/main/java/cn/longer233/gamenarrator/asset/AssetCatalogController.java` |
 | GET | `/api/assets/discover/featured` | `src/main/java/cn/longer233/gamenarrator/asset/AssetCatalogController.java` |
-| GET | `/api/assets/provider-settings` | `src/main/java/cn/longer233/gamenarrator/asset/AssetProviderCredentialController.java` |
 | GET | `/api/assets/sources` | `src/main/java/cn/longer233/gamenarrator/asset/AssetCatalogController.java` |
 | GET | `/api/assets` | `src/main/java/cn/longer233/gamenarrator/asset/AssetCatalogController.java` |
 | GET | `/api/auth/me` | `src/main/java/cn/longer233/gamenarrator/identity/AuthController.java` |
@@ -229,7 +251,6 @@ M DEEPSEEK_PROJECT_CONTEXT.md
 | POST | `/api/assets/{id}/download` | `src/main/java/cn/longer233/gamenarrator/asset/AssetCatalogController.java` |
 | POST | `/api/assets/batch` | `src/main/java/cn/longer233/gamenarrator/asset/AssetCatalogController.java` |
 | POST | `/api/assets/projects/{taskId}` | `src/main/java/cn/longer233/gamenarrator/asset/AssetCatalogController.java` |
-| POST | `/api/assets/provider-settings/{provider}/test` | `src/main/java/cn/longer233/gamenarrator/asset/AssetProviderCredentialController.java` |
 | POST | `/api/assets/references` | `src/main/java/cn/longer233/gamenarrator/asset/AssetCatalogController.java` |
 | POST | `/api/assets/repair/bilibili-metadata` | `src/main/java/cn/longer233/gamenarrator/asset/AssetCatalogController.java` |
 | POST | `/api/assets/upload` | `src/main/java/cn/longer233/gamenarrator/asset/AssetCatalogController.java` |
@@ -287,7 +308,6 @@ M DEEPSEEK_PROJECT_CONTEXT.md
 | POST | `/api/video-segments/search-image` | `src/main/java/cn/longer233/gamenarrator/vision/VideoSegmentSearchController.java` |
 | PUT | `/api/ai-settings` | `src/main/java/cn/longer233/gamenarrator/ai/AiSettingsController.java` |
 | PUT | `/api/assets/{id}/tags` | `src/main/java/cn/longer233/gamenarrator/asset/AssetCatalogController.java` |
-| PUT | `/api/assets/provider-settings` | `src/main/java/cn/longer233/gamenarrator/asset/AssetProviderCredentialController.java` |
 | PUT | `/api/compilations/{id}/order` | `src/main/java/cn/longer233/gamenarrator/compilation/ClipCompilationController.java` |
 | PUT | `/api/tasks/{taskId}/events/{eventId}` | `src/main/java/cn/longer233/gamenarrator/event/GameEventTimelineController.java` |
 | PUT | `/api/tasks/{taskId}/script/segments/{clipIndex}/review` | `src/main/java/cn/longer233/gamenarrator/script/ScriptWorkspaceController.java` |

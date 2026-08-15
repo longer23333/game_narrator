@@ -7,7 +7,7 @@ import jakarta.validation.constraints.Size;
 import java.util.List;
 
 public record AssetReferenceRequest(
-        @Pattern(regexp = "OPENVERSE|WIKIMEDIA|BILIBILI|YOUTUBE|DOUYIN|TIKTOK|USER_REFERENCE") String provider,
+        @Pattern(regexp = "WIKIMEDIA|BILIBILI|USER_REFERENCE") String provider,
         @NotBlank @Pattern(regexp = "https://.+") String sourceUrl,
         String previewUrl,
         String downloadUrl,

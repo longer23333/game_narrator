@@ -62,7 +62,7 @@
   input[type="checkbox"]:checked { background-color:var(--primary)!important; border-color:var(--ink)!important; }
 
   .dropzone,.effect-toggle,.auto-auth-state,.asset-library-note,.asset-library-guide,.domestic-source-directory,.local-asset-dropzone,.advanced-options,
-  .bilibili-login-panel,.asset-provider-settings,.resolved-media,.media-online-preview { color:var(--text)!important; background:#fff4be!important; border:2px solid var(--ink)!important; border-radius:10px!important; }
+  .bilibili-login-panel,.resolved-media,.media-online-preview { color:var(--text)!important; background:#fff4be!important; border:2px solid var(--ink)!important; border-radius:10px!important; }
   .advanced-options>summary:after { color:var(--ink)!important; background:var(--yellow); border:1px solid var(--ink); padding:2px 7px; }
   .task-card,.active-task-card,.asset-list article,.segment-search-results article,.roadmap-list article,.release-card { color:var(--text)!important; background:#fff!important; border:2px solid var(--ink)!important; border-radius:10px!important; box-shadow:3px 3px 0 var(--ink)!important; }
   .task-card:nth-child(3n+2),.asset-list article:nth-child(3n+2) { background:#eaf0ff!important; }

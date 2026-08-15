@@ -24,6 +24,8 @@ public final class MobileReleaseNotes {
 
     public static List<Note> notes() {
         List<Note> notes = new ArrayList<>();
+        notes.add(new Note("2.2.40", "素材来源收敛",
+                "桌面端开放素材搜索统一为 Wikimedia，并保留 Bilibili 权利确认候选与历史素材兼容。"));
         notes.add(new Note("2.2.39", "任务产物读取统一",
                 "导出与叙事证据检查优先读取统一产物索引，并为旧任务保留安全兼容回退。"));
         notes.add(new Note("2.2.38", "脚本产物存储统一",

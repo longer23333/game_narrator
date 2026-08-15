@@ -1,7 +1,17 @@
 {
     "schemaVersion":  1,
-    "currentVersion":  "2.2.39",
+    "currentVersion":  "2.2.40",
     "releases":  [
+                     {
+                         "version":  "2.2.40",
+                         "title":  "素材来源收敛",
+                         "summary":  "素材搜索收敛为 Wikimedia 开放许可来源与 Bilibili 权利确认候选，同时保留历史素材数据。",
+                         "items":  [
+                                       "移除 Openverse、Pexels、Pixabay 客户端与密钥配置入口",
+                                       "自动素材放置统一使用 Wikimedia，不自动使用 Bilibili 候选",
+                                       "保留历史迁移、密钥轮换和既有素材许可兼容"
+                                   ]
+                     },
                      {
                          "version":  "2.2.39",
                          "title":  "任务产物读取统一",

@@ -4,7 +4,7 @@
 
 ## 使用原则
 
-- 修改环境变量后需要重启后端或桌面程序；账号级 Pexels/Pixabay Key 可在后台即时修改。
+- 修改环境变量后需要重启后端或桌面程序。
 - 标记为“敏感”的值不得提交到 Git、日志、DeepSeek 上下文或前端代码。
 - 桌面安装版会自动设置运行目录、端口和并发参数，普通用户不需要手工配置这些项目。
 - PostgreSQL、对象存储和云部署的操作步骤另见 `docs/POSTGRESQL_AND_CLOUD_SYNC.md`。
@@ -55,11 +55,9 @@
 | `OLLAMA_SCRIPT_MODEL` | game-narrator.ollama.script-model | `${OLLAMA_VISION_MODEL:qwen2.5vl:3b` | 否 | application.yml |
 | `OLLAMA_VISION_MODEL` | game-narrator.ollama.vision-model | `qwen2.5vl:3b` | 否 | application.yml |
 | `OTHER_PROCESS_MAX_CONCURRENT` | game-narrator.external-process.other-max-concurrent | `2` | 否 | application.yml |
-| `PEXELS_API_KEY` | game-narrator.asset-library.pexels.api-key | `无（必须显式设置）` | 是 | application.yml |
 | `PIPER_EXECUTABLE` | game-narrator.piper.executable | `./tools/piper/piper/piper.exe` | 否 | application.yml |
 | `PIPER_MODEL` | game-narrator.piper.model / game-narrator.piper.voices.model | `./models/piper/zh_CN-huayan-medium.onnx` | 否 | application.yml |
 | `PIPER_XIAOXIAO_MODEL` | game-narrator.piper.voices.model | `./models/piper/zh_CN-xiaoxiao-medium.onnx` | 否 | application.yml |
-| `PIXABAY_API_KEY` | game-narrator.asset-library.pixabay.api-key | `无（必须显式设置）` | 是 | application.yml |
 | `POSTGRES_PASSWORD` | spring.datasource.password | `无（必须显式设置）` | 是 | application-postgresql.yml |
 | `POSTGRES_URL` | spring.datasource.url | `jdbc:postgresql://127.0.0.1:5432/game_narrator` | 否 | application-postgresql.yml |
 | `POSTGRES_USER` | spring.datasource.username | `game_narrator` | 否 | application-postgresql.yml |

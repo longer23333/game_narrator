@@ -13,7 +13,7 @@ public class AssetLibraryProperties {
     private List<FeaturedSearch> featuredSearches = new ArrayList<>();
     private QueryExpansion queryExpansion = new QueryExpansion();
     private List<String> providerPriority = new ArrayList<>(List.of(
-            "BILIBILI", "DOUYIN", "USER_REFERENCE", "OPENVERSE", "WIKIMEDIA"));
+            "BILIBILI", "USER_REFERENCE", "WIKIMEDIA"));
     private List<DomesticSource> domesticSources = new ArrayList<>();
 
     public int getFeaturedPageSize() {

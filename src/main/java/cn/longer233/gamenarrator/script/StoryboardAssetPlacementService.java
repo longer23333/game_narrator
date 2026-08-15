@@ -205,9 +205,8 @@ public class StoryboardAssetPlacementService {
 
     List<String> providersFor(String type) {
         List<String> preferred = switch (type) {
-            case "VIDEO" -> List.of("PEXELS", "PIXABAY", "WIKIMEDIA");
-            case "MEME" -> List.of("OPENVERSE", "WIKIMEDIA");
-            default -> List.of("OPENVERSE", "PIXABAY");
+            case "VIDEO" -> List.of("WIKIMEDIA");
+            default -> List.of("WIKIMEDIA");
         };
         return preferred.stream().filter(provider -> assets.supportsProvider(provider, type)).toList();
     }

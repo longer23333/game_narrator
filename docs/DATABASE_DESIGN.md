@@ -671,7 +671,7 @@ POST /api/exports/{id}/cancel                  取消导出
 
 ## `user_asset_provider_config`
 
-- V34 按 `user_id + provider` 保存 Pexels/Pixabay 账号级 API Key。
+- V34 曾按 `user_id + provider` 保存 Pexels/Pixabay 账号级 API Key；2.2.40 起不再提供新配置入口，表仅为升级与历史密钥轮换兼容保留。
 - `api_key_ciphertext` 只保存 AES-GCM 密文，`api_key_hint` 只用于页面显示末四位，任何查询接口均不返回凭据本体。
 - 删除账号时通过外键级联删除凭据；环境变量只作为没有账号配置时的部署级后备值，不写入数据库。
 

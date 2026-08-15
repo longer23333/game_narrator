@@ -15,7 +15,7 @@ import java.util.regex.Pattern;
 
 /**
  * Converts a Chinese editing intent into terms understood by international open-media indexes.
- * Openverse's q search covers title, description and tags, so a compact English query is used.
+ * Wikimedia search works best with a compact English query derived from the Chinese intent.
  */
 @Component
 public class ChineseAssetQueryExpander {

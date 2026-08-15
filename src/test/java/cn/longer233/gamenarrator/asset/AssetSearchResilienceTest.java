@@ -27,13 +27,13 @@ class AssetSearchResilienceTest {
                 Duration.ofHours(6), 10, clock, sleeps::add);
         AtomicInteger calls = new AtomicInteger();
 
-        var first = resilience.execute("OPENVERSE", "/images?q=cat", () -> {
+        var first = resilience.execute("WIKIMEDIA", "/images?q=cat", () -> {
             if (calls.incrementAndGet() < 3) throw timeout();
             var response = mapper.createObjectNode();
             response.putArray("results").add("cat");
             return response;
         });
-        var second = resilience.execute("OPENVERSE", "/images?q=cat", () -> {
+        var second = resilience.execute("WIKIMEDIA", "/images?q=cat", () -> {
             throw new AssertionError("fresh cache must avoid the network");
         });
 

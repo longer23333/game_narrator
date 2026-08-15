@@ -12,7 +12,7 @@ public record AssetSearchRequest(
         @Min(1) @Max(100) Integer page,
         Boolean commercialUse,
         Boolean allowModification,
-        @Pattern(regexp = "(?i)OPENVERSE|WIKIMEDIA|BILIBILI|PEXELS|PIXABAY") String provider,
+        @Pattern(regexp = "(?i)WIKIMEDIA|BILIBILI") String provider,
         @Pattern(regexp = "(?i)RELEVANCE|NEWEST|POPULAR|DANMAKU") String sort
 ) {
 }

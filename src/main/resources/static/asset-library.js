@@ -17,7 +17,6 @@ import {mergeTagViews} from './asset-tag-state.js';
   const localDropzone = document.querySelector('#local-asset-dropzone');
   const localInput = document.querySelector('#local-asset-input');
   const localBrowse = document.querySelector('#local-asset-browse');
-  const providerSettings = document.querySelector('#asset-provider-settings');
   const searchPreferencesKey = 'assetSearch';
   const recommendationSyncKey = 'bilibiliRecommendationSync';
   let translationNotice = '';
@@ -90,56 +89,6 @@ import {mergeTagViews} from './asset-tag-state.js';
     } catch { translationNotice = ''; }
   }
 
-  async function loadProviderSettings() {
-    if (!providerSettings) return;
-    const statuses = await request('/api/assets/provider-settings');
-    for (const status of statuses) {
-      const card = providerSettings.querySelector(`[data-provider-setting="${status.provider}"]`);
-      const label = card?.querySelector('[data-provider-status]');
-      const input = card?.querySelector('input');
-      if (label) {
-        label.className = status.configured ? 'ok' : 'missing';
-        label.textContent = status.configured
-          ? `已配置 ${status.keyHint || ''}（${status.source === 'ACCOUNT' ? '当前账号' : '部署环境'}）`
-          : '未配置，搜索来源已禁用';
-      }
-      if (input) { input.value = ''; input.placeholder = status.configured ? status.keyHint : '请输入 API Key'; }
-      const option = form.elements.provider?.querySelector(`[data-requires-provider-key="${status.provider}"]`);
-      if (option) {
-        option.disabled = !status.configured;
-        option.textContent = `${status.provider === 'PEXELS' ? 'Pexels' : 'Pixabay'}（${status.configured ? '已配置' : '未配置 API Key'}）`;
-      }
-    }
-  }
-
-  providerSettings?.addEventListener('click', async event => {
-    const button = event.target.closest('[data-provider-save],[data-provider-test],[data-provider-delete]');
-    if (!button) return;
-    const provider = button.dataset.providerSave || button.dataset.providerTest || button.dataset.providerDelete;
-    const card = providerSettings.querySelector(`[data-provider-setting="${provider}"]`);
-    const status = card.querySelector('[data-provider-status]');
-    button.disabled = true;
-    try {
-      if (button.dataset.providerSave) {
-        const apiKey = card.querySelector('input').value.trim();
-        if (apiKey.length < 8) throw new Error('API Key 至少需要 8 个字符');
-        await request('/api/assets/provider-settings', {method:'PUT', headers:{'Content-Type':'application/json'},
-          body:JSON.stringify({provider, apiKey})});
-        status.textContent = '已加密保存，正在刷新来源状态…';
-      } else if (button.dataset.providerDelete) {
-        await request(`/api/assets/provider-settings/${provider}`, {method:'DELETE'});
-        status.textContent = '账号配置已清除';
-      } else {
-        status.textContent = '正在连接提供商 API…';
-        const result = await request(`/api/assets/provider-settings/${provider}/test`, {method:'POST'});
-        status.textContent = `连接成功，耗时 ${result.elapsedMs} ms`;
-      }
-      await loadProviderSettings();
-    } catch (error) {
-      status.className = 'missing'; status.textContent = error.message;
-    } finally { button.disabled = false; }
-  });
-
   async function loadDomesticSources() {
     if (!domesticSources) return;
     try {
@@ -173,22 +122,6 @@ import {mergeTagViews} from './asset-tag-state.js';
 
   async function browserDiscover(query, assetType, pageSize = 6, page = 1, provider = '') {
     const candidates = [];
-    if ((!provider || provider === 'OPENVERSE') && assetType !== 'VIDEO') {
-      const endpoint = ['MEME', 'IMAGE'].includes(assetType) ? 'images' : 'audio';
-      const params = new URLSearchParams({q: query, page_size: String(pageSize), page: String(page), mature: 'false', license: 'cc0,pdm,by,by-sa'});
-      try {
-        const data = await externalJson(`https://api.openverse.org/v1/${endpoint}/?${params}`);
-        for (const item of data.results || []) candidates.push({
-          provider:'OPENVERSE', sourceUrl: item.foreign_landing_url, previewUrl: item.thumbnail || item.url, downloadUrl: item.url,
-          title: item.title || '未命名素材', creator: item.creator || null, assetType,
-          licenseCode: item.license || 'unknown', licenseUrl: item.license_url || null,
-          attribution: item.attribution || null,
-          platformTags: (item.tags || []).map(tag => typeof tag === 'string' ? tag : tag.name).filter(Boolean).slice(0, 20)
-        });
-      } catch (error) {
-        console.warn('[GameNarrator] 浏览器 Openverse 回退失败', error);
-      }
-    }
     if (!provider || provider === 'WIKIMEDIA') {
       const params = new URLSearchParams({action:'query', generator:'search', gsrsearch:query,
         gsrnamespace:'6', gsrlimit:String(pageSize), gsroffset:String((page - 1) * pageSize), prop:'imageinfo', iiprop:'url|mime|extmetadata',
@@ -793,7 +726,7 @@ import {mergeTagViews} from './asset-tag-state.js';
   function initializeAssetLibrary() {
     if (initialized) return;
     initialized = true;
-    Promise.allSettled([loadDomesticSources(), refreshTranslationNotice(), loadProviderSettings(), load(false)]);
+    Promise.allSettled([loadDomesticSources(), refreshTranslationNotice(), load(false)]);
     window.requestIdleCallback
       ? window.requestIdleCallback(syncBilibiliRecommendations, {timeout: 3000})
       : setTimeout(syncBilibiliRecommendations, 1200);

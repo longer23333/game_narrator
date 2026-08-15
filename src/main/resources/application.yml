@@ -123,7 +123,7 @@ game-narrator:
   video-search:
     maximum-image-bytes: 10485760
   asset-library:
-    provider-priority: [BILIBILI, PEXELS, PIXABAY, DOUYIN, USER_REFERENCE, OPENVERSE, WIKIMEDIA, YOUTUBE, TIKTOK]
+    provider-priority: [BILIBILI, USER_REFERENCE, WIKIMEDIA]
     domestic-sources:
       - { id: fabiaoqing, name: 发表情, url: "https://fabiaoqing.com/", search-url: "https://fabiaoqing.com/search/bqb/keyword/{query}", asset-types: "表情包·斗图·Meme", priority: 10 }
       - { id: soogif, name: SOOGIF, url: "https://www.soogif.com/", search-url: "https://www.soogif.com/gif/{query}.html", asset-types: "GIF 动图·表情包·在线制作", priority: 20 }
@@ -140,8 +140,6 @@ game-narrator:
       - { id: lanrentuku, name: 懒人图库, url: "https://www.lanrentuku.com/", asset-types: "图片·网页素材" }
       - { id: psjia, name: PS家园网, url: "https://www.psjia.com/", asset-types: "PSD·图片" }
       - { id: sj33, name: 设计之家, url: "https://www.sj33.cn/sc/", asset-types: "设计·图片素材" }
-      - { id: pexels, name: Pexels, url: "https://www.pexels.com/", search-url: "https://www.pexels.com/search/{query}/", asset-types: "图片·视频", region: INTERNATIONAL, priority: 200 }
-      - { id: pixabay, name: Pixabay, url: "https://pixabay.com/zh/", search-url: "https://pixabay.com/zh/images/search/{query}/", asset-types: "图片·视频·音乐·音效", region: INTERNATIONAL, priority: 190 }
       - { id: clipseek, name: ClipSeek, url: "https://clipseek.ai/zh/", search-url: "https://clipseek.ai/zh/?q={query}", asset-types: "图片·视频·插画（原站检索）", region: INTERNATIONAL, priority: 195 }
       - { id: mixkit, name: Mixkit, url: "https://mixkit.co/", asset-types: "视频·音乐·音效·模板", region: INTERNATIONAL, priority: 200 }
       - { id: openfootage, name: OpenFootage, url: "https://www.openfootage.net/", asset-types: "视频·特效素材", region: INTERNATIONAL, priority: 200 }
@@ -235,9 +233,6 @@ game-narrator:
       timeout-seconds: 8
       minimum-score: 0.28
       result-limit: 60
-    openverse:
-      enabled: true
-      base-url: https://api.openverse.org/v1
     wikimedia:
       enabled: true
       base-url: https://commons.wikimedia.org
@@ -247,14 +242,6 @@ game-narrator:
       enabled: true
       base-url: https://api.bilibili.com
       min-request-interval-ms: 800
-    pexels:
-      enabled: true
-      base-url: https://api.pexels.com
-      api-key: ${PEXELS_API_KEY:}
-    pixabay:
-      enabled: true
-      base-url: https://pixabay.com
-      api-key: ${PIXABAY_API_KEY:}
   editor:
     waveform-cache:
       maximum-entries: 128

@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>GameNarrator 2.2.39</title>
+  <title>GameNarrator 2.2.40</title>
   <link rel="stylesheet" href="/media-importer.css?v=20260729-10">
   <link rel="stylesheet" href="/app.css?v=20260803-13">
   <link rel="stylesheet" href="/ui-refresh.css?v=20260811-1">
@@ -11,7 +11,7 @@
 <body>
   <div class="aurora"></div>
   <header class="topbar">
-    <a class="brand" href="/">GAME<span>NARRATOR</span><small class="app-version">v2.2.39</small></a>
+    <a class="brand" href="/">GAME<span>NARRATOR</span><small class="app-version">v2.2.40</small></a>
     <nav class="primary-nav" aria-label="主要功能">
       <a href="/?view=studio" data-view-link="studio">剪辑任务</a>
       <a href="/?view=search" data-view-link="search">镜头搜索</a>
@@ -208,28 +208,12 @@
       <details class="asset-library-guide" open>
         <summary>第一次使用？查看素材搜索引导</summary>
         <ol>
-          <li>默认“全部开放来源”无需登录，只搜索 Openverse、Wikimedia，以及已配置 Key 的 Pexels/Pixabay。</li>
+          <li>默认图片、Meme 与音频搜索使用无需登录的 Wikimedia Commons。</li>
           <li>需要 Bilibili 封面或视频候选时，主动选择“Bilibili 候选素材”；登录只用于读取账号可见内容，不会解锁开放素材。</li>
           <li>先选择正确类型再输入具体词，例如“狗 表情包”“柴犬 搞笑”；结果不准时切换单一来源核对。</li>
           <li>开放许可仍需查看许可页；Bilibili 等平台结果必须确认权利后才能下载或用于成片。</li>
         </ol>
-        <p><strong>为什么某些来源没有结果？</strong> Pexels/Pixabay 需要各自 API Key；Openverse/Wikimedia 无需登录，但可能因网络连接失败暂时不可用。系统会明确提示回退状态，不再用 Bilibili 缓存冒充开放搜索结果。</p>
-      </details>
-      <details class="asset-provider-settings">
-        <summary>Pexels / Pixabay API Key 设置</summary>
-        <p>Key 以当前账号加密保存；页面只显示末四位。部署环境变量仍可作为所有账号的后备配置。</p>
-        <div id="asset-provider-settings">
-          <article data-provider-setting="PEXELS">
-            <label>Pexels API Key<input name="PEXELS" type="password" maxlength="500" autocomplete="new-password" placeholder="尚未配置"></label>
-            <span data-provider-status>正在读取状态…</span>
-            <div><button type="button" data-provider-save="PEXELS">保存</button><button type="button" data-provider-test="PEXELS">测试连接</button><button type="button" data-provider-delete="PEXELS" class="icon-button">清除账号配置</button></div>
-          </article>
-          <article data-provider-setting="PIXABAY">
-            <label>Pixabay API Key<input name="PIXABAY" type="password" maxlength="500" autocomplete="new-password" placeholder="尚未配置"></label>
-            <span data-provider-status>正在读取状态…</span>
-            <div><button type="button" data-provider-save="PIXABAY">保存</button><button type="button" data-provider-test="PIXABAY">测试连接</button><button type="button" data-provider-delete="PIXABAY" class="icon-button">清除账号配置</button></div>
-          </article>
-        </div>
+        <p><strong>为什么没有结果？</strong> Wikimedia 无需登录，但可能因网络连接失败暂时不可用；Bilibili 结果不会冒充开放许可素材。</p>
       </details>
       <div id="local-asset-dropzone" class="local-asset-dropzone" tabindex="0">
         <strong>拖拽上传本地素材</strong>
@@ -255,12 +239,8 @@
         </label>
         <label>公共来源
           <select name="provider">
-            <option value="">全部开放来源</option>
-            <option value="OPENVERSE">Openverse</option>
             <option value="WIKIMEDIA">Wikimedia Commons</option>
             <option value="BILIBILI">Bilibili 候选素材</option>
-            <option value="PEXELS" data-requires-provider-key="PEXELS" disabled>Pexels（未配置 API Key）</option>
-            <option value="PIXABAY" data-requires-provider-key="PIXABAY" disabled>Pixabay（未配置 API Key）</option>
           </select>
         </label>
         <label>每页数量
@@ -293,7 +273,7 @@
       <form id="asset-filter-form" class="asset-filter-form">
         <label>库内搜索<input name="query" placeholder="标题、作者或标签"></label>
         <label>类型<select name="assetType"><option value="">全部类型</option><option value="VIDEO">视频</option><option value="MEME">图片</option><option value="SFX">音效</option><option value="BGM">音乐</option></select></label>
-        <label>来源<select name="provider"><option value="">全部来源</option><option value="OPENVERSE">Openverse</option><option value="WIKIMEDIA">Wikimedia Commons</option><option value="BILIBILI">Bilibili</option><option value="PEXELS">Pexels（需 API Key）</option><option value="PIXABAY">Pixabay（需 API Key）</option><option value="YOUTUBE">YouTube</option><option value="DOUYIN">抖音</option><option value="TIKTOK">TikTok</option></select></label>
+        <label>来源<select name="provider"><option value="">全部来源（含历史）</option><option value="WIKIMEDIA">Wikimedia Commons</option><option value="BILIBILI">Bilibili</option><option value="USER_REFERENCE">本地/手动引用</option></select></label>
         <label>状态<select name="importStatus"><option value="">全部状态</option><option value="DOWNLOADED">已下载</option><option value="REFERENCE_ONLY">仅引用</option><option value="DISCOVERED">已发现</option></select></label>
         <label>排序<select name="sort"><option value="newest">最新优先</option><option value="oldest">最早优先</option><option value="title">标题排序</option></select></label>
         <label class="effect-toggle"><input name="favorite" type="checkbox">只看收藏</label>

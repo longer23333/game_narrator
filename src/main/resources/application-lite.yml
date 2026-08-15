@@ -14,15 +14,9 @@ game-narrator:
   asset-library:
     semantic-search:
       enabled: false
-    openverse:
-      enabled: false
     wikimedia:
       enabled: false
     bilibili:
-      enabled: false
-    pexels:
-      enabled: false
-    pixabay:
       enabled: false
   media-preview:
     thumbnail-max-bytes: 524288

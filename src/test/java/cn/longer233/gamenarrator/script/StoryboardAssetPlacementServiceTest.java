@@ -11,10 +11,8 @@ import static org.mockito.Mockito.when;
 
 class StoryboardAssetPlacementServiceTest {
     @Test
-    void skipsOptionalProvidersThatAreNotConfigured() {
+    void usesOnlyWikimediaForAutomaticVideoPlacement() {
         AssetCatalogService assets = mock(AssetCatalogService.class);
-        when(assets.supportsProvider("PEXELS", "VIDEO")).thenReturn(false);
-        when(assets.supportsProvider("PIXABAY", "VIDEO")).thenReturn(false);
         when(assets.supportsProvider("WIKIMEDIA", "VIDEO")).thenReturn(true);
         StoryboardAssetPlacementService service = new StoryboardAssetPlacementService(null, null, assets, null);
 
