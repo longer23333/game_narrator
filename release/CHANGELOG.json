@@ -1,7 +1,17 @@
 {
   "schemaVersion": 1,
-  "currentVersion": "2.2.47",
+  "currentVersion": "2.2.48",
   "releases": [
+    {
+      "version": "2.2.48",
+      "title": "旧任务产物安全回填",
+      "summary": "在删除旧路径列前，将历史任务的十二类路径安全回填到 artifact 索引。",
+      "items": [
+        "H2 与 PostgreSQL 新增一致的 V42 回填迁移",
+        "历史路径以 schema_version=0 标记，保留后续校正空间",
+        "本版本不删除旧列，并新增升级数据保留测试"
+      ]
+    },
     {
       "version": "2.2.47",
       "title": "任务视图产物映射统一",

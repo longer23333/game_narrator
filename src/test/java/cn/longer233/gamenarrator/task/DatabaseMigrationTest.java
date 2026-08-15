@@ -13,6 +13,48 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 class DatabaseMigrationTest {
     @Test
+    void v42BackfillsLegacyTaskPathsWithoutDeletingColumns() throws Exception {
+        String url = "jdbc:h2:mem:legacy-artifact-backfill;DB_CLOSE_DELAY=-1";
+        Flyway.configure().dataSource(url, "sa", "").target("41").load().migrate();
+        try (var connection = DriverManager.getConnection(url, "sa", "");
+             var statement = connection.createStatement()) {
+            statement.executeUpdate("""
+                    INSERT INTO video_project(id,owner_id,name,game_category,commentary_style,status,created_at,updated_at)
+                    VALUES(UUID 'aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa',
+                    UUID '00000000-0000-0000-0000-000000000001','legacy','ACTION','ANIME_THEATER','READY',CURRENT_TIMESTAMP,CURRENT_TIMESTAMP)
+                    """);
+            statement.executeUpdate("""
+                    INSERT INTO video_tasks(id,owner_id,project_id,name,game_category,commentary_style,
+                    target_duration_seconds,task_brief,source_video_path,status,created_at,rendered_video_path)
+                    VALUES(UUID 'aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa',
+                    UUID '00000000-0000-0000-0000-000000000001',UUID 'aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa',
+                    'legacy','ACTION','ANIME_THEATER',30,'legacy','source.mp4','COMPLETED',CURRENT_TIMESTAMP,'legacy-final.mp4')
+                    """);
+        }
+
+        Flyway.configure().dataSource(url, "sa", "").load().migrate();
+        try (var connection = DriverManager.getConnection(url, "sa", "");
+             var statement = connection.createStatement()) {
+            var artifact = statement.executeQuery("""
+                    SELECT artifact_type,storage_key,schema_version,size_bytes,sha256
+                    FROM artifact WHERE project_id=UUID 'aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa'
+                    """);
+            assertThat(artifact.next()).isTrue();
+            assertThat(artifact.getString("artifact_type")).isEqualTo("RENDERED_VIDEO");
+            assertThat(artifact.getString("storage_key")).isEqualTo("legacy-final.mp4");
+            assertThat(artifact.getInt("schema_version")).isZero();
+            assertThat(artifact.getLong("size_bytes")).isZero();
+            assertThat(artifact.getString("sha256")).isEqualTo("0".repeat(64));
+            var legacyColumn = statement.executeQuery("""
+                    SELECT COUNT(*) FROM information_schema.columns
+                    WHERE table_name='VIDEO_TASKS' AND column_name='RENDERED_VIDEO_PATH'
+                    """);
+            assertThat(legacyColumn.next()).isTrue();
+            assertThat(legacyColumn.getInt(1)).isOne();
+        }
+    }
+
+    @Test
     void generatedH2BaselineMatchesVersion39MigrationSchema() throws Exception {
         String migratedUrl = "jdbc:h2:mem:history-through-v39;DB_CLOSE_DELAY=-1";
         String baselineUrl = "jdbc:h2:mem:generated-baseline;DB_CLOSE_DELAY=-1";
