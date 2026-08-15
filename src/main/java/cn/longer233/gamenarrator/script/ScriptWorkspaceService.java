@@ -13,6 +13,7 @@ import cn.longer233.gamenarrator.personalization.DirectorProfileService;
 import cn.longer233.gamenarrator.personalization.DirectorProfileView;
 import cn.longer233.gamenarrator.timeline.TimelinePlanner;
 import cn.longer233.gamenarrator.timeline.TimelinePlanningResult;
+import cn.longer233.gamenarrator.pipeline.TaskArtifactLocator;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import jakarta.transaction.Transactional;
@@ -37,22 +38,13 @@ public class ScriptWorkspaceService {
     private final VoiceSynthesizer voiceGenerator;
     private final DirectorProfileService directorProfiles;
     private final TimelinePlanner timelinePlanner;
-
-    public ScriptWorkspaceService(VideoTaskRepository repository, ObjectMapper objectMapper,
-                                  TextGenerator scriptGenerator, VoiceSynthesizer voiceGenerator) {
-        this(repository, objectMapper, scriptGenerator, voiceGenerator, null);
-    }
-
-    public ScriptWorkspaceService(VideoTaskRepository repository, ObjectMapper objectMapper,
-                                  TextGenerator scriptGenerator, VoiceSynthesizer voiceGenerator,
-                                  DirectorProfileService directorProfiles) {
-        this(repository, objectMapper, scriptGenerator, voiceGenerator, directorProfiles, null);
-    }
+    private final TaskArtifactLocator taskArtifacts;
 
     @Autowired
     public ScriptWorkspaceService(VideoTaskRepository repository, ObjectMapper objectMapper,
                                   TextGenerator scriptGenerator, VoiceSynthesizer voiceGenerator,
-                                  DirectorProfileService directorProfiles, TimelinePlanner timelinePlanner) {
+                                  DirectorProfileService directorProfiles, TimelinePlanner timelinePlanner,
+                                  TaskArtifactLocator taskArtifacts) {
         this.repository = repository;
         this.objectMapper = objectMapper;
         this.artifacts = new ScriptArtifactStore(objectMapper);
@@ -60,6 +52,7 @@ public class ScriptWorkspaceService {
         this.voiceGenerator = voiceGenerator;
         this.directorProfiles = directorProfiles;
         this.timelinePlanner = timelinePlanner;
+        this.taskArtifacts = taskArtifacts;
     }
 
     @Transactional
@@ -147,7 +140,10 @@ public class ScriptWorkspaceService {
     }
 
     private LocalizedArtifacts localizedArtifacts(VideoTask task) {
-        return new LocalizedArtifacts(task.getHighlightManifestPath(), task.getVoiceManifestPath(), task.getTimelinePath());
+        return new LocalizedArtifacts(
+                artifactText(task.getId(), "HIGHLIGHT_MANIFEST"),
+                artifactText(task.getId(), "VOICE_MANIFEST"),
+                artifactText(task.getId(), "TIMELINE_MANIFEST"));
     }
 
     private void refreshLocalizedVoice(VideoTask task, int clipIndex, LocalizedArtifacts artifacts,
@@ -473,7 +469,9 @@ public class ScriptWorkspaceService {
         List<HighlightClip> clips = readHighlightClips(task);
         int position = positionOf(readDocument(task).segments(), clipIndex);
         int frameIndex = clips.get(position).sourceFrameIndex();
-        JsonNode frames = artifacts.readJson(Path.of(task.getVisualAnalysisPath())).path("frames");
+        Path visualAnalysis = requireArtifact(task.getId(), "VISION_ANALYSIS",
+                "任务尚未生成视觉分析", "视觉分析文件不存在");
+        JsonNode frames = artifacts.readJson(visualAnalysis).path("frames");
         for (JsonNode frame : frames) {
             if (frame.path("index").asInt() == frameIndex) {
                 Path image = Path.of(frame.path("imagePath").asText()).toAbsolutePath().normalize();
@@ -609,8 +607,8 @@ public class ScriptWorkspaceService {
     }
 
     private Path requireHighlightPath(VideoTask task) {
-        if (task.getHighlightManifestPath() == null) throw new IllegalStateException("任务尚未生成高光分镜");
-        return artifacts.requireFile(task.getHighlightManifestPath(), "任务尚未生成高光分镜", "高光分镜文件不存在");
+        return requireArtifact(task.getId(), "HIGHLIGHT_MANIFEST",
+                "任务尚未生成高光分镜", "高光分镜文件不存在");
     }
 
     private List<HighlightClip> readHighlightClips(VideoTask task) {
@@ -623,8 +621,18 @@ public class ScriptWorkspaceService {
     }
 
     private Path requireScriptPath(VideoTask task) {
-        return artifacts.requireFile(task.getGeneratedScriptPath(), "Task has no generated script",
-                "Generated script file is missing");
+        return requireArtifact(task.getId(), "SCRIPT_MANIFEST",
+                "Task has no generated script", "Generated script file is missing");
+    }
+
+    private String artifactText(UUID taskId, String artifactType) {
+        return taskArtifacts.latest(taskId, artifactType).map(Path::toString).orElse(null);
+    }
+
+    private Path requireArtifact(UUID taskId, String artifactType, String missingMessage, String fileMessage) {
+        Path path = taskArtifacts.latest(taskId, artifactType)
+                .orElseThrow(() -> new IllegalStateException(missingMessage));
+        return artifacts.requireFile(path.toString(), missingMessage, fileMessage);
     }
 
     private ScriptSegment requireSegment(List<ScriptSegment> segments, int clipIndex) {

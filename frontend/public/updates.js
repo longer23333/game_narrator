@@ -1,5 +1,6 @@
 const releases = [
-  {version:'2.2.44', title:'编辑器产物读取统一', current:true, items:["波形统一读取音频产物索引","时间线统一判断脚本与高光产物索引","移除编辑器对任务旧路径字段的读取"], jump:{view:'studio', selector:'#task-list'}},
+  {version:'2.2.45', title:'脚本工作台产物读取统一', current:true, items:["脚本与高光统一读取产物索引","视觉、配音与时间线统一读取产物索引","移除工作台对任务旧路径字段的读取"], jump:{view:'studio', selector:'#task-list'}},
+  {version:'2.2.44', title:'编辑器产物读取统一', items:["波形统一读取音频产物索引","时间线统一判断脚本与高光产物索引","移除编辑器对任务旧路径字段的读取"], jump:{view:'studio', selector:'#task-list'}},
   {version:'2.2.43', title:'产物索引读取扩展', items:["事件时间线统一读取视觉分析与高光产物索引","事实约束文案统一读取高光产物索引","渲染预览统一读取时间线产物索引"], jump:{view:'studio', selector:'#task-list'}},
   {version:'2.2.42', title:'流水线恢复读取统一', items:["恢复上下文统一从 artifact 索引读取七类阶段产物","旧任务缺少索引时继续使用固定白名单安全回退","新增测试证明不再直接依赖 VideoTask 阶段路径字段"], jump:{view:'studio', selector:'#task-list'}},
   {version:'2.2.41', title:'URL 媒体导入统一', items:["平台 URL 统一通过 yt-dlp 解析、预览、字幕和下载","移除自动 Cookie 读取、Bilibili 专用登录和专栏抓取旁路","登录受限内容仅接受用户主动上传且按平台过滤的临时 cookies.txt"], jump:{view:'import', selector:'#media-resolve-form'}},

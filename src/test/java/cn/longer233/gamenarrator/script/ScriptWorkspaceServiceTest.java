@@ -7,6 +7,7 @@ import cn.longer233.gamenarrator.task.domain.StageStatus;
 import cn.longer233.gamenarrator.task.domain.TaskStatus;
 import cn.longer233.gamenarrator.task.domain.VideoTask;
 import cn.longer233.gamenarrator.task.repository.VideoTaskRepository;
+import cn.longer233.gamenarrator.pipeline.TaskArtifactLocator;
 import cn.longer233.gamenarrator.voice.VoiceSynthesizer;
 import cn.longer233.gamenarrator.voice.VoiceSegment;
 import cn.longer233.gamenarrator.timeline.TimelinePlanner;
@@ -57,8 +58,8 @@ class ScriptWorkspaceServiceTest {
                 scriptPath.toString(), 2);
         VideoTaskRepository repository = mock(VideoTaskRepository.class);
         when(repository.findById(task.getId())).thenReturn(Optional.of(task));
-        ScriptWorkspaceService service = new ScriptWorkspaceService(
-                repository, mapper, mock(TextGenerator.class), mock(VoiceSynthesizer.class));
+        ScriptWorkspaceService service = service(repository, mapper,
+                mock(TextGenerator.class), mock(VoiceSynthesizer.class), task, null);
 
         ScriptDocumentView result = service.update(task.getId(), 2,
                 new UpdateScriptSegmentRequest("revised", "new subtitle", "shake"));
@@ -114,8 +115,8 @@ class ScriptWorkspaceServiceTest {
         TimelinePlanner planner = mock(TimelinePlanner.class);
         when(planner.refreshSegment(timeline, highlight, script, manifest, 2)).thenReturn(
                 new TimelinePlanningResult(timeline.toString(), 10, 0, List.of()));
-        ScriptWorkspaceService service = new ScriptWorkspaceService(repository, mapper,
-                mock(TextGenerator.class), voice, null, planner);
+        ScriptWorkspaceService service = service(repository, mapper,
+                mock(TextGenerator.class), voice, task, planner);
 
         service.update(task.getId(), 2, new UpdateScriptSegmentRequest("revised", "new subtitle", "e2"));
 
@@ -151,8 +152,8 @@ class ScriptWorkspaceServiceTest {
         task.completeScriptGeneration("title", "synopsis", "text", scriptPath.toString(), 1);
         VideoTaskRepository repository = mock(VideoTaskRepository.class);
         when(repository.findById(task.getId())).thenReturn(Optional.of(task));
-        ScriptWorkspaceService service = new ScriptWorkspaceService(repository, mapper,
-                mock(TextGenerator.class), mock(VoiceSynthesizer.class));
+        ScriptWorkspaceService service = service(repository, mapper,
+                mock(TextGenerator.class), mock(VoiceSynthesizer.class), task, null);
 
         service.updateStoryboard(task.getId(), 1,
                 new UpdateStoryboardSegmentRequest(0, 10, "text", "subtitle", "cut", false, true));
@@ -177,8 +178,8 @@ class ScriptWorkspaceServiceTest {
         task.completeScriptGeneration("title", "synopsis", "text", scriptPath.toString(), 1);
         VideoTaskRepository repository = mock(VideoTaskRepository.class);
         when(repository.findById(task.getId())).thenReturn(Optional.of(task));
-        ScriptWorkspaceService service = new ScriptWorkspaceService(repository, mapper,
-                mock(TextGenerator.class), mock(VoiceSynthesizer.class));
+        ScriptWorkspaceService service = service(repository, mapper,
+                mock(TextGenerator.class), mock(VoiceSynthesizer.class), task, null);
 
         service.review(task.getId(), 1, new ManualScriptReviewRequest("NEEDS_CHANGES", "角色名称不准确"));
 
@@ -206,8 +207,8 @@ class ScriptWorkspaceServiceTest {
         TextGenerator generator = mock(TextGenerator.class);
         when(generator.reviewQuality(any(), anyMap())).thenReturn(new ScriptQualityReview(
                 58, false, List.of("片段 1：事实不准确，请核对"), "需要修改"));
-        ScriptWorkspaceService service = new ScriptWorkspaceService(repository, mapper,
-                generator, mock(VoiceSynthesizer.class));
+        ScriptWorkspaceService service = service(repository, mapper,
+                generator, mock(VoiceSynthesizer.class), task, null);
 
         ScriptDocumentView result = service.qualityReview(task.getId());
 
@@ -241,8 +242,8 @@ class ScriptWorkspaceServiceTest {
         TextGenerator generator = mock(TextGenerator.class);
         when(generator.regenerateSegment(any(), any(), any(), any())).thenReturn(
                 new ScriptSegment(1, 0, 8, "new", "new subtitle", "cut"));
-        ScriptWorkspaceService service = new ScriptWorkspaceService(repository, mapper,
-                generator, mock(VoiceSynthesizer.class));
+        ScriptWorkspaceService service = service(repository, mapper,
+                generator, mock(VoiceSynthesizer.class), task, null);
 
         service.regenerate(task.getId(), 1, new RegenerateScriptSegmentRequest(""));
 
@@ -262,8 +263,8 @@ class ScriptWorkspaceServiceTest {
         task.completeScriptGeneration("title", "synopsis", "text", scriptPath.toString(), 1);
         VideoTaskRepository repository = mock(VideoTaskRepository.class);
         when(repository.findById(task.getId())).thenReturn(Optional.of(task));
-        ScriptWorkspaceService service = new ScriptWorkspaceService(repository, mapper,
-                mock(TextGenerator.class), mock(VoiceSynthesizer.class));
+        ScriptWorkspaceService service = service(repository, mapper,
+                mock(TextGenerator.class), mock(VoiceSynthesizer.class), task, null);
 
         assertThatThrownBy(() -> service.review(task.getId(), 99,
                 new ManualScriptReviewRequest("APPROVED", "not present")))
@@ -275,5 +276,22 @@ class ScriptWorkspaceServiceTest {
         return task.getStages().stream()
                 .filter(item -> item.getStageType() == type)
                 .findFirst().orElseThrow().getStatus();
+    }
+
+    private ScriptWorkspaceService service(VideoTaskRepository repository, ObjectMapper mapper,
+                                           TextGenerator generator, VoiceSynthesizer voice,
+                                           VideoTask task, TimelinePlanner planner) {
+        TaskArtifactLocator locator = mock(TaskArtifactLocator.class);
+        artifact(locator, task, "HIGHLIGHT_MANIFEST", task.getHighlightManifestPath());
+        artifact(locator, task, "SCRIPT_MANIFEST", task.getGeneratedScriptPath());
+        artifact(locator, task, "VISION_ANALYSIS", task.getVisualAnalysisPath());
+        artifact(locator, task, "VOICE_MANIFEST", task.getVoiceManifestPath());
+        artifact(locator, task, "TIMELINE_MANIFEST", task.getTimelinePath());
+        return new ScriptWorkspaceService(repository, mapper, generator, voice, null, planner, locator);
+    }
+
+    private void artifact(TaskArtifactLocator locator, VideoTask task, String type, String value) {
+        when(locator.latest(task.getId(), type)).thenReturn(
+                Optional.ofNullable(value).map(Path::of));
     }
 }

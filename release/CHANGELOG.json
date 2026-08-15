@@ -1,7 +1,17 @@
 {
   "schemaVersion": 1,
-  "currentVersion": "2.2.44",
+  "currentVersion": "2.2.45",
   "releases": [
+    {
+      "version": "2.2.45",
+      "title": "脚本工作台产物读取统一",
+      "summary": "脚本工作台统一通过 artifact 索引读取脚本、高光、视觉、配音与时间线产物。",
+      "items": [
+        "脚本与高光清单统一从 artifact 索引读取",
+        "视觉分析、配音和时间线统一从 artifact 索引读取",
+        "移除脚本工作台对 VideoTask 旧路径字段的读取"
+      ]
+    },
     {
       "version": "2.2.44",
       "title": "编辑器产物读取统一",
