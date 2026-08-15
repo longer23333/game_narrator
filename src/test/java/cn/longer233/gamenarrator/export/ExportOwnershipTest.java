@@ -15,6 +15,7 @@ import java.util.UUID;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.Mockito.mock;
+import cn.longer233.gamenarrator.pipeline.TaskArtifactLocator;
 import static org.mockito.Mockito.when;
 
 class ExportOwnershipTest {
@@ -36,7 +37,8 @@ class ExportOwnershipTest {
                 preset, "owned", "COMPLETED", 100, artifact, null, 0, OffsetDateTime.now(), OffsetDateTime.now(), null);
         CurrentUserContext current = mock(CurrentUserContext.class);
         when(current.userId()).thenReturn(owner);
-        ExportService service = new ExportService(jdbc, new ObjectMapper(), mock(ExportWorker.class), current);
+        ExportService service = new ExportService(jdbc, new ObjectMapper(), mock(ExportWorker.class), current,
+                mock(TaskArtifactLocator.class));
 
         assertThat(service.findJob(job).id()).isEqualTo(job);
         assertThat(service.download(job).filename()).isEqualTo("owned.mp4");

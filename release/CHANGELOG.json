@@ -1,7 +1,17 @@
 {
     "schemaVersion":  1,
-    "currentVersion":  "2.2.38",
+    "currentVersion":  "2.2.39",
     "releases":  [
+                     {
+                         "version":  "2.2.39",
+                         "title":  "任务产物读取统一",
+                         "summary":  "导出与叙事证据检查优先从 artifact 索引读取阶段产物，并为旧任务保留安全回退。",
+                         "items":  [
+                                       "新增统一的任务产物定位入口，按最新有效 artifact 读取文件",
+                                       "导出和叙事证据检查不再直接依赖 VideoTask 阶段路径字段",
+                                       "旧任务缺少 artifact 索引时按固定白名单回退，并通过兼容测试"
+                                   ]
+                     },
                      {
                          "version":  "2.2.38",
                          "title":  "脚本产物存储统一",

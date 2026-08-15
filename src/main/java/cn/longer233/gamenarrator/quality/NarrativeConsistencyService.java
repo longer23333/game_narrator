@@ -5,7 +5,7 @@ import cn.longer233.gamenarrator.event.GameEventView;
 import cn.longer233.gamenarrator.event.GameEventTimelineService;
 import cn.longer233.gamenarrator.script.ScriptWorkspaceService;
 import cn.longer233.gamenarrator.script.StoryboardSegmentView;
-import cn.longer233.gamenarrator.task.domain.VideoTask;
+import cn.longer233.gamenarrator.pipeline.TaskArtifactLocator;
 import cn.longer233.gamenarrator.task.repository.VideoTaskRepository;
 import org.springframework.stereotype.Service;
 import com.fasterxml.jackson.databind.JsonNode;
@@ -30,13 +30,15 @@ public class NarrativeConsistencyService {
     private final ScriptWorkspaceService workspace;
     private final VideoTaskRepository tasks;
     private final ObjectMapper mapper;
+    private final TaskArtifactLocator artifacts;
 
     public NarrativeConsistencyService(GameEventTimelineService events, ScriptWorkspaceService workspace,
-                                       VideoTaskRepository tasks, ObjectMapper mapper) {
+                                       VideoTaskRepository tasks, ObjectMapper mapper, TaskArtifactLocator artifacts) {
         this.events = events;
         this.workspace = workspace;
         this.tasks = tasks;
         this.mapper = mapper;
+        this.artifacts = artifacts;
     }
 
     public NarrativeQualityReport inspect(UUID taskId) {
@@ -45,7 +47,7 @@ public class NarrativeConsistencyService {
         List<GameEventFact> facts = confirmedEvents.stream().map(event -> new GameEventFact(event.eventType(),
                 event.description(), event.startSeconds(), event.endSeconds(), event.importance())).toList();
         List<StoryboardSegmentView> segments = workspace.storyboard(taskId).segments();
-        VideoTask task = tasks.findById(taskId).orElseThrow();
+        tasks.findById(taskId).orElseThrow();
         List<NarrativeQualityReport.Issue> issues = new ArrayList<>();
         boolean resultConfirmed = facts.stream().anyMatch(f -> containsAny(f.eventType().toLowerCase(Locale.ROOT),
                 List.of("defeated", "victory", "result", "clear")));
@@ -76,9 +78,10 @@ public class NarrativeConsistencyService {
         }
         if (facts.isEmpty()) issues.add(issue("FACT_CONSISTENCY", "ERROR", null,
                 "尚无已确认事件，无法完成事实一致性校验", "请先确认事件时间线"));
-        boolean visualAvailable = artifactExists(task.getVisualAnalysisPath());
-        boolean asrAvailable = artifactExists(task.getTranscriptJsonPath())
-                || artifactExists(task.getTranscriptTextPath());
+        Path transcriptJson = artifacts.latest(taskId, "TRANSCRIPT_DETAIL").orElse(null);
+        boolean visualAvailable = artifactExists(artifacts.latest(taskId, "VISION_ANALYSIS").orElse(null));
+        boolean asrAvailable = artifactExists(transcriptJson)
+                || artifactExists(artifacts.latest(taskId, "TRANSCRIPT_TEXT").orElse(null));
         int supportedSegments = (int) segments.stream().filter(segment -> facts.stream().anyMatch(fact ->
                 fact.startSeconds() <= segment.endSeconds() && fact.endSeconds() >= segment.startSeconds())).count();
         double evidenceCoverage = segments.isEmpty() ? 0 : supportedSegments / (double) segments.size();
@@ -91,7 +94,7 @@ public class NarrativeConsistencyService {
         double knowledgeEvidenceCoverage = confidenceTotal == 0 ? 0 : confirmedEvents.stream()
                 .filter(event -> event.knowledgePackCode() != null && !event.knowledgePackCode().isBlank())
                 .mapToDouble(GameEventView::confidence).sum() / confidenceTotal;
-        double speakerCoverage = speakerCoverage(task, segments);
+        double speakerCoverage = speakerCoverage(transcriptJson, segments);
         double reliabilityWeight = .80 + (asrAvailable ? .20 : 0);
         double upstreamEvidenceReliability = clamp((averageEventConfidence * .40
                 + ocrEvidenceCoverage * .20 + knowledgeEvidenceCoverage * .20
@@ -128,19 +131,19 @@ public class NarrativeConsistencyService {
                 passed ? "叙事连续性和事实一致性检查通过" : "发现 %d 个错误、%d 个提醒".formatted(errors, warnings));
     }
 
-    private boolean artifactExists(String value) {
-        if (value == null || value.isBlank()) return false;
-        try { return Files.isRegularFile(Path.of(value).toAbsolutePath().normalize()); }
+    private boolean artifactExists(Path value) {
+        if (value == null) return false;
+        try { return Files.isRegularFile(value); }
         catch (RuntimeException ignored) { return false; }
     }
 
-    private double speakerCoverage(VideoTask task, List<StoryboardSegmentView> segments) {
-        if (segments.isEmpty() || !artifactExists(task.getTranscriptJsonPath())) return 0;
+    private double speakerCoverage(Path transcriptPath, List<StoryboardSegmentView> segments) {
+        if (segments.isEmpty() || !artifactExists(transcriptPath)) return 0;
         try {
-            JsonNode transcript = mapper.readTree(Path.of(task.getTranscriptJsonPath()).toFile());
+            JsonNode transcript = mapper.readTree(transcriptPath.toFile());
             String configured = transcript.path("speakerDiarization").path("path").asText("");
             Path speakerPath = configured.isBlank()
-                    ? Path.of(task.getTranscriptJsonPath()).resolveSibling("speaker-segments.json") : Path.of(configured);
+                    ? transcriptPath.resolveSibling("speaker-segments.json") : Path.of(configured);
             if (!Files.isRegularFile(speakerPath)) return 0;
             JsonNode speakerSegments = mapper.readTree(speakerPath.toFile()).path("segments");
             double supported = 0;

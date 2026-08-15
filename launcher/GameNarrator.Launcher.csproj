@@ -6,10 +6,10 @@
     <AssemblyName>GameNarrator</AssemblyName><RootNamespace>GameNarrator.Launcher</RootNamespace>
     <ApplicationManifest>app.manifest</ApplicationManifest>
     <ApplicationIcon>assets\GameNarrator.ico</ApplicationIcon>
-    <Version>2.2.38</Version>
-    <AssemblyVersion>2.2.38.0</AssemblyVersion>
-    <FileVersion>2.2.38.0</FileVersion>
-    <InformationalVersion>2.2.38</InformationalVersion>
+    <Version>2.2.39</Version>
+    <AssemblyVersion>2.2.39.0</AssemblyVersion>
+    <FileVersion>2.2.39.0</FileVersion>
+    <InformationalVersion>2.2.39</InformationalVersion>
     <AssemblyTitle>GameNarrator 视频智能剪辑</AssemblyTitle>
     <Product>GameNarrator 视频智能剪辑工作台</Product>
     <Description>本地优先的视频解析、分镜、解说与成片生成工具</Description>

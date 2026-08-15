@@ -9,6 +9,7 @@ import cn.longer233.gamenarrator.script.StoryboardSegmentView;
 import cn.longer233.gamenarrator.script.StoryboardView;
 import cn.longer233.gamenarrator.task.domain.VideoTask;
 import cn.longer233.gamenarrator.task.repository.VideoTaskRepository;
+import cn.longer233.gamenarrator.pipeline.TaskArtifactLocator;
 import org.junit.jupiter.api.Test;
 
 import java.nio.file.Files;
@@ -29,6 +30,7 @@ class NarrativeConsistencyServiceTest {
         var workspace = mock(ScriptWorkspaceService.class);
         var tasks = mock(VideoTaskRepository.class);
         var task = mock(VideoTask.class);
+        var artifacts = mock(TaskArtifactLocator.class);
         var visual = Files.createTempFile("visual-evidence", ".json");
         var evidenceDir = Files.createTempDirectory("narrative-evidence");
         var transcript = evidenceDir.resolve("transcript.json");
@@ -37,9 +39,9 @@ class NarrativeConsistencyServiceTest {
                 {"segments":[{"startMillis":0,"endMillis":5000,"speakerType":"PLAYER_VOICE","confidence":1.0,"evidence":"NATIVE_LABEL"}]}
                 """);
         Files.writeString(transcript, "{}");
-        when(task.getVisualAnalysisPath()).thenReturn(visual.toString());
-        when(task.getTranscriptJsonPath()).thenReturn(transcript.toString());
-        when(task.getTranscriptTextPath()).thenReturn(null);
+        when(artifacts.latest(taskId, "VISION_ANALYSIS")).thenReturn(Optional.of(visual));
+        when(artifacts.latest(taskId, "TRANSCRIPT_DETAIL")).thenReturn(Optional.of(transcript));
+        when(artifacts.latest(taskId, "TRANSCRIPT_TEXT")).thenReturn(Optional.empty());
         when(tasks.findById(taskId)).thenReturn(Optional.of(task));
         when(events.list(taskId)).thenReturn(List.of(new GameEventView(UUID.randomUUID(), taskId, 0, 5, 2,
                 "BATTLE", .55, 80, "confirmed", List.of(new GameEventEvidence("OCR", "victory", 2, 1)),
@@ -47,7 +49,7 @@ class NarrativeConsistencyServiceTest {
         when(workspace.storyboard(taskId)).thenReturn(new StoryboardView("title", "synopsis", true, true,
                 List.of(segment(1, 0, 5), segment(2, 10, 15), segment(3, 20, 25))));
 
-        NarrativeQualityReport report = new NarrativeConsistencyService(events, workspace, tasks, new ObjectMapper()).inspect(taskId);
+        NarrativeQualityReport report = new NarrativeConsistencyService(events, workspace, tasks, new ObjectMapper(), artifacts).inspect(taskId);
 
         assertThat(report.passed()).isFalse();
         assertThat(report.supportedSegmentCount()).isEqualTo(1);
@@ -68,6 +70,7 @@ class NarrativeConsistencyServiceTest {
         var workspace = mock(ScriptWorkspaceService.class);
         var tasks = mock(VideoTaskRepository.class);
         var task = mock(VideoTask.class);
+        var artifacts = mock(TaskArtifactLocator.class);
         var evidenceDir = Files.createTempDirectory("weak-narrative-evidence");
         var visual = evidenceDir.resolve("vision.json");
         var transcript = evidenceDir.resolve("transcript.json");
@@ -76,15 +79,16 @@ class NarrativeConsistencyServiceTest {
         Files.writeString(evidenceDir.resolve("speaker-segments.json"), """
                 {"segments":[{"startMillis":0,"endMillis":5000,"speakerType":"PLAYER_VOICE","confidence":0.4,"evidence":"TEXT_FALLBACK"}]}
                 """);
-        when(task.getVisualAnalysisPath()).thenReturn(visual.toString());
-        when(task.getTranscriptJsonPath()).thenReturn(transcript.toString());
+        when(artifacts.latest(taskId, "VISION_ANALYSIS")).thenReturn(Optional.of(visual));
+        when(artifacts.latest(taskId, "TRANSCRIPT_DETAIL")).thenReturn(Optional.of(transcript));
+        when(artifacts.latest(taskId, "TRANSCRIPT_TEXT")).thenReturn(Optional.empty());
         when(tasks.findById(taskId)).thenReturn(Optional.of(task));
         when(events.list(taskId)).thenReturn(List.of(new GameEventView(UUID.randomUUID(), taskId, 0, 5, 2,
                 "BATTLE", .8, 80, "confirmed", List.of(), "CONFIRMED", false, null, OffsetDateTime.now())));
         when(workspace.storyboard(taskId)).thenReturn(new StoryboardView("title", "synopsis", true, true,
                 List.of(segment(1, 0, 5))));
 
-        NarrativeQualityReport report = new NarrativeConsistencyService(events, workspace, tasks, new ObjectMapper()).inspect(taskId);
+        NarrativeQualityReport report = new NarrativeConsistencyService(events, workspace, tasks, new ObjectMapper(), artifacts).inspect(taskId);
 
         assertThat(report.evidenceCoverage()).isEqualTo(1);
         assertThat(report.speakerCoverage()).isCloseTo(.24, org.assertj.core.data.Offset.offset(.001));
@@ -100,8 +104,11 @@ class NarrativeConsistencyServiceTest {
         var workspace = mock(ScriptWorkspaceService.class);
         var tasks = mock(VideoTaskRepository.class);
         var task = mock(VideoTask.class);
+        var artifacts = mock(TaskArtifactLocator.class);
         var visual = Files.createTempFile("silent-video-vision", ".json");
-        when(task.getVisualAnalysisPath()).thenReturn(visual.toString());
+        when(artifacts.latest(taskId, "VISION_ANALYSIS")).thenReturn(Optional.of(visual));
+        when(artifacts.latest(taskId, "TRANSCRIPT_DETAIL")).thenReturn(Optional.empty());
+        when(artifacts.latest(taskId, "TRANSCRIPT_TEXT")).thenReturn(Optional.empty());
         when(tasks.findById(taskId)).thenReturn(Optional.of(task));
         when(events.list(taskId)).thenReturn(List.of(new GameEventView(UUID.randomUUID(), taskId, 0, 5, 2,
                 "BATTLE", 1, 80, "confirmed", List.of(new GameEventEvidence("OCR", "victory", 2, 1)),
@@ -109,7 +116,7 @@ class NarrativeConsistencyServiceTest {
         when(workspace.storyboard(taskId)).thenReturn(new StoryboardView("title", "synopsis", true, true,
                 List.of(segment(1, 0, 5))));
 
-        NarrativeQualityReport report = new NarrativeConsistencyService(events, workspace, tasks, new ObjectMapper()).inspect(taskId);
+        NarrativeQualityReport report = new NarrativeConsistencyService(events, workspace, tasks, new ObjectMapper(), artifacts).inspect(taskId);
 
         assertThat(report.speakerCoverage()).isZero();
         assertThat(report.upstreamEvidenceReliability()).isEqualTo(1);

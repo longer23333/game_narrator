@@ -3,6 +3,7 @@ package cn.longer233.gamenarrator.export;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import cn.longer233.gamenarrator.identity.CurrentUserContext;
 import cn.longer233.gamenarrator.common.OwnedResourceNotFoundException;
+import cn.longer233.gamenarrator.pipeline.TaskArtifactLocator;
 import org.springframework.core.io.FileSystemResource;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Service;
@@ -21,13 +22,15 @@ public class ExportService {
     private final ObjectMapper objectMapper;
     private final ExportWorker worker;
     private final CurrentUserContext currentUser;
+    private final TaskArtifactLocator artifacts;
 
     public ExportService(JdbcTemplate jdbc, ObjectMapper objectMapper, ExportWorker worker,
-                         CurrentUserContext currentUser) {
+                         CurrentUserContext currentUser, TaskArtifactLocator artifacts) {
         this.jdbc = jdbc;
         this.objectMapper = objectMapper;
         this.worker = worker;
         this.currentUser = currentUser;
+        this.artifacts = artifacts;
     }
 
     public List<ExportPresetView> presets() {
@@ -47,10 +50,10 @@ public class ExportService {
 
     public ExportJobView create(UUID taskId, CreateExportRequest request) {
         Map<String, Object> task = one("""
-                SELECT id,project_id,owner_id,rendered_video_path,generated_subtitle_path,
-                voice_manifest_path FROM video_tasks WHERE id=? AND owner_id=?
+                SELECT id,project_id,owner_id FROM video_tasks WHERE id=? AND owner_id=?
                 """, taskId, currentUser.userId());
-        Path source = requiredFile(task.get("RENDERED_VIDEO_PATH"), "任务尚未生成可导出的成片");
+        Path source = requiredFile(artifacts.latest(taskId, "RENDERED_VIDEO").orElse(null),
+                "任务尚未生成可导出的成片");
         ExportPresetView preset = presets().stream().filter(item -> item.id().equals(request.presetId()))
                 .findFirst().orElseThrow(() -> new IllegalArgumentException("导出预设不存在"));
         UUID projectId = (UUID) task.get("PROJECT_ID");
@@ -76,8 +79,8 @@ public class ExportService {
                 expires_at,downloaded_at,download_count,error_code,error_message,created_at)
                 VALUES(?,?,?,?,?,? ,?,'PENDING',0,NULL,NULL,NULL,NULL,NULL,0,NULL,NULL,?)
                 """, jobId, projectId, revisionId, ownerId, preset.id(), safeName, snapshot, OffsetDateTime.now());
-        worker.execute(jobId, source, optionalPath(task.get("GENERATED_SUBTITLE_PATH")),
-                optionalPath(task.get("VOICE_MANIFEST_PATH")), output, preset, request);
+        worker.execute(jobId, source, artifacts.latest(taskId, "GENERATED_SUBTITLE").orElse(null),
+                artifacts.latest(taskId, "VOICE_MANIFEST").orElse(null), output, preset, request);
         return findJob(jobId);
     }
 
@@ -108,7 +111,9 @@ public class ExportService {
                 JOIN artifact a ON a.id=ej.output_artifact_id
                 WHERE ej.id=? AND ej.status='COMPLETED' AND ej.requested_by=?
                 """, jobId, currentUser.userId());
-        Path path = requiredFile(row.get("STORAGE_KEY"), "导出文件不存在或已过期");
+        Object storageKey = row.get("STORAGE_KEY");
+        Path path = requiredFile(storageKey == null ? null : Path.of(storageKey.toString()).toAbsolutePath().normalize(),
+                "导出文件不存在或已过期");
         jdbc.update("UPDATE export_job SET download_count=download_count+1,downloaded_at=? WHERE id=?",
                 OffsetDateTime.now(), jobId);
         return new Download(new FileSystemResource(path), row.get("EXPORT_NAME") + "." +
@@ -135,15 +140,10 @@ public class ExportService {
                 .orElseThrow(OwnedResourceNotFoundException::new);
     }
 
-    private Path requiredFile(Object value, String message) {
+    private Path requiredFile(Path value, String message) {
         if (value == null) throw new IllegalStateException(message);
-        Path path = Path.of(value.toString()).toAbsolutePath().normalize();
-        if (!Files.isRegularFile(path)) throw new IllegalStateException(message);
-        return path;
-    }
-
-    private Path optionalPath(Object value) {
-        return value == null ? null : Path.of(value.toString()).toAbsolutePath().normalize();
+        if (!Files.isRegularFile(value)) throw new IllegalStateException(message);
+        return value;
     }
 
     public record Download(FileSystemResource resource, String filename) {}

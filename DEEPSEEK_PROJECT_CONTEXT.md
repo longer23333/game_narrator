@@ -1,7 +1,7 @@
 ﻿# GameNarrator — DeepSeek 结构化项目索引
 
-> 自动生成：2026-08-14 17:23:44 +08:00；UTF-8 BOM；索引不再内嵌全部源码。
-> Git：分支 `main`，提交 `9c70cd2`；收录文件 833 个，分卷 8 个。
+> 自动生成：2026-08-15 18:06:05 +08:00；UTF-8 BOM；索引不再内嵌全部源码。
+> Git：分支 `main`，提交 `8d94aee`；收录文件 835 个，分卷 8 个。
 
 ## 使用方法
 
@@ -28,18 +28,19 @@
 | 分卷 | 文件数 | 字符数 | 建议用途 |
 |---|---:|---:|---|
 | `deepseek-context/01-foundation.md` | 92 | 219465 | 构建、配置、资源、数据库迁移 |
-| `deepseek-context/02-backend.md` | 296 | 1232985 | Spring 后端实现 |
-| `deepseek-context/03-tests.md` | 115 | 395720 | Spring 测试与行为验证 |
-| `deepseek-context/04-frontend.md` | 36 | 559706 | Vite Web 源码 |
-| `deepseek-context/05-android-main.md` | 144 | 887780 | Android 实现、资源与 Gradle |
+| `deepseek-context/02-backend.md` | 297 | 1235679 | Spring 后端实现 |
+| `deepseek-context/03-tests.md` | 116 | 398411 | Spring 测试与行为验证 |
+| `deepseek-context/04-frontend.md` | 36 | 559861 | Vite Web 源码 |
+| `deepseek-context/05-android-main.md` | 144 | 887885 | Android 实现、资源与 Gradle |
 | `deepseek-context/06-android-tests.md` | 59 | 143956 | Android 单元及设备测试 |
-| `deepseek-context/07-platform-release.md` | 13 | 85639 | Windows、CI/CD 与发布 |
+| `deepseek-context/07-platform-release.md` | 13 | 86169 | Windows、CI/CD 与发布 |
 | `deepseek-context/08-docs-scripts.md` | 78 | 266391 | 需求、架构、维护脚本 |
 
 ## 当前 Git 工作区（最近修改）
 
 ```text
-M android-app/app/build.gradle
+M DEEPSEEK_PROJECT_CONTEXT.md
+ M android-app/app/build.gradle
  M android-app/app/src/main/java/cn/longer233/gamenarrator/mobile/MobileReleaseNotes.java
  M frontend/index.html
  M frontend/package-lock.json
@@ -52,12 +53,16 @@ M android-app/app/build.gradle
  M release/CHANGELOG.json
  M release/installer/GameNarrator-Demo-Lite.iss
  M release/installer/GameNarrator.iss
- M src/main/java/cn/longer233/gamenarrator/script/ScriptWorkspaceService.java
+ M src/main/java/cn/longer233/gamenarrator/export/ExportService.java
+ M src/main/java/cn/longer233/gamenarrator/quality/NarrativeConsistencyService.java
  M src/main/resources/static/app.js
  M src/main/resources/static/index.html
  M src/main/resources/static/updates.js
+ M src/test/java/cn/longer233/gamenarrator/export/ExportOwnershipTest.java
+ M src/test/java/cn/longer233/gamenarrator/quality/NarrativeConsistencyServiceTest.java
 ?? artifacts/
-?? src/main/java/cn/longer233/gamenarrator/script/ScriptArtifactStore.java
+?? src/main/java/cn/longer233/gamenarrator/pipeline/TaskArtifactLocator.java
+?? src/test/java/cn/longer233/gamenarrator/pipeline/TaskArtifactLocatorTest.java
 ```
 
 ## Flyway 迁移索引
@@ -113,10 +118,10 @@ M android-app/app/build.gradle
 - `.github/workflows/release-version.yml`
 - `android-app/gradle.properties`
 - `android-app/gradle/wrapper/gradle-wrapper.properties`
-- `src/main/resources/application.yml`
 - `src/main/resources/application-lite.yml`
 - `src/main/resources/application-postgresql.yml`
 - `src/main/resources/application-release.yml`
+- `src/main/resources/application.yml`
 
 ## API 路由索引（按 Controller 注解静态提取）
 
@@ -243,10 +248,10 @@ M android-app/app/build.gradle
 | POST | `/api/effect-presets/import` | `src/main/java/cn/longer233/gamenarrator/effect/EffectController.java` |
 | POST | `/api/knowledge-packs` | `src/main/java/cn/longer233/gamenarrator/event/GameKnowledgePackController.java` |
 | POST | `/api/media-import/cookies` | `src/main/java/cn/longer233/gamenarrator/importer/MediaImportController.java` |
-| POST | `/api/media-import/download` | `src/main/java/cn/longer233/gamenarrator/importer/MediaImportController.java` |
 | POST | `/api/media-import/download-jobs` | `src/main/java/cn/longer233/gamenarrator/importer/MediaImportController.java` |
-| POST | `/api/media-import/preview` | `src/main/java/cn/longer233/gamenarrator/importer/MediaImportController.java` |
+| POST | `/api/media-import/download` | `src/main/java/cn/longer233/gamenarrator/importer/MediaImportController.java` |
 | POST | `/api/media-import/preview-jobs` | `src/main/java/cn/longer233/gamenarrator/importer/MediaImportController.java` |
+| POST | `/api/media-import/preview` | `src/main/java/cn/longer233/gamenarrator/importer/MediaImportController.java` |
 | POST | `/api/media-import/projects` | `src/main/java/cn/longer233/gamenarrator/importer/MediaImportController.java` |
 | POST | `/api/media-import/resolve` | `src/main/java/cn/longer233/gamenarrator/importer/MediaImportController.java` |
 | POST | `/api/tasks/{id}/cancel` | `src/main/java/cn/longer233/gamenarrator/task/web/VideoTaskController.java` |

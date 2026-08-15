@@ -24,6 +24,8 @@ public final class MobileReleaseNotes {
 
     public static List<Note> notes() {
         List<Note> notes = new ArrayList<>();
+        notes.add(new Note("2.2.39", "任务产物读取统一",
+                "导出与叙事证据检查优先读取统一产物索引，并为旧任务保留安全兼容回退。"));
         notes.add(new Note("2.2.38", "脚本产物存储统一",
                 "同步更新各平台版本，完成对应功能修复、稳定性检查与发布记录。"));
         notes.add(new Note("2.2.37", "单实现模型适配层精简",

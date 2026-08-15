@@ -1,5 +1,6 @@
 const releases = [
-  {version:'2.2.38', title:'脚本产物存储统一', current:true, items:["同步更新 Web、Windows 与 Android 版本","完成本版本功能修复与稳定性检查","创建并同步 GitHub、Gitee 发布标签"], jump:{view:'studio', selector:'#task-list'}},
+  {version:'2.2.39', title:'任务产物读取统一', current:true, items:["新增统一任务产物定位入口","导出与叙事证据检查优先读取 artifact 索引","旧任务缺少索引时安全回退旧路径"], jump:{view:'studio', selector:'#task-list'}},
+  {version:'2.2.38', title:'脚本产物存储统一', items:["同步更新 Web、Windows 与 Android 版本","完成本版本功能修复与稳定性检查","创建并同步 GitHub、Gitee 发布标签"], jump:{view:'studio', selector:'#task-list'}},
   {version:'2.2.37', title:'单实现模型适配层精简', items:["同步更新 Web、Windows 与 Android 版本","完成本版本功能修复与稳定性检查","创建并同步 GitHub、Gitee 发布标签"], jump:{view:'studio', selector:'#task-list'}},
   {version:'2.2.36', title:'流水线阶段状态统一', items:["同步更新 Web、Windows 与 Android 版本","完成本版本功能修复与稳定性检查","创建并同步 GitHub、Gitee 发布标签"], jump:{view:'studio', selector:'#task-list'}},
   {version:'2.2.35', title:'运行配置项收敛', items:["同步更新 Web、Windows 与 Android 版本","完成本版本功能修复与稳定性检查","创建并同步 GitHub、Gitee 发布标签"], jump:{view:'studio', selector:'#task-list'}},

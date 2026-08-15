@@ -119,7 +119,7 @@ document.querySelector('#updates-open')?.addEventListener('click', async event =
   try { await loadLazyScript('updates'); document.querySelector('#updates-dialog')?.showModal(); }
   catch (error) { window.alert(error.message); } finally { button.disabled = false; }
 });
-if (localStorage.getItem('gameNarrator.lastSeenRelease') === '2.2.38') document.querySelector('#updates-open')?.classList.remove('has-update');
+if (localStorage.getItem('gameNarrator.lastSeenRelease') === '2.2.39') document.querySelector('#updates-open')?.classList.remove('has-update');
 window.addEventListener('gamenarrator-release-jump', event => {
   const {view='studio', selector, note} = event.detail || {}; activateView(view, true);
   setTimeout(() => {
@@ -2062,7 +2062,7 @@ const guideSteps = [
   {selector: '.history-panel', title: '第 5 步：从最左侧历史继续', text: '只有真正生成完成的任务才会进入页面最左侧“最近完成”列表。处理中、等待检查、失败或取消的任务都留在右侧，避免被误认为已经完成。点击已完成条目可查看生成文件、分镜、文案、时间线和最终视频。'},
   {selector: '.storyboard-review-option', title: '第 6 步：检查分镜再继续', text: '开启分镜检查后，流程会在文案与分镜生成后暂停。进入线性分镜工作台可调整顺序、起止时间、字幕、解说、素材和特效；保存全部修改后再继续配音与渲染。'},
   {selector: '.primary-nav', title: '更多工具入口', text: '“镜头搜索”使用本地语义模型寻找片段；“平台导入”负责下载并创建项目；“素材库”管理授权素材；“设置”管理云端或本地 AI。遇到问题可点击右上角“诊断日志”。'},
-  {selector: '.topbar-actions', title: '完成、诊断与再次查看', text: '任务完成后在详情中预览并导出 MP4。任何阶段失败时先查看任务详情和诊断日志；本引导可以随时从“使用引导”重新打开。当前版本为 v2.2.38。'}
+  {selector: '.topbar-actions', title: '完成、诊断与再次查看', text: '任务完成后在详情中预览并导出 MP4。任何阶段失败时先查看任务详情和诊断日志；本引导可以随时从“使用引导”重新打开。当前版本为 v2.2.39。'}
 ];
 const guideStepViews = new Map([
   ['.hero', 'studio'],
