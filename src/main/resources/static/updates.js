@@ -1,5 +1,6 @@
 const releases = [
-  {version:'2.2.40', title:'素材来源收敛', current:true, items:["开放搜索统一为 Wikimedia","Bilibili 保留为需权利确认的视频候选","移除三套旧来源客户端与密钥设置"], jump:{view:'studio', selector:'#task-list'}},
+  {version:'2.2.41', title:'URL 媒体导入统一', current:true, items:["平台 URL 统一通过 yt-dlp 解析、预览、字幕和下载","移除自动 Cookie 读取、Bilibili 专用登录和专栏抓取旁路","登录受限内容仅接受用户主动上传且按平台过滤的临时 cookies.txt"], jump:{view:'import', selector:'#media-resolve-form'}},
+  {version:'2.2.40', title:'素材来源收敛', items:["开放搜索统一为 Wikimedia","Bilibili 保留为需权利确认的视频候选","移除三套旧来源客户端与密钥设置"], jump:{view:'studio', selector:'#task-list'}},
   {version:'2.2.39', title:'任务产物读取统一', items:["新增统一任务产物定位入口","导出与叙事证据检查优先读取 artifact 索引","旧任务缺少索引时安全回退旧路径"], jump:{view:'studio', selector:'#task-list'}},
   {version:'2.2.38', title:'脚本产物存储统一', items:["同步更新 Web、Windows 与 Android 版本","完成本版本功能修复与稳定性检查","创建并同步 GitHub、Gitee 发布标签"], jump:{view:'studio', selector:'#task-list'}},
   {version:'2.2.37', title:'单实现模型适配层精简', items:["同步更新 Web、Windows 与 Android 版本","完成本版本功能修复与稳定性检查","创建并同步 GitHub、Gitee 发布标签"], jump:{view:'studio', selector:'#task-list'}},

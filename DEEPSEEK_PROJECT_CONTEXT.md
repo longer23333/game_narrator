@@ -1,7 +1,7 @@
 ﻿# GameNarrator — DeepSeek 结构化项目索引
 
-> 自动生成：2026-08-15 18:20:13 +08:00；UTF-8 BOM；索引不再内嵌全部源码。
-> Git：分支 `main`，提交 `be3c461`；收录文件 827 个，分卷 8 个。
+> 自动生成：2026-08-15 18:44:25 +08:00；UTF-8 BOM；索引不再内嵌全部源码。
+> Git：分支 `unknown`，提交 `unknown`；收录文件 827 个，分卷 8 个。
 
 ## 使用方法
 
@@ -28,65 +28,18 @@
 | 分卷 | 文件数 | 字符数 | 建议用途 |
 |---|---:|---:|---|
 | `deepseek-context/01-foundation.md` | 92 | 218639 | 构建、配置、资源、数据库迁移 |
-| `deepseek-context/02-backend.md` | 290 | 1211099 | Spring 后端实现 |
+| `deepseek-context/02-backend.md` | 290 | 1210553 | Spring 后端实现 |
 | `deepseek-context/03-tests.md` | 115 | 394877 | Spring 测试与行为验证 |
-| `deepseek-context/04-frontend.md` | 36 | 553625 | Vite Web 源码 |
-| `deepseek-context/05-android-main.md` | 144 | 888004 | Android 实现、资源与 Gradle |
+| `deepseek-context/04-frontend.md` | 36 | 542545 | Vite Web 源码 |
+| `deepseek-context/05-android-main.md` | 144 | 888126 | Android 实现、资源与 Gradle |
 | `deepseek-context/06-android-tests.md` | 59 | 143956 | Android 单元及设备测试 |
-| `deepseek-context/07-platform-release.md` | 13 | 86710 | Windows、CI/CD 与发布 |
-| `deepseek-context/08-docs-scripts.md` | 78 | 266086 | 需求、架构、维护脚本 |
+| `deepseek-context/07-platform-release.md` | 13 | 77848 | Windows、CI/CD 与发布 |
+| `deepseek-context/08-docs-scripts.md` | 78 | 266556 | 需求、架构、维护脚本 |
 
 ## 当前 Git 工作区（最近修改）
 
 ```text
-M android-app/app/build.gradle
- M android-app/app/src/main/java/cn/longer233/gamenarrator/mobile/MobileReleaseNotes.java
- M docs/ASSET_LIBRARY_DESIGN.md
- M docs/CONFIGURATION_REFERENCE.md
- M docs/DATABASE_DESIGN.md
- M frontend/index.html
- M frontend/package-lock.json
- M frontend/package.json
- M frontend/public/app.css
- M frontend/public/app.js
- M frontend/public/asset-library.js
- M frontend/public/ui-refresh.css
- M frontend/public/updates.js
- M frontend/src/memphis-theme.css
- M launcher/GameNarrator.Launcher.csproj
- M package.json
- M pom.xml
- M release/CHANGELOG.json
- M release/installer/GameNarrator-Demo-Lite.iss
- M release/installer/GameNarrator.iss
- M src/main/java/cn/longer233/gamenarrator/asset/AssetCatalogService.java
- M src/main/java/cn/longer233/gamenarrator/asset/AssetLibraryProperties.java
- D src/main/java/cn/longer233/gamenarrator/asset/AssetProviderCredentialController.java
- D src/main/java/cn/longer233/gamenarrator/asset/AssetProviderCredentialRequest.java
- D src/main/java/cn/longer233/gamenarrator/asset/AssetProviderCredentialService.java
- D src/main/java/cn/longer233/gamenarrator/asset/AssetProviderCredentialView.java
- M src/main/java/cn/longer233/gamenarrator/asset/AssetReferenceRequest.java
- M src/main/java/cn/longer233/gamenarrator/asset/AssetSearchRequest.java
- M src/main/java/cn/longer233/gamenarrator/asset/ChineseAssetQueryExpander.java
- D src/main/java/cn/longer233/gamenarrator/asset/OpenverseAssetClient.java
- D src/main/java/cn/longer233/gamenarrator/asset/PexelsAssetClient.java
- D src/main/java/cn/longer233/gamenarrator/asset/PixabayAssetClient.java
- M src/main/java/cn/longer233/gamenarrator/script/StoryboardAssetPlacementService.java
- M src/main/resources/application-lite.yml
- M src/main/resources/application.yml
- M src/main/resources/static/app.css
- M src/main/resources/static/app.js
- M src/main/resources/static/asset-library.js
- M src/main/resources/static/assets/memphis-theme.css
- M src/main/resources/static/index.html
- M src/main/resources/static/ui-refresh.css
- M src/main/resources/static/updates.js
- D src/test/java/cn/longer233/gamenarrator/asset/AssetProviderCredentialControllerTest.java
- D src/test/java/cn/longer233/gamenarrator/asset/AssetProviderCredentialServiceTest.java
- M src/test/java/cn/longer233/gamenarrator/asset/AssetSearchResilienceTest.java
- M src/test/java/cn/longer233/gamenarrator/script/StoryboardAssetPlacementServiceTest.java
-?? artifacts/
-?? src/test/java/cn/longer233/gamenarrator/asset/AssetProviderContractionTest.java
+clean or unavailable
 ```
 
 ## Flyway 迁移索引
@@ -195,7 +148,6 @@ M android-app/app/build.gradle
 | GET | `/api/exports/{jobId}` | `src/main/java/cn/longer233/gamenarrator/export/ExportController.java` |
 | GET | `/api/knowledge-packs/{code}/export` | `src/main/java/cn/longer233/gamenarrator/event/GameKnowledgePackController.java` |
 | GET | `/api/knowledge-packs` | `src/main/java/cn/longer233/gamenarrator/event/GameKnowledgePackController.java` |
-| GET | `/api/media-import/browser-auth/config` | `src/main/java/cn/longer233/gamenarrator/importer/MediaImportController.java` |
 | GET | `/api/media-import/download-jobs/{id}` | `src/main/java/cn/longer233/gamenarrator/importer/MediaImportController.java` |
 | GET | `/api/media-import/files/{token}` | `src/main/java/cn/longer233/gamenarrator/importer/MediaImportController.java` |
 | GET | `/api/media-import/preview-jobs/{id}` | `src/main/java/cn/longer233/gamenarrator/importer/MediaImportController.java` |

@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>GameNarrator 2.2.40</title>
+  <title>GameNarrator 2.2.41</title>
   <link rel="stylesheet" href="/media-importer.css?v=20260729-10">
   <link rel="stylesheet" href="/app.css?v=20260803-13">
   <link rel="stylesheet" href="/ui-refresh.css?v=20260811-1">
@@ -14,7 +14,7 @@
 <body>
   <div class="aurora"></div>
   <header class="topbar">
-    <a class="brand" href="/">GAME<span>NARRATOR</span><small class="app-version">v2.2.40</small></a>
+    <a class="brand" href="/">GAME<span>NARRATOR</span><small class="app-version">v2.2.41</small></a>
     <nav class="primary-nav" aria-label="主要功能">
       <a href="/?view=studio" data-view-link="studio">剪辑任务</a>
       <a href="/?view=search" data-view-link="search">镜头搜索</a>
@@ -175,24 +175,11 @@
         <div><small>AUTHORIZED MEDIA IMPORT</small><h2>平台素材导入</h2></div>
         <span class="step">URL</span>
       </div>
-      <p class="asset-library-note">粘贴 Bilibili、YouTube、抖音或 TikTok 链接，解析可用视频、音频与字幕。仅用于本人创作、已获授权或平台明确允许下载的内容。</p>
+      <p class="asset-library-note">本地文件直接上传；平台链接统一交给 yt-dlp 解析视频、音频与字幕。仅用于本人创作、已获授权或平台明确允许下载的内容。</p>
       <form id="media-resolve-form" class="media-resolve-form">
-        <div class="auto-auth-state"><strong>自动浏览器认证</strong><small>安装并连接一次登录助手后，平台要求登录时会自动读取当前用户的浏览器登录状态。<a href="/extension-install.html" target="_blank" rel="noopener">安装登录助手</a></small></div>
-        <section class="bilibili-login-panel" aria-label="Bilibili 账号连接">
-          <div><strong>Bilibili 账号连接</strong><small>登录在 B站官方页面完成；GameNarrator 不接触或保存账号密码。</small></div>
-          <button type="button" data-bilibili-login="QR">扫码登录</button>
-          <button type="button" data-bilibili-login="ACCOUNT">账号密码登录</button>
-          <span data-bilibili-login-state>尚未连接</span>
-          <div class="bilibili-article-extractor">
-            <label>B站专栏地址<input type="url" data-bilibili-article-url placeholder="https://www.bilibili.com/read/cv... 或 opus/..." /></label>
-            <button type="button" data-bilibili-article-extract>提取专栏图文</button>
-            <small>提取专栏标题、正文和图片候选；受限内容需要先登录 Bilibili。</small>
-            <div data-bilibili-article-result></div>
-          </div>
-        </section>
         <label class="media-url-field">视频地址<input name="url" type="url" required placeholder="粘贴完整视频网址，例如：https://www.bilibili.com/video/BV..."></label>
-        <details class="cookie-fallback"><summary>登录受限视频的备用认证</summary>
-          <label>Cookie 文件<input name="cookieFile" type="file" accept=".txt,text/plain"><small>只有平台拒绝匿名访问时才需要。Netscape cookies.txt 仅保留当前平台域名，1 小时内自动删除。</small></label>
+        <details class="cookie-fallback"><summary>平台要求登录？上传临时 Cookie 文件</summary>
+          <label>Cookie 文件<input name="cookieFile" type="file" accept=".txt,text/plain"><small>Netscape cookies.txt 仅保留当前平台域名，下载完成或 1 小时内自动删除。</small></label>
         </details>
         <label class="effect-toggle rights-confirm"><input name="rightsConfirmed" type="checkbox" required>我确认拥有下载和再创作所需权利</label>
         <button type="submit">开始解析</button>

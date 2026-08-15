@@ -2,29 +2,15 @@
   const form = document.querySelector("#media-resolve-form");
   const result = document.querySelector("#media-resolve-result");
   const message = document.querySelector("#media-import-message");
-  const bilibiliLoginState = document.querySelector("[data-bilibili-login-state]");
   if (!form || !result) return;
   let resolvedUrl = "";
   let cookieToken = "";
   let resolvedMedia = null;
   let autoDownloadRequested = false;
   let autoPreviewRequested = false;
-  const authenticationPreferencesKey = 'mediaAuthentication';
   const mediaPreferencesKey = 'mediaImport';
   const readJsonPreference = (key, fallback = {}) => {
     return window.gameNarratorPreferences?.get(key, fallback) || fallback;
-  };
-  const sourcePlatform = sourceUrl => {
-    try { return new URL(sourceUrl).hostname.toLowerCase().replace(/^www\./, ''); }
-    catch { return ''; }
-  };
-  const remembersAuthentication = sourceUrl => Boolean(readJsonPreference(authenticationPreferencesKey)[sourcePlatform(sourceUrl)]);
-  const rememberAuthentication = sourceUrl => {
-    const platform = sourcePlatform(sourceUrl);
-    if (!platform) return;
-    window.gameNarratorPreferences?.set(authenticationPreferencesKey, {
-      ...readJsonPreference(authenticationPreferencesKey), [platform]:true
-    });
   };
   const escapeHtml = value => String(value ?? "").replace(/[&<>"']/g, char => ({
     "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;"
@@ -57,135 +43,8 @@
     if (!response.ok) throw new Error(data.message || `Cookie 上传失败（HTTP ${response.status}）`);
     return data.token;
   }
-  const isAuthenticationError = error => /(登录|认证|cookie|http 40[123]|sign in|login|no video formats found)/i.test(error.message || "");
   const resolveMedia = token => request("/api/media-import/resolve", {
     url:resolvedUrl, rightsConfirmed:true, cookieToken:token || null
-  });
-  function requestBrowserAuthentication(sourceUrl) {
-    return new Promise((resolve, reject) => {
-      const requestId = crypto.randomUUID();
-      const timeout = setTimeout(() => {
-        window.removeEventListener("gamenarrator-browser-auth-response", receive);
-        reject(new Error("未检测到已连接的登录助手扩展"));
-      }, 12000);
-      function receive(event) {
-        if (event.detail?.requestId !== requestId) return;
-        clearTimeout(timeout);
-        window.removeEventListener("gamenarrator-browser-auth-response", receive);
-        if (event.detail.error) reject(new Error(event.detail.error));
-        else resolve(event.detail.token);
-      }
-      window.addEventListener("gamenarrator-browser-auth-response", receive);
-      window.dispatchEvent(new CustomEvent("gamenarrator-browser-auth-request", {
-        detail:{requestId, sourceUrl}
-      }));
-    });
-  }
-  function requestBilibiliLogin(mode) {
-    return new Promise((resolve, reject) => {
-      const requestId = crypto.randomUUID();
-      const desktopBridge = window.chrome?.webview;
-      const timeout = setTimeout(() => {
-        window.removeEventListener("gamenarrator-bilibili-login-response", receive);
-        desktopBridge?.removeEventListener("message", receiveDesktop);
-        reject(new Error("等待 Bilibili 登录超时，请重试"));
-      }, 190000);
-      function receive(event) {
-        if (event.detail?.requestId !== requestId) return;
-        clearTimeout(timeout);
-        window.removeEventListener("gamenarrator-bilibili-login-response", receive);
-        if (event.detail.error) reject(new Error(event.detail.error));
-        else resolve(event.detail.token);
-      }
-      function receiveDesktop(event) {
-        if (event.data?.type !== "bilibiliLoginResponse" || event.data?.requestId !== requestId) return;
-        clearTimeout(timeout);
-        desktopBridge.removeEventListener("message", receiveDesktop);
-        if (event.data.error) reject(new Error(event.data.error));
-        else resolve(event.data.token);
-      }
-      if (desktopBridge) {
-        desktopBridge.addEventListener("message", receiveDesktop);
-        desktopBridge.postMessage({type:"bilibiliLogin", requestId, mode});
-      } else {
-        window.addEventListener("gamenarrator-bilibili-login-response", receive);
-        window.dispatchEvent(new CustomEvent("gamenarrator-bilibili-login-request", {
-          detail:{requestId, mode}
-        }));
-      }
-    });
-  }
-  document.querySelectorAll("[data-bilibili-login]").forEach(button => button.addEventListener("click", async () => {
-    const buttons = [...document.querySelectorAll("[data-bilibili-login]")];
-    buttons.forEach(item => { item.disabled = true; });
-    const mode = button.dataset.bilibiliLogin;
-    bilibiliLoginState.textContent = mode === "QR"
-      ? "正在打开 B站官方页面，请扫码完成登录…"
-      : "正在打开 B站官方页面，请在官方页面输入账号密码…";
-    try {
-      cookieToken = await requestBilibiliLogin(mode);
-      rememberAuthentication("https://www.bilibili.com/");
-      bilibiliLoginState.textContent = "已连接 Bilibili，本次会话可直接解析登录内容";
-      window.dispatchEvent(new CustomEvent('gamenarrator-bilibili-login-success'));
-    } catch (error) {
-      bilibiliLoginState.textContent = error.message;
-      window.gameNarratorDiagnosticEvent?.(error.message, `bilibili-login-${mode.toLowerCase()}`);
-    } finally {
-      buttons.forEach(item => { item.disabled = false; });
-    }
-  }));
-  function requestBilibiliArticle(sourceUrl) {
-    return new Promise((resolve, reject) => {
-      const requestId = crypto.randomUUID();
-      const desktopBridge = window.chrome?.webview;
-      const timeout = setTimeout(() => finish(new Error("等待 Bilibili 专栏页面超时")), 90000);
-      const finish = (error, value) => {
-        clearTimeout(timeout);
-        desktopBridge?.removeEventListener("message", desktopReceive);
-        window.removeEventListener("gamenarrator-bilibili-article-response", browserReceive);
-        error ? reject(error) : resolve(value);
-      };
-      const desktopReceive = event => {
-        if (event.data?.type !== "bilibiliArticleResponse" || event.data?.requestId !== requestId) return;
-        finish(event.data.error ? new Error(event.data.error) : null, event.data.article);
-      };
-      const browserReceive = event => {
-        if (event.detail?.requestId !== requestId) return;
-        finish(event.detail.error ? new Error(event.detail.error) : null, event.detail.article);
-      };
-      if (desktopBridge) {
-        desktopBridge.addEventListener("message", desktopReceive);
-        desktopBridge.postMessage({type:"bilibiliArticle", requestId, sourceUrl});
-      } else {
-        window.addEventListener("gamenarrator-bilibili-article-response", browserReceive);
-        window.dispatchEvent(new CustomEvent("gamenarrator-bilibili-article-request", {detail:{requestId,sourceUrl}}));
-      }
-    });
-  }
-  document.querySelector("[data-bilibili-article-extract]")?.addEventListener("click", async event => {
-    const sourceUrl = document.querySelector("[data-bilibili-article-url]")?.value?.trim();
-    const box = document.querySelector("[data-bilibili-article-result]");
-    if (!/^https:\/\/(?:www\.)?bilibili\.com\/(?:read\/cv\d+|opus\/\d+)/i.test(sourceUrl || "")) {
-      box.textContent = "请输入有效的 Bilibili 专栏或动态文章地址"; return;
-    }
-    event.target.disabled = true; box.textContent = "正在打开 B站页面并提取图文…";
-    try {
-      const article = await requestBilibiliArticle(sourceUrl);
-      const images = [...new Set(article.images || [])].slice(0,30);
-      await Promise.allSettled(images.map((url,index) => request("/api/assets/references", {
-        provider:"BILIBILI", sourceUrl, previewUrl:url, downloadUrl:null,
-        title:`${article.title || "B站专栏"} · 图片 ${index+1}`, creator:article.author || null,
-        assetType:"MEME", licenseCode:"RIGHTS_REVIEW_REQUIRED", licenseUrl:null,
-        attribution:"Bilibili 专栏提取图片；使用前必须确认转载、修改与商用权限",
-        platformTags:["Bilibili专栏","专栏图片","待权利确认"]
-      })));
-      box.className = "bilibili-article-result";
-      box.innerHTML = `<h4>${escapeHtml(article.title || "未命名专栏")}</h4><small>${escapeHtml(article.author || "未知作者")} · 已提取 ${images.length} 张图片</small><p>${escapeHtml(article.text || "未提取到正文")}</p><div class="bilibili-article-images">${images.map((url, index) => `<img src="${escapeHtml(url)}" alt="专栏图片 ${index + 1}" loading="lazy" referrerpolicy="no-referrer">`).join("")}</div>`;
-      document.dispatchEvent(new CustomEvent("asset-library-updated"));
-    } catch (error) {
-      box.textContent = `${error.message}。如内容需要登录，请先完成上方 Bilibili 登录。`;
-      window.gameNarratorDiagnosticEvent?.(error.message,"bilibili-article");
-    } finally { event.target.disabled = false; }
   });
   function showResolvedMedia(media) {
     resolvedMedia = media;
@@ -251,24 +110,9 @@
       if (cookieFile && cookieFile.size > 0) {
         message.textContent = "正在安全导入当前平台的临时 Cookie…";
         cookieToken = await uploadCookieFile(cookieFile, resolvedUrl);
-      } else if (remembersAuthentication(resolvedUrl)) {
-        message.textContent = "正在恢复此平台的浏览器登录状态…";
-        cookieToken = await requestBrowserAuthentication(resolvedUrl).catch(() => "");
       }
       showResolvedMedia(await resolveMedia(cookieToken));
     } catch(error) {
-      if (!cookieToken && (!cookieFile || cookieFile.size === 0) && isAuthenticationError(error)) {
-        try {
-          message.textContent = "平台要求登录，正在通过浏览器扩展自动读取登录状态…";
-          cookieToken = await requestBrowserAuthentication(resolvedUrl);
-          rememberAuthentication(resolvedUrl);
-          showResolvedMedia(await resolveMedia(cookieToken));
-          return;
-        } catch(extensionError) {
-          message.textContent = `${error.message}；${extensionError.message}。请安装并连接 GameNarrator 登录助手。`;
-          return;
-        }
-      }
       message.textContent = error.message;
     }
   });

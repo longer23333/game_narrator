@@ -24,6 +24,8 @@ public final class MobileReleaseNotes {
 
     public static List<Note> notes() {
         List<Note> notes = new ArrayList<>();
+        notes.add(new Note("2.2.41", "URL 媒体导入统一",
+                "桌面端平台 URL 统一由 yt-dlp 处理，并移除自动 Cookie 读取与平台专用导入旁路。"));
         notes.add(new Note("2.2.40", "素材来源收敛",
                 "桌面端开放素材搜索统一为 Wikimedia，并保留 Bilibili 权利确认候选与历史素材兼容。"));
         notes.add(new Note("2.2.39", "任务产物读取统一",

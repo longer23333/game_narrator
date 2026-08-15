@@ -58,13 +58,6 @@ public class YtDlpMediaImporter {
         return executable;
     }
 
-    public Map<String, Object> browserAuthenticationConfig(String sourceUrl) {
-        URI source = validateSource(sourceUrl);
-        MediaImportProperties.Platform platform = requirePlatform(source.getHost());
-        return Map.of("platform", platform.getId(),
-                "cookieDomains", List.copyOf(platform.getCookieDomains()));
-    }
-
     public String uploadCookies(MultipartFile file, String sourceUrl) {
         if (file == null || file.isEmpty()) {
             throw new IllegalArgumentException("请选择 cookies.txt 文件");

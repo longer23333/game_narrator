@@ -63,11 +63,6 @@ public class MediaImportController {
         return Map.of("available", importer.available(), "authentication", "CLIENT_COOKIE_UPLOAD");
     }
 
-    @GetMapping("/browser-auth/config")
-    public Map<String, Object> browserAuthenticationConfig(@RequestParam("url") String url) {
-        return importer.browserAuthenticationConfig(url);
-    }
-
     @PostMapping("/resolve")
     public ResolvedMedia resolve(@Valid @RequestBody MediaResolveRequest request, HttpSession session) {
         requireOwnedToken(session, request.cookieToken());

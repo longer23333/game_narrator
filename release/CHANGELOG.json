@@ -1,7 +1,17 @@
 {
     "schemaVersion":  1,
-    "currentVersion":  "2.2.40",
+    "currentVersion":  "2.2.41",
     "releases":  [
+                     {
+                         "version":  "2.2.41",
+                         "title":  "URL 媒体导入统一",
+                         "summary":  "平台 URL 导入统一收敛到 yt-dlp，并移除自动 Cookie 读取和平台专用导入旁路。",
+                         "items":  [
+                                       "平台 URL 统一通过 yt-dlp 解析、预览、字幕和下载",
+                                       "移除自动 Cookie 读取、Bilibili 专用登录和专栏抓取旁路",
+                                       "登录受限内容仅接受用户主动上传且按平台过滤的临时 cookies.txt"
+                                   ]
+                     },
                      {
                          "version":  "2.2.40",
                          "title":  "素材来源收敛",

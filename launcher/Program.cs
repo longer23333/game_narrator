@@ -49,7 +49,6 @@ internal static class Program {
         private readonly WebView2 webView = new() { Dock=DockStyle.Fill, Visible=false };
         private readonly NotifyIcon tray;
         private CoreWebView2Environment? webViewEnvironment;
-        private bool bilibiliLoginRunning;
         private bool startupRunning;
         private bool? requestedLocalAi;
 
@@ -192,158 +191,20 @@ internal static class Program {
                     DesktopLog($"BILIBILI_ASSETS_SUCCESS mode={assetRequestMode} count={items.GetArrayLength()}");
                     return;
                 }
-                if (type.GetString()=="bilibiliArticle") {
-                    var sourceUrl=root.TryGetProperty("sourceUrl",out var articleUrl) ? articleUrl.GetString() : null;
-                    if (string.IsNullOrWhiteSpace(requestId) || string.IsNullOrWhiteSpace(sourceUrl)) return;
-                    var article=await ExtractBilibiliArticleAsync(sourceUrl);
-                    PostArticleResponse(requestId,article,null);
-                    DesktopLog("BILIBILI_ARTICLE_EXTRACT_SUCCESS");
-                    return;
-                }
-                if (type.GetString()!="bilibiliLogin") return;
-                var mode=root.TryGetProperty("mode",out var selectedMode) ? selectedMode.GetString() : "QR";
-                if (string.IsNullOrWhiteSpace(requestId)) return;
-                if (bilibiliLoginRunning) throw new InvalidOperationException("Bilibili 登录窗口已经打开");
-                bilibiliLoginRunning=true;
-                DesktopLog($"BILIBILI_LOGIN_REQUEST mode={mode}");
-                var token=await LoginBilibiliAsync(mode ?? "QR");
-                PostLoginResponse(requestId,token,null);
-                DesktopLog("BILIBILI_LOGIN_SUCCESS");
+                return;
             } catch(Exception ex) {
-                DesktopLog($"BILIBILI_LOGIN_FAILED type={ex.GetType().Name} message={ex.Message}");
+                DesktopLog($"BILIBILI_ASSETS_FAILED type={ex.GetType().Name} message={ex.Message}");
                 if (!string.IsNullOrWhiteSpace(requestId)) {
                     using var failed=JsonDocument.Parse(e.WebMessageAsJson);
-                    if (failed.RootElement.GetProperty("type").GetString()=="bilibiliArticle")
-                        PostArticleResponse(requestId,null,ex.Message);
-                    else if (failed.RootElement.GetProperty("type").GetString()=="bilibiliAssets")
+                    if (failed.RootElement.GetProperty("type").GetString()=="bilibiliAssets")
                         PostAssetsResponse(requestId,null,ex.Message);
-                    else PostLoginResponse(requestId,null,ex.Message);
                 }
-            } finally {
-                bilibiliLoginRunning=false;
             }
-        }
-
-        private async Task<string> LoginBilibiliAsync(string mode) {
-            if (webViewEnvironment==null) throw new InvalidOperationException("桌面浏览器尚未准备完成");
-            var existing=await webView.CoreWebView2.CookieManager.GetCookiesAsync("https://www.bilibili.com/");
-            if (HasBilibiliSession(existing)) return await UploadBilibiliCookiesAsync(existing);
-            using var loginView=new WebView2 { Dock=DockStyle.Fill };
-            using var loginWindow=new Form {
-                Text=mode=="ACCOUNT" ? "Bilibili 官方账号登录" : "Bilibili 官方扫码登录",
-                Width=1100,Height=780,StartPosition=FormStartPosition.CenterParent,MinimizeBox=false
-            };
-            loginWindow.Controls.Add(loginView);
-            await loginView.EnsureCoreWebView2Async(webViewEnvironment);
-            loginView.CoreWebView2.Settings.AreDevToolsEnabled=false;
-            loginView.CoreWebView2.NavigationCompleted += async (_,_) => {
-                var account=mode=="ACCOUNT" ? "true" : "false";
-                await loginView.CoreWebView2.ExecuteScriptAsync("""
-                    (() => {
-                      const click = pattern => [...document.querySelectorAll('button,a,div,span')]
-                        .find(item => pattern.test((item.textContent || '').trim()))?.click();
-                      click(/^登录$/);
-                      if (ACCOUNT_MODE) setTimeout(() => click(/密码登录|账号登录/), 800);
-                    })();
-                    """.Replace("ACCOUNT_MODE",account));
-            };
-            loginView.Source=new Uri("https://www.bilibili.com/");
-            loginWindow.Show(this);
-            DesktopLog("BILIBILI_LOGIN_WINDOW_OPENED");
-            var deadline=DateTime.UtcNow.AddMinutes(3);
-            while (!loginWindow.IsDisposed && loginWindow.Visible && DateTime.UtcNow<deadline) {
-                var cookies=await loginView.CoreWebView2.CookieManager.GetCookiesAsync("https://www.bilibili.com/");
-                if (HasBilibiliSession(cookies)) {
-                    loginWindow.Close();
-                    return await UploadBilibiliCookiesAsync(cookies);
-                }
-                await Task.Delay(1000);
-            }
-            if (!loginWindow.IsDisposed) loginWindow.Close();
-            throw new InvalidOperationException(DateTime.UtcNow>=deadline
-                ? "等待 Bilibili 登录超时，请重试"
-                : "已取消 Bilibili 登录");
         }
 
         private static bool HasBilibiliSession(IReadOnlyList<CoreWebView2Cookie> cookies) {
             var names=cookies.Select(cookie=>cookie.Name).ToHashSet(StringComparer.Ordinal);
             return names.Contains("SESSDATA") && names.Contains("DedeUserID");
-        }
-
-        private static async Task<string> UploadBilibiliCookiesAsync(IReadOnlyList<CoreWebView2Cookie> cookies) {
-            var lines=new List<string>{"# Netscape HTTP Cookie File"};
-            foreach(var cookie in cookies) {
-                var expires=cookie.IsSession ? 0 : new DateTimeOffset(cookie.Expires.ToUniversalTime()).ToUnixTimeSeconds();
-                lines.Add(string.Join('\t',cookie.Domain,cookie.Domain.StartsWith('.') ? "TRUE" : "FALSE",
-                    string.IsNullOrEmpty(cookie.Path) ? "/" : cookie.Path,cookie.IsSecure ? "TRUE" : "FALSE",
-                    expires,cookie.Name,cookie.Value));
-            }
-            using var client=new HttpClient{Timeout=TimeSpan.FromSeconds(30)};
-            using var form=new MultipartFormDataContent();
-            var file=new ByteArrayContent(Encoding.UTF8.GetBytes(string.Join('\n',lines)+"\n"));
-            file.Headers.ContentType=new System.Net.Http.Headers.MediaTypeHeaderValue("text/plain");
-            form.Add(file,"file","bilibili-cookies.txt");
-            form.Add(new StringContent("https://www.bilibili.com/"),"url");
-            using var response=await client.PostAsync($"http://127.0.0.1:{AppPort}/api/media-import/cookies",form);
-            using var body=JsonDocument.Parse(await response.Content.ReadAsStringAsync());
-            if (!response.IsSuccessStatusCode) throw new InvalidOperationException(
-                body.RootElement.TryGetProperty("message",out var error) ? error.GetString() : "Bilibili 会话导入失败");
-            return body.RootElement.GetProperty("token").GetString()
-                ?? throw new InvalidOperationException("Bilibili 会话导入未返回令牌");
-        }
-
-        private void PostLoginResponse(string requestId,string? token,string? error) {
-            if (webView.CoreWebView2==null) return;
-            webView.CoreWebView2.PostWebMessageAsJson(JsonSerializer.Serialize(new {
-                type="bilibiliLoginResponse",requestId,token,error
-            }));
-        }
-
-        private async Task<JsonElement> ExtractBilibiliArticleAsync(string sourceUrl) {
-            if (webViewEnvironment==null) throw new InvalidOperationException("桌面浏览器尚未准备完成");
-            if (!Uri.TryCreate(sourceUrl,UriKind.Absolute,out var uri) || uri.Scheme!="https"
-                || !uri.Host.EndsWith("bilibili.com",StringComparison.OrdinalIgnoreCase)
-                || !(uri.AbsolutePath.StartsWith("/read/cv") || uri.AbsolutePath.StartsWith("/opus/")))
-                throw new InvalidOperationException("Bilibili 专栏地址无效");
-            var cookies=await webView.CoreWebView2.CookieManager.GetCookiesAsync("https://www.bilibili.com/");
-            if (!HasBilibiliSession(cookies)) throw new InvalidOperationException("请先登录 Bilibili，再提取专栏图文");
-            using var articleView=new WebView2 { Dock=DockStyle.Fill };
-            using var articleWindow=new Form {Text="Bilibili 专栏提取",Width=1100,Height=780,
-                StartPosition=FormStartPosition.CenterParent,MinimizeBox=false};
-            articleWindow.Controls.Add(articleView);
-            await articleView.EnsureCoreWebView2Async(webViewEnvironment);
-            var loaded=new TaskCompletionSource<bool>();
-            articleView.CoreWebView2.NavigationCompleted += (_,args) => loaded.TrySetResult(args.IsSuccess);
-            articleView.Source=uri; articleWindow.Show(this);
-            if (!await loaded.Task.WaitAsync(TimeSpan.FromSeconds(30)))
-                throw new InvalidOperationException("Bilibili 专栏页面加载失败");
-            JsonElement article=default;
-            for (var attempt=0;attempt<12;attempt++) {
-                var raw=await articleView.CoreWebView2.ExecuteScriptAsync("""
-                    (() => {
-                      const clean=v=>String(v||'').replace(/\s+/g,' ').trim();
-                      const root=document.querySelector('#article-content,.article-content,.opus-module-content,[class*=\"article-content\"],article')||document.body;
-                      const title=clean(document.querySelector('h1,.title,[class*=\"title\"]')?.textContent||document.title.replace(/_哔哩哔哩.*$/,''));
-                      const author=clean(document.querySelector('.up-name,.author-name,[class*=\"author\"]')?.textContent);
-                      const text=[...root.querySelectorAll('p,h2,h3,blockquote,li')].map(x=>clean(x.textContent)).filter(Boolean).join('\n').slice(0,50000);
-                      const images=[...new Set([...root.querySelectorAll('img')].map(x=>x.currentSrc||x.src||x.dataset.src||'').map(x=>x.startsWith('//')?'https:'+x:x.replace(/^http:/,'https:')).filter(x=>/^https:\/\//.test(x)&&!/face|avatar|logo/i.test(x)))].slice(0,50);
-                      return {title,author,text,images};
-                    })()
-                    """);
-                article=JsonSerializer.Deserialize<JsonElement>(raw);
-                if ((article.TryGetProperty("text",out var text) && text.GetString()?.Length>20)
-                    || (article.TryGetProperty("images",out var images) && images.GetArrayLength()>0)) break;
-                await Task.Delay(1000);
-            }
-            articleWindow.Close();
-            return article;
-        }
-
-        private void PostArticleResponse(string requestId,JsonElement? article,string? error) {
-            if (webView.CoreWebView2==null) return;
-            webView.CoreWebView2.PostWebMessageAsJson(JsonSerializer.Serialize(new {
-                type="bilibiliArticleResponse",requestId,article,error
-            }));
         }
 
         private async Task<JsonElement> ExtractBilibiliAssetsAsync(string mode,string? query,int page) {
