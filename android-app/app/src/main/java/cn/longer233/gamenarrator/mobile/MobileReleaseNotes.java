@@ -24,6 +24,8 @@ public final class MobileReleaseNotes {
 
     public static List<Note> notes() {
         List<Note> notes = new ArrayList<>();
+        notes.add(new Note("2.2.50", "权威文档入口收敛",
+                "开发、运维、数据库、性能与发布说明已收敛为更清晰的权威入口。"));
         notes.add(new Note("2.2.49", "旧任务路径列安全退役",
                 "历史路径完成回填后统一由产物索引定位，并安全删除十二个旧列。"));
         notes.add(new Note("2.2.48", "旧任务产物安全回填",

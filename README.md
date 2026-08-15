@@ -8,7 +8,7 @@
 完整产品范围、功能优先级和验收标准见 [产品需求文档](docs/REQUIREMENTS.md)。
 多用户、Token 统计、轻量工程和按需导出方案见 [数据库设计](docs/DATABASE_DESIGN.md)。
 本地 PostgreSQL、MinIO 与跨设备同步环境可运行 `scripts\start-local-cloud.cmd` 一键启动，详见
-[PostgreSQL 与跨设备项目同步](docs/POSTGRESQL_AND_CLOUD_SYNC.md)。
+[开发、PostgreSQL 与跨设备项目同步](docs/DEVELOPMENT_OPERATIONS.md)。
 
 ## 已实现
 

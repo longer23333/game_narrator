@@ -63,8 +63,13 @@
 ## 关键设计文档
 
 - [数据库设计](DATABASE_DESIGN.md)
-- [迁移与恢复策略](DATABASE_MIGRATION_POLICY.md)
-- [账号与云迁移](ACCOUNT_ADMIN_AND_CLOUD_MIGRATION.md)
+- [开发、账号与云迁移](DEVELOPMENT_OPERATIONS.md)
 - [性能与负载测试](PERFORMANCE_TESTING.md)
 - [Android 功能对齐](ANDROID_FEATURE_PARITY.md)
 - [发布流程](RELEASE_PROCESS.md)
+
+## 专题能力边界
+
+- AI 导演评审会保留角色建议、轮次与用户确认；模型输出不能越过人工确认直接发布。
+- 素材库以本地上传和 Wikimedia 为主要来源；Bilibili 只作为需权利确认的视频候选。标签、许可、归因和派生关系必须可追溯。
+- 切片合集、风格模板和手动编辑器都进入项目修订。模板只保存参数、不携带用户媒体；无 AI 模式仍支持监视、精剪、时间线、批量保存与撤销/重做。

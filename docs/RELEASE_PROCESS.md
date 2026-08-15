@@ -1,5 +1,7 @@
 # 统一发布流程
 
+版本只通过 `scripts/update-release-version.ps1` 更新；每个可独立验收的功能使用一个语义版本和一个中文提交。推送完成后必须核对本地、GitHub 与 Gitee 的完整提交哈希。
+
 GameNarrator 的 Web、Windows 与 Android 使用同一个语义版本。权威版本来自根目录 `pom.xml`，Android `versionName` 必须与其完全一致；`versionCode` 按 `major * 1,000,000 + minor * 1,000 + patch` 生成并保持单调递增。Android 更新公告测试直接比较 `BuildConfig.VERSION_NAME`，不再维护另一份硬编码当前版本。
 
 `release/CHANGELOG.json` 是当前发布说明的权威来源。Web 更新公告与 Android `MobileReleaseNotes` 的首条记录必须与其 `currentVersion`、标题一致。历史 `0.x` Android 公告仅作为迁移前记录保留，不再产生独立 Android 版本。
