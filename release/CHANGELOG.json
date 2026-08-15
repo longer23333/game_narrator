@@ -1,7 +1,17 @@
 {
     "schemaVersion":  1,
-    "currentVersion":  "2.2.41",
+    "currentVersion":  "2.2.42",
     "releases":  [
+                     {
+                         "version":  "2.2.42",
+                         "title":  "流水线恢复读取统一",
+                         "summary":  "流水线恢复上下文统一从 artifact 索引读取阶段产物，并为旧任务保留固定白名单回退。",
+                         "items":  [
+                                       "恢复上下文统一从 artifact 索引读取七类阶段产物",
+                                       "旧任务缺少索引时继续使用固定白名单安全回退",
+                                       "新增测试证明不再直接依赖 VideoTask 阶段路径字段"
+                                   ]
+                     },
                      {
                          "version":  "2.2.41",
                          "title":  "URL 媒体导入统一",

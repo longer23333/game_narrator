@@ -27,16 +27,19 @@ public class TaskWorkflowStateService {
     private final cn.longer233.gamenarrator.transcription.TerminologyCorrector terminologyCorrector;
     private final cn.longer233.gamenarrator.transcription.SpeakerDiarizationService speakerDiarization;
     private final ProjectArtifactRegistry artifactRegistry;
+    private final TaskArtifactLocator artifactLocator;
 
     public TaskWorkflowStateService(VideoTaskRepository repository, PipelineRunTracker runTracker,
                                     cn.longer233.gamenarrator.transcription.TerminologyCorrector terminologyCorrector,
                                     cn.longer233.gamenarrator.transcription.SpeakerDiarizationService speakerDiarization,
-                                    ProjectArtifactRegistry artifactRegistry) {
+                                    ProjectArtifactRegistry artifactRegistry,
+                                    TaskArtifactLocator artifactLocator) {
         this.repository = repository;
         this.runTracker = runTracker;
         this.terminologyCorrector = terminologyCorrector;
         this.speakerDiarization = speakerDiarization;
         this.artifactRegistry = artifactRegistry;
+        this.artifactLocator = artifactLocator;
     }
 
     @Transactional
@@ -46,14 +49,14 @@ public class TaskWorkflowStateService {
                 task.getSourceVideoPath(),
                 completedStages(task),
                 task.getAudioCodec() != null && !"none".equalsIgnoreCase(task.getAudioCodec()),
-                task.getExtractedAudioPath(),
-                task.getSceneManifestPath(),
+                artifactPath(taskId, "EXTRACTED_AUDIO"),
+                artifactPath(taskId, "SCENE_MANIFEST"),
                 task.getTranscriptText(),
-                task.getVisualAnalysisPath(),
-                task.getHighlightManifestPath(),
-                task.getGeneratedScriptPath(),
-                task.getVoiceManifestPath(),
-                task.getTimelinePath(),
+                artifactPath(taskId, "VISION_ANALYSIS"),
+                artifactPath(taskId, "HIGHLIGHT_MANIFEST"),
+                artifactPath(taskId, "SCRIPT_MANIFEST"),
+                artifactPath(taskId, "VOICE_MANIFEST"),
+                artifactPath(taskId, "TIMELINE_MANIFEST"),
                 task.getDurationSeconds(),
                 task.getTargetDurationSeconds(),
                 task.getEditingScope().name(),
@@ -68,6 +71,10 @@ public class TaskWorkflowStateService {
                 task.isAutoAssetsEnabled(),
                 task.isAutomaticGenerationEnabled()
         );
+    }
+
+    private String artifactPath(UUID taskId, String artifactType) {
+        return artifactLocator.latest(taskId, artifactType).map(java.nio.file.Path::toString).orElse(null);
     }
 
     private Set<ProcessingStageType> completedStages(VideoTask task) {

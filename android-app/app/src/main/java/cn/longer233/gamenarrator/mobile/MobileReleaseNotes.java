@@ -24,6 +24,8 @@ public final class MobileReleaseNotes {
 
     public static List<Note> notes() {
         List<Note> notes = new ArrayList<>();
+        notes.add(new Note("2.2.42", "流水线恢复读取统一",
+                "桌面端流水线恢复上下文统一从 artifact 索引读取阶段产物，并兼容旧任务。"));
         notes.add(new Note("2.2.41", "URL 媒体导入统一",
                 "桌面端平台 URL 统一由 yt-dlp 处理，并移除自动 Cookie 读取与平台专用导入旁路。"));
         notes.add(new Note("2.2.40", "素材来源收敛",
