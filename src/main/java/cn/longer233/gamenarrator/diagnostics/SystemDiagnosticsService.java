@@ -8,6 +8,7 @@ import cn.longer233.gamenarrator.transcription.Transcriber;
 import cn.longer233.gamenarrator.vision.VisionAnalyzer;
 import cn.longer233.gamenarrator.importer.YtDlpMediaImporter;
 import cn.longer233.gamenarrator.asset.BgeAssetSemanticSearch;
+import cn.longer233.gamenarrator.pipeline.TaskArtifactLocator;
 
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -31,6 +32,7 @@ public class SystemDiagnosticsService {
     private final VisionAnalyzer visionClient;
     private final YtDlpMediaImporter mediaImporter;
     private final BgeAssetSemanticSearch semanticSearch;
+    private final TaskArtifactLocator artifacts;
 
     public SystemDiagnosticsService(
             @Value("${game-narrator.storage-root}") String storageRoot,
@@ -38,7 +40,8 @@ public class SystemDiagnosticsService {
             Transcriber transcriber,
             VisionAnalyzer visionClient,
             YtDlpMediaImporter mediaImporter,
-            BgeAssetSemanticSearch semanticSearch
+            BgeAssetSemanticSearch semanticSearch,
+            TaskArtifactLocator artifacts
     ) {
         this.storageRoot = Path.of(storageRoot).toAbsolutePath().normalize();
         this.ffmpegCommand = ffmpegCommand;
@@ -46,6 +49,7 @@ public class SystemDiagnosticsService {
         this.visionClient = visionClient;
         this.mediaImporter = mediaImporter;
         this.semanticSearch = semanticSearch;
+        this.artifacts = artifacts;
     }
 
     public Map<String, Object> inspect() {
@@ -108,7 +112,7 @@ public class SystemDiagnosticsService {
                 || !task.isStageCompleted(ProcessingStageType.RENDERING);
         if (needsFfmpeg && !commandAvailable(ffmpegCommand, "-version")) blockers.add("ffmpeg");
         boolean needsWhisper = task.isAutomaticGenerationEnabled()
-                && task.getExtractedAudioPath() != null
+                && artifacts.latest(task.getId(), "EXTRACTED_AUDIO").isPresent()
                 && !task.isStageCompleted(ProcessingStageType.TRANSCRIPTION);
         if (needsWhisper && !transcriber.available()) blockers.add("asr-engine");
         boolean needsVision = task.isAutomaticGenerationEnabled() && task.isCloudVisionEnabled()

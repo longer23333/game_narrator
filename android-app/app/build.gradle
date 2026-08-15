@@ -21,8 +21,8 @@ android {
         applicationId 'cn.longer233.gamenarrator.mobile'
         minSdk 29
         targetSdk 37
-        versionCode 2002045
-        versionName '2.2.45'
+        versionCode 2002046
+        versionName '2.2.46'
         testInstrumentationRunner 'androidx.test.runner.AndroidJUnitRunner'
     }
     buildFeatures { buildConfig true }

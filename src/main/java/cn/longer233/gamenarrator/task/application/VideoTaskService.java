@@ -2,6 +2,7 @@ package cn.longer233.gamenarrator.task.application;
 
 import cn.longer233.gamenarrator.storage.VideoStorage;
 import cn.longer233.gamenarrator.pipeline.VideoTaskEngine;
+import cn.longer233.gamenarrator.pipeline.TaskArtifactLocator;
 import cn.longer233.gamenarrator.effect.EffectRerenderWorker;
 import cn.longer233.gamenarrator.effect.EffectSettingsRequest;
 import cn.longer233.gamenarrator.task.domain.VideoTask;
@@ -34,6 +35,7 @@ public class VideoTaskService {
     private final cn.longer233.gamenarrator.storage.SourceMediaRegistry sourceMediaRegistry;
     private final cn.longer233.gamenarrator.identity.CurrentUserContext currentUser;
     private final cn.longer233.gamenarrator.cloud.CloudSyncService cloudSync;
+    private final TaskArtifactLocator artifacts;
 
     public VideoTaskService(
             VideoTaskRepository repository,
@@ -46,7 +48,8 @@ public class VideoTaskService {
             cn.longer233.gamenarrator.observability.StorageCapacityGuard capacityGuard,
             cn.longer233.gamenarrator.storage.SourceMediaRegistry sourceMediaRegistry,
             cn.longer233.gamenarrator.identity.CurrentUserContext currentUser,
-            cn.longer233.gamenarrator.cloud.CloudSyncService cloudSync
+            cn.longer233.gamenarrator.cloud.CloudSyncService cloudSync,
+            TaskArtifactLocator artifacts
     ) {
         this.repository = repository;
         this.storage = storage;
@@ -59,6 +62,7 @@ public class VideoTaskService {
         this.sourceMediaRegistry = sourceMediaRegistry;
         this.currentUser = currentUser;
         this.cloudSync = cloudSync;
+        this.artifacts = artifacts;
     }
 
     @Transactional
@@ -259,10 +263,8 @@ public class VideoTaskService {
     @Transactional
     public Path renderedVideo(UUID id) {
         VideoTask task = owned(id);
-        if (task.getRenderedVideoPath() == null) {
-            throw new IllegalStateException("该任务尚未生成最终视频");
-        }
-        Path output = Path.of(task.getRenderedVideoPath()).toAbsolutePath().normalize();
+        Path output = artifacts.latest(id, "RENDERED_VIDEO")
+                .orElseThrow(() -> new IllegalStateException("该任务尚未生成最终视频"));
         if (!Files.isRegularFile(output)) {
             output = cloudSync.restoreLatestArtifact(id, "RENDERED_VIDEO",
                     storageRoot.resolve("tasks").resolve(id.toString()).resolve("cloud-rendered.mp4"));

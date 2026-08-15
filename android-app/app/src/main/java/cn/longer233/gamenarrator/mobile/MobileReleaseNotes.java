@@ -24,6 +24,8 @@ public final class MobileReleaseNotes {
 
     public static List<Note> notes() {
         List<Note> notes = new ArrayList<>();
+        notes.add(new Note("2.2.46", "运行入口产物读取统一",
+                "恢复诊断与最终视频下载统一通过产物索引定位文件。"));
         notes.add(new Note("2.2.45", "脚本工作台产物读取统一",
                 "脚本工作台统一通过产物索引读取脚本、高光、视觉、配音与时间线。"));
         notes.add(new Note("2.2.44", "编辑器产物读取统一",
