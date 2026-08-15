@@ -12,7 +12,7 @@ import static org.mockito.Mockito.mock;
 class EditorTrackOperationsTest {
     private final ObjectMapper mapper = new ObjectMapper();
     private final EditorTimelineService service = new EditorTimelineService(null, mapper, null,
-            null, null, mock(AudioWaveformCache.class));
+            null, null, mock(AudioWaveformCache.class), null);
 
     @Test
     void addsReordersAndDeletesAnEmptyManagedTrack() {

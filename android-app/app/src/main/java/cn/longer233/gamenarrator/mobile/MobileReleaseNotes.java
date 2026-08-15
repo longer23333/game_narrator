@@ -24,6 +24,8 @@ public final class MobileReleaseNotes {
 
     public static List<Note> notes() {
         List<Note> notes = new ArrayList<>();
+        notes.add(new Note("2.2.44", "编辑器产物读取统一",
+                "编辑器统一通过产物索引读取音频、脚本与高光清单。"));
         notes.add(new Note("2.2.43", "产物索引读取扩展",
                 "事件、文案与渲染预览统一通过产物索引定位，并继续兼容旧任务。"));
         notes.add(new Note("2.2.42", "流水线恢复读取统一",

@@ -1,7 +1,17 @@
 {
   "schemaVersion": 1,
-  "currentVersion": "2.2.43",
+  "currentVersion": "2.2.44",
   "releases": [
+    {
+      "version": "2.2.44",
+      "title": "编辑器产物读取统一",
+      "summary": "编辑器时间线统一通过 artifact 索引判断和读取音频、脚本与高光产物。",
+      "items": [
+        "波形读取统一使用音频产物索引",
+        "初始时间线统一依据脚本与高光产物索引构建",
+        "编辑同步不再读取 VideoTask 旧路径字段"
+      ]
+    },
     {
       "version": "2.2.43",
       "title": "产物索引读取扩展",

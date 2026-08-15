@@ -3,6 +3,7 @@ package cn.longer233.gamenarrator.editor;
 import cn.longer233.gamenarrator.script.ScriptWorkspaceService;
 import cn.longer233.gamenarrator.identity.CurrentUserContext;
 import cn.longer233.gamenarrator.script.StoryboardSegmentView;
+import cn.longer233.gamenarrator.pipeline.TaskArtifactLocator;
 import cn.longer233.gamenarrator.task.application.TaskNotFoundException;
 import cn.longer233.gamenarrator.task.domain.VideoTask;
 import cn.longer233.gamenarrator.task.repository.VideoTaskRepository;
@@ -31,13 +32,15 @@ public class EditorTimelineService {
     private final ScriptWorkspaceService workspace;
     private final CurrentUserContext currentUser;
     private final AudioWaveformCache waveformCache;
+    private final TaskArtifactLocator artifacts;
 
     public EditorTimelineService(JdbcTemplate jdbc, ObjectMapper mapper, VideoTaskRepository tasks,
                                  ScriptWorkspaceService workspace, CurrentUserContext currentUser,
-                                 AudioWaveformCache waveformCache) {
+                                 AudioWaveformCache waveformCache, TaskArtifactLocator artifacts) {
         this.jdbc = jdbc; this.mapper = mapper; this.tasks = tasks; this.workspace = workspace;
         this.currentUser = currentUser;
         this.waveformCache = waveformCache;
+        this.artifacts = artifacts;
     }
 
     @Transactional
@@ -93,10 +96,10 @@ public class EditorTimelineService {
 
     @Transactional
     public Map<String, Object> waveform(UUID taskId, int points) {
-        VideoTask task = requireTask(taskId);
+        requireTask(taskId);
         int target = Math.max(64, Math.min(4096, points));
-        if (task.getExtractedAudioPath() == null) return Map.of("points", List.of(), "available", false);
-        Path audio = Path.of(task.getExtractedAudioPath()).toAbsolutePath().normalize();
+        Path audio = artifacts.latest(taskId, "EXTRACTED_AUDIO").orElse(null);
+        if (audio == null) return Map.of("points", List.of(), "available", false);
         if (!Files.isRegularFile(audio)) return Map.of("points", List.of(), "available", false);
         return waveformCache.get(audio, target, () -> decodeWaveform(audio, target));
     }
@@ -145,7 +148,7 @@ public class EditorTimelineService {
         ArrayNode clips = timeline.putArray("clips"); double cursor = 0;
         VideoTask sourceTask = requireTask(taskId);
         List<StoryboardSegmentView> segments = List.of();
-        if (sourceTask.getGeneratedScriptPath() != null && sourceTask.getHighlightManifestPath() != null) {
+        if (hasArtifact(taskId, "SCRIPT_MANIFEST") && hasArtifact(taskId, "HIGHLIGHT_MANIFEST")) {
             segments = workspace.storyboard(taskId).segments();
         }
         for (StoryboardSegmentView segment : segments) {
@@ -383,10 +386,14 @@ public class EditorTimelineService {
 
     private void syncRenderableStoryboard(UUID id, ObjectNode timeline) {
         if (timeline.path("clips").isEmpty()) return;
-        VideoTask task = requireTask(id);
-        if (task.getGeneratedScriptPath() == null || task.getHighlightManifestPath() == null) return;
+        requireTask(id);
+        if (!hasArtifact(id, "SCRIPT_MANIFEST") || !hasArtifact(id, "HIGHLIGHT_MANIFEST")) return;
         remapAssetPlacements(id, timeline);
         workspace.applyEditorTimeline(id, timeline);
+    }
+
+    private boolean hasArtifact(UUID taskId, String artifactType) {
+        return artifacts.latest(taskId, artifactType).isPresent();
     }
 
     private void remapAssetPlacements(UUID taskId, ObjectNode timeline) {
