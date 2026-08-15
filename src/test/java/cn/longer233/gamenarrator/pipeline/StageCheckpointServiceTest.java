@@ -59,8 +59,6 @@ class StageCheckpointServiceTest {
         assertThat(fixture.status(ProcessingStageType.SCENE_DETECTION)).isEqualTo("PENDING");
         assertThat(fixture.status(ProcessingStageType.VIDEO_UNDERSTANDING)).isEqualTo("PENDING");
         assertThat(fixture.activeArtifacts()).isZero();
-        assertThat(fixture.string("scene_manifest_path")).isNull();
-        assertThat(fixture.string("visual_analysis_path")).isNull();
     }
 
     @Test
@@ -124,8 +122,6 @@ class StageCheckpointServiceTest {
                 jdbc.update("INSERT INTO processing_stages(id,task_id,stage_type,sequence_number,status,progress) VALUES(?,?,?,?,?,?)",
                         UUID.randomUUID(), taskId, stage.name(), sequence++, status, status.equals("COMPLETED") ? 100 : 0);
             }
-            jdbc.update("UPDATE video_tasks SET scene_manifest_path=?,visual_analysis_path=? WHERE id=?",
-                    source.resolveSibling("scenes.json").toString(), source.resolveSibling("vision.json").toString(), taskId);
         }
 
         private void artifact(String type, Path path, String mime) throws Exception {
@@ -142,7 +138,6 @@ class StageCheckpointServiceTest {
                     String.class, taskId, stage.name());
         }
         private int activeArtifacts() { return jdbc.queryForObject("SELECT COUNT(*) FROM artifact WHERE project_id=? AND deleted_at IS NULL", Integer.class, taskId); }
-        private String string(String column) { return jdbc.queryForObject("SELECT " + column + " FROM video_tasks WHERE id=?", String.class, taskId); }
         private static String sha256(Path path) throws Exception {
             return HexFormat.of().formatHex(MessageDigest.getInstance("SHA-256").digest(Files.readAllBytes(path)));
         }

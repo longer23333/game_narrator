@@ -124,8 +124,6 @@ class ScriptWorkspaceServiceTest {
         verify(voice, never()).regenerateSegment(script, 1,
                 (cn.longer233.gamenarrator.voice.VoiceRegenerationRequest) null);
         verify(planner).refreshSegment(timeline, highlight, script, manifest, 2);
-        assertThat(task.getVoiceManifestPath()).isEqualTo(manifest.toString());
-        assertThat(task.getTimelinePath()).isEqualTo(timeline.toString());
         assertThat(stage(task, ProcessingStageType.VOICE_GENERATION)).isEqualTo(StageStatus.COMPLETED);
         assertThat(stage(task, ProcessingStageType.TIMELINE_PLANNING)).isEqualTo(StageStatus.COMPLETED);
         assertThat(stage(task, ProcessingStageType.RENDERING)).isEqualTo(StageStatus.PENDING);
@@ -282,16 +280,22 @@ class ScriptWorkspaceServiceTest {
                                            TextGenerator generator, VoiceSynthesizer voice,
                                            VideoTask task, TimelinePlanner planner) {
         TaskArtifactLocator locator = mock(TaskArtifactLocator.class);
-        artifact(locator, task, "HIGHLIGHT_MANIFEST", task.getHighlightManifestPath());
-        artifact(locator, task, "SCRIPT_MANIFEST", task.getGeneratedScriptPath());
-        artifact(locator, task, "VISION_ANALYSIS", task.getVisualAnalysisPath());
-        artifact(locator, task, "VOICE_MANIFEST", task.getVoiceManifestPath());
-        artifact(locator, task, "TIMELINE_MANIFEST", task.getTimelinePath());
+        artifact(locator, task, "HIGHLIGHT_MANIFEST", "highlight");
+        artifact(locator, task, "SCRIPT_MANIFEST", "script", "review", "rewrite");
+        artifact(locator, task, "VOICE_MANIFEST", "voice-manifest");
+        artifact(locator, task, "TIMELINE_MANIFEST", "timeline");
         return new ScriptWorkspaceService(repository, mapper, generator, voice, null, planner, locator);
     }
 
-    private void artifact(TaskArtifactLocator locator, VideoTask task, String type, String value) {
-        when(locator.latest(task.getId(), type)).thenReturn(
-                Optional.ofNullable(value).map(Path::of));
+    private void artifact(TaskArtifactLocator locator, VideoTask task, String type, String... nameParts) {
+        try (var files = java.nio.file.Files.list(temporaryDirectory)) {
+            Optional<Path> path = files.filter(java.nio.file.Files::isRegularFile)
+                    .filter(file -> java.util.Arrays.stream(nameParts)
+                            .anyMatch(part -> file.getFileName().toString().contains(part)))
+                    .findFirst();
+            when(locator.latest(task.getId(), type)).thenReturn(path);
+        } catch (java.io.IOException exception) {
+            throw new IllegalStateException(exception);
+        }
     }
 }

@@ -1,6 +1,7 @@
 package cn.longer233.gamenarrator.asset;
 
 import cn.longer233.gamenarrator.identity.CurrentUserContext;
+import cn.longer233.gamenarrator.pipeline.TaskArtifactLocator;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.springframework.beans.factory.annotation.Value;
@@ -42,6 +43,7 @@ public class AssetCatalogService {
     private final Executor taskExecutor;
     private final AssetDownloadService assetDownloadService;
     private final CurrentUserContext currentUser;
+    private final TaskArtifactLocator artifactLocator;
     private final Path storageRoot;
     private final String ffmpegCommand;
     private final Set<UUID> localizationQueued = java.util.concurrent.ConcurrentHashMap.newKeySet();
@@ -55,6 +57,7 @@ public class AssetCatalogService {
                                @Qualifier("taskExecutor") Executor taskExecutor,
                                AssetDownloadService assetDownloadService,
                                CurrentUserContext currentUser,
+                               TaskArtifactLocator artifactLocator,
                                @Value("${game-narrator.storage-root}") String storageRoot,
                                @Value("${game-narrator.ffmpeg-command}") String ffmpegCommand) {
         this.jdbc = jdbc;
@@ -69,6 +72,7 @@ public class AssetCatalogService {
         this.taskExecutor = taskExecutor;
         this.assetDownloadService = assetDownloadService;
         this.currentUser = currentUser;
+        this.artifactLocator = artifactLocator;
         this.storageRoot = Path.of(storageRoot).toAbsolutePath().normalize();
         this.ffmpegCommand = ffmpegCommand;
     }
@@ -561,7 +565,7 @@ public class AssetCatalogService {
     @Transactional
     public AssetView registerCompletedProject(UUID taskId) {
         List<Map<String, Object>> rows = jdbc.queryForList("""
-                SELECT name,status,rendered_video_path,generated_title,game_category,commentary_style,
+                SELECT name,status,generated_title,game_category,commentary_style,
                        planned_output_duration_seconds
                 FROM video_tasks WHERE id=? AND owner_id=?
                 """, taskId, currentUser.userId());
@@ -570,9 +574,8 @@ public class AssetCatalogService {
         if (!"COMPLETED".equals(String.valueOf(task.get("STATUS")))) {
             throw new IllegalStateException("只有已完成并生成最终视频的项目才能加入素材库");
         }
-        String renderedPath = text(task, "RENDERED_VIDEO_PATH");
-        if (renderedPath == null || renderedPath.isBlank()) throw new IllegalStateException("项目没有可用的最终视频");
-        Path source = Path.of(renderedPath).toAbsolutePath().normalize();
+        Path source = artifactLocator.latest(taskId, "RENDERED_VIDEO")
+                .orElseThrow(() -> new IllegalStateException("项目没有可用的最终视频"));
         if (!source.startsWith(storageRoot) || !Files.isRegularFile(source)) {
             throw new IllegalStateException("项目最终视频不存在或不在授权存储目录中");
         }

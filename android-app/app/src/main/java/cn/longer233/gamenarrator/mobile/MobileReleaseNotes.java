@@ -24,6 +24,8 @@ public final class MobileReleaseNotes {
 
     public static List<Note> notes() {
         List<Note> notes = new ArrayList<>();
+        notes.add(new Note("2.2.49", "旧任务路径列安全退役",
+                "历史路径完成回填后统一由产物索引定位，并安全删除十二个旧列。"));
         notes.add(new Note("2.2.48", "旧任务产物安全回填",
                 "删除旧列前先将十二类历史路径安全回填到统一产物索引。"));
         notes.add(new Note("2.2.47", "任务视图产物映射统一",

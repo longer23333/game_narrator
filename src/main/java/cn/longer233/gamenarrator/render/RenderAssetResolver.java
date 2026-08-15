@@ -19,7 +19,10 @@ public class RenderAssetResolver {
     }
 
     public List<RenderAsset> resolve(Path timelinePath) {
-        List<java.util.UUID> taskIds = jdbc.query("SELECT id FROM video_tasks WHERE timeline_path=?",
+        List<java.util.UUID> taskIds = jdbc.query("""
+                SELECT t.id FROM video_tasks t JOIN artifact a ON a.project_id=t.project_id
+                WHERE a.artifact_type='TIMELINE_MANIFEST' AND a.deleted_at IS NULL AND a.storage_key=?
+                """,
                 (rs, n) -> rs.getObject(1, java.util.UUID.class), timelinePath.toAbsolutePath().normalize().toString());
         if (taskIds.isEmpty()) return List.of();
         return jdbc.query("""

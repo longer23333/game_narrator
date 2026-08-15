@@ -32,7 +32,6 @@ class RenderPreviewServiceTest {
                         "outputEndSeconds", 8.5, "fileName", "frame-001.jpg"))));
 
         VideoTask task = mock(VideoTask.class);
-        when(task.getTimelinePath()).thenReturn(timeline.toString());
         VideoTaskRepository repository = mock(VideoTaskRepository.class);
         when(repository.findById(taskId)).thenReturn(Optional.of(task));
         TaskArtifactLocator artifacts = mock(TaskArtifactLocator.class);

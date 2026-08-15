@@ -14,9 +14,6 @@ import java.util.*;
 
 @Service
 public class TaskTrashService {
-    private static final List<String> PATH_COLUMNS = List.of("source_video_path","extracted_audio_path","scene_manifest_path",
-            "transcript_text_path","subtitle_path","transcript_json_path","visual_analysis_path","highlight_manifest_path",
-            "generated_script_path","voice_manifest_path","timeline_path","generated_subtitle_path","rendered_video_path");
     private final JdbcTemplate jdbc;
     private final CurrentUserContext current;
     private final VideoTaskRepository repository;
@@ -45,13 +42,18 @@ public class TaskTrashService {
 
     @Transactional
     public void purge(UUID id) {
-        List<Map<String,Object>> rows=jdbc.queryForList("SELECT * FROM video_tasks WHERE id=? AND owner_id=? AND deleted_at IS NOT NULL",id,current.userId());
+        List<Map<String,Object>> rows=jdbc.queryForList("SELECT source_video_path FROM video_tasks WHERE id=? AND owner_id=? AND deleted_at IS NOT NULL",id,current.userId());
         if(rows.isEmpty()) throw new IllegalArgumentException("回收站中不存在该任务");
         Map<String,Object> row=lower(rows.getFirst());
         List<String> paths=new ArrayList<>();
         String source=text(row.get("source_video_path"));
         long references=source==null?0:Optional.ofNullable(jdbc.queryForObject("SELECT COUNT(*) FROM video_tasks WHERE source_video_path=? AND id<>?",Long.class,source,id)).orElse(0L);
-        for(String column:PATH_COLUMNS){String value=text(row.get(column));if(value!=null&&(!column.equals("source_video_path")||references==0))paths.add(value);}
+        paths.addAll(jdbc.query("""
+                SELECT a.storage_key FROM artifact a
+                JOIN video_tasks t ON t.project_id=a.project_id
+                WHERE t.id=? AND a.deleted_at IS NULL
+                """, (rs,n)->rs.getString(1), id));
+        if(source!=null&&references==0)paths.add(source);
         if(source!=null&&references==0){Path file=Path.of(source);paths.add(file.resolveSibling(file.getFileName()+".platform.srt").toString());paths.add(file.resolveSibling(file.getFileName()+".platform.txt").toString());paths.add(file.resolveSibling(file.getFileName()+".platform.srt.analysis.json").toString());}
         jdbc.update("DELETE FROM processing_stages WHERE task_id=?",id);
         cleanup.enqueue(id, paths);

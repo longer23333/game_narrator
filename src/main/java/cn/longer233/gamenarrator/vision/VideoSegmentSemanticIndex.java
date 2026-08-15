@@ -142,10 +142,13 @@ public class VideoSegmentSemanticIndex {
 
     private void backfillMissingTasks() {
         List<TaskAnalysis> missing = jdbc.query("""
-                SELECT t.id,t.visual_analysis_path FROM video_tasks t
-                WHERE t.visual_analysis_path IS NOT NULL
-                AND t.owner_id=?
+                SELECT t.id,a.storage_key FROM video_tasks t
+                JOIN artifact a ON a.project_id=t.project_id AND a.artifact_type='VISION_ANALYSIS'
+                WHERE a.deleted_at IS NULL AND t.owner_id=?
                 AND NOT EXISTS (SELECT 1 FROM video_segment_embedding e WHERE e.task_id=t.id AND e.model=?)
+                AND NOT EXISTS (SELECT 1 FROM artifact newer WHERE newer.project_id=a.project_id
+                    AND newer.artifact_type=a.artifact_type AND newer.deleted_at IS NULL
+                    AND newer.created_at>a.created_at)
                 """, (rs, row) -> new TaskAnalysis(rs.getObject(1, UUID.class), rs.getString(2)), currentUser.userId(), embeddings.model());
         for (TaskAnalysis task : missing) {
             try {

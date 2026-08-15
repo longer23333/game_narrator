@@ -160,10 +160,6 @@ class VideoTaskTest {
         task.invalidateAfterConfirmedEventChange();
 
         assertThat(task.getStatus()).isEqualTo(TaskStatus.READY);
-        assertThat(task.getGeneratedScriptPath()).isNull();
-        assertThat(task.getVoiceManifestPath()).isNull();
-        assertThat(task.getTimelinePath()).isNull();
-        assertThat(task.getRenderedVideoPath()).isNull();
         assertThat(task.isAwaitingScriptRegeneration()).isTrue();
         assertThat(task.getStages().stream()
                 .filter(stage -> stage.getStageType().ordinal() >= ProcessingStageType.SCRIPT_GENERATION.ordinal()))

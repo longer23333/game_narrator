@@ -32,7 +32,7 @@ class DatabaseMigrationTest {
                     """);
         }
 
-        Flyway.configure().dataSource(url, "sa", "").load().migrate();
+        Flyway.configure().dataSource(url, "sa", "").target("42").load().migrate();
         try (var connection = DriverManager.getConnection(url, "sa", "");
              var statement = connection.createStatement()) {
             var artifact = statement.executeQuery("""
@@ -51,6 +51,24 @@ class DatabaseMigrationTest {
                     """);
             assertThat(legacyColumn.next()).isTrue();
             assertThat(legacyColumn.getInt(1)).isOne();
+        }
+
+        Flyway.configure().dataSource(url, "sa", "").load().migrate();
+        try (var connection = DriverManager.getConnection(url, "sa", "");
+             var statement = connection.createStatement()) {
+            var artifact = statement.executeQuery("""
+                    SELECT COUNT(*) FROM artifact
+                    WHERE project_id=UUID 'aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa'
+                      AND artifact_type='RENDERED_VIDEO' AND storage_key='legacy-final.mp4'
+                    """);
+            assertThat(artifact.next()).isTrue();
+            assertThat(artifact.getInt(1)).isOne();
+            var legacyColumn = statement.executeQuery("""
+                    SELECT COUNT(*) FROM information_schema.columns
+                    WHERE table_name='VIDEO_TASKS' AND column_name='RENDERED_VIDEO_PATH'
+                    """);
+            assertThat(legacyColumn.next()).isTrue();
+            assertThat(legacyColumn.getInt(1)).isZero();
         }
     }
 

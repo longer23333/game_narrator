@@ -1,5 +1,6 @@
 const releases = [
-  {version:'2.2.48', title:'旧任务产物安全回填', current:true, items:["十二类历史路径回填到产物索引","H2 与 PostgreSQL 使用一致迁移","本版本保留旧列作为安全缓冲"], jump:{view:'studio', selector:'#task-list'}},
+  {version:'2.2.49', title:'旧任务路径列安全退役', current:true, items:["V43 删除十二个已回填旧路径列","运行时产物定位全部切换到 artifact","移除任务路径字段、旧 getter 与列回退"], jump:{view:'studio', selector:'#task-list'}},
+  {version:'2.2.48', title:'旧任务产物安全回填', items:["十二类历史路径回填到产物索引","H2 与 PostgreSQL 使用一致迁移","本版本保留旧列作为安全缓冲"], jump:{view:'studio', selector:'#task-list'}},
   {version:'2.2.47', title:'任务视图产物映射统一', items:["新增任务视图统一映射器","十二类产物通过索引批量装配","DTO 不再读取任务旧路径字段"], jump:{view:'studio', selector:'#task-list'}},
   {version:'2.2.46', title:'运行入口产物读取统一', items:["恢复诊断统一读取音频产物索引","视频下载统一读取渲染产物索引","继续保留云端校验恢复流程"], jump:{view:'studio', selector:'#task-list'}},
   {version:'2.2.45', title:'脚本工作台产物读取统一', items:["脚本与高光统一读取产物索引","视觉、配音与时间线统一读取产物索引","移除工作台对任务旧路径字段的读取"], jump:{view:'studio', selector:'#task-list'}},

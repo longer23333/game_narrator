@@ -75,39 +75,18 @@ public class VideoTask {
     @Column(length = 1000)
     private String failureReason;
 
-    @Column(length = 500)
-    private String extractedAudioPath;
-
-    @Column(length = 500)
-    private String sceneManifestPath;
-
     private Integer detectedSceneCount;
 
     @JdbcTypeCode(SqlTypes.LONG32VARCHAR)
     private String transcriptText;
 
-    @Column(length = 500)
-    private String transcriptTextPath;
-
-    @Column(length = 500)
-    private String subtitlePath;
-
-    @Column(length = 500)
-    private String transcriptJsonPath;
-
     @JdbcTypeCode(SqlTypes.LONG32VARCHAR)
     private String visualSummary;
-
-    @Column(length = 500)
-    private String visualAnalysisPath;
 
     private Integer analyzedFrameCount;
 
     @JdbcTypeCode(SqlTypes.LONG32VARCHAR)
     private String highlightSummary;
-
-    @Column(length = 500)
-    private String highlightManifestPath;
 
     private Integer selectedHighlightCount;
 
@@ -120,27 +99,12 @@ public class VideoTask {
     @JdbcTypeCode(SqlTypes.LONG32VARCHAR)
     private String generatedNarration;
 
-    @Column(length = 500)
-    private String generatedScriptPath;
-
     private Integer generatedScriptSegmentCount;
-
-    @Column(length = 500)
-    private String voiceManifestPath;
 
     private Integer generatedVoiceSegmentCount;
 
-    @Column(length = 500)
-    private String timelinePath;
-
     private Double plannedOutputDurationSeconds;
     private Integer voiceOverflowCount;
-
-    @Column(length = 500)
-    private String renderedVideoPath;
-
-    @Column(length = 500)
-    private String generatedSubtitlePath;
 
     private Long renderedFileSizeBytes;
 
@@ -239,31 +203,19 @@ public class VideoTask {
     public String getVideoCodec() { return videoCodec; }
     public String getAudioCodec() { return audioCodec; }
     public String getFailureReason() { return failureReason; }
-    public String getExtractedAudioPath() { return extractedAudioPath; }
-    public String getSceneManifestPath() { return sceneManifestPath; }
     public Integer getDetectedSceneCount() { return detectedSceneCount; }
     public String getTranscriptText() { return transcriptText; }
-    public String getTranscriptTextPath() { return transcriptTextPath; }
-    public String getSubtitlePath() { return subtitlePath; }
-    public String getTranscriptJsonPath() { return transcriptJsonPath; }
     public String getVisualSummary() { return visualSummary; }
-    public String getVisualAnalysisPath() { return visualAnalysisPath; }
     public Integer getAnalyzedFrameCount() { return analyzedFrameCount; }
     public String getHighlightSummary() { return highlightSummary; }
-    public String getHighlightManifestPath() { return highlightManifestPath; }
     public Integer getSelectedHighlightCount() { return selectedHighlightCount; }
     public String getGeneratedTitle() { return generatedTitle; }
     public String getScriptSynopsis() { return scriptSynopsis; }
     public String getGeneratedNarration() { return generatedNarration; }
-    public String getGeneratedScriptPath() { return generatedScriptPath; }
     public Integer getGeneratedScriptSegmentCount() { return generatedScriptSegmentCount; }
-    public String getVoiceManifestPath() { return voiceManifestPath; }
     public Integer getGeneratedVoiceSegmentCount() { return generatedVoiceSegmentCount; }
-    public String getTimelinePath() { return timelinePath; }
     public Double getPlannedOutputDurationSeconds() { return plannedOutputDurationSeconds; }
     public Integer getVoiceOverflowCount() { return voiceOverflowCount; }
-    public String getRenderedVideoPath() { return renderedVideoPath; }
-    public String getGeneratedSubtitlePath() { return generatedSubtitlePath; }
     public Long getRenderedFileSizeBytes() { return renderedFileSizeBytes; }
     public boolean isStoryboardReviewEnabled() { return storyboardReviewEnabled; }
     public boolean isStoryboardApproved() { return storyboardApproved; }
@@ -395,8 +347,6 @@ public class VideoTask {
             String sceneManifestPath,
             int detectedSceneCount
     ) {
-        this.extractedAudioPath = extractedAudioPath;
-        this.sceneManifestPath = sceneManifestPath;
         this.detectedSceneCount = detectedSceneCount;
         stage(ProcessingStageType.SCENE_DETECTION).complete();
     }
@@ -420,9 +370,6 @@ public class VideoTask {
             String jsonPath
     ) {
         this.transcriptText = text;
-        this.transcriptTextPath = textPath;
-        this.subtitlePath = subtitlePath;
-        this.transcriptJsonPath = jsonPath;
         stage(ProcessingStageType.TRANSCRIPTION).complete();
     }
 
@@ -440,7 +387,6 @@ public class VideoTask {
 
     public void completeVideoUnderstanding(String summary, String analysisPath, int frameCount) {
         this.visualSummary = summary;
-        this.visualAnalysisPath = analysisPath;
         this.analyzedFrameCount = frameCount;
         stage(ProcessingStageType.VIDEO_UNDERSTANDING).complete();
     }
@@ -471,7 +417,6 @@ public class VideoTask {
 
     public void completeHighlightSelection(String summary, String manifestPath, int clipCount) {
         this.highlightSummary = summary;
-        this.highlightManifestPath = manifestPath;
         this.selectedHighlightCount = clipCount;
         stage(ProcessingStageType.HIGHLIGHT_SELECTION).complete();
     }
@@ -493,7 +438,6 @@ public class VideoTask {
         this.generatedTitle = title;
         this.scriptSynopsis = synopsis;
         this.generatedNarration = narration;
-        this.generatedScriptPath = scriptPath;
         this.generatedScriptSegmentCount = segmentCount;
         stage(ProcessingStageType.SCRIPT_GENERATION).complete();
     }
@@ -503,7 +447,6 @@ public class VideoTask {
         this.generatedTitle = title;
         this.scriptSynopsis = synopsis;
         this.generatedNarration = narration;
-        this.generatedScriptPath = scriptPath;
         this.generatedScriptSegmentCount = segmentCount;
         stage(ProcessingStageType.SCRIPT_GENERATION).complete();
         invalidateAfterScript();
@@ -513,15 +456,10 @@ public class VideoTask {
         this.generatedTitle = null;
         this.scriptSynopsis = null;
         this.generatedNarration = null;
-        this.generatedScriptPath = null;
         this.generatedScriptSegmentCount = null;
-        this.voiceManifestPath = null;
         this.generatedVoiceSegmentCount = null;
-        this.timelinePath = null;
         this.plannedOutputDurationSeconds = null;
         this.voiceOverflowCount = null;
-        this.renderedVideoPath = null;
-        this.generatedSubtitlePath = null;
         this.renderedFileSizeBytes = null;
         stage(ProcessingStageType.SCRIPT_GENERATION).reset();
         stage(ProcessingStageType.VOICE_GENERATION).reset();
@@ -533,8 +471,7 @@ public class VideoTask {
 
     public boolean isAwaitingScriptRegeneration() {
         StageStatus scriptStatus = stage(ProcessingStageType.SCRIPT_GENERATION).getStatus();
-        return this.generatedScriptPath == null
-                && (scriptStatus == StageStatus.PENDING || scriptStatus == StageStatus.RUNNING);
+        return scriptStatus == StageStatus.PENDING || scriptStatus == StageStatus.RUNNING;
     }
 
     public void failScriptGeneration(String reason) {
@@ -550,20 +487,15 @@ public class VideoTask {
     }
 
     public void completeVoiceGeneration(String manifestPath, int segmentCount) {
-        this.voiceManifestPath = manifestPath;
         this.generatedVoiceSegmentCount = segmentCount;
         stage(ProcessingStageType.VOICE_GENERATION).complete();
     }
 
     public void applyVoiceRevision(String manifestPath, int segmentCount) {
-        this.voiceManifestPath = manifestPath;
         this.generatedVoiceSegmentCount = segmentCount;
         stage(ProcessingStageType.VOICE_GENERATION).complete();
-        this.timelinePath = null;
         this.plannedOutputDurationSeconds = null;
         this.voiceOverflowCount = null;
-        this.renderedVideoPath = null;
-        this.generatedSubtitlePath = null;
         this.renderedFileSizeBytes = null;
         stage(ProcessingStageType.TIMELINE_PLANNING).reset();
         stage(ProcessingStageType.RENDERING).reset();
@@ -574,15 +506,11 @@ public class VideoTask {
 
     public void applyLocalizedVoiceRevision(String manifestPath, int segmentCount, String revisedTimelinePath,
             double outputDuration, int overflowCount) {
-        this.voiceManifestPath = manifestPath;
         this.generatedVoiceSegmentCount = segmentCount;
         stage(ProcessingStageType.VOICE_GENERATION).complete();
-        this.timelinePath = revisedTimelinePath;
         this.plannedOutputDurationSeconds = outputDuration;
         this.voiceOverflowCount = overflowCount;
         stage(ProcessingStageType.TIMELINE_PLANNING).complete();
-        this.renderedVideoPath = null;
-        this.generatedSubtitlePath = null;
         this.renderedFileSizeBytes = null;
         stage(ProcessingStageType.RENDERING).reset();
         this.status = storyboardReviewEnabled && !storyboardApproved
@@ -609,7 +537,6 @@ public class VideoTask {
     }
 
     public void completeTimelinePlanning(String path, double outputDuration, int overflowCount) {
-        this.timelinePath = path;
         this.plannedOutputDurationSeconds = outputDuration;
         this.voiceOverflowCount = overflowCount;
         stage(ProcessingStageType.TIMELINE_PLANNING).complete();
@@ -628,8 +555,6 @@ public class VideoTask {
     }
 
     public void completeRendering(String videoPath, String subtitlePath, long fileSizeBytes) {
-        this.renderedVideoPath = videoPath;
-        this.generatedSubtitlePath = subtitlePath;
         this.renderedFileSizeBytes = fileSizeBytes;
         this.status = TaskStatus.COMPLETED;
         stage(ProcessingStageType.RENDERING).complete();
@@ -649,13 +574,9 @@ public class VideoTask {
     }
 
     private void invalidateAfterScript() {
-        this.voiceManifestPath = null;
         this.generatedVoiceSegmentCount = null;
-        this.timelinePath = null;
         this.plannedOutputDurationSeconds = null;
         this.voiceOverflowCount = null;
-        this.renderedVideoPath = null;
-        this.generatedSubtitlePath = null;
         this.renderedFileSizeBytes = null;
         stage(ProcessingStageType.VOICE_GENERATION).reset();
         stage(ProcessingStageType.TIMELINE_PLANNING).reset();
