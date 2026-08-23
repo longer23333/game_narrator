@@ -15,6 +15,13 @@ game-narrator:
     previous-master-keys: ${GAME_NARRATOR_PREVIOUS_SECRET_KEYS:}
   auth:
     require-login: ${REQUIRE_LOGIN:true}
+    secure-cookie: ${AUTH_SECURE_COOKIE:true}
+    # Optional deployment bootstrap secret. Without it, self-registered accounts are always regular users.
+    administrator-bootstrap-token: ${ADMINISTRATOR_BOOTSTRAP_TOKEN:}
+    login-throttle:
+      maximum-failures: ${LOGIN_MAXIMUM_FAILURES:5}
+      lock-minutes: ${LOGIN_LOCK_MINUTES:15}
+      maximum-entries: ${LOGIN_THROTTLE_MAXIMUM_ENTRIES:10000}
   cloud-sync:
     enabled: ${CLOUD_SYNC_ENABLED:false}
     endpoint: ${OBJECT_STORAGE_ENDPOINT:}

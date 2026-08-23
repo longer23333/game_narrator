@@ -9,14 +9,16 @@
 - 桌面安装版会自动设置运行目录、端口和并发参数，普通用户不需要手工配置这些项目。
 - PostgreSQL、对象存储和云部署的操作步骤另见 `docs/DEVELOPMENT_OPERATIONS.md`。
 
-## 完整清单（68 项）
+## 完整清单（73 项）
 
 | 环境变量 | Spring 配置路径/用途 | 默认值 | 敏感 | 来源 |
 |---|---|---|---|---|
+| `ADMINISTRATOR_BOOTSTRAP_TOKEN` | game-narrator.auth.administrator-bootstrap-token | `无（必须显式设置）` | 是 | application-postgresql.yml |
 | `ASSET_SEMANTIC_SEARCH_ENABLED` | game-narrator.asset-library.semantic-search.enabled | `true` | 否 | application.yml |
 | `ASYNC_CORE_POOL_SIZE` | game-narrator.async.core-pool-size / 桌面启动器自动注入 | `2 / 按设备运行时计算` | 否 | application.yml, launcher/Program.cs |
 | `ASYNC_MAX_POOL_SIZE` | game-narrator.async.max-pool-size / 桌面启动器自动注入 | `2 / 按设备运行时计算` | 否 | application.yml, launcher/Program.cs |
 | `ASYNC_QUEUE_CAPACITY` | game-narrator.async.queue-capacity | `10` | 否 | application.yml |
+| `AUTH_SECURE_COOKIE` | game-narrator.auth.secure-cookie | `true` | 是 | application-postgresql.yml |
 | `CLOUD_SYNC_ENABLED` | game-narrator.cloud-sync.enabled | `false` | 否 | application-postgresql.yml |
 | `CLOUD_SYNC_MAX_ATTEMPTS` | game-narrator.cloud-sync.retry.max-attempts | `8` | 否 | application-postgresql.yml |
 | `CLOUD_SYNC_RETRY_BASE_SECONDS` | game-narrator.cloud-sync.retry.base-delay-seconds | `30` | 否 | application-postgresql.yml |
@@ -32,6 +34,9 @@
 | `GAME_NARRATOR_SECRET_KEY` | game-narrator.security.master-key | `无（必须显式设置）` | 是 | application-postgresql.yml, src/main/java/cn/longer233/gamenarrator/identity/LocalSecretCipher.java |
 | `GAME_NARRATOR_SECRET_KEY_VERSION` | game-narrator.security.master-key-version | `v1` | 是 | application-postgresql.yml, src/main/java/cn/longer233/gamenarrator/identity/LocalSecretCipher.java |
 | `HIBERNATE_SQL_LOG_LEVEL` | logging.level.root | `WARN` | 否 | application.yml |
+| `LOGIN_LOCK_MINUTES` | game-narrator.auth.login-throttle.lock-minutes | `15` | 否 | application-postgresql.yml |
+| `LOGIN_MAXIMUM_FAILURES` | game-narrator.auth.login-throttle.maximum-failures | `5` | 否 | application-postgresql.yml |
+| `LOGIN_THROTTLE_MAXIMUM_ENTRIES` | game-narrator.auth.login-throttle.maximum-entries | `10000` | 否 | application-postgresql.yml |
 | `MAX_VIDEO_REQUEST_SIZE` | spring.servlet.multipart.max-request-size | `101GB` | 否 | application.yml |
 | `MAX_VIDEO_UPLOAD_SIZE` | spring.servlet.multipart.max-file-size | `100GB` | 否 | application.yml |
 | `MINIMUM_FREE_STORAGE_BYTES` | game-narrator.capacity.minimum-free-bytes | `5368709120` | 否 | application.yml |

@@ -102,4 +102,32 @@ class AiUsageServiceTest {
         assertEquals(2,((Number)row.get("REQUEST_COUNT")).longValue());
         assertTrue(((BigDecimal)row.get("ESTIMATED_COST")).compareTo(new BigDecimal("9999999999.99999999"))<=0);
     }
+
+    @Test
+    void databaseUsageKeepsLongModelIdentitiesDistinctWithoutBreakingSurrogatePairs() {
+        String url="jdbc:h2:mem:ai-usage-identity-"+UUID.randomUUID()+";DB_CLOSE_DELAY=-1";
+        DriverManagerDataSource source=new DriverManagerDataSource(url,"sa","");
+        Flyway.configure().dataSource(source).load().migrate();
+        JdbcTemplate jdbc=new JdbcTemplate(source);
+        CurrentUserContext currentUser=mock(CurrentUserContext.class);
+        when(currentUser.userId()).thenReturn(LocalUserContext.LOCAL_USER_ID);
+        AiUsageService service=new AiUsageService(new ObjectMapper(),temporary.toString(),jdbc,currentUser);
+        String shared="模型😀".repeat(50);
+
+        service.record("CUSTOM-PROVIDER-"+"P".repeat(40)+"-A",shared+"-A",1,0,0,0,0,0);
+        service.record("CUSTOM-PROVIDER-"+"P".repeat(40)+"-B",shared+"-B",2,0,0,0,0,0);
+
+        var rows=jdbc.queryForList("SELECT provider,model_name,input_tokens FROM user_ai_usage_daily WHERE user_id=? ORDER BY input_tokens",
+                LocalUserContext.LOCAL_USER_ID);
+        assertEquals(2,rows.size());
+        assertNotEquals(rows.get(0).get("PROVIDER"),rows.get(1).get("PROVIDER"));
+        assertNotEquals(rows.get(0).get("MODEL_NAME"),rows.get(1).get("MODEL_NAME"));
+        for (var row:rows) {
+            String provider=(String)row.get("PROVIDER"),model=(String)row.get("MODEL_NAME");
+            assertTrue(provider.length()<=40);
+            assertTrue(model.length()<=160);
+            assertFalse(provider.endsWith("\uFFFD"));
+            assertFalse(model.endsWith("\uFFFD"));
+        }
+    }
 }

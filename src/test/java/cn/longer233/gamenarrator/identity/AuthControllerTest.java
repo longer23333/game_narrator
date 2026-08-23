@@ -16,7 +16,7 @@ class AuthControllerTest {
     private final AuthSessionService sessions = mock(AuthSessionService.class);
     private final CurrentUserContext current = mock(CurrentUserContext.class);
     private final HttpServletRequest request = mock(HttpServletRequest.class);
-    private final AuthController controller = new AuthController(sessions, current);
+    private final AuthController controller = new AuthController(sessions, current, false);
     private final AuthSessionService.Account account = new AuthSessionService.Account(
             UUID.randomUUID(), "creator", "创作者", "USER", "ACTIVE", "REGISTERED");
 
@@ -62,5 +62,18 @@ class AuthControllerTest {
     void serverSessionLifetimeMatchesRememberChoice() {
         assertThat(AuthSessionService.sessionLifetime(false)).isEqualTo(Duration.ofHours(12));
         assertThat(AuthSessionService.sessionLifetime(true)).isEqualTo(Duration.ofDays(30));
+    }
+
+    @Test
+    void deploymentPolicyCanForceSecureCookieBehindTlsProxy() {
+        AuthController proxyController=new AuthController(sessions,current,true);
+        when(request.getHeader("User-Agent")).thenReturn("Browser");
+        when(sessions.login("creator", "password", "Browser", false))
+                .thenReturn(new AuthSessionService.LoginResult("proxy-token", account));
+
+        String cookie=proxyController.login(new AuthController.LoginRequest("creator","password",false),request)
+                .getHeaders().getFirst(HttpHeaders.SET_COOKIE);
+
+        assertThat(cookie).contains("Secure");
     }
 }

@@ -1,7 +1,7 @@
 ﻿# GameNarrator — DeepSeek 结构化项目索引
 
-> 自动生成：2026-08-23 20:01:46 +08:00；UTF-8 BOM；索引不再内嵌全部源码。
-> Git：分支 `main`，提交 `255ccb7`；收录文件 826 个，分卷 8 个。
+> 自动生成：2026-08-23 20:44:43 +08:00；UTF-8 BOM；索引不再内嵌全部源码。
+> Git：分支 `main`，提交 `dd423c8`；收录文件 832 个，分卷 8 个。
 
 ## 使用方法
 
@@ -27,19 +27,55 @@
 
 | 分卷 | 文件数 | 字符数 | 建议用途 |
 |---|---:|---:|---|
-| `deepseek-context/01-foundation.md` | 96 | 226043 | 构建、配置、资源、数据库迁移 |
-| `deepseek-context/02-backend.md` | 291 | 1212309 | Spring 后端实现 |
-| `deepseek-context/03-tests.md` | 118 | 411058 | Spring 测试与行为验证 |
-| `deepseek-context/04-frontend.md` | 36 | 544103 | Vite Web 源码 |
-| `deepseek-context/05-android-main.md` | 146 | 894258 | Android 实现、资源与 Gradle |
+| `deepseek-context/01-foundation.md` | 98 | 227756 | 构建、配置、资源、数据库迁移 |
+| `deepseek-context/02-backend.md` | 292 | 1222152 | Spring 后端实现 |
+| `deepseek-context/03-tests.md` | 121 | 425469 | Spring 测试与行为验证 |
+| `deepseek-context/04-frontend.md` | 36 | 544275 | Vite Web 源码 |
+| `deepseek-context/05-android-main.md` | 146 | 894362 | Android 实现、资源与 Gradle |
 | `deepseek-context/06-android-tests.md` | 60 | 145718 | Android 单元及设备测试 |
-| `deepseek-context/07-platform-release.md` | 13 | 83215 | Windows、CI/CD 与发布 |
-| `deepseek-context/08-docs-scripts.md` | 66 | 243361 | 需求、架构、维护脚本 |
+| `deepseek-context/07-platform-release.md` | 13 | 72137 | Windows、CI/CD 与发布 |
+| `deepseek-context/08-docs-scripts.md` | 66 | 244242 | 需求、架构、维护脚本 |
 
 ## 当前 Git 工作区（最近修改）
 
 ```text
+M ANDROID_AI_CONTEXT.md
+ M DEEPSEEK_PROJECT_CONTEXT.md
+ M android-app/app/build.gradle
+ M android-app/app/src/main/java/cn/longer233/gamenarrator/mobile/MobileReleaseNotes.java
+ M docs/CONFIGURATION_REFERENCE.md
+ M docs/DEVELOPMENT_OPERATIONS.md
+ M frontend/index.html
+ M frontend/package-lock.json
+ M frontend/package.json
+ M frontend/public/app.js
+ M frontend/public/updates.js
+ M launcher/GameNarrator.Launcher.csproj
+ M package.json
+ M pom.xml
+ M release/CHANGELOG.json
+ M release/installer/GameNarrator-Demo-Lite.iss
+ M release/installer/GameNarrator.iss
+ M src/main/java/cn/longer233/gamenarrator/ai/AiUsageService.java
+ M src/main/java/cn/longer233/gamenarrator/asset/SafeRemoteHttpConnector.java
+ M src/main/java/cn/longer233/gamenarrator/compilation/ClipCompilationService.java
+ M src/main/java/cn/longer233/gamenarrator/identity/AuthController.java
+ M src/main/java/cn/longer233/gamenarrator/identity/AuthSessionService.java
+ M src/main/java/cn/longer233/gamenarrator/importer/RemoteThumbnailService.java
+ M src/main/resources/application-postgresql.yml
+ M src/main/resources/static/app.js
+ M src/main/resources/static/index.html
+ M src/main/resources/static/updates.js
+ M src/test/java/cn/longer233/gamenarrator/ai/AiUsageServiceTest.java
+ M src/test/java/cn/longer233/gamenarrator/asset/SafeRemoteHttpConnectorTest.java
+ M src/test/java/cn/longer233/gamenarrator/identity/AuthControllerTest.java
 ?? artifacts/
+?? src/main/java/cn/longer233/gamenarrator/identity/LoginAttemptThrottle.java
+?? src/main/resources/db/migration-postgresql/V44__clip_compilation_ownership.sql
+?? src/main/resources/db/migration/V44__clip_compilation_ownership.sql
+?? src/test/java/cn/longer233/gamenarrator/compilation/
+?? src/test/java/cn/longer233/gamenarrator/identity/AuthSessionServiceSecurityTest.java
+?? src/test/java/cn/longer233/gamenarrator/identity/LoginAttemptThrottleTest.java
 ```
 
 ## Flyway 迁移索引
@@ -87,6 +123,7 @@
 - `src/main/resources/db/migration/V41__licensed_sfx_timeline.sql`
 - `src/main/resources/db/migration/V42__backfill_legacy_task_artifacts.sql`
 - `src/main/resources/db/migration/V43__remove_legacy_task_artifact_paths.sql`
+- `src/main/resources/db/migration/V44__clip_compilation_ownership.sql`
 
 ## 运行配置索引
 

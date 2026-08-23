@@ -12,6 +12,10 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.time.LocalDate;
 import java.math.BigDecimal;
+import java.nio.charset.StandardCharsets;
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
+import java.util.HexFormat;
 
 @Service
 public class AiUsageService {
@@ -95,7 +99,17 @@ public class AiUsageService {
     }
     private String databaseText(String value,String fallback,int maximumLength) {
         String normalized=value==null||value.isBlank()?fallback:value.trim();
-        return normalized.length()<=maximumLength?normalized:normalized.substring(0,maximumLength);
+        if (normalized.length()<=maximumLength) return normalized;
+        String digest;
+        try {
+            digest=HexFormat.of().formatHex(MessageDigest.getInstance("SHA-256")
+                    .digest(normalized.getBytes(StandardCharsets.UTF_8)),0,16);
+        } catch (NoSuchAlgorithmException impossible) {
+            throw new IllegalStateException("SHA-256 不可用",impossible);
+        }
+        int prefixLength=maximumLength-digest.length()-1;
+        if (prefixLength>0 && Character.isHighSurrogate(normalized.charAt(prefixLength-1))) prefixLength--;
+        return normalized.substring(0,Math.max(0,prefixLength))+"~"+digest;
     }
     private DailyUsage readDaily() {
         try {

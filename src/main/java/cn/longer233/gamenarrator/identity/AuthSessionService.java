@@ -4,6 +4,7 @@ import org.springframework.dao.DuplicateKeyException;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.beans.factory.annotation.Value;
 
 import java.nio.charset.StandardCharsets;
 import java.security.MessageDigest;
@@ -19,15 +20,21 @@ import java.util.UUID;
 public class AuthSessionService {
     private final JdbcTemplate jdbc;
     private final PasswordHasher passwords;
+    private final LoginAttemptThrottle loginThrottle;
+    private final String administratorBootstrapToken;
     private final SecureRandom random = new SecureRandom();
 
-    public AuthSessionService(JdbcTemplate jdbc, PasswordHasher passwords) {
+    public AuthSessionService(JdbcTemplate jdbc, PasswordHasher passwords, LoginAttemptThrottle loginThrottle,
+                              @Value("${game-narrator.auth.administrator-bootstrap-token:}") String administratorBootstrapToken) {
         this.jdbc = jdbc;
         this.passwords = passwords;
+        this.loginThrottle = loginThrottle;
+        this.administratorBootstrapToken = administratorBootstrapToken == null ? "" : administratorBootstrapToken.strip();
     }
 
     @Transactional
     public synchronized LoginResult register(String username, String email, String displayName, String password,
+                                             String bootstrapToken,
                                              String clientName, boolean rememberMe) {
         String normalized = normalizeUsername(username);
         validatePassword(password);
@@ -36,8 +43,8 @@ public class AuthSessionService {
         if (shownName.length() > 100) throw new IllegalArgumentException("显示名称不能超过 100 个字符");
         UUID id = UUID.randomUUID();
         Instant now = Instant.now();
-        Integer registered = jdbc.queryForObject("SELECT COUNT(*) FROM app_user WHERE account_type='REGISTERED'", Integer.class);
-        String role = registered != null && registered == 0 ? "ADMIN" : "USER";
+        Integer administrators = jdbc.queryForObject("SELECT COUNT(*) FROM app_user WHERE account_type='REGISTERED' AND role='ADMIN'", Integer.class);
+        String role = administrators != null && administrators == 0 && validBootstrapToken(bootstrapToken) ? "ADMIN" : "USER";
         try {
             jdbc.update("INSERT INTO app_user(id,username,display_name,password_hash,role,status,created_at,updated_at,email,account_type) VALUES(?,?,?,?,?,'ACTIVE',?,?,?,'REGISTERED')",
                     id, normalized, shownName, passwords.hash(password), role, now, now, normalizedEmail);
@@ -50,14 +57,17 @@ public class AuthSessionService {
     @Transactional
     public LoginResult login(String username, String password, String clientName, boolean rememberMe) {
         String normalized = normalizeUsername(username);
+        loginThrottle.check(normalized, clientName);
         List<AccountWithPassword> matches = jdbc.query("SELECT id,username,display_name,role,status,account_type,password_hash FROM app_user WHERE LOWER(username)=?",
                 (rs, row) -> new AccountWithPassword(new Account(rs.getObject("id", UUID.class), rs.getString("username"),
                         rs.getString("display_name"), rs.getString("role"), rs.getString("status"), rs.getString("account_type")),
                         rs.getString("password_hash")), normalized);
         if (matches.isEmpty() || !"ACTIVE".equals(matches.getFirst().account().status())
                 || !passwords.verify(password == null ? "" : password, matches.getFirst().passwordHash())) {
+            loginThrottle.failed(normalized, clientName);
             throw new IllegalArgumentException("用户名或密码错误，或账号已停用");
         }
+        loginThrottle.succeeded(normalized, clientName);
         Instant now = Instant.now();
         jdbc.update("UPDATE app_user SET last_login_at=?,last_seen_at=?,updated_at=? WHERE id=?", now, now, now, matches.getFirst().account().id());
         return createSession(matches.getFirst().account(), clientName, rememberMe);
@@ -104,6 +114,11 @@ public class AuthSessionService {
     }
     private void validatePassword(String value) {
         if (value == null || value.length() < 8 || value.length() > 128) throw new IllegalArgumentException("密码长度需为 8-128 位");
+    }
+    private boolean validBootstrapToken(String supplied) {
+        if (administratorBootstrapToken.isBlank() || supplied == null || supplied.isBlank()) return false;
+        return MessageDigest.isEqual(administratorBootstrapToken.getBytes(StandardCharsets.UTF_8),
+                supplied.strip().getBytes(StandardCharsets.UTF_8));
     }
     private String safeClient(String value) { return value == null || value.isBlank() ? "GameNarrator" : value.strip().substring(0, Math.min(120, value.strip().length())); }
     static Duration sessionLifetime(boolean rememberMe) {
