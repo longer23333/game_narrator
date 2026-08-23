@@ -107,6 +107,7 @@ public class AssetCatalogService {
         Set<UUID> ids = Collections.synchronizedSet(new LinkedHashSet<>());
         List<String> failures = Collections.synchronizedList(new ArrayList<>());
         List<CompletableFuture<Void>> searches = new ArrayList<>();
+        UUID ownerId = currentUser.userId();
         int attemptedProviders = 0;
         // Bilibili is a rights-review platform candidate, not an open-license source.
         // It must be selected explicitly and must never crowd out open results.
@@ -114,13 +115,14 @@ public class AssetCatalogService {
                 && bilibili.supports(request.assetType())) {
             attemptedProviders++;
             searches.add(CompletableFuture.runAsync(() -> discoverFrom("BILIBILI",
-                    () -> bilibili.search(request), request, expansion, ids, failures), taskExecutor));
+                    () -> bilibili.search(request), request, expansion, ownerId, ids, failures), taskExecutor));
         }
         if (providerSelected(request.provider(), "WIKIMEDIA")
                 && wikimedia.supports(request.assetType())) {
             attemptedProviders++;
             searches.add(CompletableFuture.runAsync(() ->
-                    discoverFrom("WIKIMEDIA", () -> wikimedia.search(providerRequest), request, expansion, ids, failures),
+                    discoverFrom("WIKIMEDIA", () -> wikimedia.search(providerRequest), request, expansion,
+                            ownerId, ids, failures),
                     taskExecutor));
         }
         CompletableFuture.allOf(searches.toArray(CompletableFuture[]::new)).join();
@@ -155,7 +157,7 @@ public class AssetCatalogService {
 
     private void discoverFrom(String provider, java.util.function.Supplier<JsonNode> search,
                               AssetSearchRequest request, AssetSearchExpansion expansion,
-                              Set<UUID> ids, List<String> failures) {
+                              UUID ownerId, Set<UUID> ids, List<String> failures) {
         JsonNode response;
         try {
             response = search.get();
@@ -169,7 +171,7 @@ public class AssetCatalogService {
         synchronized (this) {
             for (JsonNode item : response.path("results")) {
                 if ("MEME".equalsIgnoreCase(request.assetType()) && !isMeme(item)) continue;
-                UUID id = upsert(item, request.assetType().toUpperCase(Locale.ROOT), provider);
+                UUID id = upsert(item, request.assetType().toUpperCase(Locale.ROOT), provider, ownerId);
                 ids.add(id);
                 List<String> sourceTags = new ArrayList<>();
                 item.path("tags").forEach(tag -> {
@@ -177,7 +179,7 @@ public class AssetCatalogService {
                     if (!value.isBlank()) sourceTags.add(value);
                 });
                 assignTags(id, sourceTags.stream().limit(20).toList(), "SOURCE", 1.0, null);
-                assignTags(id, expansion.chineseTags(), "QUERY", 0.9, currentUser.userId());
+                assignTags(id, expansion.chineseTags(), "QUERY", 0.9, ownerId);
                 assignTags(id, aiTagger.classifyFast(request.assetType(), item.path("title").asText(), sourceTags),
                         "AI", 0.65, null);
             }
@@ -770,7 +772,7 @@ public class AssetCatalogService {
 
     public record RemoteThumbnailSource(String url, String fallbackUrl, String referer) { }
 
-    private UUID upsert(JsonNode item, String assetType, String provider) {
+    private UUID upsert(JsonNode item, String assetType, String provider, UUID ownerId) {
         String externalId = item.path("id").asText();
         List<UUID> existing = jdbc.query("SELECT id FROM external_asset WHERE provider=? AND external_id=?",
                 (rs, n) -> rs.getObject(1, UUID.class), provider, externalId);
@@ -791,7 +793,7 @@ public class AssetCatalogService {
                 item.path("attribution").asText(null), item.path("duration").isNumber()
                         ? item.path("duration").asLong() : null,
                 platformCandidate ? "REFERENCE_ONLY" : "DISCOVERED", metadata, OffsetDateTime.now());
-        link(id);
+        link(id, ownerId);
         return id;
     }
 
@@ -895,10 +897,14 @@ public class AssetCatalogService {
             throw new IllegalArgumentException("素材不存在");
     }
 
-    private void link(UUID assetId) {
+    private void link(UUID assetId, UUID ownerId) {
         cn.longer233.gamenarrator.common.PortableUpsert.update(jdbc,
                 "MERGE INTO user_external_asset(user_id,asset_id,favorite,archived,added_at) KEY(user_id,asset_id) VALUES(?,?,FALSE,FALSE,?)",
-                "user_id,asset_id", currentUser.userId(), assetId, OffsetDateTime.now());
+                "user_id,asset_id", ownerId, assetId, OffsetDateTime.now());
+    }
+
+    private void link(UUID assetId) {
+        link(assetId, currentUser.userId());
     }
 
     private void validatePublicHttps(URI uri) {

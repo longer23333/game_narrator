@@ -456,7 +456,14 @@ public class EditorTimelineService {
     private void recalculateDuration(ObjectNode t){double end=0;for(JsonNode n:t.path("clips"))end=Math.max(end,n.path("timelineStartSeconds").asDouble()+n.path("durationSeconds").asDouble());t.put("durationSeconds",end);}
     private VideoTask requireTask(UUID id){return tasks.findById(id).orElseThrow(()->new TaskNotFoundException(id));}
     private String text(Map<String,Object>v,String k){String s=Objects.toString(v.get(k),"").trim();if(s.isEmpty())throw new IllegalArgumentException(k+"不能为空");return s;}
-    private double number(Map<String,Object>v,String k){Object n=v.get(k);if(n instanceof Number x)return x.doubleValue();try{return Double.parseDouble(Objects.toString(n));}catch(Exception e){throw new IllegalArgumentException(k+"必须是数字");}}
+    static double number(Map<String,Object>v,String k){
+        try {
+            Object raw=v.get(k);
+            double value=raw instanceof Number number?number.doubleValue():Double.parseDouble(Objects.toString(raw));
+            if(!Double.isFinite(value))throw new NumberFormatException("non-finite");
+            return value;
+        } catch(Exception error){throw new IllegalArgumentException(k+"必须是有限数字");}
+    }
     private boolean bool(Map<String,Object>v,String k,boolean d){Object n=v.get(k);return n==null?d:Boolean.parseBoolean(n.toString());}
     private double bounded(double v,double min,double max){return Math.max(min,Math.min(max,v));}
 }

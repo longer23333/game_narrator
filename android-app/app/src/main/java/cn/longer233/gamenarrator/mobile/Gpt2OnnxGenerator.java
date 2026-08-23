@@ -10,6 +10,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 import java.util.Set;
 
@@ -48,7 +49,7 @@ public final class Gpt2OnnxGenerator {
                 Map<String, OnnxTensor> inputs = new HashMap<>();
                 Set<String> names = session.getInputNames();
                 for (String name : names) {
-                    String lower = name.toLowerCase();
+                    String lower = name.toLowerCase(Locale.ROOT);
                     if (lower.contains("input")) {
                         inputs.put(name, OnnxTensor.createTensor(env, new long[][]{inputIds}));
                     } else if (lower.contains("attention")) {
@@ -60,7 +61,7 @@ public final class Gpt2OnnxGenerator {
                     try {
                     float[][][] logits = null;
                     for (Map.Entry<String, ai.onnxruntime.OnnxValue> entry : result) {
-                        if (entry.getKey().toLowerCase().contains("logit")) {
+                        if (entry.getKey().toLowerCase(Locale.ROOT).contains("logit")) {
                             logits = (float[][][]) ((OnnxTensor) entry.getValue()).getValue();
                         }
                     }

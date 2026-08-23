@@ -6,10 +6,10 @@ import org.springframework.stereotype.Service;
 import org.springframework.jdbc.core.JdbcTemplate;
 import cn.longer233.gamenarrator.identity.CurrentUserContext;
 import cn.longer233.gamenarrator.identity.LocalSecretCipher;
+import cn.longer233.gamenarrator.common.AtomicArtifactWriter;
 
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.nio.file.StandardCopyOption;
 
 @Service
 public class AiSettingsService {
@@ -62,14 +62,7 @@ public class AiSettingsService {
                 if(changed==0)jdbc.update("INSERT INTO user_cloud_ai_config(user_id,mode,provider,base_url,vision_model,text_model,api_key_ciphertext,api_key_hint,input_price_per_million,output_price_per_million,cached_input_price_per_million,updated_at) VALUES(?,?,?,?,?,?,?,?,?,?,?,?)",currentUser.userId(),value.mode(),value.provider(),value.baseUrl(),value.visionModel(),value.textModel(),cipher.encrypt(value.apiKey()),hint(value.apiKey()),value.inputPricePerMillion(),value.outputPricePerMillion(),value.cachedInputPricePerMillion(),java.time.Instant.now());
                 return value;
             }
-            Files.createDirectories(file.getParent());
-            Path temporary = Files.createTempFile(file.getParent(), "ai-settings-", ".tmp");
-            mapper.writerWithDefaultPrettyPrinter().writeValue(temporary.toFile(), value);
-            try {
-                Files.move(temporary, file, StandardCopyOption.ATOMIC_MOVE, StandardCopyOption.REPLACE_EXISTING);
-            } catch (Exception unsupported) {
-                Files.move(temporary, file, StandardCopyOption.REPLACE_EXISTING);
-            }
+            AtomicArtifactWriter.writeJson(mapper, file, value);
             return apiKeyOverride.isBlank() ? value : new Settings(value.mode(), value.provider(),
                     apiKeyOverride, value.baseUrl(), value.visionModel(), value.textModel(),
                     value.inputPricePerMillion(), value.outputPricePerMillion(), value.cachedInputPricePerMillion());
@@ -118,7 +111,7 @@ public class AiSettingsService {
 
     private Settings defaults() { return normalize(new Settings("CLOUD", "DASHSCOPE", "", "", "", "",0d,0d,0d)); }
     private String blank(String value, String fallback) { return value == null || value.isBlank() ? fallback : value.trim(); }
-    private double positive(Double value){return value==null?0:Math.max(0,value);}
+    private double positive(Double value){return value==null||!Double.isFinite(value)?0:Math.max(0,value);}
 
     public record Settings(String mode, String provider, String apiKey, String baseUrl,
                            String visionModel, String textModel,Double inputPricePerMillion,

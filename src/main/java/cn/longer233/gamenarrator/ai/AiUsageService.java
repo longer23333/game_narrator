@@ -6,14 +6,17 @@ import org.springframework.stereotype.Service;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.beans.factory.annotation.Autowired;
 import cn.longer233.gamenarrator.identity.CurrentUserContext;
+import cn.longer233.gamenarrator.common.AtomicArtifactWriter;
 
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.nio.file.StandardCopyOption;
 import java.time.LocalDate;
+import java.math.BigDecimal;
 
 @Service
 public class AiUsageService {
+    private static final BigDecimal MAX_DATABASE_COST=new BigDecimal("9999999999.99999999");
+    private static final double MAX_COST=9_999_999_999d;
     private final ObjectMapper mapper;
     private final Path file;
     private long sessionInput;
@@ -42,13 +45,17 @@ public class AiUsageService {
     public synchronized void record(String provider, String model, long input, long output, long cached,
                                     double inputPrice, double outputPrice, double cachedPrice) {
         input=Math.max(0,input); output=Math.max(0,output); cached=Math.min(input,Math.max(0,cached));
-        double cost=((input-cached)*Math.max(0,inputPrice)+output*Math.max(0,outputPrice)+
-                cached*Math.max(0,cachedPrice))/1_000_000d;
-        sessionInput+=input; sessionOutput+=output; sessionCached+=cached; sessionCost+=cost;
+        double cost=((input-cached)*finitePrice(inputPrice)+output*finitePrice(outputPrice)+
+                cached*finitePrice(cachedPrice))/1_000_000d;
+        if (!Double.isFinite(cost)) cost=MAX_COST;
+        else cost=Math.min(MAX_COST,cost);
+        sessionInput=saturatedAdd(sessionInput,input); sessionOutput=saturatedAdd(sessionOutput,output);
+        sessionCached=Math.min(sessionInput,saturatedAdd(sessionCached,cached)); sessionCost=finiteAdd(sessionCost,cost);
         DailyUsage daily=readDaily();
         if(!LocalDate.now().toString().equals(daily.date())) daily=DailyUsage.empty();
-        daily=new DailyUsage(LocalDate.now().toString(),daily.input()+input,daily.output()+output,
-                daily.cached()+cached,daily.cost()+cost);
+        long dailyInput=saturatedAdd(daily.input(),input);
+        daily=new DailyUsage(LocalDate.now().toString(),dailyInput,saturatedAdd(daily.output(),output),
+                Math.min(dailyInput,saturatedAdd(daily.cached(),cached)),finiteAdd(daily.cost(),cost));
         writeDaily(daily);
         recordDatabase(provider, model, input, output, cached, cost);
         last=new UsageSnapshot(input,output,sessionInput,sessionOutput,sessionCached,cachePercent(sessionInput,sessionCached),
@@ -57,12 +64,15 @@ public class AiUsageService {
 
     private void recordDatabase(String provider, String model, long input, long output, long cached, double cost) {
         if (jdbc == null || currentUser == null) return;
-        String safeProvider = provider == null || provider.isBlank() ? "UNKNOWN" : provider;
-        String safeModel = model == null || model.isBlank() ? "UNKNOWN" : model;
-        int changed = jdbc.update("UPDATE user_ai_usage_daily SET input_tokens=input_tokens+?,output_tokens=output_tokens+?,cached_tokens=cached_tokens+?,estimated_cost=estimated_cost+?,request_count=request_count+1 WHERE user_id=? AND usage_date=? AND provider=? AND model_name=?",
-                input, output, cached, java.math.BigDecimal.valueOf(cost), currentUser.userId(), LocalDate.now(), safeProvider, safeModel);
+        String safeProvider = databaseText(provider,"UNKNOWN",40);
+        String safeModel = databaseText(model,"UNKNOWN",160);
+        BigDecimal decimalCost=BigDecimal.valueOf(Math.min(MAX_COST,Math.max(0,cost)));
+        int changed = jdbc.update("UPDATE user_ai_usage_daily SET input_tokens=CASE WHEN input_tokens>? THEN ? ELSE input_tokens+? END,output_tokens=CASE WHEN output_tokens>? THEN ? ELSE output_tokens+? END,cached_tokens=CASE WHEN cached_tokens>? THEN ? ELSE cached_tokens+? END,estimated_cost=CASE WHEN estimated_cost>? THEN ? ELSE estimated_cost+? END,request_count=CASE WHEN request_count=? THEN ? ELSE request_count+1 END WHERE user_id=? AND usage_date=? AND provider=? AND model_name=?",
+                Long.MAX_VALUE-input,Long.MAX_VALUE,input,Long.MAX_VALUE-output,Long.MAX_VALUE,output,
+                Long.MAX_VALUE-cached,Long.MAX_VALUE,cached,MAX_DATABASE_COST.subtract(decimalCost),MAX_DATABASE_COST,decimalCost,
+                Long.MAX_VALUE,Long.MAX_VALUE,currentUser.userId(),LocalDate.now(),safeProvider,safeModel);
         if (changed == 0) jdbc.update("INSERT INTO user_ai_usage_daily(user_id,usage_date,provider,model_name,input_tokens,output_tokens,cached_tokens,estimated_cost,request_count) VALUES(?,?,?,?,?,?,?,?,1)",
-                currentUser.userId(), LocalDate.now(), safeProvider, safeModel, input, output, cached, java.math.BigDecimal.valueOf(cost));
+                currentUser.userId(), LocalDate.now(), safeProvider, safeModel, input, output, cached, decimalCost);
     }
 
     public synchronized UsageSnapshot snapshot() {
@@ -73,18 +83,35 @@ public class AiUsageService {
     }
 
     private double cachePercent(long input,long cached) { return input==0?0:cached*100d/input; }
+    private double finitePrice(double value) { return Double.isFinite(value)?Math.max(0,value):0; }
+    private long saturatedAdd(long left,long right) {
+        left=Math.max(0,left); right=Math.max(0,right);
+        return left>Long.MAX_VALUE-right?Long.MAX_VALUE:left+right;
+    }
+    private double finiteAdd(double left,double right) {
+        if(!Double.isFinite(left)||left<0) left=0;
+        double result=left+right;
+        return Double.isFinite(result)?Math.min(MAX_COST,result):MAX_COST;
+    }
+    private String databaseText(String value,String fallback,int maximumLength) {
+        String normalized=value==null||value.isBlank()?fallback:value.trim();
+        return normalized.length()<=maximumLength?normalized:normalized.substring(0,maximumLength);
+    }
     private DailyUsage readDaily() {
-        try { if(Files.isRegularFile(file)) return mapper.readValue(file.toFile(),DailyUsage.class); }
+        try {
+            if(Files.isRegularFile(file)) {
+                DailyUsage value=mapper.readValue(file.toFile(),DailyUsage.class);
+                long input=Math.max(0,value.input());
+                return new DailyUsage(value.date(),input,Math.max(0,value.output()),
+                        Math.min(input,Math.max(0,value.cached())),finiteAdd(value.cost(),0));
+            }
+        }
         catch(Exception ignored) { }
         return DailyUsage.empty();
     }
     private void writeDaily(DailyUsage value) {
         try {
-            Files.createDirectories(file.getParent());
-            Path temporary=Files.createTempFile(file.getParent(),"ai-usage-",".tmp");
-            mapper.writerWithDefaultPrettyPrinter().writeValue(temporary.toFile(),value);
-            try { Files.move(temporary,file,StandardCopyOption.ATOMIC_MOVE,StandardCopyOption.REPLACE_EXISTING); }
-            catch(Exception unsupported) { Files.move(temporary,file,StandardCopyOption.REPLACE_EXISTING); }
+            AtomicArtifactWriter.writeJson(mapper,file,value);
         } catch(Exception exception) { throw new IllegalStateException("无法保存 AI 用量统计",exception); }
     }
 

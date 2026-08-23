@@ -2,12 +2,16 @@ package cn.longer233.gamenarrator.mobile;
 
 import android.content.Context;
 import android.os.Environment;
+import android.os.storage.StorageManager;
 import java.io.BufferedInputStream;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.net.HttpURLConnection;
 import java.net.URI;
 import java.net.URL;
+import java.nio.file.AtomicMoveNotSupportedException;
+import java.nio.file.Files;
+import java.nio.file.StandardCopyOption;
 import java.nio.charset.StandardCharsets;
 import java.security.MessageDigest;
 import java.util.List;
@@ -48,8 +52,8 @@ public final class RemoteMediaImporter {
     public static String resolveDirectUrl(String rawUrl,String formatPreference,String cookies) throws Exception {
         HttpURLConnection connection=open(sourceUri(rawUrl));
         applyCookies(connection,cookies);
-        connection.connect();
         try{
+            connection.connect();
             int status=connection.getResponseCode();if(status<200||status>=300)throw new IllegalStateException("服务器返回 HTTP "+status);
             String mime=connection.getContentType();if(mime!=null&&mime.contains(";"))mime=mime.substring(0,mime.indexOf(';'));if(mime==null)mime="";
             if(mime.startsWith("video/")||mime.startsWith("audio/")||"application/octet-stream".equals(mime))return sourceUri(rawUrl).toString();
@@ -73,21 +77,25 @@ public final class RemoteMediaImporter {
         File part=new File(root,"resume-"+resumeKey(source)+".part");
         long offset=part.isFile()?part.length():0;
         HttpURLConnection connection=open(source);
-        applyCookies(connection,cookies);
-        if(offset>0)connection.setRequestProperty("Range","bytes="+offset+"-");
-        connection.connect();
-        int status=connection.getResponseCode();
-        ResponseAction action=responseAction(status,offset,connection.getHeaderField("Content-Range"));
-        if(action==ResponseAction.RESTART){connection.disconnect();if(part.exists()&&!part.delete())throw new IllegalStateException("旧断点文件无法清理");return download(context,rawUrl,cookies,progress);}
-        if(action==ResponseAction.RETRY_LATER)throw new IllegalStateException("服务器暂时不可用，请稍后从断点重试（HTTP "+status+"）");
-        if(action==ResponseAction.REAUTHENTICATE)throw new IllegalStateException("平台会话已失效或无权访问（HTTP "+status+"）");
-        if(status<200||status>=300)throw new IllegalStateException("服务器返回 HTTP "+status);
-        boolean append=action==ResponseAction.APPEND;
-        if(!append)offset=0;
-        String mime=connection.getContentType();if(mime!=null&&mime.contains(";"))mime=mime.substring(0,mime.indexOf(';'));if(mime==null)mime="application/octet-stream";if(!mime.startsWith("video/")&&!mime.startsWith("audio/")&&!"application/octet-stream".equals(mime)){part.delete();throw new IllegalArgumentException("地址返回的不是音频或视频："+mime+"）");}
-        String name=fileName(connection,source,mime);if("application/octet-stream".equals(mime)&&!name.toLowerCase(Locale.ROOT).matches(".*\\.(mp4|m4v|mov|webm|mkv|mp3|m4a|aac|wav|ogg|opus)$")){connection.disconnect();part.delete();throw new IllegalArgumentException("服务器未返回媒体类型，文件扩展名也无法识别");}File output=unique(root,name);long remaining=connection.getContentLengthLong(),total=remaining>0?offset+remaining:-1,done=offset,maxBytes=Math.max(0,root.getUsableSpace()-64L*1024*1024)+offset;if(total>0&&total>maxBytes){connection.disconnect();throw new IllegalStateException("可用空间不足，已保留 64 MiB 安全余量");}
-        try(BufferedInputStream input=new BufferedInputStream(connection.getInputStream());FileOutputStream stream=new FileOutputStream(part,append)){byte[] buffer=new byte[64*1024];int read;while((read=input.read(buffer))>=0){if(Thread.currentThread().isInterrupted())throw new InterruptedException("下载已取消，可稍后从断点继续");done+=read;if(done>maxBytes)throw new IllegalStateException("下载已暂停：可用空间低于 64 MiB 安全余量");stream.write(buffer,0,read);progress.update(total>0?(int)Math.min(99,done*100/total):-1,done,total);}stream.getFD().sync();}finally{connection.disconnect();}
-        if(!part.renameTo(output)){part.delete();throw new IllegalStateException("无法完成下载文件的原子替换");}progress.update(100,done,total);return new Result(output,mime,output.getName());
+        try {
+            applyCookies(connection,cookies);
+            if(offset>0)connection.setRequestProperty("Range","bytes="+offset+"-");
+            connection.connect();
+            int status=connection.getResponseCode();
+            ResponseAction action=responseAction(status,offset,connection.getHeaderField("Content-Range"));
+            if(action==ResponseAction.RESTART){if(part.exists()&&!part.delete())throw new IllegalStateException("旧断点文件无法清理");connection.disconnect();return download(context,rawUrl,cookies,progress);}
+            if(action==ResponseAction.RETRY_LATER)throw new IllegalStateException("服务器暂时不可用，请稍后从断点重试（HTTP "+status+"）");
+            if(action==ResponseAction.REAUTHENTICATE)throw new IllegalStateException("平台会话已失效或无权访问（HTTP "+status+"）");
+            if(status<200||status>=300)throw new IllegalStateException("服务器返回 HTTP "+status);
+            boolean append=action==ResponseAction.APPEND;
+            if(!append)offset=0;
+            String mime=connection.getContentType();if(mime!=null&&mime.contains(";"))mime=mime.substring(0,mime.indexOf(';'));if(mime==null)mime="application/octet-stream";if(!mime.startsWith("video/")&&!mime.startsWith("audio/")&&!"application/octet-stream".equals(mime)){part.delete();throw new IllegalArgumentException("地址返回的不是音频或视频："+mime+"）");}
+            String name=fileName(connection,source,mime);if("application/octet-stream".equals(mime)&&!name.toLowerCase(Locale.ROOT).matches(".*\\.(mp4|m4v|mov|webm|mkv|mp3|m4a|aac|wav|ogg|opus)$")){part.delete();throw new IllegalArgumentException("服务器未返回媒体类型，文件扩展名也无法识别");}File output=unique(root,name);long remaining=connection.getContentLengthLong(),total=remaining>0?offset+remaining:-1,done=offset,maxBytes=Math.max(0,allocatableBytes(context,root)-64L*1024*1024)+offset;if(total>0&&total>maxBytes)throw new IllegalStateException("可用空间不足，已保留 64 MiB 安全余量");
+            try(BufferedInputStream input=new BufferedInputStream(connection.getInputStream());FileOutputStream stream=new FileOutputStream(part,append)){byte[] buffer=new byte[64*1024];int read;while((read=input.read(buffer))>=0){if(Thread.currentThread().isInterrupted())throw new InterruptedException("下载已取消，可稍后从断点继续");done+=read;if(done>maxBytes)throw new IllegalStateException("下载已暂停：可用空间低于 64 MiB 安全余量");stream.write(buffer,0,read);progress.update(total>0?(int)Math.min(99,done*100/total):-1,done,total);}stream.getFD().sync();}
+            finalizeDownload(part,output);progress.update(100,done,total);return new Result(output,mime,output.getName());
+        } finally {
+            connection.disconnect();
+        }
     }
 
     private static URI sourceUri(String rawUrl) throws Exception {
@@ -111,6 +119,24 @@ public final class RemoteMediaImporter {
     static String resumeKey(URI source) throws Exception {
         byte[] digest=MessageDigest.getInstance("SHA-256").digest(source.normalize().toString().getBytes(StandardCharsets.UTF_8));
         StringBuilder value=new StringBuilder();for(int i=0;i<12;i++)value.append(String.format(Locale.ROOT,"%02x",digest[i]));return value.toString();
+    }
+
+    static void finalizeDownload(File partial, File output) throws Exception {
+        try {
+            Files.move(partial.toPath(), output.toPath(), StandardCopyOption.ATOMIC_MOVE);
+        } catch (AtomicMoveNotSupportedException unsupported) {
+            Files.move(partial.toPath(), output.toPath());
+        }
+    }
+
+    private static long allocatableBytes(Context context, File root) {
+        StorageManager storage = context.getSystemService(StorageManager.class);
+        if (storage == null) return root.getUsableSpace();
+        try {
+            return storage.getAllocatableBytes(storage.getUuidForPath(root));
+        } catch (Exception unavailable) {
+            return root.getUsableSpace();
+        }
     }
 
     private static String fileName(HttpURLConnection connection,URI source,String mime){String value=connection.getHeaderField("Content-Disposition");if(value!=null){int marker=value.toLowerCase(Locale.ROOT).indexOf("filename=");if(marker>=0)value=value.substring(marker+9).replace("\"","").trim();else value=null;}if(value==null||value.isBlank()){String path=source.getPath();value=path==null?"":path.substring(path.lastIndexOf('/')+1);}value=value.replaceAll("[^A-Za-z0-9._-]","_");if(value.isBlank()||!value.contains("."))value="remote-"+System.currentTimeMillis()+(mime.startsWith("audio/")?".m4a":".mp4");return value;}

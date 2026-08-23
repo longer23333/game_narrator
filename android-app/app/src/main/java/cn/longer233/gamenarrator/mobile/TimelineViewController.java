@@ -79,7 +79,7 @@ public final class TimelineViewController {
             TimelineClip clip = clips.get(i);
             ProjectRepository.ClipReviewInfo clipReview = projectStore.clipReview(clip.key());
             final int index = i;
-            FrameLayout card = new FrameLayout(context);
+            AccessibleFrameLayout card = new AccessibleFrameLayout(context);
             card.setForegroundGravity(Gravity.CENTER);
             card.setBackground(shape(i == host.selected() ? BRAND : SURFACE_HIGH, 10));
             ImageView image = new ImageView(context);
@@ -96,14 +96,9 @@ public final class TimelineViewController {
             card.addView(caption, new FrameLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, dp(25), Gravity.BOTTOM));
             addTrimHandle(card, true, clip);
             addTrimHandle(card, false, clip);
-            float[] touchX = {0};
-            card.setOnTouchListener((v, event) -> {
-                if (event.getAction() == MotionEvent.ACTION_DOWN || event.getAction() == MotionEvent.ACTION_UP) touchX[0] = event.getX();
-                return false;
-            });
             card.setOnClickListener(v -> {
                 host.selectClip(index);
-                float ratio = Math.max(0, Math.min(1, touchX[0] / Math.max(1f, v.getWidth())));
+                float ratio = Math.max(0, Math.min(1, card.lastTouchX() / Math.max(1f, v.getWidth())));
                 host.player().seekTo(clip.startMs() + (long) (clip.durationMs() * ratio));
                 if (waveformView != null) waveformView.setPlayheadRatio(ratio);
                 host.setStatus("已选片段 " + (index + 1) + " · 播放头 " + format(host.player().getCurrentPosition()));
@@ -132,11 +127,11 @@ public final class TimelineViewController {
 
     private void addTrimHandle(FrameLayout card, final boolean left, final TimelineClip clip) {
         final int handleWidth = dp(20);
-        View handle = new View(context);
+        View handle = new AccessibleTrimHandle(context);
         handle.setBackgroundColor(Color.argb(170, 9, 11, 16));
         handle.setContentDescription(left ? "拖动调整入点" : "拖动调整出点");
         FrameLayout.LayoutParams params = new FrameLayout.LayoutParams(handleWidth, ViewGroup.LayoutParams.MATCH_PARENT);
-        params.gravity = left ? Gravity.LEFT : Gravity.RIGHT;
+        params.gravity = left ? Gravity.START : Gravity.END;
         handle.setLayoutParams(params);
         final long[] down = new long[3];
         final long[] sourceDuration = {0};
@@ -166,6 +161,7 @@ public final class TimelineViewController {
             }
             if (event.getAction() == MotionEvent.ACTION_UP || event.getAction() == MotionEvent.ACTION_CANCEL) {
                 v.getParent().requestDisallowInterceptTouchEvent(false);
+                if (event.getAction() == MotionEvent.ACTION_UP) v.performClick();
                 if (clip.startMs() != down[1] || clip.endMs() != down[2]) {
                     host.pushHistory(left ? "拖动裁剪入点" : "拖动裁剪出点");
                     host.persistProject("拖动裁剪片段");
@@ -344,4 +340,33 @@ public final class TimelineViewController {
     }
 
     private int dp(int value) { return host.dp(value); }
+
+    private static final class AccessibleFrameLayout extends FrameLayout {
+        private float lastTouchX;
+
+        AccessibleFrameLayout(Context context) { super(context); }
+
+        @Override public boolean onTouchEvent(MotionEvent event) {
+            if (event.getAction() == MotionEvent.ACTION_DOWN || event.getAction() == MotionEvent.ACTION_UP) {
+                lastTouchX = event.getX();
+            }
+            if (event.getAction() == MotionEvent.ACTION_UP && !hasOnClickListeners()) performClick();
+            return super.onTouchEvent(event);
+        }
+
+        float lastTouchX() { return lastTouchX; }
+
+        @Override public boolean performClick() {
+            return super.performClick();
+        }
+    }
+
+    private static final class AccessibleTrimHandle extends View {
+        AccessibleTrimHandle(Context context) { super(context); }
+
+        @Override public boolean performClick() {
+            super.performClick();
+            return true;
+        }
+    }
 }

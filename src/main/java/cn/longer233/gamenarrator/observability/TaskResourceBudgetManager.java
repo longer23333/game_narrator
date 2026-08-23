@@ -33,7 +33,10 @@ public class TaskResourceBudgetManager {
         this.taskCpuUnits = Math.max(1, taskCpuUnits);
         this.taskBaseMemoryBytes = Math.max(0, taskBaseMemoryBytes);
         this.taskMaximumMemoryBytes = Math.max(this.taskBaseMemoryBytes, taskMaximumMemoryBytes);
-        this.sourceMemoryMultiplier = Math.max(0, sourceMemoryMultiplier);
+        if (!Double.isFinite(sourceMemoryMultiplier) || sourceMemoryMultiplier < 0) {
+            throw new IllegalArgumentException("任务源文件内存倍率必须是非负有限数值");
+        }
+        this.sourceMemoryMultiplier = sourceMemoryMultiplier;
         this.localAiGpuMemoryBytes = Math.max(0, localAiGpuMemoryBytes);
     }
 
@@ -41,8 +44,11 @@ public class TaskResourceBudgetManager {
         long sourceBytes = 0;
         try { sourceBytes = Files.size(Path.of(context.sourceVideoPath())); }
         catch (Exception ignored) { }
-        long memory = Math.min(taskMaximumMemoryBytes,
-                taskBaseMemoryBytes + Math.round(sourceBytes * sourceMemoryMultiplier));
+        double estimatedSourceMemory = sourceBytes * sourceMemoryMultiplier;
+        long sourceMemory = estimatedSourceMemory >= taskMaximumMemoryBytes
+                ? taskMaximumMemoryBytes : Math.round(estimatedSourceMemory);
+        long memory = sourceMemory >= taskMaximumMemoryBytes - taskBaseMemoryBytes
+                ? taskMaximumMemoryBytes : taskBaseMemoryBytes + sourceMemory;
         boolean needsLocalAi = context.automaticGenerationEnabled()
                 && (context.cloudVisionEnabled() || context.aiScriptEnabled() || context.aiVoiceEnabled());
         return new TaskProcessRegistry.ResourceRequest(taskCpuUnits, memory,

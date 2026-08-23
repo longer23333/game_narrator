@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="utf-8"?>
+<lint>
+    <!-- Adaptive icons require the v26 resource qualifier even when minSdk is newer. -->
+    <issue id="ObsoleteSdkInt">
+        <ignore path="src/main/res/mipmap-anydpi-v26" />
+    </issue>
+    <!-- The current mobile product is intentionally Simplified-Chinese-only. -->
+    <issue id="SetTextI18n" severity="ignore" />
+    <!-- MockWebServer 3.0 is intentionally pinned to ML Kit's OkHttp 3 ABI. -->
+    <issue id="NewerVersionAvailable">
+        <ignore regexp="com\.squareup\.okhttp3:mockwebserver" />
+        <!-- 1.22 is the newest verified line that keeps the universal release under 65 MB. -->
+        <ignore regexp="com\.microsoft\.onnxruntime:onnxruntime-android" />
+    </issue>
+    <!-- Keep the wrapper on the release-tested Gradle line; upgrade it with the AGP toolchain. -->
+    <issue id="AndroidGradlePluginVersion" severity="ignore" />
+</lint>

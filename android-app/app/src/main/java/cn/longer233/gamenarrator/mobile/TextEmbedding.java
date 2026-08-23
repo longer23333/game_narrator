@@ -62,7 +62,7 @@ public final class TextEmbedding {
         OrtEnvironment env = OrtEnvironment.getEnvironment();
         Map<String, OnnxTensor> inputs = new HashMap<>();
         for (String name : session.getInputNames()) {
-            String lower = name.toLowerCase();
+            String lower = name.toLowerCase(Locale.ROOT);
             if (lower.contains("token_type") || lower.contains("segment")) {
                 inputs.put(name, OnnxTensor.createTensor(env, new long[][]{types}));
             } else if (lower.contains("attention")) {
@@ -76,7 +76,7 @@ public final class TextEmbedding {
             try {
                 float[] vector = null;
                 for (Map.Entry<String, ai.onnxruntime.OnnxValue> entry : result) {
-                    String name = entry.getKey().toLowerCase();
+                    String name = entry.getKey().toLowerCase(Locale.ROOT);
                     Object value = ((OnnxTensor) entry.getValue()).getValue();
                     if ((name.contains("sentence") || name.contains("dense") || name.contains("pooler"))
                             && value instanceof float[][]) {

@@ -14,18 +14,18 @@ def releaseKeyPassword = System.getenv('GN_KEY_PASSWORD') ?: keystoreProperties.
 def bundleModels = providers.gradleProperty('bundleModels').map { it.toBoolean() }.getOrElse(false)
 
 android {
-    namespace 'cn.longer233.gamenarrator.mobile'
-    compileSdk 37
+    namespace = 'cn.longer233.gamenarrator.mobile'
+    compileSdk = 37
 
     defaultConfig {
-        applicationId 'cn.longer233.gamenarrator.mobile'
-        minSdk 29
-        targetSdk 37
-        versionCode 2002050
-        versionName '2.2.50'
-        testInstrumentationRunner 'androidx.test.runner.AndroidJUnitRunner'
+        applicationId = 'cn.longer233.gamenarrator.mobile'
+        minSdk = 29
+        targetSdk = 37
+        versionCode = 2002051
+        versionName = '2.2.51'
+        testInstrumentationRunner = 'androidx.test.runner.AndroidJUnitRunner'
     }
-    buildFeatures { buildConfig true }
+    buildFeatures { buildConfig = true }
     sourceSets {
         main {
             assets.srcDirs = bundleModels ? ['src/main/assets'] : ['src/main/assets-standard']
@@ -41,25 +41,25 @@ android {
     signingConfigs {
         release {
             if (releaseStoreFile) {
-                storeFile rootProject.file(releaseStoreFile)
-                storePassword releaseStorePassword
-                keyAlias releaseKeyAlias
-                keyPassword releaseKeyPassword
+                storeFile = rootProject.file(releaseStoreFile)
+                storePassword = releaseStorePassword
+                keyAlias = releaseKeyAlias
+                keyPassword = releaseKeyPassword
             }
         }
     }
     buildTypes {
         debug {
             if (releaseStoreFile) {
-                signingConfig signingConfigs.release
+                signingConfig = signingConfigs.release
             }
         }
         release {
             if (releaseStoreFile) {
-                signingConfig signingConfigs.release
+                signingConfig = signingConfigs.release
             }
-            minifyEnabled true
-            shrinkResources true
+            minifyEnabled = true
+            shrinkResources = true
             proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
         }
     }
@@ -72,16 +72,20 @@ dependencies {
     implementation 'androidx.media3:media3-ui:1.10.1'
     implementation 'androidx.media3:media3-transformer:1.10.1'
     implementation 'androidx.media3:media3-effect:1.10.1'
-    implementation 'androidx.work:work-runtime:2.10.0'
+    implementation 'androidx.work:work-runtime:2.11.2'
     implementation 'androidx.security:security-crypto:1.1.0-alpha06'
     implementation 'com.google.mlkit:image-labeling:17.0.9'
-    implementation 'com.microsoft.onnxruntime:onnxruntime-android:1.20.0'
-    implementation 'com.google.zxing:core:3.5.3'
+    implementation 'com.microsoft.onnxruntime:onnxruntime-android:1.22.0'
+    implementation 'com.google.zxing:core:3.5.4'
     testImplementation 'junit:junit:4.13.2'
-    testImplementation 'org.json:json:20240303'
+    testImplementation 'org.json:json:20260814'
     androidTestImplementation 'androidx.test:core:1.6.1'
     androidTestImplementation 'androidx.test.ext:junit:1.2.1'
     androidTestImplementation 'androidx.test:runner:1.6.2'
     // Keep the replay server binary-compatible with ML Kit's OkHttp 3.0 runtime.
     androidTestImplementation 'com.squareup.okhttp3:mockwebserver:3.0.0'
+}
+
+tasks.withType(JavaCompile).configureEach {
+    options.compilerArgs += ['-Xlint:deprecation']
 }

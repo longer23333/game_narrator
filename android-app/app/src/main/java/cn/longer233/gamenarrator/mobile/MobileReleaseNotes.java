@@ -24,6 +24,8 @@ public final class MobileReleaseNotes {
 
     public static List<Note> notes() {
         List<Note> notes = new ArrayList<>();
+        notes.add(new Note("2.2.51", "稳定性与功能更新",
+                "同步更新各平台版本，完成对应功能修复、稳定性检查与发布记录。"));
         notes.add(new Note("2.2.50", "权威文档入口收敛",
                 "开发、运维、数据库、性能与发布说明已收敛为更清晰的权威入口。"));
         notes.add(new Note("2.2.49", "旧任务路径列安全退役",

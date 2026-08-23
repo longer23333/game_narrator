@@ -125,9 +125,6 @@ public final class MainActivity extends AppCompatActivity {
 
     @Override protected void onCreate(Bundle state) {
         super.onCreate(state);
-        getWindow().setStatusBarColor(CANVAS);
-        getWindow().setNavigationBarColor(CANVAS);
-        getWindow().getDecorView().setSystemUiVisibility(View.SYSTEM_UI_FLAG_LIGHT_STATUS_BAR | View.SYSTEM_UI_FLAG_LIGHT_NAVIGATION_BAR);
         picker = registerForActivityResult(new ActivityResultContracts.OpenMultipleDocuments(), this::addVideos);
         assetPicker = registerForActivityResult(new ActivityResultContracts.OpenMultipleDocuments(), this::addAssets);
         projectArchiveCreate=registerForActivityResult(new ActivityResultContracts.CreateDocument("application/json"),this::writeProjectArchive);

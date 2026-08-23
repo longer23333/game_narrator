@@ -23,6 +23,7 @@ import java.io.File;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.Set;
 
 @UnstableApi
 public final class ExportController {
@@ -297,7 +298,8 @@ public final class ExportController {
             }
         }
         List<EditedMediaItemSequence> sequences = new ArrayList<>();
-        sequences.add(new EditedMediaItemSequence.Builder(items).build());
+        sequences.add(new EditedMediaItemSequence.Builder(Set.of(C.TRACK_TYPE_AUDIO, C.TRACK_TYPE_VIDEO))
+                .addItems(items).build());
         long clipStartMs = 0;
         int videoOverlayCount = 0;
         List<MobileAssetStore.PlacementInfo> videoOverlays = new ArrayList<>();
@@ -464,7 +466,8 @@ public final class ExportController {
                         0, preset.width, preset.height, preset.frameRate))
                 .build());
         List<EditedMediaItemSequence> sequences = new ArrayList<>();
-        sequences.add(new EditedMediaItemSequence.Builder(items).build());
+        sequences.add(new EditedMediaItemSequence.Builder(Set.of(C.TRACK_TYPE_AUDIO, C.TRACK_TYPE_VIDEO))
+                .addItems(items).build());
         int videoOverlayCount = 0;
         List<MobileAssetStore.PlacementInfo> videoOverlays = new ArrayList<>();
         for (MobileAssetStore.PlacementInfo placement : placements) {

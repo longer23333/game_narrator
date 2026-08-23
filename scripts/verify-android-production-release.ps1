@@ -8,7 +8,7 @@ $root = (Resolve-Path (Join-Path $PSScriptRoot '..')).Path
 $failures = [Collections.Generic.List[string]]::new()
 function Require-Text([string]$relative,[string[]]$needles){$path=Join-Path $root $relative;if(-not(Test-Path -LiteralPath $path)){$failures.Add("missing file: $relative");return};$text=[IO.File]::ReadAllText($path,[Text.Encoding]::UTF8);foreach($needle in $needles){if(-not$text.Contains($needle)){$failures.Add("$relative missing contract: $needle")}}}
 Require-Text 'scripts/build-android-release-signed.ps1' @('Production signing is required','mapping.txt','apksigner','certificate.txt','manifest.json','signingMode')
-Require-Text 'android-app/app/build.gradle' @('minifyEnabled true','shrinkResources true','signingConfigs')
+Require-Text 'android-app/app/build.gradle' @('minifyEnabled = true','shrinkResources = true','signingConfigs')
 Require-Text 'android-app/app/src/androidTest/java/cn/longer233/gamenarrator/mobile/ProductionDatabaseTest.java' @('projectTimelineAndHistorySurviveReopen','publicAssetLicenseMetadataSurvivesReopen')
 Require-Text '.github/workflows/release-version.yml' @('GN_KEYSTORE_BASE64','build-android-release-signed.ps1','GameNarrator-Android-${{ inputs.version }}-r8')
 Require-Text '.github/workflows/ci.yml' @('Android 2.2.4 to current persistent AVD upgrade','ref: v2.2.4','adb install -r','ProductionDatabaseTest')

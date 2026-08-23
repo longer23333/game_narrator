@@ -9,7 +9,7 @@ if (-not (Test-Path -LiteralPath $gradle)) { throw "Gradle not found: $gradle" }
 if (-not (Test-Path -LiteralPath $buildFile)) { throw "Android build file not found: $buildFile" }
 
 $buildText = [IO.File]::ReadAllText($buildFile, [Text.Encoding]::UTF8)
-$match = [regex]::Match($buildText, 'versionName\s+[''"]([^''"]+)[''"]')
+$match = [regex]::Match($buildText, 'versionName\s*=\s*[''"]([^''"]+)[''"]')
 if (-not $match.Success) { throw "Unable to read versionName from $buildFile" }
 $version = $match.Groups[1].Value
 $tasks = @("assembleRelease")
@@ -66,7 +66,7 @@ $file = Get-Item -LiteralPath $outputApk
 $hash = Get-FileHash -LiteralPath $outputApk -Algorithm SHA256
 $commit = git -c "safe.directory=$($projectRoot.Replace('\','/'))" -C $projectRoot rev-parse HEAD
 if ($LASTEXITCODE -ne 0 -or [string]::IsNullOrWhiteSpace([string]$commit)) { throw 'Unable to record the release commit hash' }
-$manifest = [ordered]@{ version=$version; versionCode=[int]([regex]::Match($buildText,'versionCode\s+(\d+)').Groups[1].Value); commit=([string]$commit).Trim(); signingMode=$signingMode; apk=$file.Name; sha256=$hash.Hash; bytes=$file.Length; mappingDirectory=(Split-Path $mappingOutput -Leaf); certificateFile=(Split-Path $certificateFile -Leaf); createdAt=[DateTimeOffset]::Now.ToString('o') }
+$manifest = [ordered]@{ version=$version; versionCode=[int]([regex]::Match($buildText,'versionCode\s*=\s*(\d+)').Groups[1].Value); commit=([string]$commit).Trim(); signingMode=$signingMode; apk=$file.Name; sha256=$hash.Hash; bytes=$file.Length; mappingDirectory=(Split-Path $mappingOutput -Leaf); certificateFile=(Split-Path $certificateFile -Leaf); createdAt=[DateTimeOffset]::Now.ToString('o') }
 $manifest | ConvertTo-Json | Set-Content -LiteralPath (Join-Path $dist "GameNarrator-Android-$version-manifest.json") -Encoding UTF8
 Write-Host ""
 Write-Host "SUCCESS: $($file.FullName)"

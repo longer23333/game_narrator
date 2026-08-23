@@ -31,8 +31,8 @@ else {
 }
 
 $gradle = Read-Utf8 'android-app/app/build.gradle'
-$androidVersion = [regex]::Match($gradle, "versionName\s+'([^']+)'").Groups[1].Value
-$androidCode = [int][regex]::Match($gradle, 'versionCode\s+(\d+)').Groups[1].Value
+$androidVersion = [regex]::Match($gradle, "versionName\s*=\s*'([^']+)'").Groups[1].Value
+$androidCode = [int][regex]::Match($gradle, 'versionCode\s*=\s*(\d+)').Groups[1].Value
 Require-Equal 'Android versionName' $version $androidVersion
 $parts = $version.Split('.') | ForEach-Object { [int]$_ }
 $expectedCode = $parts[0] * 1000000 + $parts[1] * 1000 + $parts[2]

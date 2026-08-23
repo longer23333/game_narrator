@@ -1,10 +1,13 @@
 package cn.longer233.gamenarrator.mobile;
 
+import android.annotation.SuppressLint;
 import android.app.Dialog;
 import android.content.Context;
 import android.webkit.CookieManager;
+import android.webkit.WebResourceRequest;
 import android.webkit.WebView;
 import android.webkit.WebViewClient;
+import java.net.URI;
 
 /**
  * In-memory Bilibili login session. Cookies live only in the WebView cookie
@@ -23,6 +26,7 @@ public final class PlatformLoginSession {
         return sessionSeen;
     }
 
+    @SuppressLint("SetJavaScriptEnabled") // Bilibili's official login requires JavaScript; navigation is host-restricted below.
     public WebView createWebView(Context context) {
         clearSession();
         WebView view = new WebView(context);
@@ -31,6 +35,10 @@ public final class PlatformLoginSession {
         CookieManager.getInstance().setAcceptCookie(true);
         CookieManager.getInstance().setAcceptThirdPartyCookies(view, false);
         view.setWebViewClient(new WebViewClient() {
+            @Override public boolean shouldOverrideUrlLoading(WebView view, WebResourceRequest request) {
+                return !isTrustedLoginUrl(request.getUrl().toString());
+            }
+
             @Override public void onPageFinished(WebView view, String url) {
                 String cookie = CookieManager.getInstance().getCookie("https://www.bilibili.com");
                 if (!sessionSeen && cookie != null && cookie.contains("SESSDATA")) {
@@ -45,6 +53,18 @@ public final class PlatformLoginSession {
         });
         webView = view;
         return view;
+    }
+
+    static boolean isTrustedLoginUrl(String value) {
+        try {
+            URI uri = URI.create(value);
+            if (!"https".equalsIgnoreCase(uri.getScheme()) || uri.getUserInfo() != null) return false;
+            String host = uri.getHost();
+            return host != null && (host.equalsIgnoreCase("bilibili.com")
+                    || host.toLowerCase(java.util.Locale.ROOT).endsWith(".bilibili.com"));
+        } catch (IllegalArgumentException invalid) {
+            return false;
+        }
     }
 
     public void showLogin(Context context, Runnable onReady, Runnable onClose) {

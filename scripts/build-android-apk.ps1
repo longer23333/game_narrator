@@ -9,7 +9,7 @@ if (-not (Test-Path -LiteralPath $gradle)) { throw "Gradle wrapper not found: $g
 if (-not (Test-Path -LiteralPath $buildFile)) { throw "Android build file not found: $buildFile" }
 
 $buildText = [IO.File]::ReadAllText($buildFile, [Text.Encoding]::UTF8)
-$match = [regex]::Match($buildText, 'versionName\s+[''"]([^''"]+)[''"]')
+$match = [regex]::Match($buildText, 'versionName\s*=\s*[''"]([^''"]+)[''"]')
 if (-not $match.Success) { throw "Unable to read versionName from $buildFile" }
 $version = $match.Groups[1].Value
 $tasks = [Collections.Generic.List[string]]::new()

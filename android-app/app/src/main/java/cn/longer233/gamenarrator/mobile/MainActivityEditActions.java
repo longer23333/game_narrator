@@ -185,8 +185,9 @@ public final class MainActivityEditActions {
         activity.textToSpeech.setOnUtteranceProgressListener(new UtteranceProgressListener(){
             @Override public void onStart(String id){ }
             @Override public void onDone(String id){if(!utterance.equals(id))return;activity.handler.post(()->{activity.pushHistory("重新生成端侧解说配音");long assetId=activity.projectStore.addAsset(Uri.fromFile(output).toString(),clip.name()+" · "+voice.getName(),"audio/wav");activity.projectStore.removePlacementsForRole(clip.key(),"NARRATION");activity.projectStore.placeAsset(clip.key(),assetId,"NARRATION");activity.persistProject("重新生成端侧解说配音");activity.renderTimeline();activity.status.setText("端侧配音已生成并替换当前分镜旧解说轨。");});}
-            @Override public void onError(String id){if(utterance.equals(id))activity.handler.post(()->activity.showError("配音生成失败","系统 TTS 引擎未能生成音频，请检查语音包和可用空间。"));}
-            @Override public void onError(String id,int code){onError(id);}
+            @SuppressWarnings("deprecation") @Override public void onError(String id){handleError(id);}
+            @Override public void onError(String id,int code){handleError(id);}
+            private void handleError(String id){if(utterance.equals(id))activity.handler.post(()->activity.showError("配音生成失败","系统 TTS 引擎未能生成音频，请检查语音包和可用空间。"));}
         });
         int result=activity.textToSpeech.synthesizeToFile(clip.narration(),new Bundle(),output,utterance);if(result==TextToSpeech.ERROR)activity.showError("配音生成失败","系统 TTS 引擎拒绝了合成请求。");
     }

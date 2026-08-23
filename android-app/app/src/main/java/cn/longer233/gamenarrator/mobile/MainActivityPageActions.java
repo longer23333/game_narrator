@@ -443,8 +443,9 @@ public final class MainActivityPageActions {
         activity.textToSpeech.setOnUtteranceProgressListener(new UtteranceProgressListener(){
             @Override public void onStart(String id){}
             @Override public void onDone(String id){if(!activity.autoPipelineActive||!utterance.equals(id))return;activity.handler.post(()->{try{activity.pushHistory("自动流水线生成解说 "+(index+1)+"/"+pending.size());long assetId=activity.projectStore.addAsset(Uri.fromFile(output).toString(),clip.name()+" · "+chosenVoice.getName(),"audio/wav");activity.projectStore.removePlacementsForRole(clip.key(),"NARRATION");activity.projectStore.placeAsset(clip.key(),assetId,"NARRATION");activity.persistProject("自动流水线生成解说 "+(index+1)+"/"+pending.size());activity.status.setText("自动流水线：解说 "+(index+1)+"/"+pending.size());MainActivityPageActions.this.synthesizeNarration(pending,index+1);}catch(Exception error){activity.autoPipelineActive=false;activity.showError("自动流水线失败",error.getMessage());}});}
-            @Override public void onError(String id){if(activity.autoPipelineActive&&utterance.equals(id)){activity.autoPipelineActive=false;activity.showError("自动流水线中断","第 "+(index+1)+" 个分镜配音失败。");}}
-            @Override public void onError(String id,int code){onError(id);}
+            @SuppressWarnings("deprecation") @Override public void onError(String id){handleError(id);}
+            @Override public void onError(String id,int code){handleError(id);}
+            private void handleError(String id){if(activity.autoPipelineActive&&utterance.equals(id)){activity.autoPipelineActive=false;activity.showError("自动流水线中断","第 "+(index+1)+" 个分镜配音失败。");}}
         });
         int result=activity.textToSpeech.synthesizeToFile(clip.narration(),new Bundle(),output,utterance);
         if(result==TextToSpeech.ERROR){activity.autoPipelineActive=false;activity.showError("自动流水线失败","系统 TTS 拒绝了合成请求。");}

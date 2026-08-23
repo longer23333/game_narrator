@@ -1,12 +1,18 @@
 package cn.longer233.gamenarrator.mobile;
 
 import org.junit.Test;
+import org.junit.Rule;
+import org.junit.rules.TemporaryFolder;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 import static org.junit.Assert.assertEquals;
 import java.net.URI;
+import java.io.File;
+import java.nio.file.Files;
 
 public final class RemoteMediaImporterTest {
+    @Rule public final TemporaryFolder temporary=new TemporaryFolder();
+
     @Test public void rejectsNonHttpSchemeBeforeConnecting() {
         try {
             RemoteMediaImporter.resolveDirectUrl("javascript:alert(1)", "AUTO");
@@ -43,5 +49,19 @@ public final class RemoteMediaImporterTest {
         assertEquals(RemoteMediaImporter.ResponseAction.REAUTHENTICATE, RemoteMediaImporter.responseAction(403,0,null));
         assertEquals(RemoteMediaImporter.ResponseAction.RETRY_LATER, RemoteMediaImporter.responseAction(500,0,null));
         assertEquals(RemoteMediaImporter.ResponseAction.FAIL, RemoteMediaImporter.responseAction(404,0,null));
+    }
+
+    @Test public void preservesPartialFileWhenFinalMoveFails() throws Exception {
+        File root=temporary.newFolder("remote-import-finalize");
+        File partial=new File(root,"resume.part");
+        Files.writeString(partial.toPath(),"downloaded");
+        File output=new File(new File(root,"missing"),"video.mp4");
+        try {
+            RemoteMediaImporter.finalizeDownload(partial,output);
+            fail("expected final move failure");
+        } catch (Exception expected) {
+            assertTrue(partial.isFile());
+            assertEquals("downloaded",Files.readString(partial.toPath()));
+        }
     }
 }

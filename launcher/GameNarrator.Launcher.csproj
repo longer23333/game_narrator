@@ -6,10 +6,10 @@
     <AssemblyName>GameNarrator</AssemblyName><RootNamespace>GameNarrator.Launcher</RootNamespace>
     <ApplicationManifest>app.manifest</ApplicationManifest>
     <ApplicationIcon>assets\GameNarrator.ico</ApplicationIcon>
-    <Version>2.2.50</Version>
-    <AssemblyVersion>2.2.50.0</AssemblyVersion>
-    <FileVersion>2.2.50.0</FileVersion>
-    <InformationalVersion>2.2.50</InformationalVersion>
+    <Version>2.2.51</Version>
+    <AssemblyVersion>2.2.51.0</AssemblyVersion>
+    <FileVersion>2.2.51.0</FileVersion>
+    <InformationalVersion>2.2.51</InformationalVersion>
     <AssemblyTitle>GameNarrator 视频智能剪辑</AssemblyTitle>
     <Product>GameNarrator 视频智能剪辑工作台</Product>
     <Description>本地优先的视频解析、分镜、解说与成片生成工具</Description>
@@ -18,4 +18,9 @@
   <ItemGroup>
     <PackageReference Include="Microsoft.Web.WebView2" Version="1.0.4078.44" />
   </ItemGroup>
+  <Target Name="RemoveUnusedWebView2WpfReference" BeforeTargets="ResolveAssemblyReferences">
+    <ItemGroup>
+      <Reference Remove="@(Reference)" Condition="'%(Reference.Filename)' == 'Microsoft.Web.WebView2.Wpf'" />
+    </ItemGroup>
+  </Target>
 </Project>

@@ -10,6 +10,7 @@ import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Locale;
 
 /**
  * FFmpeg CLI adapter. The static Android ffmpeg binary is bundled under
@@ -74,7 +75,7 @@ public final class FfmpegRunner {
     }
 
     static String selectH264Encoder(String encoderOutput) {
-        String lower = encoderOutput == null ? "" : encoderOutput.toLowerCase();
+        String lower = encoderOutput == null ? "" : encoderOutput.toLowerCase(Locale.ROOT);
         for (String candidate : new String[]{"h264_mediacodec", "h264_omx", "libx264"}) {
             if (lower.contains(candidate)) return candidate;
         }

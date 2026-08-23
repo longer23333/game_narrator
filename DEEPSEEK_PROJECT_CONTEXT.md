@@ -1,7 +1,7 @@
 ﻿# GameNarrator — DeepSeek 结构化项目索引
 
-> 自动生成：2026-08-15 20:24:14 +08:00；UTF-8 BOM；索引不再内嵌全部源码。
-> Git：分支 `unknown`，提交 `unknown`；收录文件 821 个，分卷 8 个。
+> 自动生成：2026-08-23 19:59:31 +08:00；UTF-8 BOM；索引不再内嵌全部源码。
+> Git：分支 `main`，提交 `d4e7fb0`；收录文件 826 个，分卷 8 个。
 
 ## 使用方法
 
@@ -27,19 +27,70 @@
 
 | 分卷 | 文件数 | 字符数 | 建议用途 |
 |---|---:|---:|---|
-| `deepseek-context/01-foundation.md` | 96 | 225819 | 构建、配置、资源、数据库迁移 |
-| `deepseek-context/02-backend.md` | 291 | 1210265 | Spring 后端实现 |
-| `deepseek-context/03-tests.md` | 116 | 402954 | Spring 测试与行为验证 |
-| `deepseek-context/04-frontend.md` | 36 | 543932 | Vite Web 源码 |
-| `deepseek-context/05-android-main.md` | 144 | 889039 | Android 实现、资源与 Gradle |
-| `deepseek-context/06-android-tests.md` | 59 | 143956 | Android 单元及设备测试 |
-| `deepseek-context/07-platform-release.md` | 13 | 71338 | Windows、CI/CD 与发布 |
-| `deepseek-context/08-docs-scripts.md` | 66 | 243041 | 需求、架构、维护脚本 |
+| `deepseek-context/01-foundation.md` | 96 | 226043 | 构建、配置、资源、数据库迁移 |
+| `deepseek-context/02-backend.md` | 291 | 1212309 | Spring 后端实现 |
+| `deepseek-context/03-tests.md` | 118 | 411058 | Spring 测试与行为验证 |
+| `deepseek-context/04-frontend.md` | 36 | 544103 | Vite Web 源码 |
+| `deepseek-context/05-android-main.md` | 146 | 894258 | Android 实现、资源与 Gradle |
+| `deepseek-context/06-android-tests.md` | 60 | 145718 | Android 单元及设备测试 |
+| `deepseek-context/07-platform-release.md` | 13 | 83215 | Windows、CI/CD 与发布 |
+| `deepseek-context/08-docs-scripts.md` | 66 | 243361 | 需求、架构、维护脚本 |
 
 ## 当前 Git 工作区（最近修改）
 
 ```text
-clean or unavailable
+M ANDROID_AI_CONTEXT.md
+ M DEEPSEEK_PROJECT_CONTEXT.md
+ M android-app/app/build.gradle
+ M android-app/app/src/main/AndroidManifest.xml
+ M android-app/app/src/main/java/cn/longer233/gamenarrator/mobile/ExportController.java
+ M android-app/app/src/main/java/cn/longer233/gamenarrator/mobile/FfmpegRunner.java
+ M android-app/app/src/main/java/cn/longer233/gamenarrator/mobile/Gpt2OnnxGenerator.java
+ M android-app/app/src/main/java/cn/longer233/gamenarrator/mobile/MainActivity.java
+ M android-app/app/src/main/java/cn/longer233/gamenarrator/mobile/MainActivityEditActions.java
+ M android-app/app/src/main/java/cn/longer233/gamenarrator/mobile/MainActivityPageActions.java
+ M android-app/app/src/main/java/cn/longer233/gamenarrator/mobile/MobileReleaseNotes.java
+ M android-app/app/src/main/java/cn/longer233/gamenarrator/mobile/PlatformLoginSession.java
+ M android-app/app/src/main/java/cn/longer233/gamenarrator/mobile/RemoteMediaImporter.java
+ M android-app/app/src/main/java/cn/longer233/gamenarrator/mobile/TextEmbedding.java
+ M android-app/app/src/main/java/cn/longer233/gamenarrator/mobile/TimelineViewController.java
+ M android-app/app/src/main/res/values/colors.xml
+ M android-app/app/src/main/res/values/styles.xml
+ M android-app/app/src/test/java/cn/longer233/gamenarrator/mobile/RemoteMediaImporterTest.java
+ M docs/ANDROID_RELEASE_AUDIT.json
+ M frontend/index.html
+ M frontend/package-lock.json
+ M frontend/package.json
+ M frontend/public/app.js
+ M frontend/public/updates.js
+ M launcher/GameNarrator.Launcher.csproj
+ M package.json
+ M pom.xml
+ M release/CHANGELOG.json
+ M release/installer/GameNarrator-Demo-Lite.iss
+ M release/installer/GameNarrator.iss
+ M scripts/build-android-apk.ps1
+ M scripts/build-android-release-signed.ps1
+ M scripts/export-deepseek-context.ps1
+ M scripts/update-release-version.ps1
+ M scripts/verify-android-production-release.ps1
+ M scripts/verify-release-alignment.ps1
+ M src/main/java/cn/longer233/gamenarrator/ai/AiSettingsService.java
+ M src/main/java/cn/longer233/gamenarrator/ai/AiUsageService.java
+ M src/main/java/cn/longer233/gamenarrator/asset/AssetCatalogService.java
+ M src/main/java/cn/longer233/gamenarrator/editor/EditorTimelineService.java
+ M src/main/java/cn/longer233/gamenarrator/observability/TaskResourceBudgetManager.java
+ M src/main/resources/static/app.js
+ M src/main/resources/static/index.html
+ M src/main/resources/static/updates.js
+ M src/test/java/cn/longer233/gamenarrator/ai/AiUsageServiceTest.java
+ M src/test/java/cn/longer233/gamenarrator/editor/EditorTrackOperationsTest.java
+?? android-app/app/lint.xml
+?? android-app/app/src/main/res/xml/data_extraction_rules.xml
+?? android-app/app/src/test/java/cn/longer233/gamenarrator/mobile/PlatformLoginSessionTest.java
+?? artifacts/
+?? src/test/java/cn/longer233/gamenarrator/ai/AiSettingsServiceTest.java
+?? src/test/java/cn/longer233/gamenarrator/observability/TaskResourceBudgetManagerTest.java
 ```
 
 ## Flyway 迁移索引
@@ -97,10 +148,10 @@ clean or unavailable
 - `.github/workflows/release-version.yml`
 - `android-app/gradle.properties`
 - `android-app/gradle/wrapper/gradle-wrapper.properties`
+- `src/main/resources/application.yml`
 - `src/main/resources/application-lite.yml`
 - `src/main/resources/application-postgresql.yml`
 - `src/main/resources/application-release.yml`
-- `src/main/resources/application.yml`
 
 ## API 路由索引（按 Controller 注解静态提取）
 
@@ -223,10 +274,10 @@ clean or unavailable
 | POST | `/api/effect-presets/import` | `src/main/java/cn/longer233/gamenarrator/effect/EffectController.java` |
 | POST | `/api/knowledge-packs` | `src/main/java/cn/longer233/gamenarrator/event/GameKnowledgePackController.java` |
 | POST | `/api/media-import/cookies` | `src/main/java/cn/longer233/gamenarrator/importer/MediaImportController.java` |
-| POST | `/api/media-import/download-jobs` | `src/main/java/cn/longer233/gamenarrator/importer/MediaImportController.java` |
 | POST | `/api/media-import/download` | `src/main/java/cn/longer233/gamenarrator/importer/MediaImportController.java` |
-| POST | `/api/media-import/preview-jobs` | `src/main/java/cn/longer233/gamenarrator/importer/MediaImportController.java` |
+| POST | `/api/media-import/download-jobs` | `src/main/java/cn/longer233/gamenarrator/importer/MediaImportController.java` |
 | POST | `/api/media-import/preview` | `src/main/java/cn/longer233/gamenarrator/importer/MediaImportController.java` |
+| POST | `/api/media-import/preview-jobs` | `src/main/java/cn/longer233/gamenarrator/importer/MediaImportController.java` |
 | POST | `/api/media-import/projects` | `src/main/java/cn/longer233/gamenarrator/importer/MediaImportController.java` |
 | POST | `/api/media-import/resolve` | `src/main/java/cn/longer233/gamenarrator/importer/MediaImportController.java` |
 | POST | `/api/tasks/{id}/cancel` | `src/main/java/cn/longer233/gamenarrator/task/web/VideoTaskController.java` |

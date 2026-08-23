@@ -28,8 +28,8 @@ $match = [regex]::Match($pom, '<artifactId>game-narrator</artifactId>\s*<version
 if (-not $match.Success) { throw 'Cannot read current Web/Windows version' }
 $oldVersion = $match.Groups[1].Value
 $gradle = Read-Utf8 'android-app/app/build.gradle'
-$androidNameMatch = [regex]::Match($gradle, "versionName\s+'(\d+\.\d+\.\d+)'")
-$androidCodeMatch = [regex]::Match($gradle, 'versionCode\s+(\d+)')
+$androidNameMatch = [regex]::Match($gradle, "versionName\s*=\s*'(\d+\.\d+\.\d+)'")
+$androidCodeMatch = [regex]::Match($gradle, 'versionCode\s*=\s*(\d+)')
 if (-not $androidNameMatch.Success -or -not $androidCodeMatch.Success) { throw 'Cannot read current Android version' }
 $oldAndroidVersion = $androidNameMatch.Groups[1].Value
 $oldAndroidCode = [int]$androidCodeMatch.Groups[1].Value
@@ -83,8 +83,8 @@ foreach ($file in @('frontend/public/updates.js', 'src/main/resources/static/upd
     Write-Utf8 $file $content
 }
 
-Replace-Required 'android-app/app/build.gradle' "versionCode\s+$oldAndroidCode" "versionCode $AndroidVersionCode"
-Replace-Required 'android-app/app/build.gradle' ([regex]::Escape("versionName '$oldAndroidVersion'")) "versionName '$AndroidVersion'"
+Replace-Required 'android-app/app/build.gradle' "versionCode\s*=\s*$oldAndroidCode" "versionCode = $AndroidVersionCode"
+Replace-Required 'android-app/app/build.gradle' ([regex]::Escape("versionName = '$oldAndroidVersion'")) "versionName = '$AndroidVersion'"
 $notesPath = 'android-app/app/src/main/java/cn/longer233/gamenarrator/mobile/MobileReleaseNotes.java'
 $notes = Read-Utf8 $notesPath
 $androidReleaseBody = [Text.Encoding]::UTF8.GetString([Convert]::FromBase64String('5ZCM5q2l5pu05paw5ZCE5bmz5Y+w54mI5pys77yM5a6M5oiQ5a+55bqU5Yqf6IO95L+u5aSN44CB56iz5a6a5oCn5qOA5p+l5LiO5Y+R5biD6K6w5b2V44CC'))

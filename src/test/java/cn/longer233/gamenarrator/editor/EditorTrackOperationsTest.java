@@ -8,6 +8,7 @@ import org.junit.jupiter.api.Test;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.Mockito.mock;
+import java.util.Map;
 
 class EditorTrackOperationsTest {
     private final ObjectMapper mapper = new ObjectMapper();
@@ -43,6 +44,14 @@ class EditorTrackOperationsTest {
                 .hasMessageContaining("先移走轨道中的片段");
         assertThatThrownBy(() -> service.addManagedTrack(timeline, "VIDEO", "额外视频"))
                 .hasMessageContaining("只能新增叠加、音频或字幕轨道");
+    }
+
+    @Test
+    void rejectsNonFiniteTimelineNumbers() {
+        assertThatThrownBy(() -> EditorTimelineService.number(Map.of("value","NaN"),"value"))
+                .isInstanceOf(IllegalArgumentException.class).hasMessageContaining("有限数字");
+        assertThatThrownBy(() -> EditorTimelineService.number(Map.of("value",Double.POSITIVE_INFINITY),"value"))
+                .isInstanceOf(IllegalArgumentException.class).hasMessageContaining("有限数字");
     }
 
     private ObjectNode timeline() {

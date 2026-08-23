@@ -124,13 +124,24 @@ function Get-PreviousManifest {
     }
 }
 
+function Get-Sha256([string]$path) {
+    $stream = [IO.File]::OpenRead($path)
+    $algorithm = [Security.Cryptography.SHA256]::Create()
+    try {
+        return ([BitConverter]::ToString($algorithm.ComputeHash($stream))).Replace('-', '').ToLowerInvariant()
+    } finally {
+        $algorithm.Dispose()
+        $stream.Dispose()
+    }
+}
+
 function Get-SourceManifest([IO.FileInfo[]]$files) {
     return @($files | ForEach-Object {
         $relative = Get-RelativePath $_.FullName
         [pscustomobject]@{
             path = $relative
             volume = Get-VolumeName $relative
-            sha256 = (Get-FileHash -LiteralPath $_.FullName -Algorithm SHA256).Hash.ToLowerInvariant()
+            sha256 = Get-Sha256 $_.FullName
         }
     } | Sort-Object path)
 }
