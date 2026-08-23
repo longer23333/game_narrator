@@ -1,7 +1,7 @@
 ﻿# GameNarrator — DeepSeek 结构化项目索引
 
-> 自动生成：2026-08-23 19:59:31 +08:00；UTF-8 BOM；索引不再内嵌全部源码。
-> Git：分支 `main`，提交 `d4e7fb0`；收录文件 826 个，分卷 8 个。
+> 自动生成：2026-08-23 20:01:46 +08:00；UTF-8 BOM；索引不再内嵌全部源码。
+> Git：分支 `main`，提交 `255ccb7`；收录文件 826 个，分卷 8 个。
 
 ## 使用方法
 
@@ -39,58 +39,7 @@
 ## 当前 Git 工作区（最近修改）
 
 ```text
-M ANDROID_AI_CONTEXT.md
- M DEEPSEEK_PROJECT_CONTEXT.md
- M android-app/app/build.gradle
- M android-app/app/src/main/AndroidManifest.xml
- M android-app/app/src/main/java/cn/longer233/gamenarrator/mobile/ExportController.java
- M android-app/app/src/main/java/cn/longer233/gamenarrator/mobile/FfmpegRunner.java
- M android-app/app/src/main/java/cn/longer233/gamenarrator/mobile/Gpt2OnnxGenerator.java
- M android-app/app/src/main/java/cn/longer233/gamenarrator/mobile/MainActivity.java
- M android-app/app/src/main/java/cn/longer233/gamenarrator/mobile/MainActivityEditActions.java
- M android-app/app/src/main/java/cn/longer233/gamenarrator/mobile/MainActivityPageActions.java
- M android-app/app/src/main/java/cn/longer233/gamenarrator/mobile/MobileReleaseNotes.java
- M android-app/app/src/main/java/cn/longer233/gamenarrator/mobile/PlatformLoginSession.java
- M android-app/app/src/main/java/cn/longer233/gamenarrator/mobile/RemoteMediaImporter.java
- M android-app/app/src/main/java/cn/longer233/gamenarrator/mobile/TextEmbedding.java
- M android-app/app/src/main/java/cn/longer233/gamenarrator/mobile/TimelineViewController.java
- M android-app/app/src/main/res/values/colors.xml
- M android-app/app/src/main/res/values/styles.xml
- M android-app/app/src/test/java/cn/longer233/gamenarrator/mobile/RemoteMediaImporterTest.java
- M docs/ANDROID_RELEASE_AUDIT.json
- M frontend/index.html
- M frontend/package-lock.json
- M frontend/package.json
- M frontend/public/app.js
- M frontend/public/updates.js
- M launcher/GameNarrator.Launcher.csproj
- M package.json
- M pom.xml
- M release/CHANGELOG.json
- M release/installer/GameNarrator-Demo-Lite.iss
- M release/installer/GameNarrator.iss
- M scripts/build-android-apk.ps1
- M scripts/build-android-release-signed.ps1
- M scripts/export-deepseek-context.ps1
- M scripts/update-release-version.ps1
- M scripts/verify-android-production-release.ps1
- M scripts/verify-release-alignment.ps1
- M src/main/java/cn/longer233/gamenarrator/ai/AiSettingsService.java
- M src/main/java/cn/longer233/gamenarrator/ai/AiUsageService.java
- M src/main/java/cn/longer233/gamenarrator/asset/AssetCatalogService.java
- M src/main/java/cn/longer233/gamenarrator/editor/EditorTimelineService.java
- M src/main/java/cn/longer233/gamenarrator/observability/TaskResourceBudgetManager.java
- M src/main/resources/static/app.js
- M src/main/resources/static/index.html
- M src/main/resources/static/updates.js
- M src/test/java/cn/longer233/gamenarrator/ai/AiUsageServiceTest.java
- M src/test/java/cn/longer233/gamenarrator/editor/EditorTrackOperationsTest.java
-?? android-app/app/lint.xml
-?? android-app/app/src/main/res/xml/data_extraction_rules.xml
-?? android-app/app/src/test/java/cn/longer233/gamenarrator/mobile/PlatformLoginSessionTest.java
 ?? artifacts/
-?? src/test/java/cn/longer233/gamenarrator/ai/AiSettingsServiceTest.java
-?? src/test/java/cn/longer233/gamenarrator/observability/TaskResourceBudgetManagerTest.java
 ```
 
 ## Flyway 迁移索引
