@@ -326,7 +326,10 @@ public final class ProjectTaskDialogController {
         LinearLayout panel = ui.sheet("Bilibili 登录助手");
         panel.addView(ui.label("登录在 B 站官方页面完成；GameNarrator 不接触或保存账号密码，Cookie 只存在于本次应用运行的内存中，可随时手动清除。", 13, MUTED, false));
         final PlatformLoginSession session = platformImportHost.platformLoginSession();
-        TextView sessionStatus = ui.label("尚未登录：点“本机确认”会直接拉起已安装的 B 站 App 完成登录；也可使用 cookies.txt。", 13, MUTED, false);
+        TextView sessionStatus = ui.label(session.hasSession()
+                ? "已登录：本次应用运行期间可直接解析与下载，Cookie 仅存内存。"
+                : "尚未登录：点“本机确认”会直接拉起已安装的 B 站 App 完成登录；也可使用 cookies.txt。",
+                13, MUTED, false);
         panel.addView(ui.action("本机确认（B 站 App）", Color.rgb(54, 201, 255), TEXT, v -> {
             sessionStatus.setText("已拉起本机 B 站 App，请在 App 内确认登录；成功后自动完成。");
             new BilibiliQrLogin(context, session).startDeviceConfirm(new BilibiliQrLogin.LoginListener() {

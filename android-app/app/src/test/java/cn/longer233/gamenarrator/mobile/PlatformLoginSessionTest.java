@@ -27,4 +27,11 @@ public class PlatformLoginSessionTest {
         assertFalse(PlatformLoginSession.isTrustedLoginUrl("https://example.com/video.mp4"));
         assertFalse(PlatformLoginSession.isTrustedLoginUrl("https://bilibili.com.evil.example/video"));
     }
+
+    @Test public void nativeSessionRejectsMissingOrBlankCookies() {
+        assertTrue(PlatformLoginSession.normalizeNativeCookies("  SESSDATA=session-value  ")
+                .equals("SESSDATA=session-value"));
+        assertTrue(PlatformLoginSession.normalizeNativeCookies(null) == null);
+        assertTrue(PlatformLoginSession.normalizeNativeCookies("   ") == null);
+    }
 }

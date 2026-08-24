@@ -1,7 +1,7 @@
 ﻿# GameNarrator — DeepSeek 结构化项目索引
 
-> 自动生成：2026-08-24 16:52:39 +08:00；UTF-8 BOM；索引不再内嵌全部源码。
-> Git：分支 `unknown`，提交 `unknown`；收录文件 832 个，分卷 8 个。
+> 自动生成：2026-08-24 17:44:42 +08:00；UTF-8 BOM；索引不再内嵌全部源码。
+> Git：分支 `main`，提交 `870f951`；收录文件 832 个，分卷 8 个。
 
 ## 使用方法
 
@@ -30,16 +30,39 @@
 | `deepseek-context/01-foundation.md` | 98 | 227847 | 构建、配置、资源、数据库迁移 |
 | `deepseek-context/02-backend.md` | 292 | 1225206 | Spring 后端实现 |
 | `deepseek-context/03-tests.md` | 121 | 427140 | Spring 测试与行为验证 |
-| `deepseek-context/04-frontend.md` | 36 | 544633 | Vite Web 源码 |
-| `deepseek-context/05-android-main.md` | 146 | 896566 | Android 实现、资源与 Gradle |
-| `deepseek-context/06-android-tests.md` | 60 | 146477 | Android 单元及设备测试 |
-| `deepseek-context/07-platform-release.md` | 13 | 74512 | Windows、CI/CD 与发布 |
-| `deepseek-context/08-docs-scripts.md` | 66 | 244886 | 需求、架构、维护脚本 |
+| `deepseek-context/04-frontend.md` | 36 | 544612 | Vite Web 源码 |
+| `deepseek-context/05-android-main.md` | 146 | 897999 | Android 实现、资源与 Gradle |
+| `deepseek-context/06-android-tests.md` | 60 | 147486 | Android 单元及设备测试 |
+| `deepseek-context/07-platform-release.md` | 13 | 74511 | Windows、CI/CD 与发布 |
+| `deepseek-context/08-docs-scripts.md` | 66 | 244872 | 需求、架构、维护脚本 |
 
 ## 当前 Git 工作区（最近修改）
 
 ```text
-clean or unavailable
+M android-app/app/build.gradle
+ M android-app/app/src/main/java/cn/longer233/gamenarrator/mobile/MobileCapability.java
+ M android-app/app/src/main/java/cn/longer233/gamenarrator/mobile/MobileReleaseNotes.java
+ M android-app/app/src/main/java/cn/longer233/gamenarrator/mobile/PlatformLoginSession.java
+ M android-app/app/src/main/java/cn/longer233/gamenarrator/mobile/ProjectTaskDialogController.java
+ M android-app/app/src/main/java/cn/longer233/gamenarrator/mobile/RemoteMediaImporter.java
+ M android-app/app/src/test/java/cn/longer233/gamenarrator/mobile/PlatformLoginSessionTest.java
+ M android-app/app/src/test/java/cn/longer233/gamenarrator/mobile/RemoteMediaImporterTest.java
+ M docs/ANDROID_CORE_BASELINE.json
+ M docs/ANDROID_FEATURE_PARITY.md
+ M frontend/index.html
+ M frontend/package-lock.json
+ M frontend/package.json
+ M frontend/public/app.js
+ M frontend/public/updates.js
+ M launcher/GameNarrator.Launcher.csproj
+ M package.json
+ M pom.xml
+ M release/CHANGELOG.json
+ M release/installer/GameNarrator-Demo-Lite.iss
+ M release/installer/GameNarrator.iss
+ M src/main/resources/static/app.js
+ M src/main/resources/static/index.html
+ M src/main/resources/static/updates.js
 ```
 
 ## Flyway 迁移索引

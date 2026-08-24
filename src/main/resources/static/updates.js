@@ -1,5 +1,5 @@
 const releases = [
-  {version:'2.2.54', title:'修复 Android Bilibili 登录会话', current:true, items:["同步更新 Web、Windows 与 Android 版本","完成本版本功能修复与稳定性检查","创建并同步 GitHub、Gitee 发布标签"], jump:{view:'studio', selector:'#task-list'}},
+  {version:'2.2.55', title:'彻底清除 Bilibili 会话', current:true, items:["清除 WebView 与本机确认的内存会话","登录助手显示真实会话状态","如实标记 Android 平台作品页解析限制"], jump:{view:'studio', selector:'#task-list'}},
   {version:'2.2.53', title:'发布门禁与状态一致性修复', items:["同步更新 Web、Windows 与 Android 版本","完成本版本功能修复与稳定性检查","创建并同步 GitHub、Gitee 发布标签"], jump:{view:'studio', selector:'#task-list'}},
   {version:'2.2.52', title:'安全与数据隔离加固', items:["同步更新 Web、Windows 与 Android 版本","完成本版本功能修复与稳定性检查","创建并同步 GitHub、Gitee 发布标签"], jump:{view:'studio', selector:'#task-list'}},
   {version:'2.2.51', title:'稳定性与功能更新', items:["同步更新 Web、Windows 与 Android 版本","完成本版本功能修复与稳定性检查","创建并同步 GitHub、Gitee 发布标签"], jump:{view:'studio', selector:'#task-list'}},

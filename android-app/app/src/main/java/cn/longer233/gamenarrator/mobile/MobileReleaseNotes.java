@@ -24,8 +24,8 @@ public final class MobileReleaseNotes {
 
     public static List<Note> notes() {
         List<Note> notes = new ArrayList<>();
-        notes.add(new Note("2.2.54", "修复 Android Bilibili 登录会话",
-                "同步更新各平台版本，完成对应功能修复、稳定性检查与发布记录。"));
+        notes.add(new Note("2.2.55", "彻底清除 Bilibili 会话",
+                "清除操作现在同时删除 WebView 与本机确认 Cookie，登录助手会显示真实会话状态；平台动态作品页不再被误报为 Android 端已完整支持。"));
         notes.add(new Note("2.2.53", "发布门禁与状态一致性修复",
                 "同步更新各平台版本，完成对应功能修复、稳定性检查与发布记录。"));
         notes.add(new Note("2.2.52", "安全与数据隔离加固",

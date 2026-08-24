@@ -124,6 +124,7 @@ public final class PlatformLoginSession {
     public void clearSession() {
         stopSessionChecks();
         sessionSeen = false;
+        nativeCookies = null;
         onSessionReady = null;
         if (webView != null) {
             webView.stopLoading();
@@ -147,6 +148,14 @@ public final class PlatformLoginSession {
     }
 
     public void setNativeCookies(String cookies) {
-        nativeCookies = cookies;
+        nativeCookies = normalizeNativeCookies(cookies);
+        sessionSeen = nativeCookies != null;
+        if (sessionSeen) stopSessionChecks();
+    }
+
+    static String normalizeNativeCookies(String cookies) {
+        if (cookies == null) return null;
+        String normalized = cookies.trim();
+        return normalized.isEmpty() ? null : normalized;
     }
 }

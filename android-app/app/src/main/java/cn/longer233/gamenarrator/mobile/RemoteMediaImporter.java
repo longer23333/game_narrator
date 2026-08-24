@@ -61,7 +61,13 @@ public final class RemoteMediaImporter {
             java.io.ByteArrayOutputStream buffer=new java.io.ByteArrayOutputStream();
             try(java.io.InputStream input=connection.getInputStream()){byte[] bytes=new byte[8192];int read,total=0;while((read=input.read(bytes))>=0){total+=read;if(total>2*1024*1024)break;buffer.write(bytes,0,read);}}
             List<MediaLinkExtractor.Candidate> candidates=MediaLinkExtractor.extract(new String(buffer.toByteArray(),java.nio.charset.StandardCharsets.UTF_8),sourceUri(rawUrl).toString());
-            if(candidates.isEmpty())throw new IllegalArgumentException("网页中没有发现可下载的媒体直链");
+            if(candidates.isEmpty()) {
+                String platform = platformName(sourceUri(rawUrl));
+                if (platform != null) throw new IllegalArgumentException(platform
+                        + " 作品页使用动态或分离音视频流，Android 端目前只能导入媒体直链；"
+                        + "请使用桌面端 yt-dlp 导入，或粘贴已获授权的媒体直链。");
+                throw new IllegalArgumentException("网页中没有发现可下载的媒体直链");
+            }
             for(MediaLinkExtractor.Candidate candidate:candidates)if(MediaFormatPreference.matches(candidate.url(),candidate.mimeType(),formatPreference))return candidate.url();
             throw new IllegalArgumentException("网页媒体直链不符合所选格式："+formatPreference);
         }finally{connection.disconnect();}
@@ -101,6 +107,16 @@ public final class RemoteMediaImporter {
     private static URI sourceUri(String rawUrl) throws Exception {
         URI source=URI.create(rawUrl.trim());String scheme=source.getScheme();if(!"https".equalsIgnoreCase(scheme)&&!"http".equalsIgnoreCase(scheme))throw new IllegalArgumentException("只支持 HTTP 或 HTTPS 媒体地址");if(source.getUserInfo()!=null)throw new IllegalArgumentException("媒体地址不能包含用户名或密码");
         return source;
+    }
+
+    static String platformName(URI source) {
+        String host = source == null || source.getHost() == null ? ""
+                : source.getHost().toLowerCase(Locale.ROOT);
+        if (host.equals("bilibili.com") || host.endsWith(".bilibili.com") || host.equals("b23.tv")) return "Bilibili";
+        if (host.equals("douyin.com") || host.endsWith(".douyin.com")) return "抖音";
+        if (host.equals("kuaishou.com") || host.endsWith(".kuaishou.com")) return "快手";
+        if (host.equals("youtube.com") || host.endsWith(".youtube.com") || host.equals("youtu.be")) return "YouTube";
+        return null;
     }
 
     private static HttpURLConnection open(URI source) throws Exception {

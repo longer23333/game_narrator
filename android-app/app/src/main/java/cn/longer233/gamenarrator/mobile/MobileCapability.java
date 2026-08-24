@@ -56,7 +56,7 @@ public final class MobileCapability {
         out.add(new Capability("AI 配音（系统 TTS）", CapabilityStatus.LOCAL_ONLY,
                 "使用已安装的离线中文 TTS 引擎生成解说；缺少语音包时设置页会明确标记不可用。"));
         out.add(new Capability("平台导入（HTTP/HTTPS 直链）", CapabilityStatus.LOCAL_ONLY,
-                "支持媒体直链与网页直链解析下载；已加载的 Cookie 会话会自动带上，需要登录的平台页面可配合 Bilibili 登录助手使用。"));
+                "支持媒体直链和含 og:video/video/source 的普通网页；Bilibili、抖音、快手、YouTube 动态作品页需使用桌面端 yt-dlp。"));
         out.add(new Capability("字幕烧录", CapabilityStatus.LOCAL_ONLY,
                 "分镜字幕与精确字幕轨已接入 Media3 导出，真机验证通过。"));
         out.add(new Capability("转场", CapabilityStatus.LOCAL_ONLY,

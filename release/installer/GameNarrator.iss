@@ -1,6 +1,6 @@
 #define AppName "GameNarrator"
 #ifndef AppVersion
-#define AppVersion "2.2.54"
+#define AppVersion "2.2.55"
 #endif
 
 [Setup]

@@ -11,6 +11,13 @@ import java.io.File;
 import java.nio.file.Files;
 
 public final class RemoteMediaImporterTest {
+    @Test public void identifiesDynamicPlatformsWithoutMatchingLookalikeHosts() {
+        assertEquals("Bilibili", RemoteMediaImporter.platformName(URI.create("https://www.bilibili.com/video/BV1")));
+        assertEquals("抖音", RemoteMediaImporter.platformName(URI.create("https://www.douyin.com/video/1")));
+        assertEquals("快手", RemoteMediaImporter.platformName(URI.create("https://v.kuaishou.com/a")));
+        assertEquals("YouTube", RemoteMediaImporter.platformName(URI.create("https://youtu.be/a")));
+        assertEquals(null, RemoteMediaImporter.platformName(URI.create("https://bilibili.com.example.test/a")));
+    }
     @Rule public final TemporaryFolder temporary=new TemporaryFolder();
 
     @Test public void rejectsNonHttpSchemeBeforeConnecting() {

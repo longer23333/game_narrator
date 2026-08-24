@@ -1,11 +1,11 @@
 {
   "schemaVersion": 1,
-  "currentVersion": "2.2.54",
+  "currentVersion": "2.2.55",
   "releases": [
     {
-      "version": "2.2.54",
-      "title": "修复 Android Bilibili 登录会话",
-      "summary": "修复 Android 扫码确认后界面卡住及登录会话未传递给媒体导入的问题。",
+      "version": "2.2.55",
+      "title": "彻底清除 Bilibili 会话",
+      "summary": "修复 Android 本机确认会话残留和登录状态误报，并如实标记动态平台作品页的端侧限制。",
       "items": [
         "同步更新 Web、Windows 与 Android 版本",
         "扫码确认后主动检测 Bilibili 内存会话并自动关闭登录窗口",
