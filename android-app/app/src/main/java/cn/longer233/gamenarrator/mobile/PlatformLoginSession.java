@@ -3,6 +3,8 @@ package cn.longer233.gamenarrator.mobile;
 import android.annotation.SuppressLint;
 import android.app.Dialog;
 import android.content.Context;
+import android.os.Handler;
+import android.os.Looper;
 import android.webkit.CookieManager;
 import android.webkit.WebResourceRequest;
 import android.webkit.WebView;
@@ -21,6 +23,8 @@ public final class PlatformLoginSession {
     private boolean sessionSeen;
     private Runnable onSessionReady;
     private String nativeCookies;
+    private final Handler handler = new Handler(Looper.getMainLooper());
+    private Runnable sessionCheck;
 
     public boolean hasSession() {
         return sessionSeen;
@@ -40,15 +44,7 @@ public final class PlatformLoginSession {
             }
 
             @Override public void onPageFinished(WebView view, String url) {
-                String cookie = CookieManager.getInstance().getCookie("https://www.bilibili.com");
-                if (!sessionSeen && cookie != null && cookie.contains("SESSDATA")) {
-                    sessionSeen = true;
-                    if (onSessionReady != null) {
-                        Runnable ready = onSessionReady;
-                        onSessionReady = null;
-                        ready.run();
-                    }
-                }
+                detectSession();
             }
         });
         webView = view;
@@ -79,9 +75,54 @@ public final class PlatformLoginSession {
         });
         view.loadUrl(LOGIN_URL);
         dialog.show();
+        startSessionChecks();
+    }
+
+    private void startSessionChecks() {
+        stopSessionChecks();
+        sessionCheck = new Runnable() {
+            @Override public void run() {
+                detectSession();
+                if (!sessionSeen && webView != null) handler.postDelayed(this, 750);
+            }
+        };
+        handler.post(sessionCheck);
+    }
+
+    private void stopSessionChecks() {
+        if (sessionCheck != null) {
+            handler.removeCallbacks(sessionCheck);
+            sessionCheck = null;
+        }
+    }
+
+    private void detectSession() {
+        if (sessionSeen || webView == null) return;
+        CookieManager cookies = CookieManager.getInstance();
+        if (!hasSessionCookie(cookies.getCookie("https://passport.bilibili.com"),
+                cookies.getCookie("https://www.bilibili.com"))) return;
+        sessionSeen = true;
+        stopSessionChecks();
+        Dialog activeDialog = dialog;
+        dialog = null;
+        if (activeDialog != null && activeDialog.isShowing()) activeDialog.dismiss();
+        if (onSessionReady != null) {
+            Runnable ready = onSessionReady;
+            onSessionReady = null;
+            ready.run();
+        }
+    }
+
+    static boolean hasSessionCookie(String... cookieHeaders) {
+        if (cookieHeaders == null) return false;
+        for (String cookie : cookieHeaders) {
+            if (cookie != null && cookie.contains("SESSDATA=")) return true;
+        }
+        return false;
     }
 
     public void clearSession() {
+        stopSessionChecks();
         sessionSeen = false;
         onSessionReady = null;
         if (webView != null) {
@@ -98,7 +139,7 @@ public final class PlatformLoginSession {
 
     public String cookiesFor(String url) {
         String webCookie = CookieManager.getInstance().getCookie(url);
-        if (nativeCookies != null && !nativeCookies.isBlank()) {
+        if (isTrustedLoginUrl(url) && nativeCookies != null && !nativeCookies.isBlank()) {
             if (webCookie == null || webCookie.isBlank()) return nativeCookies;
             return webCookie + "; " + nativeCookies;
         }

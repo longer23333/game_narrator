@@ -106,6 +106,7 @@ public final class MainActivity extends AppCompatActivity {
     ActivityResultLauncher<String[]> lutFileOpen;
     ActivityResultLauncher<String> subtitleFileCreate;
     CookieFileSession cookieSession = new CookieFileSession();
+    final PlatformLoginSession platformLoginSession = new PlatformLoginSession();
     String pendingProjectArchive;
     String pendingTemplateExport;
     Runnable pendingMicAction;
@@ -295,7 +296,17 @@ public final class MainActivity extends AppCompatActivity {
     }
 
     String cookieSessionFor(String url) {
-        return cookieSession.cookiesForUrl(url);
+        return combineCookieHeaders(platformLoginSession.cookiesFor(url), cookieSession.cookiesForUrl(url));
+    }
+
+    private static String combineCookieHeaders(String... headers) {
+        StringBuilder combined = new StringBuilder();
+        for (String header : headers) {
+            if (header == null || header.isBlank()) continue;
+            if (combined.length() > 0) combined.append("; ");
+            combined.append(header);
+        }
+        return combined.toString();
     }
 
     void launchWhisperWavOpen(DialogController.WhisperResult callback) {

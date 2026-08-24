@@ -14,4 +14,17 @@ public class PlatformLoginSessionTest {
         assertFalse(PlatformLoginSession.isTrustedLoginUrl("https://bilibili.com@evil.example/"));
         assertFalse(PlatformLoginSession.isTrustedLoginUrl("not a url"));
     }
+
+    @Test public void detectsSessionCookieAcrossPassportAndMainDomains() {
+        assertTrue(PlatformLoginSession.hasSessionCookie(
+                "bili_jct=csrf", "DedeUserID=42; SESSDATA=session-value"));
+        assertFalse(PlatformLoginSession.hasSessionCookie("bili_jct=csrf", null));
+        assertFalse(PlatformLoginSession.hasSessionCookie((String[]) null));
+    }
+
+    @Test public void trustedLoginPolicyIncludesOnlyBilibiliHosts() {
+        assertTrue(PlatformLoginSession.isTrustedLoginUrl("https://api.bilibili.com/x/web-interface/nav"));
+        assertFalse(PlatformLoginSession.isTrustedLoginUrl("https://example.com/video.mp4"));
+        assertFalse(PlatformLoginSession.isTrustedLoginUrl("https://bilibili.com.evil.example/video"));
+    }
 }

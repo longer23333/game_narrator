@@ -105,6 +105,7 @@ public final class DialogController {
         void startRemoteImport(String url, String format, boolean createProject);
         void launchCookieFileOpen();
         String cookieSessionFor(String url);
+        PlatformLoginSession platformLoginSession();
     }
 
     public interface SettingsHost {

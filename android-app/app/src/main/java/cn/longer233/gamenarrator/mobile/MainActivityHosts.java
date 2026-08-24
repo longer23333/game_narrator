@@ -150,6 +150,7 @@ public final class MainActivityHosts {
             }
             @Override public void launchCookieFileOpen() { activity.launchCookieFileOpen(); }
             @Override public String cookieSessionFor(String url) { return activity.cookieSessionFor(url); }
+            @Override public PlatformLoginSession platformLoginSession() { return activity.platformLoginSession; }
         };
         settingsHost = new DialogController.SettingsHost() {
             @Override public ViewGroup pageContainer() { return activity.shell; }
