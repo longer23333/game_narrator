@@ -141,7 +141,7 @@ if ($coverage -lt [double]$baseline.minimumCoverage) {
 
 $workflow = Read-Utf8 '.github/workflows/release-version.yml'
 if ($workflow -match '(?m)^\s*android_version:') { $failures.Add('Release workflow still accepts an independent Android versionName') }
-foreach ($required in @('verify-android-release-audit.ps1','verify-android-production-release.ps1','verify-android-platform-import.ps1 -RequireDeviceEvidence','ANDROID_DEVICE_EVIDENCE_BASE64','upload-artifact','frontend','release-signed.apk','manifest.json','certificate.txt','-r8')) {
+foreach ($required in @('verify-ci-release-evidence.ps1','gh run download','verify-android-release-audit.ps1','verify-android-production-release.ps1','verify-android-platform-import.ps1 -RequireDeviceEvidence','ANDROID_DEVICE_EVIDENCE_BASE64','upload-artifact','frontend','release-signed.apk','manifest.json','certificate.txt','-r8','git status --porcelain')) {
     if ($workflow -notmatch [regex]::Escape($required)) { $failures.Add("Release workflow missing: $required") }
 }
 $androidReleaseAudit = Read-Utf8 'scripts/verify-android-release-audit.ps1'

@@ -1,4 +1,4 @@
-name: 自动更新版本并发布标签
+name: 验证候选版本并发布标签
 
 on:
   workflow_dispatch:
@@ -7,7 +7,7 @@ on:
         description: 'Web/Windows/Android 统一语义版本，例如 2.3.0'
         required: true
       android_version_code:
-        description: '可选 Android versionCode；0 表示按语义版本自动生成'
+        description: '必须与候选提交中的 Android versionCode 一致；0 表示只校验语义版本'
         required: false
         default: '0'
       title:
@@ -17,6 +17,7 @@ on:
 
 permissions:
   contents: write
+  actions: read
 
 jobs:
   release:
@@ -39,14 +40,34 @@ jobs:
         shell: pwsh
         run: |
           if (git tag --list "v${{ inputs.version }}") { throw '发布标签已经存在' }
-      - name: 更新全部版本
+      - name: 校验候选提交版本
         shell: pwsh
         env:
           RELEASE_VERSION: ${{ inputs.version }}
           ANDROID_VERSION_CODE: ${{ inputs.android_version_code }}
           RELEASE_TITLE: ${{ inputs.title }}
         run: |
-          ./scripts/update-release-version.ps1 -Version $env:RELEASE_VERSION -AndroidVersionCode ([int]$env:ANDROID_VERSION_CODE) -Title $env:RELEASE_TITLE
+          $pom = Get-Content -Raw -Encoding UTF8 pom.xml
+          $version = [regex]::Match($pom, '<artifactId>game-narrator</artifactId>\s*<version>([^<]+)</version>').Groups[1].Value
+          if ($version -ne $env:RELEASE_VERSION) { throw "候选提交版本 $version 与输入版本 $env:RELEASE_VERSION 不一致；请先提交统一版本更新" }
+          $changelog = Get-Content -Raw -Encoding UTF8 release/CHANGELOG.json | ConvertFrom-Json
+          if ($changelog.currentVersion -ne $env:RELEASE_VERSION -or $changelog.releases[0].title -ne $env:RELEASE_TITLE) { throw '候选提交的发布说明与输入不一致' }
+          if ([int]$env:ANDROID_VERSION_CODE -gt 0) {
+            $gradle = Get-Content -Raw -Encoding UTF8 android-app/app/build.gradle
+            $code = [int]([regex]::Match($gradle, 'versionCode\s*=\s*(\d+)').Groups[1].Value)
+            if ($code -ne [int]$env:ANDROID_VERSION_CODE) { throw "Android versionCode $code 与输入不一致" }
+          }
+          if (git status --porcelain) { throw '正式发布必须从干净的候选提交开始' }
+      - name: 下载并校验同提交 CI 发布证据
+        shell: pwsh
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          $sha = (git rev-parse HEAD).Trim()
+          $run = gh run list --workflow ci.yml --commit $sha --status success --limit 1 --json databaseId,headSha,conclusion | ConvertFrom-Json
+          if (-not $run -or $run[0].headSha -ne $sha -or $run[0].conclusion -ne 'success') { throw "当前提交 $sha 没有成功的 CI 运行" }
+          gh run download $run[0].databaseId -n "ci-release-result-$sha"
+          ./scripts/verify-ci-release-evidence.ps1
       - name: 校验统一版本和 Android 功能基线
         shell: pwsh
         run: |
@@ -94,15 +115,13 @@ jobs:
             dist/GameNarrator-Android-${{ inputs.version }}-manifest.json
             dist/GameNarrator-Android-${{ inputs.version }}-certificate.txt
             dist/GameNarrator-Android-${{ inputs.version }}-r8/**
-      - name: 提交并创建中文发布标签
+      - name: 为已验证候选提交创建中文发布标签
         shell: pwsh
         run: |
           git config user.name 'GameNarrator Release Bot'
           git config user.email 'release-bot@users.noreply.github.com'
-          git add -A
-          git commit -m "发布：GameNarrator v${{ inputs.version }}（${{ inputs.title }}）"
+          if (git status --porcelain) { throw '构建过程修改了受版本控制文件，拒绝发布' }
           git tag -a "v${{ inputs.version }}" -m "GameNarrator v${{ inputs.version }}：${{ inputs.title }}"
-          git push origin HEAD:main
           git push origin "v${{ inputs.version }}"
       - name: 同步提交和标签到 Gitee
         shell: pwsh

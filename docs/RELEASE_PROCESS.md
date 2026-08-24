@@ -13,20 +13,21 @@ GameNarrator 的 Web、Windows 与 Android 使用同一个语义版本。权威�
 .\scripts\verify-android-guardrails.ps1
 ```
 
-第一条命令同时校验所有版本源、统一更新日志和 `docs/ANDROID_CORE_BASELINE.json`。schema v3 将软件功能、自动化验收、可选真机兼容和生产签名分开记录；核心能力仍按 full=1、partial=0.5、missing=0 计分。自动化 full 必须有同提交阻断 CI，真机 false 不降低软件功能评分，但不得据此宣称 OEM、硬件编解码或生产签名已经验证。
+第一条命令同时校验所有版本源、统一更新日志和 `docs/ANDROID_CORE_BASELINE.json`。schema v3 将软件功能、自动化验收、正式发布必需的真机兼容和生产签名分开记录；核心能力仍按 full=1、partial=0.5、missing=0 计分。自动化 full 必须有同提交阻断 CI；真机或生产签名为 false 不降低软件功能评分，但必须阻止正式发布。
 
 Windows 正式版与 Demo Lite 构建脚本会在修改 staging 或打包前自动调用
 `scripts/verify-before-push.ps1`。统一门禁包含配置引用、release alignment、Android guardrails、
 前端构建/测试和后端测试；仅当同一修订已被可信 CI 验证时，才可显式使用 `-SkipTests`。
 
-GitHub 的“自动更新版本并发布标签”工作流只接收一个语义版本和可选 Android versionCode。工作流会在同一修订上构建 Web/后端 JAR 与 Android release APK，上传两端产物，再创建统一的中文提交和 `vX.Y.Z` 标签。
+GitHub 的“验证候选版本并发布标签”工作流只接受已经提交且工作区干净的统一版本候选。它会先下载并校验当前 HEAD 的九项 CI evidence，再在同一提交上验证生产签名制品和真实账号四平台真机 evidence；全部通过后只给该候选提交创建 `vX.Y.Z` 标签，不在构建完成后另造一个无法被既有证据覆盖的新提交。
 
 Android release 默认启用 R8 与资源裁剪，并关闭系统自动备份。发布产物除 APK 外还应归档
 `android-app/app/build/outputs/mapping/release/mapping.txt`，用于还原压缩后的崩溃堆栈。
 项目迁移使用应用内 `.gnproject.json` 归档，不依赖 Android Backup 恢复数据库、模型、媒体或 AI 凭据。
 
 正式 Android 构建必须通过环境变量提供 `GN_KEYSTORE`、`GN_KEYSTORE_PASSWORD`、`GN_KEY_ALIAS`、
-`GN_KEY_PASSWORD`。`build-android-release-signed.ps1` 默认拒绝缺少生产密钥的构建；`-AllowTestKey`
+`GN_KEY_PASSWORD`；GitHub 工作流对应使用 `GN_KEYSTORE_BASE64` 与三个密码/别名 Secret，并通过
+`ANDROID_DEVICE_EVIDENCE_BASE64` 提供同提交、同版本的真实设备四平台报告。`build-android-release-signed.ps1` 默认拒绝缺少生产密钥的构建；`-AllowTestKey`
 只能用于本地非发布审计。脚本会同时归档 APK、R8 mapping/usage/resources、证书信息、SHA-256 与
 包含提交哈希的制品清单。`verify-android-production-release.ps1 -RequireProductionArtifacts
 -RequireUpgradeEvidence` 只有在生产签名产物及 2.2.4→当前版本真机升级证据同时存在时才通过。平台导入和升级报告采用 schema v2，必须位于 `artifacts`、匹配当前提交与版本、在 7 天内完成，并包含唯一会话和非占位设备信息；模板填满布尔值但提交、版本、设备或时间不匹配仍会失败。
