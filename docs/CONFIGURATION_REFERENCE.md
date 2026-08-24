@@ -28,7 +28,7 @@
 | `FFMPEG_MAX_CONCURRENT` | game-narrator.external-process.ffmpeg-max-concurrent | `1` | 否 | application.yml |
 | `GAME_NARRATOR_AI_API_KEY` | Java @Value 注入 | `无（必须显式设置）` | 是 | src/main/java/cn/longer233/gamenarrator/ai/AiSettingsService.java |
 | `GAME_NARRATOR_APP_ROOT` | game-narrator.whisper.executable / game-narrator.piper.executable / game-narrator.ffmpeg-command / game-narrator.whisper.model / game-narrator.media-import.yt-dlp / game-narrator.piper.model / game-narrator.piper.voices.model / 桌面启动器自动注入 | `按设备运行时计算` | 否 | application-lite.yml, application-release.yml, launcher/Program.cs |
-| `GAME_NARRATOR_COMPANION_TOKEN` | game-narrator.companion.token | `无（必须显式设置）` | 是 | application.yml |
+| `GAME_NARRATOR_COMPANION_TOKEN` | game-narrator.companion.token / 桌面启动器自动注入 | `按设备运行时计算` | 是 | application.yml, launcher/Program.cs |
 | `GAME_NARRATOR_DATA_ROOT` | spring.datasource.url / logging.file.name / game-narrator.storage-root / game-narrator.data-root / 桌面启动器自动注入 | `./data / 按设备运行时计算` | 否 | application-lite.yml, application-release.yml, src/main/java/cn/longer233/gamenarrator/ai/AiSettingsService.java, src/main/java/cn/longer233/gamenarrator/ai/AiUsageService.java, src/main/java/cn/longer233/gamenarrator/identity/LocalSecretCipher.java, launcher/Program.cs |
 | `GAME_NARRATOR_LOG_LEVEL` | logging.level.root | `DEBUG` | 否 | application.yml |
 | `GAME_NARRATOR_PREVIOUS_SECRET_KEYS` | game-narrator.security.previous-master-keys | `无（必须显式设置）` | 是 | application-postgresql.yml, src/main/java/cn/longer233/gamenarrator/identity/LocalSecretCipher.java |
@@ -68,7 +68,7 @@
 | `POSTGRES_URL` | spring.datasource.url | `jdbc:postgresql://127.0.0.1:5432/game_narrator` | 否 | application-postgresql.yml |
 | `POSTGRES_USER` | spring.datasource.username | `game_narrator` | 否 | application-postgresql.yml |
 | `REQUIRE_LOGIN` | game-narrator.auth.require-login | `true` | 否 | application-postgresql.yml |
-| `SERVER_ADDRESS` | server.address | `127.0.0.1` | 否 | application.yml |
+| `SERVER_ADDRESS` | server.address / 桌面启动器自动注入 | `127.0.0.1 / 按设备运行时计算` | 否 | application.yml, launcher/Program.cs |
 | `SERVER_MAX_THREADS` | server.tomcat.threads.max / 桌面启动器自动注入 | `32 / 按设备运行时计算` | 否 | application.yml, launcher/Program.cs |
 | `SERVER_MIN_SPARE_THREADS` | server.tomcat.threads.min-spare | `2` | 否 | application.yml |
 | `SERVER_PORT` | server.port / 桌面启动器自动注入 | `18081 / 8081 / 按设备运行时计算` | 否 | application-release.yml, application.yml, launcher/Program.cs |

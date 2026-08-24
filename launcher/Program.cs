@@ -9,6 +9,8 @@ using System.Net;
 using System.Net.Sockets;
 using Microsoft.Web.WebView2.Core;
 using Microsoft.Web.WebView2.WinForms;
+using ZXing;
+using ZXing.Common;
 
 namespace GameNarrator.Launcher;
 
@@ -21,6 +23,7 @@ internal static class Program {
     private const string OllamaSha256 = "7c941ae084569d298062d29f8139163a3187c76dbca0479c70d085e78fd8c7bb";
     private static readonly List<Process> Children = [];
     private static string? DesktopLogPath;
+    private static string CompanionToken = "";
     private const string ActivationEventName = "Local\\GameNarrator.Desktop.Activate";
     private static StartupForm? Window;
 
@@ -48,6 +51,7 @@ internal static class Program {
         private readonly Button retry = new() { Text="重新运行", Dock=DockStyle.Bottom, Height=42, Visible=false };
         private readonly WebView2 webView = new() { Dock=DockStyle.Fill, Visible=false };
         private readonly NotifyIcon tray;
+        private ToolStripMenuItem? pairingMenu;
         private CoreWebView2Environment? webViewEnvironment;
         private bool startupRunning;
         private bool? requestedLocalAi;
@@ -56,7 +60,9 @@ internal static class Program {
             Text=$"GameNarrator {AppVersion}"; Width=520; Height=210; StartPosition=FormStartPosition.CenterScreen;
             MinimumSize=new Size(1024,720); FormBorderStyle=FormBorderStyle.FixedDialog; MaximizeBox=false;
             Controls.Add(webView); Controls.Add(retry); Controls.Add(progress); Controls.Add(status);
-            var menu=new ContextMenuStrip(); menu.Items.Add("打开 GameNarrator",null,(_,_)=>ShowDesktopWindow()); menu.Items.Add("退出",null,(_,_)=>Close());
+            var menu=new ContextMenuStrip(); menu.Items.Add("打开 GameNarrator",null,(_,_)=>ShowDesktopWindow());
+            pairingMenu=new ToolStripMenuItem("手机扫码配对",null,(_,_)=>ShowPairingCode()); pairingMenu.Enabled=false; menu.Items.Add(pairingMenu);
+            menu.Items.Add("退出",null,(_,_)=>Close());
             var appIcon=Icon.ExtractAssociatedIcon(Application.ExecutablePath) ?? SystemIcons.Application;
             Icon=appIcon;
             tray=new NotifyIcon{Icon=appIcon,Text=$"GameNarrator {AppVersion}",ContextMenuStrip=menu,Visible=true}; tray.DoubleClick+=(_,_)=>ShowDesktopWindow();
@@ -90,6 +96,9 @@ internal static class Program {
                 Environment.SetEnvironmentVariable("OLLAMA_KEEP_ALIVE", "2m");
                 Environment.SetEnvironmentVariable("OLLAMA_FLASH_ATTENTION", "1");
                 Environment.SetEnvironmentVariable("SERVER_PORT", AppPort.ToString());
+                CompanionToken=Convert.ToHexString(RandomNumberGenerator.GetBytes(24)).ToLowerInvariant();
+                Environment.SetEnvironmentVariable("SERVER_ADDRESS", "0.0.0.0");
+                Environment.SetEnvironmentVariable("GAME_NARRATOR_COMPANION_TOKEN", CompanionToken);
                 var processors=Math.Max(1,Environment.ProcessorCount);
                 var availableMemoryMb=Math.Max(1024,GC.GetGCMemoryInfo().TotalAvailableMemoryBytes/1024/1024);
                 var javaHeapMb=availableMemoryMb>=16384 ? 1024 : availableMemoryMb>=8192 ? 768 : 512;
@@ -136,6 +145,7 @@ internal static class Program {
                 DesktopLog("BACKEND_READY");
                 await OpenDesktopAsync(data);
                 DesktopLog("DESKTOP_READY");
+                if(pairingMenu!=null) pairingMenu.Enabled=true;
                 tray.ShowBalloonTip(2500,"GameNarrator 正在运行","桌面应用已启动，可通过右下角托盘图标重新打开。",ToolTipIcon.Info);
             } catch(Exception ex) {
                 DesktopLog($"STARTUP_FAILED type={ex.GetType().Name} message={ex.Message}");
@@ -143,6 +153,40 @@ internal static class Program {
             } finally {
                 startupRunning=false;
             }
+        }
+
+        private void ShowPairingCode() {
+            var address=GetLanAddress();
+            if(address==null) { MessageBox.Show(this,"没有找到可用的局域网地址，请先让电脑连接 Wi-Fi 或网线。","手机扫码配对",MessageBoxButtons.OK,MessageBoxIcon.Warning); return; }
+            var endpoint=$"http://{address}:{AppPort}";
+            var payload=$"gamenarrator://companion?address={Uri.EscapeDataString(endpoint)}&token={Uri.EscapeDataString(CompanionToken)}";
+            var matrix=new MultiFormatWriter().encode(payload,BarcodeFormat.QR_CODE,360,360,new Dictionary<EncodeHintType,object>{{EncodeHintType.MARGIN,1},{EncodeHintType.CHARACTER_SET,"UTF-8"}});
+            var bitmap=new Bitmap(matrix.Width,matrix.Height,System.Drawing.Imaging.PixelFormat.Format32bppArgb);
+            for(var y=0;y<matrix.Height;y++) for(var x=0;x<matrix.Width;x++) bitmap.SetPixel(x,y,matrix[x,y]?Color.Black:Color.White);
+            using var dialog=new Form{Text="手机扫码配对",Width=430,Height=520,StartPosition=FormStartPosition.CenterParent,FormBorderStyle=FormBorderStyle.FixedDialog,MaximizeBox=false,MinimizeBox=false};
+            var picture=new PictureBox{Image=bitmap,SizeMode=PictureBoxSizeMode.Zoom,Dock=DockStyle.Fill,Padding=new Padding(16)};
+            var label=new Label{Text=$"在 Android 端打开“平台导入”，点击“扫码配对”\n{endpoint}\n二维码仅在本次电脑运行期间有效",Dock=DockStyle.Bottom,Height=82,TextAlign=ContentAlignment.MiddleCenter};
+            dialog.Controls.Add(picture); dialog.Controls.Add(label); dialog.ShowDialog(this); picture.Image=null; bitmap.Dispose();
+        }
+
+        private static string? GetLanAddress() {
+            try {
+                return System.Net.NetworkInformation.NetworkInterface.GetAllNetworkInterfaces()
+                    .Where(item=>item.OperationalStatus==System.Net.NetworkInformation.OperationalStatus.Up && item.NetworkInterfaceType!=System.Net.NetworkInformation.NetworkInterfaceType.Loopback)
+                    .SelectMany(network=>network.GetIPProperties().UnicastAddresses.Select(item=>new {
+                        item.Address,
+                        HasGateway=network.GetIPProperties().GatewayAddresses.Any(gateway=>gateway.Address.AddressFamily==AddressFamily.InterNetwork && !gateway.Address.Equals(IPAddress.Any))
+                    }))
+                    .Where(item=>item.Address.AddressFamily==AddressFamily.InterNetwork && IsPrivateIpv4(item.Address))
+                    .OrderByDescending(item=>item.HasGateway)
+                    .ThenBy(item=>item.Address.ToString().StartsWith("192.168.")?0:item.Address.ToString().StartsWith("10.")?1:2)
+                    .Select(item=>item.Address.ToString()).FirstOrDefault();
+            } catch { return null; }
+        }
+
+        private static bool IsPrivateIpv4(IPAddress address) {
+            var bytes=address.GetAddressBytes();
+            return bytes.Length==4 && (bytes[0]==10 || (bytes[0]==172 && bytes[1]>=16 && bytes[1]<=31) || (bytes[0]==192 && bytes[1]==168));
         }
 
         private async Task OpenDesktopAsync(string data) {

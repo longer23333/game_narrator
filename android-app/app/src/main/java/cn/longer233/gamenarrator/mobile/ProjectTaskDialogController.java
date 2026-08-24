@@ -323,6 +323,21 @@ public final class ProjectTaskDialogController {
         EditText computerAddress = ui.creativeInput("电脑地址，例如 http://192.168.1.8:8080", companionSettings.address());
         EditText pairingToken = ui.creativeInput("配对密钥（至少 24 位）", companionSettings.token());
         companion.addView(computerAddress); companion.addView(pairingToken);
+        companion.addView(ui.action("扫码配对", Color.rgb(255, 229, 72), TEXT, v -> {
+            context.startActivity(new android.content.Intent(context, CompanionPairingActivity.class));
+            Runnable refresh = new Runnable() {
+                int attempts;
+                @Override public void run() {
+                    String savedAddress = companionSettings.address(), savedToken = companionSettings.token();
+                    if (!savedToken.equals(pairingToken.getText().toString())) {
+                        computerAddress.setText(savedAddress); pairingToken.setText(savedToken);
+                        Toast.makeText(context, "电脑协同配对已自动填好", Toast.LENGTH_SHORT).show(); return;
+                    }
+                    if (++attempts < 240) computerAddress.postDelayed(this, 500);
+                }
+            };
+            computerAddress.postDelayed(refresh, 500);
+        }), ui.match(ui.dp(56)));
         companion.addView(ui.action("用电脑解析并选择清晰度", Color.rgb(54, 201, 255), TEXT, v -> {
             String address = computerAddress.getText().toString().trim(), token = pairingToken.getText().toString().trim();
             companionSettings.save(address, token);

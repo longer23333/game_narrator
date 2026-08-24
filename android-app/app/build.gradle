@@ -21,8 +21,8 @@ android {
         applicationId = 'cn.longer233.gamenarrator.mobile'
         minSdk = 29
         targetSdk = 37
-        versionCode = 2002056
-        versionName = '2.2.56'
+        versionCode = 2002057
+        versionName = '2.2.57'
         testInstrumentationRunner = 'androidx.test.runner.AndroidJUnitRunner'
     }
     buildFeatures { buildConfig = true }
@@ -77,6 +77,7 @@ dependencies {
     implementation 'com.google.mlkit:image-labeling:17.0.9'
     implementation 'com.microsoft.onnxruntime:onnxruntime-android:1.22.0'
     implementation 'com.google.zxing:core:3.5.4'
+    implementation 'com.journeyapps:zxing-android-embedded:4.3.0'
     testImplementation 'junit:junit:4.13.2'
     testImplementation 'org.json:json:20260814'
     androidTestImplementation 'androidx.test:core:1.6.1'

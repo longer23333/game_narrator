@@ -24,6 +24,8 @@ public final class MobileReleaseNotes {
 
     public static List<Note> notes() {
         List<Note> notes = new ArrayList<>();
+        notes.add(new Note("2.2.57", "电脑协同一键扫码配对",
+                "电脑启动后自动开启受临时密钥保护的局域网协同；托盘一键显示二维码，Android 内置扫码并自动加密保存、回填电脑地址与密钥。"));
         notes.add(new Note("2.2.56", "Android 电脑协同平台导入",
                 "通过加密保存的局域网配对信息调用电脑端 yt-dlp，可选择 Bilibili、抖音、快手、YouTube 清晰度，合并音视频后传回手机。"));
         notes.add(new Note("2.2.53", "发布门禁与状态一致性修复",

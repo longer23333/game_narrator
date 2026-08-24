@@ -1,7 +1,17 @@
 {
   "schemaVersion": 1,
-  "currentVersion": "2.2.56",
+  "currentVersion": "2.2.57",
   "releases": [
+    {
+      "version": "2.2.57",
+      "title": "电脑协同一键扫码配对",
+      "summary": "Windows 启动器自动开启安全的局域网协同，Android 扫描二维码即可完成地址、临时密钥配置。",
+      "items": [
+        "Windows 启动时自动生成仅本次运行有效的随机配对密钥",
+        "托盘菜单一键显示包含局域网地址和密钥的配对二维码",
+        "Android 内置扫码界面并自动加密保存、回填配对信息"
+      ]
+    },
     {
       "version": "2.2.56",
       "title": "Android 电脑协同平台导入",
