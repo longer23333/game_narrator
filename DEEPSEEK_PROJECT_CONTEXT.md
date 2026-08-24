@@ -1,7 +1,7 @@
 ﻿# GameNarrator — DeepSeek 结构化项目索引
 
-> 自动生成：2026-08-25 00:22:31 +08:00；UTF-8 BOM；索引不再内嵌全部源码。
-> Git：分支 `main`，提交 `b766755`；收录文件 841 个，分卷 8 个。
+> 自动生成：2026-08-25 00:36:18 +08:00；UTF-8 BOM；索引不再内嵌全部源码。
+> Git：分支 `unknown`，提交 `unknown`；收录文件 841 个，分卷 8 个。
 
 ## 使用方法
 
@@ -34,38 +34,12 @@
 | `deepseek-context/05-android-main.md` | 149 | 918455 | Android 实现、资源与 Gradle |
 | `deepseek-context/06-android-tests.md` | 61 | 148496 | Android 单元及设备测试 |
 | `deepseek-context/07-platform-release.md` | 13 | 79051 | Windows、CI/CD 与发布 |
-| `deepseek-context/08-docs-scripts.md` | 67 | 246130 | 需求、架构、维护脚本 |
+| `deepseek-context/08-docs-scripts.md` | 67 | 246170 | 需求、架构、维护脚本 |
 
 ## 当前 Git 工作区（最近修改）
 
 ```text
-M .github/workflows/release-version.yml
- M DEEPSEEK_PROJECT_CONTEXT.md
- M android-app/app/build.gradle
- M android-app/app/src/main/java/cn/longer233/gamenarrator/mobile/MobileReleaseNotes.java
- M docs/ANDROID_FEATURE_PARITY.md
- M frontend/index.html
- M frontend/package-lock.json
- M frontend/package.json
- M frontend/public/admin.html
- M frontend/public/admin.js
- M frontend/public/app.js
- M frontend/public/updates.js
- M launcher/GameNarrator.Launcher.csproj
- M package.json
- M pom.xml
- M release/CHANGELOG.json
- M release/installer/GameNarrator-Demo-Lite.iss
- M release/installer/GameNarrator.iss
- M scripts/verify-android-production-release.ps1
- M src/main/resources/static/admin.html
- M src/main/resources/static/admin.js
- M src/main/resources/static/app.js
- M src/main/resources/static/index.html
- M src/main/resources/static/updates.js
-?? frontend/public/admin-status.js
-?? frontend/test/admin-status-contract.test.js
-?? src/main/resources/static/admin-status.js
+clean or unavailable
 ```
 
 ## Flyway 迁移索引
