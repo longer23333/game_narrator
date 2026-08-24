@@ -69,6 +69,7 @@ jobs:
           GN_KEY_ALIAS: ${{ secrets.GN_KEY_ALIAS }}
           GN_KEY_PASSWORD: ${{ secrets.GN_KEY_PASSWORD }}
           GN_KEYSTORE_BASE64: ${{ secrets.GN_KEYSTORE_BASE64 }}
+          ANDROID_DEVICE_EVIDENCE_BASE64: ${{ secrets.ANDROID_DEVICE_EVIDENCE_BASE64 }}
         run: |
           ./android-app/gradlew.bat -p android-app testDebugUnitTest
           ./scripts/verify-android-release-audit.ps1
@@ -78,6 +79,10 @@ jobs:
           $env:GN_KEYSTORE = $keystore
           ./scripts/build-android-release-signed.ps1 -SkipTests
           ./scripts/verify-android-production-release.ps1 -RequireProductionArtifacts
+          if (-not $env:ANDROID_DEVICE_EVIDENCE_BASE64) { throw '未配置 ANDROID_DEVICE_EVIDENCE_BASE64' }
+          New-Item -ItemType Directory -Force artifacts | Out-Null
+          [IO.File]::WriteAllBytes('artifacts/android-platform-import-e2e.json', [Convert]::FromBase64String($env:ANDROID_DEVICE_EVIDENCE_BASE64))
+          ./scripts/verify-android-platform-import.ps1 -RequireDeviceEvidence
       - name: 上传 Web 与 Android 统一版本产物
         uses: actions/upload-artifact@v4
         with:

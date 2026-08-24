@@ -10,9 +10,24 @@ import cn.longer233.gamenarrator.common.AtomicArtifactWriter;
 
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.net.InetAddress;
+import java.net.URI;
+import java.net.UnknownHostException;
+import java.util.Map;
 
 @Service
 public class AiSettingsService {
+    private static final Map<String,String> PROVIDER_BASE_URLS=Map.ofEntries(
+            Map.entry("DASHSCOPE","https://dashscope.aliyuncs.com/compatible-mode/v1"),
+            Map.entry("DEEPSEEK","https://api.deepseek.com"), Map.entry("OPENAI","https://api.openai.com/v1"),
+            Map.entry("ANTHROPIC","https://api.anthropic.com/v1"), Map.entry("GEMINI","https://generativelanguage.googleapis.com/v1beta"),
+            Map.entry("OPENROUTER","https://openrouter.ai/api/v1"), Map.entry("SILICONFLOW","https://api.siliconflow.cn/v1"),
+            Map.entry("MOONSHOT","https://api.moonshot.cn/v1"), Map.entry("ZHIPU","https://open.bigmodel.cn/api/paas/v4"),
+            Map.entry("VOLCENGINE","https://ark.cn-beijing.volces.com/api/v3"), Map.entry("BAIDU","https://qianfan.baidubce.com/v2"),
+            Map.entry("TENCENT","https://api.hunyuan.cloud.tencent.com/v1"), Map.entry("MINIMAX","https://api.minimax.chat/v1"),
+            Map.entry("XAI","https://api.x.ai/v1"), Map.entry("MISTRAL","https://api.mistral.ai/v1"),
+            Map.entry("GROQ","https://api.groq.com/openai/v1"), Map.entry("TOGETHER","https://api.together.xyz/v1"),
+            Map.entry("PERPLEXITY","https://api.perplexity.ai"), Map.entry("CEREBRAS","https://api.cerebras.ai/v1"));
     private final ObjectMapper mapper;
     private final Path file;
     private final String apiKeyOverride;
@@ -66,6 +81,8 @@ public class AiSettingsService {
             return apiKeyOverride.isBlank() ? value : new Settings(value.mode(), value.provider(),
                     apiKeyOverride, value.baseUrl(), value.visionModel(), value.textModel(),
                     value.inputPricePerMillion(), value.outputPricePerMillion(), value.cachedInputPricePerMillion());
+        } catch (IllegalArgumentException exception) {
+            throw exception;
         } catch (Exception exception) {
             throw new IllegalStateException("无法保存 AI 设置：" + exception.getMessage(), exception);
         }
@@ -100,10 +117,15 @@ public class AiSettingsService {
     private Settings normalize(Settings value) {
         String mode = "LOCAL".equalsIgnoreCase(value.mode()) ? "LOCAL" : "CLOUD";
         String provider = blank(value.provider(), "DASHSCOPE").toUpperCase();
+        if (!PROVIDER_BASE_URLS.containsKey(provider) && !"OPENAI_COMPATIBLE".equals(provider)) {
+            throw new IllegalArgumentException("不支持的云端 AI 服务商");
+        }
         boolean deepSeek = "DEEPSEEK".equals(provider);
         boolean local = "LOCAL".equals(mode);
+        String baseUrl = "OPENAI_COMPATIBLE".equals(provider)
+                ? validateCompatibleBaseUrl(value.baseUrl()) : PROVIDER_BASE_URLS.get(provider);
         return new Settings(mode, provider, blank(value.apiKey(), ""),
-                blank(value.baseUrl(), deepSeek ? "https://api.deepseek.com" : "https://dashscope.aliyuncs.com/compatible-mode/v1"),
+                baseUrl,
                 blank(value.visionModel(), local || deepSeek ? "qwen2.5vl:3b" : "qwen-vl-plus"),
                 blank(value.textModel(), local ? "qwen2.5:3b" : deepSeek ? "deepseek-chat" : "qwen-plus"), positive(value.inputPricePerMillion()),
                 positive(value.outputPricePerMillion()),positive(value.cachedInputPricePerMillion()));
@@ -112,6 +134,28 @@ public class AiSettingsService {
     private Settings defaults() { return normalize(new Settings("CLOUD", "DASHSCOPE", "", "", "", "",0d,0d,0d)); }
     private String blank(String value, String fallback) { return value == null || value.isBlank() ? fallback : value.trim(); }
     private double positive(Double value){return value==null||!Double.isFinite(value)?0:Math.max(0,value);}
+
+    private String validateCompatibleBaseUrl(String value) {
+        if (value == null || value.isBlank()) throw new IllegalArgumentException("OpenAI 兼容服务必须填写 HTTPS 公网地址");
+        URI uri;
+        try { uri=URI.create(value.trim()); }
+        catch (IllegalArgumentException exception) { throw new IllegalArgumentException("OpenAI 兼容服务地址格式无效",exception); }
+        if (!"https".equalsIgnoreCase(uri.getScheme()) || uri.getHost()==null || uri.getUserInfo()!=null
+                || uri.getFragment()!=null || uri.getQuery()!=null) {
+            throw new IllegalArgumentException("OpenAI 兼容服务只允许使用不含凭据、查询参数和片段的 HTTPS 公网地址");
+        }
+        try {
+            InetAddress[] addresses=InetAddress.getAllByName(uri.getHost());
+            if(addresses.length==0) throw new IllegalArgumentException("OpenAI 兼容服务地址无法解析");
+            for(InetAddress address:addresses) if(address.isAnyLocalAddress() || address.isLoopbackAddress()
+                    || address.isSiteLocalAddress() || address.isLinkLocalAddress() || address.isMulticastAddress()) {
+                throw new IllegalArgumentException("OpenAI 兼容服务禁止使用本机、内网或组播地址");
+            }
+        } catch (UnknownHostException exception) {
+            throw new IllegalArgumentException("OpenAI 兼容服务地址无法解析",exception);
+        }
+        return uri.toString().replaceAll("/+$","");
+    }
 
     public record Settings(String mode, String provider, String apiKey, String baseUrl,
                            String visionModel, String textModel,Double inputPricePerMillion,

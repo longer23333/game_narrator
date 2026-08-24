@@ -29,6 +29,11 @@ storage/*
 .env
 *.log
 logs/
+artifacts/
+output/
+scripts/__pycache__/
+scripts/*.pyc
+scripts/fill_summer_practice_docs.py
 tools/
 models/
 !android-app/app/src/debug/assets/models/

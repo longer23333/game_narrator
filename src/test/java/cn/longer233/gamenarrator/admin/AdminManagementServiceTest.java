@@ -40,6 +40,14 @@ class AdminManagementServiceTest {
         assertThat(service.project(projectId).get("revisions")).isNotNull();
     }
 
+    @Test void acceptsEveryProjectAndCloudSyncStateExposedByTheAdminPage() {
+        assertThat(service.projects("", "READY", 0, 10)).isNotNull();
+        jdbc.update("UPDATE cloud_sync_item SET sync_status='SYNCING' WHERE id=?", syncId);
+        assertThat(service.syncItems("", "SYNCING", 0, 10).total()).isEqualTo(1);
+        jdbc.update("UPDATE cloud_sync_item SET sync_status='PERMANENT_FAILURE' WHERE id=?", syncId);
+        assertThat(service.syncItems("", "PERMANENT_FAILURE", 0, 10).total()).isEqualTo(1);
+    }
+
     @Test void updatesUserAndWritesStructuredAudit() {
         service.updateUser(userId,new AdminManagementService.UserUpdate("ADMIN","ACTIVE",20L*1024*1024*1024,BigDecimal.TEN));
         assertThat(jdbc.queryForObject("SELECT role FROM app_user WHERE id=?",String.class,userId)).isEqualTo("ADMIN");

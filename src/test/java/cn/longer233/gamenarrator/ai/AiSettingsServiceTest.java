@@ -12,6 +12,7 @@ import java.nio.file.Path;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
@@ -35,5 +36,22 @@ class AiSettingsServiceTest {
         String json=Files.readString(temporary.resolve("config/ai-settings.json"));
         assertFalse(json.contains("NaN"));
         assertFalse(json.contains("Infinity"));
+    }
+
+    @Test
+    void fixesBuiltInProviderEndpointsAndRejectsPrivateCompatibleEndpoints() {
+        CurrentUserContext currentUser=mock(CurrentUserContext.class);
+        when(currentUser.authenticated()).thenReturn(false);
+        AiSettingsService service=new AiSettingsService(new ObjectMapper(),temporary.toString(),"",
+                mock(JdbcTemplate.class),currentUser,mock(LocalSecretCipher.class));
+
+        AiSettingsService.Settings builtIn=service.save(new AiSettingsService.Settings(
+                "CLOUD","OPENAI","secret","https://attacker.invalid/v1","vision","text",0d,0d,0d));
+        assertEquals("https://api.openai.com/v1",builtIn.baseUrl());
+
+        assertThrows(IllegalArgumentException.class,()->service.save(new AiSettingsService.Settings(
+                "CLOUD","OPENAI_COMPATIBLE","secret","http://localhost:8080/v1","vision","text",0d,0d,0d)));
+        assertThrows(IllegalArgumentException.class,()->service.save(new AiSettingsService.Settings(
+                "CLOUD","OPENAI_COMPATIBLE","secret","https://127.0.0.1/v1","vision","text",0d,0d,0d)));
     }
 }

@@ -69,7 +69,7 @@ $score = 0.0
 if ([int]$baseline.schemaVersion -ne 3) { $failures.Add("Unsupported Android baseline schemaVersion: $($baseline.schemaVersion)") }
 if (@('full','partial','missing') -notcontains [string]$baseline.validation.featureStatus) { $failures.Add('Android featureStatus is invalid') }
 if (@('full','pending','missing') -notcontains [string]$baseline.validation.automatedValidation) { $failures.Add('Android automatedValidation is invalid') }
-if ([string]$baseline.validation.physicalDeviceValidation -ne 'optional') { $failures.Add('Android physicalDeviceValidation must remain optional') }
+if ([string]$baseline.validation.physicalDeviceValidation -ne 'required') { $failures.Add('Android physicalDeviceValidation must remain required for a formal release') }
 if ($baseline.validation.physicalDeviceValidated -isnot [bool]) { $failures.Add('Android physicalDeviceValidated must be an explicit boolean') }
 if ($baseline.validation.productionSigningValidated -isnot [bool]) { $failures.Add('Android productionSigningValidated must be an explicit boolean') }
 $testRoots = @(
@@ -141,7 +141,7 @@ if ($coverage -lt [double]$baseline.minimumCoverage) {
 
 $workflow = Read-Utf8 '.github/workflows/release-version.yml'
 if ($workflow -match '(?m)^\s*android_version:') { $failures.Add('Release workflow still accepts an independent Android versionName') }
-foreach ($required in @('verify-android-release-audit.ps1','verify-android-production-release.ps1','upload-artifact','frontend','release-signed.apk','manifest.json','certificate.txt','-r8')) {
+foreach ($required in @('verify-android-release-audit.ps1','verify-android-production-release.ps1','verify-android-platform-import.ps1 -RequireDeviceEvidence','ANDROID_DEVICE_EVIDENCE_BASE64','upload-artifact','frontend','release-signed.apk','manifest.json','certificate.txt','-r8')) {
     if ($workflow -notmatch [regex]::Escape($required)) { $failures.Add("Release workflow missing: $required") }
 }
 $androidReleaseAudit = Read-Utf8 'scripts/verify-android-release-audit.ps1'

@@ -43,4 +43,4 @@ if ($RequireDeviceEvidence) {
     }
 }
 if ($failures.Count) { Write-Host "FAIL: $($failures.Count) Android platform import violation(s)"; $failures | ForEach-Object { Write-Host "  $_" }; exit 1 }
-Write-Host ('PASS: Android platform import protocol replay and fault injection contracts are wired' + $(if ($RequireDeviceEvidence) {'; optional four-platform real-account evidence is also complete'} else {'; physical-device evidence remains optional'}))
+Write-Host ('PASS: Android platform import protocol replay and fault injection contracts are wired' + $(if ($RequireDeviceEvidence) {'; required four-platform real-account evidence is also complete'} else {'; formal release still requires physical-device evidence'}))

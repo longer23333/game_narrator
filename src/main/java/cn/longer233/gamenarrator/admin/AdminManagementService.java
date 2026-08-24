@@ -17,7 +17,7 @@ import java.util.*;
 public class AdminManagementService {
     private static final Set<String> USER_STATES = Set.of("ACTIVE","DISABLED");
     private static final Set<String> PROJECT_STATES = Set.of("DRAFT","PROCESSING","READY","FAILED","ARCHIVED");
-    private static final Set<String> SYNC_STATES = Set.of("LOCAL_ONLY","PENDING","SYNCED","FAILED");
+    private static final Set<String> SYNC_STATES = Set.of("LOCAL_ONLY","PENDING","SYNCING","SYNCED","FAILED","PERMANENT_FAILURE");
     private final JdbcTemplate jdbc;
     private final CurrentUserContext current;
     private final ObjectMapper mapper;

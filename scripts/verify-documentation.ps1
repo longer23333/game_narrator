@@ -30,6 +30,10 @@ Get-ChildItem (Join-Path $root 'docs') -Recurse -Filter '*.md' | ForEach-Object 
         if (-not (Test-Path -LiteralPath $target)) { $failures.Add("Broken documentation link: $($_.FullName) -> $($match.Groups['path'].Value)") }
     }
 }
+$requirements = Get-Content -Raw -Encoding UTF8 (Join-Path $root 'docs/REQUIREMENTS.md')
+$requirementIds = @([regex]::Matches($requirements, '(?m)^\|\s*(FR-\d+)\s*\|') | ForEach-Object { $_.Groups[1].Value })
+$duplicates = @($requirementIds | Group-Object | Where-Object Count -gt 1 | ForEach-Object Name)
+if ($duplicates.Count) { $failures.Add("Duplicate requirement IDs: $($duplicates -join ', ')") }
 & (Join-Path $root 'scripts/update-configuration-reference.ps1') -Check
 if ($failures.Count) { throw ($failures -join [Environment]::NewLine) }
 Write-Output "PASS: $($actualDocuments.Count) reviewed documents, $(@($map.documents).Count) source mappings, Java symbols, links and generated configuration reference are current"

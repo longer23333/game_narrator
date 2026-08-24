@@ -1,5 +1,6 @@
 const releases = [
-  {version:'2.2.52', title:'安全与数据隔离加固', current:true, items:["同步更新 Web、Windows 与 Android 版本","完成本版本功能修复与稳定性检查","创建并同步 GitHub、Gitee 发布标签"], jump:{view:'studio', selector:'#task-list'}},
+  {version:'2.2.53', title:'发布门禁与状态一致性修复', current:true, items:["同步更新 Web、Windows 与 Android 版本","完成本版本功能修复与稳定性检查","创建并同步 GitHub、Gitee 发布标签"], jump:{view:'studio', selector:'#task-list'}},
+  {version:'2.2.52', title:'安全与数据隔离加固', items:["同步更新 Web、Windows 与 Android 版本","完成本版本功能修复与稳定性检查","创建并同步 GitHub、Gitee 发布标签"], jump:{view:'studio', selector:'#task-list'}},
   {version:'2.2.51', title:'稳定性与功能更新', items:["同步更新 Web、Windows 与 Android 版本","完成本版本功能修复与稳定性检查","创建并同步 GitHub、Gitee 发布标签"], jump:{view:'studio', selector:'#task-list'}},
   {version:'2.2.50', title:'权威文档入口收敛', items:["二十一份说明收敛为九份权威文档","新增开发与运维统一入口","来源清单、链接与配置参考校验通过"], jump:{view:'studio', selector:'#task-list'}},
   {version:'2.2.49', title:'旧任务路径列安全退役', items:["V43 删除十二个已回填旧路径列","运行时产物定位全部切换到 artifact","移除任务路径字段、旧 getter 与列回退"], jump:{view:'studio', selector:'#task-list'}},
