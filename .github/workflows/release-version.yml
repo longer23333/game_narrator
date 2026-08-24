@@ -91,6 +91,7 @@ jobs:
           GN_KEY_PASSWORD: ${{ secrets.GN_KEY_PASSWORD }}
           GN_KEYSTORE_BASE64: ${{ secrets.GN_KEYSTORE_BASE64 }}
           ANDROID_DEVICE_EVIDENCE_BASE64: ${{ secrets.ANDROID_DEVICE_EVIDENCE_BASE64 }}
+          ANDROID_UPGRADE_EVIDENCE_BASE64: ${{ secrets.ANDROID_UPGRADE_EVIDENCE_BASE64 }}
         run: |
           ./android-app/gradlew.bat -p android-app testDebugUnitTest
           ./scripts/verify-android-release-audit.ps1
@@ -99,9 +100,11 @@ jobs:
           [IO.File]::WriteAllBytes($keystore, [Convert]::FromBase64String($env:GN_KEYSTORE_BASE64))
           $env:GN_KEYSTORE = $keystore
           ./scripts/build-android-release-signed.ps1 -SkipTests
-          ./scripts/verify-android-production-release.ps1 -RequireProductionArtifacts
-          if (-not $env:ANDROID_DEVICE_EVIDENCE_BASE64) { throw '未配置 ANDROID_DEVICE_EVIDENCE_BASE64' }
+          if (-not $env:ANDROID_UPGRADE_EVIDENCE_BASE64) { throw '未配置 ANDROID_UPGRADE_EVIDENCE_BASE64' }
           New-Item -ItemType Directory -Force artifacts | Out-Null
+          [IO.File]::WriteAllBytes('artifacts/android-upgrade-2.2.4-current.json', [Convert]::FromBase64String($env:ANDROID_UPGRADE_EVIDENCE_BASE64))
+          ./scripts/verify-android-production-release.ps1 -RequireProductionArtifacts -RequireUpgradeEvidence
+          if (-not $env:ANDROID_DEVICE_EVIDENCE_BASE64) { throw '未配置 ANDROID_DEVICE_EVIDENCE_BASE64' }
           [IO.File]::WriteAllBytes('artifacts/android-platform-import-e2e.json', [Convert]::FromBase64String($env:ANDROID_DEVICE_EVIDENCE_BASE64))
           ./scripts/verify-android-platform-import.ps1 -RequireDeviceEvidence
       - name: 上传 Web 与 Android 统一版本产物

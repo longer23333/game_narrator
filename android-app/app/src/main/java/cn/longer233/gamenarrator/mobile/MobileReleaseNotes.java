@@ -24,6 +24,8 @@ public final class MobileReleaseNotes {
 
     public static List<Note> notes() {
         List<Note> notes = new ArrayList<>();
+        notes.add(new Note("2.2.58", "后台状态与发布门禁修复",
+                "修复管理后台 READY 状态显示，集中筛选、徽章和重试状态定义；正式发布增加同提交生产签名升级证据强制校验。"));
         notes.add(new Note("2.2.57", "电脑协同一键扫码配对",
                 "电脑启动后自动开启受临时密钥保护的局域网协同；托盘一键显示二维码，Android 内置扫码并自动加密保存、回填电脑地址与密钥。"));
         notes.add(new Note("2.2.56", "Android 电脑协同平台导入",

@@ -1,5 +1,6 @@
 const releases = [
-  {version:'2.2.57', title:'电脑协同一键扫码配对', current:true, items:["同步更新 Web、Windows 与 Android 版本","完成本版本功能修复与稳定性检查","创建并同步 GitHub、Gitee 发布标签"], jump:{view:'studio', selector:'#task-list'}},
+  {version:'2.2.58', title:'后台状态与发布门禁修复', current:true, items:["同步更新 Web、Windows 与 Android 版本","完成本版本功能修复与稳定性检查","创建并同步 GitHub、Gitee 发布标签"], jump:{view:'studio', selector:'#task-list'}},
+  {version:'2.2.57', title:'电脑协同一键扫码配对', items:["同步更新 Web、Windows 与 Android 版本","完成本版本功能修复与稳定性检查","创建并同步 GitHub、Gitee 发布标签"], jump:{view:'studio', selector:'#task-list'}},
   {version:'2.2.56', title:'Android 电脑协同平台导入', items:["配对密钥保护局域网请求","四平台清晰度选择","电脑合并音视频后传回手机"], jump:{view:'studio', selector:'#task-list'}},
   {version:'2.2.53', title:'发布门禁与状态一致性修复', items:["同步更新 Web、Windows 与 Android 版本","完成本版本功能修复与稳定性检查","创建并同步 GitHub、Gitee 发布标签"], jump:{view:'studio', selector:'#task-list'}},
   {version:'2.2.52', title:'安全与数据隔离加固', items:["同步更新 Web、Windows 与 Android 版本","完成本版本功能修复与稳定性检查","创建并同步 GitHub、Gitee 发布标签"], jump:{view:'studio', selector:'#task-list'}},

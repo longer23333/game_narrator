@@ -10,7 +10,7 @@ function Require-Text([string]$relative,[string[]]$needles){$path=Join-Path $roo
 Require-Text 'scripts/build-android-release-signed.ps1' @('Production signing is required','mapping.txt','apksigner','certificate.txt','manifest.json','signingMode')
 Require-Text 'android-app/app/build.gradle' @('minifyEnabled = true','shrinkResources = true','signingConfigs')
 Require-Text 'android-app/app/src/androidTest/java/cn/longer233/gamenarrator/mobile/ProductionDatabaseTest.java' @('projectTimelineAndHistorySurviveReopen','publicAssetLicenseMetadataSurvivesReopen')
-Require-Text '.github/workflows/release-version.yml' @('GN_KEYSTORE_BASE64','build-android-release-signed.ps1','GameNarrator-Android-${{ inputs.version }}-r8')
+Require-Text '.github/workflows/release-version.yml' @('GN_KEYSTORE_BASE64','ANDROID_UPGRADE_EVIDENCE_BASE64','build-android-release-signed.ps1','-RequireProductionArtifacts -RequireUpgradeEvidence','GameNarrator-Android-${{ inputs.version }}-r8')
 Require-Text '.github/workflows/ci.yml' @('Android 2.2.4 to current persistent AVD upgrade','ref: v2.2.4','adb install -r','ProductionDatabaseTest')
 if($RequireProductionArtifacts){
     $version=([regex]::Match([IO.File]::ReadAllText((Join-Path $root 'pom.xml')),'<artifactId>game-narrator</artifactId>\s*<version>([^<]+)</version>')).Groups[1].Value
