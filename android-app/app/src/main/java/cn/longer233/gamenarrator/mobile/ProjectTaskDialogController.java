@@ -316,6 +316,19 @@ public final class ProjectTaskDialogController {
                 v -> platformImportHost.startRemoteImport(url.getText().toString(),
                         new String[]{"AUTO", "MP4", "MOV", "WEBM", "MKV", "AUDIO"}[format.getSelectedItemPosition()],
                         createProject.isChecked())), ui.match(ui.dp(56)));
+        LinearLayout companion = ui.card(Color.rgb(221, 244, 255));
+        companion.addView(ui.label("电脑协同解析", 18, TEXT, true));
+        companion.addView(ui.label("由电脑端 yt-dlp 解析 Bilibili、抖音、快手和 YouTube，选择清晰度并合并音视频后下载到手机。", 13, TEXT, false));
+        ComputerCompanionSettings companionSettings = new ComputerCompanionSettings(context);
+        EditText computerAddress = ui.creativeInput("电脑地址，例如 http://192.168.1.8:8080", companionSettings.address());
+        EditText pairingToken = ui.creativeInput("配对密钥（至少 24 位）", companionSettings.token());
+        companion.addView(computerAddress); companion.addView(pairingToken);
+        companion.addView(ui.action("用电脑解析并选择清晰度", Color.rgb(54, 201, 255), TEXT, v -> {
+            String address = computerAddress.getText().toString().trim(), token = pairingToken.getText().toString().trim();
+            companionSettings.save(address, token);
+            platformImportHost.startCompanionImport(url.getText().toString(), address, token, createProject.isChecked());
+        }), ui.match(ui.dp(56)));
+        root.addView(companion);
         scroll.addView(root);
         container.removeAllViews();
         container.addView(scroll);

@@ -394,6 +394,7 @@ public final class MainActivity extends AppCompatActivity {
     void showPlatformImport() { actions.showPlatformImport(); }
     void startRemoteImport(String url,String format,boolean createProject) { actions.startRemoteImport(url, format, createProject); }
     void startRemoteImport(String url,boolean createProject) { actions.startRemoteImport(url, createProject); }
+    void startCompanionImport(String url,String address,String token,boolean createProject) { actions.startCompanionImport(url, address, token, createProject); }
     void showSettings() { actions.showSettings(); }
     void shareDiagnostics(String report) { actions.shareDiagnostics(report); }
     void confirmPermanentDelete(ProjectRepository.ProjectInfo project) { actions.confirmPermanentDelete(project); }

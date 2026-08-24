@@ -27,6 +27,13 @@ class LocalOnlyServerBindingGuardTest {
         LocalOnlyServerBindingGuard.validate("0.0.0.0", true);
     }
 
+    @Test
+    void acceptsExternalBindingOnlyWithStrongCompanionToken() {
+        LocalOnlyServerBindingGuard.validate("0.0.0.0", false, "123456789012345678901234");
+        assertThatThrownBy(() -> LocalOnlyServerBindingGuard.validate("0.0.0.0", false, "too-short"))
+                .isInstanceOf(IllegalStateException.class).hasMessageContaining("companion token");
+    }
+
     private void assertRejected(String address) {
         assertThatThrownBy(() -> LocalOnlyServerBindingGuard.validate(address))
                 .isInstanceOf(IllegalStateException.class)

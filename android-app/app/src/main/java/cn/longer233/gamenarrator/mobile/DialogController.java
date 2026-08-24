@@ -103,6 +103,7 @@ public final class DialogController {
         ViewGroup pageContainer();
         void showHomePage();
         void startRemoteImport(String url, String format, boolean createProject);
+        void startCompanionImport(String url, String address, String token, boolean createProject);
         void launchCookieFileOpen();
         String cookieSessionFor(String url);
         PlatformLoginSession platformLoginSession();

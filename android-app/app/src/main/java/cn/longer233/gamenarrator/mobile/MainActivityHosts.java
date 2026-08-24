@@ -148,6 +148,9 @@ public final class MainActivityHosts {
             @Override public void startRemoteImport(String url, String format, boolean createProject) {
                 activity.startRemoteImport(url, format, createProject);
             }
+            @Override public void startCompanionImport(String url, String address, String token, boolean createProject) {
+                activity.startCompanionImport(url, address, token, createProject);
+            }
             @Override public void launchCookieFileOpen() { activity.launchCookieFileOpen(); }
             @Override public String cookieSessionFor(String url) { return activity.cookieSessionFor(url); }
             @Override public PlatformLoginSession platformLoginSession() { return activity.platformLoginSession; }

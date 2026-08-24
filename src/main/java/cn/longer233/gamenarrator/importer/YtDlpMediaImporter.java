@@ -475,7 +475,7 @@ public class YtDlpMediaImporter {
         String host = uri.getHost().toLowerCase(Locale.ROOT);
         if (properties.getPlatforms().stream().noneMatch(platform ->
                 platform.matchesHost(host)))
-            throw new IllegalArgumentException("当前只支持 Bilibili、YouTube、抖音和 TikTok 链接");
+            throw new IllegalArgumentException("当前只支持 Bilibili、YouTube、抖音、快手和 TikTok 链接");
         try {
             for (InetAddress address : InetAddress.getAllByName(host)) {
                 if (address.isAnyLocalAddress() || address.isLoopbackAddress()

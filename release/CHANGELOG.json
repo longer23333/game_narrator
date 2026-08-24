@@ -1,15 +1,15 @@
 {
   "schemaVersion": 1,
-  "currentVersion": "2.2.55",
+  "currentVersion": "2.2.56",
   "releases": [
     {
-      "version": "2.2.55",
-      "title": "彻底清除 Bilibili 会话",
-      "summary": "修复 Android 本机确认会话残留和登录状态误报，并如实标记动态平台作品页的端侧限制。",
+      "version": "2.2.56",
+      "title": "Android 电脑协同平台导入",
+      "summary": "Android 通过局域网配对调用电脑端 yt-dlp，完成四平台清晰度选择、音视频合并和成品回传。",
       "items": [
-        "同步更新 Web、Windows 与 Android 版本",
-        "扫码确认后主动检测 Bilibili 内存会话并自动关闭登录窗口",
-        "平台导入复用 Activity 生命周期内的 Bilibili 会话并限制 Cookie 仅发送给可信域名"
+        "配对密钥保护所有非本机请求",
+        "Android 展示 yt-dlp 返回的清晰度与估算大小",
+        "电脑端 FFmpeg 合并分离音视频并将成品传回手机"
       ]
     },
     {

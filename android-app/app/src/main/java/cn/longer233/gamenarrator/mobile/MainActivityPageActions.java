@@ -501,6 +501,46 @@ public final class MainActivityPageActions {
         });
     }
 
+    void startCompanionImport(String url,String address,String token,boolean createProject){
+        if(url==null||url.isBlank()){activity.unavailable("请粘贴平台作品地址。");return;}
+        if(activity.activeDownload!=null&&!activity.activeDownload.isDone()){activity.unavailable("已有下载任务正在运行。");return;}
+        BottomSheetDialog dialog=new BottomSheetDialog(activity);LinearLayout panel=activity.sheet("连接电脑协同");
+        TextView message=activity.label("正在请电脑端 yt-dlp 解析可用清晰度…",13,MainActivity.MUTED,false);
+        ProgressBar progress=new ProgressBar(activity);progress.setIndeterminate(true);panel.addView(message);panel.addView(progress,activity.match(activity.dp(38)));
+        dialog.setCancelable(false);dialog.setContentView(panel);dialog.show();
+        activity.activeDownload=activity.downloads.submit(()->{try{
+            ComputerCompanionClient client=new ComputerCompanionClient(address,token);
+            ComputerCompanionClient.Media media=client.resolve(url);
+            activity.handler.post(()->{dialog.dismiss();showCompanionVariants(client,media,createProject);});
+        }catch(Exception error){activity.handler.post(()->{dialog.dismiss();activity.showError("电脑协同解析失败",error.getMessage());});}});
+    }
+
+    private void showCompanionVariants(ComputerCompanionClient client,ComputerCompanionClient.Media media,boolean createProject){
+        List<ComputerCompanionClient.Variant> variants=media.variants();String[] labels=new String[variants.size()];
+        for(int i=0;i<variants.size();i++){ComputerCompanionClient.Variant item=variants.get(i);labels[i]=item.label()+" · "+item.extension()+(item.bytes()==null?"":" · "+MobileDiagnostics.formatBytes(item.bytes()));}
+        new AlertDialog.Builder(activity).setTitle("选择清晰度："+media.title()).setSingleChoiceItems(labels,0,null)
+                .setNegativeButton("取消",null).setPositiveButton("下载",(choice,which)->{
+                    AlertDialog selection=(AlertDialog)choice;int selected=selection.getListView().getCheckedItemPosition();
+                    if(selected<0)selected=0;beginCompanionDownload(client,media,variants.get(selected),createProject);
+                }).show();
+    }
+
+    private void beginCompanionDownload(ComputerCompanionClient client,ComputerCompanionClient.Media media,
+                                        ComputerCompanionClient.Variant variant,boolean createProject){
+        BottomSheetDialog dialog=new BottomSheetDialog(activity);LinearLayout panel=activity.sheet("电脑正在解析并合并");
+        TextView message=activity.label("电脑端下载并合并分离音视频，完成后自动传到手机…",13,MainActivity.MUTED,false);
+        ProgressBar progress=new ProgressBar(activity,null,android.R.attr.progressBarStyleHorizontal);progress.setMax(100);progress.setIndeterminate(true);
+        panel.addView(message);panel.addView(progress,activity.match(activity.dp(38)));
+        panel.addView(activity.action("取消",MainActivity.DANGER,MainActivity.TEXT,v->{if(activity.activeDownload!=null)activity.activeDownload.cancel(true);dialog.dismiss();}),activity.match(activity.dp(52)));
+        dialog.setCancelable(false);dialog.setContentView(panel);dialog.show();
+        activity.activeDownload=activity.downloads.submit(()->{try{
+            RemoteMediaImporter.Result result=client.download(activity,media,variant,(percent,done,total)->activity.handler.post(()->{if(percent>=0){progress.setIndeterminate(false);progress.setProgress(percent);}if(done>0)message.setText("正在传到手机："+MobileDiagnostics.formatBytes(done)+(total>0?" / "+MobileDiagnostics.formatBytes(total):""));}));
+            activity.handler.post(()->{long assetId=activity.projectStore.addAsset(Uri.fromFile(result.file()).toString(),media.title(),result.mimeType());dialog.dismiss();
+                if(createProject){long duration=activity.readDuration(Uri.fromFile(result.file()));activity.projectStore.createProject(media.title());activity.clips.clear();activity.clips.add(new TimelineClip(Uri.fromFile(result.file()),media.title(),0,duration));activity.projects.saveOnly("从电脑协同导入创建项目");activity.selected=0;activity.projects.clearHistory();activity.showEditor();activity.status.setText("电脑协同导入完成。");}
+                else{activity.showAssetLibrary();Toast.makeText(activity,"电脑协同媒体已下载到素材库",Toast.LENGTH_LONG).show();}});
+        }catch(InterruptedException cancelled){Thread.currentThread().interrupt();}catch(Exception error){activity.handler.post(()->{dialog.dismiss();activity.showError("电脑协同下载失败",error.getMessage());});}});
+    }
+
     void startRemoteImport(String url,boolean createProject){
         if(url==null||url.isBlank()){activity.unavailable("请粘贴媒体直链。");return;}if(activity.activeDownload!=null&&!activity.activeDownload.isDone()){activity.unavailable("已有下载任务正在运行。");return;}
         BottomSheetDialog dialog=new BottomSheetDialog(activity);LinearLayout panel=activity.sheet("正在下载到手机");TextView message=activity.label("连接远程媒体；若有同地址断点将自动续传…",13,MainActivity.MUTED,false);ProgressBar progress=new ProgressBar(activity,null,android.R.attr.progressBarStyleHorizontal);progress.setMax(100);progress.setIndeterminate(true);panel.addView(message);panel.addView(progress,activity.match(activity.dp(38)));panel.addView(activity.action("暂停下载",MainActivity.DANGER,MainActivity.TEXT,v->{if(activity.activeDownload!=null)activity.activeDownload.cancel(true);dialog.dismiss();Toast.makeText(activity,"下载已暂停，再次导入同一地址将从断点继续",Toast.LENGTH_LONG).show();}),activity.match(activity.dp(52)));dialog.setCancelable(false);dialog.setContentView(panel);dialog.show();

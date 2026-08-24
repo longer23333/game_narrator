@@ -56,7 +56,7 @@
 ## 媒体导入边界
 
 - 本地文件通过受管上传进入任务存储。
-- Bilibili、YouTube、抖音和 TikTok 等平台 URL 统一由 `YtDlpMediaImporter` 调用 yt-dlp 完成解析、预览、字幕和下载，不再维护平台专用登录或页面抓取导入链路。
+- Bilibili、YouTube、抖音、快手和 TikTok 等平台 URL 统一由 `YtDlpMediaImporter` 调用 yt-dlp 完成解析、预览、字幕和下载，不再维护平台专用登录或页面抓取导入链路。Android 电脑协同模式复用同一解析器：只有配置至少 24 位的临时配对密钥时才允许局域网监听，所有非回环请求均必须携带密钥。
 - 登录受限内容只接受用户主动上传的 Netscape `cookies.txt`；服务端按 URL 对应平台过滤域名，以会话令牌引用临时文件，并在下载完成或一小时后删除。
 - 浏览器扩展只同步 Bilibili 页面可见的推荐/搜索结果为待确认素材候选，不读取 Cookie，也不绕过素材权利确认。
 

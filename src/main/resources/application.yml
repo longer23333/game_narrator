@@ -76,6 +76,8 @@ management:
       application: ${spring.application.name}
 
 game-narrator:
+  companion:
+    token: "${GAME_NARRATOR_COMPANION_TOKEN:}"
   retry:
     download-attempts: 3
     analysis-attempts: 2
@@ -322,6 +324,10 @@ game-narrator:
         hosts: [douyin.com]
         cookie-domains: [douyin.com]
         referer: "https://www.douyin.com/"
+      - id: KUAISHOU
+        hosts: [kuaishou.com]
+        cookie-domains: [kuaishou.com]
+        referer: "https://www.kuaishou.com/"
       - id: TIKTOK
         hosts: [tiktok.com]
         cookie-domains: [tiktok.com]

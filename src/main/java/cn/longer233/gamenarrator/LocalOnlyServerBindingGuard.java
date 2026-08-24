@@ -12,7 +12,8 @@ final class LocalOnlyServerBindingGuard implements ApplicationContextInitializer
     @Override
     public void initialize(ConfigurableApplicationContext context) {
         validate(context.getEnvironment().getProperty("server.address", "127.0.0.1"),
-                context.getEnvironment().getProperty("game-narrator.auth.require-login", Boolean.class, false));
+                context.getEnvironment().getProperty("game-narrator.auth.require-login", Boolean.class, false),
+                context.getEnvironment().getProperty("game-narrator.companion.token", ""));
     }
 
     static void validate(String configuredAddress) {
@@ -20,7 +21,11 @@ final class LocalOnlyServerBindingGuard implements ApplicationContextInitializer
     }
 
     static void validate(String configuredAddress, boolean authenticatedApi) {
-        if (authenticatedApi) return;
+        validate(configuredAddress, authenticatedApi, "");
+    }
+
+    static void validate(String configuredAddress, boolean authenticatedApi, String companionToken) {
+        if (authenticatedApi || companionToken != null && companionToken.length() >= 24) return;
         String address = configuredAddress == null ? "" : configuredAddress.trim();
         if (address.startsWith("[") && address.endsWith("]")) {
             address = address.substring(1, address.length() - 1);
@@ -42,6 +47,6 @@ final class LocalOnlyServerBindingGuard implements ApplicationContextInitializer
     private static IllegalStateException rejected(String address) {
         return new IllegalStateException("安全策略拒绝非本机监听地址：" + address
                 + "。当前配置未强制登录，只允许 127.0.0.1、::1 或 localhost；"
-                + "远程部署请启用 require-login，并在 HTTPS 反向代理后提供服务。");
+                + "电脑协同请配置至少 24 位的 companion token，远程部署请启用 require-login 和 HTTPS。");
     }
 }

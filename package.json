@@ -1,7 +1,7 @@
 {
   "name": "game-narrator-workspace",
   "private": true,
-  "version": "2.2.55",
+  "version": "2.2.56",
   "scripts": {
     "dev": "npm --prefix frontend run dev",
     "dev:frontend": "npm --prefix frontend run dev",

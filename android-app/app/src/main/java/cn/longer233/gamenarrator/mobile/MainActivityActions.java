@@ -139,6 +139,7 @@ public final class MainActivityActions {
     void showPlatformImport() { pageActions.showPlatformImport(); }
     void startRemoteImport(String url,String format,boolean createProject) { pageActions.startRemoteImport(url, format, createProject); }
     void startRemoteImport(String url,boolean createProject) { pageActions.startRemoteImport(url, createProject); }
+    void startCompanionImport(String url,String address,String token,boolean createProject) { pageActions.startCompanionImport(url, address, token, createProject); }
     void showSettings() { pageActions.showSettings(); }
     void shareDiagnostics(String report) { pageActions.shareDiagnostics(report); }
     void confirmPermanentDelete(ProjectRepository.ProjectInfo project) { pageActions.confirmPermanentDelete(project); }
