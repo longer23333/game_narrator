@@ -34,7 +34,7 @@
 
 ## 当前优先补齐项
 
-1. 独立发布状态：生产签名密钥仍未验证；正式发布前必须取得 `verify-android-production-release.ps1 -RequireProductionArtifacts` 通过证据。
+1. 独立发布状态：2.2.53 已使用现有生产密钥生成签名 APK，并通过 `verify-android-production-release.ps1 -RequireProductionArtifacts`；正式标签仍要求制品清单匹配最终 HEAD。
 2. 发布阻塞状态：真实账号四平台流程和 OEM/硬件编解码真机兼容仍未验证，保持 `physicalDeviceValidated=false`；不影响软件功能评分，但阻止正式发布。
 
 端侧 ONNX session 现按模型文件复用；模型文件大小或修改时间改变时会关闭旧 session 并重新加载。运行线程限制为最多 2 个 intra-op 和 1 个 inter-op，输入 tensor 在每次推理后显式关闭，避免连续分镜分析反复加载模型或累积原生内存。
