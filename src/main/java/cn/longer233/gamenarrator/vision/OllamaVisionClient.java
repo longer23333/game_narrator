@@ -263,7 +263,7 @@ public class OllamaVisionClient implements VisionAnalyzer {
     private VideoContentAnalysis analyzeContent(String transcriptText, List<FrameUnderstanding> frames) throws Exception {
         String frameDigest = frames.stream().map(frame -> "%.2f秒：%s（%s，高光分%d）".formatted(
                 frame.timestampSeconds(), frame.description(), frame.eventType(), frame.excitementScore()))
-                .reduce((left, right) -> left + "\n" + right).orElse("");
+                .collect(java.util.stream.Collectors.joining("\n"));
         String prompt = """
                 你是专业中文视频内容策划。结合语音转写和按时间排列的画面分析，先判断整段视频讲了什么，
                 再给出适合剪辑高光的时间点。必须使用简体中文，严格返回 JSON，不要 Markdown。
@@ -302,7 +302,8 @@ public class OllamaVisionClient implements VisionAnalyzer {
         FrameUnderstanding highlight = analyses.stream().max(Comparator.comparingInt(FrameUnderstanding::excitementScore)).orElseThrow();
         Map<String, Long> counts = new LinkedHashMap<>();
         analyses.forEach(frame -> counts.merge(frame.eventType(), 1L, Long::sum));
-        String overview = "视频语音主要内容：" + (abbreviate(transcriptText, 240).isBlank() ? "未检测到清晰语音" : abbreviate(transcriptText, 240))
+        String transcriptSummary = abbreviate(transcriptText, 240);
+        String overview = "视频语音主要内容：" + (transcriptSummary.isBlank() ? "未检测到清晰语音" : transcriptSummary)
                 + "。画面以" + counts + "为主。";
         return new VideoContentAnalysis(overview, new ArrayList<>(counts.keySet()), "根据画面事件强度判断",
                 List.of(highlight.description()), List.of(new HighlightHint(highlight.timestampSeconds(), highlight.description(), highlight.excitementScore())),

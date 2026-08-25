@@ -9,10 +9,15 @@ import org.springframework.stereotype.Component;
 import java.nio.file.Path;
 import java.time.Duration;
 import java.util.List;
+import java.util.Locale;
+import java.util.Set;
+import java.util.regex.Pattern;
 
 @Component
 public class FrameOcrService {
     private static final Logger log = LoggerFactory.getLogger(FrameOcrService.class);
+    private static final Pattern WHITESPACE = Pattern.compile("\\s+");
+    private static final Set<String> KEYWORDS = Set.of("胜利", "失败", "击杀", "得分", "boss", "victory", "defeat", "kill");
     private final boolean enabled;
     private final String executable;
     private final String languages;
@@ -32,7 +37,7 @@ public class FrameOcrService {
         try {
             var result = ExternalProcessRunner.run(List.of(executable, Path.of(frame.imagePath()).toString(),
                     "stdout", "-l", languages, "--psm", "6"), Duration.ofSeconds(20));
-            String text = result.output().replaceAll("\\s+", " ").strip();
+            String text = WHITESPACE.matcher(result.output()).replaceAll(" ").strip();
             if (result.exitCode() != 0 || text.isBlank()) return frame;
             if (text.length() > 500) text = text.substring(0, 500);
             return new FrameUnderstanding(frame.index(), frame.timestampSeconds(), frame.imagePath(),
@@ -45,8 +50,7 @@ public class FrameOcrService {
     }
 
     private int keywordBonus(String text) {
-        String value = text.toLowerCase();
-        return List.of("胜利", "失败", "击杀", "得分", "boss", "victory", "defeat", "kill")
-                .stream().anyMatch(value::contains) ? 8 : 0;
+        String value = text.toLowerCase(Locale.ROOT);
+        return KEYWORDS.stream().anyMatch(value::contains) ? 8 : 0;
     }
 }

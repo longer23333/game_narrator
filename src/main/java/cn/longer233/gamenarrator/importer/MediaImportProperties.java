@@ -5,6 +5,7 @@ import org.springframework.stereotype.Component;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Locale;
 
 @Component
 @ConfigurationProperties(prefix = "game-narrator.media-import")
@@ -53,16 +54,20 @@ public class MediaImportProperties {
         public void setReferer(String referer) { this.referer = referer; }
 
         public boolean matchesHost(String host) {
+            if (host == null || host.isBlank()) return false;
+            String normalizedHost = host.toLowerCase(Locale.ROOT);
             return hosts.stream().anyMatch(suffix ->
                     host.equalsIgnoreCase(suffix)
-                            || host.toLowerCase().endsWith("." + suffix.toLowerCase()));
+                            || normalizedHost.endsWith("." + suffix.toLowerCase(Locale.ROOT)));
         }
 
         public boolean acceptsCookieDomain(String domain) {
+            if (domain == null || domain.isBlank()) return false;
             String normalized = domain.startsWith(".") ? domain.substring(1) : domain;
+            String normalizedLower = normalized.toLowerCase(Locale.ROOT);
             return cookieDomains.stream().anyMatch(suffix ->
                     normalized.equalsIgnoreCase(suffix)
-                            || normalized.toLowerCase().endsWith("." + suffix.toLowerCase()));
+                            || normalizedLower.endsWith("." + suffix.toLowerCase(Locale.ROOT)));
         }
     }
 }

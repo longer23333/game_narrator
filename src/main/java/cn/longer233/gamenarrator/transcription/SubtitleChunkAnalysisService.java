@@ -12,9 +12,15 @@ import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
+import java.util.Locale;
+import java.util.regex.Pattern;
 
 @Service
 public class SubtitleChunkAnalysisService {
+    private static final Pattern WHITESPACE = Pattern.compile("\\s+");
+    private static final Set<String> EXCITEMENT_KEYWORDS = Set.of(
+            "击杀", "胜利", "反杀", "精彩", "危险", "boss", "win", "kill", "!", "！");
     private final ObjectMapper mapper;
     private final int maxCharacters;
 
@@ -33,7 +39,12 @@ public class SubtitleChunkAnalysisService {
             List<Map<String, Object>> output = new ArrayList<>();
             for (int index = 0; index < chunks.size(); index++) {
                 List<Cue> chunk = chunks.get(index);
-                String text = chunk.stream().map(Cue::text).reduce((a, b) -> a + " " + b).orElse("");
+                StringBuilder textBuilder = new StringBuilder();
+                for (Cue cue : chunk) {
+                    if (!textBuilder.isEmpty()) textBuilder.append(' ');
+                    textBuilder.append(cue.text());
+                }
+                String text = textBuilder.toString();
                 Map<String, Object> item = new LinkedHashMap<>();
                 item.put("index", index + 1);
                 item.put("outline", outline(text));
@@ -68,14 +79,14 @@ public class SubtitleChunkAnalysisService {
     }
 
     private String outline(String text) {
-        String normalized = text.replaceAll("\\s+", " ").trim();
+        String normalized = WHITESPACE.matcher(text).replaceAll(" ").trim();
         return normalized.substring(0, Math.min(180, normalized.length()));
     }
 
     private int excitement(String text) {
         int score = 35;
-        String lower = text.toLowerCase();
-        for (String keyword : List.of("击杀", "胜利", "反杀", "精彩", "危险", "boss", "win", "kill", "!", "！")) {
+        String lower = text.toLowerCase(Locale.ROOT);
+        for (String keyword : EXCITEMENT_KEYWORDS) {
             int from = 0;
             while ((from = lower.indexOf(keyword, from)) >= 0) { score += 8; from += keyword.length(); }
         }

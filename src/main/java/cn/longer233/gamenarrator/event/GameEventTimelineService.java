@@ -158,14 +158,27 @@ public class GameEventTimelineService {
         String ocr = frame == null ? "" : firstNonBlank(frame.ocrText(), "");
         String combined = (description + " " + ocr + " " + clip.eventType()).toLowerCase(Locale.ROOT);
         List<BossBattleKnowledgePack> available = knowledgePacks == null ? List.of(knowledgePack) : knowledgePacks.activePacks();
-        BossBattleKnowledgePack matchedPack = available.stream().filter(pack -> pack.eventRules().stream()
-                .anyMatch(candidate -> candidate.keywords().stream().map(keyword -> keyword.toLowerCase(Locale.ROOT))
-                        .anyMatch(combined::contains))).findFirst().orElse(knowledgePack);
-        BossBattleKnowledgePack.EventRule rule = matchedPack.eventRules().stream()
-                .filter(candidate -> candidate.keywords().stream()
-                        .map(keyword -> keyword.toLowerCase(Locale.ROOT)).anyMatch(combined::contains))
-                .findFirst().orElse(new BossBattleKnowledgePack.EventRule(
-                        "GAME_EVENT", "一般游戏事件", List.of(), .55, Math.max(30, clip.finalScore())));
+        BossBattleKnowledgePack matchedPack = knowledgePack;
+        BossBattleKnowledgePack.EventRule rule = null;
+        for (BossBattleKnowledgePack pack : available) {
+            for (BossBattleKnowledgePack.EventRule candidate : pack.eventRules()) {
+                boolean matched = false;
+                for (String keyword : candidate.keywords()) {
+                    if (combined.contains(keyword.toLowerCase(Locale.ROOT))) {
+                        matched = true;
+                        break;
+                    }
+                }
+                if (matched) {
+                    matchedPack = pack;
+                    rule = candidate;
+                    break;
+                }
+            }
+            if (rule != null) break;
+        }
+        if (rule == null) rule = new BossBattleKnowledgePack.EventRule(
+                "GAME_EVENT", "一般游戏事件", List.of(), .55, Math.max(30, clip.finalScore()));
         double confidence = Math.min(.98, rule.baseConfidence() + Math.max(0, clip.finalScore() - 70) / 500.0);
         List<GameEventEvidence> evidence = new ArrayList<>();
         evidence.add(new GameEventEvidence("FRAME_DESCRIPTION", description, clip.anchorSeconds(), clip.sourceFrameIndex()));

@@ -17,6 +17,7 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Set;
 import java.util.UUID;
+import java.util.Comparator;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.nio.file.Files;
@@ -25,6 +26,7 @@ import java.nio.file.Path;
 @Service
 public class NarrativeConsistencyService {
     private static final Pattern NUMBER = Pattern.compile("(?<![\\p{L}\\d])\\d+(?:\\.\\d+)?%?");
+    private static final Pattern WHITESPACE = Pattern.compile("\\s+");
     private static final List<String> RESULT_WORDS = List.of("击败", "胜利", "通关", "defeated", "victory");
     private final GameEventTimelineService events;
     private final ScriptWorkspaceService workspace;
@@ -82,12 +84,11 @@ public class NarrativeConsistencyService {
         boolean visualAvailable = artifactExists(artifacts.latest(taskId, "VISION_ANALYSIS").orElse(null));
         boolean asrAvailable = artifactExists(transcriptJson)
                 || artifactExists(artifacts.latest(taskId, "TRANSCRIPT_TEXT").orElse(null));
-        int supportedSegments = (int) segments.stream().filter(segment -> facts.stream().anyMatch(fact ->
-                fact.startSeconds() <= segment.endSeconds() && fact.endSeconds() >= segment.startSeconds())).count();
+        int supportedSegments = supportedSegmentCount(segments, facts);
         double evidenceCoverage = segments.isEmpty() ? 0 : supportedSegments / (double) segments.size();
-        double averageEventConfidence = confirmedEvents.stream().mapToDouble(GameEventView::confidence)
-                .average().orElse(0);
-        double confidenceTotal = confirmedEvents.stream().mapToDouble(GameEventView::confidence).sum();
+        double confidenceTotal = 0;
+        for (GameEventView event : confirmedEvents) confidenceTotal += event.confidence();
+        double averageEventConfidence = confirmedEvents.isEmpty() ? 0 : confidenceTotal / confirmedEvents.size();
         double ocrEvidenceCoverage = confidenceTotal == 0 ? 0 : confirmedEvents.stream()
                 .filter(event -> event.evidence().stream().anyMatch(item -> "OCR".equals(item.sourceType())))
                 .mapToDouble(GameEventView::confidence).sum() / confidenceTotal;
@@ -119,7 +120,10 @@ public class NarrativeConsistencyService {
                 "已确认事件没有 OCR 交叉证据", "0/%d confirmed events".formatted(confirmedEvents.size())));
         if (!confirmedEvents.isEmpty() && knowledgeEvidenceCoverage == 0) issues.add(issue("KNOWLEDGE_EVIDENCE", "WARNING", null,
                 "已确认事件没有知识包引用", "0/%d confirmed events".formatted(confirmedEvents.size())));
-        int errors = (int) issues.stream().filter(i -> "ERROR".equals(i.severity())).count();
+        int errors = 0;
+        for (NarrativeQualityReport.Issue issue : issues) {
+            if ("ERROR".equals(issue.severity())) errors++;
+        }
         int warnings = issues.size() - errors;
         int score = Math.max(0, 100 - errors * 25 - warnings * 8);
         score = Math.min(score, (int) Math.round(upstreamEvidenceReliability * 100));
@@ -129,6 +133,32 @@ public class NarrativeConsistencyService {
                 averageEventConfidence, speakerCoverage, ocrEvidenceCoverage, knowledgeEvidenceCoverage,
                 upstreamEvidenceReliability,
                 passed ? "叙事连续性和事实一致性检查通过" : "发现 %d 个错误、%d 个提醒".formatted(errors, warnings));
+    }
+
+    private int supportedSegmentCount(List<StoryboardSegmentView> segments, List<GameEventFact> facts) {
+        if (segments.isEmpty() || facts.isEmpty()) return 0;
+        List<GameEventFact> orderedFacts = facts.stream()
+                .sorted(Comparator.comparingDouble(GameEventFact::startSeconds))
+                .toList();
+        List<StoryboardSegmentView> orderedSegments = segments.stream()
+                .sorted(Comparator.comparingDouble(StoryboardSegmentView::startSeconds))
+                .toList();
+        int factIndex = 0;
+        int supported = 0;
+        for (StoryboardSegmentView segment : orderedSegments) {
+            while (factIndex < orderedFacts.size()
+                    && orderedFacts.get(factIndex).endSeconds() < segment.startSeconds()) {
+                factIndex++;
+            }
+            for (int i = factIndex; i < orderedFacts.size()
+                    && orderedFacts.get(i).startSeconds() <= segment.endSeconds(); i++) {
+                if (orderedFacts.get(i).endSeconds() >= segment.startSeconds()) {
+                    supported++;
+                    break;
+                }
+            }
+        }
+        return supported;
     }
 
     private boolean artifactExists(Path value) {
@@ -175,18 +205,24 @@ public class NarrativeConsistencyService {
     private void collectNumbers(String text, Set<String> target) {
         if (text == null) return; Matcher matcher = NUMBER.matcher(text); while (matcher.find()) target.add(matcher.group());
     }
-    private boolean containsAny(String text, List<String> needles) { return needles.stream().anyMatch(text::contains); }
+    private boolean containsAny(String text, List<String> needles) {
+        for (String needle : needles) if (text.contains(needle)) return true;
+        return false;
+    }
     private double clamp(double value) { return Math.max(0, Math.min(1, value)); }
     private double wordOverlap(String left, String right) {
         Set<Integer> a = grams(left); Set<Integer> b = grams(right);
         if (a.isEmpty() || b.isEmpty()) return 0;
-        long common = a.stream().filter(b::contains).count();
+        int common = 0;
+        for (Integer gram : a) if (b.contains(gram)) common++;
         return common / (double) Math.min(a.size(), b.size());
     }
     private Set<Integer> grams(String value) {
         Set<Integer> result = new HashSet<>();
-        String text = value == null ? "" : value.replaceAll("\\s+", "");
-        for (int i = 0; i + 1 < text.length(); i++) result.add(text.substring(i, i + 2).hashCode());
+        String text = value == null ? "" : WHITESPACE.matcher(value).replaceAll("");
+        for (int i = 0; i + 1 < text.length(); i++) {
+            result.add(31 * text.charAt(i) + text.charAt(i + 1));
+        }
         return result;
     }
 }

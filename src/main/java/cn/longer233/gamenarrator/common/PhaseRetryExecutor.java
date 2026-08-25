@@ -11,6 +11,7 @@ import java.net.SocketTimeoutException;
 import java.net.UnknownHostException;
 import java.net.http.HttpTimeoutException;
 import java.util.concurrent.Callable;
+import java.util.Locale;
 
 @Component
 public class PhaseRetryExecutor {
@@ -47,7 +48,9 @@ public class PhaseRetryExecutor {
                 last = exception instanceof RuntimeException runtime
                         ? runtime : new IllegalStateException(exception.getMessage(), exception);
                 if (attempt == attempts || !isTransient(exception)) throw last;
-                long delay = Math.min(10_000, initialBackoffMs * (1L << Math.min(8, attempt - 1)));
+                long multiplier = 1L << Math.min(8, attempt - 1);
+                long delay = Math.min(10_000, initialBackoffMs > Long.MAX_VALUE / multiplier
+                        ? Long.MAX_VALUE : initialBackoffMs * multiplier);
                 log.warn("PHASE_RETRY phase={} attempt={} delayMs={} reason={}",
                         phase, attempt, delay, exception.getClass().getSimpleName());
                 try {
@@ -66,7 +69,7 @@ public class PhaseRetryExecutor {
             if (current instanceof SocketTimeoutException || current instanceof ConnectException
                     || current instanceof HttpTimeoutException || current instanceof SocketException
                     || current instanceof UnknownHostException) return true;
-            String message = String.valueOf(current.getMessage()).toLowerCase();
+            String message = String.valueOf(current.getMessage()).toLowerCase(Locale.ROOT);
             if (message.contains("timeout") || message.contains("timed out")
                     || message.contains("connection reset") || message.contains("temporarily unavailable")
                     || message.contains("http error 408") || message.contains("http error 429")

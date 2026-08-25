@@ -24,10 +24,12 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
 import java.util.concurrent.TimeUnit;
+import java.util.regex.Pattern;
 
 @Component
 public class FfmpegVideoRenderer {
     private static final Logger log = LoggerFactory.getLogger(FfmpegVideoRenderer.class);
+    private static final Pattern PREVIEW_FRAME = Pattern.compile("frame-\\d{3}\\.jpg");
     private final ObjectMapper objectMapper;
     private final String ffmpegCommand;
     private final String preferredEncoder;
@@ -299,9 +301,11 @@ public class FfmpegVideoRenderer {
         }
         Path concatList = workDirectory.resolve("concat.txt");
         try {
-            cn.longer233.gamenarrator.common.AtomicArtifactWriter.writeText(concatList, clips.stream()
+            String concatManifest = clips.stream()
                     .map(path -> "file '" + path.toAbsolutePath().toString().replace('\\', '/') + "'")
-                    .reduce((left, right) -> left + System.lineSeparator() + right).orElseThrow(),
+                    .collect(java.util.stream.Collectors.joining(System.lineSeparator()));
+            if (concatManifest.isEmpty()) throw new IllegalStateException("cannot write empty concat manifest");
+            cn.longer233.gamenarrator.common.AtomicArtifactWriter.writeText(concatList, concatManifest,
                     StandardCharsets.UTF_8);
         } catch (java.io.IOException exception) {
             throw new IllegalStateException("cannot write concat manifest", exception);
@@ -321,7 +325,7 @@ public class FfmpegVideoRenderer {
         try (var files = Files.list(previewDirectory)) {
             files.filter(Files::isRegularFile).forEach(path -> {
                 String name = path.getFileName().toString();
-                if (name.equals("manifest.json") || name.matches("frame-\\d{3}\\.jpg")) {
+                if (name.equals("manifest.json") || PREVIEW_FRAME.matcher(name).matches()) {
                     try { Files.deleteIfExists(path); }
                     catch (java.io.IOException exception) {
                         log.warn("RENDER_PREVIEW_CLEANUP_FAILED path={} message={}", path, exception.getMessage());

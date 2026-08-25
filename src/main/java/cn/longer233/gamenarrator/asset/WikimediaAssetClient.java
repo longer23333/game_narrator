@@ -13,9 +13,12 @@ import org.springframework.http.client.SimpleClientHttpRequestFactory;
 
 import java.time.Duration;
 import java.util.Locale;
+import java.util.regex.Pattern;
 
 @Component
 public class WikimediaAssetClient {
+    private static final Pattern HTML_TAG = Pattern.compile("<[^>]+>");
+    private static final Pattern WHITESPACE = Pattern.compile("\\s+");
     private final RestClient client;
     private final ObjectMapper objectMapper;
     private final boolean enabled;
@@ -103,7 +106,7 @@ public class WikimediaAssetClient {
     }
 
     private String clean(String value) {
-        return HtmlUtils.htmlUnescape(value == null ? "" : value.replaceAll("<[^>]+>", " "))
-                .replaceAll("\\s+", " ").trim();
+        String unescaped = HtmlUtils.htmlUnescape(value == null ? "" : HTML_TAG.matcher(value).replaceAll(" "));
+        return WHITESPACE.matcher(unescaped).replaceAll(" ").trim();
     }
 }

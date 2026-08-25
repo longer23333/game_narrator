@@ -20,6 +20,7 @@ import java.util.regex.Pattern;
 @Component
 public class ChineseAssetQueryExpander {
     private static final Pattern CHINESE = Pattern.compile("[\\p{IsHan}]");
+    private static final Pattern QUERY_PUNCTUATION = Pattern.compile("[#，,；;]+");
     private static final Map<String, String> FALLBACK_TERMS = new LinkedHashMap<>();
 
     static {
@@ -149,7 +150,7 @@ public class ChineseAssetQueryExpander {
     private record CachedExpansion(AssetSearchExpansion value, Instant expiresAt) {}
 
     private String clean(String value) {
-        String result = value == null ? "" : value.trim().replaceAll("[#，,；;]+", "");
+        String result = value == null ? "" : QUERY_PUNCTUATION.matcher(value.trim()).replaceAll("");
         return result.substring(0, Math.min(100, result.length()));
     }
 }

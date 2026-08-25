@@ -14,10 +14,13 @@ import org.springframework.web.util.UriComponentsBuilder;
 import java.time.Duration;
 import java.util.LinkedHashSet;
 import java.util.List;
+import java.util.regex.Pattern;
 
 /** Discovers public Bilibili metadata. Results remain rights-review candidates, never open-license assets. */
 @Component
 public class BilibiliAssetClient {
+    private static final Pattern HTML_TAG = Pattern.compile("<[^>]+>");
+    private static final Pattern WHITESPACE = Pattern.compile("\\s+");
     private final RestClient client;
     private final ObjectMapper objectMapper;
     private final boolean enabled;
@@ -188,8 +191,8 @@ public class BilibiliAssetClient {
     }
 
     private String clean(String value) {
-        return HtmlUtils.htmlUnescape(value == null ? "" : value.replaceAll("<[^>]+>", " "))
-                .replaceAll("\\s+", " ").trim();
+        String unescaped = HtmlUtils.htmlUnescape(value == null ? "" : HTML_TAG.matcher(value).replaceAll(" "));
+        return WHITESPACE.matcher(unescaped).replaceAll(" ").trim();
     }
 
     private String https(String value) {

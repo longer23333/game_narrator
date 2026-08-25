@@ -14,6 +14,7 @@ import java.net.InetAddress;
 import java.net.URI;
 import java.net.UnknownHostException;
 import java.util.Map;
+import java.util.Locale;
 
 @Service
 public class AiSettingsService {
@@ -90,7 +91,7 @@ public class AiSettingsService {
 
     public synchronized PublicSettings switchLocalModel(String role, String model) {
         Settings current = stored();
-        String normalizedRole = role == null ? "" : role.trim().toUpperCase();
+        String normalizedRole = role == null ? "" : role.trim().toUpperCase(Locale.ROOT);
         String name = LocalModelCatalogService.validateName(model);
         Settings changed = switch (normalizedRole) {
             case "VISION" -> new Settings("LOCAL", current.provider(), current.apiKey(), current.baseUrl(), name,
@@ -116,7 +117,7 @@ public class AiSettingsService {
 
     private Settings normalize(Settings value) {
         String mode = "LOCAL".equalsIgnoreCase(value.mode()) ? "LOCAL" : "CLOUD";
-        String provider = blank(value.provider(), "DASHSCOPE").toUpperCase();
+        String provider = blank(value.provider(), "DASHSCOPE").toUpperCase(Locale.ROOT);
         if (!PROVIDER_BASE_URLS.containsKey(provider) && !"OPENAI_COMPATIBLE".equals(provider)) {
             throw new IllegalArgumentException("不支持的云端 AI 服务商");
         }

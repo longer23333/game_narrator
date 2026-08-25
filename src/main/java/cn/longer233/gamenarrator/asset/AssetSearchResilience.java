@@ -89,9 +89,12 @@ public class AssetSearchResilience {
     }
 
     private long backoff(int failedAttempt, String key) {
-        long exponential = initialBackoffMillis * (1L << Math.min(20, failedAttempt - 1));
+        int shift = Math.min(20, Math.max(0, failedAttempt - 1));
+        long multiplier = 1L << shift;
+        long exponential = initialBackoffMillis > Long.MAX_VALUE / multiplier
+                ? Long.MAX_VALUE : initialBackoffMillis * multiplier;
         long jitter = exponential == 0 ? 0 : Math.floorMod(key.hashCode() * 31L + failedAttempt, Math.max(1, exponential / 4));
-        return exponential + jitter;
+        return Long.MAX_VALUE - exponential < jitter ? Long.MAX_VALUE : exponential + jitter;
     }
 
     private void sleep(long millis) {

@@ -8,10 +8,17 @@ import java.time.Duration;
 import java.util.List;
 import java.util.Locale;
 import java.util.Objects;
+import java.util.regex.Pattern;
 
 /** Selects a local or cloud protocol adapter; it contains no provider inference implementation. */
 @Component
 public class AdaptiveAiChatClient {
+    private static final Pattern PRIVATE_TRANSCRIPT = Pattern.compile(
+            "(?s)(语音转写|语音参考)[:：].*?(?=\\n(?:画面时间线|高光片段|返回格式|字段)[:：])");
+    private static final Pattern CREDENTIAL = Pattern.compile(
+            "(?i)(authorization|api[_-]?key|cookie)\\s*[:=]\\s*\\S+");
+    private static final Pattern URL = Pattern.compile("https?://\\S+");
+    private static final Pattern CONTROL = Pattern.compile("[\\p{Cntrl}&&[^\\r\\n\\t]]");
     private final AiSettingsService settings;
     private final OllamaChatBackend local;
     private final CloudAiChatBackend cloud;
@@ -85,12 +92,11 @@ public class AdaptiveAiChatClient {
                 || value.contains("content moderation");
     }
     static String minimizeCloudInput(String prompt) {
-        String value = Objects.toString(prompt, "")
-                .replaceAll("(?s)(语音转写|语音参考)[:：].*?(?=\\n(?:画面时间线|高光片段|返回格式|字段)[:：])",
-                        "$1：[原始转写仅在本地保留]")
-                .replaceAll("(?i)(authorization|api[_-]?key|cookie)\\s*[:=]\\s*\\S+", "$1=***")
-                .replaceAll("https?://\\S+", "[链接已省略]")
-                .replaceAll("[\\p{Cntrl}&&[^\\r\\n\\t]]", "").trim();
+        String value = PRIVATE_TRANSCRIPT.matcher(Objects.toString(prompt, ""))
+                .replaceFirst("$1：[原始转写仅在本地保留]");
+        value = CREDENTIAL.matcher(value).replaceAll("$1=***");
+        value = URL.matcher(value).replaceAll("[链接已省略]");
+        value = CONTROL.matcher(value).replaceAll("").trim();
         return value.substring(0, Math.min(12_000, value.length()));
     }
 }

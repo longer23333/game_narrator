@@ -25,10 +25,13 @@ import java.util.Set;
 import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.Executor;
+import java.util.regex.Pattern;
 
 @Service
 public class AssetDownloadService {
     private static final long MAX_DOWNLOAD_BYTES = 100L * 1024 * 1024;
+    private static final Pattern CONTENT_RANGE = Pattern.compile("bytes (\\d+)-(\\d+)/(\\d+)");
+    private static final Pattern UNSATISFIED_RANGE = Pattern.compile("bytes \\*/(\\d+)");
     private static final Set<String> DOWNLOAD_LICENSES = Set.of(
             "cc0", "pdm", "by", "by-sa", "pexels_license", "pixabay_content_license");
 
@@ -242,20 +245,24 @@ public class AssetDownloadService {
 
     private Long responseTotal(HttpURLConnection connection, long offset) {
         String contentRange = connection.getHeaderField("Content-Range");
-        if (contentRange != null && contentRange.matches("bytes \\d+-\\d+/\\d+")) {
-            return Long.parseLong(contentRange.substring(contentRange.lastIndexOf('/') + 1));
+        var match = contentRange == null ? null : CONTENT_RANGE.matcher(contentRange);
+        if (match != null && match.matches()) {
+            return Long.parseLong(match.group(3));
         }
         long length = connection.getContentLengthLong();
         return length < 0 ? null : offset + length;
     }
 
     private boolean validContentRange(String value, long offset) {
-        return value != null && value.matches("bytes " + offset + "-\\d+/\\d+");
+        if (value == null) return false;
+        var match = CONTENT_RANGE.matcher(value);
+        return match.matches() && Long.parseLong(match.group(1)) == offset;
     }
 
     private Long unsatisfiedTotal(String value) {
-        return value != null && value.matches("bytes \\*/\\d+")
-                ? Long.parseLong(value.substring(value.indexOf('/') + 1)) : null;
+        if (value == null) return null;
+        var match = UNSATISFIED_RANGE.matcher(value);
+        return match.matches() ? Long.parseLong(match.group(1)) : null;
     }
 
     private String text(Object value) { return value == null ? "" : String.valueOf(value).trim(); }

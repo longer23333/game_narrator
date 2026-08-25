@@ -45,7 +45,7 @@ public class DiagnosticLogService {
             byte[] tail = readTail(applicationLog, MAX_TAIL_BYTES);
             List<String> values = new String(tail, StandardCharsets.UTF_8).lines().toList();
             return values.stream().skip(Math.max(0, values.size() - lines)).map(this::sanitize)
-                    .reduce((left, right) -> left + System.lineSeparator() + right).orElse("");
+                    .collect(java.util.stream.Collectors.joining(System.lineSeparator()));
         } catch (Exception exception) {
             throw new IllegalStateException("无法读取诊断日志：" + exception.getMessage(), exception);
         }
@@ -89,7 +89,7 @@ public class DiagnosticLogService {
             List<Integer> indexes = selected.stream().toList();
             return indexes.stream().skip(Math.max(0, indexes.size() - lines))
                     .map(index -> sanitize(values.get(index)))
-                    .reduce((left, right) -> left + System.lineSeparator() + right).orElse("");
+                    .collect(java.util.stream.Collectors.joining(System.lineSeparator()));
         } catch (Exception exception) {
             throw new IllegalStateException("无法读取任务诊断日志：" + exception.getMessage(), exception);
         }

@@ -20,6 +20,7 @@ import java.time.OffsetDateTime;
 import java.util.ArrayList;
 import java.util.HexFormat;
 import java.util.List;
+import java.util.Locale;
 import java.util.UUID;
 import java.util.concurrent.TimeUnit;
 
@@ -47,7 +48,7 @@ public class ExportWorker {
         try {
             update(jobId, "RUNNING", 10, null);
             Files.createDirectories(output.getParent());
-            String container = preset.container().toUpperCase();
+            String container = preset.container().toUpperCase(Locale.ROOT);
             if ("SRT".equals(container)) {
                 if (subtitle == null || !Files.isRegularFile(subtitle)) {
                     throw new IllegalStateException("当前任务没有可导出的字幕文件");
@@ -130,12 +131,12 @@ public class ExportWorker {
     }
 
     private String encoder(String codec, String hardware) {
-        if (hardware != null && !hardware.isBlank()) return hardware.toLowerCase();
+        if (hardware != null && !hardware.isBlank()) return hardware.toLowerCase(Locale.ROOT);
         return softwareEncoder(codec);
     }
 
     private String softwareEncoder(String codec) {
-        return switch (codec.toUpperCase()) {
+        return switch (codec.toUpperCase(Locale.ROOT)) {
             case "HEVC" -> "libx265";
             case "AV1" -> "libsvtav1";
             case "VP9" -> "libvpx-vp9";
@@ -145,7 +146,7 @@ public class ExportWorker {
     }
 
     private String audioEncoder(String codec) {
-        return switch (codec.toUpperCase()) {
+        return switch (codec.toUpperCase(Locale.ROOT)) {
             case "OPUS" -> "libopus";
             case "PCM" -> "pcm_s16le";
             default -> "aac";
@@ -227,7 +228,7 @@ public class ExportWorker {
     }
 
     private String mime(Path path) {
-        String name = path.getFileName().toString().toLowerCase();
+        String name = path.getFileName().toString().toLowerCase(Locale.ROOT);
         if (name.endsWith(".srt")) return "application/x-subrip";
         if (name.endsWith(".wav")) return "audio/wav";
         if (name.endsWith(".webm")) return "video/webm";

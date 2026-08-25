@@ -6,6 +6,7 @@ import java.util.Comparator;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
+import java.util.Locale;
 import java.util.Map;
 import java.util.ArrayList;
 import java.util.Locale;
@@ -24,7 +25,7 @@ final class EventWindowSecondPass {
             SceneFrame source = firstPass.stream().filter(frame -> frame.index() == analysis.index()).findFirst().orElse(null);
             if (source == null || !AdaptiveFrameSampler.isCenter(source)) continue;
             boolean explicitEvent = analysis.eventType() != null
-                    && !Set.of("其他", "其它", "UNKNOWN", "OTHER").contains(analysis.eventType().toUpperCase());
+                    && !Set.of("其他", "其它", "UNKNOWN", "OTHER").contains(analysis.eventType().toUpperCase(Locale.ROOT));
             if (analysis.excitementScore() >= 60 || explicitEvent || !analysis.ocrText().isBlank()) {
                 anchors.put(source.eventAnchorSeconds(), EventBudget.forAnalysis(analysis));
             }

@@ -20,6 +20,8 @@ import java.util.*;
 @Component
 public class BgeAssetSemanticSearch {
     private static final Logger log = LoggerFactory.getLogger(BgeAssetSemanticSearch.class);
+    private static final java.util.regex.Pattern CHINESE_TERM_PATTERN =
+            java.util.regex.Pattern.compile("[\\p{IsHan}]{2,}");
     private final JdbcTemplate jdbc;
     private final ObjectMapper objectMapper;
     private final RestClient client;
@@ -73,10 +75,12 @@ public class BgeAssetSemanticSearch {
                 save(candidates.get(candidateIndex).id(), hash(texts.get(candidateIndex)), vector);
             }
             double[] queryVector = generated.getFirst();
+            String normalizedQuery = Objects.toString(query, "").toLowerCase(Locale.ROOT).trim();
+            List<String> queryTerms = lexicalTerms(normalizedQuery);
             List<ScoredAsset> scored = new ArrayList<>();
             for (int i = 0; i < candidates.size(); i++) {
                 double semanticScore = cosine(queryVector, vectors.get(i));
-                double lexicalScore = lexicalScore(query, semanticText(candidates.get(i)));
+                double lexicalScore = lexicalScore(normalizedQuery, queryTerms, texts.get(i));
                 double score = Math.min(1, semanticScore * .78 + lexicalScore * .22);
                 if (lexicalScore > 0 || semanticScore >= minimumScore) scored.add(new ScoredAsset(candidates.get(i), score));
             }
@@ -139,9 +143,13 @@ public class BgeAssetSemanticSearch {
     }
 
     private String semanticText(AssetView asset) {
-        String tags = asset.tags().stream().map(AssetView.TagView::name).reduce("", (a, b) -> a + " " + b);
-        return (asset.assetType() + " " + asset.title() + " " + Objects.toString(asset.localizedTitle(), "")
-                + " " + Objects.toString(asset.creator(), "") + tags).trim();
+        StringBuilder text = new StringBuilder()
+                .append(asset.assetType()).append(' ')
+                .append(asset.title()).append(' ')
+                .append(Objects.toString(asset.localizedTitle(), "")).append(' ')
+                .append(Objects.toString(asset.creator(), ""));
+        for (AssetView.TagView tag : asset.tags()) text.append(' ').append(tag.name());
+        return text.toString().trim();
     }
 
     private String hash(String value) throws Exception {
@@ -162,18 +170,41 @@ public class BgeAssetSemanticSearch {
         String text = Objects.toString(candidate, "").toLowerCase(Locale.ROOT);
         String normalized = Objects.toString(query, "").toLowerCase(Locale.ROOT).trim();
         if (normalized.isEmpty()) return 0;
+        return lexicalScore(normalized, lexicalTerms(normalized), text);
+    }
+
+    private static double lexicalScore(String normalized, List<String> terms, String candidate) {
+        String text = Objects.toString(candidate, "").toLowerCase(Locale.ROOT);
+        if (normalized.isEmpty()) return 0;
+        if (terms.isEmpty()) return text.contains(normalized) ? 1 : 0;
+        int hits = 0;
+        for (String term : terms) if (text.contains(term)) hits++;
+        double coverage = (double) hits / terms.size();
+        if (text.contains(normalized)) coverage = Math.min(1, coverage + .25);
+        return coverage;
+    }
+
+    private static List<String> lexicalTerms(String normalized) {
+        if (normalized.isEmpty()) return List.of();
         LinkedHashSet<String> terms = new LinkedHashSet<>();
-        for (String term : normalized.split("[\\s,，;；]+")) if (term.length() >= 2) terms.add(term);
-        java.util.regex.Matcher matcher = java.util.regex.Pattern.compile("[\\p{IsHan}]{2,}").matcher(normalized);
+        int start = 0;
+        while (start < normalized.length()) {
+            while (start < normalized.length() && isTermSeparator(normalized.charAt(start))) start++;
+            int end = start;
+            while (end < normalized.length() && !isTermSeparator(normalized.charAt(end))) end++;
+            if (end - start >= 2) terms.add(normalized.substring(start, end));
+            start = end;
+        }
+        java.util.regex.Matcher matcher = CHINESE_TERM_PATTERN.matcher(normalized);
         while (matcher.find()) {
             String chinese = matcher.group(); terms.add(chinese);
             if (chinese.length() > 2) for (int i = 0; i < chinese.length() - 1; i++) terms.add(chinese.substring(i, i + 2));
         }
-        if (terms.isEmpty()) return text.contains(normalized) ? 1 : 0;
-        long hits = terms.stream().filter(text::contains).count();
-        double coverage = (double) hits / terms.size();
-        if (text.contains(normalized)) coverage = Math.min(1, coverage + .25);
-        return coverage;
+        return List.copyOf(terms);
+    }
+
+    private static boolean isTermSeparator(char value) {
+        return Character.isWhitespace(value) || value == ',' || value == '，' || value == ';' || value == '；';
     }
 
     private record ScoredAsset(AssetView asset, double score) {}

@@ -21,6 +21,22 @@ import javax.imageio.ImageIO;
 @Service
 public class VideoSegmentSemanticIndex {
     private static final Logger log = LoggerFactory.getLogger(VideoSegmentSemanticIndex.class);
+    private static final java.util.regex.Pattern SEARCH_TERM_PATTERN =
+            java.util.regex.Pattern.compile("[\\p{IsHan}]{2,}");
+    private static final java.util.regex.Pattern SEARCH_SEPARATOR_PATTERN =
+            java.util.regex.Pattern.compile("[\\p{Punct}\\s]+");
+    private static final java.util.regex.Pattern QUERY_BATTLE = java.util.regex.Pattern.compile("战斗|攻击|boss|打斗");
+    private static final java.util.regex.Pattern EVENT_BATTLE = java.util.regex.Pattern.compile("battle|combat|action|fight|boss");
+    private static final java.util.regex.Pattern QUERY_VICTORY = java.util.regex.Pattern.compile("胜利|成功|通关");
+    private static final java.util.regex.Pattern EVENT_VICTORY = java.util.regex.Pattern.compile("victory|win|success|clear");
+    private static final java.util.regex.Pattern QUERY_FAILURE = java.util.regex.Pattern.compile("失败|死亡|翻车");
+    private static final java.util.regex.Pattern EVENT_FAILURE = java.util.regex.Pattern.compile("fail|death|lose|game\\.over");
+    private static final java.util.regex.Pattern QUERY_DIALOGUE = java.util.regex.Pattern.compile("对话|剧情|交谈");
+    private static final java.util.regex.Pattern EVENT_DIALOGUE = java.util.regex.Pattern.compile("dialog|story|conversation");
+    private static final Map<String, String> QUERY_EXPANSIONS = Map.of(
+            "战斗", " fight combat action", "胜利", " victory win", "失败", " defeat game over",
+            "搞笑", " funny comedy", "对话", " dialogue conversation", "风景", " landscape scenery",
+            "爆炸", " explosion blast", "追逐", " chase pursuit");
     private final JdbcTemplate jdbc;
     private final ObjectMapper objectMapper;
     private final BgeAssetSemanticSearch embeddings;
@@ -185,8 +201,11 @@ public class VideoSegmentSemanticIndex {
     }
 
     public Path thumbnail(UUID taskId, int frameIndex) {
-        List<String> paths = jdbc.query("SELECT image_path FROM video_segment_embedding WHERE task_id=? AND frame_index=?",
-                (rs, row) -> rs.getString(1), taskId, frameIndex);
+        List<String> paths = jdbc.query("""
+                SELECT e.image_path FROM video_segment_embedding e
+                JOIN video_tasks t ON t.id=e.task_id
+                WHERE e.task_id=? AND e.frame_index=? AND t.owner_id=?
+                """, (rs, row) -> rs.getString(1), taskId, frameIndex, currentUser.userId());
         if (paths.isEmpty()) throw new IllegalArgumentException("镜头不存在");
         Path path = Path.of(paths.getFirst()).toAbsolutePath().normalize();
         if (!path.startsWith(storageRoot) || !Files.isRegularFile(path)) {
@@ -203,7 +222,8 @@ public class VideoSegmentSemanticIndex {
         String searchable = String.join(" ", Objects.toString(taskName, ""), Objects.toString(eventType, ""),
                 Objects.toString(description, "")).toLowerCase(Locale.ROOT);
         List<String> terms = searchTerms(query);
-        long hits = terms.stream().filter(searchable::contains).count();
+        int hits = 0;
+        for (String term : terms) if (searchable.contains(term)) hits++;
         double lexical = terms.isEmpty() ? 0 : (double) hits / terms.size();
         String normalized = query.trim().toLowerCase(Locale.ROOT);
         double phrase = normalized.length() >= 2 && searchable.contains(normalized) ? 1 : 0;
@@ -213,10 +233,21 @@ public class VideoSegmentSemanticIndex {
 
     static List<VideoSegmentSearchResult> diversify(List<VideoSegmentSearchResult> ordered, int limit) {
         List<VideoSegmentSearchResult> selected = new ArrayList<>();
+        Map<UUID, List<Double>> selectedTimes = new HashMap<>();
         for (VideoSegmentSearchResult candidate : ordered) {
-            boolean nearDuplicate = selected.stream().anyMatch(item -> item.taskId().equals(candidate.taskId())
-                    && Math.abs(item.timestampSeconds() - candidate.timestampSeconds()) < 3.0);
+            List<Double> taskTimes = selectedTimes.get(candidate.taskId());
+            boolean nearDuplicate = false;
+            if (taskTimes != null) {
+                for (double timestamp : taskTimes) {
+                    if (Math.abs(timestamp - candidate.timestampSeconds()) < 3.0) {
+                        nearDuplicate = true;
+                        break;
+                    }
+                }
+            }
             if (!nearDuplicate) selected.add(candidate);
+            if (!nearDuplicate) selectedTimes.computeIfAbsent(candidate.taskId(), ignored -> new ArrayList<>())
+                    .add(candidate.timestampSeconds());
             if (selected.size() == limit) return selected;
         }
         if (selected.size() < limit) for (VideoSegmentSearchResult candidate : ordered) {
@@ -228,9 +259,7 @@ public class VideoSegmentSemanticIndex {
 
     private static String expandSearchQuery(String query) {
         StringBuilder result = new StringBuilder(query);
-        Map.of("战斗", " fight combat action", "胜利", " victory win", "失败", " defeat game over",
-                "搞笑", " funny comedy", "对话", " dialogue conversation", "风景", " landscape scenery",
-                "爆炸", " explosion blast", "追逐", " chase pursuit").forEach((key, value) -> {
+        QUERY_EXPANSIONS.forEach((key, value) -> {
             if (query.contains(key)) result.append(value);
         });
         return result.toString();
@@ -238,9 +267,17 @@ public class VideoSegmentSemanticIndex {
 
     private static List<String> searchTerms(String query) {
         LinkedHashSet<String> terms = new LinkedHashSet<>();
-        String normalized = query.toLowerCase(Locale.ROOT).replaceAll("[\\p{Punct}\\s]+", " ").trim();
-        for (String part : normalized.split(" ")) if (part.length() >= 2) terms.add(part);
-        java.util.regex.Matcher matcher = java.util.regex.Pattern.compile("[\\p{IsHan}]{2,}").matcher(normalized);
+        String normalized = SEARCH_SEPARATOR_PATTERN.matcher(query.toLowerCase(Locale.ROOT))
+                .replaceAll(" ").trim();
+        int start = 0;
+        while (start < normalized.length()) {
+            while (start < normalized.length() && normalized.charAt(start) == ' ') start++;
+            int end = start;
+            while (end < normalized.length() && normalized.charAt(end) != ' ') end++;
+            if (end - start >= 2) terms.add(normalized.substring(start, end));
+            start = end;
+        }
+        java.util.regex.Matcher matcher = SEARCH_TERM_PATTERN.matcher(normalized);
         while (matcher.find()) {
             String chinese = matcher.group(); terms.add(chinese);
             if (chinese.length() > 2) for (int i = 0; i < chinese.length() - 1; i++) terms.add(chinese.substring(i, i + 2));
@@ -249,10 +286,10 @@ public class VideoSegmentSemanticIndex {
     }
 
     private static double eventIntentScore(String query, String eventType) {
-        if ((query.matches(".*(战斗|攻击|boss|打斗).*")) && eventType.matches(".*(battle|combat|action|fight|boss).*")) return 1;
-        if ((query.matches(".*(胜利|成功|通关).*")) && eventType.matches(".*(victory|win|success|clear).*")) return 1;
-        if ((query.matches(".*(失败|死亡|翻车).*")) && eventType.matches(".*(fail|death|lose|game.over).*")) return 1;
-        if ((query.matches(".*(对话|剧情|交谈).*")) && eventType.matches(".*(dialog|story|conversation).*")) return 1;
+        if (QUERY_BATTLE.matcher(query).find() && EVENT_BATTLE.matcher(eventType).find()) return 1;
+        if (QUERY_VICTORY.matcher(query).find() && EVENT_VICTORY.matcher(eventType).find()) return 1;
+        if (QUERY_FAILURE.matcher(query).find() && EVENT_FAILURE.matcher(eventType).find()) return 1;
+        if (QUERY_DIALOGUE.matcher(query).find() && EVENT_DIALOGUE.matcher(eventType).find()) return 1;
         return 0;
     }
     private double[] parseVector(String value) {

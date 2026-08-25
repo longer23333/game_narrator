@@ -15,11 +15,15 @@ import java.util.Comparator;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
+import java.util.Locale;
 
 @Component
 public class RuleBasedHighlightSelector {
     private static final Logger log = LoggerFactory.getLogger(RuleBasedHighlightSelector.class);
     private static final double STORY_SEGMENT_SECONDS = 30.0;
+    private static final Set<String> HIGHLIGHT_KEYWORDS = Set.of(
+            "胜利", "失败", "击杀", "连杀", "得分", "boss", "victory", "defeat", "kill", "win");
     private final ObjectMapper objectMapper;
 
     public RuleBasedHighlightSelector(ObjectMapper objectMapper) { this.objectMapper = objectMapper; }
@@ -135,24 +139,27 @@ public class RuleBasedHighlightSelector {
         double budget = Math.min(duration, Math.max(15, targetDurationSeconds));
         double clipLength = Math.min(20.0, budget);
         int wanted = Math.max(1, (int) Math.ceil(budget / clipLength));
-        List<FrameUnderstanding> ranked = frames.stream()
-                .sorted(Comparator.comparingInt((FrameUnderstanding frame) -> finalScore(frame, hints, features)).reversed())
+        List<ScoredFrame> ranked = frames.stream()
+                .map(frame -> new ScoredFrame(frame, finalScore(frame, hints, features)))
+                .sorted(Comparator.comparingInt(ScoredFrame::score).reversed())
                 .toList();
         List<HighlightClip> selected = new ArrayList<>();
-        for (FrameUnderstanding frame : ranked) {
+        for (ScoredFrame scored : ranked) {
             if (selected.size() >= wanted) break;
+            FrameUnderstanding frame = scored.frame();
             double start = Math.max(0, Math.min(duration - clipLength, frame.timestampSeconds() - clipLength / 2));
             double end = Math.min(duration, start + Math.min(clipLength, budget - selected.size() * clipLength));
             boolean overlaps = selected.stream().anyMatch(clip -> start < clip.endSeconds() && end > clip.startSeconds());
             if (!overlaps && end > start) selected.add(new HighlightClip(frame.index(), start, end,
                     frame.timestampSeconds(), frame.eventType(), frame.description(), frame.excitementScore(),
-                    finalScore(frame, hints, features)));
+                    scored.score()));
         }
         if (selected.isEmpty()) {
-            FrameUnderstanding frame = ranked.get(0);
+            ScoredFrame scored = ranked.get(0);
+            FrameUnderstanding frame = scored.frame();
             double end = Math.min(duration, budget);
             selected.add(new HighlightClip(frame.index(), 0, end, frame.timestampSeconds(), frame.eventType(),
-                    frame.description(), frame.excitementScore(), finalScore(frame, hints, features)));
+                    frame.description(), frame.excitementScore(), scored.score()));
         }
         return selected.stream().sorted(Comparator.comparingDouble(HighlightClip::startSeconds)).toList();
     }
@@ -160,20 +167,39 @@ public class RuleBasedHighlightSelector {
     private List<HighlightClip> buildContinuousStoryClips(List<FrameUnderstanding> frames, double duration,
                                                            List<HighlightHint> hints, FeatureContext features) {
         if (!Double.isFinite(duration) || duration <= 0) throw new IllegalStateException("源视频时长无效");
+        List<ScoredFrame> orderedFrames = frames.stream()
+                .map(frame -> new ScoredFrame(frame, finalScore(frame, hints, features)))
+                .sorted(Comparator.comparingDouble(item -> item.frame().timestampSeconds()))
+                .toList();
         List<HighlightClip> clips = new ArrayList<>();
+        int frameCursor = 0;
         for (double start = 0; start < duration; start += STORY_SEGMENT_SECONDS) {
             double end = Math.min(duration, start + STORY_SEGMENT_SECONDS);
-            double segmentStart = start;
-            double segmentEnd = end;
-            FrameUnderstanding anchor = frames.stream()
-                    .filter(frame -> frame.timestampSeconds() >= segmentStart && frame.timestampSeconds() < segmentEnd)
-                    .max(Comparator.comparingInt((FrameUnderstanding frame) -> finalScore(frame, hints, features)))
-                    .orElseGet(() -> frames.stream().min(Comparator.comparingDouble(frame ->
-                            Math.abs(frame.timestampSeconds() - ((segmentStart + segmentEnd) / 2.0)))).orElseThrow());
-            clips.add(new HighlightClip(anchor.index(), segmentStart, segmentEnd, anchor.timestampSeconds(),
-                    anchor.eventType(), anchor.description(), anchor.excitementScore(), finalScore(anchor, hints, features)));
+            while (frameCursor < orderedFrames.size()
+                    && orderedFrames.get(frameCursor).frame().timestampSeconds() < start) frameCursor++;
+            int nextCursor = frameCursor;
+            ScoredFrame best = null;
+            while (nextCursor < orderedFrames.size()
+                    && orderedFrames.get(nextCursor).frame().timestampSeconds() < end) {
+                ScoredFrame candidate = orderedFrames.get(nextCursor++);
+                if (best == null || candidate.score() > best.score()) best = candidate;
+            }
+            ScoredFrame selected = best != null ? best : nearestFrame(orderedFrames, frameCursor, (start + end) / 2.0);
+            FrameUnderstanding anchor = selected.frame();
+            clips.add(new HighlightClip(anchor.index(), start, end, anchor.timestampSeconds(),
+                    anchor.eventType(), anchor.description(), anchor.excitementScore(), selected.score()));
+            frameCursor = nextCursor;
         }
         return clips;
+    }
+
+    private ScoredFrame nearestFrame(List<ScoredFrame> orderedFrames, int insertionPoint, double timestamp) {
+        if (insertionPoint <= 0) return orderedFrames.getFirst();
+        if (insertionPoint >= orderedFrames.size()) return orderedFrames.getLast();
+        ScoredFrame before = orderedFrames.get(insertionPoint - 1);
+        ScoredFrame after = orderedFrames.get(insertionPoint);
+        return timestamp - before.frame().timestampSeconds() <= after.frame().timestampSeconds() - timestamp
+                ? before : after;
     }
 
     private int finalScore(FrameUnderstanding frame, List<HighlightHint> hints, FeatureContext features) {
@@ -187,9 +213,8 @@ public class RuleBasedHighlightSelector {
 
     private int keywordScore(String text) {
         if (text == null || text.isBlank()) return 0;
-        String value = text.toLowerCase();
-        return List.of("胜利", "失败", "击杀", "连杀", "得分", "boss", "victory", "defeat", "kill", "win")
-                .stream().anyMatch(value::contains) ? 100 : 25;
+        String value = text.toLowerCase(Locale.ROOT);
+        return HIGHLIGHT_KEYWORDS.stream().anyMatch(value::contains) ? 100 : 25;
     }
 
     private FeatureContext loadFeatures(Path visualAnalysisPath, String transcriptText) {
@@ -226,6 +251,7 @@ public class RuleBasedHighlightSelector {
 
     private record AudioWindow(double start, double end, int energy, boolean clipping) { }
     private record TranscriptWindow(double start, double end, String text) { }
+    private record ScoredFrame(FrameUnderstanding frame, int score) { }
     private record FeatureContext(List<AudioWindow> audioWindows, List<TranscriptWindow> transcriptWindows,
                                   String transcriptText) {
         int audioScore(double timestamp) {

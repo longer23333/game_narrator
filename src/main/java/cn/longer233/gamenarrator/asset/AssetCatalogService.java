@@ -29,6 +29,13 @@ import java.nio.file.StandardCopyOption;
 
 @Service
 public class AssetCatalogService {
+    private static final java.util.regex.Pattern MEME_PATTERN = java.util.regex.Pattern.compile(
+            "(^|\\W)(meme|reaction|sticker|emoji|emoticon|wojak|rage face|image macro)(\\W|$)");
+    private static final java.util.regex.Pattern URL_QUERY_FRAGMENT = java.util.regex.Pattern.compile("[?#].*$");
+    private static final java.util.regex.Pattern NON_ALPHANUMERIC = java.util.regex.Pattern.compile("[^\\p{L}\\p{N}]");
+    private static final java.util.regex.Pattern GREEN_SCREEN = java.util.regex.Pattern.compile(
+            "(?:green[ _-]?screen|chroma|greenscreen)|绿幕");
+    private static final java.util.regex.Pattern TAG_SEPARATOR = java.util.regex.Pattern.compile("[#，,;；]+");
     private static final Logger log = LoggerFactory.getLogger(AssetCatalogService.class);
     private static final long MAX_UPLOAD_BYTES = 500L * 1024 * 1024;
     private final JdbcTemplate jdbc;
@@ -190,15 +197,14 @@ public class AssetCatalogService {
         StringBuilder text = new StringBuilder(item.path("title").asText()).append(' ');
         item.path("tags").forEach(tag -> text.append(tag.isObject() ? tag.path("name").asText() : tag.asText()).append(' '));
         String value = text.toString().toLowerCase(Locale.ROOT);
-        return java.util.regex.Pattern.compile("(^|\\W)(meme|reaction|sticker|emoji|emoticon|wojak|rage face|image macro)(\\W|$)")
-                .matcher(value).find()
+        return MEME_PATTERN.matcher(value).find()
                 || value.contains("表情包") || value.contains("梗图") || value.contains("斗图") || value.contains("表情图");
     }
 
     private String assetDeduplicationKey(AssetView asset) {
-        String landing = asset.landingUrl() == null ? "" : asset.landingUrl().replaceFirst("[?#].*$", "").toLowerCase(Locale.ROOT);
+        String landing = asset.landingUrl() == null ? "" : URL_QUERY_FRAGMENT.matcher(asset.landingUrl()).replaceFirst("").toLowerCase(Locale.ROOT);
         if (!landing.isBlank()) return "url:" + landing;
-        String title = asset.title() == null ? "" : asset.title().replaceAll("[^\\p{L}\\p{N}]", "").toLowerCase(Locale.ROOT);
+        String title = asset.title() == null ? "" : NON_ALPHANUMERIC.matcher(asset.title()).replaceAll("").toLowerCase(Locale.ROOT);
         String creator = asset.creator() == null ? "" : asset.creator().strip().toLowerCase(Locale.ROOT);
         return "text:" + title + '|' + creator;
     }
@@ -514,7 +520,7 @@ public class AssetCatalogService {
             throw new IllegalStateException("保存本地素材失败：" + exception.getMessage(), exception);
         }
         boolean greenScreen = "VIDEO".equals(assetType)
-                && safeName.toLowerCase(Locale.ROOT).matches(".*(green[ _-]?screen|chroma|greenscreen).*|.*绿幕.*");
+                && GREEN_SCREEN.matcher(safeName.toLowerCase(Locale.ROOT)).find();
         Path stored = greenScreen ? createCutout(destination, directory) : destination;
         String metadata;
         try {
@@ -951,7 +957,7 @@ public class AssetCatalogService {
 
     private String normalize(String value) {
         if (value == null) return "";
-        String normalized = value.trim().toLowerCase(Locale.ROOT).replaceAll("[#，,;；]+", "");
+        String normalized = TAG_SEPARATOR.matcher(value.trim().toLowerCase(Locale.ROOT)).replaceAll("");
         return normalized.substring(0, Math.min(100, normalized.length()));
     }
 

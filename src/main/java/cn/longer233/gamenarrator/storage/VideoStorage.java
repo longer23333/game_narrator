@@ -9,6 +9,7 @@ import java.io.IOException;
 import java.nio.file.*;
 import java.util.Set;
 import java.util.UUID;
+import java.util.Locale;
 import cn.longer233.gamenarrator.common.SecurePathGuard;
 import jakarta.annotation.PostConstruct;
 
@@ -67,6 +68,6 @@ public class VideoStorage {
 
     private String extensionOf(String filename) {
         int dot = filename.lastIndexOf('.');
-        return dot < 0 ? "" : filename.substring(dot + 1).toLowerCase();
+        return dot < 0 ? "" : filename.substring(dot + 1).toLowerCase(Locale.ROOT);
     }
 }

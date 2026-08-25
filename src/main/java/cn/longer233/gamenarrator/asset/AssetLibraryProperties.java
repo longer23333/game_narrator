@@ -5,6 +5,7 @@ import org.springframework.stereotype.Component;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Locale;
 
 @Component
 @ConfigurationProperties(prefix = "game-narrator.asset-library")
@@ -70,7 +71,7 @@ public class AssetLibraryProperties {
         public void setAssetTypes(String assetTypes) { this.assetTypes = assetTypes; }
         public String getRegion() { return region; }
         public void setRegion(String region) {
-            this.region = region == null || region.isBlank() ? "DOMESTIC" : region.trim().toUpperCase();
+            this.region = region == null || region.isBlank() ? "DOMESTIC" : region.trim().toUpperCase(Locale.ROOT);
         }
         public int getPriority() { return priority; }
         public void setPriority(int priority) { this.priority = Math.max(0, priority); }

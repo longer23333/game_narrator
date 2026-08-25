@@ -10,10 +10,12 @@ import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.regex.Pattern;
 import java.time.Duration;
+import java.util.Locale;
 
 @Component
 public class AiAssetTagger {
     private static final Pattern HAN = Pattern.compile("[\\p{IsHan}]");
+    private static final Pattern TAG_PUNCTUATION = Pattern.compile("[#，,;；]");
     private final AdaptiveAiChatClient client;
     private final ObjectMapper objectMapper;
 
@@ -32,7 +34,7 @@ public class AiAssetTagger {
                     素材类型：%s
                     标题：%s
                     原始标签：%s
-                    """.formatted(assetType, title, String.join("、", sourceTags));
+                    """.formatted(assetType, title, String.join("、", sourceTags == null ? List.of() : sourceTags));
             JsonNode parsed = client.chatJson(prompt, List.of(), false, Duration.ofSeconds(20));
             List<String> tags = new ArrayList<>();
             parsed.path("tags").forEach(node -> {
@@ -96,7 +98,7 @@ public class AiAssetTagger {
 
     private String fallbackTitle(String title) {
         String value = title == null ? "未命名素材" : title.trim();
-        String lower = value.toLowerCase();
+        String lower = value.toLowerCase(Locale.ROOT);
         if (lower.contains("green screen")) return "绿幕视频素材";
         if (lower.contains("sound effect")) return "音效素材";
         if (lower.contains("background music")) return "背景音乐素材";
@@ -106,7 +108,7 @@ public class AiAssetTagger {
 
     private List<String> translateFallback(List<String> sourceTags) {
         LinkedHashSet<String> translated = new LinkedHashSet<>();
-        String text = String.join(" ", sourceTags == null ? List.of() : sourceTags).toLowerCase();
+        String text = String.join(" ", sourceTags == null ? List.of() : sourceTags).toLowerCase(Locale.ROOT);
         match(translated, text, "欢快", "happy", "upbeat", "cheerful");
         match(translated, text, "搞笑", "funny", "comedy", "reaction");
         match(translated, text, "背景音乐", "background", "music");
@@ -125,7 +127,8 @@ public class AiAssetTagger {
     }
 
     private List<String> fallback(String title, List<String> sourceTags) {
-        String text = (title + " " + String.join(" ", sourceTags)).toLowerCase();
+        String text = (String.valueOf(title) + " " + String.join(" ", sourceTags == null ? List.of() : sourceTags))
+                .toLowerCase(Locale.ROOT);
         LinkedHashSet<String> result = new LinkedHashSet<>();
         match(result, text, "冲击", "impact", "hit", "boom", "explosion");
         match(result, text, "转场", "whoosh", "swoosh", "transition");
@@ -147,7 +150,7 @@ public class AiAssetTagger {
     }
 
     private String normalize(String value) {
-        return value.trim().replaceAll("[#，,;；]", "").substring(0, Math.min(100,
-                value.trim().replaceAll("[#，,;；]", "").length()));
+        String normalized = TAG_PUNCTUATION.matcher(value == null ? "" : value.trim()).replaceAll("");
+        return normalized.substring(0, Math.min(100, normalized.length()));
     }
 }

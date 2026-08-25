@@ -14,11 +14,23 @@ import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.regex.Pattern;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 @Service
 public class ReleaseReadinessService {
+    private static final Pattern VERSION_PATTERN = Pattern.compile(
+            "<artifactId>game-narrator</artifactId>\\s*<version>(\\d+\\.\\d+\\.\\d+)</version>");
+    private static final Pattern CI_RUN_URL_PATTERN = Pattern.compile("https://github\\.com/.+/actions/runs/\\d+");
+    private static final Pattern COMMIT_PATTERN = Pattern.compile("[0-9a-f]{40}");
+    private static final Pattern HEAD_COMMIT_PATTERN = Pattern.compile("[0-9a-fA-F]{40}");
+    private static final List<String> CI_GATES = List.of("migrationBaseline", "documentation", "frontend", "android",
+            "androidEmulator", "backend", "postgresqlIntegration", "performanceBaseline", "longVideoPerformance");
+    private static final Map<String, String> PERFORMANCE_VALIDATIONS = Map.of("input40gb", "exact-sparse-length",
+            "diskLow", "synthetic-low-space-rejection", "gpuOom", "real-cuda-oom-and-post-oom-calculation",
+            "ffmpegInterrupted", "forced-nonzero-process-exit", "longRun", "real-ffmpeg-soak-minimum-duration",
+            "recovery", "real-nine-stage-corruption-recovery");
     public record Check(String id,String label,String status,String summary,String evidenceAt) { }
     public record Report(String overall,String generatedAt,List<Check> checks) { }
     private final SystemDiagnosticsService diagnostics;
@@ -55,8 +67,14 @@ public class ReleaseReadinessService {
         checks.add(evidenceCheck("android","Android 验收","artifacts/android-upgrade-2.2.4-current.json",this::validAndroidEvidence));
         checks.add(evidenceCheck("ci","CI 最近结果","artifacts/ci-release-result.json",this::validCiEvidence));
         checks.add(evidenceCheck("performance","专项性能","artifacts/release-performance-gate.json",this::validPerformanceEvidence));
-        String overall=checks.stream().anyMatch(c->"RED".equals(c.status()))?"RED":
-                checks.stream().anyMatch(c->"YELLOW".equals(c.status()))?"YELLOW":"GREEN";
+        String overall = "GREEN";
+        for (Check check : checks) {
+            if ("RED".equals(check.status())) {
+                overall = "RED";
+                break;
+            }
+            if ("YELLOW".equals(check.status())) overall = "YELLOW";
+        }
         return new Report(overall,now(),List.copyOf(checks));
     }
 
@@ -80,13 +98,13 @@ public class ReleaseReadinessService {
         catch(Exception error){return new Check(id,label,"YELLOW","证据时间不可读","");}
     }
     private boolean validAndroidEvidence(JsonNode e){String target=e.path("toVersion").asText("");return "2.2.4".equals(e.path("fromVersion").asText())&&target.equals(currentVersion())&&validCompletedAt(e)&&e.path("apkUpgrade").asBoolean()&&e.path("databaseIntegrity").asBoolean()&&e.path("projectIntegrity").asBoolean()&&e.path("mediaIntegrity").asBoolean()&&!e.path("device").path("serial").asText("").isBlank();}
-    private boolean validCiEvidence(JsonNode e){if(e.path("schemaVersion").asInt()!=2||!"passed".equalsIgnoreCase(e.path("status").asText())||!sameCurrentCommit(e.path("commit").asText(""))||!e.path("runUrl").asText("").matches("https://github\\.com/.+/actions/runs/\\d+")||!validCompletedAt(e))return false;for(String gate:List.of("migrationBaseline","documentation","frontend","android","androidEmulator","backend","postgresqlIntegration","performanceBaseline","longVideoPerformance"))if(!"passed".equals(e.path("gates").path(gate).asText()))return false;return true;}
-    private boolean validPerformanceEvidence(JsonNode e){if(e.path("schemaVersion").asInt()!=3||e.path("minimumLongRunMinutes").asInt()<60||e.path("runnerSha256").asText("").isBlank()||!sameCurrentCommit(e.path("commit").asText(""))||!validCompletedAt(e))return false;Map<String,String> validations=Map.of("input40gb","exact-sparse-length","diskLow","synthetic-low-space-rejection","gpuOom","real-cuda-oom-and-post-oom-calculation","ffmpegInterrupted","forced-nonzero-process-exit","longRun","real-ffmpeg-soak-minimum-duration","recovery","real-nine-stage-corruption-recovery");for(var entry:validations.entrySet()){JsonNode result=e.path("scenarios").path(entry.getKey());if(!"passed".equals(result.path("status").asText())||!entry.getValue().equals(result.path("validation").asText())||result.path("reportFile").asText("").isBlank()||result.path("reportSha256").asText("").isBlank())return false;}return e.path("scenarios").path("longRun").path("elapsedSeconds").asDouble()>=3600&&!e.path("machine").path("gpu").asText("").isBlank()&&!e.path("machine").path("os").asText("").isBlank();}
+    private boolean validCiEvidence(JsonNode e){if(e.path("schemaVersion").asInt()!=2||!"passed".equalsIgnoreCase(e.path("status").asText())||!sameCurrentCommit(e.path("commit").asText(""))||!CI_RUN_URL_PATTERN.matcher(e.path("runUrl").asText("")).matches()||!validCompletedAt(e))return false;for(String gate:CI_GATES)if(!"passed".equals(e.path("gates").path(gate).asText()))return false;return true;}
+    private boolean validPerformanceEvidence(JsonNode e){if(e.path("schemaVersion").asInt()!=3||e.path("minimumLongRunMinutes").asInt()<60||e.path("runnerSha256").asText("").isBlank()||!sameCurrentCommit(e.path("commit").asText(""))||!validCompletedAt(e))return false;for(var entry:PERFORMANCE_VALIDATIONS.entrySet()){JsonNode result=e.path("scenarios").path(entry.getKey());if(!"passed".equals(result.path("status").asText())||!entry.getValue().equals(result.path("validation").asText())||result.path("reportFile").asText("").isBlank()||result.path("reportSha256").asText("").isBlank())return false;}return e.path("scenarios").path("longRun").path("elapsedSeconds").asDouble()>=3600&&!e.path("machine").path("gpu").asText("").isBlank()&&!e.path("machine").path("os").asText("").isBlank();}
     private boolean validCompletedAt(JsonNode evidence){try{Instant completed=parseInstant(evidence.path("completedAt").asText(""));return !completed.isAfter(Instant.now().plusSeconds(300));}catch(RuntimeException ignored){return false;}}
     private Instant parseInstant(String value){if(value==null||value.isBlank())throw new DateTimeParseException("blank",String.valueOf(value),0);return Instant.parse(value);}
-    private boolean sameCurrentCommit(String evidenceCommit){String current=currentCommit();return current!=null&&evidenceCommit.matches("[0-9a-f]{40}")&&current.equalsIgnoreCase(evidenceCommit);}
-    private String currentVersion(){try{String pom=Files.readString(projectRoot.resolve("pom.xml"));var match=java.util.regex.Pattern.compile("<artifactId>game-narrator</artifactId>\\s*<version>(\\d+\\.\\d+\\.\\d+)</version>").matcher(pom);return match.find()?match.group(1):null;}catch(Exception ignored){return null;}}
-    private String currentCommit(){try{Path git=projectRoot.resolve(".git");String head=Files.readString(git.resolve("HEAD")).strip();if(head.matches("[0-9a-fA-F]{40}"))return head.toLowerCase(java.util.Locale.ROOT);if(head.startsWith("ref: ")){String ref=head.substring(5).strip();Path refPath=git.resolve(ref).normalize();if(refPath.startsWith(git)&&Files.isRegularFile(refPath))return Files.readString(refPath).strip().toLowerCase(java.util.Locale.ROOT);Path packed=git.resolve("packed-refs");if(Files.isRegularFile(packed))for(String line:Files.readAllLines(packed))if(line.endsWith(" "+ref))return line.substring(0,40).toLowerCase(java.util.Locale.ROOT);}}catch(Exception ignored){}return null;}
+    private boolean sameCurrentCommit(String evidenceCommit){String current=currentCommit();return current!=null&&COMMIT_PATTERN.matcher(evidenceCommit).matches()&&current.equalsIgnoreCase(evidenceCommit);}
+    private String currentVersion(){try{String pom=Files.readString(projectRoot.resolve("pom.xml"));var match=VERSION_PATTERN.matcher(pom);return match.find()?match.group(1):null;}catch(Exception ignored){return null;}}
+    private String currentCommit(){try{Path git=projectRoot.resolve(".git");String head=Files.readString(git.resolve("HEAD")).strip();if(HEAD_COMMIT_PATTERN.matcher(head).matches())return head.toLowerCase(java.util.Locale.ROOT);if(head.startsWith("ref: ")){String ref=head.substring(5).strip();Path refPath=git.resolve(ref).normalize();if(refPath.startsWith(git)&&Files.isRegularFile(refPath))return Files.readString(refPath).strip().toLowerCase(java.util.Locale.ROOT);Path packed=git.resolve("packed-refs");if(Files.isRegularFile(packed))for(String line:Files.readAllLines(packed))if(line.endsWith(" "+ref))return line.substring(0,40).toLowerCase(java.util.Locale.ROOT);}}catch(Exception ignored){}return null;}
     private Check booleanCheck(String id,String label,Object value,String component){return new Check(id,label,Boolean.TRUE.equals(value)?"GREEN":"RED",component+(Boolean.TRUE.equals(value)?"可用":"不可用"),now());}
     private String gpuStatus(Map<String,Object> runtime){
         Object available=runtime.get("gpuAvailable");

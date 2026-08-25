@@ -8,6 +8,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.util.List;
+import java.util.Locale;
 
 @RestController
 @RequestMapping("/api/effect-presets")
@@ -33,7 +34,7 @@ public class EffectController {
         EffectPreset template = catalog.require(code);
         return org.springframework.http.ResponseEntity.ok()
                 .header(org.springframework.http.HttpHeaders.CONTENT_DISPOSITION,
-                        "attachment; filename=style-template-" + template.code().toLowerCase() + ".json")
+                        "attachment; filename=style-template-" + template.code().toLowerCase(Locale.ROOT) + ".json")
                 .body(template);
     }
 }

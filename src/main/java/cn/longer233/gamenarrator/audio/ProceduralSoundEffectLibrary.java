@@ -13,6 +13,7 @@ import javax.sound.sampled.AudioSystem;
 import java.io.ByteArrayInputStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.util.Locale;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
@@ -32,7 +33,7 @@ public class ProceduralSoundEffectLibrary {
                 EffectPlan plan = plans.get(index);
                 String type = select(plan);
                 if (type == null) continue;
-                Path output = directory.resolve("%02d-%s.wav".formatted(segment.sequence(), type.toLowerCase()));
+                Path output = directory.resolve("%02d-%s.wav".formatted(segment.sequence(), type.toLowerCase(Locale.ROOT)));
                 write(output, samples(type));
                 cues.add(new SoundCue(segment.sequence(), segment.outputStartSeconds(), type,
                         output.toString(), volume(type)));

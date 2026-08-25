@@ -16,6 +16,8 @@ import java.util.*;
 public class StoryboardAssetPlacementService {
     private static final int MAX_AUTOMATIC_VISUALS = 8;
     private static final int MAX_AUTOMATIC_SOUND_EFFECTS = 4;
+    private static final java.util.regex.Pattern CLIP_NUMBER_PATTERN =
+            java.util.regex.Pattern.compile("第?\\s*(\\d+)\\s*(?:个|镜|分镜)");
     private final JdbcTemplate jdbc;
     private final VideoTaskRepository tasks;
     private final AssetCatalogService assets;
@@ -121,12 +123,18 @@ public class StoryboardAssetPlacementService {
         boolean bgmAssigned = existing.stream().anyMatch(item -> "BACKGROUND_AUDIO".equals(item.placementType()));
         int visualCount = (int) existing.stream().filter(item -> !isAudioPlacement(item)).count();
         int soundEffectCount = (int) existing.stream().filter(item -> "SOUND_EFFECT".equals(item.placementType())).count();
+        Set<Integer> visualClipIndexes = new HashSet<>();
+        Set<Integer> soundEffectClipIndexes = new HashSet<>();
+        for (StoryboardAssetPlacementView placement : existing) {
+            if (isAudioPlacement(placement)) {
+                if ("SOUND_EFFECT".equals(placement.placementType())) soundEffectClipIndexes.add(placement.clipIndex());
+            } else visualClipIndexes.add(placement.clipIndex());
+        }
         for (StoryboardSegmentView segment : board.segments()) {
             String query = String.join(" ", Objects.toString(segment.eventType(), ""),
                     Objects.toString(segment.description(), ""), Objects.toString(segment.effectCue(), ""),
                     Objects.toString(segment.subtitle(), ""));
-            boolean hasVisual = existing.stream().anyMatch(item -> item.clipIndex() == segment.clipIndex()
-                    && !isAudioPlacement(item));
+            boolean hasVisual = visualClipIndexes.contains(segment.clipIndex());
             AssetView visual = hasVisual || visualCount >= MAX_AUTOMATIC_VISUALS ? null
                     : findOrDownload(query, List.of("VIDEO", "MEME"), used, warnings);
             if (visual != null) {
@@ -134,15 +142,16 @@ public class StoryboardAssetPlacementService {
                         "自动匹配分镜；视频自动按镜头时长剪切，图片自动循环并裁切适配；透明或绿幕素材自动抠图", false));
                 used.add(visual.id());
                 visualCount++;
+                visualClipIndexes.add(segment.clipIndex());
             }
-            boolean hasSfx = existing.stream().anyMatch(item -> item.clipIndex() == segment.clipIndex()
-                    && "SOUND_EFFECT".equals(item.placementType()));
+            boolean hasSfx = soundEffectClipIndexes.contains(segment.clipIndex());
             if (!hasSfx && soundEffectCount < MAX_AUTOMATIC_SOUND_EFFECTS && segment.finalScore() >= 65) {
                 AssetView sfx = findOrDownload(query + " 音效", List.of("SFX"), used, warnings);
                 if (sfx != null) {
                     place(taskId, segment.clipIndex(), new PlaceStoryboardAssetRequest(sfx.id(), "关键事件自动音效", false));
                     used.add(sfx.id());
                     soundEffectCount++;
+                    soundEffectClipIndexes.add(segment.clipIndex());
                 }
             }
             if (!bgmAssigned) {
@@ -194,10 +203,11 @@ public class StoryboardAssetPlacementService {
     }
 
     private int suitability(AssetView asset, String query) {
-        String haystack = (Objects.toString(asset.title(), "") + " "
-                + Objects.toString(asset.localizedTitle(), "") + " "
-                + asset.tags().stream().map(AssetView.TagView::name).reduce("", (a, b) -> a + " " + b))
-                .toLowerCase(Locale.ROOT);
+        StringBuilder haystackBuilder = new StringBuilder()
+                .append(Objects.toString(asset.title(), "")).append(' ')
+                .append(Objects.toString(asset.localizedTitle(), ""));
+        for (AssetView.TagView tag : asset.tags()) haystackBuilder.append(' ').append(tag.name());
+        String haystack = haystackBuilder.toString().toLowerCase(Locale.ROOT);
         return Arrays.stream(Objects.toString(query, "").toLowerCase(Locale.ROOT).split("\\s+"))
                 .filter(word -> word.length() >= 2 && haystack.contains(word))
                 .mapToInt(String::length).sum();
@@ -222,22 +232,22 @@ public class StoryboardAssetPlacementService {
     }
 
     private int chooseClip(StoryboardView board, AssetView asset, int fallback, String instruction) {
-        java.util.regex.Matcher number = java.util.regex.Pattern.compile("第?\\s*(\\d+)\\s*(?:个|镜|分镜)").matcher(instruction);
+        java.util.regex.Matcher number = CLIP_NUMBER_PATTERN.matcher(instruction);
         if (number.find()) return Integer.parseInt(number.group(1));
-        Set<String> words = new LinkedHashSet<>();
+        List<String> words = new ArrayList<>();
         words.add(asset.title());
         asset.tags().forEach(tag -> words.add(tag.name()));
+        List<String> normalizedWords = words.stream().filter(Objects::nonNull)
+                .map(value -> value.toLowerCase(Locale.ROOT)).filter(value -> !value.isBlank()).distinct().toList();
         return board.segments().stream().max(Comparator.comparingInt(segment -> {
-            String text = (segment.narration() + " " + segment.subtitle() + " " + segment.description() + " " + segment.eventType()).toLowerCase();
-            return words.stream().filter(Objects::nonNull).map(String::toLowerCase)
-                    .mapToInt(word -> !word.isBlank() && text.contains(word) ? word.length() : 0).sum();
-        })).filter(best -> score(best, words) > 0).map(StoryboardSegmentView::clipIndex).orElse(fallback);
+            return score(segment, normalizedWords);
+        })).filter(best -> score(best, normalizedWords) > 0).map(StoryboardSegmentView::clipIndex).orElse(fallback);
     }
 
-    private int score(StoryboardSegmentView segment, Set<String> words) {
-        String text = (segment.narration() + segment.subtitle() + segment.description() + segment.eventType()).toLowerCase();
-        return words.stream().filter(Objects::nonNull).map(String::toLowerCase)
-                .mapToInt(word -> !word.isBlank() && text.contains(word) ? word.length() : 0).sum();
+    private int score(StoryboardSegmentView segment, List<String> words) {
+        String text = (segment.narration() + segment.subtitle()
+                + segment.description() + segment.eventType()).toLowerCase(Locale.ROOT);
+        return words.stream().mapToInt(word -> text.contains(word) ? word.length() : 0).sum();
     }
 
     private String inferPosition(String text, String type) {

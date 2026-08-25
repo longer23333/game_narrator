@@ -15,6 +15,9 @@ import java.util.regex.Pattern;
 public class PlatformAssetMetadataResolver {
     private static final Logger log = LoggerFactory.getLogger(PlatformAssetMetadataResolver.class);
     private static final Pattern BILIBILI_VIDEO = Pattern.compile("(?i)/video/(BV[0-9A-Za-z]+)");
+    private static final Pattern WHITESPACE = Pattern.compile("\\s+");
+    private static final Pattern BILIBILI_WATCH_LATER = Pattern.compile("(?i)^(?:添加至)?稍后再看.*");
+    private static final Pattern BILIBILI_METRICS = Pattern.compile("^[\\d.]+(?:万|亿)?\\s*[\\d.]+(?:万|亿)?\\s*\\d{1,2}:\\d{2}$");
     private final BilibiliAssetClient bilibili;
 
     public PlatformAssetMetadataResolver(BilibiliAssetClient bilibili) {
@@ -46,10 +49,10 @@ public class PlatformAssetMetadataResolver {
     }
 
     static String cleanReferenceTitle(String provider, String rawTitle, String sourceUrl) {
-        String title = rawTitle == null ? "" : rawTitle.replaceAll("\\s+", " ").trim();
+        String title = rawTitle == null ? "" : WHITESPACE.matcher(rawTitle).replaceAll(" ").trim();
         if (!"BILIBILI".equals(provider)) return title;
-        boolean interfaceText = title.matches("(?i)^(?:添加至)?稍后再看.*")
-                || title.matches("^[\\d.]+(?:万|亿)?\\s*[\\d.]+(?:万|亿)?\\s*\\d{1,2}:\\d{2}$");
+        boolean interfaceText = BILIBILI_WATCH_LATER.matcher(title).matches()
+                || BILIBILI_METRICS.matcher(title).matches();
         if (!interfaceText) return title;
         String bvid = extractBvid(sourceUrl);
         return bvid == null ? "Bilibili 视频候选素材" : "Bilibili 视频 " + bvid;

@@ -16,9 +16,11 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
+import java.util.regex.Pattern;
 
 @Component
 public class CloudAiChatBackend implements AiChatBackend {
+    private static final Pattern TRAILING_SLASHES = Pattern.compile("/+$");
     private final ObjectMapper mapper;
     private final AiUsageService usage;
     private final HttpClient http = HttpClient.newBuilder().connectTimeout(Duration.ofSeconds(8)).build();
@@ -85,7 +87,7 @@ public class CloudAiChatBackend implements AiChatBackend {
                 Map.of("type", "base64", "media_type", "image/jpeg", "data", image))));
         byte[] body = mapper.writeValueAsBytes(Map.of("model", model, "max_tokens", 4096,
                 "messages", List.of(Map.of("role", "user", "content", content))));
-        String endpoint = value.baseUrl().replaceAll("/+$", "");
+        String endpoint = trimTrailingSlashes(value.baseUrl());
         if (!endpoint.endsWith("/messages")) endpoint += "/messages";
         var request = HttpRequest.newBuilder(URI.create(endpoint)).timeout(timeout)
                 .header("x-api-key", value.apiKey()).header("anthropic-version", "2023-06-01")
@@ -106,7 +108,7 @@ public class CloudAiChatBackend implements AiChatBackend {
         images.forEach(image -> parts.add(Map.of("inlineData", Map.of("mimeType", "image/jpeg", "data", image))));
         byte[] body = mapper.writeValueAsBytes(Map.of("contents", List.of(Map.of("role", "user", "parts", parts)),
                 "generationConfig", Map.of("responseMimeType", "application/json")));
-        String endpoint = value.baseUrl().replaceAll("/+$", "") + "/models/"
+        String endpoint = trimTrailingSlashes(value.baseUrl()) + "/models/"
                 + URLEncoder.encode(model, StandardCharsets.UTF_8) + ":generateContent";
         var request = HttpRequest.newBuilder(URI.create(endpoint)).timeout(timeout)
                 .header("x-goog-api-key", value.apiKey()).header("Content-Type", "application/json")
@@ -137,8 +139,12 @@ public class CloudAiChatBackend implements AiChatBackend {
         String value = baseUrl.trim();
         if (value.contains("/chat/completions")) return value;
         int query = value.indexOf('?');
-        if (query < 0) return value.replaceAll("/+$", "") + "/chat/completions";
-        return value.substring(0, query).replaceAll("/+$", "") + "/chat/completions" + value.substring(query);
+        if (query < 0) return trimTrailingSlashes(value) + "/chat/completions";
+        return trimTrailingSlashes(value.substring(0, query)) + "/chat/completions" + value.substring(query);
+    }
+
+    private String trimTrailingSlashes(String value) {
+        return TRAILING_SLASHES.matcher(value).replaceFirst("");
     }
 
     private IllegalStateException providerError(String provider, int status, JsonNode root) {

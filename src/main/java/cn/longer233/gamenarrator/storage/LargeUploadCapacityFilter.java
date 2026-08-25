@@ -13,6 +13,7 @@ import org.springframework.web.filter.OncePerRequestFilter;
 
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
+import java.util.Locale;
 
 @Component
 @Order(Ordered.HIGHEST_PRECEDENCE + 20)
@@ -23,7 +24,7 @@ public class LargeUploadCapacityFilter extends OncePerRequestFilter {
     @Override protected boolean shouldNotFilter(HttpServletRequest request) {
         String type = request.getContentType();
         return !"POST".equalsIgnoreCase(request.getMethod()) || !"/api/tasks".equals(request.getRequestURI())
-                || type == null || !type.toLowerCase().startsWith("multipart/form-data");
+                || type == null || !type.toLowerCase(Locale.ROOT).startsWith("multipart/form-data");
     }
 
     @Override protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response,

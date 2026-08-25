@@ -23,12 +23,15 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.LinkedHashSet;
 import java.util.Locale;
+import java.util.NavigableSet;
+import java.util.TreeSet;
 
 @Component
 public class FfmpegMediaPreprocessor {
 
     private static final Logger log = LoggerFactory.getLogger(FfmpegMediaPreprocessor.class);
     private static final Pattern PTS_TIME = Pattern.compile("pts_time:([0-9]+(?:\\.[0-9]+)?)");
+    private static final Pattern SCENE_IMAGE = Pattern.compile("(?:scene|event)-.*\\.(?:jpg|png)");
     private final String ffmpegCommand;
     private final Path storageRoot;
     private final ObjectMapper objectMapper;
@@ -114,12 +117,21 @@ public class FfmpegMediaPreprocessor {
             log.warn("EVENT_AUDIO_ANCHORS_SKIPPED reason={}", exception.getMessage());
         }
         List<SceneFrame> result = new ArrayList<>(scenes);
-        int nextIndex = scenes.stream().mapToInt(SceneFrame::index).max().orElse(0) + 1;
+        NavigableSet<Double> sampledTimestamps = new TreeSet<>();
+        int maximumIndex = 0;
+        for (SceneFrame scene : scenes) {
+            sampledTimestamps.add(scene.timestampSeconds());
+            maximumIndex = Math.max(maximumIndex, scene.index());
+        }
+        int nextIndex = maximumIndex + 1;
         int anchorIndex = 0;
-        for (EventAnchor anchor : anchors.stream().limit(maximumEventWindows).toList()) {
-            for (double offset : eventOffsets()) {
+        double[] offsets = eventOffsets();
+        int processedAnchors = 0;
+        for (EventAnchor anchor : anchors) {
+            if (processedAnchors++ >= maximumEventWindows) break;
+            for (double offset : offsets) {
                 double timestamp = Math.max(0, anchor.seconds() + offset);
-                if (result.stream().anyMatch(frame -> Math.abs(frame.timestampSeconds() - timestamp) < .08)) continue;
+                if (containsNearby(sampledTimestamps, timestamp, .08)) continue;
                 Path output = sceneDirectory.resolve(String.format(Locale.ROOT, "event-%04d-%s.jpg", ++anchorIndex,
                         offset < 0 ? "pre" : offset > 0 ? "post" : "center"));
                 run(List.of(ffmpegCommand, "-nostdin", "-y", "-hide_banner", "-loglevel", "warning",
@@ -128,6 +140,7 @@ public class FfmpegMediaPreprocessor {
                         "-c:v", "mjpeg", "-q:v", "5", "-strict", "unofficial", "-threads:v", "1", "-update", "1", output.toString()),
                         Duration.ofMinutes(2), "event frame extraction");
                 result.add(new SceneFrame(nextIndex++, timestamp, output.toString(), anchor.reason(), anchor.seconds()));
+                sampledTimestamps.add(timestamp);
             }
         }
         result.sort(Comparator.comparingDouble(SceneFrame::timestampSeconds));
@@ -143,9 +156,19 @@ public class FfmpegMediaPreprocessor {
     }
 
     private void addAnchor(LinkedHashSet<EventAnchor> anchors, EventAnchor candidate) {
-        if (anchors.stream().noneMatch(value -> Math.abs(value.seconds() - candidate.seconds()) < 1.0)) {
-            anchors.add(candidate);
+        for (EventAnchor existing : anchors) {
+            if (Math.abs(existing.seconds() - candidate.seconds()) < 1.0) {
+                return;
+            }
         }
+        anchors.add(candidate);
+    }
+
+    private boolean containsNearby(NavigableSet<Double> timestamps, double timestamp, double tolerance) {
+        Double floor = timestamps.floor(timestamp);
+        Double ceiling = timestamps.ceiling(timestamp);
+        return (floor != null && timestamp - floor < tolerance)
+                || (ceiling != null && ceiling - timestamp < tolerance);
     }
 
     private void extractAudio(Path sourceVideo, Path outputPath) {
@@ -207,8 +230,11 @@ public class FfmpegMediaPreprocessor {
 
     private void clearSceneImages(Path sceneDirectory) {
         try (var paths = Files.list(sceneDirectory)) {
-            for (Path path : paths.filter(item -> item.getFileName().toString().matches("(?:scene|event)-.*\\.(?:jpg|png)"))
-                    .toList()) Files.deleteIfExists(path);
+            var iterator = paths.iterator();
+            while (iterator.hasNext()) {
+                Path path = iterator.next();
+                if (SCENE_IMAGE.matcher(path.getFileName().toString()).matches()) Files.deleteIfExists(path);
+            }
         } catch (IOException exception) {
             throw new IllegalStateException("无法清理旧镜头缓存：" + exception.getMessage(), exception);
         }

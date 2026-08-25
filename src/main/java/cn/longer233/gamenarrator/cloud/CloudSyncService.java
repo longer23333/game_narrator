@@ -16,6 +16,7 @@ import java.time.ZoneOffset;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
+import java.util.Locale;
 
 @Service
 public class CloudSyncService {
@@ -42,7 +43,7 @@ public class CloudSyncService {
         if (userId == null || localId == null || localPath == null) return;
         Path normalized = localPath.toAbsolutePath().normalize();
         if (!normalized.startsWith(storageRoot)) return;
-        String objectKey = userId + "/" + itemType.toLowerCase() + "/" + localId + "/" + normalized.getFileName();
+        String objectKey = userId + "/" + itemType.toLowerCase(Locale.ROOT) + "/" + localId + "/" + normalized.getFileName();
         int changed = jdbc.update("""
                 UPDATE cloud_sync_item SET local_path=?,object_key=?,content_sha256=?,size_bytes=?,sync_status='PENDING',
                 attempt_count=0,last_error=NULL,updated_at=?,next_attempt_at=NULL WHERE user_id=? AND item_type=? AND local_id=?

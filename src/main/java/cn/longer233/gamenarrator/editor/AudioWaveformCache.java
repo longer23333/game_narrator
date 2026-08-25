@@ -69,15 +69,16 @@ public class AudioWaveformCache {
     private void trim() {
         while (entries.size() > maximumEntries) {
             var iterator = entries.entrySet().iterator();
+            boolean removed = false;
             while (iterator.hasNext()) {
                 var candidate = iterator.next();
                 if (candidate.getValue().isDone()) {
                     iterator.remove();
+                    removed = true;
                     break;
                 }
             }
-            if (entries.size() > maximumEntries
-                    && entries.values().stream().noneMatch(CompletableFuture::isDone)) return;
+            if (!removed) return;
         }
     }
 

@@ -73,8 +73,12 @@ public class AudioAnalysisService {
                 }
             });
             if (result.exitCode() != 0) throw new IllegalStateException("FFmpeg exit " + result.exitCode());
-            List<Map<String, Object>> peaks = windows.stream().filter(item -> Boolean.TRUE.equals(item.get("peak"))).toList();
-            List<Map<String, Object>> clipping = windows.stream().filter(item -> Boolean.TRUE.equals(item.get("clipping"))).toList();
+            List<Map<String, Object>> peaks = new ArrayList<>();
+            List<Map<String, Object>> clipping = new ArrayList<>();
+            for (Map<String, Object> window : windows) {
+                if (Boolean.TRUE.equals(window.get("peak"))) peaks.add(window);
+                if (Boolean.TRUE.equals(window.get("clipping"))) clipping.add(window);
+            }
             AtomicArtifactWriter.writeJson(mapper, output, Map.of("schemaVersion", 1, "windowSeconds", 1,
                     "windows", windows, "silenceIntervals", silence, "peakIntervals", peaks,
                     "clippingIntervals", clipping));
