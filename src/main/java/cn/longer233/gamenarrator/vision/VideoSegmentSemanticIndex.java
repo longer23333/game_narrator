@@ -233,6 +233,7 @@ public class VideoSegmentSemanticIndex {
 
     static List<VideoSegmentSearchResult> diversify(List<VideoSegmentSearchResult> ordered, int limit) {
         List<VideoSegmentSearchResult> selected = new ArrayList<>();
+        Set<VideoSegmentSearchResult> selectedSet = new HashSet<>();
         Map<UUID, List<Double>> selectedTimes = new HashMap<>();
         for (VideoSegmentSearchResult candidate : ordered) {
             List<Double> taskTimes = selectedTimes.get(candidate.taskId());
@@ -245,13 +246,16 @@ public class VideoSegmentSemanticIndex {
                     }
                 }
             }
-            if (!nearDuplicate) selected.add(candidate);
+            if (!nearDuplicate) {
+                selected.add(candidate);
+                selectedSet.add(candidate);
+            }
             if (!nearDuplicate) selectedTimes.computeIfAbsent(candidate.taskId(), ignored -> new ArrayList<>())
                     .add(candidate.timestampSeconds());
             if (selected.size() == limit) return selected;
         }
         if (selected.size() < limit) for (VideoSegmentSearchResult candidate : ordered) {
-            if (!selected.contains(candidate)) selected.add(candidate);
+            if (selectedSet.add(candidate)) selected.add(candidate);
             if (selected.size() == limit) break;
         }
         return List.copyOf(selected);
