@@ -1181,7 +1181,7 @@ function renderCommunityEcosystem(taskId, packs, resources, variants, report) {
   const resourceCards = (resources || []).map(item => `<article><header><b>${escapeHtml(item.name)}</b><span>${escapeHtml(item.resourceType === 'KNOWLEDGE_PACK' ? '知识包' : '剪辑风格')}</span></header><p>${escapeHtml(item.description)}</p><small>${escapeHtml(item.authorName)} · ${escapeHtml(item.licenseCode)} · 安装 ${item.installCount}</small><footer><button type="button" data-community-install="${item.id}">安装</button><a href="/api/community/resources/${item.id}/export">导出</a></footer></article>`).join('');
   const variantCards = (variants || []).map(item => `<article><header><b>${escapeHtml(item.name)}</b><span>${escapeHtml(item.status)}</span></header><p>${escapeHtml(item.strategy.narrativeFocus)}</p><small>目标 ${item.strategy.targetDurationSeconds} 秒 · 节奏 ×${Number(item.strategy.paceMultiplier).toFixed(2)} · 复用源录像</small><footer>${item.generatedTaskId ? `<button type="button" data-open-task="${item.generatedTaskId}">查看成片任务</button>` : `<button type="button" data-community-materialize="${item.id}">创建独立成片任务</button>`}</footer></article>`).join('');
   return `<section class="community-ecosystem" data-community-task="${taskId}">
-    <header><div><small>COMMUNITY ECOSYSTEM</small><h3>创作者社区与多版本工作台</h3><p>分享知识包和剪辑规则；同一段录像规划剧情版、攻略版、搞笑版和复盘版。</p></div><div><button type="button" data-storyboard-action="variants-generate" data-task-id="${taskId}">${variants?.length ? '重新生成四版策略' : '生成四种版本'}</button><button type="button" data-storyboard-action="decision-report" data-task-id="${taskId}">生成决策报告</button><a href="/api/tasks/${taskId}/decision-report/export">导出 Markdown</a></div></header>
+    <header><div><small>COMMUNITY ECOSYSTEM</small><h3>创作者社区与多版本工作台</h3><p>分享知识包和剪辑规则；同一段录像规划剧情版、攻略版、搞笑版和复盘版。</p></div><div><button type="button" data-storyboard-action="variants-generate" data-task-id="${taskId}">${variants?.length ? '重新生成四版策略' : '生成四种版本'}</button><button type="button" data-storyboard-action="creative-assistant" data-task-id="${taskId}">按需求生成方案</button><button type="button" data-storyboard-action="decision-report" data-task-id="${taskId}">生成决策报告</button><a href="/api/tasks/${taskId}/decision-report/export">导出 Markdown</a></div></header>
     <div class="community-publish"><strong>发布到本地社区</strong>${packs.map(pack => `<button type="button" data-community-publish-pack="${escapeHtml(pack.code)}">分享 ${escapeHtml(pack.name)}</button>`).join('')}<button type="button" data-community-publish-style="HUMOROUS">分享搞笑剪辑规则</button></div>
     <div class="creative-variant-grid">${variantCards || '<p class="empty">尚未生成多版本方案。</p>'}</div>
     <details><summary>社区资源 ${resources?.length || 0} 项</summary><div class="community-resource-grid">${resourceCards || '<p class="empty">尚未分享资源，可先发布当前知识包或剪辑风格。</p>'}</div></details>
@@ -1694,6 +1694,14 @@ async function handleStoryboardAction(button) {
     }
     if (button.dataset.storyboardAction === 'variants-generate') {
       await requestJson(`/api/tasks/${taskId}/variants/generate`, {method:'POST'});
+      await loadStoryboardEditor(taskId);
+      return;
+    }
+    if (button.dataset.storyboardAction === 'creative-assistant') {
+      const brief = prompt('请描述你想要的视频：主题、风格、重点事件或目标时长');
+      if (!brief || !brief.trim()) { button.disabled = false; return; }
+      button.textContent = '正在生成创意方案…';
+      await requestJson(`/api/tasks/${taskId}/variants/assistant`, {method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify({brief:brief.trim()})});
       await loadStoryboardEditor(taskId);
       return;
     }

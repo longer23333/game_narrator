@@ -1,7 +1,7 @@
 ﻿# GameNarrator — DeepSeek 结构化项目索引
 
-> 自动生成：2026-08-25 19:47:28 +08:00；UTF-8 BOM；索引不再内嵌全部源码。
-> Git：分支 `main`，提交 `6d271b6`；收录文件 845 个，分卷 8 个。
+> 自动生成：2026-08-25 19:49:48 +08:00；UTF-8 BOM；索引不再内嵌全部源码。
+> Git：分支 `main`，提交 `59937ef`；收录文件 845 个，分卷 8 个。
 
 ## 使用方法
 
@@ -39,8 +39,7 @@
 ## 当前 Git 工作区（最近修改）
 
 ```text
-M src/main/java/cn/longer233/gamenarrator/community/CreativeAssistantController.java
- M src/main/java/cn/longer233/gamenarrator/community/CreativeAssistantService.java
+M src/main/resources/static/app.js
 ```
 
 ## Flyway 迁移索引
