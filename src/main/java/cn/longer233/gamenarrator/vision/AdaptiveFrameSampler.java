@@ -15,14 +15,20 @@ final class AdaptiveFrameSampler {
 
     static List<SceneFrame> sample(List<SceneFrame> frames, int configuredMaximum) {
         if (frames.isEmpty()) return List.of();
-        List<SceneFrame> coverageFrames = frames.stream()
-                .filter(frame -> !isEventWindow(frame) || isCenter(frame)).toList();
-        double durationSeconds = frames.stream().mapToDouble(SceneFrame::timestampSeconds).max().orElse(0);
+        List<SceneFrame> coverageFrames = new ArrayList<>(frames.size());
+        List<SceneFrame> eventCenters = new ArrayList<>();
+        List<SceneFrame> ordinary = new ArrayList<>();
+        double durationSeconds = 0;
+        for (SceneFrame frame : frames) {
+            durationSeconds = Math.max(durationSeconds, frame.timestampSeconds());
+            if (isEventWindow(frame) && !isCenter(frame)) continue;
+            coverageFrames.add(frame);
+            if (isCenter(frame)) eventCenters.add(frame);
+            else ordinary.add(frame);
+        }
         int desired = desiredFrameCount(durationSeconds);
         int limit = configuredMaximum > 0 ? Math.min(desired, configuredMaximum) : desired;
         limit = Math.min(coverageFrames.size(), Math.max(1, limit));
-        List<SceneFrame> eventCenters = coverageFrames.stream().filter(AdaptiveFrameSampler::isCenter).toList();
-        List<SceneFrame> ordinary = coverageFrames.stream().filter(frame -> !isEventWindow(frame)).toList();
         LinkedHashSet<SceneFrame> selected = new LinkedHashSet<>();
         int eventBudget = Math.min(eventCenters.size(), Math.max(1, limit / 3));
         selected.addAll(evenly(eventCenters, eventBudget));
