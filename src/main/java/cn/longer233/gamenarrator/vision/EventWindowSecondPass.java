@@ -6,7 +6,6 @@ import java.util.Comparator;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
-import java.util.Locale;
 import java.util.Map;
 import java.util.ArrayList;
 import java.util.Locale;
@@ -18,11 +17,22 @@ final class EventWindowSecondPass {
     static List<SceneFrame> select(List<SceneFrame> allFrames, List<SceneFrame> firstPass,
                                    List<FrameUnderstanding> analyses, int maximum) {
         if (maximum <= 0 || analyses.isEmpty()) return List.of();
-        Set<Integer> analyzed = new HashSet<>();
-        firstPass.forEach(frame -> analyzed.add(frame.index()));
+        Set<Integer> analyzed = new HashSet<>(Math.max(16, firstPass.size() * 2));
+        Map<Integer, SceneFrame> firstPassByIndex = new java.util.HashMap<>(Math.max(16, firstPass.size() * 2));
+        for (SceneFrame frame : firstPass) {
+            analyzed.add(frame.index());
+            firstPassByIndex.putIfAbsent(frame.index(), frame);
+        }
+        Map<Double, List<SceneFrame>> eventFramesByAnchor = new java.util.HashMap<>();
+        for (SceneFrame frame : allFrames) {
+            if (AdaptiveFrameSampler.isEventWindow(frame) && !analyzed.contains(frame.index())
+                    && frame.eventAnchorSeconds() != null) {
+                eventFramesByAnchor.computeIfAbsent(frame.eventAnchorSeconds(), ignored -> new ArrayList<>()).add(frame);
+            }
+        }
         Map<Double, EventBudget> anchors = new java.util.LinkedHashMap<>();
         for (FrameUnderstanding analysis : analyses) {
-            SceneFrame source = firstPass.stream().filter(frame -> frame.index() == analysis.index()).findFirst().orElse(null);
+            SceneFrame source = firstPassByIndex.get(analysis.index());
             if (source == null || !AdaptiveFrameSampler.isCenter(source)) continue;
             boolean explicitEvent = analysis.eventType() != null
                     && !Set.of("其他", "其它", "UNKNOWN", "OTHER").contains(analysis.eventType().toUpperCase(Locale.ROOT));
@@ -34,11 +44,9 @@ final class EventWindowSecondPass {
         anchors.entrySet().stream()
                 .sorted(Map.Entry.<Double, EventBudget>comparingByValue(
                         Comparator.comparingInt(EventBudget::priority).reversed()))
-                .forEach(entry -> allFrames.stream()
-                        .filter(AdaptiveFrameSampler::isEventWindow)
-                        .filter(frame -> !analyzed.contains(frame.index()))
-                        .filter(frame -> frame.eventAnchorSeconds() != null
-                                && Math.abs(frame.eventAnchorSeconds() - entry.getKey()) < .001)
+                .forEach(entry -> eventFramesByAnchor.entrySet().stream()
+                        .filter(candidate -> Math.abs(candidate.getKey() - entry.getKey()) < .001)
+                        .flatMap(candidate -> candidate.getValue().stream())
                         .sorted(Comparator.comparingDouble(frame ->
                                 entry.getValue().distancePreference(frame.timestampSeconds(), entry.getKey())))
                         .limit(entry.getValue().frames())
