@@ -21,7 +21,6 @@ import java.util.List;
 import java.util.concurrent.TimeUnit;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
-import java.util.LinkedHashSet;
 import java.util.Locale;
 import java.util.NavigableSet;
 import java.util.TreeSet;
@@ -100,14 +99,15 @@ public class FfmpegMediaPreprocessor {
     private List<SceneFrame> enrichEventWindows(Path sourceVideo, Path sceneDirectory, Path audioAnalysisPath,
                                                  List<SceneFrame> scenes) {
         if (maximumEventWindows == 0) return scenes;
-        LinkedHashSet<EventAnchor> anchors = new LinkedHashSet<>();
+        List<EventAnchor> anchors = new ArrayList<>();
+        NavigableSet<Double> anchorTimes = new TreeSet<>();
         scenes.stream().skip(1).limit(maximumEventWindows).forEach(frame ->
-                anchors.add(new EventAnchor(frame.timestampSeconds(), "SCENE_CHANGE_WINDOW")));
+                addAnchor(anchors, anchorTimes, new EventAnchor(frame.timestampSeconds(), "SCENE_CHANGE_WINDOW")));
         if (Files.isRegularFile(audioAnalysisPath)) try {
             var root = objectMapper.readTree(audioAnalysisPath.toFile());
             for (String field : List.of("peakIntervals", "clippingIntervals")) {
                 for (var interval : root.path(field)) {
-                    addAnchor(anchors, new EventAnchor(interval.path("startSeconds").asDouble(),
+                    addAnchor(anchors, anchorTimes, new EventAnchor(interval.path("startSeconds").asDouble(),
                             "clippingIntervals".equals(field) ? "AUDIO_CLIPPING_WINDOW" : "AUDIO_PEAK_WINDOW"));
                     if (anchors.size() >= maximumEventWindows) break;
                 }
@@ -155,13 +155,13 @@ public class FfmpegMediaPreprocessor {
         return new double[]{-far, -eventWindowSeconds, -near, 0, near, eventWindowSeconds, far};
     }
 
-    private void addAnchor(LinkedHashSet<EventAnchor> anchors, EventAnchor candidate) {
-        for (EventAnchor existing : anchors) {
-            if (Math.abs(existing.seconds() - candidate.seconds()) < 1.0) {
-                return;
-            }
-        }
+    private void addAnchor(List<EventAnchor> anchors, NavigableSet<Double> anchorTimes, EventAnchor candidate) {
+        Double floor = anchorTimes.floor(candidate.seconds());
+        Double ceiling = anchorTimes.ceiling(candidate.seconds());
+        if ((floor != null && candidate.seconds() - floor < 1.0)
+                || (ceiling != null && ceiling - candidate.seconds() < 1.0)) return;
         anchors.add(candidate);
+        anchorTimes.add(candidate.seconds());
     }
 
     private boolean containsNearby(NavigableSet<Double> timestamps, double timestamp, double tolerance) {
