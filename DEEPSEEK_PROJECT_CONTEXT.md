@@ -1,7 +1,7 @@
 ﻿# GameNarrator — DeepSeek 结构化项目索引
 
-> 自动生成：2026-08-25 19:35:09 +08:00；UTF-8 BOM；索引不再内嵌全部源码。
-> Git：分支 `main`，提交 `c3a6e5e`；收录文件 841 个，分卷 8 个。
+> 自动生成：2026-08-25 19:40:43 +08:00；UTF-8 BOM；索引不再内嵌全部源码。
+> Git：分支 `main`，提交 `041faa2`；收录文件 845 个，分卷 8 个。
 
 ## 使用方法
 
@@ -27,8 +27,8 @@
 
 | 分卷 | 文件数 | 字符数 | 建议用途 |
 |---|---:|---:|---|
-| `deepseek-context/01-foundation.md` | 98 | 228042 | 构建、配置、资源、数据库迁移 |
-| `deepseek-context/02-backend.md` | 293 | 1246337 | Spring 后端实现 |
+| `deepseek-context/01-foundation.md` | 99 | 228944 | 构建、配置、资源、数据库迁移 |
+| `deepseek-context/02-backend.md` | 296 | 1253691 | Spring 后端实现 |
 | `deepseek-context/03-tests.md` | 122 | 429240 | Spring 测试与行为验证 |
 | `deepseek-context/04-frontend.md` | 38 | 546303 | Vite Web 源码 |
 | `deepseek-context/05-android-main.md` | 149 | 918455 | Android 实现、资源与 Gradle |
@@ -39,8 +39,10 @@
 ## 当前 Git 工作区（最近修改）
 
 ```text
-M src/main/java/cn/longer233/gamenarrator/community/CreativeVariantController.java
- M src/main/java/cn/longer233/gamenarrator/community/CreativeVariantService.java
+?? src/main/java/cn/longer233/gamenarrator/community/CreativeAssistantController.java
+?? src/main/java/cn/longer233/gamenarrator/community/CreativeAssistantService.java
+?? src/main/java/cn/longer233/gamenarrator/community/CreativeAssistantSessionView.java
+?? src/main/resources/db/migration/V45__creative_assistant_sessions.sql
 ```
 
 ## Flyway 迁移索引
@@ -89,6 +91,7 @@ M src/main/java/cn/longer233/gamenarrator/community/CreativeVariantController.ja
 - `src/main/resources/db/migration/V42__backfill_legacy_task_artifacts.sql`
 - `src/main/resources/db/migration/V43__remove_legacy_task_artifact_paths.sql`
 - `src/main/resources/db/migration/V44__clip_compilation_ownership.sql`
+- `src/main/resources/db/migration/V45__creative_assistant_sessions.sql`
 
 ## 运行配置索引
 
@@ -140,6 +143,7 @@ M src/main/java/cn/longer233/gamenarrator/community/CreativeVariantController.ja
 | GET | `/api/community/resources` | `src/main/java/cn/longer233/gamenarrator/community/CommunityResourceController.java` |
 | GET | `/api/compilations/{id}` | `src/main/java/cn/longer233/gamenarrator/compilation/ClipCompilationController.java` |
 | GET | `/api/compilations` | `src/main/java/cn/longer233/gamenarrator/compilation/ClipCompilationController.java` |
+| GET | `/api/creative-assistant/sessions/{id}` | `src/main/java/cn/longer233/gamenarrator/community/CreativeAssistantController.java` |
 | GET | `/api/debug/health` | `src/main/java/cn/longer233/gamenarrator/diagnostics/DiagnosticsController.java` |
 | GET | `/api/debug/logs/export` | `src/main/java/cn/longer233/gamenarrator/diagnostics/DiagnosticsController.java` |
 | GET | `/api/debug/logs` | `src/main/java/cn/longer233/gamenarrator/diagnostics/DiagnosticsController.java` |
@@ -221,6 +225,8 @@ M src/main/java/cn/longer233/gamenarrator/community/CreativeVariantController.ja
 | POST | `/api/community/styles/{code}` | `src/main/java/cn/longer233/gamenarrator/community/CommunityResourceController.java` |
 | POST | `/api/compilations/{id}/items` | `src/main/java/cn/longer233/gamenarrator/compilation/ClipCompilationController.java` |
 | POST | `/api/compilations` | `src/main/java/cn/longer233/gamenarrator/compilation/ClipCompilationController.java` |
+| POST | `/api/creative-assistant/sessions/{id}/materialize` | `src/main/java/cn/longer233/gamenarrator/community/CreativeAssistantController.java` |
+| POST | `/api/creative-assistant/sessions` | `src/main/java/cn/longer233/gamenarrator/community/CreativeAssistantController.java` |
 | POST | `/api/debug/client-events` | `src/main/java/cn/longer233/gamenarrator/diagnostics/DiagnosticsController.java` |
 | POST | `/api/effect-presets/import` | `src/main/java/cn/longer233/gamenarrator/effect/EffectController.java` |
 | POST | `/api/knowledge-packs` | `src/main/java/cn/longer233/gamenarrator/event/GameKnowledgePackController.java` |
