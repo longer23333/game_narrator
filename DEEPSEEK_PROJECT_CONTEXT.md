@@ -1,7 +1,7 @@
 ﻿# GameNarrator — DeepSeek 结构化项目索引
 
-> 自动生成：2026-08-25 19:40:43 +08:00；UTF-8 BOM；索引不再内嵌全部源码。
-> Git：分支 `main`，提交 `041faa2`；收录文件 845 个，分卷 8 个。
+> 自动生成：2026-08-25 19:44:03 +08:00；UTF-8 BOM；索引不再内嵌全部源码。
+> Git：分支 `main`，提交 `4f264b5`；收录文件 845 个，分卷 8 个。
 
 ## 使用方法
 
@@ -28,7 +28,7 @@
 | 分卷 | 文件数 | 字符数 | 建议用途 |
 |---|---:|---:|---|
 | `deepseek-context/01-foundation.md` | 99 | 228944 | 构建、配置、资源、数据库迁移 |
-| `deepseek-context/02-backend.md` | 296 | 1253691 | Spring 后端实现 |
+| `deepseek-context/02-backend.md` | 296 | 1254034 | Spring 后端实现 |
 | `deepseek-context/03-tests.md` | 122 | 429240 | Spring 测试与行为验证 |
 | `deepseek-context/04-frontend.md` | 38 | 546303 | Vite Web 源码 |
 | `deepseek-context/05-android-main.md` | 149 | 918455 | Android 实现、资源与 Gradle |
@@ -39,10 +39,7 @@
 ## 当前 Git 工作区（最近修改）
 
 ```text
-?? src/main/java/cn/longer233/gamenarrator/community/CreativeAssistantController.java
-?? src/main/java/cn/longer233/gamenarrator/community/CreativeAssistantService.java
-?? src/main/java/cn/longer233/gamenarrator/community/CreativeAssistantSessionView.java
-?? src/main/resources/db/migration/V45__creative_assistant_sessions.sql
+M src/main/java/cn/longer233/gamenarrator/community/CreativeAssistantService.java
 ```
 
 ## Flyway 迁移索引

@@ -48,14 +48,18 @@ public class CreativeAssistantService {
     }
 
     public CreativeAssistantSessionView get(UUID id) {
-        return jdbc.query("SELECT brief,plans_json,status,selected_type,generated_task_id FROM creative_assistant_session WHERE id=? AND owner_id=?",
+        CreativeAssistantSessionView view = jdbc.query("SELECT brief,plans_json,status,selected_type,generated_task_id FROM creative_assistant_session WHERE id=? AND owner_id=?",
                 rs -> rs.next() ? read(id, rs.getString(1), rs.getString(2), rs.getString(3), rs.getString(4), rs.getObject(5, UUID.class)) : null,
                 id, currentUser.userId());
+        if (view == null) throw new IllegalArgumentException("创意会话不存在或无权访问");
+        return view;
     }
 
     public CreativeAssistantSessionView materialize(UUID id, String type, String name, MultipartFile video) {
         CreativeAssistantSessionView session = get(id);
-        if (session == null) throw new IllegalArgumentException("创意会话不存在");
+        if (type == null || type.isBlank()) throw new IllegalArgumentException("必须选择创意方案");
+        if (video == null || video.isEmpty()) throw new IllegalArgumentException("必须上传源视频");
+        if (video.getSize() > 5L * 1024 * 1024 * 1024) throw new IllegalArgumentException("源视频不能超过 5GB");
         JsonNode plan = null;
         for (JsonNode item : session.plans()) if (item.path("type").asText("").equalsIgnoreCase(type)) { plan = item; break; }
         if (plan == null) throw new IllegalArgumentException("方案类型不存在");
