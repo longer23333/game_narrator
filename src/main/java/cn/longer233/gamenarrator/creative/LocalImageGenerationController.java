@@ -1,0 +1,4 @@
+package cn.longer233.gamenarrator.creative;
+import jakarta.validation.Valid; import org.springframework.web.bind.annotation.*; import java.util.List;
+@RestController @RequestMapping("/api/creative/images")
+public class LocalImageGenerationController { private final LocalImageGenerationService service; public LocalImageGenerationController(LocalImageGenerationService service){this.service=service;} @GetMapping("/capabilities") public java.util.Map<String,Object> capabilities(){return service.capabilities();} @PostMapping public GeneratedImageView generate(@Valid @RequestBody GeneratedImageRequest request){return service.generate(request);} @PostMapping("/meme-candidates") public List<GeneratedImageView> memes(@Valid @RequestBody MemeCandidateRequest request){ return service.memeCandidates(request); } }

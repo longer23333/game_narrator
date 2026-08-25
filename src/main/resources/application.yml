@@ -300,6 +300,10 @@ game-narrator:
     # 0 enables duration-aware sampling (5/10/15-second density, up to 720 frames).
     # A positive value is an operator-defined upper ceiling for constrained hardware.
     max-frames: ${OLLAMA_MAX_FRAMES:0}
+  image-generation:
+    endpoint: ${IMAGE_GENERATION_ENDPOINT:}
+    model: ${IMAGE_GENERATION_MODEL:sd15-turbo}
+    default-steps: ${IMAGE_GENERATION_STEPS:8}
   media-import:
     local-authentication-discovery: false
     yt-dlp: "${YT_DLP_EXECUTABLE:./tools/yt-dlp/yt-dlp.exe}"

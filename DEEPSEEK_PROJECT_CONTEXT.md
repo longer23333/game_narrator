@@ -1,7 +1,7 @@
 ﻿# GameNarrator — DeepSeek 结构化项目索引
 
-> 自动生成：2026-08-25 19:49:48 +08:00；UTF-8 BOM；索引不再内嵌全部源码。
-> Git：分支 `main`，提交 `59937ef`；收录文件 845 个，分卷 8 个。
+> 自动生成：2026-08-25 20:02:06 +08:00；UTF-8 BOM；索引不再内嵌全部源码。
+> Git：分支 `main`，提交 `a5c5129`；收录文件 851 个，分卷 8 个。
 
 ## 使用方法
 
@@ -27,10 +27,10 @@
 
 | 分卷 | 文件数 | 字符数 | 建议用途 |
 |---|---:|---:|---|
-| `deepseek-context/01-foundation.md` | 99 | 228944 | 构建、配置、资源、数据库迁移 |
-| `deepseek-context/02-backend.md` | 296 | 1254846 | Spring 后端实现 |
+| `deepseek-context/01-foundation.md` | 100 | 229819 | 构建、配置、资源、数据库迁移 |
+| `deepseek-context/02-backend.md` | 301 | 1264588 | Spring 后端实现 |
 | `deepseek-context/03-tests.md` | 122 | 429240 | Spring 测试与行为验证 |
-| `deepseek-context/04-frontend.md` | 38 | 546303 | Vite Web 源码 |
+| `deepseek-context/04-frontend.md` | 38 | 546882 | Vite Web 源码 |
 | `deepseek-context/05-android-main.md` | 149 | 918455 | Android 实现、资源与 Gradle |
 | `deepseek-context/06-android-tests.md` | 61 | 148496 | Android 单元及设备测试 |
 | `deepseek-context/07-platform-release.md` | 13 | 79051 | Windows、CI/CD 与发布 |
@@ -39,7 +39,11 @@
 ## 当前 Git 工作区（最近修改）
 
 ```text
-M src/main/resources/static/app.js
+M DEEPSEEK_PROJECT_CONTEXT.md
+ M README.md
+ M src/main/resources/application.yml
+?? src/main/java/cn/longer233/gamenarrator/creative/
+?? src/main/resources/db/migration/V46__generated_image_provenance.sql
 ```
 
 ## Flyway 迁移索引
@@ -89,6 +93,7 @@ M src/main/resources/static/app.js
 - `src/main/resources/db/migration/V43__remove_legacy_task_artifact_paths.sql`
 - `src/main/resources/db/migration/V44__clip_compilation_ownership.sql`
 - `src/main/resources/db/migration/V45__creative_assistant_sessions.sql`
+- `src/main/resources/db/migration/V46__generated_image_provenance.sql`
 
 ## 运行配置索引
 
@@ -140,6 +145,7 @@ M src/main/resources/static/app.js
 | GET | `/api/community/resources` | `src/main/java/cn/longer233/gamenarrator/community/CommunityResourceController.java` |
 | GET | `/api/compilations/{id}` | `src/main/java/cn/longer233/gamenarrator/compilation/ClipCompilationController.java` |
 | GET | `/api/compilations` | `src/main/java/cn/longer233/gamenarrator/compilation/ClipCompilationController.java` |
+| GET | `/api/creative/images/capabilities` | `src/main/java/cn/longer233/gamenarrator/creative/LocalImageGenerationController.java` |
 | GET | `/api/creative-assistant/sessions/{id}/asset-requirements` | `src/main/java/cn/longer233/gamenarrator/community/CreativeAssistantController.java` |
 | GET | `/api/creative-assistant/sessions/{id}` | `src/main/java/cn/longer233/gamenarrator/community/CreativeAssistantController.java` |
 | GET | `/api/debug/health` | `src/main/java/cn/longer233/gamenarrator/diagnostics/DiagnosticsController.java` |
@@ -223,6 +229,8 @@ M src/main/resources/static/app.js
 | POST | `/api/community/styles/{code}` | `src/main/java/cn/longer233/gamenarrator/community/CommunityResourceController.java` |
 | POST | `/api/compilations/{id}/items` | `src/main/java/cn/longer233/gamenarrator/compilation/ClipCompilationController.java` |
 | POST | `/api/compilations` | `src/main/java/cn/longer233/gamenarrator/compilation/ClipCompilationController.java` |
+| POST | `/api/creative/images/meme-candidates` | `src/main/java/cn/longer233/gamenarrator/creative/LocalImageGenerationController.java` |
+| POST | `/api/creative/images` | `src/main/java/cn/longer233/gamenarrator/creative/LocalImageGenerationController.java` |
 | POST | `/api/creative-assistant/sessions/{id}/materialize` | `src/main/java/cn/longer233/gamenarrator/community/CreativeAssistantController.java` |
 | POST | `/api/creative-assistant/sessions` | `src/main/java/cn/longer233/gamenarrator/community/CreativeAssistantController.java` |
 | POST | `/api/debug/client-events` | `src/main/java/cn/longer233/gamenarrator/diagnostics/DiagnosticsController.java` |

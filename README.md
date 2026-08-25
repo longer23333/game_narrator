@@ -75,6 +75,12 @@ AI 配音、时间线编排和成片导出，并逐步覆盖市面上常见的�
 
 Java 服务通过 HTTP 调用这些本地推理服务，避免在 JVM 内直接加载显存模型。
 
+### 本地图片生成（8GB 显存）
+
+动画剧场和 Meme 图片通过兼容 AUTOMATIC1111 的本地接口生成。建议使用 SD 1.5 Turbo（768×768、8 steps）或同档位量化模型；服务端不会自动下载模型，也不会把未验证的网络图片当作授权素材。
+
+配置 `IMAGE_GENERATION_ENDPOINT`（例如 `http://127.0.0.1:7860`）和 `IMAGE_GENERATION_MODEL` 后，可使用 `/api/creative/images` 生成标题卡、过场、角色、场景和表情，使用 `/api/creative/images/meme-candidates` 生成 Meme 候选，使用 `/api/creative/images/capabilities` 检查引擎状态。参考图会通过 ControlNet 参数传入，并随生成记录保存来源和版权信息。
+
 ## 运行
 
 项目包含 Maven Wrapper，不需要全局安装 Maven：
