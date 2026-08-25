@@ -1,7 +1,7 @@
 ﻿# GameNarrator — DeepSeek 结构化项目索引
 
-> 自动生成：2026-08-25 22:51:33 +08:00；UTF-8 BOM；索引不再内嵌全部源码。
-> Git：分支 `main`，提交 `12857df`；收录文件 853 个，分卷 8 个。
+> 自动生成：2026-08-25 22:53:29 +08:00；UTF-8 BOM；索引不再内嵌全部源码。
+> Git：分支 `main`，提交 `7837c01`；收录文件 854 个，分卷 8 个。
 
 ## 使用方法
 
@@ -34,14 +34,12 @@
 | `deepseek-context/05-android-main.md` | 149 | 918455 | Android 实现、资源与 Gradle |
 | `deepseek-context/06-android-tests.md` | 61 | 148496 | Android 单元及设备测试 |
 | `deepseek-context/07-platform-release.md` | 13 | 79051 | Windows、CI/CD 与发布 |
-| `deepseek-context/08-docs-scripts.md` | 68 | 247007 | 需求、架构、维护脚本 |
+| `deepseek-context/08-docs-scripts.md` | 69 | 248722 | 需求、架构、维护脚本 |
 
 ## 当前 Git 工作区（最近修改）
 
 ```text
-M src/main/java/cn/longer233/gamenarrator/creative/LocalImageGenerationService.java
- M src/main/resources/application.yml
-?? src/main/java/cn/longer233/gamenarrator/creative/ComfyUiImageClient.java
+?? scripts/test-comfyui.ps1
 ```
 
 ## Flyway 迁移索引
