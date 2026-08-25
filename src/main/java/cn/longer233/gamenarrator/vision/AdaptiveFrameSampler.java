@@ -42,9 +42,11 @@ final class AdaptiveFrameSampler {
         if (frames.size() <= limit) return frames;
         if (limit == 1) return List.of(frames.getFirst());
         List<SceneFrame> selected = new ArrayList<>(limit);
+        java.util.HashSet<SceneFrame> seen = new java.util.HashSet<>(limit * 2);
         for (int index = 0; index < limit; index++) {
             int sourceIndex = (int) Math.round(index * (frames.size() - 1.0) / (limit - 1.0));
-            if (!selected.contains(frames.get(sourceIndex))) selected.add(frames.get(sourceIndex));
+            SceneFrame frame = frames.get(sourceIndex);
+            if (seen.add(frame)) selected.add(frame);
         }
         return List.copyOf(selected);
     }
