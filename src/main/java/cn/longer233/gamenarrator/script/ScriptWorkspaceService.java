@@ -23,10 +23,12 @@ import org.springframework.beans.factory.annotation.Autowired;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+import java.util.Set;
 import java.util.UUID;
 
 @Service
@@ -317,7 +319,10 @@ public class ScriptWorkspaceService {
         beats.stream().filter(beat -> beat.clipIndex() != null)
                 .forEach(beat -> beatByClip.putIfAbsent(beat.clipIndex(), beat));
         List<Integer> order = new ArrayList<>(beatByClip.keySet());
-        scripts.stream().map(ScriptSegment::clipIndex).filter(index -> !order.contains(index)).forEach(order::add);
+        Set<Integer> orderedIndexes = new HashSet<>(order);
+        for (ScriptSegment script : scripts) {
+            if (orderedIndexes.add(script.clipIndex())) order.add(script.clipIndex());
+        }
         Map<Integer, ScriptSegment> scriptsByIndex = new LinkedHashMap<>();
         Map<Integer, HighlightClip> clipsByIndex = new LinkedHashMap<>();
         for (int index = 0; index < scripts.size(); index++) {
