@@ -77,15 +77,19 @@ public class BgeAssetSemanticSearch {
             double[] queryVector = generated.getFirst();
             String normalizedQuery = Objects.toString(query, "").toLowerCase(Locale.ROOT).trim();
             List<String> queryTerms = lexicalTerms(normalizedQuery);
-            List<ScoredAsset> scored = new ArrayList<>();
+            PriorityQueue<ScoredAsset> scored = new PriorityQueue<>(resultLimit,
+                    Comparator.comparingDouble(ScoredAsset::score));
             for (int i = 0; i < candidates.size(); i++) {
                 double semanticScore = cosine(queryVector, vectors.get(i));
                 double lexicalScore = lexicalScore(normalizedQuery, queryTerms, texts.get(i));
                 double score = Math.min(1, semanticScore * .78 + lexicalScore * .22);
-                if (lexicalScore > 0 || semanticScore >= minimumScore) scored.add(new ScoredAsset(candidates.get(i), score));
+                if (lexicalScore > 0 || semanticScore >= minimumScore) {
+                    scored.offer(new ScoredAsset(candidates.get(i), score));
+                    if (scored.size() > resultLimit) scored.poll();
+                }
             }
-            scored.sort(Comparator.comparingDouble(ScoredAsset::score).reversed());
-            return scored.stream().limit(resultLimit).map(ScoredAsset::asset).toList();
+            return scored.stream().sorted(Comparator.comparingDouble(ScoredAsset::score).reversed())
+                    .map(ScoredAsset::asset).toList();
         } catch (Exception exception) {
             unavailableUntil = Instant.now().plus(Duration.ofMinutes(1));
             log.warn("BGE semantic search unavailable; lexical search will be used: {}", exception.getMessage());
