@@ -11,6 +11,11 @@ public class CreativeVariantController {
     public CreativeVariantController(CreativeVariantService service) { this.service = service; }
     @GetMapping public List<CreativeVariantView> list(@PathVariable UUID taskId) { return service.list(taskId); }
     @PostMapping("/generate") public List<CreativeVariantView> generate(@PathVariable UUID taskId) { return service.generate(taskId); }
+    @PostMapping("/assistant") public List<CreativeVariantView> assistant(@PathVariable UUID taskId,
+            @RequestBody(required = false) AssistantRequest request) {
+        return service.generate(taskId, request == null ? null : request.brief());
+    }
     @PostMapping("/{variantId}/materialize") public CreativeVariantView materialize(@PathVariable UUID taskId,
             @PathVariable UUID variantId) { return service.materialize(taskId, variantId); }
+    public record AssistantRequest(String brief) { }
 }

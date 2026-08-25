@@ -1,7 +1,7 @@
 ﻿# GameNarrator — DeepSeek 结构化项目索引
 
-> 自动生成：2026-08-25 19:19:03 +08:00；UTF-8 BOM；索引不再内嵌全部源码。
-> Git：分支 `main`，提交 `58585e9`；收录文件 841 个，分卷 8 个。
+> 自动生成：2026-08-25 19:35:09 +08:00；UTF-8 BOM；索引不再内嵌全部源码。
+> Git：分支 `main`，提交 `c3a6e5e`；收录文件 841 个，分卷 8 个。
 
 ## 使用方法
 
@@ -28,7 +28,7 @@
 | 分卷 | 文件数 | 字符数 | 建议用途 |
 |---|---:|---:|---|
 | `deepseek-context/01-foundation.md` | 98 | 228042 | 构建、配置、资源、数据库迁移 |
-| `deepseek-context/02-backend.md` | 293 | 1242237 | Spring 后端实现 |
+| `deepseek-context/02-backend.md` | 293 | 1246337 | Spring 后端实现 |
 | `deepseek-context/03-tests.md` | 122 | 429240 | Spring 测试与行为验证 |
 | `deepseek-context/04-frontend.md` | 38 | 546303 | Vite Web 源码 |
 | `deepseek-context/05-android-main.md` | 149 | 918455 | Android 实现、资源与 Gradle |
@@ -39,7 +39,8 @@
 ## 当前 Git 工作区（最近修改）
 
 ```text
-M src/main/java/cn/longer233/gamenarrator/script/ScriptWorkspaceService.java
+M src/main/java/cn/longer233/gamenarrator/community/CreativeVariantController.java
+ M src/main/java/cn/longer233/gamenarrator/community/CreativeVariantService.java
 ```
 
 ## Flyway 迁移索引
@@ -255,6 +256,7 @@ M src/main/java/cn/longer233/gamenarrator/script/ScriptWorkspaceService.java
 | POST | `/api/tasks/{taskId}/storyboard/segments/{clipIndex}/assets` | `src/main/java/cn/longer233/gamenarrator/script/ScriptWorkspaceController.java` |
 | POST | `/api/tasks/{taskId}/storyboard/segments/{clipIndex}/move` | `src/main/java/cn/longer233/gamenarrator/script/ScriptWorkspaceController.java` |
 | POST | `/api/tasks/{taskId}/variants/{variantId}/materialize` | `src/main/java/cn/longer233/gamenarrator/community/CreativeVariantController.java` |
+| POST | `/api/tasks/{taskId}/variants/assistant` | `src/main/java/cn/longer233/gamenarrator/community/CreativeVariantController.java` |
 | POST | `/api/tasks/{taskId}/variants/generate` | `src/main/java/cn/longer233/gamenarrator/community/CreativeVariantController.java` |
 | POST | `/api/tasks/{taskId}/voice/preview` | `src/main/java/cn/longer233/gamenarrator/script/ScriptWorkspaceController.java` |
 | POST | `/api/tasks/{taskId}/voice/segments/{clipIndex}/regenerate` | `src/main/java/cn/longer233/gamenarrator/script/ScriptWorkspaceController.java` |

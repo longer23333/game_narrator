@@ -16,11 +16,14 @@ import cn.longer233.gamenarrator.pipeline.VideoTaskEngine;
 import cn.longer233.gamenarrator.storage.SourceMediaRegistry;
 import cn.longer233.gamenarrator.task.application.ProjectHistoryService;
 import cn.longer233.gamenarrator.task.domain.CommentaryStyle;
+import cn.longer233.gamenarrator.ai.AdaptiveAiChatClient;
+import java.time.Duration;
 
 import java.time.OffsetDateTime;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.UUID;
 
 @Service
@@ -32,19 +35,26 @@ public class CreativeVariantService {
     private final SourceMediaRegistry sourceMedia;
     private final ProjectHistoryService history;
     private final CurrentUserContext currentUser;
+    private final AdaptiveAiChatClient assistant;
 
     public CreativeVariantService(JdbcTemplate jdbc, ObjectMapper mapper, VideoTaskRepository tasks,
                                   CurrentUserContext currentUser) {
-        this(jdbc, mapper, tasks, null, null, null, currentUser);
+        this(jdbc, mapper, tasks, null, null, null, currentUser, null);
     }
 
     @Autowired
     public CreativeVariantService(JdbcTemplate jdbc, ObjectMapper mapper, VideoTaskRepository tasks,
                                   VideoTaskEngine engine, SourceMediaRegistry sourceMedia, ProjectHistoryService history,
-                                  CurrentUserContext currentUser) {
+                                  CurrentUserContext currentUser, AdaptiveAiChatClient assistant) {
         this.jdbc = jdbc; this.mapper = mapper; this.tasks = tasks;
         this.engine = engine; this.sourceMedia = sourceMedia; this.history = history;
-        this.currentUser = currentUser;
+        this.currentUser = currentUser; this.assistant = assistant;
+    }
+
+    public CreativeVariantService(JdbcTemplate jdbc, ObjectMapper mapper, VideoTaskRepository tasks,
+                                  VideoTaskEngine engine, SourceMediaRegistry sourceMedia, ProjectHistoryService history,
+                                  CurrentUserContext currentUser) {
+        this(jdbc, mapper, tasks, engine, sourceMedia, history, currentUser, null);
     }
 
     @Transactional
@@ -55,6 +65,34 @@ public class CreativeVariantService {
         upsert(task, "COMEDY", "搞笑版", 1.18, 0.70, "反差、失误、吐槽和回收梗", "快切、定格、局部放大与短音效");
         upsert(task, "REVIEW", "复盘版", 0.88, 0.50, "按时间线还原决策，区分事实、判断和改进点", "保留关键上下文，减少装饰性特效");
         return list(taskId);
+    }
+
+    @Transactional
+    public List<CreativeVariantView> generate(UUID taskId, String brief) {
+        VideoTask task = ownedTask(taskId);
+        if (brief == null || brief.isBlank() || assistant == null) return generate(taskId);
+        String prompt = """
+                你是视频创意策划。根据用户需求，为已有游戏视频生成 4 套不同的可执行剪辑方案。
+                只返回 JSON 数组，每项必须包含：variantType(STORY/GUIDE/COMEDY/REVIEW)、name、title、plotStructure(数组)、shots(数组，每项含timeRange、visual、dialogue)、soundEffects(数组)、assetRequirements(数组，每项含type、description、licenseHint)、narrativeFocus、editingRule、targetDurationSeconds。
+                不得虚构视频中尚未确认的事实；没有素材信息时使用“待从源视频确认”。
+                用户需求：%s
+                源任务：%s，游戏分类：%s，目标时长：%d 秒
+                """.formatted(brief.trim(), task.getName(), task.getGameCategory(), task.getTargetDurationSeconds());
+        try {
+            JsonNode plans = assistant.chatJson(prompt, List.of(), false, Duration.ofMinutes(3));
+            if (!plans.isArray() || plans.isEmpty()) return generate(taskId);
+            int written = 0;
+            for (JsonNode plan : plans) {
+                String type = plan.path("variantType").asText("").toUpperCase(java.util.Locale.ROOT);
+                if (!Set.of("STORY", "GUIDE", "COMEDY", "REVIEW").contains(type)) continue;
+                String name = plan.path("name").asText(type);
+                upsertStrategy(task, type, name, plan);
+                if (++written == 4) break;
+            }
+            return written == 0 ? generate(taskId) : list(taskId);
+        } catch (Exception exception) {
+            return generate(taskId);
+        }
     }
 
     public List<CreativeVariantView> list(UUID taskId) {
@@ -146,6 +184,27 @@ public class CreativeVariantService {
                     """, "source_task_id,variant_type", id, task.getId(), type, task.getName() + " · " + suffix,
                     mapper.writeValueAsString(strategy), task.getId(), type, now, now);
         } catch (Exception exception) { throw new IllegalStateException("无法生成创作版本策略", exception); }
+    }
+
+    private void upsertStrategy(VideoTask task, String type, String name, JsonNode plan) {
+        try {
+            Map<String, Object> strategy = mapper.convertValue(plan, Map.class);
+            strategy.put("sourceReuse", true);
+            strategy.putIfAbsent("sourceVideoPath", task.getSourceVideoPath());
+            strategy.putIfAbsent("targetDurationSeconds", targetDuration(task, type));
+            strategy.putIfAbsent("narrativeFocus", "按用户需求组织已确认事件");
+            strategy.putIfAbsent("editingRule", "事实优先，未确认内容标记为待确认");
+            strategy.putIfAbsent("factPolicy", "已确认事件作为事实；AI 建议必须标注，不能补造战局结果");
+            OffsetDateTime now = OffsetDateTime.now();
+            UUID id = jdbc.query("SELECT id FROM creative_variant WHERE source_task_id=? AND variant_type=?",
+                    rs -> rs.next() ? rs.getObject(1, UUID.class) : UUID.randomUUID(), task.getId(), type);
+            cn.longer233.gamenarrator.common.PortableUpsert.update(jdbc, """
+                    MERGE INTO creative_variant(id,source_task_id,variant_type,name,strategy_json,status,created_at,updated_at)
+                    KEY(source_task_id,variant_type) VALUES(?,?,?,?,?,'PLANNED',
+                    COALESCE((SELECT created_at FROM creative_variant WHERE source_task_id=? AND variant_type=?),?),?)
+                    """, "source_task_id,variant_type", id, task.getId(), type, name,
+                    mapper.writeValueAsString(strategy), task.getId(), type, now, now);
+        } catch (Exception exception) { throw new IllegalStateException("无法保存 AI 创意方案", exception); }
     }
 
     private int targetDuration(VideoTask task, String type) {
