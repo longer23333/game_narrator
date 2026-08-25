@@ -1,7 +1,7 @@
 ﻿# GameNarrator — DeepSeek 结构化项目索引
 
-> 自动生成：2026-08-25 19:44:03 +08:00；UTF-8 BOM；索引不再内嵌全部源码。
-> Git：分支 `main`，提交 `4f264b5`；收录文件 845 个，分卷 8 个。
+> 自动生成：2026-08-25 19:47:28 +08:00；UTF-8 BOM；索引不再内嵌全部源码。
+> Git：分支 `main`，提交 `6d271b6`；收录文件 845 个，分卷 8 个。
 
 ## 使用方法
 
@@ -28,7 +28,7 @@
 | 分卷 | 文件数 | 字符数 | 建议用途 |
 |---|---:|---:|---|
 | `deepseek-context/01-foundation.md` | 99 | 228944 | 构建、配置、资源、数据库迁移 |
-| `deepseek-context/02-backend.md` | 296 | 1254034 | Spring 后端实现 |
+| `deepseek-context/02-backend.md` | 296 | 1254846 | Spring 后端实现 |
 | `deepseek-context/03-tests.md` | 122 | 429240 | Spring 测试与行为验证 |
 | `deepseek-context/04-frontend.md` | 38 | 546303 | Vite Web 源码 |
 | `deepseek-context/05-android-main.md` | 149 | 918455 | Android 实现、资源与 Gradle |
@@ -39,7 +39,8 @@
 ## 当前 Git 工作区（最近修改）
 
 ```text
-M src/main/java/cn/longer233/gamenarrator/community/CreativeAssistantService.java
+M src/main/java/cn/longer233/gamenarrator/community/CreativeAssistantController.java
+ M src/main/java/cn/longer233/gamenarrator/community/CreativeAssistantService.java
 ```
 
 ## Flyway 迁移索引
@@ -140,6 +141,7 @@ M src/main/java/cn/longer233/gamenarrator/community/CreativeAssistantService.jav
 | GET | `/api/community/resources` | `src/main/java/cn/longer233/gamenarrator/community/CommunityResourceController.java` |
 | GET | `/api/compilations/{id}` | `src/main/java/cn/longer233/gamenarrator/compilation/ClipCompilationController.java` |
 | GET | `/api/compilations` | `src/main/java/cn/longer233/gamenarrator/compilation/ClipCompilationController.java` |
+| GET | `/api/creative-assistant/sessions/{id}/asset-requirements` | `src/main/java/cn/longer233/gamenarrator/community/CreativeAssistantController.java` |
 | GET | `/api/creative-assistant/sessions/{id}` | `src/main/java/cn/longer233/gamenarrator/community/CreativeAssistantController.java` |
 | GET | `/api/debug/health` | `src/main/java/cn/longer233/gamenarrator/diagnostics/DiagnosticsController.java` |
 | GET | `/api/debug/logs/export` | `src/main/java/cn/longer233/gamenarrator/diagnostics/DiagnosticsController.java` |

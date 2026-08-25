@@ -78,6 +78,18 @@ public class CreativeAssistantService {
         catch (Exception e) { throw new IllegalStateException("无法根据创意方案创建剪辑任务：" + e.getMessage(), e); }
     }
 
+    public JsonNode assetRequirements(UUID id, String type) {
+        CreativeAssistantSessionView session = get(id);
+        if (type == null || type.isBlank()) throw new IllegalArgumentException("必须选择创意方案");
+        for (JsonNode plan : session.plans()) {
+            if (type.equalsIgnoreCase(plan.path("type").asText(""))) {
+                JsonNode requirements = plan.path("assetRequirements");
+                return requirements.isArray() ? requirements : mapper.createArrayNode();
+            }
+        }
+        throw new IllegalArgumentException("方案类型不存在");
+    }
+
     private CreativeAssistantSessionView read(UUID id, String brief, String json, String status, String type, UUID task) {
         try { return view(id, brief, mapper.readTree(json), status, task, type); }
         catch (Exception e) { throw new IllegalStateException("创意方案内容损坏", e); }
