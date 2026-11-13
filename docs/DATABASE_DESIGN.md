@@ -635,6 +635,12 @@ POST /api/exports/{id}/cancel                  取消导出
 ## 15. 当前迁移补充与回滚说明
 
 - V20 为 `video_tasks` 增加独立的 `version BIGINT NOT NULL DEFAULT 0`。它用于任务状态与分镜编辑的 JPA 乐观锁；`video_project.version` 继续只保护项目元数据，两列互不替代。
+- V47 补两条纯查询索引：`video_tasks(owner_id, created_at DESC)` 与 `artifact(project_id, created_at DESC)`。
+  前者服务于任务列表的 `WHERE owner_id=? ORDER BY created_at DESC`——在此之前该排序只能借道 V37 的
+  `(owner_id, updated_at)` 并在取出后再做一次排序；后者服务于按 `project_id` 批量定位最新产物的访问路径，
+  单任务查询与 `latestAllByTaskIds` 批量查询共用。两条都只建索引、不改数据，回滚直接 `DROP INDEX` 即可。
+  注意 H2 与 PostgreSQL 对 `DESC` 索引的利用方式不同：PostgreSQL 可正向或反向扫描 B 树，
+  H2 在部分版本上仍需额外排序步骤，因此该索引在 H2 上的收益小于 PostgreSQL，属预期而非缺陷。
 - H2 回滚 V20 时，应先停止后台任务，再执行 `ALTER TABLE video_tasks DROP COLUMN version`。生产数据回滚前必须备份；Flyway 已执行的迁移文件不得修改。
 - 外部进程并发、临时文件保留时间、SSE 刷新周期和缩略图 TTL 属于运行配置，不是数据库字段。
 - 到期导出清理会删除物理文件，将 `artifact.deleted_at` 写为清理时间，并把 `export_job.status` 更新为 `EXPIRED`；任务和参数快照继续保留，可重新导出。

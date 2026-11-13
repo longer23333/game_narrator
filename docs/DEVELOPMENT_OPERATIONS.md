@@ -8,6 +8,23 @@
 - Vite 只承担热更新，API 由 Spring Boot 提供；生产静态资源由前端构建写入 `src/main/resources/static/`。
 - Vue/Pinia 是唯一业务状态源；遗留 DOM 脚本只能是薄入口，不得复制任务状态。
 
+### 静态资源缓存与"改了没变化"
+
+缓存策略按文件名是否带内容哈希分成两档，由 `StaticResourceCacheConfig` 实施：
+
+| 路径 | 策略 | 含义 |
+| --- | --- | --- |
+| `/assets/index-<hash>.js` | `max-age=1y, immutable` | 文件名带内容哈希，内容变则文件名变，可永久缓存 |
+| 其余（`/app.js`、`/app.css`、`index.html` 等） | `no-cache` | 每次回源校验，改完刷新即生效 |
+
+排障顺序固定为：先 `curl -s http://127.0.0.1:8081/app.js | grep 关键字` 确认**服务端**是不是新内容，
+再怀疑浏览器缓存。二者别混为一谈。
+
+- 开发运行时应用读的是 `target/classes/static`，改完源码要 `mvnw process-resources`（或复制）才生效。
+- 改了 `app.css` 记得同步 bump `index.html` 里的 `?v=YYYYMMDD-N` 版本串，否则客户端一直用旧样式。
+- `index.html` 在 `src/main/resources/static/` 与 `frontend/` 各有一份，改 head（含 `preload` 标签）时两份必须同步。
+- Java 类改动必须**重启**应用，8081 常驻实例不做热加载。
+
 ## 账号、管理与容量保护
 
 - 默认是本地账号模式；管理中心维护用户、配额、Token 用量、任务和密钥轮换，密钥只以加密形式落盘。
@@ -25,4 +42,14 @@
 
 ## 项目上下文与日常门禁
 
-运行 `pwsh -NoProfile -ExecutionPolicy Bypass -File scripts/export-deepseek-context.ps1` 更新项目上下文。导出前备份旧索引，导出后执行文档校验。日常门禁包括 `./mvnw test`、前端 `npm test`/`npm run build`、`scripts/verify-documentation.ps1`、`scripts/verify-release-alignment.ps1` 和 Windows 启动器构建。
+运行 `pwsh -NoProfile -ExecutionPolicy Bypass -File scripts/export-deepseek-context.ps1` 更新项目上下文。导出前备份旧索引，导出后执行文档校验。
+
+提交前的统一入口是 `scripts\verify-before-push.ps1`，它按顺序串起：生成配置参考校验 → 版本与能力对齐 → Android 护栏 → **脚本编码校验** → 前端构建与语法检查 → 前后端测试并行。它等价于下列单项：
+
+- `./mvnw test` 与前端 `npm test` / `npm run build`
+- `scripts/verify-documentation.ps1`（文档必须登记进 `DOCUMENTATION_SOURCE_MAP.json`，链接不得断开）
+- `scripts/verify-release-alignment.ps1`
+- `scripts/verify-script-encoding.ps1`（含中文的 `.ps1` 必须带 UTF-8 BOM，详见 `scripts/README.md`）
+- Windows 启动器构建
+
+该脚本的开关用哈希表传递（`@{ SkipFrontendRestore = $true }`），不要用数组 splat。发版走 `scripts\publish-windows-release.cmd`，它在此基础上追加打包、哈希边车与冷启动冒烟，流程见 [统一发布流程](RELEASE_PROCESS.md)。

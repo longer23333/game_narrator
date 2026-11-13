@@ -9,7 +9,7 @@
 - 桌面安装版会自动设置运行目录、端口和并发参数，普通用户不需要手工配置这些项目。
 - PostgreSQL、对象存储和云部署的操作步骤另见 `docs/DEVELOPMENT_OPERATIONS.md`。
 
-## 完整清单（74 项）
+## 完整清单（83 项）
 
 | 环境变量 | Spring 配置路径/用途 | 默认值 | 敏感 | 来源 |
 |---|---|---|---|---|
@@ -24,6 +24,8 @@
 | `CLOUD_SYNC_RETRY_BASE_SECONDS` | game-narrator.cloud-sync.retry.base-delay-seconds | `30` | 否 | application-postgresql.yml |
 | `CLOUD_SYNC_RETRY_JITTER_RATIO` | game-narrator.cloud-sync.retry.jitter-ratio | `0.2` | 否 | application-postgresql.yml |
 | `CLOUD_SYNC_RETRY_MAX_SECONDS` | game-narrator.cloud-sync.retry.max-delay-seconds | `3600` | 否 | application-postgresql.yml |
+| `DB_POOL_MAX_SIZE` | spring.datasource.hikari.maximum-pool-size | `10` | 否 | application.yml |
+| `DB_POOL_MIN_IDLE` | spring.datasource.hikari.minimum-idle | `1` | 否 | application.yml |
 | `FFMPEG_COMMAND` | game-narrator.ffmpeg-command | `./tools/ffmpeg/bin/ffmpeg.exe` | 否 | application.yml |
 | `FFMPEG_MAX_CONCURRENT` | game-narrator.external-process.ffmpeg-max-concurrent | `1` | 否 | application.yml |
 | `GAME_NARRATOR_AI_API_KEY` | Java @Value 注入 | `无（必须显式设置）` | 是 | src/main/java/cn/longer233/gamenarrator/ai/AiSettingsService.java |
@@ -31,17 +33,22 @@
 | `GAME_NARRATOR_COMPANION_TOKEN` | game-narrator.companion.token / 桌面启动器自动注入 | `按设备运行时计算` | 是 | application.yml, launcher/Program.cs |
 | `GAME_NARRATOR_DATA_ROOT` | spring.datasource.url / logging.file.name / game-narrator.storage-root / game-narrator.data-root / 桌面启动器自动注入 | `./data / 按设备运行时计算` | 否 | application-lite.yml, application-release.yml, src/main/java/cn/longer233/gamenarrator/ai/AiSettingsService.java, src/main/java/cn/longer233/gamenarrator/ai/AiUsageService.java, src/main/java/cn/longer233/gamenarrator/identity/LocalSecretCipher.java, launcher/Program.cs |
 | `GAME_NARRATOR_LOG_LEVEL` | logging.level.root | `DEBUG` | 否 | application.yml |
+| `GAME_NARRATOR_NETWORK_MODE` | game-narrator.network.mode | `SYSTEM` | 否 | application.yml |
 | `GAME_NARRATOR_PREVIOUS_SECRET_KEYS` | game-narrator.security.previous-master-keys | `无（必须显式设置）` | 是 | application-postgresql.yml, src/main/java/cn/longer233/gamenarrator/identity/LocalSecretCipher.java |
+| `GAME_NARRATOR_PROXY_URL` | game-narrator.network.proxy-url | `无（必须显式设置）` | 否 | application.yml |
 | `GAME_NARRATOR_SECRET_KEY` | game-narrator.security.master-key | `无（必须显式设置）` | 是 | application-postgresql.yml, src/main/java/cn/longer233/gamenarrator/identity/LocalSecretCipher.java |
 | `GAME_NARRATOR_SECRET_KEY_VERSION` | game-narrator.security.master-key-version | `v1` | 是 | application-postgresql.yml, src/main/java/cn/longer233/gamenarrator/identity/LocalSecretCipher.java |
 | `HIBERNATE_SQL_LOG_LEVEL` | logging.level.root | `WARN` | 否 | application.yml |
+| `IMAGE_GENERATION_ENDPOINT` | game-narrator.image-generation.endpoint | `http://127.0.0.1:8188` | 否 | application.yml |
+| `IMAGE_GENERATION_MODEL` | game-narrator.image-generation.model | `ChenkinNoob-XL-V0.5.safetensors` | 否 | application.yml |
+| `IMAGE_GENERATION_STEPS` | game-narrator.image-generation.default-steps | `8` | 否 | application.yml |
 | `LOGIN_LOCK_MINUTES` | game-narrator.auth.login-throttle.lock-minutes | `15` | 否 | application-postgresql.yml |
 | `LOGIN_MAXIMUM_FAILURES` | game-narrator.auth.login-throttle.maximum-failures | `5` | 否 | application-postgresql.yml |
 | `LOGIN_THROTTLE_MAXIMUM_ENTRIES` | game-narrator.auth.login-throttle.maximum-entries | `10000` | 否 | application-postgresql.yml |
 | `MAX_VIDEO_REQUEST_SIZE` | spring.servlet.multipart.max-request-size | `101GB` | 否 | application.yml |
 | `MAX_VIDEO_UPLOAD_SIZE` | spring.servlet.multipart.max-file-size | `100GB` | 否 | application.yml |
 | `MINIMUM_FREE_STORAGE_BYTES` | game-narrator.capacity.minimum-free-bytes | `5368709120` | 否 | application.yml |
-| `MINIMUM_FREE_STORAGE_PERCENT` | game-narrator.capacity.minimum-free-percent | `5` | 否 | application.yml |
+| `MINIMUM_FREE_STORAGE_PERCENT` | game-narrator.capacity.minimum-free-percent | `0` | 否 | application.yml |
 | `MULTIPART_TEMP_DIRECTORY` | spring.servlet.multipart.location | `./storage/upload-temp` | 否 | application.yml |
 | `OBJECT_STORAGE_ACCESS_KEY` | game-narrator.cloud-sync.access-key | `无（必须显式设置）` | 是 | application-postgresql.yml |
 | `OBJECT_STORAGE_BUCKET` | game-narrator.cloud-sync.bucket | `game-narrator` | 否 | application-postgresql.yml |
@@ -61,6 +68,7 @@
 | `OLLAMA_SCRIPT_MODEL` | game-narrator.ollama.script-model | `${OLLAMA_VISION_MODEL:qwen2.5vl:3b` | 否 | application.yml |
 | `OLLAMA_VISION_MODEL` | game-narrator.ollama.vision-model | `qwen2.5vl:3b` | 否 | application.yml |
 | `OTHER_PROCESS_MAX_CONCURRENT` | game-narrator.external-process.other-max-concurrent | `2` | 否 | application.yml |
+| `PIPER_BATCH_SIZE` | game-narrator.piper.batch-size | `8` | 否 | application.yml |
 | `PIPER_EXECUTABLE` | game-narrator.piper.executable | `./tools/piper/piper/piper.exe` | 否 | application.yml |
 | `PIPER_MODEL` | game-narrator.piper.model / game-narrator.piper.voices.model | `./models/piper/zh_CN-huayan-medium.onnx` | 否 | application.yml |
 | `PIPER_XIAOXIAO_MODEL` | game-narrator.piper.voices.model | `./models/piper/zh_CN-xiaoxiao-medium.onnx` | 否 | application.yml |
@@ -72,6 +80,7 @@
 | `SERVER_MAX_THREADS` | server.tomcat.threads.max / 桌面启动器自动注入 | `32 / 按设备运行时计算` | 否 | application.yml, launcher/Program.cs |
 | `SERVER_MIN_SPARE_THREADS` | server.tomcat.threads.min-spare | `2` | 否 | application.yml |
 | `SERVER_PORT` | server.port / 桌面启动器自动注入 | `18081 / 8081 / 按设备运行时计算` | 否 | application-release.yml, application.yml, launcher/Program.cs |
+| `SPRING_BANNER_MODE` | spring.main.banner-mode | `off` | 否 | application.yml |
 | `TESSERACT_EXECUTABLE` | game-narrator.ocr.executable | `tesseract` | 否 | application.yml |
 | `TESSERACT_LANGUAGES` | game-narrator.ocr.languages | `chi_sim+eng` | 否 | application.yml |
 | `USERPROFILE` | game-narrator.media-import.cookie-search-paths | `无（必须显式设置）` | 否 | application.yml |

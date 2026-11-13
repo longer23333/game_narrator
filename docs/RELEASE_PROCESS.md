@@ -17,7 +17,24 @@ GameNarrator 的 Web、Windows 与 Android 使用同一个语义版本。权威�
 
 Windows 正式版与 Demo Lite 构建脚本会在修改 staging 或打包前自动调用
 `scripts/verify-before-push.ps1`。统一门禁包含配置引用、release alignment、Android guardrails、
-前端构建/测试和后端测试；仅当同一修订已被可信 CI 验证时，才可显式使用 `-SkipTests`。
+脚本编码（`verify-script-encoding.ps1`，拦截含中文却缺 UTF-8 BOM 的 `.ps1`）、前端构建/测试和后端测试；
+仅当同一修订已被可信 CI 验证时，才可显式使用 `-SkipTests`。
+
+## Windows 一键发布
+
+`scripts/publish-windows-release.ps1`（双击入口 `publish-windows-release.cmd`）把"构建 → 校验和 → 冷启动冒烟 → 清单归档"串成一步：
+
+```powershell
+.\scripts\publish-windows-release.ps1 -FastCompression -SkipFrontendRestore
+```
+
+1. 调用 `build-windows-release.ps1`，失败即中止（`-SkipBuild` 可复用已有安装包）。
+2. 生成 `dist/GameNarrator-Setup-<版本>.exe.sha256`，格式与 `sha256sum` 兼容。
+3. 用 `release/staging` 里的 bundled runtime + jar 以 release 配置、随机端口、全新数据目录冷启动，轮询 `/api/debug/health`，并确认 FFmpeg/Whisper/yt-dlp 均可用；Ollama 指向关闭端口，避免影响真实安装。
+4. 写出 `dist/GameNarrator-<版本>.release.json`（版本、提交、大小、哈希、冒烟结果、内嵌 Java 版本）并追加到 `dist/release-history.jsonl`。
+
+需要连安装器一起验证时追加 `-FullInstallSmoke`，会调用 `test-windows-clean-install.ps1` 做静默安装与运行时自检。
+
 
 GitHub 的“验证候选版本并发布标签”工作流只接受已经提交且工作区干净的统一版本候选。它会先下载并校验当前 HEAD 的九项 CI evidence，再在同一提交上验证生产签名制品和真实账号四平台真机 evidence；全部通过后只给该候选提交创建 `vX.Y.Z` 标签，不在构建完成后另造一个无法被既有证据覆盖的新提交。
 

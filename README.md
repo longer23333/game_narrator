@@ -1,7 +1,5 @@
 # GameNarrator
 
-环境变量、默认值和敏感配置说明见 [配置参考](docs/CONFIGURATION_REFERENCE.md)。
-
 多模态游戏视频智能解说与自动剪辑系统。项目使用 Java 21 与 Spring Boot 3.2 从零实现，
 不复制其他业务项目的源码、页面、数据库迁移或静态素材。
 
@@ -9,6 +7,9 @@
 多用户、Token 统计、轻量工程和按需导出方案见 [数据库设计](docs/DATABASE_DESIGN.md)。
 本地 PostgreSQL、MinIO 与跨设备同步环境可运行 `scripts\start-local-cloud.cmd` 一键启动，详见
 [开发、PostgreSQL 与跨设备项目同步](docs/DEVELOPMENT_OPERATIONS.md)。
+环境变量、默认值和敏感配置说明见 [配置参考](docs/CONFIGURATION_REFERENCE.md)。
+
+全部文档（按场景检索的索引、机器可读数据、新增文档流程）见 [文档索引](docs/README.md)。
 
 ## 已实现
 
@@ -81,9 +82,33 @@ Java 服务通过 HTTP 调用这些本地推理服务，避免在 JVM 内直接�
 
 配置 `IMAGE_GENERATION_ENDPOINT`（例如 `http://127.0.0.1:7860`）和 `IMAGE_GENERATION_MODEL` 后，可使用 `/api/creative/images` 生成标题卡、过场、角色、场景和表情，使用 `/api/creative/images/meme-candidates` 生成 Meme 候选，使用 `/api/creative/images/capabilities` 检查引擎状态。参考图会通过 ControlNet 参数传入，并随生成记录保存来源和版权信息。
 
+#### 给其他机器安装图片生成能力
+
+项目不捆绑数 GB 的模型文件。安装 ComfyUI（Windows 可使用官方便携包，或使用支持 NVIDIA GPU 的 Docker），将模型放入 `ComfyUI/models/checkpoints`，然后设置：
+
+```powershell
+$env:COMFYUI_PATH = 'D:\ComfyUI\ComfyUI'
+$env:IMAGE_GENERATION_ENDPOINT = 'http://127.0.0.1:8188'
+$env:IMAGE_GENERATION_MODEL = 'ChenkinNoob-XL-V0.5.safetensors'
+.\scripts\setup-image-generation.ps1 -ComfyUiPath $env:COMFYUI_PATH -Endpoint $env:IMAGE_GENERATION_ENDPOINT -ModelName $env:IMAGE_GENERATION_MODEL
+```
+
+没有 NVIDIA GPU 时可改用远程 ComfyUI 地址；应用只保存生成参数和来源信息，不会把模型文件提交到仓库。安装后先访问 `/api/creative/images/capabilities`，确认 `reachable=true`，再调用生成接口。
+
 ## 运行
 
 项目包含 Maven Wrapper，不需要全局安装 Maven：
+
+```powershell
+.\scripts\check-fast.ps1
+.\scripts\check-fast.ps1 -ChangedTests
+.\scripts\check-fast.ps1 -Full
+```
+
+日常修改先运行快速检查；它只检查发生变化的后端、前端、桌面启动器和 PowerShell
+脚本。`-ChangedTests` 会额外运行本次修改过的测试类，发布或合并前使用 `-Full`。
+
+也可以单独运行 Maven：
 
 ```powershell
 .\mvnw.cmd test
@@ -144,6 +169,20 @@ Select-String -Path .\logs\game-narrator.log -Pattern "trace=前端显示的追�
 ```powershell
 $env:FFMPEG_COMMAND="C:\path\to\ffmpeg.exe"
 .\mvnw.cmd spring-boot:run
+```
+
+## 网络与素材验收
+
+后端默认使用 `GAME_NARRATOR_NETWORK_MODE=SYSTEM` 跟随系统代理。设置为 `DIRECT` 可强制直连，设置为 `HTTP` 时需要同时配置 `GAME_NARRATOR_PROXY_URL`，格式为 `http://主机:端口`。代理地址不支持内嵌账号密码。修改配置后重启后端或桌面程序。
+
+本地 Ollama 等回环服务始终直连。Java HTTP 客户端、素材下载和 yt-dlp 共用代理选择。诊断报告中的 `networkMode` 和 `systemProxyDiscovery` 可用于核对运行配置。
+
+素材搜索、下载、挂载、渲染和导出共用许可证规则。外部素材自动使用要求明确的许可，本地上传及项目素材沿用用户授权约定。CC BY、CC BY-SA 素材仍需遵守署名和相同方式共享要求。
+
+完整本地回归运行 `.\mvnw.cmd test`。`VideoPipelineEndToEndTest` 验证素材上传、分镜挂载、FFmpeg 合成及成片音视频严格解码。真实 Wikimedia 验收可单独运行以下命令，需要可用公网连接。
+
+```powershell
+.\mvnw.cmd '-Dtest=AssetDownloadServiceTest#downloadsRealWikimediaSearchResultThroughNormalService' '-Dwikimedia.live=true' '-Djava.net.useSystemProxies=true' test
 ```
 
 ## 许可证
