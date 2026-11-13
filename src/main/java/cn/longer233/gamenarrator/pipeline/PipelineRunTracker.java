@@ -2,6 +2,8 @@ package cn.longer233.gamenarrator.pipeline;
 
 import cn.longer233.gamenarrator.identity.CurrentUserContext;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Component;
 
@@ -16,6 +18,7 @@ import java.util.UUID;
 /** Mirrors the legacy task state into the versioned run model during the transition period. */
 @Component
 public class PipelineRunTracker {
+    private static final Logger log = LoggerFactory.getLogger(PipelineRunTracker.class);
     private final JdbcTemplate jdbc;
     private final ObjectMapper objectMapper;
     private final CurrentUserContext currentUser;
@@ -135,7 +138,11 @@ public class PipelineRunTracker {
 
     private String json(Object value) {
         try { return objectMapper.writeValueAsString(value); }
-        catch (Exception exception) { return "{}"; }
+        catch (Exception exception) {
+            log.warn("阶段快照序列化失败，本次落库的快照为空对象，回看该阶段时看不到输入上下文：{}（{}）",
+                    value == null ? "null" : value.getClass().getSimpleName(), exception.toString());
+            return "{}";
+        }
     }
 
     private String limited(String value) {

@@ -8,6 +8,7 @@ import cn.longer233.gamenarrator.task.domain.TaskStatus;
 import cn.longer233.gamenarrator.task.domain.VideoTask;
 import cn.longer233.gamenarrator.task.repository.VideoTaskRepository;
 import cn.longer233.gamenarrator.pipeline.TaskArtifactLocator;
+import cn.longer233.gamenarrator.pipeline.ProjectArtifactRegistry;
 import cn.longer233.gamenarrator.voice.VoiceSynthesizer;
 import cn.longer233.gamenarrator.voice.VoiceSegment;
 import cn.longer233.gamenarrator.timeline.TimelinePlanner;
@@ -28,6 +29,7 @@ import static org.mockito.Mockito.when;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.doAnswer;
+import static org.mockito.Mockito.atLeastOnce;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyMap;
 import static org.mockito.ArgumentMatchers.contains;
@@ -37,6 +39,7 @@ import static org.assertj.core.api.Assertions.assertThatThrownBy;
 class ScriptWorkspaceServiceTest {
     @TempDir
     Path temporaryDirectory;
+    private final ProjectArtifactRegistry artifactRegistry = mock(ProjectArtifactRegistry.class);
 
     @Test
     void editingOneSegmentPreservesOthersAndInvalidatesOnlyDownstreamStages() throws Exception {
@@ -72,6 +75,8 @@ class ScriptWorkspaceServiceTest {
         assertThat(stage(task, ProcessingStageType.VOICE_GENERATION)).isEqualTo(StageStatus.PENDING);
         assertThat(stage(task, ProcessingStageType.TIMELINE_PLANNING)).isEqualTo(StageStatus.PENDING);
         assertThat(stage(task, ProcessingStageType.RENDERING)).isEqualTo(StageStatus.PENDING);
+        verify(artifactRegistry, atLeastOnce()).refreshFingerprint(task.getId(), "SCRIPT_MANIFEST",
+                scriptPath.toString(), "application/json");
         assertThat(mapper.readTree(scriptPath.toFile()).path("segments").get(1)
                 .path("narration").asText()).isEqualTo("revised");
     }
@@ -127,6 +132,12 @@ class ScriptWorkspaceServiceTest {
         assertThat(stage(task, ProcessingStageType.VOICE_GENERATION)).isEqualTo(StageStatus.COMPLETED);
         assertThat(stage(task, ProcessingStageType.TIMELINE_PLANNING)).isEqualTo(StageStatus.COMPLETED);
         assertThat(stage(task, ProcessingStageType.RENDERING)).isEqualTo(StageStatus.PENDING);
+        verify(artifactRegistry, atLeastOnce()).refreshFingerprint(task.getId(), "SCRIPT_MANIFEST",
+                script.toString(), "application/json");
+        verify(artifactRegistry).refreshFingerprint(task.getId(), "VOICE_MANIFEST",
+                manifest.toString(), "application/json");
+        verify(artifactRegistry).refreshFingerprint(task.getId(), "TIMELINE_MANIFEST",
+                timeline.toString(), "application/json");
     }
 
     @Test
@@ -161,6 +172,10 @@ class ScriptWorkspaceServiceTest {
         assertThat(stored.path("manualDecisions").toString()).contains("\"sourceFrameIndex\":99");
         assertThat(stored.path("manualDecisionCount").asInt()).isEqualTo(2);
         assertThat(stored.path("selectedDurationSeconds").asDouble()).isZero();
+        verify(artifactRegistry, atLeastOnce()).refreshFingerprint(task.getId(), "SCRIPT_MANIFEST",
+                scriptPath.toString(), "application/json");
+        verify(artifactRegistry).refreshFingerprint(task.getId(), "HIGHLIGHT_MANIFEST",
+                highlightPath.toString(), "application/json");
     }
 
     @Test
@@ -284,7 +299,8 @@ class ScriptWorkspaceServiceTest {
         artifact(locator, task, "SCRIPT_MANIFEST", "script", "review", "rewrite");
         artifact(locator, task, "VOICE_MANIFEST", "voice-manifest");
         artifact(locator, task, "TIMELINE_MANIFEST", "timeline");
-        return new ScriptWorkspaceService(repository, mapper, generator, voice, null, planner, locator);
+        return new ScriptWorkspaceService(repository, mapper, generator, voice, null, planner, locator,
+                artifactRegistry);
     }
 
     private void artifact(TaskArtifactLocator locator, VideoTask task, String type, String... nameParts) {

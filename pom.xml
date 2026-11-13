@@ -21,6 +21,9 @@
         <maven.compiler.parameters>true</maven.compiler.parameters>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
+        <!-- 测试按类分片到 2 个 JVM：各类使用独立的 H2 内存库与 target 子目录，互不共享状态。
+             单核/受限环境可用 -Dsurefire.forkCount=1 回退为串行。 -->
+        <surefire.forkCount>2</surefire.forkCount>
     </properties>
 
     <dependencies>
@@ -85,6 +88,14 @@
             <plugin>
                 <groupId>org.springframework.boot</groupId>
                 <artifactId>spring-boot-maven-plugin</artifactId>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-surefire-plugin</artifactId>
+                <configuration>
+                    <forkCount>${surefire.forkCount}</forkCount>
+                    <reuseForks>true</reuseForks>
+                </configuration>
             </plugin>
         </plugins>
     </build>

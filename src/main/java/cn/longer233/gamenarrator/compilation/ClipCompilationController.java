@@ -31,6 +31,16 @@ public class ClipCompilationController {
         return service.add(id, request.taskId(), request.clipIndex());
     }
 
+    @DeleteMapping("/{id}/items/{itemId}")
+    public ClipCompilationService.CompilationView removeItem(@PathVariable("id") UUID id,
+            @PathVariable("itemId") UUID itemId) {
+        return service.removeItem(id, itemId);
+    }
+
+    @DeleteMapping("/{id}")
+    @ResponseStatus(HttpStatus.NO_CONTENT)
+    public void delete(@PathVariable("id") UUID id) { service.delete(id); }
+
     @PutMapping("/{id}/order")
     public ClipCompilationService.CompilationView reorder(@PathVariable("id") UUID id,
             @Valid @RequestBody ReorderRequest request) { return service.reorder(id, request.itemIds()); }

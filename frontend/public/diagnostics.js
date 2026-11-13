@@ -16,7 +16,16 @@
       output.scrollTop = output.scrollHeight;
     } catch (error) { output.textContent = error.message; }
     try {
-      const response = await fetch('/api/admin/storage', {cache:'no-store'});
+      const administrator = document.body.dataset.userRole === 'ADMIN';
+      let response = await fetch(administrator ? '/api/admin/storage' : '/api/debug/health', {cache:'no-store'});
+      if (!administrator) {
+        const cleanup = document.querySelector('#storage-cleanup');
+        if (cleanup) cleanup.hidden = true;
+        if (!response.ok) throw new Error(`存储状态读取失败：HTTP ${response.status}`);
+        const data = await response.json();
+        storageOutput.textContent = `存储目录：${data.storagePath}\n写入状态：${data.storageWritable ? '正常' : '不可写'}\n\n详细容量与清理功能仅管理员可用。`;
+        return;
+      }
       if (!response.ok) throw new Error(`存储状态读取失败：HTTP ${response.status}`);
       const data = await response.json();
       const gb = value => (Number(value || 0) / 1024 / 1024 / 1024).toFixed(2);

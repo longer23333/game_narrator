@@ -4,6 +4,8 @@ import cn.longer233.gamenarrator.common.SecurePathGuard;
 import cn.longer233.gamenarrator.task.application.CreateVideoTaskCommand;
 import cn.longer233.gamenarrator.task.application.VideoTaskService;
 import cn.longer233.gamenarrator.task.application.VideoTaskView;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
@@ -15,6 +17,7 @@ import java.util.concurrent.Executor;
 
 @Service
 public class RemoteProjectImportService {
+    private static final Logger log = LoggerFactory.getLogger(RemoteProjectImportService.class);
     private final YtDlpMediaImporter importer;
     private final VideoTaskService tasks;
     private final Executor executor;
@@ -43,8 +46,12 @@ public class RemoteProjectImportService {
 
     private void download(VideoTaskView task, MediaDownloadRequest request, Path pending) {
         try {
-            MediaDownloadResult result = importer.download(request, progress ->
-                    tasks.updateRemoteDownloadProgress(task.id(), percent(progress.percent())));
+            MediaDownloadResult result = importer.download(request, progress -> {
+                Integer value = percent(progress.percent());
+                // 拿不到可解析的进度就保持上一次的值，不再塞一个凭空的 10% 假装在下载。
+                if (value == null) log.debug("yt-dlp 未给出可解析的下载进度，界面保持上一进度：{}", progress.percent());
+                else tasks.updateRemoteDownloadProgress(task.id(), value);
+            });
             Path source = Path.of(result.localPath()).toAbsolutePath().normalize();
             Path safeRoot = SecurePathGuard.prepareRoot(taskRoot);
             Files.createDirectories(taskRoot);
@@ -66,8 +73,13 @@ public class RemoteProjectImportService {
         }
     }
 
-    private int percent(String value) {
+    /** @return 解析出的百分比；yt-dlp 未给出可解析数值时返回 null，由调用方保持原进度。 */
+    static Integer percent(String value) {
+        if (value == null) return null;
         try { return (int) Math.floor(Double.parseDouble(value.replace("%", "").trim())); }
-        catch (Exception ignored) { return 10; }
+        catch (Exception exception) {
+            log.debug("下载进度值无法解析：{}（{}）", value, exception.toString());
+            return null;
+        }
     }
 }

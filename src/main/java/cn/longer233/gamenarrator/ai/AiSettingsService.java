@@ -1,6 +1,8 @@
 package cn.longer233.gamenarrator.ai;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.jdbc.core.JdbcTemplate;
@@ -15,9 +17,13 @@ import java.net.URI;
 import java.net.UnknownHostException;
 import java.util.Map;
 import java.util.Locale;
+import java.util.regex.Pattern;
 
 @Service
 public class AiSettingsService {
+    private static final Logger log = LoggerFactory.getLogger(AiSettingsService.class);
+    /** Ollama 风格的本地模型名：<名称>:<标签>，云端服务商的模型 ID 不会使用这种写法。 */
+    private static final Pattern OLLAMA_MODEL_TAG = Pattern.compile("^[A-Za-z0-9._-]+:[A-Za-z0-9._-]+$");
     private static final Map<String,String> PROVIDER_BASE_URLS=Map.ofEntries(
             Map.entry("DASHSCOPE","https://dashscope.aliyuncs.com/compatible-mode/v1"),
             Map.entry("DEEPSEEK","https://api.deepseek.com"), Map.entry("OPENAI","https://api.openai.com/v1"),
@@ -35,6 +41,10 @@ public class AiSettingsService {
     private final JdbcTemplate jdbc;
     private final CurrentUserContext currentUser;
     private final LocalSecretCipher cipher;
+    @Value("${game-narrator.ollama.vision-model:qwen2.5vl:3b}")
+    private String localVisionModel = "qwen2.5vl:3b";
+    @Value("${game-narrator.ollama.script-model:${game-narrator.ollama.vision-model:qwen2.5vl:3b}}")
+    private String localTextModel = "qwen2.5vl:3b";
 
     public AiSettingsService(ObjectMapper mapper,
             @Value("${game-narrator.data-root:${GAME_NARRATOR_DATA_ROOT:./data}}") String dataRoot,
@@ -61,7 +71,10 @@ public class AiSettingsService {
         }
         try {
             if (Files.isRegularFile(file)) return normalize(mapper.readValue(file.toFile(), Settings.class));
-        } catch (Exception ignored) { }
+        } catch (Exception exception) {
+            log.warn("AI 设置文件无法读取或内容无效，已回退到默认设置（原有配置不会被删除，可修复文件后重启恢复）：{}（{}）",
+                    file, exception.toString());
+        }
         return defaults();
     }
 
@@ -71,7 +84,7 @@ public class AiSettingsService {
             String key = requested.apiKey() == null || requested.apiKey().isBlank()
                     ? existing.apiKey() : requested.apiKey().trim();
             Settings value = normalize(new Settings(requested.mode(), requested.provider(), key,
-                    requested.baseUrl(), requested.visionModel(), requested.textModel(), requested.inputPricePerMillion(),
+                    requested.baseUrl(), modelForMode(requested, existing, true), modelForMode(requested, existing, false), requested.inputPricePerMillion(),
                     requested.outputPricePerMillion(), requested.cachedInputPricePerMillion()));
             if (currentUser.authenticated()) {
                 int changed=jdbc.update("UPDATE user_cloud_ai_config SET mode=?,provider=?,base_url=?,vision_model=?,text_model=?,api_key_ciphertext=?,api_key_hint=?,input_price_per_million=?,output_price_per_million=?,cached_input_price_per_million=?,updated_at=? WHERE user_id=?",value.mode(),value.provider(),value.baseUrl(),value.visionModel(),value.textModel(),cipher.encrypt(value.apiKey()),hint(value.apiKey()),value.inputPricePerMillion(),value.outputPricePerMillion(),value.cachedInputPricePerMillion(),java.time.Instant.now(),currentUser.userId());
@@ -127,12 +140,53 @@ public class AiSettingsService {
                 ? validateCompatibleBaseUrl(value.baseUrl()) : PROVIDER_BASE_URLS.get(provider);
         return new Settings(mode, provider, blank(value.apiKey(), ""),
                 baseUrl,
-                blank(value.visionModel(), local || deepSeek ? "qwen2.5vl:3b" : "qwen-vl-plus"),
-                blank(value.textModel(), local ? "qwen2.5:3b" : deepSeek ? "deepseek-chat" : "qwen-plus"), positive(value.inputPricePerMillion()),
+                local && "DASHSCOPE".equals(provider) && "qwen-vl-plus".equals(value.visionModel())
+                        ? localVisionModel : blank(value.visionModel(), local || deepSeek ? localVisionModel : "qwen-vl-plus"),
+                local && "DASHSCOPE".equals(provider) && "qwen-plus".equals(value.textModel())
+                        ? localTextModel : blank(value.textModel(), local ? localTextModel : deepSeek ? "deepseek-chat" : "qwen-plus"), positive(value.inputPricePerMillion()),
                 positive(value.outputPricePerMillion()),positive(value.cachedInputPricePerMillion()));
     }
 
     private Settings defaults() { return normalize(new Settings("CLOUD", "DASHSCOPE", "", "", "", "",0d,0d,0d)); }
+    private String modelForMode(Settings requested, Settings existing, boolean vision) {
+        String selected = vision ? requested.visionModel() : requested.textModel();
+        String previous = vision ? existing.visionModel() : existing.textModel();
+        String trimmed = selected == null ? null : selected.trim();
+        if ("LOCAL".equalsIgnoreCase(requested.mode()) && !"LOCAL".equals(existing.mode())
+                && java.util.Objects.equals(trimmed, previous)) {
+            return vision ? localVisionModel : localTextModel;
+        }
+        if (!"LOCAL".equalsIgnoreCase(requested.mode())) {
+            String repaired = cloudModelForLeakedLocalName(requested, trimmed, vision);
+            if (repaired != null) return repaired;
+        }
+        return selected;
+    }
+
+    /** 本地 Ollama 模型名（如 qwen2.5vl:3b）被当成云端模型名保存时会触发服务商 404，这里改回该服务商的内置默认模型。 */
+    private String cloudModelForLeakedLocalName(Settings requested, String model, boolean vision) {
+        if (!isLocalModelName(model)) return null;
+        String provider = blank(requested.provider(), "DASHSCOPE").toUpperCase(Locale.ROOT);
+        String replacement;
+        if ("DEEPSEEK".equals(provider)) {
+            if (vision) return null;
+            replacement = "deepseek-chat";
+        } else if ("DASHSCOPE".equals(provider)) {
+            replacement = vision ? "qwen-vl-plus" : "qwen-plus";
+        } else {
+            return null;
+        }
+        log.warn("云端模型名仍是本地 Ollama 模型“{}”，已自动改用“{}”。若确实要自定义云端模型，请填写 {} 的真实模型名",
+                model, replacement, provider);
+        return replacement;
+    }
+
+    private boolean isLocalModelName(String model) {
+        if (model == null || model.isBlank()) return false;
+        String trimmed = model.trim();
+        return trimmed.equals(localVisionModel) || trimmed.equals(localTextModel)
+                || OLLAMA_MODEL_TAG.matcher(trimmed).matches();
+    }
     private String blank(String value, String fallback) { return value == null || value.isBlank() ? fallback : value.trim(); }
     private double positive(Double value){return value==null||!Double.isFinite(value)?0:Math.max(0,value);}
 

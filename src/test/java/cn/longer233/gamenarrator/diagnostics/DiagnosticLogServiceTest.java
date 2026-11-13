@@ -6,6 +6,7 @@ import org.junit.jupiter.api.io.TempDir;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.UUID;
+import java.util.zip.ZipInputStream;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -26,6 +27,8 @@ class DiagnosticLogServiceTest {
                 .doesNotContain("abc.def", "private-value", "SESSDATA=secret", "json-secret with spaces",
                         "access-value", "refresh-value", "session-value");
         assertThat(service.export()).isNotEmpty();
+        assertThat(service.sanitizeEventField("first\r\nFAKE_LOG\tapiKey=secret"))
+                .isEqualTo("first FAKE_LOG apiKey=***");
     }
 
     @Test
@@ -64,5 +67,24 @@ class DiagnosticLogServiceTest {
 
         assertThat(recent).contains(first.toString(), second.toString(), "owned stack detail")
                 .doesNotContain(foreign.toString(), "foreign-secret", "foreign stack detail");
+    }
+
+    @Test
+    void scopedExportDoesNotContainAnotherAccountsTask() throws Exception {
+        UUID owned = UUID.randomUUID();
+        UUID foreign = UUID.randomUUID();
+        Path log = tempDir.resolve("game-narrator.log");
+        Files.writeString(log, "ENGINE_START taskId=" + foreign + " message=foreign-secret\n"
+                + "ENGINE_START taskId=" + owned + " message=owned-detail\n");
+        var service = new DiagnosticLogService(log.toString());
+
+        StringBuilder contents = new StringBuilder();
+        try (var zip = new ZipInputStream(new java.io.ByteArrayInputStream(service.exportForTasks(java.util.List.of(owned))),
+                java.nio.charset.StandardCharsets.UTF_8)) {
+            while (zip.getNextEntry() != null) contents.append(new String(zip.readAllBytes(), java.nio.charset.StandardCharsets.UTF_8));
+        }
+
+        assertThat(contents).contains(owned.toString(), "owned-detail")
+                .doesNotContain(foreign.toString(), "foreign-secret");
     }
 }

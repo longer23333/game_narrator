@@ -57,6 +57,69 @@ class ClipCompilationServiceTest {
     }
 
     @Test
+    void rejectsTrashedTasksAndHidesExistingItemsAfterDeletion() {
+        DriverManagerDataSource source = migrated("compilation-trash-isolation");
+        JdbcTemplate template = new JdbcTemplate(source);
+        UUID owner = UUID.randomUUID();
+        insertUser(template, owner, "compilation-trash-owner");
+        UUID activeTask = insertTask(template, owner, "active task");
+        UUID trashedTask = insertTask(template, owner, "trashed task");
+        CurrentUserContext currentUser = mock(CurrentUserContext.class);
+        when(currentUser.userId()).thenReturn(owner);
+        ClipCompilationService service = new ClipCompilationService(JdbcClient.create(source), currentUser);
+        UUID compilation = service.create("cleanup").id();
+        service.add(compilation, activeTask, 0);
+        template.update("UPDATE video_tasks SET deleted_at=? WHERE id IN (?,?)",
+                Timestamp.from(Instant.now()), activeTask, trashedTask);
+
+        assertThat(service.find(compilation).items()).isEmpty();
+        assertThatThrownBy(() -> service.add(compilation, trashedTask, 0))
+                .isInstanceOf(IllegalArgumentException.class).hasMessage("任务不存在");
+    }
+
+    @Test
+    void removesSingleClipAndDeletesWholeCompilation() {
+        DriverManagerDataSource source = migrated("compilation-remove-delete");
+        JdbcTemplate template = new JdbcTemplate(source);
+        UUID owner = UUID.randomUUID();
+        insertUser(template, owner, "compilation-remove-owner");
+        UUID first = insertTask(template, owner, "first task");
+        UUID second = insertTask(template, owner, "second task");
+        CurrentUserContext currentUser = mock(CurrentUserContext.class);
+        when(currentUser.userId()).thenReturn(owner);
+        ClipCompilationService service = new ClipCompilationService(JdbcClient.create(source), currentUser);
+        UUID compilation = service.create("removable").id();
+        service.add(compilation, first, 0);
+        service.add(compilation, second, 1);
+
+        UUID removedItem = service.find(compilation).items().getFirst().id();
+        ClipCompilationService.CompilationView afterRemoval = service.removeItem(compilation, removedItem);
+
+        assertThat(afterRemoval.items()).extracting(ClipCompilationService.CompilationItemView::taskId)
+                .containsExactly(second);
+        assertThat(template.queryForObject("SELECT COUNT(*) FROM clip_compilation_item WHERE compilation_id=?",
+                Integer.class, compilation)).isOne();
+        // 移除后仍能继续追加，新增切片排在末尾（position 缺口不影响排序）。
+        assertThat(service.add(compilation, first, 2).items()).hasSize(2);
+
+        assertThatThrownBy(() -> service.removeItem(compilation, removedItem))
+                .isInstanceOf(IllegalArgumentException.class).hasMessage("切片不存在或不属于该合集");
+
+        service.delete(compilation);
+
+        assertThat(service.list()).isEmpty();
+        assertThat(template.queryForObject("SELECT COUNT(*) FROM clip_compilation_item WHERE compilation_id=?",
+                Integer.class, compilation)).isZero();
+        assertThatThrownBy(() -> service.find(compilation))
+                .isInstanceOf(IllegalArgumentException.class).hasMessage("合集不存在");
+        assertThatThrownBy(() -> service.delete(compilation))
+                .isInstanceOf(IllegalArgumentException.class).hasMessage("合集不存在");
+        // 删合集只删记录，不能连带删除任务本身。
+        assertThat(template.queryForObject("SELECT COUNT(*) FROM video_tasks WHERE id IN (?,?)",
+                Integer.class, first, second)).isEqualTo(2);
+    }
+
+    @Test
     void v44BackfillsLegacyCompilationsAndEnforcesOwnerSchema() {
         String url = "jdbc:h2:mem:compilation-owner-migration-" + UUID.randomUUID() + ";DB_CLOSE_DELAY=-1";
         Flyway.configure().dataSource(url, "sa", "").target("43").load().migrate();

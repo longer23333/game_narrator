@@ -1,3 +1,5 @@
+export const taskStatusText = task => ({PENDING:'等待制作',CREATED:'等待制作',QUEUED:'排队中',PROCESSING:'正在制作',WAITING_REVIEW:'等待你确认',COMPLETED:'可以播放',FAILED:'制作失败',CANCELLED:'已停止'}[task.status] || '等待更新');
+export const taskActionText = task => task.status === 'COMPLETED' ? '播放与导出' : task.status === 'WAITING_REVIEW' ? '检查并继续制作' : ['FAILED','CANCELLED'].includes(task.status) ? '查看原因与重试' : '查看制作进度';
 const stageNames = {VIDEO_INGESTION:'素材读取',SCENE_DETECTION:'镜头检测与音频提取',TRANSCRIPTION:'语音转写',VIDEO_UNDERSTANDING:'画面理解',HIGHLIGHT_SELECTION:'完整分镜与高光标注',SCRIPT_GENERATION:'文案生成',VOICE_GENERATION:'AI 配音',TIMELINE_PLANNING:'时间轴规划',RENDERING:'视频合成'};
 export const formatDate = value => new Intl.DateTimeFormat('zh-CN',{dateStyle:'short',timeStyle:'short'}).format(new Date(value));
 export const stageTitle = stage => `${stageNames[stage.type] || stage.type}：${stage.status}${stage.errorMessage ? `；${stage.errorMessage}` : ''}`;
@@ -5,7 +7,7 @@ export function currentStageText(task) {
   const current = task.stages.find(stage => stage.status === 'RUNNING') || task.stages.find(stage => stage.status === 'FAILED');
   if (current) return `${stageNames[current.type] || current.type} · ${current.progress || 0}%`;
   if (task.status === 'WAITING_REVIEW') return '等待确认分镜';
-  return task.status === 'COMPLETED' ? '已完成' : task.status;
+  return taskStatusText(task);
 }
 export function voiceProgressText(task, stage) {
   const total=Math.max(1,task.generatedScriptSegmentCount||1); const completed=Math.min(total,Math.max(0,Math.floor((Math.max(10,stage.progress)-10)/85*total)));

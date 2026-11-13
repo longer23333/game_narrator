@@ -28,6 +28,39 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 class AssetDownloadServiceTest {
+    @Test
+    @org.junit.jupiter.api.condition.EnabledIfSystemProperty(named = "wikimedia.live", matches = "true")
+    void downloadsRealWikimediaSearchResultThroughNormalService() throws Exception {
+        var mapper = new com.fasterxml.jackson.databind.ObjectMapper();
+        var client = new WikimediaAssetClient(mapper, "https://commons.wikimedia.org", true, 10,
+                new AssetSearchResilience(1, 0, 10, 6, 16));
+        var result = client.search(new AssetSearchRequest("intitle:Example.jpg", "IMAGE", 5, 1,
+                true, true, "WIKIMEDIA", "RELEVANCE"));
+        var candidates = result.path("results");
+        assertThat(candidates.isEmpty()).isFalse();
+        var candidate = candidates.get(0);
+        JdbcTemplate jdbc = database();
+        UUID id = insertAsset(jdbc, "wikimedia-live");
+        jdbc.update("UPDATE external_asset SET provider='WIKIMEDIA',asset_type='IMAGE',download_url=?,license_code=? WHERE id=?",
+                candidate.path("url").asText(), candidate.path("license").asText(), id);
+        var service = new AssetDownloadService(jdbc, new SafeRemoteHttpConnector(), storage.toString(),
+                "ffmpeg", Runnable::run);
+        service.download(id);
+        assertThat(service.status(id).status()).isEqualTo("DOWNLOADED");
+        assertThat(service.status(id).downloadedBytes()).isPositive();
+    }
+
+    @Test
+    void normalizesFullWikimediaLicenseNamesWithoutAcceptingRestrictedVariants() {
+        assertThat(AssetDownloadService.normalizeDownloadLicense("CC BY-SA 4.0")).isEqualTo("by-sa");
+        assertThat(AssetDownloadService.normalizeDownloadLicense("CC BY 3.0")).isEqualTo("by");
+        assertThat(AssetDownloadService.normalizeDownloadLicense("CC0 1.0")).isEqualTo("cc0");
+        assertThat(AssetDownloadService.normalizeDownloadLicense("Public domain")).isEqualTo("pdm");
+        assertThat(AssetDownloadService.normalizeDownloadLicense("by-sa")).isEqualTo("by-sa");
+        assertThat(AssetDownloadService.normalizeDownloadLicense("CC BY-NC-SA 4.0")).isEqualTo("cc by-nc-sa 4.0");
+        assertThat(AssetDownloadService.normalizeDownloadLicense("CC BY-ND 4.0")).isEqualTo("cc by-nd 4.0");
+    }
+
     @TempDir Path storage;
 
     @Test
@@ -93,6 +126,7 @@ class AssetDownloadServiceTest {
     void restartsSafelyWhenServerIgnoresTheRangeHeader() throws Exception {
         JdbcTemplate jdbc = database();
         UUID id = insertAsset(jdbc, "no-range");
+        jdbc.update("UPDATE external_asset SET license_code='CC BY-SA 4.0' WHERE id=?", id);
         Path directory = storage.resolve("library").resolve(id.toString());
         Files.createDirectories(directory);
         Files.writeString(directory.resolve("source.mp4.part"), "stale");

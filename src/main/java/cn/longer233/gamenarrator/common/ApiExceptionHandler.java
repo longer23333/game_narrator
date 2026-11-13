@@ -1,6 +1,7 @@
 package cn.longer233.gamenarrator.common;
 
 import cn.longer233.gamenarrator.task.application.TaskNotFoundException;
+import org.apache.catalina.connector.ClientAbortException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.slf4j.MDC;
@@ -21,6 +22,15 @@ import java.time.Instant;
 public class ApiExceptionHandler {
 
     private static final Logger log = LoggerFactory.getLogger(ApiExceptionHandler.class);
+
+    @ExceptionHandler(ClientAbortException.class)
+    public void clientDisconnected(ClientAbortException exception) {
+        // A browser commonly closes a media request while seeking or replacing a video.
+        // The response may already be committed with a video content type, so attempting
+        // to serialize an ApiError here only causes a second converter exception.
+        log.debug("CLIENT_DISCONNECTED type={} message={}",
+                exception.getClass().getSimpleName(), exception.getMessage());
+    }
 
     @ExceptionHandler(TaskNotFoundException.class)
     @ResponseStatus(HttpStatus.NOT_FOUND)

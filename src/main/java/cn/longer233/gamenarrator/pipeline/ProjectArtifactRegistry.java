@@ -100,6 +100,27 @@ public class ProjectArtifactRegistry {
         }
     }
 
+    /** Refreshes metadata for an existing mutable artifact without advancing the project revision. */
+    @Transactional
+    public void refreshFingerprint(UUID projectId, String type, String value, String mimeType) {
+        if (value == null || value.isBlank()) throw new IllegalArgumentException("产物路径不能为空");
+        try {
+            Path path = Path.of(value).toAbsolutePath().normalize();
+            if (!Files.isRegularFile(path)) throw new IllegalArgumentException("产物文件不存在：" + path);
+            int changed = jdbc.update("""
+                    UPDATE artifact SET mime_type=?,size_bytes=?,sha256=?
+                    WHERE project_id=? AND artifact_type=? AND storage_key=? AND deleted_at IS NULL
+                    """, mimeType, Files.size(path), fileSha256(path), projectId, type, path.toString());
+            if (changed != 1) {
+                throw new IllegalStateException("无法刷新工程产物校验信息：" + type);
+            }
+        } catch (RuntimeException exception) {
+            throw exception;
+        } catch (Exception exception) {
+            throw new IllegalStateException("无法刷新工程产物校验信息：" + type, exception);
+        }
+    }
+
     private String sha256(byte[] value) throws Exception {
         return HexFormat.of().formatHex(MessageDigest.getInstance("SHA-256").digest(value));
     }

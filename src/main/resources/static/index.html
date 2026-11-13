@@ -5,9 +5,11 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>GameNarrator 2.2.58</title>
   <link rel="stylesheet" href="/media-importer.css?v=20260729-10">
-  <link rel="stylesheet" href="/app.css?v=20260803-13">
+  <link rel="stylesheet" href="/app.css?v=20260912-5">
   <link rel="stylesheet" href="/ui-refresh.css?v=20260811-1">
-  <script type="module" crossorigin src="/assets/index-DPGErZnd.js"></script>
+  <!-- 主包执行后会立即动态加载 app.js，提前预取可省一个串行往返。 -->
+  <link rel="preload" as="script" href="/app.js">
+  <script type="module" crossorigin src="/assets/index-DL8vkMo8.js"></script>
   <link rel="modulepreload" crossorigin href="/assets/memphis-motion.js">
   <link rel="stylesheet" crossorigin href="/assets/memphis-theme.css">
 </head>
@@ -16,21 +18,21 @@
   <header class="topbar">
     <a class="brand" href="/">GAME<span>NARRATOR</span><small class="app-version">v2.2.58</small></a>
     <nav class="primary-nav" aria-label="主要功能">
-      <a href="/?view=studio" data-view-link="studio">剪辑任务</a>
-      <a href="/?view=search" data-view-link="search">镜头搜索</a>
+      <a href="/?view=studio" data-view-link="studio">制作视频</a>
       <a href="/?view=import" data-view-link="import">平台导入</a>
-      <a href="/?view=assets" data-view-link="assets">素材库</a>
       <a href="/?view=settings" data-view-link="settings">设置</a>
     </nav>
     <div class="topbar-actions">
-      <div class="system-state"><i></i> 服务正常</div>
       <details class="utility-menu">
-        <summary>帮助与系统</summary>
+        <summary>更多工具与帮助</summary>
         <div>
+          <a href="/?view=search" data-view-link="search">查找已有镜头</a>
+          <a href="/?view=assets" data-view-link="assets">管理补充素材</a>
+          <a href="/?view=compilations" data-view-link="compilations">剪辑合集</a>
           <button id="runtime-restart" class="diagnostics-open" type="button" hidden>重新运行</button>
           <button id="updates-open" class="diagnostics-open has-update" type="button">更新公告</button>
           <button id="guide-open" class="diagnostics-open guide-open" type="button">使用引导</button>
-          <button id="readiness-open" class="diagnostics-open" type="button">发布就绪度</button>
+          <button id="readiness-open" class="diagnostics-open" type="button" data-admin-only hidden>发布就绪度</button>
           <button id="diagnostics-open" class="diagnostics-open" type="button">诊断日志</button>
         </div>
       </details>
@@ -59,36 +61,27 @@
         <header><div><small>LOCAL MODEL CATALOG</small><h3 id="local-model-title">本地模型管理</h3></div><button type="button" class="secondary-button" data-model-action="refresh">刷新状态</button></header>
         <p data-model-service>正在检测 Ollama 和已安装模型…</p>
         <div class="local-model-grid" data-installed-models></div>
-        <details open><summary>推荐模型与资源需求</summary><div class="local-model-grid" data-recommended-models></div></details>
+        <details><summary>推荐模型与资源需求</summary><div class="local-model-grid" data-recommended-models></div></details>
         <p class="local-model-note">内存/显存为推理估算值，实际占用会随上下文长度、量化版本和并发变化。下载由本机 Ollama 完成。</p>
       </section>
       <section class="ai-usage" aria-live="polite"><div><span>本轮 输入</span><strong data-usage="turnInput">0</strong></div><div><span>输出</span><strong data-usage="turnOutput">0</strong></div><div><span>会话</span><strong data-usage="session">0</strong></div><div><span>缓存</span><strong><b data-usage="cached">0</b> <small>(<i data-usage="cachePercent">0%</i>)</small></strong></div><div><span>花费</span><strong data-usage="turnCost">$0.0000</strong></div><div><span>今日</span><strong data-usage="todayCost">$0.0000</strong></div><div class="ai-usage-model"><span>模型</span><strong data-usage="model">尚未调用</strong></div></section>
     </section>
     <section class="hero" data-page="studio">
-      <p class="eyebrow">MULTIMODAL GAME COMMENTARY</p>
-      <h1>把游戏录像变成<br><span>完整动漫剧场式解说</span></h1>
-      <p class="lead">默认保留完整录像内容并生成连续叙事；AI 高光识别只用于强调关键事件、安排特效与解说节奏。</p>
-      <div class="metrics">
-        <div><strong>9</strong><span>处理阶段</span></div>
-        <div><strong>4</strong><span>模型能力</span></div>
-        <div><strong>LOCAL</strong><span>数据优先</span></div>
-      </div>
-      <nav class="quick-start" aria-label="快捷开始">
-        <a href="#task-form" data-quick-action="create"><b>① 新建剪辑</b><span>上传本地录像并自动生成成片</span></a>
-        <a href="/?view=import" data-view-link="import"><b>② 从平台导入</b><span>粘贴已获授权的视频链接</span></a>
-        <a href="/?view=assets" data-view-link="assets"><b>③ 管理素材</b><span>查找图片、视频、音效和贴图</span></a>
-      </nav>
+      <p class="eyebrow">游戏录像解说</p>
+      <h1>选一段录像，<span>先看成片</span></h1>
+      <p class="lead">选择风格后自动生成解说视频。看过预览，再决定要改哪里。</p>
+      <ol class="creation-steps" aria-label="制作流程"><li>1 · 导入录像</li><li>2 · 生成预览</li><li>3 · 调整并导出</li></ol>
     </section>
 
     <section class="workspace" data-page="studio">
       <article class="create-panel">
         <div class="section-title">
-          <div><small>NEW MISSION</small><h2>创建剪辑任务</h2></div>
+          <div><small>NEW MISSION</small><h2>制作新视频</h2></div>
           <span class="step">01</span>
         </div>
         <form id="task-form">
-          <p class="form-intro"><strong>只需完成 3 项：</strong>填写名称和创作要求、选择视频、点击底部“开始制作”。其余选项已有推荐默认值。</p>
-          <label>任务名称<input name="name" maxlength="120" required placeholder="例如：魂系 Boss 战逆转高光"></label>
+          <p class="form-intro">选好视频和解说风格即可开始，名称和创作要求可以不填。</p>
+          <label class="dropzone">选择游戏视频<input name="video" type="file" accept="video/*" required><span>MP4 / MOV / MKV / WEBM</span></label>
           <div class="grid">
             <label>内容类别
               <select name="gameCategory">
@@ -110,22 +103,21 @@
             <label>剪辑范围<select name="editingScope"><option value="FULL_VIDEO">完整视频（默认）</option><option value="HIGHLIGHTS">仅精彩片段</option></select><small>完整视频保留全部内容；精彩片段会按目标时长筛选。</small></label>
             <label data-target-duration>目标时长（秒）<input name="targetDurationSeconds" type="number" min="15" max="3600" value="90"><small>仅“精彩片段”模式用于控制成片长度。</small></label>
           </div>
-          <label>创作要求<textarea name="taskBrief" maxlength="500" required placeholder="描述希望重点保留的玩法、节奏和表达方式"></textarea></label>
+          <details class="advanced-options"><summary>名称和创作要求（可选）</summary><label>视频名称<input name="name" maxlength="120" placeholder="默认使用文件名"></label><label>希望怎么剪？<textarea name="taskBrief" maxlength="500" placeholder="例如：保留最后的逆转，解说轻松一点；不填则按所选风格生成"></textarea></label></details>
           <details class="advanced-options">
             <summary><span>高级流程选项</span><small>默认配置已适合大多数任务</small></summary>
             <div class="advanced-options-body">
               <details class="glossary-editor"><summary>游戏术语纠错词表（可选）</summary><label>每行填写“错误词=正确词”<textarea name="terminologyGlossary" maxlength="4000" placeholder="躲避=闪避&#10;大龙=纳什男爵"></textarea></label></details>
-              <label class="effect-toggle storyboard-review-option"><input name="storyboardReviewEnabled" type="checkbox" value="true" checked> AI 生成文案和分镜后暂停，等待我检查和修改</label>
+              <label class="effect-toggle storyboard-review-option"><input name="storyboardReviewEnabled" type="checkbox" value="true"> AI 生成文案和分镜后暂停，等待我检查和修改</label>
               <label class="effect-toggle"><input name="automaticGenerationEnabled" type="checkbox" value="true" checked> 启动自动剪辑流程</label>
-              <label class="effect-toggle"><input name="cloudVisionEnabled" type="checkbox" value="true" checked> 云端理解完整视频场景</label>
+              <label class="effect-toggle"><input name="cloudVisionEnabled" type="checkbox" value="true" checked> AI 理解视频场景（使用当前模型设置）</label>
               <label class="effect-toggle"><input name="aiScriptEnabled" type="checkbox" value="true" checked> AI 生成文案与字幕初稿</label>
               <label class="effect-toggle"><input name="aiVoiceEnabled" type="checkbox" value="true" checked> AI 生成解说语音</label>
-              <label class="effect-toggle"><input name="autoAssetsEnabled" type="checkbox" value="true" checked> AI 自动选择补充素材</label>
+              <label class="effect-toggle"><input name="autoAssetsEnabled" type="checkbox" value="true"> 自动搜索并下载补充素材（可选，耗时较长）</label>
               <small class="storyboard-review-hint">各项 AI 能力可独立开关；关闭后仍可手动剪辑。</small>
             </div>
           </details>
-          <label class="dropzone">选择游戏视频<input name="video" type="file" accept="video/*" required><span>MP4 / MOV / MKV / WEBM</span></label>
-          <button type="submit" class="primary-submit">开始制作视频 <b>→</b></button>
+          <button type="submit" class="primary-submit">生成视频预览 <b>→</b></button>
           <p id="form-message"></p>
         </form>
       </article>
@@ -167,6 +159,26 @@
       <p id="segment-search-message" class="effect-message"></p>
       <div id="segment-search-results" class="segment-search-results"></div>
       <datalist id="segment-duration-options"><option value="10"><option value="20"><option value="30"><option value="40"><option value="50"><option value="60"></datalist>
+    </section>
+
+    <section class="compilations" data-page="compilations">
+      <div class="section-title">
+        <div><small>CLIP COMPILATIONS</small><h2>剪辑合集</h2></div>
+        <span class="step">CUT</span>
+      </div>
+      <p class="asset-library-note">把不同任务里挑出来的镜头归到一个命名合集里，并调整先后顺序。合集只负责挑选与排序，不会重新渲染视频。</p>
+      <form id="compilation-create-form" class="compilation-create-form">
+        <label>合集名称<input name="name" required maxlength="120" placeholder="例如：高光时刻精选、翻车合集"></label>
+        <button type="submit">新建合集</button>
+      </form>
+      <p id="compilation-message" class="effect-message" aria-live="polite"></p>
+      <div class="compilation-layout">
+        <div class="compilation-board">
+          <h3>我的合集</h3>
+          <div id="compilation-list" class="compilation-list"><p class="empty compact">正在读取合集…</p></div>
+        </div>
+        <div id="compilation-detail" class="compilation-detail"><p class="empty compact">正在读取合集…</p></div>
+      </div>
     </section>
 
     <section class="media-importer" data-page="import">
@@ -211,6 +223,25 @@
         <input id="local-asset-input" type="file" accept="video/*,image/*,audio/*" multiple hidden>
         <button id="local-asset-browse" type="button">选择文件</button>
       </div>
+      <details class="ai-image-generation" id="ai-image-panel">
+        <summary><span>本地 AI 生图（ComfyUI / SD WebUI）</span><small data-ai-image-status>展开后将检测本机引擎</small></summary>
+        <p class="asset-library-note">画面由本机运行的 Stable Diffusion 生成，完成后直接进入下方素材库并标记为「AI 生成」。模型权重与参考素材的许可需自行核对。</p>
+        <form id="ai-image-form">
+          <label>画面描述<textarea name="prompt" rows="3" required maxlength="1500" placeholder="例如：雨夜赛博朋克街道，霓虹招牌反射在积水里，第三人称背影，电影感打光"></textarea></label>
+          <label>排除内容（可选）<textarea name="negativePrompt" rows="2" maxlength="800" placeholder="例如：模糊、多余手指、文字、水印"></textarea></label>
+          <div class="grid">
+            <label>素材类型<input name="kind" list="ai-image-kinds" value="IMAGE" maxlength="64" required><datalist id="ai-image-kinds"><option value="IMAGE"><option value="MEME"><option value="SCENE"><option value="CHARACTER"><option value="BACKGROUND"></datalist><small>同时作为素材库里的分类标签。</small></label>
+            <label>画面尺寸<select name="size"><option value="1024x1024" selected>1024 × 1024（方形）</option><option value="768x768">768 × 768（快速预览）</option><option value="1280x720">1280 × 720（横版 16:9）</option><option value="1536x864">1536 × 864（横版高清）</option><option value="720x1280">720 × 1280（竖版，适合短视频）</option></select></label>
+          </div>
+          <div class="grid">
+            <label>采样步数<input name="steps" type="number" min="1" max="50" value="8"><small>步数越高越慢，8～20 通常够用。</small></label>
+            <label>随机种子<input name="seed" type="number" min="0" placeholder="留空则随机"><small>填相同值可复现同一张画面。</small></label>
+          </div>
+          <button type="submit">生成并存入素材库</button>
+        </form>
+        <p id="ai-image-message" class="effect-message" aria-live="polite"></p>
+        <div id="ai-image-result" class="ai-image-result"></div>
+      </details>
       <details class="domestic-source-directory">
         <summary>素材站导航（国内优先）</summary>
         <p>国内来源优先展示，海外视频与音效站随后展示。这里仅提供原站入口；下载前必须逐项确认会员、署名、商用和修改权限。</p>
@@ -316,7 +347,7 @@
       <header class="dialog-header"><div><small>SUPPORT &amp; TROUBLESHOOTING</small><h2>诊断日志</h2></div><button id="diagnostics-close" class="dialog-close" type="button" aria-label="关闭诊断日志">×</button></header>
       <section class="diagnostics-content">
         <p>显示最近的后端、任务和登录错误。Cookie、Token、密码与 API Key 会在读取和导出时自动隐藏。</p>
-        <div class="diagnostics-actions"><button id="diagnostics-refresh" type="button">刷新日志与存储</button><button id="storage-cleanup" type="button">清理过期临时文件</button><a href="/api/debug/logs/export" download="GameNarrator-Diagnostics.zip">导出诊断包</a></div>
+        <div class="diagnostics-actions"><button id="diagnostics-refresh" type="button">刷新日志与存储</button><button id="storage-cleanup" type="button" data-admin-only hidden>清理过期临时文件</button><a href="/api/debug/logs/export" download="GameNarrator-Diagnostics.zip">导出诊断包</a></div>
         <pre id="storage-report">正在读取存储状态…</pre>
         <pre id="diagnostics-log">正在读取日志…</pre>
       </section>

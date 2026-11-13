@@ -5,6 +5,15 @@ import cn.longer233.gamenarrator.task.domain.EditingScope;
 import cn.longer233.gamenarrator.task.domain.VideoTask;
 import cn.longer233.gamenarrator.task.repository.VideoTaskRepository;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.io.TempDir;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.ValueSource;
+import cn.longer233.gamenarrator.transcription.TranscriptionResult;
+import cn.longer233.gamenarrator.transcription.SpeakerDiarizationService;
+import cn.longer233.gamenarrator.transcription.TerminologyCorrector;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import java.nio.file.Files;
+import java.util.concurrent.atomic.AtomicReference;
 
 import java.nio.file.Path;
 import java.util.Optional;
@@ -13,8 +22,43 @@ import java.util.UUID;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.doAnswer;
+import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.ArgumentMatchers.anyString;
 
 class TaskWorkflowStateServiceArtifactTest {
+    @TempDir Path temporary;
+
+    @ParameterizedTest
+    @ValueSource(booleans = {false, true})
+    void registersFinalTranscriptAfterSpeakerEnrichment(boolean enhancement) throws Exception {
+        UUID id = UUID.randomUUID();
+        Path detail = temporary.resolve("transcript.json");
+        Files.writeString(detail, """
+                {"transcription":[{"text":"这是测试画面","offsets":{"from":0,"to":1000}}]}
+                """);
+        TranscriptionResult result = new TranscriptionResult("这是测试画面", null, null, detail.toString());
+        VideoTask task = mock(VideoTask.class);
+        VideoTaskRepository repository = mock(VideoTaskRepository.class);
+        when(repository.findById(id)).thenReturn(Optional.of(task));
+        when(task.getTerminologyGlossary()).thenReturn("");
+        TerminologyCorrector corrector = mock(TerminologyCorrector.class);
+        when(corrector.correct(result, "")).thenReturn(result);
+        ProjectArtifactRegistry registry = mock(ProjectArtifactRegistry.class);
+        AtomicReference<byte[]> recorded = new AtomicReference<>();
+        doAnswer(call -> { recorded.set(Files.readAllBytes(Path.of(call.getArgument(2, String.class)))); return null; })
+                .when(registry).record(eq(id), eq("TRANSCRIPT_DETAIL"), anyString(), eq("application/json"), eq(false));
+        ObjectMapper mapper = new ObjectMapper();
+        TaskWorkflowStateService service = new TaskWorkflowStateService(repository, mock(PipelineRunTracker.class),
+                corrector, new SpeakerDiarizationService(mapper), registry, mock(TaskArtifactLocator.class));
+
+        if (enhancement) service.applyTranscriptionEnhancement(id, result);
+        else service.markTranscriptionCompleted(id, result);
+
+        assertThat(recorded.get()).isEqualTo(Files.readAllBytes(detail));
+        assertThat(mapper.readTree(recorded.get()).path("speakerDiarization").path("segmentCount").asInt()).isEqualTo(1);
+    }
+
     @Test
     void buildsEngineContextFromArtifactLocatorInsteadOfTaskPathColumns() {
         UUID taskId = UUID.randomUUID();

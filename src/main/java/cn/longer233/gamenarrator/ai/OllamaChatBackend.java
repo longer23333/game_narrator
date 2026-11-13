@@ -53,18 +53,32 @@ public class OllamaChatBackend implements AiChatBackend {
     @Override
     public JsonNode chatJson(String prompt, List<String> images, String model,
                              AiSettingsService.Settings settings, Duration timeout) throws Exception {
+        return chatJson(prompt, images, model, settings, timeout, null);
+    }
+
+    public JsonNode chatJson(String prompt, List<String> images, String model,
+                             AiSettingsService.Settings settings, Duration timeout, JsonNode schema) throws Exception {
         Map<String, Object> message = new LinkedHashMap<>();
         message.put("role", "user");
         message.put("content", prompt);
         if (!images.isEmpty()) message.put("images", images);
-        byte[] body = mapper.writeValueAsBytes(Map.of("model", model, "stream", false, "format", "json",
-                "messages", List.of(message), "options", Map.of("temperature", 0.2)));
+        byte[] body = mapper.writeValueAsBytes(Map.of("model", model, "stream", false,
+                "format", schema == null ? "json" : schema, "messages", List.of(message),
+                "options", schema == null ? Map.of("temperature", 0.2)
+                        : Map.of("temperature", 0, "num_ctx", 16384, "num_predict", 3072)));
         var request = HttpRequest.newBuilder(baseUri.resolve("/api/chat")).timeout(timeout)
                 .header("Content-Type", "application/json")
                 .POST(HttpRequest.BodyPublishers.ofByteArray(body)).build();
         var response = http.send(request, HttpResponse.BodyHandlers.ofString(StandardCharsets.UTF_8));
+        if (response.statusCode() == 404) {
+            throw new IllegalStateException("本地模型 HTTP 404：模型“" + model
+                    + "”或 Ollama 接口不存在。请在设置中选择已安装的本地视觉和文案模型，并检查 Ollama 服务地址。");
+        }
         if (response.statusCode() != 200) throw new IllegalStateException("本地模型 HTTP " + response.statusCode());
         JsonNode root = mapper.readTree(response.body());
+        if ("length".equals(root.path("done_reason").asText())) {
+            throw new IllegalStateException("本地模型输出达到长度上限，评审结果不完整，请缩短评审输入后重试");
+        }
         usage.record("LOCAL", model, root.path("prompt_eval_count").asLong(), root.path("eval_count").asLong(), 0, 0, 0, 0);
         return AiResponseJson.parse(mapper, root.path("message").path("content").asText());
     }

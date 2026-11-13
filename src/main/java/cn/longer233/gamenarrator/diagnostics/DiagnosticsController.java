@@ -55,7 +55,7 @@ public class DiagnosticsController {
             }
             return logs.recentForTask(taskId, lines);
         }
-        if (current.authenticated() && !isAdmin()) {
+        if (!isAdmin()) {
             return logs.recentForTasks(tasks.findIdsByOwnerIdOrderByCreatedAtDesc(current.userId()), lines);
         }
         return logs.recent(lines);
@@ -65,16 +65,20 @@ public class DiagnosticsController {
 
     @GetMapping(value = "/logs/export", produces = "application/zip")
     public ResponseEntity<byte[]> exportLogs() {
+        byte[] content = isAdmin()
+                ? logs.export()
+                : logs.exportForTasks(tasks.findIdsByOwnerIdOrderByCreatedAtDesc(current.userId()));
         return ResponseEntity.ok()
                 .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=GameNarrator-Diagnostics.zip")
-                .body(logs.export());
+                .body(content);
     }
 
     @PostMapping("/client-events")
     public void clientEvent(@RequestBody ClientEvent event) {
-        String level = logs.sanitize(limit(event.level(), 20));
-        String message = logs.sanitize(limit(event.message(), 1000));
-        String context = logs.sanitize(limit(event.context(), 300));
+        if (event == null) throw new IllegalArgumentException("诊断事件不能为空");
+        String level = logs.sanitizeEventField(limit(event.level(), 20));
+        String message = logs.sanitizeEventField(limit(event.message(), 1000));
+        String context = logs.sanitizeEventField(limit(event.context(), 300));
         log.warn("CLIENT_EVENT level={} context={} message={}", level, context, message);
     }
 

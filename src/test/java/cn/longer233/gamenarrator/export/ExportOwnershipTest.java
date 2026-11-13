@@ -19,6 +19,26 @@ import cn.longer233.gamenarrator.pipeline.TaskArtifactLocator;
 import static org.mockito.Mockito.when;
 
 class ExportOwnershipTest {
+    @Test
+    void rejectsExportWithUnconfirmedAssetBeforeStartingWorker() {
+        var jdbc = new JdbcTemplate(new org.springframework.jdbc.datasource.DriverManagerDataSource(
+                "jdbc:h2:mem:export-license-" + UUID.randomUUID() + ";DB_CLOSE_DELAY=-1", "sa", ""));
+        jdbc.execute("CREATE TABLE video_tasks(id UUID,project_id UUID,owner_id UUID)");
+        jdbc.execute("CREATE TABLE external_asset(id UUID,provider VARCHAR,license_code VARCHAR)");
+        jdbc.execute("CREATE TABLE storyboard_asset_placement(task_id UUID,asset_id UUID)");
+        UUID task = UUID.randomUUID(), owner = UUID.randomUUID(), asset = UUID.randomUUID();
+        jdbc.update("INSERT INTO video_tasks VALUES(?,?,?)", task, UUID.randomUUID(), owner);
+        jdbc.update("INSERT INTO external_asset VALUES(?,?,?)", asset, "REMOTE", "UNKNOWN");
+        jdbc.update("INSERT INTO storyboard_asset_placement VALUES(?,?)", task, asset);
+        var current = mock(CurrentUserContext.class);
+        when(current.userId()).thenReturn(owner);
+        var worker = mock(ExportWorker.class);
+        var service = new ExportService(jdbc, new ObjectMapper(), worker, current, mock(TaskArtifactLocator.class));
+        assertThatThrownBy(() -> service.create(task, null)).isInstanceOf(IllegalStateException.class)
+                .hasMessageContaining("未确认授权");
+        org.mockito.Mockito.verifyNoInteractions(worker);
+    }
+
     @TempDir Path root;
 
     @Test

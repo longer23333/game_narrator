@@ -43,6 +43,21 @@ class AdaptiveAiChatRoutingTest {
         verifyNoInteractions(local);
     }
 
+    @Test
+    void localFirstVisionUsesSameModelForDefaultAndExplicitEntryPoints() throws Exception {
+        var value = configured("CLOUD", "DASHSCOPE");
+        when(settings.current()).thenReturn(value);
+        when(local.modelAvailable("local-vision")).thenReturn(true);
+        var router = new AdaptiveAiChatClient(settings, local, cloud,
+                "local-vision", "local-text", "LOCAL_FIRST");
+
+        assertThat(router.activeModel(true)).isEqualTo("local-vision");
+        router.chatJson("prompt", List.of(), true, Duration.ofSeconds(1));
+        router.chatJsonWithModel("prompt", List.of(), true, null, Duration.ofSeconds(1));
+        verify(local, times(2)).chatJson("prompt", List.of(), "local-vision", value, Duration.ofSeconds(1));
+        verifyNoInteractions(cloud);
+    }
+
     private AiSettingsService.Settings configured(String mode, String provider) {
         return new AiSettingsService.Settings(mode, provider, "key", "https://example.invalid",
                 "cloud-vision", "cloud-text", 0d, 0d, 0d);

@@ -5,6 +5,7 @@ import TaskList from './components/TaskList.vue';
 import ActiveTaskQueue from './components/ActiveTaskQueue.vue';
 import {useTaskStore} from './stores/tasks.js';
 import {usePreferenceStore} from './stores/preferences.js';
+import {loadPublicModule} from './services/public-module.js';
 import './memphis-theme.css';
 import './memphis-motion.js';
 
@@ -28,5 +29,5 @@ for(const name of ['gameCategory','editingScope','targetDurationSeconds']) {
   if(preferences.taskDraft[name]!==undefined&&preferences.taskDraft[name]!=='')field.value=preferences.taskDraft[name];
   field.addEventListener('change',()=>{preferences.taskDraft[name]=field.type==='number'?Number(field.value):field.value;});
 }
-const appModuleUrl='/app.js';
-await import(/* @vite-ignore */ appModuleUrl); await tasks.refresh().catch(()=>undefined); tasks.startStream();
+await loadPublicModule('/app.js');
+await tasks.refresh().catch(()=>undefined); tasks.startStream();

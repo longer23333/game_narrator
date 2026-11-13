@@ -18,6 +18,7 @@ import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.concurrent.TimeUnit;
 import java.util.function.IntConsumer;
 
@@ -33,6 +34,7 @@ public class PiperVoiceGenerator implements VoiceSynthesizer {
     private final Path previewDirectory;
     private final Map<String, ConfiguredProfile> profiles;
     private final String defaultProfileId;
+    private final int batchSize;
 
     public PiperVoiceGenerator(ObjectMapper objectMapper, PiperProperties properties,
             @Value("${game-narrator.ffmpeg-command:ffmpeg}") String ffmpegCommand,
@@ -40,6 +42,7 @@ public class PiperVoiceGenerator implements VoiceSynthesizer {
         this.objectMapper = objectMapper;
         this.executable = Path.of(properties.getExecutable()).toAbsolutePath().normalize();
         this.lengthScale = properties.getLengthScale();
+        this.batchSize = Math.max(1, Math.min(64, properties.getBatchSize()));
         LinkedHashMap<String, ConfiguredVoice> configured = new LinkedHashMap<>();
         for (PiperProperties.Voice voice : properties.getVoices()) {
             if (voice.getId() == null || voice.getId().isBlank() || voice.getModel() == null || voice.getModel().isBlank()) continue;
@@ -116,18 +119,26 @@ public class PiperVoiceGenerator implements VoiceSynthesizer {
             ConfiguredVoice voice = requireVoice(resolved.voiceId());
             log.info("VOICE_GENERATION_BEGIN engine=piper segmentCount={} voiceId={}", scripts.size(), voice.id());
             List<VoiceSegment> voices = new ArrayList<>();
-            for (int index = 0; index < scripts.size(); index++) {
-                ScriptSegment script = scripts.get(index);
-                Path output = voiceDirectory.resolve("voice-%02d.wav".formatted(script.clipIndex()));
-                synthesize(script.narration(), output, voice.model(), resolved.speed());
-                applyPitch(output, resolved.pitch());
-                voices.add(new VoiceSegment(script.clipIndex(), output.toString(), script.narration(), voice.id(),
-                        resolved.speed(), resolved.profileId(), resolved.emotion(), resolved.pitch()));
-                log.info("VOICE_SEGMENT_SUCCESS clipIndex={} characters={} output={}",
-                        script.clipIndex(), script.narration().length(), output);
+            for (int start = 0; start < scripts.size(); start += batchSize) {
+                int end = Math.min(scripts.size(), start + batchSize);
+                List<BatchJob> jobs = new ArrayList<>(end - start);
+                for (int index = start; index < end; index++) {
+                    ScriptSegment script = scripts.get(index);
+                    jobs.add(new BatchJob(script,
+                            voiceDirectory.resolve("voice-%02d.wav".formatted(script.clipIndex()))));
+                }
+                synthesizeBatch(jobs, voice.model(), resolved.speed());
+                for (BatchJob job : jobs) {
+                    applyPitch(job.output(), resolved.pitch());
+                    ScriptSegment script = job.script();
+                    voices.add(new VoiceSegment(script.clipIndex(), job.output().toString(), script.narration(),
+                            voice.id(), resolved.speed(), resolved.profileId(), resolved.emotion(), resolved.pitch()));
+                    log.info("VOICE_SEGMENT_SUCCESS clipIndex={} characters={} output={}",
+                            script.clipIndex(), script.narration().length(), job.output());
+                }
                 progress.accept(cn.longer233.gamenarrator.pipeline.StageProgressUpdate.of(
-                        10 + (int) Math.round((index + 1) * 85.0 / scripts.size()),
-                        "MODEL", index + 1, scripts.size(), "Piper 逐段合成"));
+                        10 + (int) Math.round(end * 85.0 / scripts.size()),
+                        "MODEL", end, scripts.size(), "Piper 批量合成"));
             }
             Path manifest = scriptPath.getParent().resolve("voice-manifest.json");
             Map<String, Object> result = new LinkedHashMap<>();
@@ -248,6 +259,56 @@ public class PiperVoiceGenerator implements VoiceSynthesizer {
         }
     }
 
+    /**
+     * 一个 piper 进程合成整批（--json-input 每行可带 output_file）。
+     * 批量失败时回退为逐段合成：不把"批量能力"变成单段失败的放大器。
+     */
+    private void synthesizeBatch(List<BatchJob> jobs, Path model, double speed) throws Exception {
+        if (jobs.isEmpty()) return;
+        if (jobs.size() == 1) {
+            synthesize(jobs.getFirst().script().narration(), jobs.getFirst().output(), model, speed);
+            return;
+        }
+        StringBuilder stdin = new StringBuilder();
+        for (BatchJob job : jobs) {
+            Map<String, Object> payload = new LinkedHashMap<>();
+            payload.put("text", job.script().narration());
+            payload.put("output_file", job.output().toAbsolutePath().toString());
+            stdin.append(objectMapper.writeValueAsString(payload)).append(System.lineSeparator());
+        }
+        String processOutput;
+        int exitCode;
+        try {
+            var result = cn.longer233.gamenarrator.common.ExternalProcessRunner.run(List.of(
+                            executable.toString(), "--model", model.toString(), "--json-input",
+                            "--length_scale", Double.toString(lengthScale / speed)),
+                    Duration.ofMinutes(2L * jobs.size()), stdin.toString());
+            exitCode = result.exitCode();
+            processOutput = result.output();
+        } catch (Exception failure) {
+            log.warn("PIPER_BATCH_FALLBACK segments={} reason={}", jobs.size(),
+                    Objects.toString(failure.getMessage(), failure.getClass().getSimpleName()));
+            for (BatchJob job : jobs) synthesize(job.script().narration(), job.output(), model, speed);
+            return;
+        }
+        boolean complete = jobs.stream().allMatch(job -> Files.isRegularFile(job.output()));
+        if (exitCode == 0 && complete) return;
+        log.warn("PIPER_BATCH_FALLBACK segments={} exitCode={} allFilesPresent={} output={}",
+                jobs.size(), exitCode, complete, tail(processOutput, 500));
+        for (BatchJob job : jobs) {
+            if (Files.isRegularFile(job.output())) continue;
+            synthesize(job.script().narration(), job.output(), model, speed);
+        }
+        if (exitCode != 0) {
+            for (BatchJob job : jobs) {
+                if (!Files.isRegularFile(job.output())) {
+                    throw new IllegalStateException("Piper 批量合成为空，退出码 " + exitCode + "："
+                            + tail(processOutput, 800));
+                }
+            }
+        }
+    }
+
     private void applyPitch(Path audio, double semitones) throws Exception {
         if (Math.abs(semitones) < .01) return;
         if (!Files.isRegularFile(ffmpeg)) throw new IllegalStateException("FFmpeg is required for pitch control");
@@ -324,6 +385,7 @@ public class PiperVoiceGenerator implements VoiceSynthesizer {
     }
 
     private record ConfiguredVoice(String id, String name, Path model) {}
+    private record BatchJob(ScriptSegment script, Path output) {}
     private record ConfiguredProfile(String id, String name, String voiceId, String emotion,
                                      double speed, double pitch) { }
     private record ResolvedProfile(String profileId, String voiceId, String emotion,

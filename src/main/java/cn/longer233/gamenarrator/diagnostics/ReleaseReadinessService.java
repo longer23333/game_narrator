@@ -79,7 +79,7 @@ public class ReleaseReadinessService {
     }
 
     private Check databaseCheck(){
-        try{Integer count=jdbc.queryForObject("SELECT COUNT(*) FROM flyway_schema_history WHERE success=TRUE",Integer.class);
+        try{Integer count=jdbc.queryForObject("SELECT COUNT(*) FROM \"flyway_schema_history\" WHERE \"success\"=TRUE",Integer.class);
             return new Check("database","数据库迁移","GREEN",count+" 个迁移已成功应用",now());}
         catch(Exception error){return new Check("database","数据库迁移","RED","无法读取迁移历史："+safe(error.getMessage()),now());}
     }

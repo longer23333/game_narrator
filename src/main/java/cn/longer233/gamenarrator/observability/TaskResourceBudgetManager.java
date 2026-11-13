@@ -2,6 +2,8 @@ package cn.longer233.gamenarrator.observability;
 
 import cn.longer233.gamenarrator.common.TaskProcessRegistry;
 import cn.longer233.gamenarrator.pipeline.EngineTaskContext;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
@@ -11,6 +13,7 @@ import java.nio.file.Path;
 /** Configures global admission limits and estimates a whole-pipeline task reservation. */
 @Component
 public class TaskResourceBudgetManager {
+    private static final Logger log = LoggerFactory.getLogger(TaskResourceBudgetManager.class);
     private final int taskCpuUnits;
     private final long taskBaseMemoryBytes;
     private final long taskMaximumMemoryBytes;
@@ -42,8 +45,13 @@ public class TaskResourceBudgetManager {
 
     public TaskProcessRegistry.ResourceRequest estimate(EngineTaskContext context) {
         long sourceBytes = 0;
-        try { sourceBytes = Files.size(Path.of(context.sourceVideoPath())); }
-        catch (Exception ignored) { }
+        try {
+            sourceBytes = Files.size(Path.of(context.sourceVideoPath()));
+        } catch (Exception exception) {
+            // 源文件不可读时只能按 0 字节估算，预留内存会偏低；这里必须留痕，否则只会在后续 OOM 时才发现。
+            log.warn("无法读取源视频大小，本次任务内存预算按 0 字节源文件估算（可能偏低）：{}（{}）",
+                    context.sourceVideoPath(), exception.toString());
+        }
         double estimatedSourceMemory = sourceBytes * sourceMemoryMultiplier;
         long sourceMemory = estimatedSourceMemory >= taskMaximumMemoryBytes
                 ? taskMaximumMemoryBytes : Math.round(estimatedSourceMemory);

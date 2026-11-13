@@ -63,6 +63,85 @@ import {mergeTagViews} from './asset-tag-state.js';
     return body;
   }
 
+  const imagePanel = document.querySelector('#ai-image-panel');
+  const imageForm = document.querySelector('#ai-image-form');
+  const imageStatus = document.querySelector('[data-ai-image-status]');
+  const imageMessage = document.querySelector('#ai-image-message');
+  const imageResult = document.querySelector('#ai-image-result');
+
+  // 本地 AI 生图：后端 /api/creative/images 直连本机 ComfyUI / SD WebUI，
+  // 生成结果会写入素材库（provider = LOCAL_AI_GENERATED），因此这里只负责触发 + 展示 + 刷新列表。
+  async function refreshImageEngineStatus() {
+    if (!imageStatus) return;
+    imageStatus.dataset.state = '';
+    imageStatus.textContent = '正在检测本机引擎…';
+    try {
+      const info = await request('/api/creative/images/capabilities');
+      if (!info.configured) {
+        imageStatus.dataset.state = 'off';
+        imageStatus.textContent = '未配置引擎（需设置 game-narrator.image-generation.endpoint）';
+      } else if (info.reachable) {
+        imageStatus.dataset.state = 'ok';
+        imageStatus.textContent = `引擎可用 · ${info.engine || 'AUTOMATIC1111'} · ${info.recommendedModel || ''}`.trim();
+      } else {
+        imageStatus.dataset.state = 'off';
+        imageStatus.textContent = `已配置但连接失败：${info.message || '请确认引擎正在运行'}`;
+      }
+    } catch (error) {
+      imageStatus.dataset.state = 'off';
+      imageStatus.textContent = `无法读取引擎状态：${error.message}`;
+    }
+  }
+
+  imagePanel?.addEventListener('toggle', () => {
+    if (imagePanel.open) refreshImageEngineStatus();
+  });
+
+  imageForm?.addEventListener('submit', async event => {
+    event.preventDefault();
+    if (!imageForm.reportValidity()) return;
+    const values = new FormData(imageForm);
+    const [width, height] = String(values.get('size') || '1024x1024').split('x').map(Number);
+    const seedText = String(values.get('seed') || '').trim();
+    const submit = imageForm.querySelector('button[type="submit"]');
+    const originalLabel = submit.textContent;
+    submit.disabled = true;
+    submit.textContent = '正在生成…';
+    imageResult.innerHTML = '';
+    imageMessage.textContent = '已提交给本机引擎。首次生成需要加载模型，可能等待一到两分钟，请勿关闭页面。';
+    try {
+      const created = await request('/api/creative/images', {
+        method:'POST',
+        headers:{'Content-Type':'application/json'},
+        body: JSON.stringify({
+          kind: String(values.get('kind') || 'IMAGE').trim(),
+          prompt: String(values.get('prompt') || '').trim(),
+          negativePrompt: String(values.get('negativePrompt') || '').trim(),
+          width, height,
+          steps: Number(values.get('steps')) || undefined,
+          seed: seedText ? Number(seedText) : null,
+          sourceAttribution: '本地 AI 生成；模型权重与参考素材许可需人工复核'
+        })
+      });
+      imageMessage.textContent = created.message || '生成完成';
+      if (created.available) {
+        const url = `/api/assets/${encodeURIComponent(created.assetId)}/preview`;
+        imageResult.innerHTML = `<figure><img src="${escapeHtml(url)}" alt="AI 生成画面预览" loading="lazy"
+          referrerpolicy="no-referrer"><figcaption>类型 ${escapeHtml(created.kind)} · 模型 ${escapeHtml(created.model)}
+          · 种子 ${escapeHtml(String(created.seed))} · 已存入素材库</figcaption></figure>`;
+        await load(false);
+      } else {
+        await refreshImageEngineStatus();
+      }
+    } catch (error) {
+      imageMessage.textContent = error.message;
+      await refreshImageEngineStatus();
+    } finally {
+      submit.disabled = false;
+      submit.textContent = originalLabel;
+    }
+  });
+
   const wait = milliseconds => new Promise(resolve => setTimeout(resolve, milliseconds));
   async function waitForAssetDownload(assetId, button) {
     for (;;) {

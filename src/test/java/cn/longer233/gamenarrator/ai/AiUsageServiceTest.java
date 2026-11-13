@@ -78,6 +78,24 @@ class AiUsageServiceTest {
     }
 
     @Test
+    void corruptUsageFileFallsBackToFreshBaselineInsteadOfCrashing() throws Exception {
+        Path config=temporary.resolve("config");
+        java.nio.file.Files.createDirectories(config);
+        java.nio.file.Files.writeString(config.resolve("ai-usage.json"), "{ 这不是 JSON ");
+        AiUsageService service=new AiUsageService(new ObjectMapper(),temporary.toString());
+
+        service.record("TEST","after-corrupt",100,10,0,0,0,0);
+
+        AiUsageService.UsageSnapshot value=service.snapshot();
+        assertEquals(100,value.sessionInput());
+        assertEquals(0,value.todayCost(),0.000001);
+        com.fasterxml.jackson.databind.JsonNode rewritten=new ObjectMapper()
+                .readTree(config.resolve("ai-usage.json").toFile());
+        assertEquals(100,rewritten.path("input").asLong());
+        assertEquals(10,rewritten.path("output").asLong());
+    }
+
+    @Test
     void databaseUsageSaturatesAtSchemaLimitsAndBoundsIdentityColumns() {
         String url="jdbc:h2:mem:ai-usage-bounds-"+UUID.randomUUID()+";DB_CLOSE_DELAY=-1";
         DriverManagerDataSource source=new DriverManagerDataSource(url,"sa","");

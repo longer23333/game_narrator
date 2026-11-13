@@ -4,6 +4,8 @@ import cn.longer233.gamenarrator.common.AtomicArtifactWriter;
 import cn.longer233.gamenarrator.common.SecurePathGuard;
 import cn.longer233.gamenarrator.identity.CurrentUserContext;
 import cn.longer233.gamenarrator.task.repository.VideoTaskRepository;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
@@ -18,6 +20,7 @@ import java.util.UUID;
 
 @Service
 public class ColorLutService {
+    private static final Logger log = LoggerFactory.getLogger(ColorLutService.class);
     private static final long MAX_BYTES = 8L * 1024 * 1024;
     private final Path storageRoot;
     private final VideoTaskRepository tasks;
@@ -63,8 +66,27 @@ public class ColorLutService {
             return new LutView(true, metadata.path("originalName").asText("color-lut.cube"),
                     metadata.path("dimension").asInt(), Files.size(lut));
         } catch (Exception exception) {
-            return new LutView(true, "color-lut.cube", 0, safeSize(lut));
+            // 元数据损坏时不再直接报 0 维度，改为回读 .cube 本身的 LUT_3D_SIZE；
+            // 两者都拿不到才返回 0，并且一定留下日志，避免界面显示一个来源不明的数字。
+            int dimension = readDimension(lut);
+            log.warn("LUT 元数据缺失或损坏，已回退读取 cube 文件本身（维度 {}）：{}（{}）",
+                    dimension > 0 ? dimension : "未知", metadataPath(taskId), exception.toString());
+            return new LutView(true, "color-lut.cube", Math.max(0, dimension), safeSize(lut));
         }
+    }
+
+    static int readDimension(Path lut) {
+        try {
+            for (String raw : Files.readAllLines(lut, StandardCharsets.UTF_8)) {
+                String line = raw.strip();
+                if (!line.startsWith("LUT_3D_SIZE")) continue;
+                String[] parts = line.split("\\s+");
+                if (parts.length == 2) return Integer.parseInt(parts[1].trim());
+            }
+        } catch (Exception exception) {
+            log.warn("无法从 LUT 文件解析维度，尺寸信息按未知处理：{}（{}）", lut, exception.toString());
+        }
+        return 0;
     }
 
     public void delete(UUID taskId) {

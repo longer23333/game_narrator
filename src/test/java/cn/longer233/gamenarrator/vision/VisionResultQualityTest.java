@@ -31,6 +31,29 @@ class VisionResultQualityTest {
     }
 
     @Test
+    void inferredConfidenceNeverDecidesWhetherResultIsRejected() throws Exception {
+        // 模型没给 confidenceScore：推断值再低也不能当成“置信度不足”把结果判死
+        var quality = VisionResultQuality.assess(mapper.readTree("""
+                {"description":"弹反成功","eventType":"战斗","excitementScore":0}
+                """), .45);
+
+        assertThat(quality.confidenceKnown()).isFalse();
+        assertThat(quality.issues()).doesNotContain("LOW_CONFIDENCE");
+        assertThat(quality.acceptable()).isTrue();
+    }
+
+    @Test
+    void declaredLowConfidenceStillRejects() throws Exception {
+        var quality = VisionResultQuality.assess(mapper.readTree("""
+                {"description":"角色成功弹反敌人的致命攻击","eventType":"战斗","excitementScore":88,"confidenceScore":0.2}
+                """), .45);
+
+        assertThat(quality.confidenceKnown()).isTrue();
+        assertThat(quality.issues()).containsExactly("LOW_CONFIDENCE");
+        assertThat(quality.acceptable()).isFalse();
+    }
+
+    @Test
     void zeroScoreCanBeRequiredForBatchRecovery() throws Exception {
         var quality = VisionResultQuality.assess(mapper.readTree("""
                 {"description":"角色正在探索地图中的新区域","eventType":"探索","excitementScore":0,"confidenceScore":0.9}

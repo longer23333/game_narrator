@@ -53,6 +53,9 @@ public class StoryboardAssetPlacementService {
         requireTask(taskId);
         AssetView asset = assets.find(request.assetId());
         if (!"DOWNLOADED".equals(asset.importStatus())) throw new IllegalStateException("素材必须先下载或上传到本地");
+        if (!cn.longer233.gamenarrator.asset.AssetLicensePolicy.allowsUse(asset.provider(), asset.licenseCode())) {
+            throw new IllegalStateException("素材许可证不允许自动使用，请先确认素材授权");
+        }
         StoryboardView storyboard = workspace.storyboard(taskId);
         String instruction = request.instruction() == null ? "" : request.instruction().trim();
         int clip = request.aiAssign() ? chooseClip(storyboard, asset, requestedClip, instruction) : requestedClip;
@@ -116,6 +119,7 @@ public class StoryboardAssetPlacementService {
         requireTask(taskId);
         StoryboardView board = workspace.storyboard(taskId);
         List<String> warnings = new ArrayList<>();
+        Set<String> unavailableProviders = new HashSet<>();
         List<StoryboardAssetPlacementView> existing = list(taskId);
         int initialCount = existing.size();
         Set<UUID> used = new HashSet<>();
@@ -136,7 +140,7 @@ public class StoryboardAssetPlacementService {
                     Objects.toString(segment.subtitle(), ""));
             boolean hasVisual = visualClipIndexes.contains(segment.clipIndex());
             AssetView visual = hasVisual || visualCount >= MAX_AUTOMATIC_VISUALS ? null
-                    : findOrDownload(query, List.of("VIDEO", "MEME"), used, warnings);
+                    : findOrDownload(query, List.of("VIDEO", "MEME"), used, warnings, unavailableProviders);
             if (visual != null) {
                 place(taskId, segment.clipIndex(), new PlaceStoryboardAssetRequest(visual.id(),
                         "自动匹配分镜；视频自动按镜头时长剪切，图片自动循环并裁切适配；透明或绿幕素材自动抠图", false));
@@ -146,7 +150,7 @@ public class StoryboardAssetPlacementService {
             }
             boolean hasSfx = soundEffectClipIndexes.contains(segment.clipIndex());
             if (!hasSfx && soundEffectCount < MAX_AUTOMATIC_SOUND_EFFECTS && segment.finalScore() >= 65) {
-                AssetView sfx = findOrDownload(query + " 音效", List.of("SFX"), used, warnings);
+                AssetView sfx = findOrDownload(query + " 音效", List.of("SFX"), used, warnings, unavailableProviders);
                 if (sfx != null) {
                     place(taskId, segment.clipIndex(), new PlaceStoryboardAssetRequest(sfx.id(), "关键事件自动音效", false));
                     used.add(sfx.id());
@@ -155,7 +159,7 @@ public class StoryboardAssetPlacementService {
                 }
             }
             if (!bgmAssigned) {
-                AssetView bgm = findOrDownload(query + " 背景音乐", List.of("BGM"), used, warnings);
+                AssetView bgm = findOrDownload(query + " 背景音乐", List.of("BGM"), used, warnings, unavailableProviders);
                 if (bgm != null) {
                     place(taskId, segment.clipIndex(), new PlaceStoryboardAssetRequest(bgm.id(), "全片低音量背景音乐", false));
                     used.add(bgm.id()); bgmAssigned = true;
@@ -174,23 +178,28 @@ public class StoryboardAssetPlacementService {
                 : new AutoAssetAssignmentView(current.size(), false, List.of(), current);
     }
 
-    private AssetView findOrDownload(String query, List<String> types, Set<UUID> used, List<String> warnings) {
+    private AssetView findOrDownload(String query, List<String> types, Set<UUID> used, List<String> warnings,
+                                     Set<String> unavailableProviders) {
         for (String type : types) {
             List<AssetView> local = assets.list(type, query, null, "DOWNLOADED", null, false,
                     "newest", true, 12);
             Optional<AssetView> available = local.stream().filter(item -> !used.contains(item.id()))
+                    .filter(item -> cn.longer233.gamenarrator.asset.AssetLicensePolicy.allowsUse(item.provider(), item.licenseCode()))
                     .max(Comparator.comparingInt(item -> suitability(item, query)));
             if (available.isPresent()) return available.get();
             for (String provider : providersFor(type)) {
+                if (unavailableProviders.contains(provider)) continue;
                 try {
                     List<AssetView> found = assets.discover(new AssetSearchRequest(query, type, 8, 1,
                             true, true, provider, "RELEVANCE"));
                     for (AssetView candidate : found) {
                         if (used.contains(candidate.id())) continue;
+                        if (!cn.longer233.gamenarrator.asset.AssetLicensePolicy.allowsUse(candidate.provider(), candidate.licenseCode())) continue;
                         try { return "DOWNLOADED".equals(candidate.importStatus()) ? candidate : assets.download(candidate.id()); }
                         catch (Exception exception) { warnings.add(providerWarning(type, provider, exception)); }
                     }
                 } catch (Exception exception) {
+                    unavailableProviders.add(provider);
                     warnings.add(providerWarning(type, provider, exception));
                 }
             }
@@ -222,7 +231,7 @@ public class StoryboardAssetPlacementService {
     }
 
     private String providerWarning(String type, String provider, Exception exception) {
-        if ("WIKIMEDIA".equals(provider)) return type + "/WIKIMEDIA：暂时无法连接，已自动跳过";
+        if ("WIKIMEDIA".equals(provider)) return type + "/WIKIMEDIA：当前网络无法连接，已停止重复请求；可先上传本地素材";
         return type + "/" + provider + "：" + concise(exception.getMessage());
     }
 

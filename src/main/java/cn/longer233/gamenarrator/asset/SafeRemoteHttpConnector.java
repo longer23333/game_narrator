@@ -27,6 +27,17 @@ public class SafeRemoteHttpConnector {
         for (int redirect = 0; redirect <= maximumRedirects; redirect++) {
             InetAddress[] addresses = resolvePublicHttps(current);
             String pinnedHost=current.getHost();
+            var selector = java.net.ProxySelector.getDefault();
+            var proxies = selector == null ? java.util.List.of(java.net.Proxy.NO_PROXY) : selector.select(current);
+            var proxy = proxies.isEmpty() ? java.net.Proxy.NO_PROXY : proxies.getFirst();
+            org.apache.hc.core5.http.HttpHost proxyHost = null;
+            if (proxy.type() != java.net.Proxy.Type.DIRECT) {
+                if (proxy.type() != java.net.Proxy.Type.HTTP) throw new IOException("素材下载仅支持 HTTP 代理");
+                var endpoint = (java.net.InetSocketAddress) proxy.address();
+                pinnedHost = endpoint.getHostString();
+                addresses = InetAddress.getAllByName(pinnedHost);
+                proxyHost = new org.apache.hc.core5.http.HttpHost("http", pinnedHost, endpoint.getPort());
+            }
             var manager=PoolingHttpClientConnectionManagerBuilder.create()
                     .setDnsResolver(pinnedDnsResolver(pinnedHost,addresses))
                     .build();
@@ -36,6 +47,7 @@ public class SafeRemoteHttpConnector {
                     .setRedirectsEnabled(false)
                     .build();
             CloseableHttpClient client=HttpClients.custom().setConnectionManager(manager)
+                    .setProxy(proxyHost)
                     .setDefaultRequestConfig(config).disableRedirectHandling().build();
             HttpGet request=new HttpGet(current);
             headers.forEach(request::setHeader);

@@ -49,6 +49,33 @@ class DiagnosticsControllerTest {
     }
 
     @Test
+    void limitsAnonymousLogsToLocalUsersOwnTasks() {
+        UUID userId = UUID.randomUUID();
+        UUID taskId = UUID.randomUUID();
+        when(current.userId()).thenReturn(userId);
+        when(current.role()).thenReturn("USER");
+        when(tasks.findIdsByOwnerIdOrderByCreatedAtDesc(userId)).thenReturn(List.of(taskId));
+        when(logs.recentForTasks(List.of(taskId), 300)).thenReturn("local logs");
+
+        assertThat(controller.logs(300, null)).isEqualTo("local logs");
+        verify(logs).recentForTasks(List.of(taskId), 300);
+    }
+
+    @Test
+    void exportsOnlyOwnedTaskLogsForNonAdministrator() {
+        UUID userId = UUID.randomUUID();
+        UUID taskId = UUID.randomUUID();
+        byte[] scoped = {1, 2, 3};
+        when(current.userId()).thenReturn(userId);
+        when(current.role()).thenReturn("USER");
+        when(tasks.findIdsByOwnerIdOrderByCreatedAtDesc(userId)).thenReturn(List.of(taskId));
+        when(logs.exportForTasks(List.of(taskId))).thenReturn(scoped);
+
+        assertThat(controller.exportLogs().getBody()).isSameAs(scoped);
+        verify(logs).exportForTasks(List.of(taskId));
+    }
+
+    @Test
     void allowsAdministratorToInspectRequestedTask() {
         UUID taskId = UUID.randomUUID();
         when(current.authenticated()).thenReturn(true);

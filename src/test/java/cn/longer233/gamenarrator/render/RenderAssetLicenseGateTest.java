@@ -16,5 +16,8 @@ class RenderAssetLicenseGateTest {
         assertThat(RenderAssetResolver.licenseRenderable("BILIBILI", "RIGHTS_REVIEW_REQUIRED")).isFalse();
         assertThat(RenderAssetResolver.licenseRenderable("REMOTE", "UNKNOWN")).isFalse();
         assertThat(RenderAssetResolver.licenseRenderable("REMOTE", null)).isFalse();
+        assertThat(RenderAssetResolver.licenseRenderable("REMOTE", "unknown")).isFalse();
+        assertThat(RenderAssetResolver.licenseRenderable("REMOTE", "CC BY-NC 4.0")).isFalse();
+        assertThat(RenderAssetResolver.licenseRenderable("REMOTE", "ARR")).isFalse();
     }
 }

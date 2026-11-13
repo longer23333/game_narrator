@@ -7,7 +7,9 @@ server:
   port: ${SERVER_PORT:18081}
 spring:
   datasource:
-    url: "jdbc:h2:file:${GAME_NARRATOR_DATA_ROOT}/game-narrator;AUTO_SERVER=TRUE;CACHE_SIZE=16384"
+    # 桌面版由启动器的命名 Mutex 保证单实例,无需 AUTO_SERVER 的跨进程 TCP 服务;
+    # 省掉 H2 建 TCP 监听与网卡探测(实测启动快约 2.5 秒)。开发档仍保留 AUTO_SERVER。
+    url: "jdbc:h2:file:${GAME_NARRATOR_DATA_ROOT}/game-narrator;CACHE_SIZE=16384"
 logging:
   level:
     cn.longer233.gamenarrator: INFO

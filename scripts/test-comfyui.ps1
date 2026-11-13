@@ -1,4 +1,4 @@
-$workflow = @{ 
+﻿$workflow = @{ 
   '1'=@{class_type='CheckpointLoaderSimple';inputs=@{ckpt_name='ChenkinNoob-XL-V0.5.safetensors'}}
   '2'=@{class_type='CLIPTextEncode';inputs=@{text='cute game character, colorful animation, clean composition';clip=@('1',1)}}
   '3'=@{class_type='CLIPTextEncode';inputs=@{text='blurry, low quality, watermark';clip=@('1',1)}}

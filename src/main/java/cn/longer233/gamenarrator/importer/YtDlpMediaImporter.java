@@ -491,6 +491,7 @@ public class YtDlpMediaImporter {
     private void addRequestOptions(List<String> command, URI source,
                                    String cookieBrowser, String cookieToken,
                                    boolean impersonate) {
+        command.addAll(proxyArguments(source));
         if (properties.isForceIpv4()) command.add("--force-ipv4");
         if (impersonate) command.addAll(List.of("--impersonate", ""));
         MediaImportProperties.Platform platform = requirePlatform(source.getHost());
@@ -503,6 +504,18 @@ public class YtDlpMediaImporter {
         } else if (cookieBrowser != null && !cookieBrowser.isBlank()) {
             command.addAll(List.of("--cookies-from-browser", cookieBrowser));
         }
+    }
+
+    static List<String> proxyArguments(URI source) {
+        var selector = java.net.ProxySelector.getDefault();
+        var proxies = selector == null ? List.of(java.net.Proxy.NO_PROXY) : selector.select(source);
+        var proxy = proxies.isEmpty() ? java.net.Proxy.NO_PROXY : proxies.getFirst();
+        if (proxy.type() == java.net.Proxy.Type.DIRECT) return List.of("--proxy", "");
+        var address = (java.net.InetSocketAddress) proxy.address();
+        String host = address.getHostString();
+        if (host.contains(":")) host = "[" + host + "]";
+        String scheme = proxy.type() == java.net.Proxy.Type.SOCKS ? "socks5" : "http";
+        return List.of("--proxy", scheme + "://" + host + ":" + address.getPort());
     }
 
     private Path resolveCookieFile(String token) {

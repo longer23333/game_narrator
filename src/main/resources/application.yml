@@ -1,11 +1,20 @@
 spring:
   application:
     name: game-narrator
+  main:
+    banner-mode: ${SPRING_BANNER_MODE:off}
+  jmx:
+    # 桌面离线应用不需要 JMX 注册,关掉可少一次平台 MBean 扫描。
+    enabled: false
   datasource:
     url: jdbc:h2:file:./data/game-narrator;AUTO_SERVER=TRUE
     driver-class-name: org.h2.Driver
     username: sa
     password:
+    hikari:
+      # 默认 minimum-idle=maximum-pool-size,启动时会预热 10 条连接;桌面单用户 1 条足够。
+      maximum-pool-size: ${DB_POOL_MAX_SIZE:10}
+      minimum-idle: ${DB_POOL_MIN_IDLE:1}
   jpa:
     hibernate:
       ddl-auto: validate
@@ -76,6 +85,9 @@ management:
       application: ${spring.application.name}
 
 game-narrator:
+  network:
+    mode: ${GAME_NARRATOR_NETWORK_MODE:SYSTEM}
+    proxy-url: ${GAME_NARRATOR_PROXY_URL:}
   companion:
     token: "${GAME_NARRATOR_COMPANION_TOKEN:}"
   retry:
@@ -264,7 +276,9 @@ game-narrator:
     render-work-retry-ms: 150
   capacity:
     minimum-free-bytes: ${MINIMUM_FREE_STORAGE_BYTES:5368709120}
-    minimum-free-percent: ${MINIMUM_FREE_STORAGE_PERCENT:5}
+    # Desktop workspaces may live on large disks that are intentionally near capacity.
+    # Keep a bounded 5 GB reserve by default; deployments can opt into a percentage reserve.
+    minimum-free-percent: ${MINIMUM_FREE_STORAGE_PERCENT:0}
     working-space-multiplier: ${VIDEO_WORKING_SPACE_MULTIPLIER:1.5}
   task-stream:
     refresh-ms: 1000
@@ -339,6 +353,8 @@ game-narrator:
   piper:
     executable: "${PIPER_EXECUTABLE:./tools/piper/piper/piper.exe}"
     model: "${PIPER_MODEL:./models/piper/zh_CN-huayan-medium.onnx}"
+    # 每个 piper 进程一次合成的段数；piper 启动要加载 ONNX 模型，批量可省 N-1 次加载。
+    batch-size: ${PIPER_BATCH_SIZE:8}
     length-scale: 1.0
     default-voice: huayan
     default-profile: narrative

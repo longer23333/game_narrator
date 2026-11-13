@@ -19,6 +19,7 @@ import java.util.Map;
 public class WhisperCppTranscriber implements Transcriber {
 
     private static final Logger log = LoggerFactory.getLogger(WhisperCppTranscriber.class);
+    private static final String CACHE_FILE = "transcript.cache.json";
     private final Path executable;
     private final Path model;
     private final String language;
@@ -52,13 +53,75 @@ public class WhisperCppTranscriber implements Transcriber {
     public TranscriptionResult transcribe(Path audioPath) {
         validateRuntime(audioPath);
         Path outputPrefix = audioPath.getParent().resolve("transcript");
+        TranscriptionResult cached = readCache(audioPath);
+        if (cached != null) {
+            log.info("TRANSCRIPTION_CACHE_HIT audio={} characterCount={}", audioPath, cached.text().length());
+            return cached;
+        }
         log.info("TRANSCRIPTION_BEGIN audio={} model={} language={} threads={}",
                 audioPath, model.getFileName(), language, threads);
         long durationMillis = audioDurationMillis(audioPath);
         String output = durationMillis > longAudioThresholdMillis
                 ? transcribeChunks(audioPath, outputPrefix, durationMillis)
                 : run(command(audioPath, outputPrefix, null), Duration.ofHours(2), "完整音频");
-        return readResult(outputPrefix, output);
+        TranscriptionResult result = readResult(outputPrefix, output);
+        writeCache(audioPath, result);
+        return result;
+    }
+
+    /**
+     * 同一份音频 + 同一模型/语言的成功转写结果可安全复用：重试与手动重新增强时
+     * 不必再花几分钟跑 Whisper。缓存失效条件写死在元数据里，不做启发式猜测。
+     */
+    private TranscriptionResult readCache(Path audioPath) {
+        Path cachePath = audioPath.getParent().resolve(CACHE_FILE);
+        if (!Files.isRegularFile(cachePath)) return null;
+        try {
+            com.fasterxml.jackson.databind.JsonNode node = objectMapper.readTree(cachePath.toFile());
+            if (!audioPath.toAbsolutePath().normalize().toString().equals(node.path("audioPath").asText())) return null;
+            if (Files.size(audioPath) != node.path("audioSize").asLong()) return null;
+            if (Files.getLastModifiedTime(audioPath).toMillis() != node.path("audioModified").asLong()) return null;
+            if (!model.toString().equals(node.path("modelPath").asText())) return null;
+            if (Files.size(model) != node.path("modelSize").asLong()) return null;
+            if (Files.getLastModifiedTime(model).toMillis() != node.path("modelModified").asLong()) return null;
+            if (!language.equals(node.path("language").asText())) return null;
+            Path textPath = Path.of(node.path("textPath").asText());
+            if (!Files.isRegularFile(textPath)) return null;
+            String subtitleValue = node.path("subtitlePath").asText("");
+            String jsonValue = node.path("jsonPath").asText("");
+            String subtitlePath = !subtitleValue.isEmpty() && Files.isRegularFile(Path.of(subtitleValue))
+                    ? subtitleValue : null;
+            String jsonPath = !jsonValue.isEmpty() && Files.isRegularFile(Path.of(jsonValue)) ? jsonValue : null;
+            String text = Files.readString(textPath, StandardCharsets.UTF_8).trim();
+            return new TranscriptionResult(text, textPath.toString(), subtitlePath, jsonPath);
+        } catch (Exception exception) {
+            log.debug("TRANSCRIPTION_CACHE_IGNORED audio={} reason={}", audioPath, exception.getMessage());
+            return null;
+        }
+    }
+
+    private void writeCache(Path audioPath, TranscriptionResult result) {
+        if (result == null || result.textPath() == null) return;
+        try {
+            Map<String, Object> payload = new java.util.LinkedHashMap<>();
+            payload.put("audioPath", audioPath.toAbsolutePath().normalize().toString());
+            payload.put("audioSize", Files.size(audioPath));
+            payload.put("audioModified", Files.getLastModifiedTime(audioPath).toMillis());
+            payload.put("modelPath", model.toString());
+            payload.put("modelSize", Files.size(model));
+            payload.put("modelModified", Files.getLastModifiedTime(model).toMillis());
+            payload.put("language", language);
+            payload.put("threads", threads);
+            payload.put("textPath", result.textPath());
+            payload.put("subtitlePath", result.subtitlePath() == null ? "" : result.subtitlePath());
+            payload.put("jsonPath", result.detailJsonPath() == null ? "" : result.detailJsonPath());
+            payload.put("createdAt", java.time.OffsetDateTime.now().toString());
+            cn.longer233.gamenarrator.common.AtomicArtifactWriter.writeJson(objectMapper,
+                    audioPath.getParent().resolve(CACHE_FILE), payload);
+        } catch (Exception exception) {
+            // 缓存写不进去只损失一次优化机会，不能让成功完成的转写变成失败。
+            log.warn("TRANSCRIPTION_CACHE_WRITE_FAILED audio={} reason={}", audioPath, exception.getMessage());
+        }
     }
 
 

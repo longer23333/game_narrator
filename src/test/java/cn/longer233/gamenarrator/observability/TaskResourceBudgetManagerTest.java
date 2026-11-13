@@ -27,6 +27,21 @@ class TaskResourceBudgetManagerTest {
     }
 
     @Test
+    void unreadableSourceFallsBackToBaseMemoryWithoutFailingTheTask() {
+        TaskResourceBudgetManager manager = manager(0.05);
+        EngineTaskContext missing = mock(EngineTaskContext.class);
+        when(missing.sourceVideoPath()).thenReturn(temporaryDirectory.resolve("不存在的源文件.mp4").toString());
+
+        // 读不到源文件时不能再抛异常打断任务，只能退化成基础内存预算。
+        assertThat(manager.estimate(missing).memoryBytes()).isEqualTo(10);
+        assertThat(manager.estimate(missing).gpuMemoryBytes()).isZero();
+
+        EngineTaskContext nullPath = mock(EngineTaskContext.class);
+        when(nullPath.sourceVideoPath()).thenReturn(null);
+        assertThat(manager.estimate(nullPath).memoryBytes()).isEqualTo(10);
+    }
+
+    @Test
     void rejectsNonFiniteSourceMemoryMultiplier() {
         assertThatIllegalArgumentException().isThrownBy(() -> manager(Double.NaN));
         assertThatIllegalArgumentException().isThrownBy(() -> manager(Double.POSITIVE_INFINITY));

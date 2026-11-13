@@ -100,7 +100,7 @@ public class FfmpegVideoRenderer {
                     .readValue(root.path("segments"));
             if (segments.isEmpty()) throw new IllegalStateException("剪辑时间线为空");
             Path taskDirectory = timelinePath.getParent();
-            Path lutPath = Boolean.TRUE.equals(settings == null ? false : settings.useLut())
+            Path lutPath = settings != null && Boolean.TRUE.equals(settings.useLut())
                     ? taskDirectory.resolve("color-lut.cube") : null;
             if (lutPath != null && !Files.isRegularFile(lutPath)) {
                 throw new IllegalStateException("已启用 LUT，但任务尚未上传 .cube 文件");

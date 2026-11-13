@@ -35,7 +35,7 @@ public class WaitingTaskRetryScheduler {
                 JOIN video_project project ON project.id=task.project_id
                 JOIN generation_run run ON run.id=project.latest_run_id AND run.status='WAITING'
                 JOIN stage_run stage ON stage.generation_run_id=run.id AND stage.status='WAITING'
-                WHERE task.status='PROCESSING'
+                WHERE task.status='PROCESSING' AND task.deleted_at IS NULL AND project.deleted_at IS NULL
                 """, (rs, row) -> new WaitingTask(rs.getObject(1, UUID.class), rs.getString(2)));
         for (WaitingTask task : waiting) {
             boolean ready = switch (task.stageType()) {

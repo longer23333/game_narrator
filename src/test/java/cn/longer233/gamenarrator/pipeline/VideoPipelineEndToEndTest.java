@@ -34,6 +34,12 @@ import static org.assertj.core.api.Assertions.assertThat;
 class VideoPipelineEndToEndTest {
     @Autowired VideoTaskService tasks;
     @Autowired EditorTimelineService editor;
+    @Autowired cn.longer233.gamenarrator.asset.AssetCatalogService assets;
+    @Autowired cn.longer233.gamenarrator.script.StoryboardAssetPlacementService placements;
+    @Autowired cn.longer233.gamenarrator.script.ScriptWorkspaceService workspace;
+    @Autowired cn.longer233.gamenarrator.render.FfmpegVideoRenderer renderer;
+    @Autowired cn.longer233.gamenarrator.render.RenderAssetResolver renderAssets;
+    @Autowired cn.longer233.gamenarrator.export.ExportService exports;
     @TempDir Path temporary;
 
     @Test
@@ -64,6 +70,61 @@ class VideoPipelineEndToEndTest {
         assertThat(current.status()).isEqualTo(TaskStatus.COMPLETED);
         assertThat(current.stages()).hasSize(9).allMatch(stage -> stage.status() == StageStatus.COMPLETED);
         assertThat(Path.of(current.renderedVideoPath())).isRegularFile();
+        var decoded = ExternalProcessRunner.run(List.of("ffmpeg", "-hide_banner", "-loglevel", "error",
+                "-xerror", "-i", current.renderedVideoPath(), "-map", "0:v:0", "-map", "0:a:0",
+                "-f", "null", "-"), Duration.ofSeconds(30));
+        assertThat(decoded.exitCode()).as("Rendered video and audio must decode without errors").isZero();
+        cn.longer233.gamenarrator.asset.AssetView uploaded;
+        if (Boolean.getBoolean("gamenarrator.fullLiveAcceptance")) {
+            var discovered = assets.discover(new cn.longer233.gamenarrator.asset.AssetSearchRequest(
+                    "intitle:Blender intitle:Rigid intitle:Constraint intitle:Simulation", "VIDEO", 5, 1,
+                    true, true, "WIKIMEDIA", "RELEVANCE"));
+            assertThat(discovered).isNotEmpty();
+            uploaded = assets.download(discovered.getFirst().id());
+            long downloadDeadline = System.nanoTime() + Duration.ofMinutes(2).toNanos();
+            while (!"DOWNLOADED".equals(uploaded.importStatus()) && System.nanoTime() < downloadDeadline) {
+                Thread.sleep(250);
+                uploaded = assets.find(uploaded.id());
+                if ("FAILED".equals(uploaded.importStatus())) break;
+            }
+            assertThat(uploaded.importStatus()).isEqualTo("DOWNLOADED");
+            var segment = workspace.storyboard(created.id()).segments().getFirst();
+            assets.updateTags(uploaded.id(), new cn.longer233.gamenarrator.asset.AssetTagUpdateRequest(
+                    List.of(segment.description(), segment.eventType(), segment.subtitle()), List.of()));
+            var assigned = placements.autoAssign(created.id());
+            var downloadedId = uploaded.id();
+            assertThat(assigned.placements()).anyMatch(item -> item.assetId().equals(downloadedId));
+        } else {
+            uploaded = assets.uploadLocal(new MockMultipartFile("file", "licensed-overlay.mp4",
+                    "video/mp4", Files.readAllBytes(source)));
+        }
+        int clip = workspace.storyboard(created.id()).segments().getFirst().clipIndex();
+        placements.place(created.id(), clip, new cn.longer233.gamenarrator.script.PlaceStoryboardAssetRequest(
+                uploaded.id(), "右上角素材", false));
+        Path timelinePath = Path.of(current.timelinePath());
+        String expectedTitle = uploaded.title();
+        assertThat(renderAssets.resolve(timelinePath)).anyMatch(item -> item.title().equals(expectedTitle));
+        var withAsset = renderer.render(source, timelinePath, true);
+        assertThat(withAsset.fileSizeBytes()).isPositive();
+        var decodedWithAsset = ExternalProcessRunner.run(List.of("ffmpeg", "-hide_banner", "-loglevel", "error",
+                "-xerror", "-i", withAsset.videoPath(), "-map", "0:v:0", "-map", "0:a:0", "-f", "null", "-"),
+                Duration.ofSeconds(30));
+        assertThat(decodedWithAsset.exitCode()).as("Rendered asset composition must fully decode").isZero();
+        if (Boolean.getBoolean("gamenarrator.fullLiveAcceptance")) {
+            var preset = exports.presets().stream().filter(item -> "mp4".equalsIgnoreCase(item.container())).findFirst().orElseThrow();
+            var job = exports.create(created.id(), new cn.longer233.gamenarrator.export.CreateExportRequest(
+                    preset.id(), "public-asset-acceptance", 320, 180, 24d, 23, null, "NONE", "BALANCED"));
+            long exportDeadline = System.nanoTime() + Duration.ofMinutes(2).toNanos();
+            while (!List.of("COMPLETED", "FAILED").contains(job.status()) && System.nanoTime() < exportDeadline) {
+                Thread.sleep(250);
+                job = exports.findJob(job.id());
+            }
+            assertThat(job.status()).as(job.errorMessage()).isEqualTo("COMPLETED");
+            var output = exports.download(job.id());
+            var checked = ExternalProcessRunner.run(List.of("ffmpeg", "-hide_banner", "-loglevel", "error",
+                    "-xerror", "-i", output.resource().getFile().getAbsolutePath(), "-f", "null", "-"), Duration.ofSeconds(30));
+            assertThat(checked.exitCode()).isZero();
+        }
         assertThat(Path.of(current.sceneManifestPath()).resolveSibling("audio-analysis.json")).isRegularFile();
         var sceneManifest = new com.fasterxml.jackson.databind.ObjectMapper().readTree(Path.of(current.sceneManifestPath()).toFile());
         assertThat(sceneManifest).anyMatch(frame -> frame.path("samplingReason").asText().endsWith("_WINDOW"));

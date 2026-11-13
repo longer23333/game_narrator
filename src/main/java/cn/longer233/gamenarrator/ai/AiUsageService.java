@@ -1,6 +1,8 @@
 package cn.longer233.gamenarrator.ai;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.jdbc.core.JdbcTemplate;
@@ -19,6 +21,7 @@ import java.util.HexFormat;
 
 @Service
 public class AiUsageService {
+    private static final Logger log = LoggerFactory.getLogger(AiUsageService.class);
     private static final BigDecimal MAX_DATABASE_COST=new BigDecimal("9999999999.99999999");
     private static final double MAX_COST=9_999_999_999d;
     private final ObjectMapper mapper;
@@ -120,7 +123,10 @@ public class AiUsageService {
                         Math.min(input,Math.max(0,value.cached())),finiteAdd(value.cost(),0));
             }
         }
-        catch(Exception ignored) { }
+        catch(Exception exception) {
+            log.warn("AI 用量统计文件损坏或无法读取，本次从零重新累计，历史当日用量将丢失：{}（{}）",
+                    file, exception.toString());
+        }
         return DailyUsage.empty();
     }
     private void writeDaily(DailyUsage value) {

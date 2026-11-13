@@ -89,4 +89,20 @@ class RenderVideoFilterBuilderTest {
         assertThat(filter).contains("eq=brightness=0.100:contrast=1.200:saturation=0.800",
                 "colorbalance=rs=-0.060:bs=0.060", "lut3d=file='" + escapedLutPath + "'");
     }
+
+    @Test
+    void skipsLutWhenSwitchMissingFromRequest() {
+        TimelineSegment segment = new TimelineSegment(1, 0, 8, 0, 8,
+                "调色", "调色", "", "voice.wav", 2, false);
+        EffectSettingsRequest settings = new EffectSettingsRequest(
+                "ANIME_THEATER", .5, true, true, true, "ANIME_OUTLINE",
+                false, .1, 1.2, .8, -.5, null);
+
+        String filter = filterBuilder.video(segment,
+                new EffectPlan(List.of(), TransitionType.HARD_CUT, "test"), null, settings,
+                Path.of("C:/project/color-lut.cube"));
+
+        assertThat(filter).contains("eq=brightness=0.100:contrast=1.200:saturation=0.800")
+                .doesNotContain("lut3d=");
+    }
 }

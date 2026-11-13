@@ -10,9 +10,20 @@ import java.time.Instant;
 import java.util.Map;
 import org.junit.jupiter.api.Test;
 import org.springframework.jdbc.core.JdbcTemplate;
+import org.springframework.jdbc.datasource.DriverManagerDataSource;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 class ReleaseReadinessServiceTest {
+ @Test void readsFlywayQuotedLowercaseHistoryOnH2() {
+  var source=new DriverManagerDataSource("jdbc:h2:mem:readiness-flyway-quoted;DB_CLOSE_DELAY=-1","sa","");
+  var jdbc=new JdbcTemplate(source);
+  jdbc.execute("CREATE TABLE \"flyway_schema_history\" (\"success\" BOOLEAN NOT NULL)");
+  jdbc.update("INSERT INTO \"flyway_schema_history\"(\"success\") VALUES(TRUE)");
+  var diagnostics=mock(SystemDiagnosticsService.class);when(diagnostics.inspect()).thenReturn(Map.of("ffmpegAvailable",true,"whisperAvailable",true,"visionModelAvailable",true));
+  var storage=mock(StorageAdminService.class);when(storage.inspect()).thenReturn(new StorageAdminView("x","NTFS",100,80,10,0,0,0,0,java.util.List.of()));
+  var report=new ReleaseReadinessService(diagnostics,storage,jdbc,new CloudSyncProperties(false,"","","","","",false,1,1),".",new ObjectMapper()).inspect();
+  assertTrue(report.checks().stream().anyMatch(c->c.id().equals("database")&&c.status().equals("GREEN")&&c.summary().contains("1 个迁移")));
+ }
  @Test void unknownEvidenceIsYellowAndMissingFfmpegIsRed() throws Exception {
   var diagnostics=mock(SystemDiagnosticsService.class);when(diagnostics.inspect()).thenReturn(Map.of("ffmpegAvailable",false,"whisperAvailable",true,"visionModelAvailable",true,"externalProcessesActive",Map.of()));
   var storage=mock(StorageAdminService.class);when(storage.inspect()).thenReturn(new StorageAdminView("x","NTFS",100,80,10,0,0,0,0,java.util.List.of()));

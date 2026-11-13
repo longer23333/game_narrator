@@ -26,7 +26,10 @@ final class VisionQualityRecovery {
                 try {
                     JsonNode node = attempt.call(model);
                     var quality = VisionResultQuality.assess(node, minimumConfidence, requireNonZeroScore);
-                    records.add(new AttemptRecord(model, number, quality.acceptable(), quality.issues(), null));
+                    List<String> issues = new ArrayList<>(quality.issues());
+                    // 置信度未知只记录，不算作拒绝理由：不能用我们自己推断的数把结果判死
+                    if (!quality.confidenceKnown()) issues.add("CONFIDENCE_UNKNOWN");
+                    records.add(new AttemptRecord(model, number, quality.acceptable(), List.copyOf(issues), null));
                     if (quality.acceptable()) return new Result(node, model, quality.confidence(), records, false);
                 } catch (Exception exception) {
                     records.add(new AttemptRecord(model, number, false, List.of("REQUEST_FAILED"),

@@ -52,6 +52,14 @@ public class ExportService {
         Map<String, Object> task = one("""
                 SELECT id,project_id,owner_id FROM video_tasks WHERE id=? AND owner_id=?
                 """, taskId, currentUser.userId());
+        List<Boolean> assetPermissions = jdbc.query("""
+                SELECT a.provider,a.license_code FROM storyboard_asset_placement p
+                JOIN external_asset a ON a.id=p.asset_id WHERE p.task_id=?
+                """, (rs, index) -> cn.longer233.gamenarrator.asset.AssetLicensePolicy.allowsUse(
+                rs.getString("provider"), rs.getString("license_code")), taskId);
+        if (assetPermissions.contains(false)) {
+            throw new IllegalStateException("工程含有未确认授权的素材，请移除或替换后重新渲染再导出");
+        }
         Path source = requiredFile(artifacts.latest(taskId, "RENDERED_VIDEO").orElse(null),
                 "任务尚未生成可导出的成片");
         ExportPresetView preset = presets().stream().filter(item -> item.id().equals(request.presetId()))

@@ -1,11 +1,14 @@
+import {runDirectorReview} from './director-review-state.js';
+import {applyAdminVisibility} from './admin-visibility.js';
 const taskList = document.querySelector('#task-list');
 const activeTaskPanel = document.querySelector('#active-task');
-const validViews = new Set(['studio', 'search', 'import', 'assets', 'settings']);
+const validViews = new Set(['studio', 'search', 'import', 'assets', 'compilations', 'settings']);
 const lazyScriptPromises = new Map();
 const loadedLazyFeatures = new Set();
 const lazyScriptUrls = {
   import:'/media-importer.js',
-  assets:'/asset-library.js',
+  assets:'/asset-library.js?v=20260912-1',
+  compilations:'/compilations.js?v=20260912-2',
   diagnostics:'/diagnostics.js?v=20260811-1',
   readiness:'/release-readiness.js?v=20260813-1',
   updates:'/updates.js?v=20260811-1',
@@ -51,6 +54,8 @@ function loadLazyScript(key) {
 
 async function ensureViewScripts(view) {
   if (view === 'import' || view === 'assets') await loadLazyScript(view);
+  // 合集页的任务选择依赖分镜接口，但没有 SSE/轮询依赖，可以独立加载。
+  if (view === 'compilations') await loadLazyScript(view);
 }
 
 function activateView(view, updateHistory = false) {
@@ -62,7 +67,7 @@ function activateView(view, updateHistory = false) {
     link.classList.toggle('active', active);
     if (active) link.setAttribute('aria-current', 'page'); else link.removeAttribute('aria-current');
   });
-  const labels = {studio:'剪辑任务', search:'镜头搜索', import:'平台导入', assets:'素材库', settings:'AI 与系统设置'};
+  const labels = {studio:'制作视频', search:'镜头搜索', import:'平台导入', assets:'素材库', compilations:'剪辑合集', settings:'AI 与系统设置'};
   document.title = `${labels[selected]} · GameNarrator`;
   ensureViewScripts(selected).catch(error => {
     const page = document.querySelector(`[data-page="${selected}"]`);
@@ -169,7 +174,9 @@ async function loadLocalModels() {
   const catalog = await response.json();
   modelServiceState.textContent = catalog.message;
   modelServiceState.className = catalog.serviceAvailable ? 'model-service-ready' : 'model-service-offline';
-  installedModels.innerHTML = catalog.installed.length ? catalog.installed.map(model => modelCard(model, true)).join('') : '<p class="empty">尚未发现已安装模型。</p>';
+  installedModels.innerHTML = catalog.installed.length ? catalog.installed.map(model => modelCard(model, true)).join('') : catalog.serviceAvailable
+    ? '<p class="empty">Ollama 已连接，但未发现安装完成的模型。</p>'
+    : '<p class="empty">Ollama 服务未连接，暂时无法读取已安装模型。这不代表模型文件已删除；请启动 Ollama 后点击“刷新状态”。</p>';
   const installedNames = new Set(catalog.installed.map(model => model.name));
   recommendedModels.innerHTML = catalog.recommendations.filter(model => !installedNames.has(model.name)).map(model => modelCard(model, false)).join('') || '<p class="empty">推荐模型均已安装。</p>';
 }
@@ -360,6 +367,8 @@ taskForm.addEventListener('submit', async event => {
     'aiScriptEnabled', 'aiVoiceEnabled', 'autoAssetsEnabled'];
   booleanOptions.forEach(name => requestBody.set(name, String(Boolean(taskForm.elements[name]?.checked))));
   const video = requestBody.get('video');
+  if (!String(requestBody.get('name') || '').trim()) requestBody.set('name', (video?.name?.replace(/\.[^.]+$/, '') || '我的解说视频').slice(0, 120));
+  if (!String(requestBody.get('taskBrief') || '').trim()) requestBody.set('taskBrief', '按所选解说风格介绍视频中的实际内容，保持事实准确、表达连贯。');
   console.info('[GameNarrator] 创建任务', {
     name: requestBody.get('name'),
     gameCategory: requestBody.get('gameCategory'),
@@ -372,7 +381,7 @@ taskForm.addEventListener('submit', async event => {
   try {
     const createdTask = await createTaskWithProgress(requestBody);
     console.info('[GameNarrator] 任务创建成功', createdTask);
-    message.textContent = `任务创建成功：${createdTask.id}。处理引擎已自动启动。`;
+    message.textContent = '视频已加入制作队列，可在右侧查看进度，完成后播放预览。';
     const selectedOptions = Object.fromEntries(booleanOptions.map(name => [name, taskForm.elements[name]?.checked]));
     taskForm.reset();
     booleanOptions.forEach(name => { if (taskForm.elements[name]) taskForm.elements[name].checked = selectedOptions[name]; });
@@ -840,21 +849,63 @@ async function refreshTaskDetails(taskId) {
   }
 }
 
+function taskPrimaryActions(task) {
+  return `
+        ${task.status === 'PROCESSING' ? `<button type="button" class="danger-button" data-cancel-task="${task.id}">终止正在运行的任务</button>` : ''}
+        ${['FAILED','CANCELLED'].includes(task.status) ? `<button type="button" data-retry-task="${task.id}">${task.status === 'CANCELLED' ? '从中断处继续制作' : '重试失败步骤'}</button>` : ''}
+        ${task.generatedScriptPath ? `<button type="button" data-open-storyboard="${task.id}">调整画面与字幕</button><button type="button" class="secondary-button" data-open-script="${task.id}">编辑解说文案</button>` : ''}
+      `;
+}
+
+function taskFailurePanel(task) {
+  return task.failureReason ? `<section class="detail-block"><h3>失败原因</h3>${taskFailureHtml(task.failureReason)}<div class="task-operations"><button type="button" data-open-error-diagnostics data-task-id="${task.id}">查看此任务完整日志</button></div></section>` : '';
+}
+
+function taskNextStep(task) {
+  if (task.status === 'COMPLETED') return '视频已完成，先播放预览，再按需要修改或导出。';
+  if (task.status === 'WAITING_REVIEW') return '请检查画面与字幕，保存后继续生成视频。';
+  if (task.status === 'FAILED') return '制作遇到问题，请查看失败原因并重试。';
+  if (task.status === 'CANCELLED') return '制作已停止，可以从中断处继续。';
+  const stage = task.stages.find(item => item.status === 'RUNNING');
+  return stage ? `正在${stageNames[stage.type] || '制作'}，可关闭窗口，完成后回来播放。` : '正在准备制作，进度会自动更新。';
+}
+
+function updateTaskOutcome(task) {
+  const status = detailContent.querySelector('[data-task-next-step]');
+  if (!status) return;
+  status.textContent = taskNextStep(task);
+  const progress = detailContent.querySelector('[data-task-live-progress]');
+  if (progress) progress.textContent = `${Math.round(task.stages.reduce((sum, stage) => sum + stage.progress, 0) / Math.max(1, task.stages.length))}%`;
+  const actions = detailContent.querySelector('.task-primary-actions');
+  const actionState = `${task.status}:${Boolean(task.generatedScriptPath)}`;
+  if (actions && actions.dataset.taskActionState !== actionState) {
+    actions.innerHTML = taskPrimaryActions(task);
+    actions.dataset.taskActionState = actionState;
+  }
+  if (task.renderedVideoPath && !detailContent.querySelector('.rendered-video')) {
+    detailContent.insertAdjacentHTML('afterbegin', renderedVideoSection(task));
+  }
+  const failure = detailContent.querySelector('[data-task-live-failure]');
+  if (failure && failure.dataset.reason !== (task.failureReason || '')) {
+    failure.dataset.reason = task.failureReason || '';
+    failure.innerHTML = taskFailurePanel(task);
+  }
+}
+
 function renderTaskDetails(task) {
   detailTitle.textContent = task.name;
   const completedCount = task.stages.filter(stage => stage.status === 'COMPLETED').length;
   const overallProgress = Math.round(task.stages.reduce((sum, stage) => sum + stage.progress, 0) / task.stages.length);
   detailContent.innerHTML = `
+    ${renderedVideoSection(task)}
     <section class="detail-block task-action-center">
-      <header><div><small>下一步</small><h3>任务操作中心</h3></div><span>${task.status}</span></header>
-      <div class="task-primary-actions">
-        ${task.status === 'PROCESSING' ? `<button type="button" class="danger-button" data-cancel-task="${task.id}">终止正在运行的任务</button>` : ''}
-        ${['FAILED','CANCELLED'].includes(task.status) ? `<button type="button" data-retry-task="${task.id}">${task.status === 'CANCELLED' ? '从中断处继续制作' : '重试失败步骤'}</button>` : ''}
-        ${task.generatedScriptPath ? `<button type="button" data-open-storyboard="${task.id}">打开分镜与时间线</button><button type="button" class="secondary-button" data-open-script="${task.id}">编辑解说文案</button>` : ''}
-      </div>
-      <p>${task.status === 'PROCESSING' ? '任务正在后台制作；可以关闭此窗口，进度不会丢失。需要停止时使用上方红色按钮。' : task.generatedScriptPath ? '建议先打开分镜与时间线检查画面；只改文字或单段配音时进入“编辑解说文案”。' : '这里会根据任务进度显示当前最合适的下一步操作。'}</p>
+      <header><div><small>下一步</small><h3>${task.status === 'WAITING_REVIEW' ? '检查后继续制作' : '预览与调整'}</h3></div><span data-task-live-progress>${overallProgress}%</span></header>
+      <div class="task-primary-actions" data-task-action-state="${task.status}:${Boolean(task.generatedScriptPath)}">${taskPrimaryActions(task)}</div>
+      <p data-task-next-step aria-live="polite">${escapeHtml(taskNextStep(task))}</p>
+      <div data-task-live-failure data-reason="${escapeHtml(task.failureReason || '')}">${taskFailurePanel(task)}</div>
       <details class="task-more-actions"><summary>更多管理操作</summary><div><button type="button" class="secondary-button" data-rename-task="${task.id}" data-task-name="${escapeHtml(task.name)}">修改任务名称</button><button type="button" class="text-danger-button" data-delete-task="${task.id}" data-task-name="${escapeHtml(task.name)}">移入回收站</button></div><small>移入回收站后仍可恢复；只有在回收站中永久删除才会清理关联文件。</small></details>
     </section>
+    <details class="detail-block advanced-options"><summary>高级工具与制作详情</summary>
     <section class="detail-block enhancement-toolbox">
       <h3>智能增强工具箱</h3>
       <p class="visual-summary">手动剪辑始终可用；下面每项可随时单独执行，失败不会破坏当前时间线或已有成片。</p>
@@ -881,7 +932,6 @@ function renderTaskDetails(task) {
       </dl>
       <p class="detail-brief">${escapeHtml(task.taskBrief)}</p>
     </section>
-    ${task.failureReason ? `<section class="detail-block"><h3>失败原因</h3>${taskFailureHtml(task.failureReason)}<div class="task-operations"><button type="button" data-open-error-diagnostics data-task-id="${task.id}">查看此任务完整日志</button></div></section>` : ''}
     <section class="detail-block">
       <h3>处理流水线</h3>
       <div class="stage-details">${task.stages.map(stage => `
@@ -901,8 +951,8 @@ function renderTaskDetails(task) {
     ${task.timelinePath ? `<section class="detail-block"><h3>剪辑时间线</h3><p class="visual-summary">已规划 ${formatDuration(task.plannedOutputDurationSeconds)} 的成片时间线；${task.voiceOverflowCount ? `${task.voiceOverflowCount} 段配音需要在渲染时调整语速。` : '所有配音均可放入对应镜头。'}</p></section>` : ''}
     ${renderPreviewSection(task)}
     ${effectSettingsSection(task)}
-    ${renderedVideoSection(task)}
     ${task.transcriptText ? `<section class="detail-block"><h3>语音转写</h3><pre class="transcript-text">${escapeHtml(task.transcriptText)}</pre></section>` : ''}
+    </details>
   `;
   if (task.timelinePath) {
     refreshRenderPreview(task.id);
@@ -1270,32 +1320,17 @@ async function loadStoryboardEditor(taskId) {
   clearInterval(storyboardProgressTimer);
   if (!storyboardDialog.open) storyboardDialog.showModal();
   if (!viewState) storyboardWorkspace.innerHTML = '<p class="empty">正在读取完整分镜时间线…</p>';
-  const [storyboard, localAssets, placements, editorTimeline, waveform, revisions, gameEvents, knowledgePack, narrativePlan, directorReviews, directorProfile, narrativeQuality, knowledgePacks, communityResources, creativeVariants, decisionReport, aiRuntime] = await Promise.all([
+  const [storyboard, localAssets, placements, editorTimeline, waveform, revisions] = await Promise.all([
     requestJson(`/api/tasks/${taskId}/storyboard`),
     requestJson('/api/assets?importStatus=DOWNLOADED&limit=100'),
     requestJson(`/api/tasks/${taskId}/storyboard/assets`),
     requestJson(`/api/tasks/${taskId}/editor`),
     requestJson(`/api/tasks/${taskId}/editor/waveform?points=320`),
-    requestJson(`/api/tasks/${taskId}/editor/revisions`),
-    requestJson(`/api/tasks/${taskId}/events`),
-    requestJson(`/api/tasks/${taskId}/events/knowledge-pack`),
-    requestJson(`/api/tasks/${taskId}/events/narrative-plan`),
-    requestJson(`/api/tasks/${taskId}/director-reviews`),
-    requestJson('/api/director-profile'),
-    requestJson(`/api/tasks/${taskId}/quality/narrative-consistency`),
-    requestJson('/api/knowledge-packs'),
-    requestJson('/api/community/resources'),
-    requestJson(`/api/tasks/${taskId}/variants`),
-    requestJson(`/api/tasks/${taskId}/decision-report`),
-    requestJson('/api/ai-settings/runtime')
+    requestJson(`/api/tasks/${taskId}/editor/revisions`)
   ]);
   const totalDuration = storyboard.segments.reduce((sum, item) => sum + item.endSeconds - item.startSeconds, 0);
   storyboardWorkspace.innerHTML = `
     <section class="detail-block storyboard-editor" data-task-id="${taskId}" data-review-enabled="${storyboard.reviewEnabled}" data-approved="${storyboard.approved}">
-      ${renderGameEventTimeline(gameEvents, knowledgePack, narrativePlan, taskId)}
-      ${renderDirectorReviewBoard(directorReviews, taskId, aiRuntime)}
-      ${renderDirectorIntelligence(directorProfile, narrativeQuality, knowledgePacks)}
-      ${renderCommunityEcosystem(taskId, knowledgePacks, communityResources, creativeVariants, decisionReport)}
       <header class="storyboard-editor-head"><div><small>EDITOR WORKSPACE</small><h3>${escapeHtml(storyboard.title || '自由剪辑与分镜')}</h3><p>${escapeHtml(storyboard.synopsis || '')}</p></div>
       <div class="storyboard-head-actions"><button type="button" data-storyboard-action="auto-assets" data-task-id="${taskId}">自动匹配并下载素材</button>${storyboard.approved ? '<span class="storyboard-approved">已确认 / 自动模式</span>' : '<span class="storyboard-review-pending">修改后请使用底部主按钮保存并继续</span>'}</div></header>
       <div class="storyboard-stats"><span>${storyboard.segments.length} 个分镜</span><span>预计素材时长 ${formatDuration(totalDuration)}</span><span>支持拖拽排序与入点/出点修剪</span></div>
@@ -1310,9 +1345,8 @@ async function loadStoryboardEditor(taskId) {
         <div class="storyboard-waveform" data-storyboard-waveform></div>
         <div class="storyboard-track-scroll"><div class="storyboard-track" data-storyboard-track></div></div>
       </section>
-      <details class="revision-tree-panel" open><summary>工程版本树 · ${revisions.length} 个版本</summary><div class="revision-tree-list">${renderRevisionTree(revisions)}</div></details>
+      <details class="revision-tree-panel"><summary>工程版本树 · ${revisions.length} 个版本</summary><div class="revision-tree-list">${renderRevisionTree(revisions)}</div></details>
       <section class="storyboard-pipeline-progress" data-storyboard-progress><p>正在读取处理进度…</p></section>
-      <p class="bilibili-asset-login-hint">自动接取 Bilibili 视频和专栏素材前必须先完成上方 Bilibili 登录；未登录时只会使用本地素材与开放许可素材源。</p>
       <p class="effect-note">修改镜头起止时间会直接改变最终成片使用的源视频范围；保存文案后，后续配音、字幕和渲染会使用最新内容。</p>
       <div class="storyboard-grid storyboard-linear">${storyboard.segments.map(segment => `
         <article class="storyboard-card" data-storyboard-segment="${segment.clipIndex}">
@@ -1324,6 +1358,7 @@ async function loadStoryboardEditor(taskId) {
           <div class="storyboard-time"><label>开始秒数<input name="startSeconds" type="number" min="0" step="0.1" value="${segment.startSeconds.toFixed(2)}"></label><label>结束秒数<input name="endSeconds" type="number" min="0.01" step="0.1" value="${segment.endSeconds.toFixed(2)}"></label></div>
           <label>解说文案<textarea name="narration" maxlength="500">${escapeHtml(segment.narration)}</textarea></label>
           <label>字幕<input name="subtitle" maxlength="500" value="${escapeHtml(segment.subtitle)}"></label>
+          <details class="clip-advanced"><summary>特效、补充素材与 AI 重写要求</summary>
           <label>特效提示<input name="effectCue" maxlength="200" value="${escapeHtml(segment.effectCue)}"></label>
           <label>AI 重写要求<input name="rewriteInstruction" maxlength="500" placeholder="例如：更紧凑、更有悬念，保持事实不变"></label>
           <section class="storyboard-assets">
@@ -1336,9 +1371,11 @@ async function loadStoryboardEditor(taskId) {
             </div>
             <div class="storyboard-placement-list">${placements.filter(item => item.clipIndex === segment.clipIndex).map(item => `<div class="storyboard-placement-item" data-placement-item="${item.id}"><strong>${escapeHtml(item.title)}</strong><small>${item.assetType === 'VIDEO' ? '自动剪切' : item.assetType === 'MEME' ? 'PNG/WebP 透明贴图' : item.assetType === 'BGM' ? '背景混音' : '事件混音'}</small><select name="placementPosition">${['TOP_LEFT','TOP_RIGHT','CENTER','BOTTOM_LEFT','BOTTOM_RIGHT','FULL_SCREEN','AUDIO_TRACK'].map(position => `<option value="${position}" ${item.position === position ? 'selected' : ''}>${position}</option>`).join('')}</select><label>开始秒<input name="placementStart" type="number" min="0" step="0.05" value="${item.startOffsetSeconds ?? 0}"></label><label>结束秒（留空到镜头末）<input name="placementEnd" type="number" min="0" step="0.05" value="${item.endOffsetSeconds ?? ''}"></label><label>缩放 %<input name="placementScale" type="number" min="5" max="200" value="${item.scalePercent ?? 38}"></label><label>动画<select name="placementAnimation">${['NONE','FADE','POP','SLIDE','BOUNCE'].map(animation => `<option value="${animation}" ${item.animation === animation ? 'selected' : ''}>${animation}</option>`).join('')}</select></label><label>层级<input name="placementZIndex" type="number" min="-100" max="100" value="${item.zIndex ?? 0}"></label><label><input name="placementCutout" type="checkbox" ${item.cutoutApplied ? 'checked' : ''}>抠图/透明叠加</label><input name="placementInstruction" value="${escapeHtml(item.instruction || '')}" placeholder="素材处理说明"><button type="button" data-storyboard-action="asset-save" data-task-id="${taskId}" data-placement-id="${item.id}">保存素材设置</button><button type="button" data-storyboard-action="asset-remove" data-task-id="${taskId}" data-placement-id="${item.id}">移除</button></div>`).join('') || '<small>尚未添加额外素材</small>'}</div>
           </section>
+          </details>
           <div class="storyboard-actions"><button type="button" data-storyboard-action="save" data-task-id="${taskId}" data-clip-index="${segment.clipIndex}">保存此分镜</button><button type="button" data-storyboard-action="rewrite" data-task-id="${taskId}" data-clip-index="${segment.clipIndex}">AI 重写此镜</button></div>
         </article>`).join('')}</div>
-      <footer class="storyboard-continue-bar"><div><strong>修改完成了吗？</strong><small>点击后会先保存全部分镜，再明确启动配音、时间线规划和视频渲染。</small></div><button type="button" data-storyboard-action="save-all-continue" data-task-id="${taskId}">保存全部修改并执行下一步 →</button></footer>
+      <details class="advanced-planning" data-advanced-planning><summary>高级策划与实验工具</summary><p>事件分析、导演评审、知识包和社区方案。按需使用，不影响基本剪辑。</p><div data-planning-content></div></details>
+      <footer class="storyboard-continue-bar"><div><strong>修改完成了吗？</strong><small>点击后会先保存全部分镜，再明确启动配音、时间线规划和视频渲染。</small></div><button type="button" data-storyboard-action="save-all-continue" data-task-id="${taskId}">保存修改并生成新预览 →</button></footer>
     </section>`;
   mountStoryboardTimeline(taskId, editorTimeline, waveform);
   storyboardWorkspace.querySelectorAll('[data-placement-item]').forEach(itemNode => {
@@ -1350,6 +1387,53 @@ async function loadStoryboardEditor(taskId) {
     itemNode.querySelector('[name="placementCutout"]')?.closest('label')?.before(controls);
   });
   restoreStoryboardViewState(viewState);
+  const planning = storyboardWorkspace.querySelector('[data-advanced-planning]');
+  planning.addEventListener('toggle', () => { if (planning.open) loadAdvancedPlanning(taskId, planning); });
+  if (planning.open) loadAdvancedPlanning(taskId, planning);
+  mountRevisionTree(taskId);
+  storyboardWorkspace.scrollTo({top:0, behavior:'smooth'});
+  await updateStoryboardProgress(taskId);
+  if (!window.gameNarratorTasks?.isStreamConnected()) {
+    storyboardProgressTimer = setInterval(() => updateStoryboardProgress(taskId), 2000);
+  }
+}
+
+async function loadAdvancedPlanning(taskId, panel) {
+  if (panel.dataset.loading || panel.dataset.loaded) return;
+  panel.dataset.loading = 'true';
+  const content = panel.querySelector('[data-planning-content]');
+  content.textContent = '正在加载高级工具…';
+  try {
+    const [gameEvents, knowledgePack, narrativePlan, directorReviews, directorProfile, narrativeQuality, knowledgePacks, communityResources, creativeVariants, decisionReport, aiRuntime] = await Promise.all([
+    requestJson(`/api/tasks/${taskId}/events`),
+    requestJson(`/api/tasks/${taskId}/events/knowledge-pack`),
+    requestJson(`/api/tasks/${taskId}/events/narrative-plan`),
+    requestJson(`/api/tasks/${taskId}/director-reviews`),
+    requestJson('/api/director-profile'),
+    requestJson(`/api/tasks/${taskId}/quality/narrative-consistency`),
+    requestJson('/api/knowledge-packs'),
+    requestJson('/api/community/resources'),
+    requestJson(`/api/tasks/${taskId}/variants`),
+    requestJson(`/api/tasks/${taskId}/decision-report`),
+    requestJson('/api/ai-settings/runtime')
+  ]);
+    if (!panel.isConnected) return;
+    content.innerHTML = `
+      ${renderGameEventTimeline(gameEvents, knowledgePack, narrativePlan, taskId)}
+      ${renderDirectorReviewBoard(directorReviews, taskId, aiRuntime)}
+      ${renderDirectorIntelligence(directorProfile, narrativeQuality, knowledgePacks)}
+      ${renderCommunityEcosystem(taskId, knowledgePacks, communityResources, creativeVariants, decisionReport)}
+    `;
+    bindAdvancedPlanning(taskId);
+    panel.dataset.loaded = 'true';
+  } catch (error) {
+    content.textContent = `高级工具暂不可用：${error.message}。可以继续编辑视频，收起后展开可重试。`;
+  } finally {
+    delete panel.dataset.loading;
+  }
+}
+
+function bindAdvancedPlanning(taskId) {
   storyboardWorkspace.querySelector('[data-knowledge-pack-import]')?.addEventListener('change', async event => {
     const file = event.target.files?.[0];
     if (!file) return;
@@ -1382,12 +1466,6 @@ async function loadStoryboardEditor(taskId) {
     try { await requestJson(`/api/community/styles/${encodeURIComponent(button.dataset.communityPublishStyle)}`, {method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify({authorName:'本地创作者',licenseCode:'CC-BY-4.0',tags:['剪辑规则','风格配置']})}); await loadStoryboardEditor(taskId); }
     catch (error) { window.alert(error.message); button.disabled = false; }
   }));
-  mountRevisionTree(taskId);
-  storyboardWorkspace.scrollTo({top:0, behavior:'smooth'});
-  await updateStoryboardProgress(taskId);
-  if (!window.gameNarratorTasks?.isStreamConnected()) {
-    storyboardProgressTimer = setInterval(() => updateStoryboardProgress(taskId), 2000);
-  }
 }
 
 function renderRevisionTree(revisions) {
@@ -1656,12 +1734,13 @@ function renderStoryboardProgress(task) {
     panel.innerHTML = `<header><div><small>当前阶段</small><strong>${escapeHtml(currentText)}</strong></div><b>${exact}%</b></header>
       <div class="storyboard-overall-progress"><i style="width:${exact}%"></i></div>
       <div class="storyboard-stage-strip">${task.stages.map(stage => `<span class="${stage.status.toLowerCase()}"><i></i>${escapeHtml(stageNames[stage.type])}<b>${stage.progress}%</b></span>`).join('')}</div>
-      <p>${voiceHint || (waiting ? `下一阶段：${stageNames[waiting.type]}` : '正在整理最终结果')}</p>`;
+      <p>${task.status === 'COMPLETED' ? '新预览已完成，可以返回播放并导出。' : voiceHint || (waiting ? `下一阶段：${stageNames[waiting.type]}` : '正在整理最终结果')}</p>${task.status === 'COMPLETED' ? `<button type="button" data-storyboard-action="show-result" data-task-id="${task.id}">返回视频预览</button>` : ''}`;
 }
 
 window.addEventListener('gamenarrator:tasks', event => {
   if (detailDialog?.open && activeTaskId) {
     const active = event.detail.find(item => item.id === activeTaskId);
+    if (active) updateTaskOutcome(active);
     if (active?.stages.some(stage => stage.type === 'RENDERING' && stage.status === 'RUNNING')) refreshRenderPreview(activeTaskId);
   }
   if (!storyboardDialog?.open) return;
@@ -1674,11 +1753,25 @@ async function handleStoryboardAction(button) {
   const taskId = button.dataset.taskId;
   button.disabled = true;
   try {
+    if (button.dataset.storyboardAction === 'show-result') {
+      clearInterval(storyboardProgressTimer);
+      storyboardDialog.close();
+      await openTaskDetails(taskId);
+      return;
+    }
     if (button.dataset.storyboardAction === 'director-review-start') {
       const rounds = Number(storyboardWorkspace.querySelector('[data-review-rounds]')?.value || 1);
-      button.textContent = 'AI 评审中，请勿关闭窗口…';
-      await requestJson(`/api/tasks/${taskId}/director-reviews`, {method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify({rounds})});
-      await loadStoryboardEditor(taskId); return;
+      const board = button.closest('.director-review-board');
+      await runDirectorReview({board, button,
+        start: () => requestJson(`/api/tasks/${taskId}/director-reviews`, {method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify({rounds})}),
+        refresh: async () => {
+          const [reviews, runtime] = await Promise.all([requestJson(`/api/tasks/${taskId}/director-reviews`), requestJson('/api/ai-settings/runtime')]);
+          const container = document.createElement('div');
+          container.innerHTML = renderDirectorReviewBoard(reviews, taskId, runtime);
+          board.replaceWith(container.firstElementChild);
+        }
+      });
+      return;
     }
     if (button.dataset.storyboardAction?.startsWith('director-review-')) {
       const action = button.dataset.storyboardAction;
@@ -1757,7 +1850,7 @@ async function handleStoryboardAction(button) {
     }
     if (button.dataset.storyboardAction === 'auto-assets') {
       const result = await requestJson(`/api/tasks/${taskId}/storyboard/assets/auto`, {method:'POST'});
-      const warning = result.warnings?.length ? `；部分来源不可用：${result.warnings.slice(0,3).join('；')}` : '';
+      const warning = result.warnings?.length ? `；处理提示：${result.warnings.slice(0,3).join('；')}` : '';
       const bilibili = result.bilibiliLoginRequired ? '；如需使用 Bilibili 素材，请先登录' : '';
       const outcome = result.assignedCount > 0
         ? `已自动挂载 ${result.assignedCount} 项素材`
@@ -1904,8 +1997,8 @@ function renderedVideoSection(task) {
   const sizeMb = (task.renderedFileSizeBytes / 1024 / 1024).toFixed(1);
   return `<section class="detail-block rendered-video">
     <div class="rendered-video-head">
-      <div><h3>最终成片</h3><p>视频已完成，可以直接在线播放或导出到电脑（${sizeMb} MB）。</p></div>
-      <span>COMPLETED</span>
+      <div><h3>视频预览与导出</h3><p>视频已完成，可以直接在线播放或导出到电脑（${sizeMb} MB）。</p></div>
+      <span>可以播放</span>
     </div>
     <video class="result-player" controls preload="metadata" playsinline src="${previewUrl}">
       当前浏览器不支持 HTML5 视频播放，请使用下方导出按钮。
@@ -1915,7 +2008,7 @@ function renderedVideoSection(task) {
       <a class="download-button" href="${downloadUrl}" download>导出 MP4</a>
       <button class="preview-button" type="button" data-add-project-asset="${task.id}">加入素材库</button>
     </div>
-    <code title="${escapeHtml(task.renderedVideoPath)}">${escapeHtml(task.renderedVideoPath)}</code>
+    <details><summary>查看成片文件位置</summary><code>${escapeHtml(task.renderedVideoPath)}</code></details>
   </section>`;
 }
 
@@ -2056,7 +2149,7 @@ function taskFailureHtml(message) {
 
 function showLoadError(error) {
   console.error('[GameNarrator] 状态刷新失败', error);
-  taskList.innerHTML = `<p class="empty">任务加载失败：${escapeHtml(error.message)}</p>`;
+  // The Vue task list renders the store's error and must keep ownership of its DOM.
 }
 
 loadTasks().catch(showLoadError);
@@ -2255,7 +2348,7 @@ document.addEventListener('keydown', event => {
   document.body.append(dialog);
   const state = dialog.querySelector('[data-account-state]'), tip = dialog.querySelector('[data-account-tip]');
   async function request(url, options={}) { const response=await fetch(url,{headers:{'Content-Type':'application/json'},...options}); const body=await response.json(); if(!response.ok) throw Error(body.message||'操作失败'); return body; }
-  async function refresh() { const me=await request('/api/auth/me'); button.textContent=me.authenticated?me.displayName:'匿名使用'; state.textContent=me.authenticated?`已登录：${me.displayName}（${me.role}），当前项目按账号隔离保存。`:'匿名模式：项目和素材仅保存在当前电脑。'; dialog.querySelector('[data-admin]').hidden=me.role!=='ADMIN'; }
+  async function refresh() { const me=await request('/api/auth/me'); const admin=me.role==='ADMIN'; document.body.dataset.userRole=me.role||'USER'; button.textContent=me.authenticated?me.displayName:'匿名使用'; state.textContent=me.authenticated?`已登录：${me.displayName}（${me.role}），当前项目按账号隔离保存。`:'匿名模式：项目和素材仅保存在当前电脑。'; dialog.querySelector('[data-admin]').hidden=!admin; applyAdminVisibility(document,admin); }
   button.onclick=()=>{refresh().catch(()=>{});dialog.showModal()}; dialog.querySelector('.dialog-close').onclick=()=>dialog.close();
   let registrationMode=false;
   const form=dialog.querySelector('[data-account-form]'), registerOnly=form.querySelector('[data-register-only]'), passwordInput=form.elements.password, submitButton=form.querySelector('[data-account-submit]'), registerButton=form.querySelector('[data-register]');

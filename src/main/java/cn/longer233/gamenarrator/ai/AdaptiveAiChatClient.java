@@ -63,6 +63,15 @@ public class AdaptiveAiChatClient {
         return cloud.chatJson(safePrompt, images, model, value, timeout);
     }
 
+    public JsonNode chatStructured(String prompt, JsonNode schema, Duration timeout) throws Exception {
+        var value = settings.current();
+        String constrainedPrompt = prompt + "\n请严格遵守以下JSON Schema，简洁作答，不要重复事实全文：" + schema;
+        if (useLocal(value, false)) {
+            return local.chatJson(constrainedPrompt, List.of(), localModel(value, false), value, timeout, schema);
+        }
+        return chatJson(constrainedPrompt, List.of(), false, timeout);
+    }
+
     public boolean modelAvailable(String model, boolean vision) {
         var value = settings.current();
         if (useLocal(value, vision) || (vision && "DASHSCOPE".equals(value.provider())
@@ -72,6 +81,8 @@ public class AdaptiveAiChatClient {
 
     public String activeModel(boolean vision) {
         var value = settings.current();
+        if (vision && "DASHSCOPE".equals(value.provider()) && "LOCAL_FIRST".equals(cloudImagePolicy)
+                && !"LOCAL".equals(value.mode())) return localVision;
         return useLocal(value, vision) ? localModel(value, vision) : (vision ? value.visionModel() : value.textModel());
     }
 

@@ -20,6 +20,12 @@ import java.util.regex.Pattern;
 public class SpeakerDiarizationService {
     private static final Pattern PLAYER = Pattern.compile("(?i)(我|咱|兄弟|家人|观众|直播|这波|操作|手柄|键盘|鼠标|I\\b|we\\b|chat\\b|stream)");
     private static final Pattern CHARACTER = Pattern.compile("(?i)(旁白|系统|任务|警告|殿下|勇士|旅行者|指挥官|dialogue|narrator|system|npc|character)");
+    /** Whisper 原生说话人标签：有据可查，给定值而不是伪装成精确概率 */
+    private static final double NATIVE_LABEL_CONFIDENCE = 0.95;
+    /** 关键词猜测：不是声纹识别，统一取中间值，避免编造精度 */
+    private static final double GUESS_CONFIDENCE = 0.5;
+    /** 时间轴重叠推断：能确定“有第二个人”，但确定不了是谁 */
+    private static final double OVERLAP_CONFIDENCE = 0.9;
     private final ObjectMapper mapper;
 
     public SpeakerDiarizationService(ObjectMapper mapper) {
@@ -40,6 +46,8 @@ public class SpeakerDiarizationService {
             document.put("schemaVersion", 1);
             document.put("method", "native-speaker-labels-with-explainable-fallback");
             document.put("requiresReview", segments.stream().anyMatch(segment -> "TEXT_FALLBACK".equals(segment.evidence)));
+            document.put("confidencePolicy", "NATIVE_LABEL 取自 Whisper 原生说话人标签；TEXT_FALLBACK 只是台词关键词猜测，" +
+                    "不是声纹识别，confidence 不表示识别准确率，只用于排序与提示人工复核");
             ArrayNode values = document.putArray("segments");
             for (Segment segment : segments) values.add(toJson(segment));
             AtomicArtifactWriter.writeJson(mapper, output, document);
@@ -95,20 +103,28 @@ public class SpeakerDiarizationService {
                 && a.nativeSpeaker.equalsIgnoreCase(b.nativeSpeaker);
     }
 
+    /**
+     * 分类只区分两种可信度：Whisper 自带说话人标签（可追溯），或按台词关键词猜测（不是声纹识别）。
+     * 猜测统一给 GUESS_CONFIDENCE，不再按关键词种类编造 0.66/0.62/0.40 这类无依据的梯度。
+     */
     private Classification classify(String speaker, String text) {
         if (speaker != null) {
             String normalized = speaker.toLowerCase(Locale.ROOT);
             if (normalized.contains("multi") || normalized.contains("overlap") || normalized.contains("多人"))
-                return new Classification("MULTI_SPEAKER", 0.98, "NATIVE_LABEL");
+                return new Classification("MULTI_SPEAKER", NATIVE_LABEL_CONFIDENCE, "NATIVE_LABEL");
             if (normalized.contains("player") || normalized.contains("streamer") || normalized.contains("玩家"))
-                return new Classification("PLAYER_VOICE", 0.96, "NATIVE_LABEL");
+                return new Classification("PLAYER_VOICE", NATIVE_LABEL_CONFIDENCE, "NATIVE_LABEL");
             if (normalized.contains("npc") || normalized.contains("narrator") || normalized.contains("character")
                     || normalized.contains("system") || normalized.contains("角色") || normalized.contains("旁白"))
-                return new Classification("GAME_CHARACTER_NARRATOR", 0.96, "NATIVE_LABEL");
+                return new Classification("GAME_CHARACTER_NARRATOR", NATIVE_LABEL_CONFIDENCE, "NATIVE_LABEL");
         }
-        if (CHARACTER.matcher(text).find()) return new Classification("GAME_CHARACTER_NARRATOR", 0.66, "TEXT_FALLBACK");
-        if (PLAYER.matcher(text).find()) return new Classification("PLAYER_VOICE", 0.62, "TEXT_FALLBACK");
-        return new Classification("GAME_CHARACTER_NARRATOR", 0.40, "TEXT_FALLBACK");
+        if (CHARACTER.matcher(text).find()) return guessed("GAME_CHARACTER_NARRATOR");
+        if (PLAYER.matcher(text).find()) return guessed("PLAYER_VOICE");
+        return guessed("GAME_CHARACTER_NARRATOR");
+    }
+
+    private static Classification guessed(String category) {
+        return new Classification(category, GUESS_CONFIDENCE, "TEXT_FALLBACK");
     }
 
     private ObjectNode toJson(Segment segment) {
@@ -118,10 +134,19 @@ public class SpeakerDiarizationService {
         node.put("endMillis", segment.endMillis);
         node.put("speakerType", segment.category);
         node.put("confidence", segment.confidence);
+        node.put("confidenceBasis", basis(segment.evidence));
         node.put("evidence", segment.evidence);
         if (segment.nativeSpeaker != null) node.put("nativeSpeaker", segment.nativeSpeaker);
         node.put("text", segment.text);
         return node;
+    }
+
+    private static String basis(String evidence) {
+        return switch (evidence == null ? "" : evidence) {
+            case "NATIVE_LABEL" -> "Whisper 原生说话人标签";
+            case "TIMELINE_OVERLAP" -> "时间轴重叠推断，非声纹识别";
+            default -> "台词关键词猜测，非声纹识别，需要人工确认";
+        };
     }
 
     private long millis(JsonNode node, boolean start) {
@@ -159,7 +184,8 @@ public class SpeakerDiarizationService {
     private record Segment(int index, long startMillis, long endMillis, String text, String category,
                            String nativeSpeaker, double confidence, String evidence) {
         Segment asMultiSpeaker() {
-            return new Segment(index, startMillis, endMillis, text, "MULTI_SPEAKER", nativeSpeaker, 0.92, "TIMELINE_OVERLAP");
+            return new Segment(index, startMillis, endMillis, text, "MULTI_SPEAKER", nativeSpeaker,
+                    OVERLAP_CONFIDENCE, "TIMELINE_OVERLAP");
         }
     }
 }

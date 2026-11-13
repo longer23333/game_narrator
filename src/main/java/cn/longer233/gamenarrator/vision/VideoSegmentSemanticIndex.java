@@ -90,7 +90,8 @@ public class VideoSegmentSemanticIndex {
             PriorityQueue<Scored> scored = jdbc.query("""
                     SELECT e.task_id,t.name,e.frame_index,e.timestamp_seconds,e.event_type,
                     e.description,e.vector_json FROM video_segment_embedding e
-                    JOIN video_tasks t ON t.id=e.task_id WHERE e.model=? AND t.owner_id=?
+                    JOIN video_tasks t ON t.id=e.task_id
+                    WHERE e.model=? AND t.owner_id=? AND t.deleted_at IS NULL
                     """, rs -> {
                 PriorityQueue<Scored> candidates = new PriorityQueue<>(Comparator.comparingDouble(
                         item -> item.result.similarity()));
@@ -132,7 +133,8 @@ public class VideoSegmentSemanticIndex {
             PriorityQueue<VideoSegmentSearchResult> matches = jdbc.query("""
                     SELECT e.task_id,t.name,e.frame_index,e.timestamp_seconds,e.event_type,
                     e.description,e.image_hash FROM video_segment_embedding e
-                    JOIN video_tasks t ON t.id=e.task_id WHERE e.image_hash IS NOT NULL AND t.owner_id=?
+                    JOIN video_tasks t ON t.id=e.task_id
+                    WHERE e.image_hash IS NOT NULL AND t.owner_id=? AND t.deleted_at IS NULL
                     """, rs -> {
                 PriorityQueue<VideoSegmentSearchResult> candidates = new PriorityQueue<>(
                         Comparator.comparingDouble(VideoSegmentSearchResult::similarity));
@@ -160,7 +162,7 @@ public class VideoSegmentSemanticIndex {
         List<TaskAnalysis> missing = jdbc.query("""
                 SELECT t.id,a.storage_key FROM video_tasks t
                 JOIN artifact a ON a.project_id=t.project_id AND a.artifact_type='VISION_ANALYSIS'
-                WHERE a.deleted_at IS NULL AND t.owner_id=?
+                WHERE a.deleted_at IS NULL AND t.owner_id=? AND t.deleted_at IS NULL
                 AND NOT EXISTS (SELECT 1 FROM video_segment_embedding e WHERE e.task_id=t.id AND e.model=?)
                 AND NOT EXISTS (SELECT 1 FROM artifact newer WHERE newer.project_id=a.project_id
                     AND newer.artifact_type=a.artifact_type AND newer.deleted_at IS NULL
@@ -179,7 +181,8 @@ public class VideoSegmentSemanticIndex {
     private void backfillImageHashes() {
         List<FrameImage> missing = jdbc.query("""
                 SELECT e.task_id,e.frame_index,e.image_path FROM video_segment_embedding e
-                JOIN video_tasks t ON t.id=e.task_id WHERE e.image_hash IS NULL AND t.owner_id=?
+                JOIN video_tasks t ON t.id=e.task_id
+                WHERE e.image_hash IS NULL AND t.owner_id=? AND t.deleted_at IS NULL
                 """, (rs, row) -> new FrameImage(rs.getObject(1, UUID.class), rs.getInt(2), rs.getString(3)), currentUser.userId());
         for (FrameImage frame : missing) {
             try {
@@ -204,7 +207,7 @@ public class VideoSegmentSemanticIndex {
         List<String> paths = jdbc.query("""
                 SELECT e.image_path FROM video_segment_embedding e
                 JOIN video_tasks t ON t.id=e.task_id
-                WHERE e.task_id=? AND e.frame_index=? AND t.owner_id=?
+                WHERE e.task_id=? AND e.frame_index=? AND t.owner_id=? AND t.deleted_at IS NULL
                 """, (rs, row) -> rs.getString(1), taskId, frameIndex, currentUser.userId());
         if (paths.isEmpty()) throw new IllegalArgumentException("镜头不存在");
         Path path = Path.of(paths.getFirst()).toAbsolutePath().normalize();

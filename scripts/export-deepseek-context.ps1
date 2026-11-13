@@ -35,6 +35,7 @@ function Test-IncludedFile([IO.FileInfo]$file) {
     if ($relative -match '^src/main/resources/static/') { return $false }
     if ($relative -match '^(data|storage|tools|models|logs|cache)/') { return $false }
     if ($relative -match '^release/(staging|staging-lite|cache|desktop-publish-check)/') { return $false }
+    if ($relative -match '(^|/)\.edge-[^/]+/') { return $false }
     if ($relative -match '(^|/)(local\.properties|keystore\.properties|\.env[^/]*|cookies\.txt)$') { return $false }
     $segments = $relative.Split('/')
     if ($segments | Where-Object { $excludedSegments -contains $_.ToLowerInvariant() }) { return $false }

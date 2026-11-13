@@ -139,7 +139,7 @@ internal static class Program {
                 var java=Path.Combine(root,"runtime","bin","java.exe");
                 var jar=Directory.GetFiles(Path.Combine(root,"app"),"*.jar").Single();
                 var applicationLog=Path.Combine(data,"logs","application-console.log");
-                var applicationProcess=StartChild(java, $"-Xms64m -Xmx{javaHeapMb}m -XX:+UseG1GC -XX:MaxGCPauseMillis=200 -Dfile.encoding=UTF-8 -jar \"{jar}\" --spring.profiles.active=release", root, applicationLog);
+                var applicationProcess=StartChild(java, $"-Xms64m -Xmx{javaHeapMb}m -XX:+UseG1GC -XX:MaxGCPauseMillis=200 -Dfile.encoding=UTF-8 -Djava.net.useSystemProxies=true -jar \"{jar}\" --spring.profiles.active=release", root, applicationLog);
                 await WaitHttp($"http://127.0.0.1:{AppPort}/api/debug/health", TimeSpan.FromSeconds(90),
                     "GameNarrator 后端", applicationProcess, applicationLog);
                 DesktopLog("BACKEND_READY");

@@ -39,6 +39,28 @@ public class ClipCompilationService {
                         rs.getTimestamp("created_at").toInstant(), ownerId)).list();
     }
 
+    @Transactional
+    public CompilationView removeItem(UUID id, UUID itemId) {
+        UUID ownerId = currentUser.userId();
+        find(id, ownerId);
+        int removed = jdbc.sql("""
+                DELETE FROM clip_compilation_item WHERE id=? AND compilation_id=?
+                AND EXISTS (SELECT 1 FROM clip_compilation c WHERE c.id=compilation_id AND c.owner_id=?)
+                """).params(itemId, id, ownerId).update();
+        if (removed == 0) throw new IllegalArgumentException("切片不存在或不属于该合集");
+        // position 留空不影响排序（仍按 position 升序读），下次 add 会用 MAX(position)+1 继续追加。
+        return find(id, ownerId);
+    }
+
+    @Transactional
+    public void delete(UUID id) {
+        UUID ownerId = currentUser.userId();
+        find(id, ownerId);
+        jdbc.sql("DELETE FROM clip_compilation_item WHERE compilation_id=?").param(id).update();
+        int removed = jdbc.sql("DELETE FROM clip_compilation WHERE id=? AND owner_id=?").params(id, ownerId).update();
+        if (removed == 0) throw new IllegalArgumentException("合集不存在");
+    }
+
     public CompilationView find(UUID id) {
         return find(id, currentUser.userId());
     }
@@ -54,7 +76,7 @@ public class ClipCompilationService {
     public CompilationView add(UUID id, UUID taskId, int clipIndex) {
         UUID ownerId = currentUser.userId();
         find(id, ownerId);
-        boolean ownsTask = jdbc.sql("SELECT COUNT(*) FROM video_tasks WHERE id=? AND owner_id=?")
+        boolean ownsTask = jdbc.sql("SELECT COUNT(*) FROM video_tasks WHERE id=? AND owner_id=? AND deleted_at IS NULL")
                 .params(taskId, ownerId).query(Integer.class).single() > 0;
         if (!ownsTask) throw new IllegalArgumentException("任务不存在");
         Integer position = jdbc.sql("SELECT COALESCE(MAX(position),0)+1 FROM clip_compilation_item WHERE compilation_id=?")
@@ -93,7 +115,7 @@ public class ClipCompilationService {
                 FROM clip_compilation_item i
                 JOIN clip_compilation c ON c.id=i.compilation_id
                 JOIN video_tasks t ON t.id=i.task_id AND t.owner_id=c.owner_id
-                WHERE i.compilation_id=? AND c.owner_id=? ORDER BY i.position
+                WHERE i.compilation_id=? AND c.owner_id=? AND t.deleted_at IS NULL ORDER BY i.position
                 """).params(id, ownerId).query((rs, row) -> new CompilationItemView((UUID) rs.getObject("id"),
                 (UUID) rs.getObject("task_id"), rs.getInt("clip_index"), rs.getInt("position"),
                 rs.getString("task_name"))).list();

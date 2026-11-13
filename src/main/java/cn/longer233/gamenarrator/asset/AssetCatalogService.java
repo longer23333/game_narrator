@@ -134,7 +134,8 @@ public class AssetCatalogService {
         }
         CompletableFuture.allOf(searches.toArray(CompletableFuture[]::new)).join();
         if (attemptedProviders == 0 || failures.size() == attemptedProviders) {
-            List<AssetView> cached = lexicalList(request.assetType(), request.query(), request.provider(), null, null, false, "newest");
+            List<AssetView> cached = lexicalList(request.assetType(), request.query(), request.provider(), null, null, false, "newest")
+                    .stream().filter(asset -> matchesLicenseConditions(asset.licenseCode(), request)).toList();
             if (!cached.isEmpty()) return cached;
             throw new IllegalStateException(attemptedProviders == 0
                     ? "当前公共素材源仍在恢复或尚未配置，请稍后重试或使用下方原站检索"
@@ -151,6 +152,11 @@ public class AssetCatalogService {
     private boolean providerSelected(String requestedProvider, String provider) {
         return requestedProvider == null || requestedProvider.isBlank()
                 || provider.equalsIgnoreCase(requestedProvider);
+    }
+
+    static boolean matchesLicenseConditions(String licenseCode, AssetSearchRequest request) {
+        return AssetLicensePolicy.matchesConditions(licenseCode, Boolean.TRUE.equals(request.commercialUse()),
+                Boolean.TRUE.equals(request.allowModification()));
     }
 
     public boolean supportsProvider(String provider, String assetType) {
@@ -575,7 +581,7 @@ public class AssetCatalogService {
         List<Map<String, Object>> rows = jdbc.queryForList("""
                 SELECT name,status,generated_title,game_category,commentary_style,
                        planned_output_duration_seconds
-                FROM video_tasks WHERE id=? AND owner_id=?
+                FROM video_tasks WHERE id=? AND owner_id=? AND deleted_at IS NULL
                 """, taskId, currentUser.userId());
         if (rows.isEmpty()) throw new IllegalArgumentException("项目不存在：" + taskId);
         Map<String, Object> task = rows.getFirst();

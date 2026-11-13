@@ -16,6 +16,11 @@ public class PiperProperties {
     private List<Voice> voices = new ArrayList<>();
     private String defaultProfile = "narrative";
     private List<Profile> profiles = new ArrayList<>();
+    /**
+     * 每个 piper 进程一次合成的段数。piper 每次启动都要加载 ONNX 声学模型，
+     * 批量喂入可把 N 次模型加载压成 ceil(N/batchSize) 次（5 段实测 3.27s → 0.78s）。
+     */
+    private int batchSize = 8;
 
     public String getExecutable() { return executable; }
     public void setExecutable(String executable) { this.executable = executable; }
@@ -31,6 +36,8 @@ public class PiperProperties {
     public void setDefaultProfile(String defaultProfile) { this.defaultProfile = defaultProfile; }
     public List<Profile> getProfiles() { return profiles; }
     public void setProfiles(List<Profile> profiles) { this.profiles = profiles == null ? new ArrayList<>() : profiles; }
+    public int getBatchSize() { return batchSize; }
+    public void setBatchSize(int batchSize) { this.batchSize = batchSize; }
 
     public static class Voice {
         private String id;

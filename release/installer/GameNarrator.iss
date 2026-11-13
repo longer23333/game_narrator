@@ -3,6 +3,16 @@
 #define AppVersion "2.2.58"
 #endif
 
+; 压缩级别可通过命令行覆盖:iscc /DFastCompression 用 lzma2/fast(约省 2-3 分钟,包体略大);
+; 不传参数时保持 lzma2/max(官方发布默认)。
+#ifndef InnoCompression
+  #ifdef FastCompression
+    #define InnoCompression "lzma2/fast"
+  #else
+    #define InnoCompression "lzma2/max"
+  #endif
+#endif
+
 [Setup]
 AppId={{9F083C75-7485-4BC2-A00E-39D3039E2B73}
 AppName={#AppName}
@@ -22,7 +32,7 @@ UsePreviousAppDir=yes
 DefaultGroupName=GameNarrator
 OutputDir=..\..\dist
 OutputBaseFilename=GameNarrator-Setup-{#AppVersion}
-Compression=lzma2/max
+Compression={#InnoCompression}
 SolidCompression=no
 PrivilegesRequired=lowest
 WizardStyle=modern

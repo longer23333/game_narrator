@@ -11,8 +11,12 @@ import org.springframework.scheduling.annotation.EnableScheduling;
 public class GameNarratorApplication {
 
     public static void main(String[] args) {
+        if (System.getProperty("java.net.useSystemProxies") == null) {
+            System.setProperty("java.net.useSystemProxies", "true");
+        }
         SpringApplication application = new SpringApplication(GameNarratorApplication.class);
-        application.addInitializers(new ProductionCredentialGuard(), new LocalOnlyServerBindingGuard());
+        application.addInitializers(new ProductionCredentialGuard(), new LocalOnlyServerBindingGuard(),
+                new NetworkConfigurationInitializer());
         application.run(args);
     }
 }

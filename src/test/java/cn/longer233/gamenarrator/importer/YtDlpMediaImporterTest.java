@@ -10,6 +10,19 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 class YtDlpMediaImporterTest {
+    @Test
+    void passesUnifiedProxySelectionToExternalImporter() {
+        var original = java.net.ProxySelector.getDefault();
+        try {
+            java.net.ProxySelector.setDefault(java.net.ProxySelector.of(new java.net.InetSocketAddress("127.0.0.1", 7890)));
+            assertEquals(java.util.List.of("--proxy", "http://127.0.0.1:7890"),
+                    YtDlpMediaImporter.proxyArguments(java.net.URI.create("https://www.bilibili.com")));
+            java.net.ProxySelector.setDefault(null);
+            assertEquals(java.util.List.of("--proxy", ""),
+                    YtDlpMediaImporter.proxyArguments(java.net.URI.create("https://www.bilibili.com")));
+        } finally { java.net.ProxySelector.setDefault(original); }
+    }
+
 
     @Test
     void buildsPlayableSelectorsForSeparatedVideoAndAudioStreams() {

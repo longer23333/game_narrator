@@ -50,9 +50,7 @@ public class RenderAssetResolver {
     }
 
     static boolean licenseRenderable(String provider, String licenseCode) {
-        if (List.of("LOCAL_UPLOAD", "LOCAL_DERIVED", "PROJECT").contains(String.valueOf(provider))) return true;
-        return licenseCode != null && !licenseCode.isBlank()
-                && !List.of("RIGHTS_REVIEW_REQUIRED", "UNKNOWN", "UNLICENSED").contains(licenseCode);
+        return cn.longer233.gamenarrator.asset.AssetLicensePolicy.allowsUse(provider, licenseCode);
     }
 
     public record RenderAsset(int clipIndex, String assetType, String placementType, String position,

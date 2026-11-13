@@ -155,10 +155,7 @@ public class VideoTaskService {
 
     @Transactional
     public List<VideoTaskView> findAllForOwner(UUID ownerId) {
-        return repository.findAllByOwnerIdOrderByCreatedAtDesc(ownerId)
-                .stream()
-                .map(viewMapper::from)
-                .toList();
+        return viewMapper.fromAll(repository.findAllByOwnerIdOrderByCreatedAtDesc(ownerId));
     }
 
     @Transactional

@@ -22,6 +22,7 @@ public class WikimediaAssetClient {
     private final RestClient client;
     private final ObjectMapper objectMapper;
     private final boolean enabled;
+    private final java.net.URI baseUri;
     private final AssetSearchResilience resilience;
 
     public WikimediaAssetClient(ObjectMapper objectMapper,
@@ -31,6 +32,7 @@ public class WikimediaAssetClient {
                                 AssetSearchResilience resilience) {
         this.objectMapper = objectMapper;
         this.enabled = enabled;
+        this.baseUri = java.net.URI.create(baseUrl);
         this.resilience = resilience;
         SimpleClientHttpRequestFactory requestFactory = new SimpleClientHttpRequestFactory();
         Duration timeout = Duration.ofSeconds(Math.max(1, Math.min(10, timeoutSeconds)));
@@ -67,7 +69,7 @@ public class WikimediaAssetClient {
     }
 
     private JsonNode fetchAndNormalize(AssetSearchRequest request, String target) {
-        JsonNode response = client.get().uri(target).retrieve().body(JsonNode.class);
+        JsonNode response = client.get().uri(baseUri.resolve(target)).retrieve().body(JsonNode.class);
         ObjectNode normalized = objectMapper.createObjectNode();
         ArrayNode results = normalized.putArray("results");
         if (response == null) return normalized;
@@ -77,8 +79,8 @@ public class WikimediaAssetClient {
             if (!matchesType(request.assetType(), mime)) continue;
             JsonNode metadata = info.path("extmetadata");
             String license = clean(metadata.path("LicenseShortName").path("value").asText("unknown"));
-            if (Boolean.TRUE.equals(request.commercialUse()) && license.toLowerCase(Locale.ROOT).contains("nc")) continue;
-            if (Boolean.TRUE.equals(request.allowModification()) && license.toLowerCase(Locale.ROOT).contains("nd")) continue;
+            if (!AssetLicensePolicy.matchesConditions(license, Boolean.TRUE.equals(request.commercialUse()),
+                    Boolean.TRUE.equals(request.allowModification()))) continue;
             String originalUrl = info.path("url").asText();
             ObjectNode item = results.addObject();
             item.put("id", page.path("pageid").asText());

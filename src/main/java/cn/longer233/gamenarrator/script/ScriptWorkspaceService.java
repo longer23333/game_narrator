@@ -14,6 +14,7 @@ import cn.longer233.gamenarrator.personalization.DirectorProfileView;
 import cn.longer233.gamenarrator.timeline.TimelinePlanner;
 import cn.longer233.gamenarrator.timeline.TimelinePlanningResult;
 import cn.longer233.gamenarrator.pipeline.TaskArtifactLocator;
+import cn.longer233.gamenarrator.pipeline.ProjectArtifactRegistry;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import jakarta.transaction.Transactional;
@@ -41,12 +42,13 @@ public class ScriptWorkspaceService {
     private final DirectorProfileService directorProfiles;
     private final TimelinePlanner timelinePlanner;
     private final TaskArtifactLocator taskArtifacts;
+    private final ProjectArtifactRegistry artifactRegistry;
 
     @Autowired
     public ScriptWorkspaceService(VideoTaskRepository repository, ObjectMapper objectMapper,
                                   TextGenerator scriptGenerator, VoiceSynthesizer voiceGenerator,
                                   DirectorProfileService directorProfiles, TimelinePlanner timelinePlanner,
-                                  TaskArtifactLocator taskArtifacts) {
+                                  TaskArtifactLocator taskArtifacts, ProjectArtifactRegistry artifactRegistry) {
         this.repository = repository;
         this.objectMapper = objectMapper;
         this.artifacts = new ScriptArtifactStore(objectMapper);
@@ -55,6 +57,7 @@ public class ScriptWorkspaceService {
         this.directorProfiles = directorProfiles;
         this.timelinePlanner = timelinePlanner;
         this.taskArtifacts = taskArtifacts;
+        this.artifactRegistry = artifactRegistry;
     }
 
     @Transactional
@@ -122,6 +125,7 @@ public class ScriptWorkspaceService {
         output.put("qualityReviewSource", "AI_INDEPENDENT_REVIEW");
         output.put("qualityReviewedAt", java.time.Instant.now().toString());
         artifacts.writeJson(path, output);
+        recordCheckpoint(taskId, "SCRIPT_MANIFEST", path);
         return new ScriptDocumentView(document.title(), document.synopsis(), document.fullNarration(), review,
                 document.segments());
     }
@@ -163,12 +167,19 @@ public class ScriptWorkspaceService {
             Path manifest, int voiceCount) {
         if (artifacts.timelinePath() == null || artifacts.highlightManifestPath() == null || timelinePlanner == null) {
             task.applyVoiceRevision(manifest.toString(), voiceCount);
+            recordCheckpoint(task.getId(), "VOICE_MANIFEST", manifest);
             return;
         }
         TimelinePlanningResult timeline = timelinePlanner.refreshSegment(Path.of(artifacts.timelinePath()),
                 Path.of(artifacts.highlightManifestPath()), requireScriptPath(task), manifest, clipIndex);
         task.applyLocalizedVoiceRevision(manifest.toString(), voiceCount, timeline.timelinePath(),
                 timeline.outputDurationSeconds(), timeline.overflowCount());
+        recordCheckpoint(task.getId(), "VOICE_MANIFEST", manifest);
+        recordCheckpoint(task.getId(), "TIMELINE_MANIFEST", Path.of(timeline.timelinePath()));
+    }
+
+    private void recordCheckpoint(UUID taskId, String type, Path path) {
+        artifactRegistry.refreshFingerprint(taskId, type, path == null ? null : path.toString(), "application/json");
     }
 
     private record LocalizedArtifacts(String highlightManifestPath, String voiceManifestPath, String timelinePath) { }
@@ -243,6 +254,10 @@ public class ScriptWorkspaceService {
         updated.put("selectedDurationSeconds", clips.stream().filter(clip -> !clip.excluded())
                 .mapToDouble(HighlightClip::durationSeconds).sum());
         artifacts.writeJson(highlightPath, updated);
+        // Manual edits change two checkpointed artifacts. Refresh their hashes before a rerender starts,
+        // otherwise resume validation treats the user's edit as corruption and regenerates the AI script.
+        recordCheckpoint(taskId, "SCRIPT_MANIFEST", requireScriptPath(task));
+        recordCheckpoint(taskId, "HIGHLIGHT_MANIFEST", highlightPath);
         StoryboardView result = storyboard(taskId);
         if (directorProfiles != null) {
             StoryboardSegmentView finalValue = result.segments().stream()
@@ -304,6 +319,8 @@ public class ScriptWorkspaceService {
         highlightOutput.put("clips", clips);
         artifacts.writeJson(highlightPath, highlightOutput);
         artifacts.writeJson(scriptPath, scriptOutput);
+        recordCheckpoint(taskId, "HIGHLIGHT_MANIFEST", highlightPath);
+        recordCheckpoint(taskId, "SCRIPT_MANIFEST", scriptPath);
         task.applyScriptRevision(document.title(), document.synopsis(), narration, scriptPath.toString(), reindexed.size());
         return storyboard(taskId);
     }
@@ -368,6 +385,8 @@ public class ScriptWorkspaceService {
                 .filter(item -> !item.excluded()).mapToDouble(HighlightClip::durationSeconds).sum());
         artifacts.writeJson(highlightPath, highlightOutput);
         artifacts.writeJson(scriptPath, scriptOutput);
+        recordCheckpoint(taskId, "HIGHLIGHT_MANIFEST", highlightPath);
+        recordCheckpoint(taskId, "SCRIPT_MANIFEST", scriptPath);
         task.applyScriptRevision(document.title(), document.synopsis(), narration,
                 scriptPath.toString(), reorderedScripts.size());
         return storyboard(taskId);
@@ -460,6 +479,8 @@ public class ScriptWorkspaceService {
         highlightOutput.put("selectedDurationSeconds", highlights.stream().mapToDouble(HighlightClip::durationSeconds).sum());
         artifacts.writeJson(highlightPath, highlightOutput);
         artifacts.writeJson(scriptPath, scriptOutput);
+        recordCheckpoint(taskId, "HIGHLIGHT_MANIFEST", highlightPath);
+        recordCheckpoint(taskId, "SCRIPT_MANIFEST", scriptPath);
         task.applyScriptRevision(document.title(), document.synopsis(), narration, scriptPath.toString(), scripts.size());
     }
 
@@ -510,6 +531,7 @@ public class ScriptWorkspaceService {
         output.remove("qualityReviewedAt");
         output.put("segments", revised.segments());
         artifacts.writeJson(scriptPath, output);
+        recordCheckpoint(task.getId(), "SCRIPT_MANIFEST", scriptPath);
         task.applyScriptRevision(revised.title(), revised.synopsis(), revised.fullNarration(),
                 scriptPath.toString(), revised.segments().size());
         return revised;
@@ -549,6 +571,7 @@ public class ScriptWorkspaceService {
                 "updatedAt", java.time.Instant.now().toString()));
         output.put("manualReviews", reviews);
         artifacts.writeJson(path, output);
+        recordCheckpoint(taskId, "SCRIPT_MANIFEST", path);
         return Map.copyOf(reviews);
     }
 

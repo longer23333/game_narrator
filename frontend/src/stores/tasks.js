@@ -17,6 +17,7 @@ export const useTaskStore = defineStore('tasks', () => {
   const activeTasks = computed(() => tasks.value.filter(task => task.status !== 'COMPLETED'));
   const recentTasks = computed(() => tasks.value.filter(task => task.status === 'COMPLETED').slice(0, 8));
   function publish(nextTasks) {
+    error.value = '';
     tasks.value = nextTasks;
     window.dispatchEvent(new CustomEvent('gamenarrator:tasks', {detail:nextTasks}));
   }

@@ -1,7 +1,7 @@
 ﻿# GameNarrator — DeepSeek 结构化项目索引
 
-> 自动生成：2026-08-25 22:53:29 +08:00；UTF-8 BOM；索引不再内嵌全部源码。
-> Git：分支 `main`，提交 `7837c01`；收录文件 854 个，分卷 8 个。
+> 自动生成：2026-11-06 18:01:08 +08:00；UTF-8 BOM；索引不再内嵌全部源码。
+> Git：分支 `main`，提交 `40fe5ae`；收录文件 885 个，分卷 8 个。
 
 ## 使用方法
 
@@ -27,19 +27,164 @@
 
 | 分卷 | 文件数 | 字符数 | 建议用途 |
 |---|---:|---:|---|
-| `deepseek-context/01-foundation.md` | 100 | 229861 | 构建、配置、资源、数据库迁移 |
-| `deepseek-context/02-backend.md` | 302 | 1267810 | Spring 后端实现 |
-| `deepseek-context/03-tests.md` | 122 | 429240 | Spring 测试与行为验证 |
-| `deepseek-context/04-frontend.md` | 38 | 546882 | Vite Web 源码 |
+| `deepseek-context/01-foundation.md` | 100 | 231919 | 构建、配置、资源、数据库迁移 |
+| `deepseek-context/02-backend.md` | 301 | 1290942 | Spring 后端实现 |
+| `deepseek-context/03-tests.md` | 133 | 498880 | Spring 测试与行为验证 |
+| `deepseek-context/04-frontend.md` | 48 | 584348 | Vite Web 源码 |
 | `deepseek-context/05-android-main.md` | 149 | 918455 | Android 实现、资源与 Gradle |
 | `deepseek-context/06-android-tests.md` | 61 | 148496 | Android 单元及设备测试 |
-| `deepseek-context/07-platform-release.md` | 13 | 79051 | Windows、CI/CD 与发布 |
-| `deepseek-context/08-docs-scripts.md` | 69 | 248722 | 需求、架构、维护脚本 |
+| `deepseek-context/07-platform-release.md` | 13 | 79084 | Windows、CI/CD 与发布 |
+| `deepseek-context/08-docs-scripts.md` | 80 | 332106 | 需求、架构、维护脚本 |
 
 ## 当前 Git 工作区（最近修改）
 
 ```text
-?? scripts/test-comfyui.ps1
+M .gitignore
+ M DEEPSEEK_PROJECT_CONTEXT.md
+ M README.md
+ M docs/CONFIGURATION_REFERENCE.md
+ M docs/DOCUMENTATION_SOURCE_MAP.json
+ M frontend/README.md
+ M frontend/index.html
+ M frontend/public/admin.html
+ M frontend/public/app.css
+ M frontend/public/app.js
+ M frontend/public/asset-library.js
+ M frontend/public/diagnostics.js
+ M frontend/public/extension-install.html
+ M frontend/public/ui-refresh.css
+ M frontend/src/components/ActiveTaskQueue.vue
+ M frontend/src/components/TaskCard.vue
+ M frontend/src/main.js
+ M frontend/src/stores/tasks.js
+ M frontend/src/task-presenter.js
+ M frontend/vite.config.js
+ M launcher/Program.cs
+ M scripts/export-deepseek-context.ps1
+ M scripts/setup-image-generation.ps1
+ M scripts/start-development.ps1
+ M src/main/java/cn/longer233/gamenarrator/GameNarratorApplication.java
+ M src/main/java/cn/longer233/gamenarrator/ai/AdaptiveAiChatClient.java
+ M src/main/java/cn/longer233/gamenarrator/ai/AiSettingsService.java
+ M src/main/java/cn/longer233/gamenarrator/ai/AiUsageService.java
+ M src/main/java/cn/longer233/gamenarrator/ai/OllamaChatBackend.java
+ M src/main/java/cn/longer233/gamenarrator/asset/AssetCatalogService.java
+ M src/main/java/cn/longer233/gamenarrator/asset/AssetDownloadService.java
+ M src/main/java/cn/longer233/gamenarrator/asset/SafeRemoteHttpConnector.java
+ M src/main/java/cn/longer233/gamenarrator/asset/WikimediaAssetClient.java
+ D src/main/java/cn/longer233/gamenarrator/cloud/CloudSyncController.java
+ M src/main/java/cn/longer233/gamenarrator/common/ApiExceptionHandler.java
+ D src/main/java/cn/longer233/gamenarrator/community/CreativeAssistantController.java
+ D src/main/java/cn/longer233/gamenarrator/community/CreativeAssistantService.java
+ D src/main/java/cn/longer233/gamenarrator/community/CreativeAssistantSessionView.java
+ M src/main/java/cn/longer233/gamenarrator/community/CreativeVariantService.java
+ M src/main/java/cn/longer233/gamenarrator/compilation/ClipCompilationController.java
+ M src/main/java/cn/longer233/gamenarrator/compilation/ClipCompilationService.java
+ M src/main/java/cn/longer233/gamenarrator/creative/LocalImageGenerationService.java
+ M src/main/java/cn/longer233/gamenarrator/diagnostics/DiagnosticLogService.java
+ M src/main/java/cn/longer233/gamenarrator/diagnostics/DiagnosticsController.java
+ M src/main/java/cn/longer233/gamenarrator/diagnostics/ReleaseReadinessService.java
+ M src/main/java/cn/longer233/gamenarrator/diagnostics/SystemDiagnosticsService.java
+ M src/main/java/cn/longer233/gamenarrator/director/DirectorReviewService.java
+ M src/main/java/cn/longer233/gamenarrator/effect/ColorLutService.java
+ M src/main/java/cn/longer233/gamenarrator/effect/EffectSettingsRequest.java
+ M src/main/java/cn/longer233/gamenarrator/export/ExportService.java
+ M src/main/java/cn/longer233/gamenarrator/importer/RemoteProjectImportService.java
+ M src/main/java/cn/longer233/gamenarrator/importer/YtDlpMediaImporter.java
+ M src/main/java/cn/longer233/gamenarrator/observability/TaskResourceBudgetManager.java
+ M src/main/java/cn/longer233/gamenarrator/pipeline/PipelineRunTracker.java
+ M src/main/java/cn/longer233/gamenarrator/pipeline/ProjectArtifactRegistry.java
+ M src/main/java/cn/longer233/gamenarrator/pipeline/TaskWorkflowStateService.java
+ M src/main/java/cn/longer233/gamenarrator/pipeline/WaitingTaskRetryScheduler.java
+ M src/main/java/cn/longer233/gamenarrator/render/FfmpegVideoRenderer.java
+ M src/main/java/cn/longer233/gamenarrator/render/RenderAssetResolver.java
+ M src/main/java/cn/longer233/gamenarrator/script/ScriptWorkspaceService.java
+ M src/main/java/cn/longer233/gamenarrator/script/StoryboardAssetPlacementService.java
+ M src/main/java/cn/longer233/gamenarrator/transcription/SpeakerDiarizationService.java
+ M src/main/java/cn/longer233/gamenarrator/vision/VideoSegmentSemanticIndex.java
+ M src/main/java/cn/longer233/gamenarrator/vision/VisionQualityRecovery.java
+ M src/main/java/cn/longer233/gamenarrator/vision/VisionResultQuality.java
+ M src/main/resources/application.yml
+ M src/main/resources/static/admin.html
+ M src/main/resources/static/app.css
+ M src/main/resources/static/app.js
+ M src/main/resources/static/asset-library.js
+ D src/main/resources/static/assets/index-DPGErZnd.js
+ M src/main/resources/static/diagnostics.js
+ M src/main/resources/static/extension-install.html
+ M src/main/resources/static/index.html
+ M src/main/resources/static/ui-refresh.css
+ M src/test/java/cn/longer233/gamenarrator/ai/AdaptiveAiChatRoutingTest.java
+ M src/test/java/cn/longer233/gamenarrator/ai/AiSettingsServiceTest.java
+ M src/test/java/cn/longer233/gamenarrator/ai/AiUsageServiceTest.java
+ M src/test/java/cn/longer233/gamenarrator/asset/AssetCatalogServiceTest.java
+ M src/test/java/cn/longer233/gamenarrator/asset/AssetDownloadServiceTest.java
+ M src/test/java/cn/longer233/gamenarrator/compilation/ClipCompilationServiceTest.java
+ M src/test/java/cn/longer233/gamenarrator/diagnostics/DiagnosticLogServiceTest.java
+ M src/test/java/cn/longer233/gamenarrator/diagnostics/DiagnosticsControllerTest.java
+ M src/test/java/cn/longer233/gamenarrator/diagnostics/ReleaseReadinessServiceTest.java
+ M src/test/java/cn/longer233/gamenarrator/director/DirectorReviewServiceTest.java
+ M src/test/java/cn/longer233/gamenarrator/effect/ColorLutServiceTest.java
+ M src/test/java/cn/longer233/gamenarrator/export/ExportOwnershipTest.java
+ M src/test/java/cn/longer233/gamenarrator/importer/YtDlpMediaImporterTest.java
+ M src/test/java/cn/longer233/gamenarrator/observability/TaskResourceBudgetManagerTest.java
+ M src/test/java/cn/longer233/gamenarrator/pipeline/TaskWorkflowStateServiceArtifactTest.java
+ M src/test/java/cn/longer233/gamenarrator/pipeline/VideoPipelineEndToEndTest.java
+ M src/test/java/cn/longer233/gamenarrator/render/RenderAssetLicenseGateTest.java
+ M src/test/java/cn/longer233/gamenarrator/render/RenderVideoFilterBuilderTest.java
+ M src/test/java/cn/longer233/gamenarrator/script/ScriptWorkspaceServiceTest.java
+ M src/test/java/cn/longer233/gamenarrator/script/StoryboardAssetPlacementServiceTest.java
+ M src/test/java/cn/longer233/gamenarrator/transcription/SpeakerDiarizationServiceTest.java
+ M src/test/java/cn/longer233/gamenarrator/vision/VisionResultQualityTest.java
+?? .workbuddy/
+?? _audit_alldata.txt
+?? _audit_decl.txt
+?? _audit_forms.txt
+?? _audit_ids.txt
+?? _audit_names.txt
+?? _audit_verify.txt
+?? docs/deliverables/
+?? "docs/\345\256\211\350\243\205\344\270\216\351\205\215\347\275\256\350\257\264\346\230\216.md"
+?? "docs/\347\255\224\350\276\251\346\274\224\347\244\272\346\226\271\346\241\210.md"
+?? frontend/public/admin-visibility.js
+?? frontend/public/compilations.js
+?? frontend/public/director-review-state.js
+?? frontend/src/services/admin-visibility.test.js
+?? frontend/src/services/director-review-state.test.js
+?? frontend/src/services/public-module.js
+?? frontend/src/services/public-module.test.js
+?? frontend/src/services/simple-editor.test.js
+?? frontend/src/services/task-outcome.test.js
+?? frontend/src/services/task-recovery.test.js
+?? scripts/check-fast.cmd
+?? scripts/check-fast.ps1
+?? scripts/enhance-defense-ppt-visuals.ps1
+?? scripts/expand-paper-openxml.ps1
+?? scripts/generate-academic-deliverables.ps1
+?? scripts/generate-expanded-defense-ppt.ps1
+?? scripts/generate-full-academic-paper.py
+?? scripts/package-portable-release.py
+?? scripts/package-source-release.py
+?? scripts/refine-defense-ppt.ps1
+?? scripts/start-local-models.ps1
+?? src/main/java/cn/longer233/gamenarrator/NetworkConfigurationInitializer.java
+?? src/main/java/cn/longer233/gamenarrator/asset/AssetLicensePolicy.java
+?? src/main/java/cn/longer233/gamenarrator/director/DirectorReviewSchemas.java
+?? src/main/resources/static/admin-visibility.js
+?? src/main/resources/static/assets/index-DL8vkMo8.js
+?? src/main/resources/static/compilations.js
+?? src/main/resources/static/director-review-state.js
+?? src/test/java/cn/longer233/gamenarrator/NetworkConfigurationInitializerTest.java
+?? src/test/java/cn/longer233/gamenarrator/asset/WikimediaAssetClientTest.java
+?? src/test/java/cn/longer233/gamenarrator/common/ApiExceptionHandlerTest.java
+?? src/test/java/cn/longer233/gamenarrator/community/CreativeVariantServiceTest.java
+?? src/test/java/cn/longer233/gamenarrator/creative/
+?? src/test/java/cn/longer233/gamenarrator/director/DirectorReviewLocalModelTest.java
+?? src/test/java/cn/longer233/gamenarrator/effect/EffectSettingsRequestTest.java
+?? src/test/java/cn/longer233/gamenarrator/importer/RemoteProjectImportServiceTest.java
+?? src/test/java/cn/longer233/gamenarrator/pipeline/PipelineRunTrackerTest.java
+?? src/test/java/cn/longer233/gamenarrator/pipeline/WaitingTaskRetrySchedulerTest.java
+?? src/test/java/cn/longer233/gamenarrator/vision/VideoSegmentSemanticIndexOwnershipTest.java
 ```
 
 ## Flyway 迁移索引
@@ -110,6 +255,8 @@
 | 方法 | 路径 | 来源 |
 |---|---|---|
 | DELETE | `/api/assets/{id}` | `src/main/java/cn/longer233/gamenarrator/asset/AssetCatalogController.java` |
+| DELETE | `/api/compilations/{id}/items/{itemId}` | `src/main/java/cn/longer233/gamenarrator/compilation/ClipCompilationController.java` |
+| DELETE | `/api/compilations/{id}` | `src/main/java/cn/longer233/gamenarrator/compilation/ClipCompilationController.java` |
 | DELETE | `/api/tasks/{id}` | `src/main/java/cn/longer233/gamenarrator/task/web/VideoTaskController.java` |
 | DELETE | `/api/tasks/{taskId}/color-lut` | `src/main/java/cn/longer233/gamenarrator/effect/ColorLutController.java` |
 | DELETE | `/api/tasks/{taskId}/storyboard/assets/{placementId}` | `src/main/java/cn/longer233/gamenarrator/script/ScriptWorkspaceController.java` |
@@ -136,14 +283,11 @@
 | GET | `/api/assets/sources` | `src/main/java/cn/longer233/gamenarrator/asset/AssetCatalogController.java` |
 | GET | `/api/assets` | `src/main/java/cn/longer233/gamenarrator/asset/AssetCatalogController.java` |
 | GET | `/api/auth/me` | `src/main/java/cn/longer233/gamenarrator/identity/AuthController.java` |
-| GET | `/api/cloud-sync` | `src/main/java/cn/longer233/gamenarrator/cloud/CloudSyncController.java` |
 | GET | `/api/community/resources/{id}/export` | `src/main/java/cn/longer233/gamenarrator/community/CommunityResourceController.java` |
 | GET | `/api/community/resources` | `src/main/java/cn/longer233/gamenarrator/community/CommunityResourceController.java` |
 | GET | `/api/compilations/{id}` | `src/main/java/cn/longer233/gamenarrator/compilation/ClipCompilationController.java` |
 | GET | `/api/compilations` | `src/main/java/cn/longer233/gamenarrator/compilation/ClipCompilationController.java` |
 | GET | `/api/creative/images/capabilities` | `src/main/java/cn/longer233/gamenarrator/creative/LocalImageGenerationController.java` |
-| GET | `/api/creative-assistant/sessions/{id}/asset-requirements` | `src/main/java/cn/longer233/gamenarrator/community/CreativeAssistantController.java` |
-| GET | `/api/creative-assistant/sessions/{id}` | `src/main/java/cn/longer233/gamenarrator/community/CreativeAssistantController.java` |
 | GET | `/api/debug/health` | `src/main/java/cn/longer233/gamenarrator/diagnostics/DiagnosticsController.java` |
 | GET | `/api/debug/logs/export` | `src/main/java/cn/longer233/gamenarrator/diagnostics/DiagnosticsController.java` |
 | GET | `/api/debug/logs` | `src/main/java/cn/longer233/gamenarrator/diagnostics/DiagnosticsController.java` |
@@ -219,7 +363,6 @@
 | POST | `/api/auth/login` | `src/main/java/cn/longer233/gamenarrator/identity/AuthController.java` |
 | POST | `/api/auth/logout` | `src/main/java/cn/longer233/gamenarrator/identity/AuthController.java` |
 | POST | `/api/auth/register` | `src/main/java/cn/longer233/gamenarrator/identity/AuthController.java` |
-| POST | `/api/cloud-sync/{id}/retry` | `src/main/java/cn/longer233/gamenarrator/cloud/CloudSyncController.java` |
 | POST | `/api/community/knowledge-packs/{code}` | `src/main/java/cn/longer233/gamenarrator/community/CommunityResourceController.java` |
 | POST | `/api/community/resources/{id}/install` | `src/main/java/cn/longer233/gamenarrator/community/CommunityResourceController.java` |
 | POST | `/api/community/styles/{code}` | `src/main/java/cn/longer233/gamenarrator/community/CommunityResourceController.java` |
@@ -227,8 +370,6 @@
 | POST | `/api/compilations` | `src/main/java/cn/longer233/gamenarrator/compilation/ClipCompilationController.java` |
 | POST | `/api/creative/images/meme-candidates` | `src/main/java/cn/longer233/gamenarrator/creative/LocalImageGenerationController.java` |
 | POST | `/api/creative/images` | `src/main/java/cn/longer233/gamenarrator/creative/LocalImageGenerationController.java` |
-| POST | `/api/creative-assistant/sessions/{id}/materialize` | `src/main/java/cn/longer233/gamenarrator/community/CreativeAssistantController.java` |
-| POST | `/api/creative-assistant/sessions` | `src/main/java/cn/longer233/gamenarrator/community/CreativeAssistantController.java` |
 | POST | `/api/debug/client-events` | `src/main/java/cn/longer233/gamenarrator/diagnostics/DiagnosticsController.java` |
 | POST | `/api/effect-presets/import` | `src/main/java/cn/longer233/gamenarrator/effect/EffectController.java` |
 | POST | `/api/knowledge-packs` | `src/main/java/cn/longer233/gamenarrator/event/GameKnowledgePackController.java` |

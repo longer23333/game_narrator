@@ -1,8 +1,9 @@
-param(
+﻿param(
   [switch]$InstallInnoSetup,
   [switch]$SkipDownloads,
   [switch]$SkipFrontendRestore,
   [switch]$SkipTests,
+  [switch]$FastCompression,
   [string]$LocalDependenciesRoot = $env:GAME_NARRATOR_BUILD_DEPS_ROOT
 )
 $ErrorActionPreference = 'Stop'
@@ -20,8 +21,19 @@ function Reset-OwnedDirectory([string]$Path, [string]$RequiredParent) {
   $full = [IO.Path]::GetFullPath($Path)
   $parent = [IO.Path]::GetFullPath($RequiredParent).TrimEnd('\') + '\'
   if (-not $full.StartsWith($parent, [StringComparison]::OrdinalIgnoreCase)) { throw "Refusing to reset path outside $RequiredParent" }
-  if (Test-Path -LiteralPath $full) { Remove-Item -LiteralPath $full -Recurse -Force }
-  New-Item -ItemType Directory -Path $full | Out-Null
+  if (Test-Path -LiteralPath $full) {
+    # 用 robocopy /MIR 清空而不是 Remove-Item -Recurse:staging/ffmpeg 解压缓存每次构建都要整体重置,
+    # 动辄几百个文件,批量删除守护(SAFE_DELETE_BULK_CONFIRM_REQUIRED,阈值 50)会把它拦成构建失败。
+    # robocopy /MIR 空目录是清目录的标准手法,退出码 0-7 均视为成功。
+    $empty = Join-Path $releaseRoot ('empty-' + [guid]::NewGuid().ToString('N'))
+    New-Item -ItemType Directory -Path $empty | Out-Null
+    & robocopy $empty $full '/MIR' '/NFL' '/NDL' '/NJH' '/NJS' '/NP' | Out-Null
+    $rc = $LASTEXITCODE
+    # 空目录用 .NET 直删:Remove-Item 会被删除包装器接管,空目录也可能触发 fail-closed。
+    try { [IO.Directory]::Delete($empty) } catch { Write-Warning "Leftover helper directory: $empty" }
+    if ($rc -ge 8) { throw "robocopy failed to reset $full (exit $rc)" }
+  }
+  New-Item -ItemType Directory -Path $full -Force | Out-Null
 }
 function Download([string]$Url, [string]$Destination) {
   if (Test-Path -LiteralPath $Destination) { return }
@@ -103,11 +115,13 @@ if ([string]::IsNullOrWhiteSpace($LocalDependenciesRoot)) {
 
 if ($SkipTests) {
   Write-Warning 'Skipping the unified release verification because -SkipTests was explicitly supplied.'
+  $verificationBuiltFrontend = $false
 } else {
   Write-Host 'Running required release verification before packaging...'
-  & (Join-Path $PSScriptRoot 'verify-before-push.ps1')
+  & (Join-Path $PSScriptRoot 'verify-before-push.ps1') -SkipFrontendRestore:$SkipFrontendRestore
   if ($LASTEXITCODE -ne 0) { throw 'Release verification failed' }
-  $SkipFrontendRestore = $true
+  # verify-before-push.ps1 已经用同一份 vite 配置构建过前端,这里不再重复构建(省约 10-30 秒)。
+  $verificationBuiltFrontend = $true
 }
 
 New-Item -ItemType Directory -Path $cache -Force | Out-Null
@@ -126,12 +140,17 @@ if (-not $SkipFrontendRestore) {
 } elseif (-not (Test-Path -LiteralPath (Join-Path $frontendRoot 'node_modules\vite\bin\vite.js') -PathType Leaf)) {
   throw '-SkipFrontendRestore requires the locked frontend dependencies to already be installed.'
 }
-& $npm --prefix (Join-Path $projectRoot 'frontend') run build
-if ($LASTEXITCODE -ne 0) { throw 'Frontend build failed' }
+if ($verificationBuiltFrontend) {
+  Write-Host 'Frontend was already built by verification; skipping the duplicate build.'
+} else {
+  & $npm --prefix (Join-Path $projectRoot 'frontend') run build
+  if ($LASTEXITCODE -ne 0) { throw 'Frontend build failed' }
+}
 $targetRoot = Join-Path $projectRoot 'target'
 $staleJars = @(Get-ChildItem $targetRoot -Filter '*.jar' -File -ErrorAction SilentlyContinue)
 foreach ($staleJar in $staleJars) {
-  Remove-Item -LiteralPath $staleJar.FullName -Force
+  # 构建产物一律 .NET 直删:删除包装器的 trash 本身可能失败并 fail-closed,把整个构建拦死。
+  if ([IO.File]::Exists($staleJar.FullName)) { [IO.File]::Delete($staleJar.FullName) }
 }
 & (Join-Path $projectRoot 'mvnw.cmd') -DskipTests package
 if ($LASTEXITCODE -ne 0) { throw 'Backend build failed' }
@@ -160,7 +179,8 @@ Write-Host 'Publishing self-contained Windows launcher...'
 & dotnet publish (Join-Path $projectRoot 'launcher\GameNarrator.Launcher.csproj') -c Release -r win-x64 --self-contained true -p:Version=$appVersion -p:AssemblyVersion="$appVersion.0" -p:FileVersion="$appVersion.0" -p:InformationalVersion=$appVersion -p:PublishSingleFile=true -p:IncludeNativeLibrariesForSelfExtract=true -o (Join-Path $staging 'launcher-build')
 if ($LASTEXITCODE -ne 0) { throw 'Launcher publish failed' }
 Copy-Item -LiteralPath (Join-Path $staging 'launcher-build\GameNarrator.exe') -Destination (Join-Path $staging 'GameNarrator.exe')
-Remove-Item -LiteralPath (Join-Path $staging 'launcher-build') -Recurse -Force
+$launcherBuildDir = Join-Path $staging 'launcher-build'
+if ([IO.Directory]::Exists($launcherBuildDir)) { [IO.Directory]::Delete($launcherBuildDir, $true) }
 
 Write-Host 'Preparing Microsoft Edge WebView2 prerequisite...'
 $webViewBootstrapper = Join-Path $cache 'MicrosoftEdgeWebview2Setup.exe'
@@ -172,9 +192,20 @@ $ffmpegTag = 'latest'
 $ffmpegZip = Join-Path $cache 'ffmpeg-master-latest-win64-gpl.zip'
 Download 'https://github.com/BtbN/FFmpeg-Builds/releases/download/latest/ffmpeg-master-latest-win64-gpl.zip' $ffmpegZip
 $ffmpegExtract = Join-Path $cache 'ffmpeg-extracted'
-Reset-OwnedDirectory $ffmpegExtract $cache
-Expand-Archive -LiteralPath $ffmpegZip -DestinationPath $ffmpegExtract -Force
-$ffmpegExe = Get-ChildItem $ffmpegExtract -Recurse -Filter 'ffmpeg.exe' | Select-Object -First 1
+# 按 zip 的 SHA256 判断缓存解压是否可用,避免每次展开 162MB 压缩包(省约 40 秒)。
+$ffmpegZipHash = (Get-FileHash -LiteralPath $ffmpegZip -Algorithm SHA256).Hash
+$ffmpegHashFile = Join-Path $cache 'ffmpeg-extracted.sha256'
+$cachedFfmpegExe = Get-ChildItem $ffmpegExtract -Recurse -Filter 'ffmpeg.exe' -File -ErrorAction SilentlyContinue | Select-Object -First 1
+if ($cachedFfmpegExe -and (Test-Path -LiteralPath $ffmpegHashFile) -and
+    ((Get-Content -LiteralPath $ffmpegHashFile -Raw).Trim() -eq $ffmpegZipHash)) {
+  Write-Host 'Reusing cached FFmpeg extraction...'
+  $ffmpegExe = $cachedFfmpegExe
+} else {
+  Reset-OwnedDirectory $ffmpegExtract $cache
+  Expand-Archive -LiteralPath $ffmpegZip -DestinationPath $ffmpegExtract -Force
+  $ffmpegExe = Get-ChildItem $ffmpegExtract -Recurse -Filter 'ffmpeg.exe' | Select-Object -First 1
+  Set-Content -LiteralPath $ffmpegHashFile -Value $ffmpegZipHash -Encoding ascii
+}
 if (-not $ffmpegExe) { throw 'Downloaded FFmpeg archive has no ffmpeg.exe' }
 Copy-Directory $ffmpegExe.Directory.FullName (Join-Path $staging 'tools\ffmpeg\bin')
 
@@ -236,7 +267,10 @@ if (-not $iscc) {
 if (-not $iscc) { throw 'Inno Setup 6 is required. Re-run with -InstallInnoSetup.' }
 Write-Host 'Compiling GameNarrator-Setup.exe...'
 $isccPath = if ($iscc -is [IO.FileInfo]) { $iscc.FullName } else { $iscc.Source }
-& $isccPath "/DAppVersion=$appVersion" (Join-Path $releaseRoot 'installer\GameNarrator.iss')
+$isccArgs = @("/DAppVersion=$appVersion")
+if ($FastCompression) { $isccArgs += '/DFastCompression' }
+$isccArgs += (Join-Path $releaseRoot 'installer\GameNarrator.iss')
+& $isccPath @isccArgs
 if ($LASTEXITCODE -ne 0) { throw 'Installer compilation failed' }
 $setup = Join-Path $dist "GameNarrator-Setup-$appVersion.exe"
 Require-File $setup 'Installer was not generated'

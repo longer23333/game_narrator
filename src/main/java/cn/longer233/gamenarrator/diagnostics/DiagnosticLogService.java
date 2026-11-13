@@ -124,12 +124,33 @@ public class DiagnosticLogService {
         }
     }
 
+    public byte[] exportForTasks(Collection<UUID> taskIds) {
+        String scoped = recentForTasks(taskIds, 1000);
+        try (var bytes = new ByteArrayOutputStream(); var zip = new ZipOutputStream(bytes, StandardCharsets.UTF_8)) {
+            zip.putNextEntry(new ZipEntry("account-task-logs.log"));
+            zip.write(scoped.getBytes(StandardCharsets.UTF_8));
+            zip.closeEntry();
+            zip.putNextEntry(new ZipEntry("README.txt"));
+            zip.write("GameNarrator 当前账号任务日志（已隔离其他账号并隐藏常见凭据字段）。\n"
+                    .getBytes(StandardCharsets.UTF_8));
+            zip.closeEntry();
+            zip.finish();
+            return bytes.toByteArray();
+        } catch (Exception exception) {
+            throw new IllegalStateException("无法导出当前账号诊断日志：" + exception.getMessage(), exception);
+        }
+    }
+
     public String sanitize(String value) {
         if (value == null) return "";
         String safe = HEADER_SECRET.matcher(value).replaceAll("$1=***");
         safe = BEARER.matcher(safe).replaceAll("Bearer ***");
         safe = JSON_SECRET.matcher(safe).replaceAll("$1***$3");
         return ASSIGNMENT_SECRET.matcher(safe).replaceAll("$1$2***");
+    }
+
+    public String sanitizeEventField(String value) {
+        return sanitize(value).replaceAll("[\\r\\n\\t\\p{Cc}]+", " ").strip();
     }
 
     private byte[] readTail(Path path, int maximumBytes) throws Exception {

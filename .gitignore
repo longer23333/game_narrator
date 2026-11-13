@@ -40,3 +40,22 @@ models/
 !android-app/app/src/debug/assets/models/whisper-test.bin
 !android-app/app/src/debug/assets/models/whisper-cli
 tools/yt-dlp/
+
+# 答辩/论文交付物：PPT/PDF/DOCX 与预览图合计约 700MB，属可再生成的二进制，
+# 只入库说明文件。其中 .edge-* 是 Edge 抓取时留下的浏览器 profile（含 Cookies、
+# Login Data、History 与 crx 缓存），无论何时都不得提交。
+/docs/deliverables/*
+!/docs/deliverables/交付说明.md
+
+# 发布压缩包与安装包（由 scripts\publish-windows-release.ps1 生成，可重建）
+release/*.zip
+release/*.msi
+release/*.exe
+release/release-history.jsonl
+
+# Agent 工作数据：记忆、工具脚本、临时产物。保留在本地磁盘，不进版本库。
+.workbuddy/
+
+# Session scratch files at repo root (_audit_*.txt 等)
+/_*.txt
+/_*.log

@@ -33,9 +33,9 @@ class DirectorReviewServiceTest {
   var event=new GameEventView(UUID.randomUUID(),task,0,10,5,"BOSS_BATTLE",.9,90,"Boss 出现",List.of(),"CONFIRMED",true,"boss-battle-v1",OffsetDateTime.now());when(events.list(task)).thenReturn(List.of(event));when(workspace.storyboard(task)).thenReturn(new StoryboardView("title","synopsis",true,false,List.of()));
   when(narrative.generate(task)).thenReturn(new BattleNarrativePlanView(task,1,"TEST","fingerprint",List.of(),false,OffsetDateTime.now(),null));
   ObjectMapper mapper=new ObjectMapper().registerModule(new JavaTimeModule());
-  when(ai.chatJson(anyString(),eq(List.of()),eq(false),any())).thenReturn(mapper.readTree("{\"summary\":\"有证据的建议\",\"eventIds\":[\""+event.id()+"\"],\"clipIndexes\":[],\"knowledgeRefs\":[\"boss-battle-v1\"]}"),mapper.readTree("{\"summary\":\"剧情意见\"}"),mapper.readTree("{\"summary\":\"节奏意见\"}"),mapper.readTree("{\"summary\":\"受众意见\"}"),mapper.readTree("{\"summary\":\"形成共识\",\"consensusScore\":0.8,\"finalDecisions\":[]}"));
+  when(ai.chatStructured(anyString(),any(),any())).thenReturn(mapper.readTree("{\"summary\":\"有证据的建议\",\"eventIds\":[\""+event.id()+"\"],\"clipIndexes\":[],\"knowledgeRefs\":[\"boss-battle-v1\"]}"),mapper.readTree("{\"summary\":\"剧情意见\"}"),mapper.readTree("{\"summary\":\"节奏意见\"}"),mapper.readTree("{\"summary\":\"受众意见\"}"),mapper.readTree("{\"summary\":\"形成共识\",\"consensusScore\":0.8,\"finalDecisions\":[]}"));
   var service=new DirectorReviewService(jdbc,mapper,ai,new AiUsageService(mapper,temp.toString()),current,events,workspace,narrative);
   var review=service.start(task,1);
-  assertThat(review.status()).isEqualTo("AWAITING_USER");assertThat(review.messages()).hasSize(5);assertThat(review.consensusScore()).isEqualTo(.8);assertThat(service.decide(review.id(),"ACCEPTED",null).status()).isEqualTo("ACCEPTED");verify(ai,times(5)).chatJson(anyString(),eq(List.of()),eq(false),any());
+  assertThat(review.status()).isEqualTo("AWAITING_USER");assertThat(review.messages()).hasSize(5);assertThat(review.consensusScore()).isEqualTo(.8);assertThat(service.decide(review.id(),"ACCEPTED",null).status()).isEqualTo("ACCEPTED");verify(ai,times(5)).chatStructured(anyString(),any(),any());
  }
 }

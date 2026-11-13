@@ -26,6 +26,9 @@ public class SystemDiagnosticsService {
 
     private static final Logger log = LoggerFactory.getLogger(SystemDiagnosticsService.class);
 
+    @Value("${game-narrator.network.mode:SYSTEM}")
+    private String networkMode = "SYSTEM";
+
     private final Path storageRoot;
     private final String ffmpegCommand;
     private final Transcriber transcriber;
@@ -55,6 +58,8 @@ public class SystemDiagnosticsService {
     public Map<String, Object> inspect() {
         Map<String, Object> report = new LinkedHashMap<>();
         report.put("javaVersion", Runtime.version().toString());
+        report.put("networkMode", networkMode);
+        report.put("systemProxyDiscovery", Boolean.getBoolean("java.net.useSystemProxies"));
         report.put("availableProcessors", Runtime.getRuntime().availableProcessors());
         report.put("maxMemoryMb", Runtime.getRuntime().maxMemory() / 1024 / 1024);
         report.put("externalProcessesActive",

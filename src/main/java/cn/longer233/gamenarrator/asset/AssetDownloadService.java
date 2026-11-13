@@ -32,8 +32,6 @@ public class AssetDownloadService {
     private static final long MAX_DOWNLOAD_BYTES = 100L * 1024 * 1024;
     private static final Pattern CONTENT_RANGE = Pattern.compile("bytes (\\d+)-(\\d+)/(\\d+)");
     private static final Pattern UNSATISFIED_RANGE = Pattern.compile("bytes \\*/(\\d+)");
-    private static final Set<String> DOWNLOAD_LICENSES = Set.of(
-            "cc0", "pdm", "by", "by-sa", "pexels_license", "pixabay_content_license");
 
     private final JdbcTemplate jdbc;
     private final SafeRemoteHttpConnector remoteConnector;
@@ -128,13 +126,17 @@ public class AssetDownloadService {
         Map<String, Object> row = jdbc.queryForMap(
                 "SELECT download_url,license_code,download_etag,download_last_modified FROM external_asset WHERE id=?",
                 assetId);
-        String license = String.valueOf(row.get("LICENSE_CODE")).toLowerCase(Locale.ROOT);
-        if (!DOWNLOAD_LICENSES.contains(license)) {
+        String license = normalizeDownloadLicense(String.valueOf(row.get("LICENSE_CODE")));
+        if (!AssetLicensePolicy.allowsAutomaticUse(license)) {
             throw new IllegalStateException("该素材许可证不在自动下载白名单中，请在原始页面人工确认");
         }
         URI uri = URI.create(String.valueOf(row.get("DOWNLOAD_URL")));
         remoteConnector.validatePublicHttps(uri);
         return row;
+    }
+
+    static String normalizeDownloadLicense(String value) {
+        return AssetLicensePolicy.normalize(value);
     }
 
     private void transfer(UUID assetId, URI uri, Path partial, Path output, long existing,

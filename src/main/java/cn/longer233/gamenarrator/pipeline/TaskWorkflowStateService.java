@@ -174,10 +174,11 @@ public class TaskWorkflowStateService {
         VideoTask task = requireTask(taskId);
         TranscriptionResult corrected = terminologyCorrector.correct(result, task.getTerminologyGlossary());
         task.completeTranscription(corrected.text(), corrected.textPath(), corrected.subtitlePath(), corrected.detailJsonPath());
+        // Speaker analysis enriches the detail JSON; register its final bytes for resume validation.
+        java.nio.file.Path speakerSegments = speakerDiarization.analyze(corrected);
         artifactRegistry.record(taskId, "TRANSCRIPT_TEXT", corrected.textPath(), "text/plain", false);
         artifactRegistry.record(taskId, "TRANSCRIPT_SUBTITLE", corrected.subtitlePath(), "application/x-subrip", false);
         artifactRegistry.record(taskId, "TRANSCRIPT_DETAIL", corrected.detailJsonPath(), "application/json", false);
-        java.nio.file.Path speakerSegments = speakerDiarization.analyze(corrected);
         artifactRegistry.record(taskId, "SPEAKER_SEGMENTS",
                 speakerSegments == null ? null : speakerSegments.toString(), "application/json", false);
         runTracker.completed(taskId, "TRANSCRIPTION", java.util.Map.of("characterCount", corrected.text().length()));
@@ -189,10 +190,11 @@ public class TaskWorkflowStateService {
         VideoTask task = requireTask(taskId);
         TranscriptionResult corrected = terminologyCorrector.correct(result, task.getTerminologyGlossary());
         task.completeTranscription(corrected.text(), corrected.textPath(), corrected.subtitlePath(), corrected.detailJsonPath());
+        // Speaker analysis enriches the detail JSON; register its final bytes for resume validation.
+        java.nio.file.Path speakerSegments = speakerDiarization.analyze(corrected);
         artifactRegistry.record(taskId, "TRANSCRIPT_TEXT", corrected.textPath(), "text/plain", false);
         artifactRegistry.record(taskId, "TRANSCRIPT_SUBTITLE", corrected.subtitlePath(), "application/x-subrip", false);
         artifactRegistry.record(taskId, "TRANSCRIPT_DETAIL", corrected.detailJsonPath(), "application/json", false);
-        java.nio.file.Path speakerSegments = speakerDiarization.analyze(corrected);
         artifactRegistry.record(taskId, "SPEAKER_SEGMENTS",
                 speakerSegments == null ? null : speakerSegments.toString(), "application/json", false);
     }
