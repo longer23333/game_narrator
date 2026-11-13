@@ -58,7 +58,7 @@
     },
     {
       "document": "docs/安装与配置说明.md",
-      "reviewedOn": "2026-11-13",
+      "reviewedOn": "2026-11-14",
       "sources": [
         "src/main/resources/application.yml",
         "src/main/resources/application-release.yml",
