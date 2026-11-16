@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
   "maximumReviewAgeDays": 120,
-  "lastFullReviewOn": "2026-08-15",
+  "lastFullReviewOn": "2026-11-16",
   "reviewedDocuments": [
     "docs/ANDROID_FEATURE_PARITY.md", "docs/ANDROID_MODELS.md", "docs/ARCHITECTURE.md",
     "docs/CONFIGURATION_REFERENCE.md", "docs/DATABASE_DESIGN.md", "docs/DEVELOPMENT_OPERATIONS.md",
@@ -11,7 +11,7 @@
   "documents": [
     {
       "document": "docs/ARCHITECTURE.md",
-      "reviewedOn": "2026-08-15",
+      "reviewedOn": "2026-11-16",
       "sources": [
         "src/main/java/cn/longer233/gamenarrator/ai/ModelAdapter.java",
         "src/main/java/cn/longer233/gamenarrator/pipeline/VideoTaskEngine.java",
@@ -21,27 +21,27 @@
     },
     {
       "document": "docs/CONFIGURATION_REFERENCE.md",
-      "reviewedOn": "2026-08-15",
+      "reviewedOn": "2026-11-16",
       "sources": ["src/main/resources/application.yml", "src/main/resources/application-postgresql.yml", "launcher/Program.cs", "scripts/update-configuration-reference.ps1"]
     },
     {
       "document": "docs/DATABASE_DESIGN.md",
-      "reviewedOn": "2026-11-14",
+      "reviewedOn": "2026-11-16",
       "sources": ["src/main/resources/db/migration/V1__database_v2_foundation.sql", "src/main/resources/db/migration/V43__remove_legacy_task_artifact_paths.sql", "src/main/resources/db/migration/V47__task_list_and_artifact_query_indexes.sql"]
     },
     {
       "document": "docs/ANDROID_FEATURE_PARITY.md",
-      "reviewedOn": "2026-08-15",
+      "reviewedOn": "2026-11-16",
       "sources": ["docs/ANDROID_CORE_BASELINE.json", "android-app/app/build.gradle"]
     },
     {
       "document": "docs/PERFORMANCE_TESTING.md",
-      "reviewedOn": "2026-08-15",
+      "reviewedOn": "2026-11-16",
       "sources": ["performance/jmeter/api-load.jmx", "src/test/java/cn/longer233/gamenarrator/performance/ConcurrentApiPerformanceTest.java", "src/test/java/cn/longer233/gamenarrator/performance/LongVideoPerformanceIT.java"]
     },
     {
       "document": "docs/答辩演示方案.md",
-      "reviewedOn": "2026-09-12",
+      "reviewedOn": "2026-11-16",
       "sources": [
         "src/main/java/cn/longer233/gamenarrator/pipeline/VideoTaskEngine.java",
         "src/main/resources/static/app.js",
@@ -50,7 +50,7 @@
     },
     {
       "document": "docs/deliverables/交付说明.md",
-      "reviewedOn": "2026-09-07",
+      "reviewedOn": "2026-11-16",
       "sources": [
         "docs/deliverables/GameNarrator学年设计论文.docx",
         "docs/deliverables/GameNarrator学年设计答辩.pptx"
@@ -58,7 +58,7 @@
     },
     {
       "document": "docs/安装与配置说明.md",
-      "reviewedOn": "2026-11-14",
+      "reviewedOn": "2026-11-16",
       "sources": [
         "src/main/resources/application.yml",
         "src/main/resources/application-release.yml",
@@ -69,7 +69,7 @@
     },
     {
       "document": "docs/README.md",
-      "reviewedOn": "2026-11-14",
+      "reviewedOn": "2026-11-16",
       "sources": [
         "docs/DOCUMENTATION_SOURCE_MAP.json",
         "scripts/verify-documentation.ps1"
@@ -77,7 +77,7 @@
     },
     {
       "document": "docs/DEVELOPMENT_OPERATIONS.md",
-      "reviewedOn": "2026-11-14",
+      "reviewedOn": "2026-11-16",
       "sources": [
         "src/main/java/cn/longer233/gamenarrator/common/StaticResourceCacheConfig.java",
         "scripts/verify-before-push.ps1",
@@ -87,7 +87,7 @@
     },
     {
       "document": "docs/RELEASE_PROCESS.md",
-      "reviewedOn": "2026-11-14",
+      "reviewedOn": "2026-11-16",
       "sources": [
         "scripts/update-release-version.ps1",
         "scripts/publish-windows-release.ps1",
