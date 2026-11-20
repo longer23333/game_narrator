@@ -24,6 +24,8 @@ public final class MobileReleaseNotes {
 
     public static List<Note> notes() {
         List<Note> notes = new ArrayList<>();
+        notes.add(new Note("2.2.59", "稳定性与功能更新",
+                "同步更新各平台版本，完成对应功能修复、稳定性检查与发布记录。"));
         notes.add(new Note("2.2.58", "后台状态与发布门禁修复",
                 "修复管理后台 READY 状态显示，集中筛选、徽章和重试状态定义；正式发布增加同提交生产签名升级证据强制校验。"));
         notes.add(new Note("2.2.57", "电脑协同一键扫码配对",

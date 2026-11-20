@@ -31,7 +31,7 @@
     },
     {
       "document": "docs/ANDROID_FEATURE_PARITY.md",
-      "reviewedOn": "2026-11-16",
+      "reviewedOn": "2026-11-20",
       "sources": ["docs/ANDROID_CORE_BASELINE.json", "android-app/app/build.gradle"]
     },
     {
@@ -41,7 +41,7 @@
     },
     {
       "document": "docs/答辩演示方案.md",
-      "reviewedOn": "2026-11-16",
+      "reviewedOn": "2026-11-20",
       "sources": [
         "src/main/java/cn/longer233/gamenarrator/pipeline/VideoTaskEngine.java",
         "src/main/resources/static/app.js",
@@ -58,7 +58,7 @@
     },
     {
       "document": "docs/安装与配置说明.md",
-      "reviewedOn": "2026-11-16",
+      "reviewedOn": "2026-11-20",
       "sources": [
         "src/main/resources/application.yml",
         "src/main/resources/application-release.yml",

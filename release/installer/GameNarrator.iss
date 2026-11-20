@@ -1,6 +1,6 @@
 #define AppName "GameNarrator"
 #ifndef AppVersion
-#define AppVersion "2.2.58"
+#define AppVersion "2.2.59"
 #endif
 
 ; 压缩级别可通过命令行覆盖:iscc /DFastCompression 用 lzma2/fast(约省 2-3 分钟,包体略大);
